@@ -134,7 +134,7 @@ void CNinjaRope::think()
 		}
 		else
 		{
-			velocity().y += gusGame.NRPartType->gravity;
+			velocity().write().y += gusGame.NRPartType->gravity;
 			
 			if(curLen > m_length)
 			{
@@ -165,11 +165,6 @@ int CNinjaRope::getColour()
 		return gusGame.NRPartType->colour;
 	else
 		return 0;
-}
-
-CVec& CNinjaRope::getPosReference()
-{
-	return pos();
 }
 
 #ifndef DEDICATED_ONLY

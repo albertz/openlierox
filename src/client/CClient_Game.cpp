@@ -624,7 +624,7 @@ void CClient::ShootSpecial(CWorm *w)
 
 		// Jetpack
 		case SPC_JETPACK: {
-			w->velocity().y += -50.0f * ((float)Slot->Weapon->tSpecial.Thrust * (float)dt.seconds());
+			w->velocity().write().y += -50.0f * ((float)Slot->Weapon->tSpecial.Thrust * (float)dt.seconds());
 
 			Color blue = Color(80,150,200);
 			CVec s = CVec(15,0) * GetRandomNum();

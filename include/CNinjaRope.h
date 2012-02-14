@@ -106,7 +106,7 @@ public:
 	void		updateOldHookPos()		{ OldHookPos = getPos(); }
 
 	CVec&		hookVelocity()			{ return HookVelocity; }
-	CVec&		hookPos()				{ return pos(); }
+	vPos_Type&	hookPos()				{ return pos(); }
 	
 	bool		isPlayerAttached()		{ return PlayerAttached; }
 	CWorm*		getAttachedPlayer()		{ return Worm; }
@@ -144,7 +144,6 @@ public:
 	}
 	
 	int getColour();
-	CVec& getPosReference();
 	float& getLengthReference()
 	{
 		return m_length;

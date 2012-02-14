@@ -26,7 +26,8 @@ struct Line {
 	
 	Line() {}
 	Line(VectorD2<int> s, VectorD2<int> e) : start(s), end(e) {}
-	
+	Line(VectorD2<float> s, VectorD2<float> e) : start(s), end(e) {}
+
 	bool isRightFrom(int x, int y) const;
 	bool isParallel(int x, int y) const;
 	bool isBeforeStart(int x, int y) const;

@@ -29,7 +29,7 @@ void SimpleParticle::operator delete(void* block)
 
 void SimpleParticle::think()
 {
-	velocity().y += gravity;
+	velocity().write().y += gravity;
 	CVec nextPos = pos() + velocity();
 	if(!game.gameMap()->getMaterial(int(nextPos.x), int(nextPos.y)).particle_pass
 	|| --timeout == 0)

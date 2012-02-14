@@ -28,8 +28,8 @@ void DetectEvent::check( CGameObject* ownerObject )
 {
 	// TODO: Detect event
 	
-	int x = int(ownerObject->pos().x);
-	int y = int(ownerObject->pos().y);
+	int x = int(ownerObject->pos().get().x);
+	int y = int(ownerObject->pos().get().y);
 	int radius = int(m_range);
 	int x1 = x - radius;
 	int y1 = y - radius;

@@ -1187,7 +1187,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Later we should render the world layer by layer so this trouble will be gone
 		// The CMap::DrawObjectShadow function is slow and also logically incorrect - why should a map know about other
 		// objects?
-		cSkin.DrawShadowOnMap(game.gameMap(), v, bmpDest, (int)vPos.x, (int)vPos.y, f, iFaceDirectionSide == DIR_LEFT);
+		cSkin.DrawShadowOnMap(game.gameMap(), v, bmpDest, (int)vPos.get().x, (int)vPos.get().y, f, iFaceDirectionSide == DIR_LEFT);
 	}
 }
 
@@ -1196,8 +1196,8 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 // Quickly check if we are on the ground
 bool CWorm::CheckOnGround()
 {
-	int px = (int)vPos.x;
-	int py = (int)vPos.y;
+	int px = (int)vPos.get().x;
+	int py = (int)vPos.get().y;
 	bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
 
 	for(short y = 6; y > 0; y--) {

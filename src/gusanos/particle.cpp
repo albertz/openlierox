@@ -44,53 +44,53 @@ namespace
 
 class ParticleInterceptor : public Net_NodeReplicationInterceptor
 {
-	public:
-		enum type
-		{
-		    Position
+public:
+	enum type
+	{
+		Position
 	};
 
-		ParticleInterceptor( Particle* parent_ )
-				: parent(parent_)
-		{}
+	ParticleInterceptor( Particle* parent_ )
+	: parent(parent_)
+	{}
 
-		bool inPreUpdateItem(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator)
-		{
-			return true;
+	bool inPreUpdateItem(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator)
+	{
+		return true;
+	}
+
+	void outPreReplicateNode(Net_Node *_node, eNet_NodeRole _remote_role)
+	{
+		if(partTypeList.size() == 0) {
+			errors << "ParticleInterceptor:outPreReplicateNode for " << _node->debugName() << ": partTypeList is empty" << endl;
+			return;
+		}
+		BitStream *type = new BitStream;
+		Encoding::encode(*type, parent->m_type->getIndex(), partTypeList.size());
+		if(parent->m_owner)
+			type->addInt(parent->m_owner->getNodeID(), 32);
+		else
+			type->addInt(0, 32);
+		parent->m_node->setAnnounceData( type );
+	}
+
+	bool outPreUpdateItem(Net_Node* node, eNet_NodeRole remote_role, Net_Replicator* replicator)
+	{
+		switch ( replicator->getSetup()->getInterceptID() ) {
+				case Position:
+				if(!(parent->flags & Particle::RepPos)) {
+					return false;
+				}
+				break;
 		}
 
-		void outPreReplicateNode(Net_Node *_node, eNet_NodeRole _remote_role)
-		{
-			if(partTypeList.size() == 0) {
-				errors << "ParticleInterceptor:outPreReplicateNode for " << _node->debugName() << ": partTypeList is empty" << endl;
-				return;
-			}
-			BitStream *type = new BitStream;
-			Encoding::encode(*type, parent->m_type->getIndex(), partTypeList.size());
-			if(parent->m_owner)
-				type->addInt(parent->m_owner->getNodeID(), 32);
-			else
-				type->addInt(0, 32);
-			parent->m_node->setAnnounceData( type );
-		}
+		return true;
+	}
 
-		bool outPreUpdateItem(Net_Node* node, eNet_NodeRole remote_role, Net_Replicator* replicator)
-		{
-			switch ( replicator->getSetup()->getInterceptID() ) {
-					case Position:
-					if(!(parent->flags & Particle::RepPos)) {
-						return false;
-					}
-					break;
-			}
+	bool outPreUpdate (Net_Node* node, eNet_NodeRole remote_role) { return true; }
 
-			return true;
-		}
-
-		bool outPreUpdate (Net_Node* node, eNet_NodeRole remote_role) { return true; }
-
-	private:
-		Particle* parent;
+private:
+	Particle* parent;
 };
 
 LuaReference Particle::metaTable;
@@ -179,9 +179,9 @@ void Particle::assignNetworkRole( bool authority )
 
 	m_node->beginReplicationSetup();
 
-	static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL, ParticleInterceptor::Position, -1, 1000);
+	//static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL, ParticleInterceptor::Position, -1, 1000);
 
-	m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity() ), true);
+	//m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity() ), true);
 
 	m_node->endReplicationSetup();
 
@@ -301,7 +301,7 @@ void Particle::think()
 				break;
 		}
 
-		velocity().y += m_type->gravity;
+		velocity().write().y += m_type->gravity;
 
 		if ( m_type->acceleration ) {
 			Vec dir(m_angle);
@@ -341,14 +341,18 @@ void Particle::think()
 		}
 
 		bool collision = false;
-		if ( !game.gameMap()->getMaterial( roundAny(pos().x + velocity().x), roundAny(pos().y) ).particle_pass) {
-			velocity().x *= -m_type->bounceFactor; // TODO: Precompute the negative of this
-			velocity().y *= m_type->groundFriction;
+		if ( !game.gameMap()->getMaterial( roundAny(pos().get().x + velocity().get().x), roundAny(pos().get().y) ).particle_pass) {
+			velocity().write().multPairwiseInplace(
+						-m_type->bounceFactor, // TODO: Precompute the negative of this
+						m_type->groundFriction
+						);
 			collision = true;
 		}
-		if ( !game.gameMap()->getMaterial( roundAny(pos().x), roundAny(pos().y + velocity().y) ).particle_pass) {
-			velocity().y *= -m_type->bounceFactor; // TODO: Precompute the negative of this
-			velocity().x *= m_type->groundFriction;
+		if ( !game.gameMap()->getMaterial( roundAny(pos().get().x), roundAny(pos().get().y + velocity().get().y) ).particle_pass) {
+			velocity().write().multPairwiseInplace(
+						m_type->groundFriction,
+						-m_type->bounceFactor // TODO: Precompute the negative of this
+						);
 			collision = true;
 		}
 		if( collision ) {

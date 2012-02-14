@@ -128,7 +128,7 @@ public:
 				// Left side clipping
 				if(!wrapAround && (pos.x+x <= 2)) {
 					clip |= 0x01;
-					worm->pos().x=( 5 );
+					worm->pos().write().x = 5;
 					coll = true;
 					if(fabs(vel->x) > 40)
 						vel->x *=  -0.4f;
@@ -139,7 +139,7 @@ public:
 
 				// Right side clipping
 				if(!wrapAround && (pos.x+x >= game.gameMap()->GetWidth())) {
-					worm->pos().x=( (float)game.gameMap()->GetWidth() - 5 );
+					worm->pos().write().x = (float)game.gameMap()->GetWidth() - 5;
 					coll = true;
 					clip |= 0x02;
 					if(fabs(vel->x) > 40)
@@ -157,11 +157,11 @@ public:
 					// This has some *huge* effect. People reported it as high ceil friction.
 					if(x<0) {
 						clip |= 0x01;
-						worm->pos().x = pos.x + x + 4;
+						worm->pos().write().x = pos.x + x + 4;
 					}
 					else {
 						clip |= 0x02;
-						worm->pos().x = pos.x + x - 4;
+						worm->pos().write().x = pos.x + x - 4;
 					}
 
 					// Bounce
@@ -189,7 +189,7 @@ public:
 
 				// Top side clipping
 				if(!wrapAround && (pos.y+y <= 1)) {
-					worm->pos().y=( 6 );
+					worm->pos().write().y = 6;
 					coll = true;
 					clip |= 0x04;
 					if(fabs(vel->y) > 40)
@@ -203,7 +203,7 @@ public:
 
 				// Bottom side clipping
 				if(!wrapAround && (pos.y+y >= game.gameMap()->GetHeight())) {
-					worm->pos().y=( (float)game.gameMap()->GetHeight() - 5 );
+					worm->pos().write().y = (float)game.gameMap()->GetHeight() - 5;
 					clip |= 0x08;
 					coll = true;
 					worm->setOnGround( true );
@@ -232,11 +232,11 @@ public:
 					// This has some *huge* effect. People reported it as high ceil friction.
 					if(y<0) {
 						clip |= 0x04;
-						worm->pos().y = pos.y + y + 5;
+						worm->pos().write().y = pos.y + y + 5;
 					}
 					else {
 						clip |= 0x08;
-						worm->pos().y = pos.y + y - 5;
+						worm->pos().write().y = pos.y + y - 5;
 					}
 				}
 			}
@@ -249,13 +249,13 @@ public:
 		
 		// If we are stuck in left & right or top & bottom, just don't move in that direction
 		if ((clip & 0x01) && (clip & 0x02))
-			worm->pos().x = vOldPos.x;
+			worm->pos().write().x = vOldPos.x;
 
 		// HINT: when stucked horizontal we move slower - it's more like original LX
 		if ((clip & 0x04) && (clip & 0x08))  {
-			worm->pos().y = vOldPos.y;
+			worm->pos().write().y = vOldPos.y;
 			if (!worm->getWormState()->bJump)  // HINT: this is almost exact as old LX
-				worm->pos().x = vOldPos.x;
+				worm->pos().write().x = vOldPos.x;
 		}
 
 		// If we collided with the ground and we were going pretty fast, make a bump sound
@@ -367,12 +367,12 @@ public:
 
 				if(worm->getMoveDirectionSide() == DIR_RIGHT) {
 					// Right
-					if(worm->velocity().x < maxspeed)
-						worm->velocity().x += speed * dt * 90.0f;
+					if(worm->velocity().get().x < maxspeed)
+						worm->velocity().write().x += speed * dt * 90.0f;
 				} else {
 					// Left
-					if(worm->velocity().x > -maxspeed)
-						worm->velocity().x -= speed * dt * 90.0f;
+					if(worm->velocity().get().x > -maxspeed)
+						worm->velocity().write().x -= speed * dt * 90.0f;
 				}				
 			}
 
@@ -390,15 +390,15 @@ public:
 						worm->getLastAirJumpTime() + float( cClient->getGameLobby()[FT_RelativeAirJumpDelay] ) ) )) 
 				{
 					if( onGround )
-						worm->velocity().y = jumpForce;
+						worm->velocity().write().y = jumpForce;
 					else {
 						// GFX effect, as in TeeWorlds (we'll change velocity after that)
 						SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), Color(), NULL );
 						SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), Color(), NULL );
 						SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), Color(), NULL );
 
-						if( !(bool)cClient->getGameLobby()[FT_JumpToAimDir] && worm->canAirJump() && worm->velocity().y > jumpForce ) // Negative Y coord = moving up
-							worm->velocity().y = jumpForce; // Absolute velocity - instant air jump
+						if( !(bool)cClient->getGameLobby()[FT_JumpToAimDir] && worm->canAirJump() && worm->velocity().get().y > jumpForce ) // Negative Y coord = moving up
+							worm->velocity().write().y = jumpForce; // Absolute velocity - instant air jump
 						else {
 							CVec dir = (bool)cClient->getGameLobby()[FT_JumpToAimDir] ? -worm->getFaceDirection() : CVec(0.0f,1.0f);
 							worm->velocity() += dir * jumpForce; // Relative velocity - relative air jump
@@ -415,13 +415,13 @@ public:
 				const float Drag = cClient->getGameLobby()[FT_WormAirFriction];
 
 				if(!worm->isOnGround())	{
-					worm->velocity().x -= SQR(worm->velocity().x) * SIGN(worm->velocity().x) * Drag * dt;
-					worm->velocity().y += -SQR(worm->velocity().y) * SIGN(worm->velocity().y) * Drag * dt;
+					worm->velocity().write().x -= SQR(worm->velocity().get().x) * SIGN(worm->velocity().get().x) * Drag * dt;
+					worm->velocity().write().y += -SQR(worm->velocity().get().y) * SIGN(worm->velocity().get().y) * Drag * dt;
 				}
 			}
 					
 			// Gravity
-			worm->velocity().y += (float)cClient->getGameLobby()[FT_WormGravity] * dt;
+			worm->velocity().write().y += (float)cClient->getGameLobby()[FT_WormGravity] * dt;
 
 			{
 				const float friction = cClient->getGameLobby()[FT_WormFriction];
@@ -429,22 +429,22 @@ public:
 					static const float wormSize = 5.0f;
 					static const float wormMass = (wormSize/2) * (wormSize/2) * (float)PI;
 					static const float wormDragCoeff = 0.1f; // Note: Never ever change this! (Or we have to make this configureable)
-					applyFriction(worm->velocity(), dt, wormSize, wormMass, wormDragCoeff, friction);
+					applyFriction(worm->velocity().write(), dt, wormSize, wormMass, wormDragCoeff, friction);
 				}
 			}
 			
 
 			// Check collisions and move
-			moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), &worm->velocity(), worm->getPos(), jumped );
+			moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), &worm->velocity().write(), worm->getPos(), jumped );
 
 
 			// Ultimate in friction
 			if(worm->isOnGround()) {
-				worm->velocity().x *= 1.0f - float(cClient->getGameLobby()[FT_WormGroundFriction]);
+				worm->velocity().write().x *= 1.0f - float(cClient->getGameLobby()[FT_WormGroundFriction]);
 
 				// Too slow, just stop
-				if(fabs(worm->velocity().x) < (float)cClient->getGameLobby()[FT_WormGroundStopSpeed] && !ws->bMove)
-					worm->velocity().x = 0;
+				if(fabs(worm->velocity().get().x) < (float)cClient->getGameLobby()[FT_WormGroundStopSpeed] && !ws->bMove)
+					worm->velocity().write().x = 0;
 			}
 		}
 		
@@ -592,18 +592,18 @@ public:
 		// Hack to see if the hook went out of the game.gameMap()
 		if(!rope->isPlayerAttached() && !wrapAround)
 			if(
-				rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
-				rope->hookPos().x >= game.gameMap()->GetWidth()-1 ||
-				rope->hookPos().y >= game.gameMap()->GetHeight()-1) {
+				rope->hookPos().get().x <= 0 || rope->hookPos().get().y <= 0 ||
+				rope->hookPos().get().x >= game.gameMap()->GetWidth()-1 ||
+				rope->hookPos().get().y >= game.gameMap()->GetHeight()-1) {
 			rope->setShooting( false );
 			rope->setAttached( true );
 
 			// Make the hook stay at an edge
-			rope->hookPos().x = ( MAX((float)0, rope->hookPos().x) );
-			rope->hookPos().y = ( MAX((float)0, rope->hookPos().y) );
+			rope->hookPos().write().x = ( MAX((float)0, rope->hookPos().get().x) );
+			rope->hookPos().write().y = ( MAX((float)0, rope->hookPos().get().y) );
 
-			rope->hookPos().x = ( MIN(game.gameMap()->GetWidth()-(float)1, rope->hookPos().x) );
-			rope->hookPos().y = ( MIN(game.gameMap()->GetHeight()-(float)1, rope->hookPos().y) );
+			rope->hookPos().write().x = ( MIN(game.gameMap()->GetWidth()-(float)1, rope->hookPos().get().x) );
+			rope->hookPos().write().y = ( MIN(game.gameMap()->GetHeight()-(float)1, rope->hookPos().get().y) );
 
 			outsideMap = true;
 		}
@@ -613,7 +613,7 @@ public:
 		if(!rope->isPlayerAttached()) {
 			rope->setAttached( false );
 
-			VectorD2<long> wrappedHookPos = rope->hookPos();
+			VectorD2<long> wrappedHookPos = rope->hookPos().get();
 			MOD(wrappedHookPos.x, (long)game.gameMap()->GetWidth());
 			MOD(wrappedHookPos.y, (long)game.gameMap()->GetHeight());
 			

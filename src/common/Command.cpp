@@ -2154,8 +2154,8 @@ void Cmd_getWormPos::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 COMMAND(getWormVelocity, "get worm velocity", "id", 1, 1);
 void Cmd_getWormVelocity::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
-	caller->pushReturnArg(ftoa(w->velocity().x));
-	caller->pushReturnArg(ftoa(w->velocity().y));
+	caller->pushReturnArg(ftoa(w->velocity().get().x));
+	caller->pushReturnArg(ftoa(w->velocity().get().y));
 }
 
 COMMAND(getWormHealth, "get worm health", "id", 1, 1);

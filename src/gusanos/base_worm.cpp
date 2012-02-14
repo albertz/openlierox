@@ -197,7 +197,7 @@ void CWorm::calculateAllReactionForces(VectorD2<float>& nextPos, VectorD2<long>&
 
 	if(reacts[Down] < 2 && reacts[Up] > 0
 	        && (reacts[Left] > 0 || reacts[Right] > 0)) {
-		pos().y -= correctionSpeed;
+		pos().write().y -= correctionSpeed;
 		// Update next position as well
 		nextPos.y -= correctionSpeed;
 		inextPos.y = static_cast<long>(nextPos.y);
@@ -213,7 +213,7 @@ void CWorm::calculateAllReactionForces(VectorD2<float>& nextPos, VectorD2<long>&
 	if(reacts[Up] < 2 && reacts[Down] > 0
 	        && (reacts[Left] > 0 || reacts[Right] > 0)) {
 		// Move one pixel per second
-		pos().y += correctionSpeed;
+		pos().write().y += correctionSpeed;
 		// Update next position as well
 		nextPos.y += correctionSpeed;
 		inextPos.y = static_cast<long>(nextPos.y);
@@ -239,65 +239,65 @@ void CWorm::processPhysics()
 {
 	if(reacts[Up] > 0) {
 		// Friction
-		velocity().x *= gusGame.options.worm_friction;
+		velocity().write().x *= gusGame.options.worm_friction;
 	}
 
 	velocity() *= gusGame.options.worm_airFriction;
 
-	if(velocity().x > 0.f) {
+	if(velocity().get().x > 0.f) {
 		if(reacts[Left] > 0) {
-			if(velocity().x > gusGame.options.worm_bounceLimit) {
+			if(velocity().get().x > gusGame.options.worm_bounceLimit) {
 				// TODO: Play bump sound
-				velocity().x *= -gusGame.options.worm_bounceQuotient;
+				velocity().write().x *= -gusGame.options.worm_bounceQuotient;
 			} else
-				velocity().x = 0.f;
+				velocity().write().x = 0.f;
 		}
-	} else if(velocity().x < 0.f) {
+	} else if(velocity().get().x < 0.f) {
 		if(reacts[Right] > 0) {
-			if(velocity().x < -gusGame.options.worm_bounceLimit) {
+			if(velocity().get().x < -gusGame.options.worm_bounceLimit) {
 				// TODO: Play bump sound
-				velocity().x *= -gusGame.options.worm_bounceQuotient;
+				velocity().write().x *= -gusGame.options.worm_bounceQuotient;
 			} else
-				velocity().x = 0.f;
+				velocity().write().x = 0.f;
 		}
 	}
 
-	if(velocity().y > 0.f) {
+	if(velocity().get().y > 0.f) {
 		if(reacts[Up] > 0) {
-			if(velocity().y > gusGame.options.worm_bounceLimit) {
+			if(velocity().get().y > gusGame.options.worm_bounceLimit) {
 				// TODO: Play bump sound
-				velocity().y *= -gusGame.options.worm_bounceQuotient;
+				velocity().write().y *= -gusGame.options.worm_bounceQuotient;
 			} else
-				velocity().y = 0.f;
+				velocity().write().y = 0.f;
 		}
-	} else if(velocity().y < 0.f) {
+	} else if(velocity().get().y < 0.f) {
 		if(reacts[Down] > 0) {
-			if(velocity().y < -gusGame.options.worm_bounceLimit) {
+			if(velocity().get().y < -gusGame.options.worm_bounceLimit) {
 				// TODO: Play bump sound
-				velocity().y *= -gusGame.options.worm_bounceQuotient;
+				velocity().write().y *= -gusGame.options.worm_bounceQuotient;
 			} else
-				velocity().y = 0.f;
+				velocity().write().y = 0.f;
 		}
 	}
 
 	if(reacts[Up] == 0) {
-		velocity().y += gusGame.options.worm_gravity;
+		velocity().write().y += gusGame.options.worm_gravity;
 	}
 
-	if(velocity().x >= 0.f) {
+	if(velocity().get().x >= 0.f) {
 		if(reacts[Left] < 2)
-			pos().x += velocity().x;
+			pos().write().x += velocity().get().x;
 	} else {
 		if(reacts[Right] < 2)
-			pos().x += velocity().x;
+			pos().write().x += velocity().get().x;
 	}
 
-	if(velocity().y >= 0.f) {
+	if(velocity().get().y >= 0.f) {
 		if(reacts[Up] < 2)
-			pos().y += velocity().y;
+			pos().write().y += velocity().get().y;
 	} else {
 		if(reacts[Down] < 2)
-			pos().y += velocity().y;
+			pos().write().y += velocity().get().y;
 	}
 }
 
@@ -307,7 +307,7 @@ void CWorm::processJumpingAndNinjaropeControls()
 	if(jumping && reacts[Up]) {
 		//Jump
 
-		velocity().y -= gusGame.options.worm_jumpForce;
+		velocity().write().y -= gusGame.options.worm_jumpForce;
 		jumping = false;
 	}
 }
@@ -322,8 +322,8 @@ void CWorm::processMoveAndDig(void)
 		acc *= gusGame.options.worm_airAccelerationFactor;
 	if(movingLeft && !movingRight) {
 		//TODO: Air acceleration
-		if(velocity().x > -gusGame.options.worm_maxSpeed) {
-			velocity().x -= acc;
+		if(velocity().get().x > -gusGame.options.worm_maxSpeed) {
+			velocity().write().x -= acc;
 		}
 
 		if(m_dir > 0) {
@@ -334,8 +334,8 @@ void CWorm::processMoveAndDig(void)
 		animate = true;
 	} else if(movingRight && !movingLeft) {
 		//TODO: Air acceleration
-		if(velocity().x < gusGame.options.worm_maxSpeed) {
-			velocity().x += acc;
+		if(velocity().get().x < gusGame.options.worm_maxSpeed) {
+			velocity().write().x += acc;
 		}
 
 		if(m_dir < 0) {
@@ -472,37 +472,37 @@ bool CWorm::isCollidingWith( Vec const& point, float radius )
 	if ( !getAlive() )
 		return false;
 
-	float top = pos().y - gusGame.options.worm_boxTop;
+	float top = pos().get().y - gusGame.options.worm_boxTop;
 	if(point.y < top) {
-		float left = pos().x - gusGame.options.worm_boxRadius;
+		float left = pos().get().x - gusGame.options.worm_boxRadius;
 		if(point.x < left)
 			return (point - Vec(left, top)).lengthSqr() < radius*radius;
 
-		float right = pos().x + gusGame.options.worm_boxRadius;
+		float right = pos().get().x + gusGame.options.worm_boxRadius;
 		if(point.x > right)
 			return (point - Vec(right, top)).lengthSqr() < radius*radius;
 
 		return top - point.y < radius;
 	}
 
-	float bottom = pos().y + gusGame.options.worm_boxBottom;
+	float bottom = pos().get().y + gusGame.options.worm_boxBottom;
 	if(point.y > bottom) {
-		float left = pos().x - gusGame.options.worm_boxRadius;
+		float left = pos().get().x - gusGame.options.worm_boxRadius;
 		if(point.x < left)
 			return (point - Vec(left, bottom)).lengthSqr() < radius*radius;
 
-		float right = pos().x + gusGame.options.worm_boxRadius;
+		float right = pos().get().x + gusGame.options.worm_boxRadius;
 		if(point.x > right)
 			return (point - Vec(right, bottom)).lengthSqr() < radius*radius;
 
 		return point.y - bottom < radius;
 	}
 
-	float left = pos().x - gusGame.options.worm_boxRadius;
+	float left = pos().get().x - gusGame.options.worm_boxRadius;
 	if(point.x < left)
 		return left - point.x < radius;
 
-	float right = pos().x + gusGame.options.worm_boxRadius;
+	float right = pos().get().x + gusGame.options.worm_boxRadius;
 	if(point.x > right)
 		return point.x - right < radius;
 

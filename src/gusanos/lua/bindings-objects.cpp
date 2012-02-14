@@ -290,8 +290,8 @@ METHODC(CGameObject, baseObject_remove,  {
 */
 
 METHODC(CGameObject, baseObject_pos,  {
-	context.push(p->pos().x);
-	context.push(p->pos().y);
+	context.push(p->pos().get().x);
+	context.push(p->pos().get().y);
 	return 2;
 })
 
@@ -317,8 +317,8 @@ METHODC(CGameObject, baseObject_setPos,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_spd,  {
-	context.push(p->velocity().x);
-	context.push(p->velocity().y);
+	context.push(p->velocity().get().x);
+	context.push(p->velocity().get().y);
 	return 2;
 })
 
@@ -333,8 +333,8 @@ METHODC(CGameObject, baseObject_spd,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_setSpd,  {
-	p->velocity().x = (float)lua_tonumber(context, 2);
-	p->velocity().y = (float)lua_tonumber(context, 3); 
+	p->velocity().write().x = (float)lua_tonumber(context, 2);
+	p->velocity().write().y = (float)lua_tonumber(context, 3);
 	return 0;
 })
 
@@ -349,8 +349,8 @@ METHODC(CGameObject, baseObject_setSpd,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_push,  {
-	p->velocity().x += (float)lua_tonumber(context, 2);
-	p->velocity().y += (float)lua_tonumber(context, 3);
+	p->velocity().write().x += (float)lua_tonumber(context, 2);
+	p->velocity().write().y += (float)lua_tonumber(context, 3);
 	return 0;
 })
 
@@ -444,7 +444,7 @@ METHODC(CGameObject, baseObject_getClosestWorm,  {
 			//if(worm->isActive())
 			{
 				float distSqr = (Vec(worm->pos()) - from).lengthSqr();
-				if(distSqr < minDistSqr && !game.gameMap()->trace(fromx, fromy, int(worm->pos().x), int(worm->pos().y), CMap::ParticleBlockPredicate()))
+				if(distSqr < minDistSqr && !game.gameMap()->trace(fromx, fromy, int(worm->pos().get().x), int(worm->pos().get().y), CMap::ParticleBlockPredicate()))
 				{
 					minDistSqr = distSqr;
 					minWorm = worm;

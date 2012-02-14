@@ -144,8 +144,8 @@ INLINE ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& 
 				}
 
 				if(cClient->getGameLobby()[FT_InfiniteMap]) {
-					FMOD(proj->vPos.x, (float)map->GetWidth());
-					FMOD(proj->vPos.y, (float)map->GetHeight());		
+					FMOD(proj->vPos.write().x, (float)map->GetWidth());
+					FMOD(proj->vPos.write().y, (float)map->GetHeight());
 					FMOD(proj->vOldPos.x, (float)map->GetWidth());
 					FMOD(proj->vOldPos.y, (float)map->GetWidth());		
 				}
@@ -156,8 +156,8 @@ INLINE ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& 
 	}
 	
 	if(cClient->getGameLobby()[FT_InfiniteMap]) {
-		FMOD(proj->vPos.x, (float)map->GetWidth());
-		FMOD(proj->vPos.y, (float)map->GetHeight());		
+		FMOD(proj->vPos.write().x, (float)map->GetWidth());
+		FMOD(proj->vPos.write().y, (float)map->GetHeight());
 		FMOD(proj->vOldPos.x, (float)map->GetWidth());
 		FMOD(proj->vOldPos.y, (float)map->GetHeight());		
 	}
@@ -310,43 +310,43 @@ bool CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 		return true;
 	}
 	
-	int vx = (int)vVelocity.x;
-	int vy = (int)vVelocity.y;
+	int vx = (int)vVelocity.get().x;
+	int vy = (int)vVelocity.get().y;
 	
 	// Find the collision side
 	if ((c.left > c.right || c.left > 2) && c.left > 1 && vx <= 0) {
 		if(bounce)
-			vPos.x = oldpos.x;
+			vPos.write().x = oldpos.x;
 		if (vx)
 			CollisionSide |= COL_LEFT;
 	}
 	
 	if ((c.right > c.left || c.right > 2) && c.right > 1 && vx >= 0) {
 		if(bounce)
-			vPos.x = oldpos.x;
+			vPos.write().x = oldpos.x;
 		if (vx)
 			CollisionSide |= COL_RIGHT;
 	}
 	
 	if (c.top > 1 && vy <= 0) {
 		if(bounce)
-			vPos.y = oldpos.y;
+			vPos.write().y = oldpos.y;
 		if (vy)
 			CollisionSide |= COL_TOP;
 	}
 	
 	if (c.bottom > 1 && vy >= 0) {
 		if(bounce)
-			vPos.y = oldpos.y;
+			vPos.write().y = oldpos.y;
 		if (vy)
 			CollisionSide |= COL_BOTTOM;
 	}
 	
 	// If the velocity is too low, just stop me
 	if (abs(vx) < 2)
-		vVelocity.x = 0;
+		vVelocity.write().x = 0;
 	if (abs(vy) < 2)
-		vVelocity.y = 0;
+		vVelocity.write().y = 0;
 	
 	return true;
 }
@@ -365,7 +365,7 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	float fGravity = 100.0f; // Default
 	if (prj->getProjInfo()->UseCustomGravity)
 		fGravity = (float)prj->getProjInfo()->Gravity;
-	prj->vVelocity.y += (float)cClient->getGameLobby()[FT_ProjGravityFactor] * fGravity * dt.seconds();
+	prj->vVelocity.write().y += (float)cClient->getGameLobby()[FT_ProjGravityFactor] * fGravity * dt.seconds();
 
 	{
 		const float friction = cClient->getGameLobby()[FT_ProjFriction];
@@ -374,7 +374,7 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 			const float projMass = prj->getRadius().GetLength();
 			// A bit lower drag coefficient as for worms because normally, projectiles have better shape for less dragging.
 			static const float projDragCoeff = 0.02f; // Note: Never ever change this! (Or we have to make this configureable)
-			applyFriction(prj->vVelocity, dt.seconds(), projSize, projMass, projDragCoeff, friction);
+			applyFriction(prj->vVelocity.write(), dt.seconds(), projSize, projMass, projDragCoeff, friction);
 		}
 	}
 	
@@ -392,8 +392,8 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, dt, ProjCollisionType::NoCol());
 	}
 	
-	int px = (int)(prj->vPos.x);
-	int py = (int)(prj->vPos.y);
+	int px = (int)(prj->vPos.get().x);
+	int py = (int)(prj->vPos.get().y);
 	
 	// Hit edges
 	if (prj->MapBoundsCollision(px, py))  {
@@ -428,7 +428,7 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 INLINE ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, TimeDiff dt, CMap *map) {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
 	if (prj->bChangesSpeed)  {
-		const int len = (int)prj->vVelocity.GetLength2();
+		const int len = (int)prj->vVelocity.get().GetLength2();
 		if (abs(len - prj->iCheckSpeedLen) > 50000)
 			prj->CalculateCheckSteps();
 	}
@@ -456,7 +456,7 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 
 	TimeDiff cstep;
 	{
-		float checkstep = prj->vVelocity.GetLength2(); // |v|^2
+		float checkstep = prj->vVelocity.get().GetLength2(); // |v|^2
 		
 		if((int)(checkstep * dt.seconds() * dt.seconds()) <= prj->MAX_CHECKSTEP2) // |dp|^2=|v*dt|^2
 			return LX56Projectile_checkCollAndMove_Frame(prj, dt, map);

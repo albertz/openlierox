@@ -133,7 +133,7 @@ void CProjectile::CalculateCheckSteps()
 	MAX_CHECKSTEP = 6;
 	AVG_CHECKSTEP = 4;
 
-	iCheckSpeedLen = (int)vVelocity.GetLength2();
+	iCheckSpeedLen = (int)vVelocity.get().GetLength2();
 	if (iCheckSpeedLen < 14000)  {
 		MIN_CHECKSTEP = 0;
 		MAX_CHECKSTEP = 3;
@@ -227,7 +227,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
 	CMap* map = game.gameMap();
-	VectorD2<int> p = view->physicToReal(vPos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	VectorD2<int> p = view->physicToReal(vPos.get(), cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
     switch (tProjInfo->Type) {
 		case PRJ_PIXEL:
@@ -288,7 +288,7 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 				}
 				
 				// Spinning projectile only when moving
-				else if(tProjInfo->RotIncrement != 0 && tProjInfo->Rotating && (vVelocity.x != 0 || vVelocity.y != 0))
+				else if(tProjInfo->RotIncrement != 0 && tProjInfo->Rotating && (vVelocity.get().x != 0 || vVelocity.get().y != 0))
 					framestep = fRotation / (float)tProjInfo->RotIncrement;
 				
 			}
@@ -312,7 +312,7 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 			return;
 			
 		case PRJ_POLYGON:
-			getProjInfo()->polygon.drawFilled(bmpDest, (int)vPos.x, (int)vPos.y, view, iColour);
+			getProjInfo()->polygon.drawFilled(bmpDest, (int)vPos.get().x, (int)vPos.get().y, view, iColour);
 			return;
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;
@@ -330,14 +330,14 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 	CMap* map = game.gameMap();
 
 	// TODO: DrawObjectShadow is a bit complicated to fix for shadows&tiling, so I just leave all shadows away for now...
-	if(!view->physicsInside(vPos /*, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight() */))
+	if(!view->physicsInside(vPos.get() /*, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight() */))
 		return;
 	   
 	switch (tProjInfo->Type)  {
 	
 		// Pixel
 		case PRJ_PIXEL:
-			map->DrawPixelShadow(bmpDest, view, (int)vPos.x, (int)vPos.y);
+			map->DrawPixelShadow(bmpDest, view, (int)vPos.get().x, (int)vPos.get().y);
 			break;
 	
 		// Image
@@ -352,7 +352,7 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 
 			int size = tProjInfo->bmpImage->h;
 			int half = size / 2;
-			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, tProjInfo->bmpShadow.get(), iFrameX, 0, size,size, view, (int)vPos.x-(half>>1), (int)vPos.y-(half>>1));
+			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, tProjInfo->bmpShadow.get(), iFrameX, 0, size,size, view, (int)vPos.get().x-(half>>1), (int)vPos.get().y-(half>>1));
 		
 			break;	
 		}
@@ -425,8 +425,7 @@ void CProjectile::Bounce(float fCoeff)
 	}
 
 
-	vVelocity.x *= x;
-	vVelocity.y *= y;
+	vVelocity.write().multPairwiseInplace(x, y);
 }
 
 
@@ -464,10 +463,10 @@ void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<
 	
 	if(oldPos && oldRadius) {
 		if(
-		   (MPI<true,true>(*oldPos,*oldRadius) == MPI<true,true>(vPos,radius)) &&
-		   (MPI<true,false>(*oldPos,*oldRadius) == MPI<true,false>(vPos,radius)) &&
-		   (MPI<false,true>(*oldPos,*oldRadius) == MPI<false,true>(vPos,radius)) &&
-		   (MPI<false,false>(*oldPos,*oldRadius) == MPI<false,false>(vPos,radius))) {
+		(MPI<true,true>(*oldPos,*oldRadius) == MPI<true,true>(vPos.get(),radius)) &&
+		(MPI<true,false>(*oldPos,*oldRadius) == MPI<true,false>(vPos.get(),radius)) &&
+		(MPI<false,true>(*oldPos,*oldRadius) == MPI<false,true>(vPos.get(),radius)) &&
+		(MPI<false,false>(*oldPos,*oldRadius) == MPI<false,false>(vPos.get(),radius))) {
 			return; // nothing has changed
 		}
 		
@@ -476,5 +475,5 @@ void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<
 	}
 	
 	// add to all
-	updateMap<true>(this, vPos, radius);
+	updateMap<true>(this, vPos.get(), radius);
 }

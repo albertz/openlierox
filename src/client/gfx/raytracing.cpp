@@ -39,8 +39,8 @@ struct ObjectMap {
 			memset(objects[0], 0, objects.size() * sizeof(void*));
 		
 		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
-			const int y = (int)i->get()->pos().y - i->get()->size().y / 2;
-			const int x = (int)i->get()->pos().x - i->get()->size().x / 2;
+			const int y = (int)i->get()->pos().get().y - i->get()->size().y / 2;
+			const int x = (int)i->get()->pos().get().x - i->get()->size().x / 2;
 			for(int dy = 0; dy < i->get()->size().y; ++dy)
 				for(int dx = 0; dx < i->get()->size().x; ++dx)
 					set(x + dx, y + dy, i->get());
@@ -116,8 +116,8 @@ static GamePixelInfo infoForObject(CGameObject* object, int x, int y) {
 	GamePixelInfo info;
 	info.type = GamePixelInfo::GPI_Object;
 	info.object.obj = &*object;
-	info.object.relX = x - (int)object->pos().x;
-	info.object.relY = y - (int)object->pos().y;
+	info.object.relX = x - (int)object->pos().get().x;
+	info.object.relY = y - (int)object->pos().get().y;
 	
 	info.color = info.object.obj->renderColorAt(info.object.relX, info.object.relY);
 	if(info.color.a != SDL_ALPHA_OPAQUE)

@@ -144,6 +144,11 @@ struct VectorD2 {
 		*this = *this / scalar;
 		return *this;
 	}
+	VectorD2& multPairwiseInplace(_T _x, _T _y) {
+		x *= _x;
+		y *= _y;
+		return *this;
+	}
 
 
 	template<typename _T2>

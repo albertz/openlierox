@@ -56,8 +56,8 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 {
 	short x, y;
 
-	x = (short)vPos.x;
-	y = (short)vPos.y;
+	x = (short)vPos.get().x;
+	y = (short)vPos.get().y;
 
 	// Note: This method of saving 1 byte in position, limits the map size to just under 4096x4096
 
@@ -154,7 +154,7 @@ bool CWorm::checkPacketNeeded()
 	if (vPosDif.GetLength2())
 		return true;
 
-	if (vVelocity.GetLength2())
+	if (vVelocity.get().GetLength2())
 		return true;
 
 	// Rope

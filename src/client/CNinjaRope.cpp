@@ -119,8 +119,8 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
 
-	int hx = (int)pos().x;
-	int hy = (int)pos().y;
+	int hx = (int)pos().get().x;
+	int hy = (int)pos().get().y;
 
 	// HINT: the hooked worm position could change since the Simulate procedure was called,
 	// because the worms are being processed in a "random" order -> we simulate and then the hook worm
@@ -166,8 +166,8 @@ bool CNinjaRope::isInside(int x, int y) {
 }
 
 Color CNinjaRope::renderColorAt(/* relative coordinates */ int x, int y) {
-	x += (int)pos().x;
-	y += (int)pos().y;
+	x += (int)pos().get().x;
+	y += (int)pos().get().y;
 	if(isInside(x, y)) return Color(159,79,0);
 	return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
 }
@@ -261,8 +261,8 @@ void CNinjaRope::write(CBytestream *bs)
 	bs->writeByte( type );
 
 	// Position
-	short x = (short)pos().x;
-	short y = (short)pos().y;
+	short x = (short)pos().get().x;
+	short y = (short)pos().get().y;
 
 	// Write out position of the hook
 	bs->write2Int12( x, y );

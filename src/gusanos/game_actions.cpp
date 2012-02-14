@@ -808,7 +808,7 @@ ApplyMapEffect::ApplyMapEffect( vector<OmfgScript::TokenBase*> const& params )
 void ApplyMapEffect::run( ActionParams const& params )
 {
 	if ( effect )
-		gusGame.applyLevelEffect(effect, (int)params.object->pos().x, (int)params.object->pos().y);
+		gusGame.applyLevelEffect(effect, (int)params.object->pos().get().x, (int)params.object->pos().get().y);
 }
 
 ApplyMapEffect::~ApplyMapEffect()

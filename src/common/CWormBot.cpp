@@ -1748,7 +1748,7 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
     float fDist = 0;
     int type = 0;
     m_worm->traceLine(cPosTarget, &fDist, &type, 1);
-    if(fDist < 0.75f || cPosTarget.y < m_worm->vPos.y) {
+	if(fDist < 0.75f || cPosTarget.y < m_worm->vPos.get().y) {
 
         // Change direction
 		if (bHaveTarget && (tLX->currentTime-fLastFace) > 1.0)  {
@@ -1873,7 +1873,7 @@ bool CWormBotInputHandler::weaponCanHit(float gravity, float speed, CVec cTrgPos
 	// Get the parabolic trajectory
 	// TODO: this calculation is wrong in some cases, someone who knows how to work with fAngle please fix it
 	float alpha = DEG2RAD(m_worm->fAngle);
-	if (cTrgPos.y > m_worm->vPos.y)
+	if (cTrgPos.y > m_worm->vPos.get().y)
 		alpha = -alpha;
 	Parabola p(m_worm->vPos, alpha, cTrgPos);
 	if (p.a > 0.1f)
@@ -2168,8 +2168,8 @@ bool CWormBotInputHandler::AI_Shoot()
 				}
 
 				// Distance
-				float x = (cTrgPos.x-m_worm->vPos.x);
-				float y = (m_worm->vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
+				float x = (cTrgPos.x-m_worm->vPos.get().x);
+				float y = (m_worm->vPos.get().y-cTrgPos.y); // no PC-koord but real-world-koords
 
 
 
@@ -2179,7 +2179,7 @@ bool CWormBotInputHandler::AI_Shoot()
 				if(apriori_time < 0) {
 					// target is faster than the projectile
 					// shoot somewhere in the other direction
-					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.GetLength() << ", trg abs speed: " << w->getVelocity().GetLength() << ", proj speed: " << (float)weap->Proj.Speed*weap->Proj.Proj->Dampening << "+" << (weap->Proj.SpeedVar*100.0f) << endl;
+					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.get().GetLength() << ", trg abs speed: " << w->getVelocity().GetLength() << ", proj speed: " << (float)weap->Proj.Speed*weap->Proj.Proj->Dampening << "+" << (weap->Proj.SpeedVar*100.0f) << endl;
 
 				} else { // apriori_time >= 0
 					// where the target would be
@@ -2260,7 +2260,7 @@ bool CWormBotInputHandler::AI_Shoot()
 				// Check if we can aim with this angle
 				// HINT: we have to do it here because weaponCanHit requires already finished aiming
 				if (bAim && g >= 10.0f && v <= 200)  {
-					bShoot = bAim = weaponCanHit(g,v,CVec(m_worm->vPos.x+x,m_worm->vPos.y-y));
+					bShoot = bAim = weaponCanHit(g,v,m_worm->vPos+CVec(x,-y));
 				}
 				
 				break;
@@ -2290,7 +2290,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	// TODO: avoiding projectiles should not be done by not shooting but by changing MoveToTarget
 	if(bAim) if (tLX->iGameType == GME_JOIN)  {
 		// Get the angle
-		float ang = (float)atan2(m_worm->vVelocity.x, m_worm->vVelocity.y);
+		float ang = (float)atan2(m_worm->vVelocity.get().x, m_worm->vVelocity.get().y);
 		ang = RAD2DEG(ang);
 		if(m_worm->iFaceDirectionSide == DIR_LEFT)
 			ang+=90;
@@ -2298,7 +2298,7 @@ bool CWormBotInputHandler::AI_Shoot()
 			ang = -ang + 90;
 
 		// Cannot shoot
-		if (fabs(m_worm->fAngle-ang) <= 30 && m_worm->vVelocity.GetLength2() >= 3600.0f && weap->Type != WPN_BEAM)  {
+		if (fabs(m_worm->fAngle-ang) <= 30 && m_worm->vVelocity.get().GetLength2() >= 3600.0f && weap->Type != WPN_BEAM)  {
 			if (weap->Type == WPN_PROJECTILE)  {
 				if (weap->Proj.Proj->PlyHit.Damage > 0)
 					return false;
@@ -2378,7 +2378,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		// We're above the worm
 
 		// If we are close enough, shoot the napalm
-		if (m_worm->vPos.y <= cTrgPos.y && (m_worm->vPos-cTrgPos).GetLength2() < 10000.0f)  {
+		if (m_worm->vPos.get().y <= cTrgPos.y && (m_worm->vPos-cTrgPos).GetLength2() < 10000.0f)  {
 			if (traceWormLine(cTrgPos,m_worm->vPos) && !m_worm->tWeapons[1].Reloading) {
 				CWorm* w = game.wormById(nAITargetWormId, false);
 				if (w && w->CheckOnGround())
@@ -2610,7 +2610,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     // If we're above the target, try any special weapon, for Liero mod try napalm
     // BUT only if our health is looking good
     // AND if there is no rock/dirt nearby
-    if(fDistance > 190 && m_worm->health > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > m_worm->vPos.y ) {
+	if(fDistance > 190 && m_worm->health > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > m_worm->vPos.get().y ) {
         if (!AI_CheckFreeCells(5)) {
 			//notes << "bot: we should not shoot because of the hints everywhere" << endl;
 			return -1;
@@ -2903,7 +2903,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 	if(force_break) {
 		bPathFinished = false;
 		fSearchStartTime = tLX->currentTime;
-		pathSearcher->restartThreadSearch(m_worm->vPos, trg);
+		pathSearcher->restartThreadSearch(m_worm->vPos.get(), trg);
 
 		return false;
 	}
@@ -2943,7 +2943,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 			// restart search in some cases
 			if(!pathSearcher->shouldRestartThread() && (tLX->currentTime - fSearchStartTime >= 5.0f || !traceWormLine(m_worm->vPos, pathSearcher->start) || !traceWormLine(trg, pathSearcher->target))) {
 				fSearchStartTime = tLX->currentTime;
-				pathSearcher->restartThreadSearch(m_worm->vPos, trg);
+				pathSearcher->restartThreadSearch(m_worm->vPos.get(), trg);
 			}
 
 			return false;
@@ -2975,7 +2975,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 	fSearchStartTime = tLX->currentTime;
 	pathSearcher->target.x = (int)trg.x;
 	pathSearcher->target.y = (int)trg.y;
-	pathSearcher->start = VectorD2<int>(m_worm->vPos);
+	pathSearcher->start = VectorD2<int>(m_worm->vPos.get());
 	pathSearcher->startThreadSearch();
 
 	return false;
@@ -3463,11 +3463,11 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	// If we just shot some mortars, release the rope if it pushes us in the direction of the shots
 	// and move away!
 	if (canShoot && iAiGameType == GAM_MORTARS)  {
-		if (SIGN(m_worm->vVelocity.x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x) && tLX->currentTime - fLastShoot >= 0.2f && tLX->currentTime - fLastShoot <= 1.0f)  {
-			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce().x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x))
+		if (SIGN(m_worm->vVelocity.get().x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.get().x) && tLX->currentTime - fLastShoot >= 0.2f && tLX->currentTime - fLastShoot <= 1.0f)  {
+			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce().x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.get().x))
 				m_worm->cNinjaRope.Clear();
 
-			m_worm->iFaceDirectionSide = m_worm->vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
+			m_worm->iFaceDirectionSide = m_worm->vPos.get().x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
 			ws->bMove = true;
 		}
 	}
@@ -3720,8 +3720,8 @@ find_one_visible_node:
 		bool direct_traceLine_possible = (float)(length*length) > (nodePos-m_worm->vPos).GetLength2();
 
 		// If the node is right above us, use a carving weapon
-		if ((fabs(nodePos.x - m_worm->vPos.x) <= 50) && (type & PX_DIRT))
-			if (nodePos.y < m_worm->vPos.y)  {
+		if ((fabs(nodePos.x - m_worm->vPos.get().x) <= 50) && (type & PX_DIRT))
+			if (nodePos.y < m_worm->vPos.get().y)  {
 				int wpn;
 				if(canShoot && (wpn = AI_FindClearingWeapon()) != -1) {
 					m_worm->iCurrentWeapon = wpn;
@@ -3750,7 +3750,7 @@ find_one_visible_node:
 //				cNinjaRope.Release();
 
 			// Jump, if the node is above us
-			if (nodePos.y < m_worm->vPos.y && m_worm->vPos.y - nodePos.y >= 10 && m_worm->vPos.y - nodePos.y <= 30)
+			if (nodePos.y < m_worm->vPos.get().y && m_worm->vPos.get().y - nodePos.y >= 10 && m_worm->vPos.get().y - nodePos.y <= 30)
 				AI_Jump();
 
 //			ws->bMove = true;
@@ -3837,7 +3837,7 @@ find_one_visible_node:
                     	fireNinja = true;
                 }
             }
-            if( (m_worm->vPos.y - NEW_psCurrentNode->fY) > 10.0f)  {
+			if( (m_worm->vPos.get().y - NEW_psCurrentNode->fY) > 10.0f)  {
 				AI_Jump();
 			}
         }
@@ -3857,12 +3857,12 @@ find_one_visible_node:
 		if(!we_see_the_target && !stillAimingRopeSpot) AI_SetAim(nodePos);
 
 		if(m_worm->canAirJump()) {
-			if((m_worm->vPos.y > NEW_psCurrentNode->fY + 10) && fabs(m_worm->vPos.y - NEW_psCurrentNode->fY) > fabs(m_worm->vPos.x - NEW_psCurrentNode->fX))
+			if((m_worm->vPos.get().y > NEW_psCurrentNode->fY + 10) && fabs(m_worm->vPos.get().y - NEW_psCurrentNode->fY) > fabs(m_worm->vPos.get().x - NEW_psCurrentNode->fX))
 				AI_Jump();
 			ws->bMove = true;
 		}
 		// If the node is above us by a little, jump
-		else if((m_worm->vPos.y-NEW_psCurrentNode->fY) <= 30 && (m_worm->vPos.y - NEW_psCurrentNode->fY) > 10) {
+		else if((m_worm->vPos.get().y-NEW_psCurrentNode->fY) <= 30 && (m_worm->vPos.get().y - NEW_psCurrentNode->fY) > 10) {
 			if (!AI_Jump()) {
 				ws->bMove = true; // if we should not jump, move
 			}
@@ -3877,8 +3877,8 @@ find_one_visible_node:
 	// If we are using the rope to fly up, it can happen, that we will fly through the node and continue in a wrong direction
 	// To avoid this we check the velocity and if it is too high, we release the rope
 	// When on ground rope does not make much sense mainly, but there are rare cases where it should stay like it is
-	if (m_worm->cNinjaRope.isAttached() && !m_worm->bOnGround && (m_worm->cNinjaRope.getHookPos().y > m_worm->vPos.y) && (NEW_psCurrentNode->fY < m_worm->vPos.y)
-		&& fabs(m_worm->cNinjaRope.getHookPos().x - m_worm->vPos.x) <= 50 && m_worm->vVelocity.y <= 0)  {
+	if (m_worm->cNinjaRope.isAttached() && !m_worm->bOnGround && (m_worm->cNinjaRope.getHookPos().y > m_worm->vPos.get().y) && (NEW_psCurrentNode->fY < m_worm->vPos.get().y)
+		&& fabs(m_worm->cNinjaRope.getHookPos().x - m_worm->vPos.get().x) <= 50 && m_worm->vVelocity.get().y <= 0)  {
 		CVec force;
 
 		// Air drag (Mainly to dampen the ninja rope)
@@ -3887,14 +3887,14 @@ find_one_visible_node:
 		float dist = (CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY) - m_worm->vPos).GetLength();
 		float time = sqrt(2*dist/(force.GetLength()));
 		//float time2 = dist/vVelocity.GetLength();*/
-		float diff = m_worm->vVelocity.y - ((float)cClient->getGameLobby()[FT_WormGravity] * time);
+		float diff = m_worm->vVelocity.get().y - ((float)cClient->getGameLobby()[FT_WormGravity] * time);
 		if (diff < 0)
 			m_worm->cNinjaRope.Clear();
 	}
 
 
     // If we are stuck in the same position for a while, take measures to get out of being stuck
-    if(fabs(cStuckPos.x - m_worm->vPos.x) < 5 && fabs(cStuckPos.y - m_worm->vPos.y) < 5) {
+	if(fabs(cStuckPos.x - m_worm->vPos.get().x) < 5 && fabs(cStuckPos.y - m_worm->vPos.get().y) < 5) {
         fStuckTime += tLX->fDeltaTime;
 
         // Have we been stuck for a few seconds?
@@ -3938,7 +3938,7 @@ find_one_visible_node:
 
 	if(canShoot)
 		// only move if we are away from the next node
-		ws->bMove = fabs(m_worm->vPos.x - NEW_psCurrentNode->fX) > 3.0f;
+		ws->bMove = fabs(m_worm->vPos.get().x - NEW_psCurrentNode->fX) > 3.0f;
 	else
 		// always move, we cannot do something else
 		ws->bMove = true;
