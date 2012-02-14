@@ -1,6 +1,6 @@
 #include "net_worm.h"
 #include "game/CWorm.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 #include "util/log.h"
 #include "gusgame.h"
@@ -18,6 +18,7 @@
 #include "CServer.h"
 #include "CGameScript.h"
 #include "netstream.h"
+#include "AngleReplicator.h"
 
 #include <math.h>
 #include <vector>
@@ -115,7 +116,7 @@ void CWorm::NetWorm_think()
 {
 #ifndef DEDICATED_ONLY
 	//renderPos += (pos - renderPos)*0.2;
-	double fact = 1.0 / (1.0 + Vec(renderPos, pos()).length() / 4.0);
+	double fact = 1.0 / (1.0 + Vec(pos() - renderPos).length() / 4.0);
 	renderPos = renderPos * (1.0f - (float)fact) + Vec(pos()) * (float)fact;
 #endif
 

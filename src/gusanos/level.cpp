@@ -10,7 +10,7 @@
 #include "game/WormInputHandler.h"
 #include "sprite_set.h"
 #include "sprite.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/macros.h"
 #include "level_effect.h"
 #include "culling.h"

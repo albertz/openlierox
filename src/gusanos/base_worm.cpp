@@ -1,6 +1,6 @@
 #include "game/CWorm.h"
 
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 #include "util/log.h"
 #include "gusgame.h"
@@ -115,9 +115,9 @@ void CWorm::clearWeapons()
 	}
 }
 
-void CWorm::calculateReactionForce(BaseVec<long> origin, Direction d)
+void CWorm::calculateReactionForce(VectorD2<long> origin, Direction d)
 {
-	BaseVec<long> step;
+	VectorD2<long> step;
 	long len = 0;
 
 	int bottom = gusGame.options.worm_weaponHeight;
@@ -127,29 +127,29 @@ void CWorm::calculateReactionForce(BaseVec<long> origin, Direction d)
 
 	switch(d) {
 			case Down: {
-				origin += BaseVec<long>(left, top);
-				step = BaseVec<long>(1, 0);
+				origin += VectorD2<long>(left, top);
+				step = VectorD2<long>(1, 0);
 				len = gusGame.options.worm_width;
 			}
 			break;
 
 			case Left: {
-				origin += BaseVec<long>(right, top + 1);
-				step = BaseVec<long>(0, 1);
+				origin += VectorD2<long>(right, top + 1);
+				step = VectorD2<long>(0, 1);
 				len = gusGame.options.worm_height - 2;
 			}
 			break;
 
 			case Up: {
-				origin += BaseVec<long>(left, bottom);
-				step = BaseVec<long>(1, 0);
+				origin += VectorD2<long>(left, bottom);
+				step = VectorD2<long>(1, 0);
 				len = gusGame.options.worm_width;
 			}
 			break;
 
 			case Right: {
-				origin += BaseVec<long>(left, top + 1);
-				step = BaseVec<long>(0, 1);
+				origin += VectorD2<long>(left, top + 1);
+				step = VectorD2<long>(0, 1);
 				len = gusGame.options.worm_height - 2;
 			}
 			break;
@@ -173,7 +173,7 @@ void CWorm::calculateReactionForce(BaseVec<long> origin, Direction d)
 
 }
 
-void CWorm::calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>& inextPos)
+void CWorm::calculateAllReactionForces(VectorD2<float>& nextPos, VectorD2<long>& inextPos)
 {
 	//static const float correctionSpeed = 70.0f / 100.0f;
 	static const float correctionSpeed = 1.0f;
@@ -370,9 +370,9 @@ void CWorm::think()
 		if ( health <= 0 )
 			die();
 
-		BaseVec<float> next = pos() + velocity();
+		VectorD2<float> next = pos() + velocity();
 
-		BaseVec<long> inext(static_cast<long>(next.x), static_cast<long>(next.y));
+		VectorD2<long> inext(static_cast<long>(next.x), static_cast<long>(next.y));
 
 		calculateAllReactionForces(next, inext);
 

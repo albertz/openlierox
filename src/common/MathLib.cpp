@@ -79,7 +79,7 @@ int GetRandomInt(int max)
 // Round the number
 int Round(float x)
 {
-        return (int) ceil((double)x-0.5); 
+	return (int) ceil((double)x-0.5);
 }
 
 

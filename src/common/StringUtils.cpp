@@ -1306,22 +1306,6 @@ bool strSeemsLikeChatCommand(const std::string& str) {
 
 
 
-template<> VectorD2<int> from_string< VectorD2<int> >(const std::string& s, bool& fail) {
-	std::string tmp = s;
-	TrimSpaces(tmp);
-	if(tmp.size() > 2 && tmp[0] == '(' && tmp[tmp.size()-1] == ')')
-		tmp = tmp.substr(1, tmp.size() - 2);
-	size_t f = tmp.find(',');
-	if(f == std::string::npos) { fail = true; return VectorD2<int>(); }
-	VectorD2<int> v;
-	fail = false;
-	v.x = from_string<int>(tmp.substr(0, f), fail);
-	if(fail) return VectorD2<int>();
-	v.y = from_string<int>(tmp.substr(f + 1), fail);
-	if(fail) return VectorD2<int>();
-	return v;
-}
-
 
 static bool FilenameSimplePatternMatch(
 	std::string::const_iterator fn_it, const std::string::const_iterator& fn_end,

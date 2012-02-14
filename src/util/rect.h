@@ -1,7 +1,7 @@
 #ifndef OMFGUTIL_DETAIL_RECT_H
 #define OMFGUTIL_DETAIL_RECT_H
 
-#include "vec.h"
+#include "CVec.h"
 #include "gusanos/allegro.h"
 
 template<class T>
@@ -134,12 +134,12 @@ public:
 		return *this;
 	}
 	
-	BasicRect operator+(BaseVec<T> const& b)
+	BasicRect operator+(VectorD2<T> const& b)
 	{
 		return BasicRect(*this) += b;
 	}
 	
-	BasicRect& operator+=(BaseVec<T> const& b)
+	BasicRect& operator+=(VectorD2<T> const& b)
 	{
 		x1 += b.x;
 		x2 += b.x;

@@ -101,9 +101,9 @@ struct Tracer
 {
 	
 	
-	void trace(BaseVec<Fixed> from, BaseVec<Fixed> to)
+	void trace(VectorD2<Fixed> from, VectorD2<Fixed> to)
 	{
-		BaseVec<Fixed> diff(from, to);
+		VectorD2<Fixed> diff(from, to);
 		
 		if(diff.y < 0)
 		{

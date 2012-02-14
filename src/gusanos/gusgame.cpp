@@ -320,7 +320,7 @@ void GusGame::think()
 					case eHole:
 					{
 						int index = Encoding::decode(*data, levelEffectList.size());
-						BaseVec<int> v = game.gameMap()->intVectorEncoding.decode<BaseVec<int> >(*data);
+						VectorD2<int> v = game.gameMap()->intVectorEncoding.decode<VectorD2<int> >(*data);
 						game.gameMap()->applyEffect( levelEffectList[index], v.x, v.y );
 					}
 					break;
@@ -374,7 +374,7 @@ void GusGame::think()
 					BitStream *data = new BitStream;
 					addEvent(data, eHole);
 					Encoding::encode(*data, iter->index, levelEffectList.size());
-					game.gameMap()->intVectorEncoding.encode(*data, BaseVec<int>(iter->x, iter->y));
+					game.gameMap()->intVectorEncoding.encode(*data, VectorD2<int>(iter->x, iter->y));
 					
 					m_node->sendEventDirect(eNet_ReliableOrdered, data, conn_id );
 				}
@@ -399,7 +399,7 @@ void GusGame::applyLevelEffect( LevelEffect* effect, int x, int y )
 
 			addEvent(data, eHole);
 			Encoding::encode(*data, effect->getIndex(), levelEffectList.size());
-			game.gameMap()->intVectorEncoding.encode(*data, BaseVec<int>(x, y));
+			game.gameMap()->intVectorEncoding.encode(*data, VectorD2<int>(x, y));
 
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 			

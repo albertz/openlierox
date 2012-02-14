@@ -18,7 +18,7 @@
 #endif
 #include "util/text.h"
 #include "util/angle.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/macros.h"
 #include "util/log.h"
 #include "game/CGameObject.h"

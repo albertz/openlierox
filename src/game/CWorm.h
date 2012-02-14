@@ -42,7 +42,7 @@
 // Gusanos related includes
 #include "gusanos/luaapi/types.h"
 #include "gusanos/netstream.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 #include <vector>
 
@@ -155,10 +155,10 @@ public:
 	ATTR(CWorm, int,	iLives, 3, {})
 	ATTR(CWorm, bool,	bAlive, 4, {})
 
-	bool		bSpectating;
-	bool		bSpawnedOnce;
 	ATTR(CWorm, bool, bCanRespawnNow, 10, {serverside = true;})
 	ATTR(CWorm, bool, bRespawnRequested, 11, {serverside = false;})
+	ATTR(CWorm, bool, bSpawnedOnce, 12, {serverside = true;})
+	ATTR(CWorm, bool, bSpectating, 13, {serverside = false;})
 
 	// Arsenal
 	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;})
@@ -590,8 +590,8 @@ public:
 		
 	void draw(CViewport* viewport);
 	
-	void calculateReactionForce(BaseVec<long> origin, Direction dir);
-	void calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>& inextPos);
+	void calculateReactionForce(VectorD2<long> origin, Direction dir);
+	void calculateAllReactionForces(VectorD2<float>& nextPos, VectorD2<long>& inextPos);
 	void processMoveAndDig(void);
 	void processPhysics();
 	void processJumpingAndNinjaropeControls();

@@ -5,7 +5,7 @@
 #error "Can't use this in dedicated server"
 #endif //DEDICATED_ONLY
 
-#include "util/vec.h"
+#include "CVec.h"
 #include "gusanos/sound.h"
 #include "CVec.h"
 

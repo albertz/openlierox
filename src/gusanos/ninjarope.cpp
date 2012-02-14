@@ -1,6 +1,6 @@
 #include "CNinjaRope.h"
 
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/macros.h"
 #include "gusgame.h"
 #include "game/CGameObject.h"
@@ -96,11 +96,11 @@ void CNinjaRope::think()
 	{
 		pos() += velocity();
 		
-		BaseVec<long> ipos = BaseVec<long>(Vec(pos()));
+		VectorD2<long> ipos = VectorD2<long>(Vec(pos()));
 		
 		// TODO: Try to attach to worms/objects
 				
-		Vec diff(owner->pos(), pos());
+		Vec diff = pos() - owner->pos();
 		float curLen = (float)diff.length();
 		Vec force(diff * gusGame.options.ninja_rope_pullForce);
 		

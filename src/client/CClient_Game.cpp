@@ -44,6 +44,7 @@
 #include "sound/SoundsBase.h"
 #include "game/Sounds.h"
 #include "CGameScript.h"
+#include "util/Random.h"
 
 
 CClient		*cClient = NULL;

@@ -3,7 +3,7 @@
 
 #include "game/CGameObject.h"
 #include "part_type.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 #include "timer_event.h"
 #include <vector>

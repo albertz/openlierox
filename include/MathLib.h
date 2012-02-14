@@ -38,9 +38,6 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #define RAD2DEG(a)  ((a) * R2D)
 
 // Routines
-float	GetRandomNum(); // get a random float from [-1,1] 
-float	GetRandomPosNum(); // get a random float from [0,1]
-int		GetRandomInt(int max); // get a random int from [0,max] 
 int		Round(float x);
 
 /*#ifdef _MSC_VER
@@ -54,7 +51,6 @@ float	sqrt(float _v)  {return sqrtf(_v); }
 
 float	CalculateDistance(CVec p1, CVec p2);
 float	NormalizeVector(CVec *vec);
-CVec	GetRandomVec();
 void	GetVecsFromAngle(float yaw,CVec *forward, CVec *right);
 CVec	GetVecFromAngle(float yaw);
 float	VectorAngle(CVec vec1, CVec vec2);

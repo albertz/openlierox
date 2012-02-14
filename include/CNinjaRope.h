@@ -19,7 +19,7 @@
 
 #include "game/CGameObject.h"
 #include "gusanos/events.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 #include "gusanos/timer_event.h"
 #include "gusanos/particle.h"

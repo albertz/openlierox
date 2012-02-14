@@ -1,6 +1,6 @@
 #include "simple_particle.h"
 
-#include "util/vec.h"
+#include "CVec.h"
 #include "gusgame.h"
 #include "game/CGameObject.h"
 #ifndef DEDICATED_ONLY

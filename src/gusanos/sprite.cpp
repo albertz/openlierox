@@ -14,7 +14,7 @@
 using namespace std;
 
 // LIGHTHAX!!
-#include "util/vec.h"
+#include "CVec.h"
 Sprite* genLight( int radius )
 {
 	ALLEGRO_BITMAP* lightHax;

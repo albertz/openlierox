@@ -9,7 +9,7 @@
 #include "gusanos/allegro.h"
 #endif
 #include "events.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 //#include "luaapi/types.h"
 #include "script.h"

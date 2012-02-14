@@ -23,6 +23,7 @@
 #include "olx-types.h"
 #include "Color.h" // for StrToCol
 #include "Iter.h"
+#include "util/IPrintOutFct.h"
 #include "CodeAttributes.h"
 
 //
@@ -89,26 +90,6 @@ INLINE void strlwr(char* string) {
 /////////////
 // Case-insensitive comparison of two chars, behaves like stringcasecmp
 int chrcasecmp(const char c1, const char c2);
-
-/////////////
-// C-string itoa for non-windows compilers (on Windows it's defined in windows.h)
-#ifndef WIN32
-// TODOL remove this
-INLINE char* itoa(int val, char* buf, int base) {
-	int i = 29; // TODO: bad style
-	buf[i+1] = '\0';
-
-    do {
-        buf = "0123456789abcdefghijklmnopqrstuvwxyz"[val % base] + buf;
-        --i, val /= base;
-    } while(val && i);
-
-    return &buf[i+1];
-}
-
-// Cross-compiler compatibility
-#	define		stricmp		strcasecmp
-#endif
 
 
 //
@@ -182,13 +163,6 @@ INLINE size_t subStrCount(const std::string& str, const std::string& substr) {
 }
 
 
-struct PrintOutFct {
-	virtual ~PrintOutFct() {}
-	virtual void print(const std::string&) const = 0;
-};
-
-struct NullOut : PrintOutFct { void print(const std::string&) const {} };
-
 // returns true if last char was a newline
 bool PrettyPrint(const std::string& prefix, const std::string& buf, const PrintOutFct& printOutFct, bool firstLineWithPrefix = true);
 
@@ -230,125 +204,7 @@ INLINE std::string::iterator PositionToIterator(std::string& str, size_t pos)  {
 }
 
 
-// Conversion functions from string to numbers
 
-template<typename T>
-T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {
-	std::istringstream iss(s); T t = T();
-	failed = (iss >> f >> t).fail();
-	return t;
-}
-
-template<typename T>
-T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
-	std::istringstream iss(s); T t = T();
-	iss >> f >> t;
-	return t;
-}
-
-template<typename T>
-T from_string(const std::string& s, bool& failed) {
-	std::istringstream iss(s); T t = T();
-	failed = (iss >> t).fail();
-	return t;
-}
-
-
-// Conversion functions from numbers to string
-
-template<typename T>
-std::string to_string(T val) {
-	std::ostringstream oss;
-	oss << val;
-	return oss.str();
-}
-
-template<>
-INLINE std::string to_string<bool>(bool val) {
-	if(val) return "true"; else return "false";
-}
-
-template<>
-INLINE std::string to_string<const char*>(const char* val) {
-	if(val) return val; else return "";
-}
-
-template<>
-INLINE bool from_string<bool>(const std::string& s, bool& fail) {
-	std::string s1(stringtolower(s));
-	TrimSpaces(s1);
-	if( s1 == "true" || s1 == "yes" || s1 == "on" ) return true;
-	else if( s1 == "false" || s1 == "no" || s1 == "off" ) return false;
-	return from_string<int>(s, fail) != 0;
-}
-
-template<> VectorD2<int> from_string< VectorD2<int> >(const std::string& s, bool& fail);
-template<> INLINE std::string to_string< VectorD2<int> >(VectorD2<int> v) { return "(" + to_string(v.x) + "," + to_string(v.y) + ")"; }
-template<> INLINE std::string to_string< VectorD2<float> >(VectorD2<float> v) { return "(" + to_string(v.x) + "," + to_string(v.y) + ")"; }
-
-template<typename T>
-T from_string(const std::string& s) {
-	bool fail; return from_string<T>(s, fail);
-}
-
-INLINE int atoi(const std::string& str)  { return from_string<int>(str);  }
-INLINE float atof(const std::string& str) { return from_string<float>(str);  }
-
-
-INLINE std::string ftoa(float val, int precision = -1)
-{
-	std::string res = to_string<float>(val);
-	if (precision != -1)  {
-		size_t dotpos = res.find_last_of('.');
-		if (dotpos == std::string::npos)  {
-			res += '.';
-			for (int i = 0; i < precision; i++)
-				res += '0';
-		} else {
-			res = res.substr(0, dotpos + precision);
-		}
-	}
-
-	return res;
-}
-
-INLINE std::string itoa(unsigned long num, short base=10)  {
-	std::string buf;
-
-	do {	
-		buf = "0123456789abcdefghijklmnopqrstuvwxyz"[num % base] + buf;
-		num /= base;
-	} while(num);
-
-	return buf;
-}
-
-// std::string itoa
-INLINE std::string itoa(long num, short base=10)  {
-	if(num >= 0)
-		return itoa((unsigned long)num, base);
-	else
-		return "-" + itoa((unsigned long)-num, base);
-}
-
-INLINE std::string itoa(int num, short base=10)  { return itoa((long)num,base); }
-INLINE std::string itoa(unsigned int num, short base=10)  { return itoa((unsigned long)num,base); }
-
-// If 64-bit long available?
-#ifdef ULLONG_MAX
-INLINE std::string itoa(unsigned long long num, short base=10)  {
-	std::string buf;
-
-	do {	
-		buf = "0123456789abcdefghijklmnopqrstuvwxyz"[num % base] + buf;
-		num /= base;
-	} while(num);
-
-	return buf;
-}
-#endif
-
-template<typename _T> std::string hex(_T num) { return itoa(num,16); }
 
 
 struct stringcaseless {

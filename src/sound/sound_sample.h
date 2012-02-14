@@ -8,7 +8,7 @@
 #include <string>
 #include "SmartPointer.h"
 #include "gusanos/resource_list.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "gusanos/glua.h"
 
 class CGameObject;

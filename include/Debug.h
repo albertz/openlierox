@@ -12,8 +12,9 @@
 
 #include <string>
 #include <cassert>
-#include "StringUtils.h"
 #include "CodeAttributes.h"
+#include "util/StringConv.h"
+#include "util/IPrintOutFct.h"
 
 // { these function should be safe to be called from everywhere, also from signalhandlers
 bool AmIBeingDebugged();
@@ -25,7 +26,6 @@ void DumpCallstackPrintf(void* callpnt = NULL);
 // Returns current sourcefile pos as string
 #define FILELINE1 (std::string(__FILE__) + ":" + itoa(__LINE__))
 #define FILELINE FILELINE1
-
 
 void DumpCallstack(const PrintOutFct& printer);
 

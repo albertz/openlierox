@@ -18,13 +18,12 @@
 #define __CGAMEOBJECT_H__
 
 #include "Utils.h"
-#include "util/angle.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "gusanos/luaapi/types.h"
 #include "gusanos/glua.h"
 #include "Color.h"
 #include "util/WeakRef.h"
-#include "CVec.h"
+#include "game/Attr.h"
 
 struct ALLEGRO_BITMAP;
 class CViewport;
@@ -36,23 +35,31 @@ public:
 	CGameObject(CWormInputHandler* owner, Vec pos_ = Vec(), Vec spd_ = Vec() );
 	~CGameObject();
 
+	uint32_t uniqueObjId;
+	//ATTR(CGameObject, uint32_t, uniqueObjId, 1, {serverside = true;})
+
 protected:
 	// Gusanos comment:
 	// IMPORTANT: The pos and spd vectors should be used as read only. ( Because of netplay needs )
 	// To change their values use the setters provided.
-	CVec		vPos;
-	CVec		vVelocity;
-	float		health;
+	//ATTR(CGameObject, CVec, vPos, 2, {serverside = false;})
+	//ATTR(CGameObject, CVec, vVelocity, 3, {serverside = false;})
+	CVec vPos;
+	CVec vVelocity;
+	typedef CVec vPos_Type;
+	typedef CVec vVelocity_Type;
+
+	ATTR(CGameObject, float, health, 4, {serverside = false;})
 
 public:
 
 	CVec		getPos() const				{ return vPos; }
 	void		setPos(const CVec& v)		{ vPos = v; }
-	CVec&		pos()						{ return vPos; }
+	vPos_Type&		pos()					{ return vPos; }
 
 	CVec		getVelocity() const			{ return vVelocity; }
 	void		setVelocity(const CVec& v)	{ vVelocity = v; }
-	CVec&		velocity()					{ return vVelocity; }
+	vVelocity_Type&	velocity()				{ return vVelocity; }
 	
 	void		setHealth(float _h)			{ health = _h; }
 	float		getHealth() const			{ return health; }
@@ -134,13 +141,7 @@ public:
 	{
 		vVelocity += CVec(spd_.x, spd_.y);
 	}
-	
-	// Moves the object somewhere else
-	virtual void setPos( Vec pos_ )
-	{
-		vPos = CVec(pos_.x, pos_.y);
-	}
-	
+		
 	struct ScopedGusCompatibleSpeed : DontCopyTag {
 		CGameObject& obj;
 		ScopedGusCompatibleSpeed(CGameObject& o);
@@ -156,9 +157,7 @@ public:
 	
 	// If this is true the object will be removed from the objects list in the next frame
 	bool deleteMe;
-	
-	uint32_t uniqueObjId;
-	
+		
 protected:
 	//LuaReference luaReference; //Defined in LuaObject
 	CWormInputHandler* m_owner;

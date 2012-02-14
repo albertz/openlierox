@@ -11,6 +11,7 @@
 #include "SMTP.h"
 #include "Debug.h"
 #include "Timer.h"
+#include "StringUtils.h"
 
 struct SmtpClient::Handler {
 	NetworkSocket sock;

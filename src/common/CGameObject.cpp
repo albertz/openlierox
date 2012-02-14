@@ -12,7 +12,7 @@
 #include "CGameScript.h"
 #include "game/CWorm.h"
 #include "PhysicsLX56.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 #include "game/WormInputHandler.h"
 #include "gusanos/glua.h"
@@ -21,8 +21,8 @@
 
 LuaReference CGameObject::metaTable;
 
-CGameObject::CGameObject() : health(100.0f) { gusInit(); }
-CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) : health(100.0f) { gusInit(owner, pos_, spd_); }
+CGameObject::CGameObject() { health = 100.0f; gusInit(); }
+CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) { health = 100.0f; gusInit(owner, pos_, spd_); }
 CGameObject::~CGameObject() { gusShutdown(); }
 
 

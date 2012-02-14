@@ -456,9 +456,9 @@ public:
 			
 			CGameObject::ScopedGusCompatibleSpeed scopedSpeed(*worm);
 			
-			BaseVec<float> next = worm->pos() + worm->velocity();
+			VectorD2<float> next = worm->pos() + worm->velocity();
 			
-			BaseVec<long> inext(static_cast<long>(next.x), static_cast<long>(next.y));
+			VectorD2<long> inext(static_cast<long>(next.x), static_cast<long>(next.y));
 			
 			worm->calculateAllReactionForces(next, inext);
 			

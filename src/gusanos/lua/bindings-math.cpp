@@ -5,7 +5,7 @@
 #include "../luaapi/macros.h"
 
 #include "../glua.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 #include "util/math_func.h"
 #include "CodeAttributes.h"

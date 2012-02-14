@@ -24,7 +24,7 @@
 #include "Options.h" // for control_t
 #include "SmartPointer.h"
 
-#include "util/vec.h"
+#include "CVec.h"
 #include "gusanos/luaapi/types.h"
 
 

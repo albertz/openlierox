@@ -3,7 +3,7 @@
 #include "events.h"
 #include "game/CWorm.h"
 #include "gusgame.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "util/angle.h"
 #include "util/macros.h"
 #include "util/log.h"

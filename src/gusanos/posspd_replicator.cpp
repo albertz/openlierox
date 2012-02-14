@@ -2,7 +2,7 @@
 
 #include "netstream.h"
 #include <iostream>
-#include "util/vec.h"
+#include "CVec.h"
 #include "encoding.h"
 #include "gusgame.h"
 #include "game/CMap.h"

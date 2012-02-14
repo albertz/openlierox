@@ -7,8 +7,9 @@
 
 #include <string>
 #include "gusanos/resource_list.h"
-#include "util/vec.h"
+#include "CVec.h"
 #include "gusanos/glua.h"
+#include "SmartPointer.h"
 
 class CGameObject;
 class SfxDriver;

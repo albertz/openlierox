@@ -3,7 +3,7 @@
 
 #include "game/CGameObject.h"
 #include "exp_type.h"
-#include "util/vec.h"
+#include "CVec.h"
 //#include "animators.h"
 #include <vector>
 

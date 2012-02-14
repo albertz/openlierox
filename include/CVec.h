@@ -16,18 +16,39 @@
 // Created 20/11/01
 // By Jason Boettcher
 // enhanced by Albert Zeyer
+// Gusanos BaseVec merged in (thus a few double funcs).
 
 #ifndef __CVEC_H__
 #define __CVEC_H__
 
+#include <string>
 #include <cmath>
+#include "CodeAttributes.h"
+#include "util/angle.h"
+#include "util/StringConv.h"
+
 
 template<typename _T>
 struct VectorD2 {
+	typedef _T manip_t; // Gus BaseVec compatibility
+	typedef _T Type;
+
 	// Constructor
 	VectorD2() : x(0), y(0) {}
 	VectorD2(_T _x, _T _y) : x(_x), y(_y) {}
-	
+
+	template<typename _T2>
+	VectorD2(const VectorD2<_T2>& cp) {
+		x = (_T)cp.x; y = (_T)cp.y;
+	}
+
+	VectorD2(Angle angle, double length = 1)
+	{
+		double radians = angle.toRad();
+		x = (_T)(sin(radians) * length);
+		y = (_T)(-cos(radians) * length);
+	}
+
 	
 	// Attributes
 	_T	x, y;
@@ -35,13 +56,8 @@ struct VectorD2 {
 
 	// Methods
 
-	template<typename _T2>
-	VectorD2(const _T2& cp) {
-		x = (_T)cp.x; y = (_T)cp.y;
-	}
-
 	float GetLength() const { return sqrtf((float)x*x + (float)y*y); }
-	_T GetLength2() const { return x*x + y*y; };
+	_T GetLength2() const { return x*x + y*y; }
 
 	float GetAngle() const { return (float)atan2((float)y,(float)x); }
 
@@ -53,21 +69,53 @@ struct VectorD2 {
 
 	_T Cross(const VectorD2& oth) const { return x * oth.y - y * oth.x; }
 	
-	// Overloads
-	VectorD2 operator*(const float scalar) const {		
-		return VectorD2(x*scalar,y*scalar);
+	_T dotProduct(VectorD2 const& A) const
+	{
+		return x * A.x + y * A.y;
 	}
-	VectorD2 operator*(const int scalar) const {		
-		return VectorD2(x*scalar,y*scalar);
-	}	
+
+	_T perpDotProduct(VectorD2 const& A) const
+	{
+		return x * A.y - y * A.x;
+	}
+
+	VectorD2 perp() const
+	{
+		return VectorD2(-y, x);
+	}
+
+	double length() const
+	{
+		return sqrt((double)(x*x + y*y));
+	}
+
+	VectorD2 normal() const
+	{
+		double invLength = 1.0 / length();
+		return VectorD2((_T)(invLength*x), (_T)(invLength*y));
+	}
+
+	_T lengthSqr() const
+	{
+		return x*x + y*y;
+	}
+
+	Angle getAngle() const
+	{
+		return Angle::fromRad( atan2(double(x), double(-y)) );
+	}
+
+	// Overloads
+	template<typename _T2>
+	VectorD2 operator*(_T2 scalar) const {
+		return VectorD2(_T(x*scalar),_T(y*scalar));
+	}
 	VectorD2 multPairwise(_T _x, _T _y) const {
 		return VectorD2(x*_x, y*_y);
 	}
-	VectorD2 operator/(const float scalar) const {		
-		return VectorD2(x/scalar,y/scalar);
-	}
-	VectorD2 operator/(const int scalar) const {		
-		return VectorD2(x/scalar,y/scalar);
+	template<typename _T2>
+	VectorD2 operator/(_T2 scalar) const {
+		return VectorD2(_T(x/scalar),_T(y/scalar));
 	}
 	VectorD2 operator+(const VectorD2& vec) const {
 		return VectorD2(x+vec.x,y+vec.y);
@@ -79,21 +127,24 @@ struct VectorD2 {
 		return VectorD2(-x,-y);
 	}
 	VectorD2& operator+=(const VectorD2& vec) {
-		x+=vec.x; y+=vec.y;
+		*this = *this + vec;
 		return *this;
 	}
 	VectorD2& operator-=(const VectorD2& vec) {
-		x-=vec.x; y-=vec.y;
+		*this = *this - vec;
 		return *this;
 	}
-	VectorD2& operator*=(const float scalar) {
-		x*=scalar; y*=scalar;
+	template<typename _T2>
+	VectorD2& operator*=(_T2 scalar) {
+		*this = *this * scalar;
 		return *this;
 	}
-	VectorD2& operator*=(const int scalar) {
-		x*=scalar; y*=scalar;
+	template<typename _T2>
+	VectorD2& operator/=(_T2 scalar) {
+		*this = *this / scalar;
 		return *this;
 	}
+
 
 	template<typename _T2>
 	bool operator<(const VectorD2<_T2> & op) const {
@@ -128,9 +179,15 @@ struct VectorD2__absolute_less {
 	}
 };
 
+template<> VectorD2<int> from_string< VectorD2<int> >(const std::string& s, bool& fail);
+template<> INLINE std::string to_string< VectorD2<int> >(VectorD2<int> v) { return "(" + to_string(v.x) + "," + to_string(v.y) + ")"; }
+template<> INLINE std::string to_string< VectorD2<float> >(VectorD2<float> v) { return "(" + to_string(v.x) + "," + to_string(v.y) + ")"; }
 
 
 typedef VectorD2<float> CVec;
+typedef VectorD2<float> Vec;
+typedef VectorD2<int> IVec;
+
 
 template<typename _T>
 struct MatrixD2 {

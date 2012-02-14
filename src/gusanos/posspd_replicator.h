@@ -3,7 +3,7 @@
 
 #include "netstream.h"
 
-#include "util/vec.h"
+#include "CVec.h"
 #include "encoding.h"
 #include <utility>
 #include <stdexcept>

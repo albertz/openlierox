@@ -28,6 +28,7 @@ class CMap;
 class CGameScript;
 class CGameMode;
 class CWpnRest;
+class CServerConnection;
 struct Version;
 struct profile_t;
 

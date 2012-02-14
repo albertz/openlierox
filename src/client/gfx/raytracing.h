@@ -11,7 +11,7 @@
 #define __OLX_RAYTRACING_H__
 
 #include "Color.h"
-#include "util/vec.h"
+#include "CVec.h"
 
 class CGameObject;
 

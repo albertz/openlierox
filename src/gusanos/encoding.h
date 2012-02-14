@@ -4,6 +4,7 @@
 #include <utility>
 #include "gui/omfggui.h" // For Rect
 #include "netstream.h"
+#include "util/Bitstream.h"
 #include <iostream>
 #include <stdexcept>
 #include "Debug.h"

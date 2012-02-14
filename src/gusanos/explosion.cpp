@@ -1,6 +1,6 @@
 #include "explosion.h"
 
-#include "util/vec.h"
+#include "CVec.h"
 #include "gusgame.h"
 #include "game/CGameObject.h"
 #include "game/CWorm.h"

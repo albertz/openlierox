@@ -4,7 +4,6 @@
 #include "util/rect.h"
 #include "util/common.h"
 #include "renderer.h"
-//#include "formatting.h"
 #include <iostream>
 #include <map>
 #include <list>

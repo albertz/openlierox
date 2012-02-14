@@ -17,7 +17,7 @@
 #include <cassert>
 #include <set>
 #include <boost/function.hpp>
-#include "MathLib.h"
+#include "util/Random.h"
 
 template <typename _dst, typename _src>
 bool isSameType(const _src& obj1, const _dst& obj2) {

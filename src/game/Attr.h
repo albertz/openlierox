@@ -48,6 +48,8 @@ void pushAttrUpdateInfo(const AttrUpdateInfo& info);
 
 template <typename T, typename AttrDescT>
 struct Attr {
+	typedef T ValueType;
+	typedef AttrDescT AttrDescType;
 	T value;
 	Attr() : value() { /* to init attrDesc */ attrDesc(); }
 	AttrDescT* attrDesc() {
@@ -116,6 +118,7 @@ struct _ ## name ## _AttrDesc : AttrDesc { \
 		registerAttrDesc(*this); \
 	} \
 }; \
-AttrWithMaybeOpts<type, _ ## name ## _AttrDesc>::Type name;
+typedef AttrWithMaybeOpts<type, _ ## name ## _AttrDesc>::Type name ## _Type; \
+name ## _Type name;
 
 #endif
