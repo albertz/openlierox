@@ -296,7 +296,7 @@ void GusGame::think()
 	}
 #endif
 
-	if(isLevelLoaded())
+	if(game.isMapReady())
 		game.gameMap()->gusThink();
 
 	if ( !m_node )
@@ -494,7 +494,7 @@ void GusGame::runInitScripts()
 		}
 	}
 	
-	if(isLevelLoaded()) {
+	if(game.isMapReady()) {
 		const std::string mapscript = "map_" + game.gameMap()->getName();
 		Script* levelScript = scriptLocator.load(mapscript);
 		if(!levelScript) {
@@ -643,7 +643,7 @@ void GusGame::_prepareLoad(const std::string& path) {
 }
 
 void GusGame::_finishLoad() {
-	if(isLevelLoaded())
+	if(game.isMapReady())
 		game.objects.resize(0, 0, game.gameMap()->GetWidth(), game.gameMap()->GetHeight());
 	
 	//cerr << "Loading mod" << endl;
@@ -830,10 +830,6 @@ bool GusGame::checkCRCs(BitStream& data)
 	}
 	
 	return true;
-}
-
-bool GusGame::isLevelLoaded() {
-	return game.gameMap() && game.gameMap()->isLoaded();
 }
 
 bool GusGame::isEngineNeeded() {

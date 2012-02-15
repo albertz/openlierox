@@ -78,7 +78,7 @@ void gusLogicFrame() {
 				++iter;
 		}
 		
-		if ( game.shouldDoPhysicsFrame() && gusGame.isLoaded() && gusGame.isLevelLoaded() )
+		if ( game.isMapReady() && game.shouldDoPhysicsFrame() && gusGame.isLoaded() )
 		{
 						
 			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)

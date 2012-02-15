@@ -127,7 +127,6 @@ public:
 	void loadWeapons();
 	void unload();
 	bool isLoaded();
-	bool isLevelLoaded();
 	void refreshResources(std::string const& levelPath);
 	bool loadModWithoutMap();
 	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);

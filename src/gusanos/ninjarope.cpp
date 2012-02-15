@@ -46,8 +46,10 @@ void CNinjaRope::gusInit()
 		}
 
 	}
-	else
-		errors << "NinjaRope::NinjaRope: particle type is NULL" << endl;
+	else {
+		if(gusGame.isLoaded()) // if Gus is not loaded, we are not going to use it
+			errors << "NinjaRope::NinjaRope: particle type is NULL" << endl;
+	}
 }
 
 void CNinjaRope::shoot(Vec _pos, Vec _spd)
