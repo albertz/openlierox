@@ -106,9 +106,9 @@ static AttrExt& Settings_attrGetAttrExt(BaseObject* obj, const AttrDesc* attrDes
 Settings::AttrDescs::AttrDescs() {
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
 		attrDescs[i].objTypeId = LuaID<Settings>::value;
+		attrDescs[i].attrId = featureArray[i].id;
 		attrDescs[i].attrType = featureArray[i].valueType;
 		attrDescs[i].attrName = featureArray[i].name;
-		//attrDescs[i].attrId = id; TODO ...
 		attrDescs[i].defaultValue = featureArray[i].unsetValue;
 		attrDescs[i].isStatic = false;
 		attrDescs[i].dynGetValue = Settings_attrGetValue;
