@@ -27,6 +27,10 @@ void registerAttrDesc(AttrDesc& attrDesc) {
 	
 }
 
+const AttrDesc* getAttrDesc(const AttribRef& attrRef) {
+	return NULL;
+}
+
 void pushObjAttrUpdate(WeakRef<BaseObject> obj) {
 	objUpdates.push_back(obj);
 }

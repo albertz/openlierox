@@ -1350,7 +1350,7 @@ static void updateFeaturesList(CListview* l)
 		updateFeatureListItemColor(item);
 	}
 	if( tLXOptions->customSettings.isSet[FT_Lives] && (int)tLXOptions->customSettings[FT_Lives] < 0 )
-		tLXOptions->customSettings[FT_Lives] = WRM_UNLIM;
+		tLXOptions->customSettings.set(FT_Lives) = WRM_UNLIM;
 }
 
 /////////////

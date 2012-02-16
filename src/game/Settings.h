@@ -41,18 +41,21 @@
 #include "CodeAttributes.h"
 #include "util/macros.h"
 
-struct FeatureSettingsLayer : FeatureSettings {
+struct FeatureSettingsLayer : private FeatureSettings {
 	std::string debug_name;
 	bool isSet[FeatureArrayLen];
 	FeatureSettingsLayer(const std::string& debug_name_) : debug_name(debug_name_) { makeSet(false); }
 	void makeSet(bool v = true) { for(size_t i = 0; i < FeatureArrayLen; ++i) isSet[i] = v; }
 	
+	const ScriptVar_t& operator[](FeatureIndex i) const { return ((FeatureSettings&)(*this))[i]; }
+	const ScriptVar_t& operator[](Feature* f) const { return (*this)[featureArrayIndex(f)]; }
+
 	ScriptVar_t& set(FeatureIndex i) {
 		if(!isSet[i]) {
-			(*this)[i] = featureArray[i].unsetValue; // just to be sure; in case modSettings is init before featureArray, also important
+			((FeatureSettings&)(*this))[i] = featureArray[i].unsetValue; // just to be sure; in case modSettings is init before featureArray, also important
 			isSet[i] = true;
 		}
-		return (*this)[i];
+		return ((FeatureSettings&)(*this))[i];
 	}
 	template<typename T>
 	void copyTo(T& s) const {
@@ -97,15 +100,14 @@ struct Settings {
 		ScriptVar_t& operator[](FeatureIndex i) {
 			Settings& s = *__OLX_BASETHIS(Settings, overwrite);
 			assert(!s.layers.empty());
-			if(!s.layers.back()->isSet[i]) {
-				(*s.layers.back())[i] = s[i];
-				s.layers.back()->isSet[i] = true;
-			}
-			return (*s.layers.back())[i];	
+			if(!s.layers.back()->isSet[i])
+				s.layers.back()->set(i) = s[i];
+			return s.layers.back()->set(i);
 		}
 	};
 	OverwriteWrapper overwrite;
 	
+	// used for CScriptableVars::RegisterVars
 	struct ScriptVarWrapper : _DynamicVar {
 		FeatureIndex i; Settings* s;
 		virtual ScriptVarType_t type() { return featureArray[i].valueType; }

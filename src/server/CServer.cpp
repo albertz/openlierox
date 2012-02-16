@@ -395,7 +395,7 @@ int GameServer::PrepareGame(std::string* errMsg)
 
 		/* fix some broken settings */
 		if((int)gameSettings[FT_Lives] < 0 && (int)gameSettings[FT_Lives] != WRM_UNLIM)
-			(*gameSettings.layerFor(FT_Lives))[FT_Lives] = (int)WRM_UNLIM;
+			gameSettings.layerFor(FT_Lives)->set(FT_Lives) = (int)WRM_UNLIM;
 
 		gameSettings.dumpAllLayers();
 	}

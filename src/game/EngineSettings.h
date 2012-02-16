@@ -28,7 +28,7 @@ private:
 public:
 	EngineSettings() {
 		for(size_t i = 0; i < FeatureArrayLen; ++i)
-			settings[i] = featureArray[i].unsetValue;		
+			settings[i] = featureArray[i].unsetValue;
 	}
 
 	const ScriptVar_t& operator[](FeatureIndex i) const {

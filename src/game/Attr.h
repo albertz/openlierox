@@ -24,12 +24,15 @@ struct AttrExt {
 };
 
 struct AttrDesc {
-	uint32_t objTypeId;
+	typedef uint32_t ObjTypeId;
+	typedef uint32_t AttrId;
+
+	ObjTypeId objTypeId;
 	ScriptVarType_t attrType;
 	intptr_t attrMemOffset;
 	intptr_t attrExtMemOffset;
 	std::string attrName;
-	uint32_t attrId;
+	AttrId attrId;
 	ScriptVar_t defaultValue;
 
 	bool serverside;
@@ -46,7 +49,13 @@ struct AttrDesc {
 	std::string description() const;
 };
 
+struct AttribRef {
+	AttrDesc::ObjTypeId objTypeId;
+	AttrDesc::AttrId attrId;
+};
+
 void registerAttrDesc(AttrDesc& attrDesc);
+const AttrDesc* getAttrDesc(const AttribRef& attrRef);
 void pushObjAttrUpdate(WeakRef<BaseObject> obj);
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
 
