@@ -82,7 +82,7 @@ CLASSID(Settings, 26);
 #undef CLASSID
 
 INLINE const char* LuaClassName(uint32_t id_) {
-	return LuaClassInfo<25>::name(id_);
+	return LuaClassInfo<26>::name(id_);
 }
 
 template<class T>
