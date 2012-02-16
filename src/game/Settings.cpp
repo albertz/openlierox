@@ -17,6 +17,18 @@ Settings gameSettings;
 FeatureSettingsLayer modSettings("Mod properties");
 FeatureSettingsLayer gamePresetSettings("Settings preset");
 
+
+ScriptVar_t& FeatureSettingsLayer::set(FeatureIndex i) {
+	if(!isSet[i]) {
+		((FeatureSettings&)(*this))[i] = featureArray[i].unsetValue; // just to be sure; in case modSettings is init before featureArray, also important
+		isSet[i] = true;
+	}
+
+	gameSettings.pushUpdateHint(i);
+
+	return ((FeatureSettings&)(*this))[i];
+}
+
 void FeatureSettingsLayer::dump() const {
 	notes << debug_name << " {" << endl;
 	for(size_t i = 0; i < FeatureArrayLen; ++i)
@@ -119,6 +131,14 @@ Settings::AttrDescs::AttrDescs() {
 FeatureIndex Settings::AttrDescs::getIndex(const AttrDesc* attrDesc) {
 	assert(attrDesc >= &attrDescs[0] && attrDesc < &attrDesc[FeatureArrayLen]);
 	return FeatureIndex(attrDesc - &attrDescs[0]);
+}
+
+void Settings::pushUpdateHint(FeatureIndex i) {
+	AttrUpdateInfo info;
+	info.attrDesc = &getAttrDescs().attrDescs[i];
+	info.oldValue = (*this)[i];
+	attrUpdates.push_back(info);
+	attrExts[i].updated = true;
 }
 
 ScriptVar_t Settings::attrGetValue(const AttrDesc* attrDesc) const {

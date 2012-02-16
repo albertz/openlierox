@@ -52,13 +52,8 @@ struct FeatureSettingsLayer : private FeatureSettings {
 	const ScriptVar_t& operator[](FeatureIndex i) const { return ((FeatureSettings&)(*this))[i]; }
 	const ScriptVar_t& operator[](Feature* f) const { return (*this)[featureArrayIndex(f)]; }
 
-	ScriptVar_t& set(FeatureIndex i) {
-		if(!isSet[i]) {
-			((FeatureSettings&)(*this))[i] = featureArray[i].unsetValue; // just to be sure; in case modSettings is init before featureArray, also important
-			isSet[i] = true;
-		}
-		return ((FeatureSettings&)(*this))[i];
-	}
+	ScriptVar_t& set(FeatureIndex i);
+
 	template<typename T>
 	void copyTo(T& s) const {
 		for(size_t i = 0; i < FeatureArrayLen; ++i)
@@ -134,6 +129,7 @@ struct Settings : BaseObject {
 	}
 	AttrExt attrExts[FeatureArrayLen];
 
+	void pushUpdateHint(FeatureIndex i);
 	ScriptVar_t attrGetValue(const AttrDesc* attrDesc) const;
 	AttrExt& attrGetAttrExt(const AttrDesc* attrDesc);
 };
