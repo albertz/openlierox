@@ -18,6 +18,12 @@ FeatureSettingsLayer modSettings("Mod properties");
 FeatureSettingsLayer gamePresetSettings("Settings preset");
 
 
+void FeatureSettingsLayer::makeSet(bool v) {
+	for(size_t i = 0; i < FeatureArrayLen; ++i)
+		isSet[i] = v;
+}
+
+
 ScriptVar_t& FeatureSettingsLayer::set(FeatureIndex i) {
 	if(!isSet[i]) {
 		((FeatureSettings&)(*this))[i] = featureArray[i].unsetValue; // just to be sure; in case modSettings is init before featureArray, also important
@@ -144,6 +150,11 @@ void Settings::pushUpdateHint(FeatureIndex i) {
 		attrUpdates.push_back(info);
 		attrExts[i].updated = true;
 	}
+}
+
+void Settings::pushUpdateHintAll() {
+	for(size_t i = 0; i < FeatureArrayLen; ++i)
+		pushUpdateHint((FeatureIndex)i);
 }
 
 ScriptVar_t Settings::attrGetValue(const AttrDesc* attrDesc) const {

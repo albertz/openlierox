@@ -47,8 +47,8 @@ struct FeatureSettingsLayer : private FeatureSettings {
 	std::string debug_name;
 	bool isSet[FeatureArrayLen];
 	FeatureSettingsLayer(const std::string& debug_name_) : debug_name(debug_name_) { makeSet(false); }
-	void makeSet(bool v = true) { for(size_t i = 0; i < FeatureArrayLen; ++i) isSet[i] = v; }
-	
+	void makeSet(bool v = true);
+
 	const ScriptVar_t& operator[](FeatureIndex i) const { return ((FeatureSettings&)(*this))[i]; }
 	const ScriptVar_t& operator[](Feature* f) const { return (*this)[featureArrayIndex(f)]; }
 
@@ -129,6 +129,7 @@ struct Settings : BaseObject {
 	}
 	AttrExt attrExts[FeatureArrayLen];
 
+	void pushUpdateHintAll();
 	void pushUpdateHint(FeatureIndex i);
 	ScriptVar_t attrGetValue(const AttrDesc* attrDesc) const;
 	AttrExt& attrGetAttrExt(const AttrDesc* attrDesc);

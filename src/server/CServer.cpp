@@ -505,6 +505,7 @@ int GameServer::PrepareGame(std::string* errMsg)
 	
 	// update about all other vars
 	UpdateGameLobby();
+	gameSettings.pushUpdateHintAll(); // because of mod specific settings and what not ...
 
 	return true;
 }
