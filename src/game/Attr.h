@@ -32,32 +32,36 @@ struct AttrDesc {
 	bool isStatic; // if true -> use memOffsets; otherwise, dyn funcs
 	intptr_t attrMemOffset;
 	intptr_t attrExtMemOffset;
-	boost::function<void* (void* base, const AttrDesc* attrDesc)> dynGetValuePtr;
-	boost::function<AttrExt* (void* base, const AttrDesc* attrDesc)> dynGetValueExtPtr;
+	boost::function<ScriptVar_t (const BaseObject* base, const AttrDesc* attrDesc)> dynGetValue;
+	boost::function<AttrExt& (BaseObject* base, const AttrDesc* attrDesc)> dynGetAttrExt;
 	std::string attrName;
 	AttrId attrId;
 	ScriptVar_t defaultValue;
 
 	bool serverside;
-	boost::function<bool(void* base, const AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
-	boost::function<void(void* base, const AttrDesc* attrDesc)> sync;
+	boost::function<bool(BaseObject* base, const AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
+	boost::function<void(BaseObject* base, const AttrDesc* attrDesc)> sync;
 	
 	AttrDesc()
 	: objTypeId(0), attrType(SVT_INVALID), isStatic(true), attrMemOffset(0), attrExtMemOffset(0), attrId(0) {}
 
-	void* getValuePtr(void* base) const {
-		if(isStatic)
-			return (void*)(uintptr_t(base) + attrMemOffset);
-		else
-			return dynGetValuePtr(base, this);
+	const void* getValuePtr(const BaseObject* base) const {
+		assert(isStatic);
+		return (void*)(uintptr_t(base) + attrMemOffset);
 	}
-	AttrExt* getAttrExtPtr(void* base) const {
+	AttrExt& getAttrExt(BaseObject* base) const {
 		if(isStatic)
-			return (AttrExt*)(uintptr_t(base) + attrMemOffset + attrExtMemOffset);
+			return *(AttrExt*)(uintptr_t(base) + attrMemOffset + attrExtMemOffset);
 		else
-			return dynGetValueExtPtr(base, this);
+			return dynGetAttrExt(base, this);
 	}
-	ScriptVarPtr_t get(void* base) const { return ScriptVarPtr_t(attrType, (void*)getValuePtr(base), defaultValue); }
+	ScriptVar_t get(const BaseObject* base) const {
+		if(isStatic)
+			// the const-cast is safe because ScriptVarPtr_t.asScriptVar doesn't modify it
+			return ScriptVarPtr_t(attrType, (void*)getValuePtr(base), defaultValue).asScriptVar();
+		else
+			return dynGetValue(base, this);
+	}
 
 	std::string description() const;
 };
@@ -94,7 +98,7 @@ struct Attr {
 			pushObjAttrUpdate(parent()->thisWeakRef);
 		if(!ext.updated || parent()->attrUpdates.empty()) {
 			assert(&value == attrDesc()->getValuePtr(parent()));
-			assert(&ext == attrDesc()->getAttrExtPtr(parent()));
+			assert(&ext == &attrDesc()->getAttrExt(parent()));
 			AttrUpdateInfo info;
 			info.attrDesc = attrDesc();
 			info.oldValue = ScriptVar_t(value);

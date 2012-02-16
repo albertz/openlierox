@@ -41,6 +41,7 @@
 #include "CodeAttributes.h"
 #include "util/macros.h"
 #include "util/BaseObject.h"
+#include "game/Attr.h"
 
 struct FeatureSettingsLayer : private FeatureSettings {
 	std::string debug_name;
@@ -120,7 +121,21 @@ struct Settings : BaseObject {
 	void dumpAllLayers() const; // to notes
 	ScriptVar_t hostGet(FeatureIndex i);
 	ScriptVar_t hostGet(Feature* f) { return hostGet(FeatureIndex(f - &featureArray[0])); }
-	bool olderClientsSupportSetting(Feature* f);	
+	bool olderClientsSupportSetting(Feature* f);
+
+	struct AttrDescs {
+		AttrDesc attrDescs[FeatureArrayLen];
+		AttrDescs();
+		FeatureIndex getIndex(const AttrDesc* attrDesc);
+	};
+	static AttrDescs& getAttrDescs() {
+		static AttrDescs attrDescs;
+		return attrDescs;
+	}
+	AttrExt attrExts[FeatureArrayLen];
+
+	ScriptVar_t attrGetValue(const AttrDesc* attrDesc) const;
+	AttrExt& attrGetAttrExt(const AttrDesc* attrDesc);
 };
 
 extern Settings gameSettings;

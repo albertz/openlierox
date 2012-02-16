@@ -44,8 +44,8 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 			const AttrDesc* const attrDesc = u->attrDesc;
 			ScriptVar_t& oldValue = u->oldValue;
 
-			attrDesc->getAttrExtPtr(oPt)->updated = false;
-			if(oldValue == attrDesc->get(oPt).asScriptVar()) continue;
+			attrDesc->getAttrExt(oPt).updated = false;
+			if(oldValue == attrDesc->get(oPt)) continue;
 
 			if(callback)
 				callback(oPt, attrDesc, oldValue);

@@ -87,3 +87,46 @@ void Settings::dumpAllLayers() const {
 	}
 	notes << "}" << endl;
 }
+
+
+static ScriptVar_t Settings_attrGetValue(const BaseObject* obj, const AttrDesc* attrDesc) {
+	const Settings* s = dynamic_cast<const Settings*>(obj);
+	assert(s != NULL);
+	assert(s == &gameSettings); // it's a singleton
+	return s->attrGetValue(attrDesc);
+}
+
+static AttrExt& Settings_attrGetAttrExt(BaseObject* obj, const AttrDesc* attrDesc) {
+	Settings* s = dynamic_cast<Settings*>(obj);
+	assert(s != NULL);
+	assert(s == &gameSettings); // it's a singleton
+	return s->attrGetAttrExt(attrDesc);
+}
+
+Settings::AttrDescs::AttrDescs() {
+	for(size_t i = 0; i < FeatureArrayLen; ++i) {
+		attrDescs[i].objTypeId = LuaID<Settings>::value;
+		attrDescs[i].attrType = featureArray[i].valueType;
+		attrDescs[i].attrName = featureArray[i].name;
+		//attrDescs[i].attrId = id; TODO ...
+		attrDescs[i].defaultValue = featureArray[i].unsetValue;
+		attrDescs[i].isStatic = false;
+		attrDescs[i].dynGetValue = Settings_attrGetValue;
+		attrDescs[i].dynGetAttrExt = Settings_attrGetAttrExt;
+	}
+}
+
+FeatureIndex Settings::AttrDescs::getIndex(const AttrDesc* attrDesc) {
+	assert(attrDesc >= &attrDescs[0] && attrDesc < &attrDesc[FeatureArrayLen]);
+	return FeatureIndex(attrDesc - &attrDescs[0]);
+}
+
+ScriptVar_t Settings::attrGetValue(const AttrDesc* attrDesc) const {
+	FeatureIndex i = getAttrDescs().getIndex(attrDesc);
+	return (*this)[i];
+}
+
+AttrExt& Settings::attrGetAttrExt(const AttrDesc* attrDesc) {
+	FeatureIndex i = getAttrDescs().getIndex(attrDesc);
+	return attrExts[i];
+}
