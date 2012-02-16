@@ -19,6 +19,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <stdint.h>
 #include <boost/function.hpp>
 #include "Iter.h"
 #include "CScriptableVars.h"
@@ -27,6 +28,7 @@
 #include "CodeAttributes.h"
 
 struct Feature {
+	uint32_t id; // fixed for all future OLX versions. used also as game attrib id
 	std::string name; // for config, network and other identification
 	std::string humanReadableName;
 	std::string description;
@@ -56,44 +58,44 @@ struct Feature {
 	GetValueFunction getValueFct; // if set, it uses the return value for hostGet
 	
 	
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, 
+	Feature(uint32_t id_, const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def,
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
 				GetValueFunction f = GetValueFunction())
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), 
+	: id(id_), name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)),
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 		getValueFct(f) {}
 
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, 
+	Feature(uint32_t id_, const std::string& n, const std::string& hn, const std::string& desc, int unset, int def,
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, int minval = 0, int maxval = 0, bool ssdo = false, bool opt = false, 
 				bool unsig = false, GetValueFunction f = GetValueFunction())
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), 
+	: id(id_), name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)),
 		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
 		optionalForClient(opt), getValueFct(f) {}
 
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, 
+	Feature(uint32_t id_, const std::string& n, const std::string& hn, const std::string& desc, float unset, float def,
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool opt = false, 
 				bool unsig = false, GetValueFunction f = GetValueFunction())
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), 
+	: id(id_), name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)),
 		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
 		optionalForClient(opt), getValueFct(f) {}
 
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, 
+	Feature(uint32_t id_, const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def,
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
 				GetValueFunction f = GetValueFunction())
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), 
+	: id(id_), name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)),
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 		getValueFct(f) {}
 
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const char* unset, const char* def,
+	Feature(uint32_t id_, const std::string& n, const std::string& hn, const std::string& desc, const char* unset, const char* def,
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false,
 				GetValueFunction f = GetValueFunction())
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(std::string(unset))), defaultValue(Var(std::string(def))),
+	: id(id_), name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(std::string(unset))), defaultValue(Var(std::string(def))),
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt),
 		getValueFct(f) {}
 
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const CustomVar& unset, const CustomVar& def,
+	Feature(uint32_t id_, const std::string& n, const std::string& hn, const std::string& desc, const CustomVar& unset, const CustomVar& def,
 			Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_CUSTOM), unsetValue(Var(unset)), defaultValue(Var(def)), 
+	: id(id_), name(n), humanReadableName(hn), description(desc), valueType(SVT_CUSTOM), unsetValue(Var(unset)), defaultValue(Var(def)),
 	minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 	getValueFct(GetValueFunction()) {}
 	
@@ -120,7 +122,9 @@ enum FeatureIndex {
 	FT_Mod,
 	FT_SettingsPreset,
 	FT_WeaponRest,
-	
+	FT_ForceRandomWeapons, // only for server; implies bServerChoosesWeapons=true
+	FT_SameWeaponsAsHostWorm, // implies bServerChoosesWeapons=true
+
 	FT_LX56PhysicsFPS,
 	FT_ForceSameLX56PhysicsFPS,
 	FT_NinjaropePrecision,
@@ -136,10 +140,7 @@ enum FeatureIndex {
 	FT_MaxRespawnTime,
 	FT_RespawnGroupTeams, // respawn all team in single spot
 	FT_EmptyWeaponsOnRespawn, // When worm respawns it should wait until all weapons are reloaded
-	
-	FT_ForceRandomWeapons, // only for server; implies bServerChoosesWeapons=true
-	FT_SameWeaponsAsHostWorm, // implies bServerChoosesWeapons=true
-	
+		
 	FT_WormGroundSpeed, // float
 	FT_WormAirSpeed, // float
 	FT_WormAirFriction, // float
