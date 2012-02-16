@@ -29,8 +29,11 @@ struct AttrDesc {
 
 	ObjTypeId objTypeId;
 	ScriptVarType_t attrType;
+	bool isStatic; // if true -> use memOffsets; otherwise, dyn funcs
 	intptr_t attrMemOffset;
 	intptr_t attrExtMemOffset;
+	boost::function<void* (void* base, const AttrDesc* attrDesc)> dynGetValuePtr;
+	boost::function<AttrExt* (void* base, const AttrDesc* attrDesc)> dynGetValueExtPtr;
 	std::string attrName;
 	AttrId attrId;
 	ScriptVar_t defaultValue;
@@ -40,10 +43,20 @@ struct AttrDesc {
 	boost::function<void(void* base, const AttrDesc* attrDesc)> sync;
 	
 	AttrDesc()
-	: objTypeId(0), attrType(SVT_INVALID), attrMemOffset(0), attrId(0) {}
+	: objTypeId(0), attrType(SVT_INVALID), isStatic(true), attrMemOffset(0), attrExtMemOffset(0), attrId(0) {}
 
-	void* getValuePtr(void* base) const { return (void*)(uintptr_t(base) + attrMemOffset); }
-	AttrExt* getAttrExtPtr(void* base) const { return (AttrExt*)(uintptr_t(base) + attrMemOffset + attrExtMemOffset); }
+	void* getValuePtr(void* base) const {
+		if(isStatic)
+			return (void*)(uintptr_t(base) + attrMemOffset);
+		else
+			return dynGetValuePtr(base, this);
+	}
+	AttrExt* getAttrExtPtr(void* base) const {
+		if(isStatic)
+			return (AttrExt*)(uintptr_t(base) + attrMemOffset + attrExtMemOffset);
+		else
+			return dynGetValueExtPtr(base, this);
+	}
 	ScriptVarPtr_t get(void* base) const { return ScriptVarPtr_t(attrType, (void*)getValuePtr(base), defaultValue); }
 
 	std::string description() const;
