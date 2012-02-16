@@ -20,16 +20,25 @@ std::string AttrDesc::description() const {
 	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
 }
 
-static std::vector< WeakRef<BaseObject> > objUpdates;
+const AttrDesc* AttribRef::getAttrDesc() const {
+	return NULL;
+}
+
+ScriptVar_t ObjAttrRef::get() const {
+	const BaseObject* oPt = obj.get();
+	assert(oPt != NULL); // or should we return the attr default?
+	const AttrDesc* attrDesc = attr.getAttrDesc();
+	assert(attrDesc != NULL);
+	return attrDesc->get(oPt);
+}
 
 
 void registerAttrDesc(AttrDesc& attrDesc) {
 	
 }
 
-const AttrDesc* getAttrDesc(const AttribRef& attrRef) {
-	return NULL;
-}
+
+static std::vector< WeakRef<BaseObject> > objUpdates;
 
 void pushObjAttrUpdate(WeakRef<BaseObject> obj) {
 	objUpdates.push_back(obj);

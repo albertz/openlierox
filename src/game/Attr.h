@@ -69,10 +69,28 @@ struct AttrDesc {
 struct AttribRef {
 	AttrDesc::ObjTypeId objTypeId;
 	AttrDesc::AttrId attrId;
+
+	const AttrDesc* getAttrDesc() const;
+
+	bool operator<(const AttribRef& o) const {
+		if(objTypeId != o.objTypeId) return objTypeId < o.objTypeId;
+		return attrId < o.attrId;
+	}
+};
+
+struct ObjAttrRef {
+	WeakRef<BaseObject> obj;
+	AttribRef attr;
+
+	ScriptVar_t get() const;
+
+	bool operator<(const ObjAttrRef& o) const {
+		if(obj.get() != o.obj.get()) return obj.get() < o.obj.get();
+		return attr < o.attr;
+	}
 };
 
 void registerAttrDesc(AttrDesc& attrDesc);
-const AttrDesc* getAttrDesc(const AttribRef& attrRef);
 void pushObjAttrUpdate(WeakRef<BaseObject> obj);
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
 

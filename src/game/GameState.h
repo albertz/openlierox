@@ -17,33 +17,19 @@
 #include "Attr.h"
 
 struct AttribState {
-//	AttrDesc::AttrId attrId;
 	ScriptVar_t value;
 };
 
-struct AttribStates {
-//	AttrDesc::ObjTypeId objTypeId;
-	std::map<AttrDesc::AttrId, AttribState> attribs;
-};
-
 struct ObjectState {
-	std::map<AttrDesc::ObjTypeId, AttribStates> attribs;
-	AttribState& attrib(AttrDesc::ObjTypeId objTypeId, AttrDesc::AttrId attrId) {
-		AttribStates& attrsByType = attribs[objTypeId];
-		AttribState& attrState = attrsByType.attribs[attrId];
-		return attrState;
-	}
+	std::map<AttribRef, AttribState> attribs;
 };
 
-struct GameStateUpdateRef {
-	AttribRef attribRef;
-	std::string engineSetting;
-	enum Type { T_Attrib, T_Setting } type;
+struct GameStateUpdates {
+	std::set<ObjAttrRef> objs;
 };
 
 struct GameState
 {
-	EngineSettings settings;
 	std::vector<ObjectState> objects;
 };
 
