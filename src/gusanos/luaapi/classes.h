@@ -40,6 +40,7 @@ class WeaponType;
 class Font;
 class Sound;
 class SpriteSet;
+class Settings;
 
 namespace OmfgGUI
 {
@@ -76,6 +77,7 @@ CLASSID(OmfgGUI::Edit, 22);
 CLASSID(OmfgGUI::Check, 23);
 CLASSID(OmfgGUI::Label, 24);
 CLASSID(CNinjaRope, 25);
+CLASSID(Settings, 26);
 
 #undef CLASSID
 

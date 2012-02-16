@@ -40,6 +40,7 @@
 #include "FeatureList.h"
 #include "CodeAttributes.h"
 #include "util/macros.h"
+#include "util/BaseObject.h"
 
 struct FeatureSettingsLayer : private FeatureSettings {
 	std::string debug_name;
@@ -68,7 +69,7 @@ struct FeatureSettingsLayer : private FeatureSettings {
 	bool loadFromConfig(const std::string& cfgfile, bool reset, std::map<std::string, std::string>* unknown = NULL);
 };
 
-struct Settings {
+struct Settings : BaseObject {
 	Settings() {
 		for(size_t i = 0; i < FeatureArrayLen; ++i) {
 			wrappers[i].i = (FeatureIndex)i;
