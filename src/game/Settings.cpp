@@ -12,6 +12,7 @@
 #include "CServer.h"
 #include "IniReader.h"
 #include "Debug.h"
+#include "gusanos/luaapi/classes.h"
 
 Settings gameSettings;
 FeatureSettingsLayer modSettings("Mod properties");
@@ -131,6 +132,14 @@ Settings::AttrDescs::AttrDescs() {
 		attrDescs[i].isStatic = false;
 		attrDescs[i].dynGetValue = Settings_attrGetValue;
 		attrDescs[i].dynGetAttrExt = Settings_attrGetAttrExt;
+	}
+}
+
+Settings::Settings() {
+	uniqueObjId = LuaID<Settings>::value;
+	for(size_t i = 0; i < FeatureArrayLen; ++i) {
+		wrappers[i].i = (FeatureIndex)i;
+		wrappers[i].s = this;
 	}
 }
 

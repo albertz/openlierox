@@ -10,6 +10,7 @@
 #define OpenLieroX_BaseObject_h
 
 #include <vector>
+#include <stdint.h>
 #include "CodeAttributes.h"
 #include "WeakRef.h"
 #include "CScriptableVars.h"
@@ -25,6 +26,7 @@ struct BaseObject : DontCopyTag {
 	BaseObject();
 	virtual ~BaseObject();
 	
+	uint32_t uniqueObjId;
 	std::vector<AttrUpdateInfo> attrUpdates;
 	WeakRef<BaseObject> thisWeakRef;
 };

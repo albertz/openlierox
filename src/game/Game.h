@@ -20,6 +20,7 @@
 #include "gusanos/object_grid.h"
 #include "util/Result.h"
 #include "Iter.h"
+#include "util/BaseObject.h"
 
 class CWormHumanInputHandler;
 class CWormInputHandler;
@@ -32,8 +33,10 @@ class CServerConnection;
 struct Version;
 struct profile_t;
 
-class Game {
+class Game : BaseObject {
 public:
+	Game();
+
 	void prepareGameloop();
 	void frameOuter();
 	void frameInner();

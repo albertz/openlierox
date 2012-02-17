@@ -9,6 +9,7 @@
 #include "BaseObject.h"
 
 BaseObject::BaseObject() {
+	uniqueObjId = -1;
 	thisWeakRef.set(this);
 }
 

@@ -41,6 +41,7 @@ class Font;
 class Sound;
 class SpriteSet;
 class Settings;
+class Game;
 
 namespace OmfgGUI
 {
@@ -78,11 +79,12 @@ CLASSID(OmfgGUI::Check, 23);
 CLASSID(OmfgGUI::Label, 24);
 CLASSID(CNinjaRope, 25);
 CLASSID(Settings, 26);
+CLASSID(Game, 27);
 
 #undef CLASSID
 
 INLINE const char* LuaClassName(uint32_t id_) {
-	return LuaClassInfo<26>::name(id_);
+	return LuaClassInfo<27>::name(id_);
 }
 
 template<class T>

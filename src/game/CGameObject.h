@@ -35,8 +35,6 @@ public:
 	CGameObject(CWormInputHandler* owner, Vec pos_ = Vec(), Vec spd_ = Vec() );
 	~CGameObject();
 
-	uint32_t uniqueObjId;
-
 protected:
 	// Gusanos comment:
 	// IMPORTANT: The pos and spd vectors should be used as read only. ( Because of netplay needs )

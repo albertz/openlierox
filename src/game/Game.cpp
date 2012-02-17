@@ -40,6 +40,7 @@
 #include "CGameScript.h"
 #include "ProfileSystem.h"
 #include "Attr.h"
+#include "gusanos/luaapi/classes.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -55,6 +56,10 @@ static bool DbgSimulateSlow = false;
 static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
 ( DbgSimulateSlow, "SimulateSlow" );
 
+
+Game::Game() {
+	uniqueObjId = LuaID<Game>::value;
+}
 
 void Game::prepareGameloop() {
 	// Pre-game initialization

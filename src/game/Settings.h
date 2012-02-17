@@ -66,12 +66,7 @@ struct FeatureSettingsLayer : private FeatureSettings {
 };
 
 struct Settings : BaseObject {
-	Settings() {
-		for(size_t i = 0; i < FeatureArrayLen; ++i) {
-			wrappers[i].i = (FeatureIndex)i;
-			wrappers[i].s = this;
-		}
-	}
+	Settings();
 	
 	typedef std::vector<FeatureSettingsLayer*> Layers;
 	Layers layers;
