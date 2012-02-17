@@ -43,6 +43,8 @@
 #include "gusanos/sprite_set.h"
 #include "gusanos/animators.h"
 #include "gusanos/weapon.h"
+#include "game/ClassInfo.h"
+#include "gusanos/luaapi/classes.h"
 
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
@@ -1572,4 +1574,7 @@ const Version& CWorm::getClientVersion() {
 void CWorm::setClientVersion(const Version & v) {
 	cClientVersion = v;
 }
+
+
+REGISTER_CLASS(CWorm)
 

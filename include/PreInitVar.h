@@ -10,8 +10,7 @@
 #ifndef __OLX__PREINITVAR_H__
 #define __OLX__PREINITVAR_H__
 
-#define _LINENAME_CAT( name, line ) name##line
-#define _LINENAME( name, line ) _LINENAME_CAT( name, line )
+#include "util/macros.h"
 
 /* HACK: use _LINENAME, workaround for a buggy MSVC compiler (http://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=360628)*/
 #define PIVar(T, def) \

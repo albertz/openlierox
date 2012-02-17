@@ -23,12 +23,15 @@ struct AttrUpdateInfo {
 };
 
 struct BaseObject : DontCopyTag {
+	typedef uint32_t ObjId;
+	typedef ::WeakRef<BaseObject> WeakRef;
+
 	BaseObject();
 	virtual ~BaseObject();
 	
-	uint32_t uniqueObjId;
+	ObjId uniqueObjId;
 	std::vector<AttrUpdateInfo> attrUpdates;
-	WeakRef<BaseObject> thisWeakRef;
+	WeakRef thisWeakRef;
 };
 
 #endif

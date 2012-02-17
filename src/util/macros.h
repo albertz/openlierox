@@ -51,4 +51,7 @@
 #define __OLX_OFFSETOF(type, member) ( (char*) ( & ( (type*)( (char*)0 + sizeof(type) ) )->member ) - sizeof(type) )
 #define __OLX_BASETHIS(type, member) (type*) ( (char*)this - __OLX_OFFSETOF(type,member) )
 
+#define _LINENAME_CAT( name, line ) name##line
+#define _LINENAME( name, line ) _LINENAME_CAT( name, line )
+
 #endif //OLX_UTILS_MACROS_H

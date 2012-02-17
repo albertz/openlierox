@@ -4,6 +4,7 @@
 #include "context.h"
 #include "util/log.h"
 #include "CodeAttributes.h"
+#include "game/ClassInfo.h"
 
 template<class T> struct LuaID {};
 template<uint32_t id> struct LuaClassInfo {
@@ -13,6 +14,7 @@ template<uint32_t id> struct LuaClassInfo {
 #define CLASSID(name_, id_) \
 template<> struct LuaID<name_> { static uint32_t const value = id_; }; \
 template<> struct LuaClassInfo<id_> { \
+	static uint32_t const id = id_; \
 	static const char* name() { return # name_; } \
 	static const char* name(uint32_t id2_) { \
 		if(id_ == id2_) return name(); \

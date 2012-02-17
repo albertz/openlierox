@@ -79,13 +79,14 @@ struct AttribRef {
 };
 
 struct ObjAttrRef {
+	BaseObject::ObjId objId;
 	WeakRef<BaseObject> obj;
 	AttribRef attr;
 
 	ScriptVar_t get() const;
 
 	bool operator<(const ObjAttrRef& o) const {
-		if(obj.get() != o.obj.get()) return obj.get() < o.obj.get();
+		if(objId != o.objId) return objId < o.objId;
 		return attr < o.attr;
 	}
 };

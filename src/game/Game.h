@@ -33,7 +33,7 @@ class CServerConnection;
 struct Version;
 struct profile_t;
 
-class Game : BaseObject {
+class Game : public BaseObject {
 public:
 	Game();
 

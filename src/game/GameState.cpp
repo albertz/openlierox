@@ -8,4 +8,15 @@
  */
 
 #include "GameState.h"
+#include "Game.h"
+#include "Settings.h"
 
+GameState::GameState() {
+	// register singletons which are always there
+	registerObj(&game);
+	registerObj(&gameSettings);
+}
+
+ObjectState& GameState::registerObj(BaseObject* obj) {
+	return objs[obj->uniqueObjId] = ObjectState(obj);
+}

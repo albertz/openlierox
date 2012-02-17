@@ -13,6 +13,7 @@
 #include "FeatureList.h"
 #include "Game.h"
 #include "util/macros.h"
+#include "Settings.h"
 
 /*
   EngineSettings is used by the client (CClient) to store the current
