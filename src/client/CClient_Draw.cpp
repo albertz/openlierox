@@ -463,7 +463,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	//
 	// check if Players not yet ready
 	//
-	if (iNetStatus == NET_CONNECTED && game.state >= Game::S_Preparing)  {
+	if (game.state >= Game::S_Preparing)  {
 		bool ready = true;
 
 		// Go through and draw the first two worms select menus
@@ -733,13 +733,14 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	}
 	
 	// Go through and draw the first two worms select menus
-	if (iNetStatus == NET_CONNECTED && game.state >= Game::S_Preparing && !bWaitingForMod) {
+	if (game.state >= Game::S_Preparing && !bWaitingForMod) {
 		short i = 0;
 		for_each_iterator(CWorm*, w, game.localWorms()) {
 			++i;
-			if(i >= num) break;
+			CViewport* v = NULL;
+			if(i < NUM_VIEWPORTS) v = &cViewports[i];
 			if(!w->get()->bWeaponsReady)
-				w->get()->doWeaponSelectionFrame(bmpDest, &cViewports[i]);
+				w->get()->doWeaponSelectionFrame(bmpDest, v);
 		}
 	}
 

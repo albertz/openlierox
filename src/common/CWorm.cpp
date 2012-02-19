@@ -458,17 +458,13 @@ void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 	}
 	
 	if(!this->shouldDoOwnWeaponSelection()) {
-		int t = 0;
-		int centrex = 320; // TODO: hardcoded screen width here
-		
-		if( v ) {
-			if( v->getUsed() ) {
-				t = v->GetTop();
-				centrex = v->GetLeft() + v->GetVirtW()/2;
-			}
+		if( v && v->getUsed() ) {
+			int t = v->GetTop();
+			int centrex = v->GetLeft() + v->GetVirtW()/2;
+
+			tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "... Waiting for server selection ...");
 		}
 		
-		tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "... Waiting for server selection ...");
 		return;
 	}
 	
