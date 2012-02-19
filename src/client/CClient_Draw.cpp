@@ -766,7 +766,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// TODO: remove this static here; it is a bad hack and doesn't work in all cases
 	static bool was_gameovermenu = false;
 	if(game.gameOver) {
-		if(tLX->currentTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {			
+		if(game.gameOverTime().seconds() > GAMEOVER_WAIT && !was_gameovermenu)  {
 			InitializeGameMenu();
 
 			// If this is a tournament, take screenshot of the final screen
@@ -1538,7 +1538,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 	// Update the coutdown
 	if (game.gameOver)  {
-		int sec = 5 + GAMEOVER_WAIT - (int)(tLX->currentTime - fGameOverTime).seconds();
+		int sec = 5 + GAMEOVER_WAIT - (int)game.gameOverTime().seconds();
 		sec = MAX(0, sec); // Safety
 		cGameMenuLayout.SendMessage(gm_Coutdown, DeprecatedGUI::LBS_SETTEXT, itoa(sec), 0);
 	}

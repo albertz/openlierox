@@ -563,9 +563,14 @@ bool Game::isGamePaused() {
 }
 
 bool Game::shouldDoPhysicsFrame() {
-	return !isGamePaused() && cClient->canSimulate() &&
-    // We stop a few seconds after the actual game over
-	!(game.gameOver && (tLX->currentTime - cClient->fGameOverTime).seconds() > GAMEOVER_WAIT);
+	if(isGamePaused()) return false;
+	if(!cClient->canSimulate()) return false;
+	if(gameOver) {
+		// We stop a few seconds after the actual game over
+		if(gameOverTime().seconds() > GAMEOVER_WAIT)
+			return false;
+	}
+	return true;
 }
 
 

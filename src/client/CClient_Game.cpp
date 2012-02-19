@@ -226,7 +226,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 	}
 
     // We stop a few seconds after the actual game over
-	if(game.gameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
+	if(game.gameOver && game.gameOverTime().seconds() > GAMEOVER_WAIT)
         return;
 
 

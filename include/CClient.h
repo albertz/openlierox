@@ -366,7 +366,6 @@ private:
 	bool		bGameMenu;
 	int			iMatchWinner;
 	int			iMatchWinnerTeam;
-	AbsTime		fGameOverTime;
 
 	bool		bLobbyReady;
 	bool		bHaveMap;

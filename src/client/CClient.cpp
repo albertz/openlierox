@@ -1957,7 +1957,7 @@ void CClient::GetLogData(std::string& data)
 
 	// Save the game info
 	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
-			"length=\"" + ftoa((fGameOverTime - tGameLog->fGameStart).seconds()) + "\" " +
+			"length=\"" + ftoa(game.gameOverTime().seconds()) + "\" " +
 			"loading=\"" + itoa((int)getGameLobby()[FT_LoadingTime]) + "\" " +
 			"gamespeed=\"" + ftoa(gameSettings[FT_GameSpeed]) + "\" " +
 			"lives=\"" + itoa((int)getGameLobby()[FT_Lives]) + "\" " +

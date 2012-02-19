@@ -1800,7 +1800,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	}
 	hints << endl;
 	game.gameOver = true;
-	client->fGameOverTime = tLX->currentTime;
+	game.gameOverFrame = game.serverFrame;
 
 	if (client->tGameLog)
 		client->tGameLog->iWinner = client->iMatchWinner;
