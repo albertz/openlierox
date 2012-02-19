@@ -424,12 +424,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// TODO: clean this function up
 	// currently both control structure and the drawing itself is in here
 
-	ushort i,num;
-	TimeDiff dt = tLX->fDeltaTime;
-
-	// TODO: allow more worms
-	num = (ushort)MIN(2,game.localWorms()->size());
-
 
 	// Check for any communication errors
 	if(bServerError) {
@@ -566,7 +560,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if(((iNetStatus == NET_CONNECTED  && game.state >= Game::S_Preparing ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
 
 		// Draw the viewports
-		for( i=0; i<NUM_VIEWPORTS; i++ ) {
+		for( ushort i=0; i<NUM_VIEWPORTS; i++ ) {
 			if( cViewports[i].getUsed() )  {
 				if (game.gameMap() != NULL)
 					cViewports[i].Process(cViewports, game.gameMap()->GetWidth(), game.gameMap()->GetHeight(), getGeneralGameType());
@@ -584,7 +578,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Mini-Map
 		if (game.gameMap() != NULL && (bool)getGameLobby()[FT_MiniMap])  {
 			if (game.state >= Game::S_Preparing || iNetStatus == NET_PLAYING)
-				game.gameMap()->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt );
+				game.gameMap()->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, tLX->fDeltaTime );
 			else {
 				if(game.gameMap()->GetMiniMap().get())
 					DrawImage( bmpDest, game.gameMap()->GetMiniMap(), MiniMapX, MiniMapY);
