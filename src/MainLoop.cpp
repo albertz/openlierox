@@ -307,12 +307,22 @@ void SetCrashHandlerReturnPoint(const char* name) {
 
 void doVideoFrameInMainThread() {
 	if(bDedicated) return;
+#ifdef SINGLETHREADED
+	VideoPostProcessor::flipBuffers();
+	VideoPostProcessor::process();
+	flipRealVideo();
+#else
 	videoHandler.pushFrame();
+#endif
 }
 
 void doSetVideoModeInMainThread() {
 	if(bDedicated) return;
+#ifdef SINGLETHREADED
+	videoHandler.setVideoMode();
+#else
 	videoHandler.requestSetVideoMode();
+#endif
 }
 
 void doVppOperation(Action* act) {
