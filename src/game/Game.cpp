@@ -137,6 +137,10 @@ void checkCurrentGameState() {
 
 
 
+void Game::prepareMenu() {
+	menuStartTime = GetTime();
+}
+
 void Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
@@ -227,7 +231,7 @@ bool Game::hasSeriousHighSimulationDelay() { return simulationDelay() > TimeDiff
 
 void Game::frameOuter() {
 	SetCrashHandlerReturnPoint("main game loop");
-	
+
 	// Timing
 	tLX->currentTime = GetTime();
 	tLX->fDeltaTime = tLX->currentTime - oldtime;
@@ -235,11 +239,23 @@ void Game::frameOuter() {
 	oldtime = tLX->currentTime;
 
 	ProcessEvents();
-	
+
 	// Main frame
 	frameInner();
 
+	if(DeprecatedGUI::tMenu->bMenuRunning) {
+		DeprecatedGUI::Menu_Frame();
+
+		// If we have run fine for >=5 seconds, it is probably safe & make sense
+		// to restart the game in case of a crash.
+		if(tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
+			CrashHandler::restartAfterCrash = true;
+	}
+
 	if(DbgSimulateSlow) SDL_Delay(700);
+
+	doVideoFrameInMainThread();
+	CapFPS();
 }
 
 

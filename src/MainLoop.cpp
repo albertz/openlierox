@@ -208,7 +208,6 @@ struct MainLoopTask : LoopTask {
 		State_Quit
 	};
 	State state;
-	AbsTime menuStartTime;
 	MainLoopTask() : state(State_Startup) {}
 	Result handle_Startup();
 	Result handle_BeforeMenu();
@@ -445,7 +444,8 @@ Result MainLoopTask::handle_BeforeMenu() {
 
 	DeprecatedGUI::bSkipStart = false;
 
-	menuStartTime = tLX->currentTime = GetTime();
+	tLX->currentTime = GetTime();
+	game.prepareMenu();
 
 	state = State_Menu;
 	return true;
@@ -458,18 +458,6 @@ Result MainLoopTask::handle_Menu() {
 	}
 
 	game.frameOuter();
-	DeprecatedGUI::Menu_Frame();
-	if(!DeprecatedGUI::tMenu->bMenuRunning) return true;
-	SetCrashHandlerReturnPoint("Menu_Loop");
-
-	// If we have run fine for >=5 seconds, it is probably safe & make sense
-	// to restart the game in case of a crash.
-	if(tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
-		CrashHandler::restartAfterCrash = true;
-
-	doVideoFrameInMainThread();
-	CapFPS();
-
 	return true;
 }
 
@@ -510,9 +498,6 @@ Result MainLoopTask::handle_Game() {
 	}
 
 	game.frameOuter();
-
-	doVideoFrameInMainThread();
-	CapFPS();
 	return true;
 }
 

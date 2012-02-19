@@ -43,6 +43,7 @@ public:
 	void startGame();
 	void stop();
 
+	void prepareMenu();
 	void prepareGameloop();
 	void frameOuter();
 	void frameInner();
@@ -152,6 +153,7 @@ private:
 	bool m_isServer;
 	bool m_isLocalGame;
 
+	AbsTime menuStartTime;
 	AbsTime oldtime;
 	AbsTime simulationTime;
 	SmartPointer<CMap> m_gameMap;
