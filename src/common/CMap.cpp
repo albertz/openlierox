@@ -2311,7 +2311,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt)
 		drawOnMiniMap(bmpDest, x, y, w->getPos(), gameCol.r, gameCol.g, gameCol.b, big, false);
 	}
 	
-	if(cClient && cClient->getGameReady()) {
+	if(cClient && game.state >= Game::S_Preparing) {
 		cClient->flagInfo()->drawOnMiniMap(this, bmpDest, x, y);
 	}
 }

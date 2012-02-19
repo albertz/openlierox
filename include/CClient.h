@@ -369,8 +369,6 @@ private:
 	AbsTime		fGameOverTime;
 
 	bool		bLobbyReady;
-	bool		bGameReady; // bGameReady says if the game (including map) has been initialized
-	bool		bGameRunning; // game was started and is running (implies bGameReady, but our own worm could be in weapon selection)
 	bool		bHaveMap;
 	bool		bHaveMod;
 
@@ -543,8 +541,6 @@ public:
 	void		clearLocalWormInputs();
 
 	int			getTeamWormCount(int t) const;
-	bool		getGameReady()			{ return bGameReady; }
-	void		setGameReady(bool _g)		{ bGameReady = _g; }
 
     CChatBox    *getChatbox()           { return &cChatbox; }
 	void		setRepaintChatbox(bool _r)  { bRepaintChatbox = true; }

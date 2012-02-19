@@ -66,7 +66,7 @@ void CClient::Simulation()
 		return;
 	}
 
-	if(game.isGamePaused()) {
+	if(game.isGamePaused() || game.gameOver) {
 		// Clear the input of the local worms
 		clearLocalWormInputs();
 		
@@ -106,12 +106,10 @@ void CClient::Simulation()
 		// TODO: move this to a simulateWorms() in PhysicsEngine
 		PhysicsEngine::Get()->simulateWorm( w, w->getLocal() );
 
+		if(game.gameOver)
+			continue;
+
 		if(w->getAlive()) {
-
-			if(game.gameOver)
-				// TODO: why continue and not break?
-                continue;
-
 
 			// Check if this worm picked up a bonus
 
@@ -139,10 +137,6 @@ void CClient::Simulation()
 			}
 		}
 
-		if(game.gameOver)
-			// TODO: why continue and not break?
-            continue;
-		
 		// from CServerNetEngine::ParseUpdate. we don't send updates of local worms anymore, so we have to handle this here
 		if(game.isServer()) {
 			// If the worm is shooting, handle it
@@ -805,7 +799,7 @@ struct ScoreCompare {
 void CClient::UpdateScoreboard()
 {
 	// Should be called ONLY in game
-	if(!bGameReady)
+	if(game.state < Game::S_Preparing)
 		return;
 	
 	bUpdateScore = true;

@@ -105,8 +105,6 @@ void CClient::Clear()
 
 	cChatbox.Clear();
 
-	bGameReady = false;
-	bGameRunning = false;
 	bReadySent = false;
 	bGameMenu = false;
     bViewportMgr = false;
@@ -165,8 +163,6 @@ void CClient::Clear()
 void CClient::MinorClear()
 {
 	iNetStatus = NET_CONNECTED;
-	bGameReady = false;
-	bGameRunning = false;
 	bReadySent = false;
 	bGameMenu = false;
     bViewportMgr = false;
@@ -246,7 +242,6 @@ CClient::CClient() {
 	cWeaponBar1 = NULL;
 	cWeaponBar2 = NULL;
 	cDownloadBar = NULL;
-	bGameReady = false;
 	bMapGrabbed = false;
 	cChatList = NULL;
 	bUpdateScore = true;
@@ -1026,7 +1021,7 @@ void CClient::Frame()
 		return;
 	
 	if(
-		(bGameRunning || iNetStatus == NET_PLAYING) &&
+		(game.state == Game::S_Playing || iNetStatus == NET_PLAYING) &&
 		!bWaitingForMap &&
 		!bWaitingForMod &&
 		game.gameMap() &&
@@ -1135,7 +1130,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 
 	if(!sendPendingOnly) {
 		// Playing packets
-		if(iNetStatus == NET_PLAYING || bGameReady)
+		if(iNetStatus == NET_PLAYING || game.state >= Game::S_Preparing)
 		{
 			cNetEngine->SendWormDetails();
 			cNetEngine->SendReportDamage();	// It sends only if someting is queued
@@ -1144,7 +1139,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 
 		// Send every second
 		// TODO: move this somewhere else
-		if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bGameReady))  && (tLX->currentTime - fMyPingRefreshed).seconds() > 1) {
+		if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && game.state >= Game::S_Preparing))  && (tLX->currentTime - fMyPingRefreshed).seconds() > 1) {
 			CBytestream ping;
 
 			// TODO: move this out here
@@ -1807,7 +1802,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 					
 		// gameready means that we had a preparegame package
 		// status==NET_PLAYING means that we are already playing
-		if( cClient->getGameReady() ) {
+		if( game.state >= Game::S_Preparing ) {
 						
 			if(!w->bWeaponsReady)
 				w->initWeaponSelection();
@@ -2282,5 +2277,5 @@ void CClient::SetSocketWithEvents(bool v) {
 	tSocket->setWithEvents(v);
 }
 
-bool CClient::canSimulate() const { return bGameReady && !game.gameOver && game.isMapReady(); }
+bool CClient::canSimulate() const { return game.state >= Game::S_Preparing && game.isMapReady(); }
 

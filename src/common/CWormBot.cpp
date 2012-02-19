@@ -681,7 +681,7 @@ public:
 	// this function will start the search, if it was not started right now
 	// WARNING: the searcher-thread will clear all current saved nodes
 	bool startThreadSearch() {
-		if(!cClient->getGameReady()) {
+		if(game.state < Game::S_Preparing) {
 			errors << "AI searchpath: cannot search yet, game not ready" << endl;
 			return false;
 		}

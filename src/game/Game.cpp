@@ -109,7 +109,7 @@ void checkCurrentGameState() {
 				errors << "client is connecting but game state is " << game.state << endl;
 			return;
 		}
-		if(!cClient->getGameReady()) {
+		if(game.state < Game::S_Preparing) {
 			// S_CLILOBBY;
 			if(game.state != Game::S_Lobby)
 				errors << "client is connected and game is not ready but game state is " << game.state << endl;

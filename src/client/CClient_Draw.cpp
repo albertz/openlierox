@@ -463,7 +463,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	//
 	// check if Players not yet ready
 	//
-	if (iNetStatus == NET_CONNECTED && bGameReady)  {
+	if (iNetStatus == NET_CONNECTED && game.state >= Game::S_Preparing)  {
 		bool ready = true;
 
 		// Go through and draw the first two worms select menus
@@ -563,7 +563,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// Draw the viewports
 	// HINT: before we get packet with map info and load the map, game.gameMap() is undefined
 	// bGameReady says if the game (including map) has been initialized
-	if(((iNetStatus == NET_CONNECTED  && bGameReady ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
+	if(((iNetStatus == NET_CONNECTED  && game.state >= Game::S_Preparing ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
 
 		// Draw the viewports
 		for( i=0; i<NUM_VIEWPORTS; i++ ) {
@@ -583,7 +583,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// Mini-Map
 		if (game.gameMap() != NULL && (bool)getGameLobby()[FT_MiniMap])  {
-			if (bGameReady || iNetStatus == NET_PLAYING)
+			if (game.state >= Game::S_Preparing || iNetStatus == NET_PLAYING)
 				game.gameMap()->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt );
 			else {
 				if(game.gameMap()->GetMiniMap().get())
@@ -733,7 +733,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	}
 	
 	// Go through and draw the first two worms select menus
-	if (iNetStatus == NET_CONNECTED && bGameReady && !bWaitingForMod) {
+	if (iNetStatus == NET_CONNECTED && game.state >= Game::S_Preparing && !bWaitingForMod) {
 		short i = 0;
 		for_each_iterator(CWorm*, w, game.localWorms()) {
 			++i;
@@ -893,7 +893,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 		game.gameMap()->Draw(bmpDest, v);
 		
 	// The following will be drawn only when playing
-	if (bGameReady || iNetStatus == NET_PLAYING)  {
+	if (game.state >= Game::S_Preparing || iNetStatus == NET_PLAYING)  {
 		if(!game.gameScript()->gusEngineUsed()) {
 			// update the drawing position
 			for_each_iterator(CWorm*, w, game.aliveWorms())
@@ -1303,7 +1303,7 @@ void CClient::SimulateHud()
 	//
 
 	// Health bar toggle
-	if (cShowHealth.isDownOnce() && !bChat_Typing && bGameReady)  {
+	if (cShowHealth.isDownOnce() && !bChat_Typing && game.state >= Game::S_Preparing)  {
 		tLXOptions->bShowHealth = !tLXOptions->bShowHealth;
 	}
 
@@ -1351,7 +1351,7 @@ void CClient::SimulateHud()
 		bShouldRepaintInfo = true;
 	}
 
-	if (bGameReady)  {
+	if (game.state >= Game::S_Preparing)  {
 		// Console
 		if(!bChat_Typing && !bGameMenu && !bViewportMgr) {
 			Con_Process(tLX->fDeltaTime);
@@ -1374,7 +1374,7 @@ void CClient::SimulateHud()
 	
 	if( CWorm* w = game.firstLocalHumanWorm() ) {
 		AFK_TYPE curState = AFK_BACK_ONLINE;
-		if(iNetStatus == NET_CONNECTED && bGameRunning) curState = AFK_SELECTING_WPNS;
+		if(!w->bWeaponsReady) curState = AFK_SELECTING_WPNS;
 		if(bChat_Typing) curState = AFK_TYPING_CHAT;
 		if(bGameMenu && !game.gameOver) curState = AFK_MENU;
 		if(Con_IsVisible()) curState = AFK_CONSOLE;
@@ -2710,7 +2710,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
         return;
     if(cShowScore.isDown() && !bChat_Typing)
         bShowScore = true;
-	if(iNetStatus == NET_CONNECTED && bGameReady && !game.isLocalGame()) {
+	if(iNetStatus == NET_CONNECTED && game.state >= Game::S_Preparing && !game.isLocalGame()) {
         bShowScore = true;
         bShowReady = true;
     }

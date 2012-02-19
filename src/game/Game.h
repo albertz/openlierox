@@ -71,7 +71,7 @@ public:
 		S_Inactive = 0,
 		S_Connecting,
 		S_Lobby,
-		S_Preparing, // includes wpn selection
+		S_Preparing, // game loaded but no simulation. we might wait for wpn selection or so. it doesn't imply wpn selection though, CWorm::bWeaponsReady says if a specific worm is doing wpn selection or not.
 		S_Playing
 	};
 	static std::string StateAsStr(int s) {

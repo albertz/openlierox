@@ -660,7 +660,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 
 	// If we have started, leave the frontend
-	if(cClient->getGameReady()) {
+	if(game.state >= Game::S_Preparing) {
 
 		cJoinLobby.Shutdown();
 

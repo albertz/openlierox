@@ -759,7 +759,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 	// We've already got this packet
-	if (client->bGameReady && !game.gameOver)  {
+	if (game.state >= Game::S_Preparing && !game.gameOver)  {
 		((game.isClient()) ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: we already got this" << endl;
 		
@@ -775,7 +775,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if (client->iNetStatus == NET_PLAYING && !game.gameOver)  {
 		((game.isClient()) ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
-		client->bGameReady = true;
+		game.state = std::max((int32_t)Game::S_Preparing, (int32_t)game.state);
 
 		// The same comment here as above.
 		// TODO: skip to the right position, the packet could be valid
@@ -788,7 +788,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		NotifyUserOnEvent();
 
 	if(!isReconnect) {
-		client->bGameRunning = false; // wait for ParseStartGame
+		game.state = Game::S_Preparing; // wait for ParseStartGame
 		game.gameOver = false;
 	}
 	
@@ -796,7 +796,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(!isReconnect)
 		client->tSocket->setWithEvents(false);
 
-	client->bGameReady = true;
+	game.state = Game::S_Preparing;
 	client->flagInfo()->reset();
 	for(int i = 0; i < MAX_TEAMS; ++i) {
 		client->iTeamScores[i] = 0;
@@ -844,7 +844,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// Bad packet
 	if (client->getGameLobby()[FT_Mod].as<ModInfo>()->name == "")  {
 		hints << "CClientNetEngine::ParsePrepareGame: invalid mod name (none)" << endl;
-		client->bGameReady = false;
+		game.state = Game::S_Lobby;
 		return false;
 	}
 
@@ -878,7 +878,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 					// Go back to the menu
 					GotoNetMenu();
 
-					client->bGameReady = false;
+					game.state = Game::S_Lobby;
 					
 					errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->getGameLobby()[FT_Mod].as<ModInfo>()->name << endl;
 					return false;
@@ -892,7 +892,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// TODO: why don't we support that anymore? and since when?
 		// Since I've moved all dynamically allocated datas to smartpointers, don't remember why I've removed that
 		hints << "CClientNetEngine::ParsePrepareGame: random map requested, and we do not support these anymore" << endl;
-		client->bGameReady = false;
+		game.state = Game::S_Lobby;
 		return false;
 	} else
 	{
@@ -901,7 +901,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// Invalid packet
 		if (sMapFilename == "")  {
 			hints << "CClientNetEngine::ParsePrepareGame: bad map name (none)" << endl;
-			client->bGameReady = false;
+			game.state = Game::S_Lobby;
 			return false;
 		}
 
@@ -934,7 +934,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 					// Go back to the menu
 					QuittoMenu();
 
-					client->bGameReady = false;
+					game.state = Game::S_Lobby;
 
 					return false;
 				}
@@ -951,7 +951,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		
 			if(game.gameMap()->getFilename() != sMapFilename) {
 				errors << "Client (in host mode): we got PrepareGame for map " << sMapFilename << " but server has loaded map " << game.gameMap()->getFilename() << endl;
-				client->bGameReady = false;
+				game.state = Game::S_Lobby;
 				return false;
 			}
 		}
@@ -1000,7 +1000,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->bServerChoosesWeapons = false;
 
 	// TODO: Load any other stuff
-	client->bGameReady = true;
+	game.state = Game::S_Preparing;
 
 	if(!isReconnect) {
 		// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
@@ -1216,7 +1216,7 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 
 bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 {
-	bool isReconnect = client->bGameReady || client->iNetStatus == NET_PLAYING;
+	bool isReconnect = game.state >= Game::S_Preparing || client->iNetStatus == NET_PLAYING;
 	
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
@@ -1248,19 +1248,19 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 void CClientNetEngine::ParseStartGame(CBytestream *bs)
 {
 	// Check that the game is ready
-	if (!client->bGameReady)  {
+	if (game.state < Game::S_Preparing)  {
 		warnings << "CClientNetEngine::ParseStartGame: cannot start the game because the game is not ready" << endl;
 		return;
 	}
 
-	if (client->iNetStatus == NET_PLAYING && !client->bGameRunning)  {
+	if (client->iNetStatus == NET_PLAYING && game.state < Game::S_Playing)  {
 		warnings << "Client: got start signal in runnign game with unset gamerunning flag" << endl;
 		client->iNetStatus = NET_CONNECTED;
 	}
 	
 	notes << "Client: get BeginMatch signal";
 	
-	if(client->bGameRunning) {
+	if(game.state == Game::S_Playing) {
 		notes << ", back to game" << endl;
 		client->iNetStatus = NET_PLAYING;
 		for_each_iterator(CWorm*, w, game.localWorms()) {
@@ -1270,7 +1270,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 		return;
 	}
 	notes << endl;
-	client->bGameRunning = true;
+	game.state = Game::S_Playing;
 	
 	// Already got this
 	if (client->iNetStatus == NET_PLAYING)  {
@@ -1338,7 +1338,7 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	int y = bs->readInt(2);
 
 	// Check
-	if (!client->bGameReady)  {
+	if(game.state < Game::S_Preparing)  {
 		warnings << "CClientNetEngine::ParseSpawnWorm: Cannot spawn worm when not playing" << endl;
 		return;
 	}
@@ -1446,7 +1446,7 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	if(newWorm) {
 		w->setLives(((int32_t)client->getGameLobby()[FT_Lives] < 0) ? (int32_t)WRM_UNLIM : (int32_t)client->getGameLobby()[FT_Lives]);
 		w->setClient(NULL); // Client-sided worms won't have CServerConnection
-		if (client->iNetStatus == NET_PLAYING || client->bGameReady) {
+		if (client->iNetStatus == NET_PLAYING || game.state >= Game::S_Preparing) {
 			if(game.isClient())
 				w->Prepare();
 		}
@@ -1573,7 +1573,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 
 
 static std::string getChatText(CClient* client) {
-	if(client->getStatus() == NET_PLAYING || client->getGameReady())
+	if(client->getStatus() == NET_PLAYING || game.state >= Game::S_Preparing)
 		return client->chatterText();
 	else if(game.isServer() && !game.isLocalGame())
 		return DeprecatedGUI::Menu_Net_HostLobbyGetText();
@@ -1585,7 +1585,7 @@ static std::string getChatText(CClient* client) {
 }
 
 static void setChatText(CClient* client, const std::string& txt) {
-	if(client->getStatus() == NET_PLAYING || client->getGameReady()) {
+	if(client->getStatus() == NET_PLAYING || game.state >= Game::S_Preparing) {
 		client->chatterText() = txt;
 		client->setChatPos( Utf8StringSize(txt) );
 	} else if(game.isServer() && !game.isLocalGame()) {
@@ -1831,7 +1831,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 	int y = bs->readInt(2);
 
 	// Check
-	if (!client->bGameReady)  {
+	if (game.state < Game::S_Preparing)  {
 		warnings << "CClientNetEngine::ParseSpawnBonus: Cannot spawn bonus when not playing (packet ignored)" << endl;
 		return;
 	}
@@ -1870,7 +1870,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 // Parse a tag update packet
 void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 {
-	if (!client->bGameReady || game.gameOver)  {
+	if (game.state < Game::S_Preparing || game.gameOver)  {
 		warnings << "CClientNetEngine::ParseTagUpdate: not playing - ignoring" << endl;
 		return;
 	}
@@ -2052,7 +2052,7 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 		return;
 	}
 	
-	if(!client->bGameReady || !game.gameMap() || !game.gameMap()->isLoaded()) {
+	if(game.state < Game::S_Preparing || !game.gameMap() || !game.gameMap()->isLoaded()) {
 		// We could receive an update if we didn't got the preparegame package yet.
 		// This is because all the data about the preparegame could be sent in multiple packages
 		// and each reliable package can contain a worm update.
@@ -2189,7 +2189,7 @@ void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 void CClientNetEngine::ParseWormDown(CBytestream *bs)
 {
 	// Don't allow anyone to kill us in lobby
-	if (!client->bGameReady)  {
+	if (game.state < Game::S_Preparing)  {
 		notes << "CClientNetEngine::ParseWormDown: not playing - ignoring" << endl;
 		bs->Skip(1);  // ID
 		return;
@@ -2293,8 +2293,6 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 {
 	if(!client->canSimulate()) {
-		if(client->bGameReady)
-			notes << "CClientNetEngine::ParseSingleShot: game over - ignoring" << endl;
 		CShootList::skipSingle(bs, client->getServerVersion()); // Skip to get to the correct position
 		return;
 	}
@@ -2312,8 +2310,6 @@ void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 void CClientNetEngine::ParseMultiShot(CBytestream *bs)
 {
 	if(!client->canSimulate())  {
-		if(client->bGameReady)
-			notes << "CClientNetEngine::ParseMultiShot: game over - ignoring" << endl;
 		CShootList::skipMulti(bs, client->getServerVersion()); // Skip to get to the correct position
 		return;
 	}
@@ -2357,7 +2353,7 @@ void CClientNetEngine::ParseDestroyBonus(CBytestream *bs)
 {
 	byte id = bs->readByte();
 
-	if (!client->bGameReady)  {
+	if (game.state < Game::S_Preparing)  {
 		warnings << "CClientNetEngine::ParseDestroyBonus: Ignoring, the game is not running." << endl;
 		return;
 	}
@@ -2391,6 +2387,7 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 
 	// Do a minor clean up
 	client->MinorClear();
+	game.state = Game::S_Lobby;
 
 	// Hide the console
 	Con_Hide();
@@ -2546,7 +2543,7 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	float damage = bs->readFloat();
 	int offenderId = bs->readByte();
 
-	if( !client->bGameReady )
+	if( game.state < Game::S_Preparing )
 		return;
 	CWorm *w = game.wormById(id, false);
 	CWorm *offender = game.wormById(offenderId, false);	

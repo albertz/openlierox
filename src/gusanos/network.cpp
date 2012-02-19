@@ -401,7 +401,7 @@ void Network::olxSend(bool sendPendingOnly) {
 	if(game.isLocalGame()) return;
 	
 	// dont send if in lobby
-	if(!cClient->getGameReady()) return;
+	if(game.state < Game::S_Preparing) return;
 	
 	if(m_control)
 		m_control->olxSend(sendPendingOnly);

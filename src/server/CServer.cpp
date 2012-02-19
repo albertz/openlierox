@@ -508,7 +508,7 @@ int GameServer::PrepareGame(std::string* errMsg)
 void GameServer::PrepareWorm(CWorm* worm) {
 	// initial server side weapon handling
 	if(gameSettings[FT_SameWeaponsAsHostWorm] && game.localWorms()->tryGet()) {
-		if(cClient->getGameReady() && game.localWorms()->tryGet()->bWeaponsReady) {
+		if(game.state >= Game::S_Preparing && game.localWorms()->tryGet()->bWeaponsReady) {
 			worm->CloneWeaponsFrom(game.localWorms()->tryGet());
 			worm->bWeaponsReady = true;
 		}
