@@ -769,7 +769,7 @@ void Menu_Net_HostLobbyCreateGui()
 // Get the content of the chatbox
 std::string Menu_Net_HostLobbyGetText()
 {
-	if (tMenu->bMenuRunning)  {
+	if (game.state == Game::S_Lobby)  {
 		std::string buf;
 		cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &buf, 256);
 		return buf;
@@ -1307,8 +1307,6 @@ bool Menu_Net_HostStartGame()
 	cClient->SetupViewports();
 
 	// Leave the frontend
-	tMenu->bMenuWantsGameStart = true;
-	tMenu->bMenuRunning = false;
 	game.startServer(/* localGame */ false);
 
 	return true;

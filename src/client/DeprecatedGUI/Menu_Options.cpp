@@ -747,7 +747,7 @@ void Menu_OptionsFrame()
 						if(restart) {
 							// HINT: after changing ogl or bpp, if the user changes some other gfx setting like fullscreen, there are mess ups of course
 							// to workaround the problems, we simply restart the game here
-							tMenu->bMenuRunning = false; // quit
+							tLX->bQuitGame = true; // quit
 							Menu_OptionsShutdown(); // cleanup for this menu
 							bRestartGameAfterQuit = true; // set restart-flag
 							startFunction = &Menu_StartWithSysOptionsMenu; // set function which loads this menu after start

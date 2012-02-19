@@ -95,10 +95,7 @@ static bool Menu_InitSockets() {
 	return true;
 }
 
-menu_t::menu_t() {
-    bMenuRunning = false;
-    bMenuWantsGameStart = false;
-}
+menu_t::menu_t() {}
 
 ///////////////////
 // Initialize the menu system
@@ -254,7 +251,7 @@ void Menu_Frame() {
 
 	sfx.think();
 
-	if(!tMenu->bMenuRunning) return; // could be already quitted
+	if(game.state >= Game::S_Preparing) return; // could be already quitted
 	
 	// Check if user pressed screenshot key
 	if (tLX->cTakeScreenshot.isDownOnce())  {

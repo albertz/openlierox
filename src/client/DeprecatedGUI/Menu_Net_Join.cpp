@@ -621,7 +621,7 @@ void Menu_Net_JoinGotoLobby()
 // Get the content of the chatbox
 std::string Menu_Net_JoinLobbyGetText()
 {
-	if (tMenu->bMenuRunning)  {
+	if (game.state == Game::S_Lobby)  {
 		std::string buf;
 		cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 256);
 		return buf;
@@ -660,10 +660,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
         // Setup the client
         cClient->SetupViewports();
-
-		// Leave the frontend
-		tMenu->bMenuWantsGameStart = true;
-		tMenu->bMenuRunning = false;
 
 		// Save the chat text
 		cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);

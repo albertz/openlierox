@@ -402,9 +402,6 @@ struct DedIntern {
 
 		// If we have started, leave the frontend
 		if(game.state >= Game::S_Preparing) {
-			// Leave the frontend
-			DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
-			DeprecatedGUI::tMenu->bMenuRunning = false;
 			Sig_ClientGameStarted();
 			return;
 		}

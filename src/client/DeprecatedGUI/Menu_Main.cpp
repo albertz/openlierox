@@ -60,7 +60,6 @@ void Menu_MainInitialize()
 {
 	int i;
 	assert(tMenu);
-	tMenu->bMenuRunning = true;
 	tMenu->iMenuType = MNU_MAIN;
 
 	if(bDedicated) return;
@@ -190,7 +189,7 @@ void Menu_MainFrame()
                     cMainMenu.Draw(tMenu->bmpBuffer.get());
 
                     if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
-					    tMenu->bMenuRunning = false;
+						tLX->bQuitGame = true;
 					    Menu_MainShutdown();
 				    } else {
 
@@ -335,7 +334,7 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 		// the order of the searchpaths changed etc.
 
 		// restart game
-		tMenu->bMenuRunning = false; // quit
+		tLX->bQuitGame = true; // quit
 		Menu_MainShutdown(); // cleanup for this menu
 		bRestartGameAfterQuit = true; // set restart-flag
 	}

@@ -243,7 +243,7 @@ void Game::frameOuter() {
 	// Main frame
 	frameInner();
 
-	if(DeprecatedGUI::tMenu->bMenuRunning) {
+	if(game.state <= Game::S_Lobby) {
 		DeprecatedGUI::Menu_Frame();
 
 		// If we have run fine for >=5 seconds, it is probably safe & make sense
@@ -440,16 +440,8 @@ void SetQuitEngineFlag(const std::string& reason) {
 	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
 	quitEngineFlagReason = reason;
 	tLX->bQuitEngine = true;
-	// If we call this from within the menu, the menu should shutdown.
-	// It will be restarted then in the next frame.
-	// If we are not in the menu (i.e. in maingameloop), this has no
-	// effect as we set it to true in Menu_Start().
-	if(DeprecatedGUI::tMenu)
-		DeprecatedGUI::tMenu->bMenuRunning = false;
-	// If we were in menu, because we forced the menu restart above,
-	// we must set this, otherwise OLX would quit (because of current maingamelogic).
-	if(DeprecatedGUI::tMenu)
-		DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
+	if(game.state == Game::S_Inactive)
+		errors << "SetQuitEngineFlag '" << reason << "' in menu" << endl;
 }
 
 bool Warning_QuitEngineFlagSet(const std::string& preText) {

@@ -609,7 +609,7 @@ void Menu_MapEd_New()
 		}
 
 		// Game close
-		if (tLX->bQuitGame || !tMenu->bMenuRunning)
+		if (tLX->bQuitGame)
 			break;
 
 
@@ -703,7 +703,7 @@ void Menu_MapEd_LoadSave(int save)
 	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
 
 	ProcessEvents();
-	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && !tLX->bQuitGame) {
 		Menu_RedrawMouse(false);
 
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 302, 182);

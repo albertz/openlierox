@@ -879,7 +879,7 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	
 	DeprecatedGUI::Menu_Current_Shutdown();
 	
-	if(!DeprecatedGUI::tMenu || !DeprecatedGUI::tMenu->bMenuRunning) { // we are in game
+	if(game.state >= Game::S_Lobby) { // we are in game
 		SetQuitEngineFlag("Cmd_Connect & in game");
 	}
 	
@@ -1042,9 +1042,6 @@ void Cmd_setViewport::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 
 COMMAND_EXTRA(quit, "quit game", "", 0, 0, registerCommand("exit", this));
 void Cmd_quit::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
-	DeprecatedGUI::tMenu->bMenuWantsGameStart = false; // this means if we were in menu => quit
-	DeprecatedGUI::tMenu->bMenuRunning = false; // if we were in menu, quit menu
-
 	tLX->bQuitGame = true; // quit main-main-loop
 	SetQuitEngineFlag("DedicatedControl::Cmd_Quit()"); // quit main-game-loop
 }
@@ -1815,7 +1812,7 @@ void Cmd_getWriteFullFileName::exec(CmdLineIntf* caller, const std::vector<std::
 
 COMMAND(startLobby, "start server lobby", "[serverport]", 0, 1);
 void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(!DeprecatedGUI::tMenu->bMenuRunning) {
+	if(game.state != Game::S_Inactive) {
 		caller->writeMsg("we cannot start the lobby in current state", CNC_NOTIFY);
 		caller->writeMsg("stop game if you want to restart it", CNC_NOTIFY);
 		return; // just ignore it and stay in current state
@@ -1926,10 +1923,6 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 		cCache.ClearExtraEntries(); // just to be sure
 		return;
 	}
-
-	// Leave the frontend
-	DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
-	DeprecatedGUI::tMenu->bMenuRunning = false;
 }
 
 COMMAND_EXTRA(map, "set map", "filename", 1, 1, paramCompleters[0] = &autoCompleteForFileListCache<mapList>);

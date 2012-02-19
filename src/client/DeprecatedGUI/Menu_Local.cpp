@@ -865,8 +865,6 @@ void Menu_LocalStartGame()
 		ok = singlePlayerGame.startGame();
 
 	if(ok) {
-		tMenu->bMenuWantsGameStart = true;
-		tMenu->bMenuRunning = false;
 		game.startServer(/* localGame */ true);
 
 		// Tell the client to connect to the server
@@ -1823,7 +1821,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	}
 	
 	ProcessEvents();
-	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && !tLX->bQuitGame) {
 		Menu_RedrawMouse(true);
 
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 300, 180);

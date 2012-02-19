@@ -1304,7 +1304,7 @@ void CClient::SimulateHud()
 
 	// Game Menu
 	if( ( WasKeyboardEventHappening(SDLK_ESCAPE, false) || DeprecatedGUI::CChatWidget::GlobalEnabled()) && 
-			!bChat_Typing && !con && !DeprecatedGUI::tMenu->bMenuRunning) {
+			!bChat_Typing && !con && game.state >= Game::S_Preparing) {
         if( !bViewportMgr )
         {
 			if (!bGameMenu)

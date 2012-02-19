@@ -444,7 +444,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 	nTries = 0;
 	fStart = AbsTime();
 
-    while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !tLX->bQuitGame) {
 		tLX->currentTime = GetTime();
 
 		Menu_RedrawMouse(true);

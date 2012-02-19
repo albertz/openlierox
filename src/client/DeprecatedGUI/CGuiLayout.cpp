@@ -653,7 +653,7 @@ gui_event_t *CGuiLayout::Process()
 	// respond for >30secs and the user presses cSwitchMode in the meantime, the mainlock-detector
 	// would switch to window and here we would switch again to fullscreen which is stupid.
 	// TODO: move this out of here
-	if( tLX && tLX->cSwitchMode.isUp() && tMenu->bMenuRunning && tLX->fRealDeltaTime < 1.0f )  {
+	if( tLX && tLX->cSwitchMode.isUp() && game.state <= Game::S_Lobby && tLX->fRealDeltaTime < 1.0f )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 

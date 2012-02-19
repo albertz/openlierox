@@ -804,12 +804,7 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 		std::string errMsg;
 		if(!cServer->PrepareGame(&errMsg)) {	// start in dedicated mode
 			return "cannot start the game: " + errMsg;
-		}
-		
-		// Leave the frontend
-		DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
-		DeprecatedGUI::tMenu->bMenuRunning = false;
-		game.startServer(/* localGame */ false);
+		}		
 	}
 
 	return "";

@@ -430,9 +430,6 @@ Result MainLoopTask::handle_BeforeMenu() {
 	cServer->SetSocketWithEvents(true);
 	ResetQuitEngineFlag();
 
-	DeprecatedGUI::tMenu->bMenuRunning = true;
-	DeprecatedGUI::tMenu->bMenuWantsGameStart = false;
-
 	if(!bDedicated) {
 		if(!DeprecatedGUI::bSkipStart) {
 			notes << "Loading main menu" << endl;
@@ -452,7 +449,7 @@ Result MainLoopTask::handle_BeforeMenu() {
 }
 
 Result MainLoopTask::handle_Menu() {
-	if(!DeprecatedGUI::tMenu->bMenuRunning) {
+	if(game.state >= Game::S_Preparing) {
 		state = State_AfterMenu;
 		return true;
 	}
@@ -470,9 +467,7 @@ Result MainLoopTask::handle_AfterMenu() {
 	cClient->SetSocketWithEvents(false);
 	cServer->SetSocketWithEvents(false);
 
-	if(!DeprecatedGUI::tMenu->bMenuWantsGameStart) {
-		// Quit
-		tLX->bQuitGame = true;
+	if(tLX->bQuitGame) {
 		state = State_Quit;
 		return true;
 	}

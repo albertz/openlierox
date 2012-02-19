@@ -500,7 +500,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
 	DrawRectFillA(tMenu->bmpBuffer.get(),200,400,350,420,tLX->clDialogBackground,230); // Dirty; because of button redrawing
 
-    while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !tLX->bQuitGame) {
 		tLX->currentTime = GetTime();
 
 		Menu_RedrawMouse(true);
@@ -586,7 +586,7 @@ void Menu_Net_RenameServer(std::string& szName)
 	cRename.SendMessage(2,TXS_SETTEXT,szName,0); // Fill in the current server name
 
 	ProcessEvents();
-	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && renameServerMsg && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && renameServerMsg && !tLX->bQuitGame) {
 		Menu_RedrawMouse(true);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
@@ -687,7 +687,7 @@ void Menu_Net_FavouritesAddServer()
 	cAddSvr.SendMessage(3,TXM_SETMAX,32,0);
 
 	ProcessEvents();
-	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && !tLX->bQuitGame) {
 		Menu_RedrawMouse(true);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 

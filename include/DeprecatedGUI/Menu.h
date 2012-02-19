@@ -309,8 +309,6 @@ struct menu_t {
 	SmartPointer<SDL_Surface> bmpMapEdTool;
 
 	// Other
-	bool			bMenuRunning;
-	bool            bMenuWantsGameStart;
 	int				iMenuType;
 	frontendinfo_t	tFrontendInfo;
 	std::string		sSavedChatText;
