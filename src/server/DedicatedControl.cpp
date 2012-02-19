@@ -405,7 +405,6 @@ struct DedIntern {
 			// Leave the frontend
 			DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
 			DeprecatedGUI::tMenu->bMenuRunning = false;
-			game.startClient();
 			Sig_ClientGameStarted();
 			return;
 		}
