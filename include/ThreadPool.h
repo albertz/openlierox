@@ -10,6 +10,7 @@
 #ifndef __OLX__THREADPOOL_H__
 #define __OLX__THREADPOOL_H__
 
+#include <stdint.h>
 #include <set>
 #include <string>
 #include "util/Result.h"
@@ -69,7 +70,8 @@ extern ThreadPool* threadPool;
 void InitThreadPool(unsigned int size = 40);
 void UnInitThreadPool();
 
-
+extern uint32_t mainThreadId;
+bool isMainThread();
 
 template<typename _T>
 struct _ThreadFuncWrapper {

@@ -15,6 +15,12 @@
 #include "OLXCommand.h"
 
 
+uint32_t mainThreadId = -1;
+
+bool isMainThread() {
+	return mainThreadId == SDL_ThreadID();
+}
+
 
 ThreadPool::ThreadPool(unsigned int size) {
 	nextAction = NULL; nextIsHeadless = false; nextData = NULL;

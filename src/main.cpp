@@ -142,6 +142,7 @@ int main(int argc, char *argv[])
 
 	teeStdoutInit();
 	
+	mainThreadId = SDL_ThreadID();
 	setCurThreadName("Main Thread");
 	setCurThreadPriority(0.5f);
 	

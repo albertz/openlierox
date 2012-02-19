@@ -115,14 +115,12 @@ static VideoHandler videoHandler;
 sigjmp_buf longJumpBuffer;
 #endif
 
-#ifndef SINGLETHREADED
 static SDL_Event QuitEventThreadEvent() {
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_QuitEventThread;
 	return ev;
 }
-#endif
 
 
 void startMainLockDetector() {
@@ -224,6 +222,7 @@ struct MainLoopTask : LoopTask {
 };
 
 
+
 void doMainLoop() {
 #ifdef SINGLETHREADED
 	MainLoopTask mainLoop;
@@ -300,32 +299,31 @@ void SetCrashHandlerReturnPoint(const char* name) {
 
 void doVideoFrameInMainThread() {
 	if(bDedicated) return;
-#ifdef SINGLETHREADED
-	VideoPostProcessor::flipBuffers();
-	VideoPostProcessor::process();
-	flipRealVideo();
+	if(isMainThread()) {
+		VideoPostProcessor::flipBuffers();
+		VideoPostProcessor::process();
+		flipRealVideo();
 
-	SDL_Event ev;
-	memset( &ev, 0, sizeof(ev) );
-	while( SDL_PollEvent(&ev) ) {
-		if( ev.type == SDL_SYSWMEVENT ) {
-			EvHndl_SysWmEvent_MainThread( &ev );
-			continue;
+		SDL_Event ev;
+		memset( &ev, 0, sizeof(ev) );
+		while( SDL_PollEvent(&ev) ) {
+			if( ev.type == SDL_SYSWMEVENT ) {
+				EvHndl_SysWmEvent_MainThread( &ev );
+				continue;
+			}
+			mainQueue->push(ev);
 		}
-		mainQueue->push(ev);
 	}
-#else
-	videoHandler.pushFrame();
-#endif
+	else
+		videoHandler.pushFrame();
 }
 
 void doSetVideoModeInMainThread() {
 	if(bDedicated) return;
-#ifdef SINGLETHREADED
-	videoHandler.setVideoMode();
-#else
-	videoHandler.requestSetVideoMode();
-#endif
+	if(isMainThread())
+		videoHandler.setVideoMode();
+	else
+		videoHandler.requestSetVideoMode();
 }
 
 void doVppOperation(Action* act) {
@@ -344,18 +342,19 @@ void doActionInMainThread(Action* act) {
 		return;
 	}
 
-#ifdef SINGLETHREADED
-	act->handle();
-	delete act;
-#else
-	SDL_Event ev;
-	ev.type = SDL_USEREVENT;
-	ev.user.code = UE_DoActionInMainThread;
-	ev.user.data1 = act;
-	if(SDL_PushEvent(&ev) != 0) {
-		errors << "failed to push custom action event" << endl;
+	if(isMainThread()) {
+		act->handle();
+		delete act;
 	}
-#endif
+	else {
+		SDL_Event ev;
+		ev.type = SDL_USEREVENT;
+		ev.user.code = UE_DoActionInMainThread;
+		ev.user.data1 = act;
+		if(SDL_PushEvent(&ev) != 0) {
+			errors << "failed to push custom action event" << endl;
+		}
+	}
 }
 
 
@@ -441,10 +440,7 @@ Result MainLoopTask::handle_Menu() {
 	if(!DeprecatedGUI::tMenu->bMenuRunning) return true;
 	SetCrashHandlerReturnPoint("Menu_Loop");
 
-#ifdef SINGLETHREADED
-	last_frame_was_because_of_an_event = ProcessEvents();
-#else
-	if(last_frame_was_because_of_an_event || bDedicated) {
+	if(last_frame_was_because_of_an_event || bDedicated || isMainThread()) {
 		// Use ProcessEvents() here to handle other processes in queue.
 		// There aren't probably any but it has also the effect that
 		// we run the loop another time after an event which is sometimes
@@ -454,7 +450,6 @@ Result MainLoopTask::handle_Menu() {
 	} else {
 		last_frame_was_because_of_an_event = WaitForNextEvent();
 	}
-#endif
 
 	// If we have run fine for >=5 seconds, it is probably safe & make sense
 	// to restart the game in case of a crash.
@@ -517,11 +512,11 @@ Result MainLoopTask::handle_AfterGame() {
 }
 
 Result MainLoopTask::handle_Quit() {
-#ifndef SINGLETHREADED
-	SDL_Event quitEv = QuitEventThreadEvent();
-	if(!bDedicated)
-		while(SDL_PushEvent(&quitEv) < 0) {}
-#endif
+	if(!isMainThread()) {
+		SDL_Event quitEv = QuitEventThreadEvent();
+		if(!bDedicated)
+			while(SDL_PushEvent(&quitEv) < 0) {}
+	}
 	return "quit";
 }
 
