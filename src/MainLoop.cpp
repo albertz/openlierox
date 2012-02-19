@@ -341,6 +341,10 @@ void doActionInMainThread(Action* act) {
 		return;
 	}
 
+#ifdef SINGLETHREADED
+	act->handle();
+	delete act;
+#else
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_DoActionInMainThread;
@@ -348,6 +352,7 @@ void doActionInMainThread(Action* act) {
 	if(SDL_PushEvent(&ev) != 0) {
 		errors << "failed to push custom action event" << endl;
 	}
+#endif
 }
 
 
