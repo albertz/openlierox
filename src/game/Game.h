@@ -97,7 +97,7 @@ public:
 	TimeDiff serverTime() { return TimeDiff(serverFrame * 10); }
 	TimeDiff gameOverTime() {
 		if(!gameOver) return TimeDiff(0);
-		if(gameOverFrame < serverFrame) return TimeDiff(0);
+		if(gameOverFrame > serverFrame) return TimeDiff(0);
 		return TimeDiff((serverFrame - gameOverFrame) * 10);
 	}
 
