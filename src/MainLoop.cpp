@@ -223,6 +223,59 @@ struct MainLoopTask : LoopTask {
 
 
 
+static bool handleSDLEvent(SDL_Event& ev) {
+	if(ev.type == SDL_USEREVENT) {
+		switch(ev.user.code) {
+			case UE_QuitEventThread:
+				return false;
+			case UE_DoVideoFrame:
+				videoHandler.frame();
+				return true;
+			case UE_DoSetVideoMode:
+				videoHandler.setVideoMode();
+				return true;
+			case UE_DoActionInMainThread:
+				((Action*)ev.user.data1)->handle();
+				delete (Action*)ev.user.data1;
+				return true;
+		}
+	}
+	if( ev.type == SDL_SYSWMEVENT ) {
+		EvHndl_SysWmEvent_MainThread( &ev );
+		return true;
+	}
+	mainQueue->push(ev);
+	return true;
+}
+
+// Get all SDL events and push them to our event queue.
+// We have to do that in the same thread where we inited the video because of SDL.
+bool handleSDLEvents(bool wait) {
+	assert(isMainThread());
+
+	SDL_Event ev;
+	memset( &ev, 0, sizeof(ev) );
+
+	if(wait) {
+		if( SDL_WaitEvent(&ev) ) {
+			if(!handleSDLEvent(ev))
+				return false;
+		}
+		else {
+			notes << "error while waiting for next event" << endl;
+			SDL_Delay(200);
+			return true;
+		}
+	}
+
+	while( SDL_PollEvent(&ev) ) {
+		if(!handleSDLEvent(ev))
+			return false;
+	}
+
+	return true;
+}
+
 void doMainLoop() {
 #ifdef SINGLETHREADED
 	MainLoopTask mainLoop;
@@ -237,37 +290,9 @@ void doMainLoop() {
 	startMainLockDetector();
 
 	if(!bDedicated) {
-		// Get all SDL events and push them to our event queue.
-		// We have to do that in the same thread where we inited the video because of SDL.
-		SDL_Event ev;
-		memset( &ev, 0, sizeof(ev) );
 		while(true) {
-			while( SDL_WaitEvent(&ev) ) {
-				if(ev.type == SDL_USEREVENT) {
-					switch(ev.user.code) {
-						case UE_QuitEventThread:
-							goto quit;
-						case UE_DoVideoFrame:
-							videoHandler.frame();
-							continue;
-						case UE_DoSetVideoMode:
-							videoHandler.setVideoMode();
-							continue;
-						case UE_DoActionInMainThread:
-							((Action*)ev.user.data1)->handle();
-							delete (Action*)ev.user.data1;
-							continue;
-					}
-				}
-				if( ev.type == SDL_SYSWMEVENT ) {
-					EvHndl_SysWmEvent_MainThread( &ev );
-					continue;
-				}
-				mainQueue->push(ev);
-			}
-
-			notes << "error while waiting for next event" << endl;
-			SDL_Delay(200);
+			if(!handleSDLEvents(true))
+				goto quit;
 		}
 	}
 

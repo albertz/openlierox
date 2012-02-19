@@ -23,6 +23,7 @@
 #include "MathLib.h"
 #include "NotifyUser.h"
 #include "Event.h"
+#include "MainLoop.h"
 
 #include "gusanos/allegro.h"
 
@@ -500,7 +501,9 @@ bool WaitForNextEvent() {
 
 	bool ret = false;
 	bWaitingForEvent = true;
-	if(mainQueue->wait(sdl_event)) {
+	if(isMainThread())
+		handleSDLEvents(true);
+	else if(mainQueue->wait(sdl_event)) {
 		bWaitingForEvent = false;
 		HandleNextEvent();
 		ret = true;
@@ -536,6 +539,9 @@ extern void updateAxisStates();
 bool ProcessEvents()
 {
 	ResetCurrentEventStorage();
+
+	if(isMainThread())
+		handleSDLEvents(false);
 
 	bool ret = false;
 	while(mainQueue->poll(sdl_event)) {

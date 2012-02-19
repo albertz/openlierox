@@ -5,4 +5,6 @@ extern bool afterCrash;
 
 void doMainLoop();
 
+bool handleSDLEvents(bool wait);
+
 #endif // OLX_MAINLOOP_H
