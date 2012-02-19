@@ -227,11 +227,15 @@ struct MainLoopTask : LoopTask {
 void doMainLoop() {
 #ifdef SINGLETHREADED
 	MainLoopTask mainLoop;
+	while(true) {
+		// we handle SDL events in doVideoFrameInMainThread
+		if(NegResult r = mainLoop.handleFrame())
+			break;
+	}
 #else
 	ThreadPoolItem* mainLoopThread = threadPool->start(new MainLoopTask(), "main loop", false);
 
 	startMainLockDetector();
-#endif
 
 	if(!bDedicated) {
 		// Get all SDL events and push them to our event queue.
@@ -239,11 +243,7 @@ void doMainLoop() {
 		SDL_Event ev;
 		memset( &ev, 0, sizeof(ev) );
 		while(true) {
-#ifdef SINGLETHREADED
-			while( SDL_PollEvent(&ev) ) {
-#else
 			while( SDL_WaitEvent(&ev) ) {
-#endif
 				if(ev.type == SDL_USEREVENT) {
 					switch(ev.user.code) {
 						case UE_QuitEventThread:
@@ -267,22 +267,15 @@ void doMainLoop() {
 				mainQueue->push(ev);
 			}
 
-#ifdef SINGLETHREADED
-			if(NegResult r = mainLoop.handleFrame())
-				break;
-#elif
 			notes << "error while waiting for next event" << endl;
 			SDL_Delay(200);
-#endif
 		}
 	}
 
 quit:
-#ifndef SINGLETHREADED
 	threadPool->wait(mainLoopThread, NULL);
 	mainLoopThread = NULL;
 #endif
-	{}
 }
 
 // note: important to have const char* here because std::string is too dynamic, could be screwed up when returning
@@ -311,6 +304,16 @@ void doVideoFrameInMainThread() {
 	VideoPostProcessor::flipBuffers();
 	VideoPostProcessor::process();
 	flipRealVideo();
+
+	SDL_Event ev;
+	memset( &ev, 0, sizeof(ev) );
+	while( SDL_PollEvent(&ev) ) {
+		if( ev.type == SDL_SYSWMEVENT ) {
+			EvHndl_SysWmEvent_MainThread( &ev );
+			continue;
+		}
+		mainQueue->push(ev);
+	}
 #else
 	videoHandler.pushFrame();
 #endif
