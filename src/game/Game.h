@@ -143,7 +143,9 @@ public:
 	Result loadWeaponRestrictions();
 	
 	bool		isMapReady() const;	
-	
+
+	bool allowedToSleepForEvent();
+
 private:
 	void reset();
 

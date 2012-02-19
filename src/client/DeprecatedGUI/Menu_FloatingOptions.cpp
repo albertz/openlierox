@@ -716,7 +716,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 
 		doVideoFrameInMainThread();
 		CapFPS();
-		WaitForNextEvent();
+		ProcessEvents();
 	}
 	CInput::UnInitJoysticksTemp();
 

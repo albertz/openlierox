@@ -209,7 +209,6 @@ struct MainLoopTask : LoopTask {
 	};
 	State state;
 	AbsTime menuStartTime;
-	bool last_frame_was_because_of_an_event;
 	MainLoopTask() : state(State_Startup) {}
 	Result handle_Startup();
 	Result handle_BeforeMenu();
@@ -408,7 +407,7 @@ Result MainLoopTask::handle_Startup() {
 			tLX->fDeltaTime = GetTime() - tLX->currentTime;
 			tLX->currentTime = GetTime();
 
-			WaitForNextEvent();
+			ProcessEvents();
 			SkinnedGUI::cMainSkin->Frame();
 		}
 
@@ -447,8 +446,6 @@ Result MainLoopTask::handle_BeforeMenu() {
 	DeprecatedGUI::bSkipStart = false;
 
 	menuStartTime = tLX->currentTime = GetTime();
-	last_frame_was_because_of_an_event = true;
-	last_frame_was_because_of_an_event = ProcessEvents();
 
 	state = State_Menu;
 	return true;
@@ -464,17 +461,6 @@ Result MainLoopTask::handle_Menu() {
 	DeprecatedGUI::Menu_Frame();
 	if(!DeprecatedGUI::tMenu->bMenuRunning) return true;
 	SetCrashHandlerReturnPoint("Menu_Loop");
-
-	if(last_frame_was_because_of_an_event || bDedicated || isMainThread()) {
-		// Use ProcessEvents() here to handle other processes in queue.
-		// There aren't probably any but it has also the effect that
-		// we run the loop another time after an event which is sometimes
-		// because of the current code needed. Sometimes after an event,
-		// some new menu elements got initialised but not drawn.
-		last_frame_was_because_of_an_event = ProcessEvents();
-	} else {
-		last_frame_was_because_of_an_event = WaitForNextEvent();
-	}
 
 	// If we have run fine for >=5 seconds, it is probably safe & make sense
 	// to restart the game in case of a crash.

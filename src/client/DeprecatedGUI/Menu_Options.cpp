@@ -952,7 +952,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 
 		doVideoFrameInMainThread();
 		CapFPS();
-		WaitForNextEvent();
+		ProcessEvents();
 	}
 	CInput::UnInitJoysticksTemp();
 

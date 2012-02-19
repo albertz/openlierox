@@ -495,55 +495,33 @@ static void HandleKeyboardState() {
 	}
 }
 
-// halt the current thread until there is a new event
-bool WaitForNextEvent() {
-	ResetCurrentEventStorage();
-
-	bool ret = false;
-	bWaitingForEvent = true;
-	if(isMainThread())
-		handleSDLEvents(true);
-	else if(mainQueue->wait(sdl_event)) {
-		bWaitingForEvent = false;
-		HandleNextEvent();
-		ret = true;
-	}
-	bWaitingForEvent = false;
- 
-	// Perhaps there are more events in the queue.
-	// In this case, handle all of them. we want an empty
-	// queue after
-	while(mainQueue->poll(sdl_event)) {
-		HandleNextEvent();
-		ret = true;
-	}
-
-	HandleMouseState();
-	HandleKeyboardState();
-#ifndef DEDICATED_ONLY	
-#ifndef DISABLE_JOYSTICK
-	if(bJoystickSupport) SDL_JoystickUpdate();
-#endif
-#endif
-	HandleCInputs_UpdateUpForNonKeyboard();
-	HandleCInputs_UpdateDownOnceForNonKeyboard();
-
-	return ret;
-}
-
 // Declared in CInput.cpp
 extern void updateAxisStates();
 
+bool processedEvent = false;
+
 ///////////////////
 // Process the events
-bool ProcessEvents()
+void ProcessEvents()
 {
 	ResetCurrentEventStorage();
+
+	bool ret = false;
+	if(game.allowedToSleepForEvent()) {
+		bWaitingForEvent = true;
+		if(isMainThread())
+			handleSDLEvents(true);
+		else if(mainQueue->wait(sdl_event)) {
+			bWaitingForEvent = false;
+			HandleNextEvent();
+			ret = true;
+		}
+		bWaitingForEvent = false;
+	}
 
 	if(isMainThread())
 		handleSDLEvents(false);
 
-	bool ret = false;
 	while(mainQueue->poll(sdl_event)) {
 		HandleNextEvent();
 		ret = true;
@@ -577,27 +555,28 @@ bool ProcessEvents()
 			}
 		}
 		#endif
-		return ret;
 	}
 
-    // If we don't have focus, don't update as often
-    if(!nFocus)
-        SDL_Delay(14);
+	if (!bDedicated) {
+		// If we don't have focus, don't update as often
+		if(!nFocus)
+			SDL_Delay(14);
 
-	HandleMouseState();
-	HandleKeyboardState();
+		HandleMouseState();
+		HandleKeyboardState();
 #ifndef DEDICATED_ONLY
 #ifndef DISABLE_JOYSTICK
-	if(bJoystickSupport)  {
-		SDL_JoystickUpdate();
-		updateAxisStates();
+		if(bJoystickSupport)  {
+			SDL_JoystickUpdate();
+			updateAxisStates();
+		}
+#endif
+#endif
+		HandleCInputs_UpdateUpForNonKeyboard();
+		HandleCInputs_UpdateDownOnceForNonKeyboard();
 	}
-#endif
-#endif
-	HandleCInputs_UpdateUpForNonKeyboard();
-	HandleCInputs_UpdateDownOnceForNonKeyboard();
-	
-	return ret;
+
+	processedEvent = ret;
 }
 
 bool ApplicationHasFocus()

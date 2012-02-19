@@ -1905,7 +1905,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		doVideoFrameInMainThread();
 
 		CapFPS();
-		WaitForNextEvent();
+		ProcessEvents();
 	}
 
 	// Redraw back to normal

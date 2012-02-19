@@ -104,11 +104,11 @@ typedef Event<SDL_Event*> SDLEvent;
 // and your event will get called automatically. 
 extern SDLEvent sdlEvents[SDL_NUMEVENTS];
 
+extern bool processedEvent;
 
 void 		InitEventSystem();
 void		ShutdownEventSystem();
-bool		ProcessEvents(); // returns false if no new event
-bool		WaitForNextEvent(); // waits for next event and handles all of then; returns false if no new event
+void		ProcessEvents(); // returns false if no new event
 
 bool		EventSystemInited();
 bool		IsWaitingForEvent();

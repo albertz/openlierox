@@ -667,6 +667,22 @@ std::string Game::wormName(int wormId) {
 	return ifWorm<std::string>(wormId, _wormName, itoa(wormId) + ":<unknown-worm>");
 }
 
+bool Game::allowedToSleepForEvent() {
+	if(state > Game::S_Inactive)
+		// we are in connecting, lobby, game or so -> don't sleep
+		return false;
+
+	// in menu
+	if(processedEvent)
+		// LX GUI code sucks. It sometimes needs a refresh right after
+		// some event was handled and thus, don't sleep for the next frame.
+		// We reset processedEvent in the next ProcessEvents() call.
+		return false;
+
+	return true;
+}
+
+
 int oldLXStateInt() {
 	switch(game.state) {
 	case Game::S_Lobby: return 0;

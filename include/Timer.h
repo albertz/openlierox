@@ -85,7 +85,7 @@ std::string		GetDateTime();
 	from the main-thread, there will be no more timer-event for sure.
 	
 	The events itself will be handled in the main thread
-	(in the thread that calls ProcessEvents() or WaitForNextEvent()).
+	(in the thread that calls ProcessEvents()).
 
 	If the callback-functions returns false, the thread will also stop.
 

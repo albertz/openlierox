@@ -659,7 +659,7 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 			doVideoFrameInMainThread();
 			CapFPS();
 			tLX->currentTime = GetTime(); // we need this for CapFPS()
-			WaitForNextEvent();
+			ProcessEvents();
 		} else
 			break;
 	}
