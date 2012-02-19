@@ -83,7 +83,8 @@ typedef void ( * ScriptCallback_t ) ( const std::string & param, DeprecatedGUI::
 enum ScriptVarType_t
 {
 	SVT_BOOL = 0,
-	SVT_INT = 1,
+	SVT_INT32 = 1,
+	SVT_UINT64 = 6,
 	SVT_FLOAT = 2,
 	SVT_STRING = 3,
 	SVT_COLOR = 4,
@@ -98,7 +99,8 @@ static const ScriptVarType_t SVT_INVALID = ScriptVarType_t(-1);
 
 template<typename T> struct GetType;
 template<> struct GetType<bool> { typedef bool type; static const ScriptVarType_t value = SVT_BOOL; };
-template<> struct GetType<int> { typedef int type; static const ScriptVarType_t value = SVT_INT; };
+template<> struct GetType<int32_t> { typedef int32_t type; static const ScriptVarType_t value = SVT_INT32; };
+template<> struct GetType<uint64_t> { typedef uint64_t type; static const ScriptVarType_t value = SVT_UINT64; };
 template<> struct GetType<float> { typedef float type; static const ScriptVarType_t value = SVT_FLOAT; };
 template<> struct GetType<std::string> { typedef std::string type; static const ScriptVarType_t value = SVT_STRING; };
 template<> struct GetType<Color> { typedef Color type; static const ScriptVarType_t value = SVT_COLOR; };
@@ -143,7 +145,8 @@ public:
 private:
 	union {
 		bool b;
-		int i;
+		int32_t i;
+		uint64_t i_uint64;
 		float f;
 		PODForClass<std::string> str;
 		PODForClass<Color> col;
@@ -156,7 +159,8 @@ public:
 	// No callback here - we cannot assign callbacks to each other
 	ScriptVar_t(): type(SVT_BOOL), b(false) {}
 	ScriptVar_t( bool v ): type(SVT_BOOL), b(v) {}
-	ScriptVar_t( int v ): type(SVT_INT), i(v) {}
+	ScriptVar_t( int32_t v ): type(SVT_INT32), i(v) {}
+	ScriptVar_t( uint64_t v ): type(SVT_UINT64), i_uint64(v) {}
 	ScriptVar_t( float v ): type(SVT_FLOAT), f(v) {}
 	ScriptVar_t( const std::string & v ): type(SVT_STRING) { str.init(v); }
 	ScriptVar_t( const char* v ): type(SVT_STRING) { str.init(v); }
@@ -167,18 +171,19 @@ public:
 
 	ScriptVar_t( const ScriptVar_t& v ) : type(v.type), isUnsigned(v.isUnsigned) {
 		switch(v.type) {
-			case SVT_BOOL: b = v.b; break;
-			case SVT_INT: i = v.i; break;
-			case SVT_FLOAT: f = v.f; break;
-			case SVT_STRING: str.init(v.str.get()); break;
-			case SVT_COLOR: col.init(v.col.get()); break;
-			case SVT_VEC2: vec2.init(v.vec2.get()); break;
-			case SVT_BASEOBJ: baseObj.init(v.baseObj.get()); break;
-			case SVT_CUSTOM: custom.init(v.custom); break;
-			case SVT_CALLBACK:
-			case SVT_DYNAMIC: assert(false);
+		case SVT_BOOL: b = v.b; break;
+		case SVT_INT32: i = v.i; break;
+		case SVT_UINT64: i_uint64 = v.i_uint64; break;
+		case SVT_FLOAT: f = v.f; break;
+		case SVT_STRING: str.init(v.str.get()); break;
+		case SVT_COLOR: col.init(v.col.get()); break;
+		case SVT_VEC2: vec2.init(v.vec2.get()); break;
+		case SVT_BASEOBJ: baseObj.init(v.baseObj.get()); break;
+		case SVT_CUSTOM: custom.init(v.custom); break;
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
 		}
-	}	
+	}
 
 	ScriptVar_t& operator=(const ScriptVar_t& v) {
 		this -> ~ScriptVar_t(); // uninit
@@ -188,17 +193,18 @@ public:
 
 	~ScriptVar_t() {
 		switch(type) {
-			case SVT_STRING: str.uninit(); break;
-			case SVT_COLOR: col.uninit(); break;
-			case SVT_VEC2: vec2.uninit(); break;
-			case SVT_BASEOBJ: baseObj.uninit(); break;
-			case SVT_CUSTOM: custom.uninit(); break;
-			default: break;
-		}		
+		case SVT_STRING: str.uninit(); break;
+		case SVT_COLOR: col.uninit(); break;
+		case SVT_VEC2: vec2.uninit(); break;
+		case SVT_BASEOBJ: baseObj.uninit(); break;
+		case SVT_CUSTOM: custom.uninit(); break;
+		default: break;
+		}
 	}
 
 	operator bool() const { assert(type == SVT_BOOL); return b; }
-	operator int() const { assert(type == SVT_INT); return i; }
+	operator int32_t() const { assert(type == SVT_INT32); return i; }
+	operator uint64_t() const { assert(type == SVT_UINT64); return i; }
 	operator float() const { assert(type == SVT_FLOAT); return f; }
 	operator std::string() const { assert(type == SVT_STRING); return str.get(); }
 	operator Color() const { assert(type == SVT_COLOR); return col.get(); }
@@ -223,16 +229,17 @@ public:
 	bool operator==(const ScriptVar_t& var) const {
 		if(var.type != type) return false;
 		switch(type) {
-			case SVT_BOOL: return b == var.b;
-			case SVT_INT: return i == var.i;
-			case SVT_FLOAT: return f == var.f;
-			case SVT_STRING: return str == var.str;
-			case SVT_COLOR: return col == var.col;
-			case SVT_VEC2: return vec2 == var.vec2;
-			case SVT_BASEOBJ: return baseObj == var.baseObj;
-			case SVT_CUSTOM: return custom.get().get() == var.custom.get().get();
-			case SVT_CALLBACK:
-			case SVT_DYNAMIC: assert(false);
+		case SVT_BOOL: return b == var.b;
+		case SVT_INT32: return i == var.i;
+		case SVT_UINT64: return i_uint64 == var.i_uint64;
+		case SVT_FLOAT: return f == var.f;
+		case SVT_STRING: return str == var.str;
+		case SVT_COLOR: return col == var.col;
+		case SVT_VEC2: return vec2 == var.vec2;
+		case SVT_BASEOBJ: return baseObj == var.baseObj;
+		case SVT_CUSTOM: return custom.get().get() == var.custom.get().get();
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
 		}
 		return false;
 	}
@@ -241,23 +248,29 @@ public:
 		if(isNumeric() && var.isNumeric()) return getNumber() < var.getNumber();
 		if(var.type != type) return type < var.type;
 		switch(type) {
-			case SVT_BOOL: return b < var.b;
-			case SVT_INT: return i < var.i;
-			case SVT_FLOAT: return f < var.f;
-			case SVT_STRING: return str < var.str;
-			case SVT_COLOR: return col < var.col;
-			case SVT_VEC2: return vec2 < var.vec2;
-			case SVT_BASEOBJ: return baseObj < var.baseObj;
-			case SVT_CUSTOM: return custom.get().get() < var.custom.get().get();
-			case SVT_CALLBACK:
-			case SVT_DYNAMIC: assert(false);
+		case SVT_BOOL: return b < var.b;
+		case SVT_INT32: return i < var.i;
+		case SVT_UINT64: return i_uint64 < var.i_uint64;
+		case SVT_FLOAT: return f < var.f;
+		case SVT_STRING: return str < var.str;
+		case SVT_COLOR: return col < var.col;
+		case SVT_VEC2: return vec2 < var.vec2;
+		case SVT_BASEOBJ: return baseObj < var.baseObj;
+		case SVT_CUSTOM: return custom.get().get() < var.custom.get().get();
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
 		}
 		return false;
 	}
 	
-	bool isNumeric() const { return type == SVT_INT || type == SVT_FLOAT; }
+	bool isNumeric() const { return type == SVT_INT32 || type == SVT_UINT64 || type == SVT_FLOAT; }
 	// TODO: float has the same size as int, so we should convert to double here to avoid data loss with big ints
-	float getNumber() const { if(type == SVT_INT) return (float)i; if(type == SVT_FLOAT) return f; return 0.0f; }
+	float getNumber() const {
+		if(type == SVT_INT32) return (float)i;
+		if(type == SVT_UINT64) return (float)i_uint64;
+		if(type == SVT_FLOAT) return f;
+		return 0.0f;
+	}
 	
 	std::string toString() const;
 	bool fromString( const std::string & str);
@@ -266,46 +279,49 @@ public:
 	bool toBool() const { return toInt() != 0; }
 	int toInt() const {
 		switch(type) {
-			case SVT_BOOL: return b ? 1 : 0;
-			case SVT_INT: return i;
-			case SVT_FLOAT: return (int)f;
-			case SVT_STRING: return from_string<int>(str.get());
-			case SVT_COLOR: return (int)col.get().getDefault();
-			case SVT_VEC2: return (int)vec2.get().x; // everything else doesn't make sense
-			case SVT_BASEOBJ: return baseObj.get().get() ? 1 : 0;
-			case SVT_CUSTOM: return from_string<int>(toString());
-			case SVT_CALLBACK:
-			case SVT_DYNAMIC: assert(false);
+		case SVT_BOOL: return b ? 1 : 0;
+		case SVT_INT32: return i;
+		case SVT_UINT64: return (uint64_t)i;
+		case SVT_FLOAT: return (int)f;
+		case SVT_STRING: return from_string<int>(str.get());
+		case SVT_COLOR: return (int)col.get().getDefault();
+		case SVT_VEC2: return (int)vec2.get().x; // everything else doesn't make sense
+		case SVT_BASEOBJ: return baseObj.get().get() ? 1 : 0;
+		case SVT_CUSTOM: return from_string<int>(toString());
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
 		}
 		assert(false); return 0;
 	}
 	float toFloat() const {
 		switch(type) {
-			case SVT_BOOL: return b ? 1.0f : 0.0f;
-			case SVT_INT: return (float)i;
-			case SVT_FLOAT: return f;
-			case SVT_STRING: return from_string<float>(str.get());
-			case SVT_COLOR: return (float)col.get().getDefault();
-			case SVT_VEC2: return vec2.get().x; // everything else doesn't make sense
-			case SVT_BASEOBJ: return baseObj.get().get() ? 1 : 0;
-			case SVT_CUSTOM: return from_string<float>(toString());
-			case SVT_CALLBACK:
-			case SVT_DYNAMIC: assert(false);
+		case SVT_BOOL: return b ? 1.0f : 0.0f;
+		case SVT_INT32: return (float)i;
+		case SVT_UINT64: return (float)i_uint64;
+		case SVT_FLOAT: return f;
+		case SVT_STRING: return from_string<float>(str.get());
+		case SVT_COLOR: return (float)col.get().getDefault();
+		case SVT_VEC2: return vec2.get().x; // everything else doesn't make sense
+		case SVT_BASEOBJ: return baseObj.get().get() ? 1 : 0;
+		case SVT_CUSTOM: return from_string<float>(toString());
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
 		}
 		assert(false); return 0.0f;
 	}
 	Color toColor() const {
 		switch(type) {
-			case SVT_BOOL: return b ? Color(255,255,255) : Color();
-			case SVT_INT: return Color::fromDefault((Uint32)i);
-			case SVT_FLOAT: return Color::fromDefault((Uint32)f);
-			case SVT_STRING: return StrToCol(str.get());
-			case SVT_COLOR: return col.get();
-			case SVT_VEC2: return Color::fromDefault((Uint32)toInt());
-			case SVT_BASEOBJ: return toBool() ? Color(255,255,255) : Color();
-			case SVT_CUSTOM: return StrToCol(toString());
-			case SVT_CALLBACK:
-			case SVT_DYNAMIC: assert(false);
+		case SVT_BOOL: return b ? Color(255,255,255) : Color();
+		case SVT_INT32: return Color::fromDefault((Uint32)i);
+		case SVT_UINT64: return Color::fromDefault((Uint32)i_uint64);
+		case SVT_FLOAT: return Color::fromDefault((Uint32)f);
+		case SVT_STRING: return StrToCol(str.get());
+		case SVT_COLOR: return col.get();
+		case SVT_VEC2: return Color::fromDefault((Uint32)toInt());
+		case SVT_BASEOBJ: return toBool() ? Color(255,255,255) : Color();
+		case SVT_CUSTOM: return StrToCol(toString());
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
 		}
 		assert(false); return Color();
 	}
@@ -313,16 +329,17 @@ public:
 	// Note: the difference to op= is that we keep the same type here
 	void fromScriptVar(const ScriptVar_t& v) {
 		switch(type) {
-			case SVT_BOOL: assert(v.type == SVT_BOOL); b = v.b; break;
-			case SVT_INT: assert(v.type == SVT_INT); i = v.i; break;
-			case SVT_FLOAT: assert(v.isNumeric()); f = v.getNumber(); break;
-			case SVT_STRING: str.get() = v.toString(); break;
-			case SVT_COLOR: assert(v.type == SVT_COLOR); col.get() = v.col.get(); break;
-			case SVT_VEC2: assert(v.type == SVT_VEC2); vec2.get() = v.vec2.get(); break;
-			case SVT_BASEOBJ: assert(v.type == SVT_BASEOBJ); baseObj.get() = v.baseObj.get();
-			case SVT_CUSTOM: assert(v.type == SVT_CUSTOM); custom.get() = v.custom.get(); break;
-			case SVT_CALLBACK:
-			case SVT_DYNAMIC: assert(false);
+		case SVT_BOOL: assert(v.type == SVT_BOOL); b = v.b; break;
+		case SVT_INT32: assert(v.type == SVT_INT32); i = v.i; break;
+		case SVT_UINT64: assert(v.type == SVT_UINT64); i_uint64 = v.i_uint64; break;
+		case SVT_FLOAT: assert(v.isNumeric()); f = v.getNumber(); break;
+		case SVT_STRING: str.get() = v.toString(); break;
+		case SVT_COLOR: assert(v.type == SVT_COLOR); col.get() = v.col.get(); break;
+		case SVT_VEC2: assert(v.type == SVT_VEC2); vec2.get() = v.vec2.get(); break;
+		case SVT_BASEOBJ: assert(v.type == SVT_BASEOBJ); baseObj.get() = v.baseObj.get();
+		case SVT_CUSTOM: assert(v.type == SVT_CUSTOM); custom.get() = v.custom.get(); break;
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
 		}
 	}
 };
@@ -353,6 +370,7 @@ struct __ScriptVarPtrRaw {
 		void* voidPt;
 		bool * b;	// Pointer to static var
 		int * i;
+		uint64_t * i_uint64;
 		float * f;
 		std::string * s;
 		Color * cl;
@@ -392,15 +410,16 @@ struct ScriptVarPtr_t
 	ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t& def ) : type(v->type), isUnsigned(v->isUnsigned), defaultValue(def) {
 		assert(v->type == def.type);
 		switch(type) {
-			case SVT_BOOL:
-			case SVT_INT:
-			case SVT_FLOAT:
-			case SVT_STRING:
-			case SVT_COLOR:
-			case SVT_VEC2:
-			case SVT_BASEOBJ: ptr.b = v->ptr<bool>(); break;
-			case SVT_CUSTOM: ptr.custom = &v->ptrCustom(); break;
-			default: assert(false);
+		case SVT_BOOL:
+		case SVT_INT32:
+		case SVT_UINT64:
+		case SVT_FLOAT:
+		case SVT_STRING:
+		case SVT_COLOR:
+		case SVT_VEC2:
+		case SVT_BASEOBJ: ptr.b = v->ptr<bool>(); break;
+		case SVT_CUSTOM: ptr.custom = &v->ptrCustom(); break;
+		default: assert(false);
 		}
 	}
 
@@ -408,15 +427,16 @@ struct ScriptVarPtr_t
 		if(var == NULL) return ptr.b == NULL;
 		if(var->type != type) return false;
 		switch(type) {
-			case SVT_BOOL:
-			case SVT_INT:
-			case SVT_FLOAT:
-			case SVT_STRING:
-			case SVT_COLOR:
-			case SVT_VEC2:
-			case SVT_BASEOBJ: return ptr.b == var->ptr<bool>();
-			case SVT_CUSTOM: return ptr.custom == &var->ptrCustom();
-			default: assert(false);
+		case SVT_BOOL:
+		case SVT_INT32:
+		case SVT_UINT64:
+		case SVT_FLOAT:
+		case SVT_STRING:
+		case SVT_COLOR:
+		case SVT_VEC2:
+		case SVT_BASEOBJ: return ptr.b == var->ptr<bool>();
+		case SVT_CUSTOM: return ptr.custom == &var->ptrCustom();
+		default: assert(false);
 		}
 		return false;
 	}

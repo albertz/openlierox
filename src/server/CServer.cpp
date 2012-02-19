@@ -61,7 +61,6 @@ GameServer	*cServer = NULL;
 std::string OldLxCompatibleString(const std::string &Utf8String);
 
 GameServer::GameServer() {
-	iState = SVS_LOBBY;
 	m_flagInfo = NULL;
 	cClients = NULL;
 	Clear();
@@ -80,11 +79,9 @@ void GameServer::Clear()
 {
 	cClients = NULL;
 	//cProjectiles = NULL;
-	iState = SVS_LOBBY;
-	iServerFrame=0; lastClientSendData = 0;
+	lastClientSendData = 0;
 	bRandomMap = false;
 	//iMaxWorms = MAX_PLAYERS;
-	bGameOver = false;
 	//iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
 	bServerRegistered = false;
@@ -129,7 +126,7 @@ int GameServer::StartServer()
 	Shutdown();
 	Clear();
 
-	if (!bDedicated && tLX->iGameType == GME_HOST)
+	if (!bDedicated && (game.isServer() && !game.isLocalGame()))
 		tLX->bHosted = true;
 
 	// Notifications
@@ -209,7 +206,7 @@ int GameServer::StartServer()
 	}
 
 	// In the lobby
-	iState = SVS_LOBBY;
+	game.state = Game::S_Lobby;
 	
 	m_flagInfo = new FlagInfo();
 
@@ -282,7 +279,7 @@ void GameServer::ProcessGetExternalIP()
 	if (sExternalIP.size()) // already got it
 		return;
 
-	if(tLX->iGameType == GME_LOCAL) // dont need it
+	if(game.isLocalGame()) // dont need it
 		return;
 	
 	int result = tHttp2.ProcessRequest();
@@ -372,9 +369,7 @@ int GameServer::PrepareGame(std::string* errMsg)
 	}
 	bRandomMap = false;
 	
-	iState = SVS_GAME;		// In-game, waiting for players to load
-	iServerFrame = 0;
-	bGameOver = false;
+	game.startGame();
 
 	// Note: this code must be after we loaded the mod!
 	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
@@ -452,7 +447,7 @@ int GameServer::PrepareGame(std::string* errMsg)
 	//TODO: Move into CTeamDeathMatch | CGameMode
 	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 	// teams they are on
-	if( tLX->iGameType == GME_HOST ) {
+	if( (game.isServer() && !game.isLocalGame()) ) {
 		if( game.gameMode()->GameTeams() > 1 )
 			UpdateWorms();
 	}
@@ -491,7 +486,7 @@ int GameServer::PrepareGame(std::string* errMsg)
 		DedicatedControl::Get()->WeaponSelections_Signal();
 	
 	// Re-register the server to reflect the state change
-	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
+	if( tLXOptions->bRegServer && (game.isServer() && !game.isLocalGame()) )
 		RegisterServerUdp();
 	
 	for_each_iterator(CWorm*, w, game.worms())
@@ -546,18 +541,16 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 
 	bool firstStart = false;
 	
-	if(iState != SVS_PLAYING) {
+	if(game.state != Game::S_Playing) {
 		// game has started for noone yet and we get the first start signal
 		firstStart = true;
-		iState = SVS_PLAYING;
+		game.state = Game::S_Playing;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameStarted_Signal();
 		
 		// Initialize some server settings
-		fServertime = 0;
-		iServerFrame = 0;
-		bGameOver = false;
-		fGameOverTime = AbsTime();
+		game.serverFrame = 0;
+		game.gameOver = false;
 		cShootList.Clear();
 	}
 	
@@ -632,7 +625,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 
 	if(firstStart) {
 		// Re-register the server to reflect the state change in the serverlist
-		if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
+		if( tLXOptions->bRegServer && (game.isServer() && !game.isLocalGame()) )
 			RegisterServerUdp();
 	}
 }
@@ -643,11 +636,11 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 void GameServer::GameOver()
 {
 	// The game is already over
-	if (bGameOver)
+	if (game.gameOver)
 		return;
 
-	bGameOver = true;
-	fGameOverTime = tLX->currentTime;
+	game.gameOver = true;
+	game.gameOverFrame = game.serverFrame;
 
 	hints << "Server: gameover"; 
 
@@ -805,7 +798,7 @@ void GameServer::Frame()
 {
 	
 	// test code to do profiling
-	/*if(iState == SVS_PLAYING) {
+	/*if(game.state == Game::S_Playing) {
 		int t = (tLX->currentTime - AbsTime(0)).milliseconds() % 10000;
 		static int s = 0;
 		if(t < 100) {
@@ -823,45 +816,9 @@ void GameServer::Frame()
 		s %= 4;
 	}*/
 	
-	
-	// Playing frame
-	if(iState == SVS_PLAYING) {
-		fServertime += tLX->fRealDeltaTime;
-		iServerFrame++;
-	}
-
-	// Process any http requests (register, deregister)
-	if( tLXOptions->bRegServer && !bServerRegistered )
-		ProcessRegister();
-	ProcessGetExternalIP();
-
-	if(m_clientsNeedLobbyUpdate && tLX->currentTime - m_clientsNeedLobbyUpdateTime >= 0.2f) {
-		m_clientsNeedLobbyUpdate = false;
-		
-		if(!cClients) { // can happen if server was not started correctly
-			errors << "GS::UpdateGameLobby: cClients == NULL" << endl;
-		}
-		else {
-			CServerConnection* cl = cClients;
-			for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
-				if(cl->getStatus() != NET_CONNECTED)
-					continue;
-				cl->getNetEngine()->SendUpdateLobbyGame();
-			}	
-		}
-	}
-	
-	ReadPackets();
-
 	SimulateGame();
 
 	CheckTimeouts();
-
-	CheckRegister();
-
-	SendFiles();
-
-	SendPackets();
 }
 
 ////////////////////
@@ -1009,11 +966,27 @@ void GameServer::SendPackets(bool sendPendingOnly)
 		return;
 	}
 
+	if(m_clientsNeedLobbyUpdate && tLX->currentTime - m_clientsNeedLobbyUpdateTime >= 0.2f) {
+		m_clientsNeedLobbyUpdate = false;
+
+		if(!cClients) { // can happen if server was not started correctly
+			errors << "GS::UpdateGameLobby: cClients == NULL" << endl;
+		}
+		else {
+			CServerConnection* cl = cClients;
+			for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
+				if(cl->getStatus() != NET_CONNECTED)
+					continue;
+				cl->getNetEngine()->SendUpdateLobbyGame();
+			}
+		}
+	}
+
 	network.olxSend(sendPendingOnly);
 
 	if(!sendPendingOnly) {
 		// If we are playing, send update to the clients
-		if (iState == SVS_PLAYING)
+		if (game.state == Game::S_Playing)
 			SendUpdate();
 
 #if defined(FUZZY_ERROR_TESTING) && defined(FUZZY_ERROR_TESTING_S2C)
@@ -1051,7 +1024,7 @@ void GameServer::SendPackets(bool sendPendingOnly)
 // Register the server
 void GameServer::RegisterServer()
 {
-	if (tMasterServers.size() == 0 || tLX->iGameType != GME_HOST)
+	if (tMasterServers.size() == 0 || game.isLocalGame())
 		return;
 
 	// Create the url
@@ -1082,7 +1055,7 @@ void GameServer::RegisterServer()
 // Process the registering of the server
 void GameServer::ProcessRegister()
 {
-	if(!tLXOptions->bRegServer || bServerRegistered || tMasterServers.size() == 0 || tLX->iGameType != GME_HOST)
+	if(!tLXOptions->bRegServer || bServerRegistered || tMasterServers.size() == 0 || game.isLocalGame())
 		return;
 
 	int result = tHttp.ProcessRequest();
@@ -1120,7 +1093,7 @@ void GameServer::ProcessRegister()
 void GameServer::RegisterServerUdp()
 {
 	// Don't register a local play
-	if (tLX->iGameType == GME_LOCAL)
+	if (game.isLocalGame())
 		return;
 	if( tUdpMasterServers.size() == 0 )
 		return;
@@ -1173,7 +1146,7 @@ void GameServer::RegisterServerUdp()
 		bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
 		bs.writeByte(game.worms()->size());
 		bs.writeByte(tLXOptions->iMaxPlayers);
-		bs.writeByte(iState);
+		bs.writeByte(oldLXStateInt());
 		// Beta8+
 		bs.writeString(GetGameVersion().asString());
 		bs.writeByte(serverAllowsConnectDuringGame());
@@ -1227,7 +1200,7 @@ void GameServer::DeRegisterServerUdp()
 void GameServer::CheckRegister()
 {
 	// If we don't want to register, just leave
-	if(!tLXOptions->bRegServer || tLX->iGameType != GME_HOST)
+	if(!tLXOptions->bRegServer || game.isLocalGame())
 		return;
 
 	// If we registered over n seconds ago, register again
@@ -1251,7 +1224,7 @@ void GameServer::CheckRegister()
 bool GameServer::DeRegisterServer()
 {
 	// If we aren't registered, or we didn't try to register, just leave
-	if( !tLXOptions->bRegServer || !bServerRegistered || tMasterServers.size() == 0 || tLX->iGameType != GME_HOST)
+	if( !tLXOptions->bRegServer || !bServerRegistered || tMasterServers.size() == 0 || game.isLocalGame() )
 		return false;
 
 	// Create the url
@@ -1346,7 +1319,8 @@ void GameServer::CheckTimeouts()
 
 void GameServer::CheckWeaponSelectionTime()
 {
-	if( iState != SVS_GAME || tLX->iGameType != GME_HOST ) return;
+	if( game.isLocalGame() ) return;
+	if( game.state != Game::S_Preparing ) return;
 	if( serverChoosesWeapons() ) return;
 	if( gameSettings[FT_ImmediateStart] ) return;
 	
@@ -1414,12 +1388,12 @@ void GameServer::CheckForFillWithBots() {
 		return;
 	}
 	
-	if(iState != SVS_LOBBY && !tLXOptions->bAllowConnectDuringGame) {
+	if(game.state != Game::S_Lobby && !tLXOptions->bAllowConnectDuringGame) {
 		notes << "CheckForFillWithBots: not in lobby and connectduringgame not allowed" << endl;
 		return;
 	}
 	
-	if(iState == SVS_PLAYING && !allWormsHaveFullLives()) {
+	if(game.state == Game::S_Playing && !allWormsHaveFullLives()) {
 		notes << "CheckForFillWithBots: in game, cannot add new worms now" << endl;
 		return;
 	}
@@ -1687,7 +1661,7 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 	}
 	
 	// check only if not in lobby anymore - because in lobby, we cannot know (atm) about the level/mod
-	if((iState != SVS_LOBBY) && gusGame.isEngineNeeded() && ver < OLXBetaVersion(0,59,1)) {
+	if((game.state != Game::S_Lobby) && gusGame.isEngineNeeded() && ver < OLXBetaVersion(0,59,1)) {
 		if(incompReason) *incompReason = "Gusanos engine is used";
 		return false;
 	}
@@ -1796,14 +1770,14 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 	wormInfo.applyTo(w);
 	w->setupLobby();
 	w->setDamage(0);
-	if( tLX->iGameType == GME_HOST ) // in local play, we use the team-nr from the WormJoinInfo
+	if( (game.isServer() && !game.isLocalGame()) ) // in local play, we use the team-nr from the WormJoinInfo
 		w->setTeam(0);
 	else
 		w->setTeam(wormInfo.iTeam);
 		
 	// If the game has limited lives all new worms are spectators
-	if( (int)gameSettings[FT_Lives] == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
-		w->setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : gameSettings[FT_Lives]);
+	if( (int32_t)gameSettings[FT_Lives] == WRM_UNLIM || game.state != Game::S_Playing || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
+		w->setLives(((int32_t)gameSettings[FT_Lives] < 0) ? (int32_t)WRM_UNLIM : (int32_t)gameSettings[FT_Lives]);
 	else {
 		w->setLives(WRM_OUT);
 	}
@@ -2266,7 +2240,7 @@ void GameServer::Shutdown()
 	}
 
 	// Kick clients if they still connected (sends just one packet which may be lost, but whatever, we're shutting down)
-	if(cClients && tLX->iGameType == GME_HOST)
+	if(cClients && (game.isServer() && !game.isLocalGame()))
 	{
 		SendDisconnect();
 	}
@@ -2314,19 +2288,19 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 	}
 
 	std::ostringstream msg;
-	if(tLX->iGameType == GME_JOIN) msg << "INVALID ";
-	else if(tLX->iGameType == GME_LOCAL) msg << "local ";
+	if(game.isClient()) msg << "INVALID ";
+	else if(game.isLocalGame()) msg << "local ";
 	msg << "Server '" << tLXOptions->sServerName << "' game state:";
 	caller->writeMsg(msg.str());
 	msg.str("");	
 	
-	switch(iState) {
-		case SVS_LOBBY: msg << " * in lobby"; break;
-		case SVS_GAME: msg << " * weapon selection"; break;
-		case SVS_PLAYING: msg << " * playing"; break;
-		default: msg << " * INVALID STATE " << iState; break;
+	switch(game.state) {
+	case Game::S_Lobby: msg << " * in lobby"; break;
+	case Game::S_Preparing: msg << " * weapon selection"; break;
+	case Game::S_Playing: msg << " * playing"; break;
+	default: msg << " * INVALID STATE " << game.state; break;
 	}
-	if(iState != SVS_LOBBY && bGameOver) msg << ", game is over";
+	if(game.state != Game::S_Lobby && game.gameOver) msg << ", game is over";
 	bool teamGame = true;
 	if(game.gameMode()) {
 		teamGame = game.gameMode()->GameTeams() > 1;
@@ -2350,7 +2324,7 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 	msg << " * maxkills=" << gameSettings[FT_KillLimit];
 	msg << ", lives=" << gameSettings[FT_Lives];
 	msg << ", timelimit=" << ((float)gameSettings[FT_TimeLimit] * 60.0f);
-	msg << " (curtime=" << fServertime.seconds() << ")";
+	msg << " (curtime=" << game.serverTime().seconds() << ")";
 	caller->writeMsg(msg.str());
 	msg.str("");	
 	
@@ -2395,7 +2369,7 @@ void GameServer::DumpConnections() {
 }
 
 void SyncServerAndClient() {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		warnings << "SyncServerAndClient: cannot sync in join-mode" << endl;
 		return;
 	}

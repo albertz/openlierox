@@ -440,7 +440,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						}
 					}
 						
-					tLX->iGameType = GME_HOST;
+					game.startServer(/* localGame */ false);
 
 					cClient->Shutdown();
 				    cClient->Clear();
@@ -579,7 +579,7 @@ static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 // Initialize the hosting lobby
 bool Menu_Net_HostLobbyInitialize()
 {
-	tLX->iGameType = GME_HOST;
+	game.startServer(/* localGame */ false);
 	// TODO: please comment these vars
 	iNetMode = net_host;
 	iHostType = 1;
@@ -790,7 +790,7 @@ void Menu_Net_HostLobbySetText(const std::string& str) {
 // TODO: describe the difference between Menu_Net_GotoHostLobby and Menu_Net_HostGotoLobby
 void Menu_Net_HostGotoLobby()
 {
-	tLX->iGameType = GME_HOST;
+	game.startServer(/* localGame */ false);
 	iNetMode = net_host;
 	iHostType = 1;
 	bHostGameSettings = false;
@@ -1313,7 +1313,7 @@ bool Menu_Net_HostStartGame()
 	// Leave the frontend
 	tMenu->bMenuWantsGameStart = true;
 	tMenu->bMenuRunning = false;
-	tLX->iGameType = GME_HOST;
+	game.startServer(/* localGame */ false);
 
 	return true;
 }
@@ -1810,7 +1810,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 						
 						CMenu *mnu = NULL;
 
-						if( !( cServer->getState() == SVS_PLAYING && wormid == 0 ) )	// Do not add the empty menu
+						if( !( game.state == Game::S_Playing && wormid == 0 ) )	// Do not add the empty menu
 						{
 							mnu = new CMenu(Mouse->X, Mouse->Y);
 							layout.Add(mnu, id_PopupMenu, 0, 0, 640, 480 );
@@ -1825,12 +1825,12 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 								}
 								mnu->addItem(3, "Authorise player");
 							}
-							if( cServer->getState() != SVS_PLAYING )
+							if( game.state != Game::S_Playing )
 								mnu->addItem(4, "Spectator", true, w->isSpectating());
 						}
 
 						CMenu * info = new CMenu( Mouse->X + (mnu ? mnu->getMenuWidth() : 0) + 10, Mouse->Y );
-						if( cServer->getState() == SVS_PLAYING && wormid == 0 ) // Player info is the only popup menu
+						if( game.state == Game::S_Playing && wormid == 0 ) // Player info is the only popup menu
 							layout.Add(info, id_PopupPlayerInfo, 0, 0, 640, 480 );
 						else
 							layout.Add(info, id_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), 200, 200 );
@@ -1846,7 +1846,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 						info->addItem(2, "Version: " + w->getClient()->getClientVersion().asString() );
 						
 						// Update the menu clickable area - all items below are not clickable, they just for info
-						if( !( cServer->getState() == SVS_PLAYING && wormid == 0 ) )
+						if( !( game.state == Game::S_Playing && wormid == 0 ) )
 							info->Setup(id_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), info->getMenuWidth(), info->getMenuHeight()-2);
 
 						info->addItem(3, "Received: " + itoa(w->getClient()->getChannel()->getIncoming()/1024) + " Kb");
@@ -1900,7 +1900,7 @@ void Menu_HostActionsPopupMenuClick(CGuiLayout & layout, int id_PopupMenu, int i
 
 					// Spectate
 					case MNU_USER+4:  {
-						if( cServer->getState() == SVS_PLAYING )
+						if( game.state == Game::S_Playing )
 							break;
 
 						if (mnu->getItem(4) && g_nLobbyWorm >= 0 && wormid < MAX_WORMS)  {

@@ -1306,7 +1306,7 @@ static INLINE bool LX56ProjectileHandler_doFrame(const AbsTime currentTime, Time
 	const proj_t& projInfo = *prj->GetProjInfo();
 	
 	Proj_DoActionInfo doActionInfo;
-	TimeDiff serverTime = cClient->serverTime();
+	TimeDiff serverTime = game.serverTime();
 	{
 		TimeDiff timeDiff = currentTime - prj->fLastSimulationTime;
 		if(timeDiff >= serverTime)

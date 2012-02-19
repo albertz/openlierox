@@ -116,7 +116,7 @@ void CButton::Create()
 
 static bool CButton_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "button", & CButton::WidgetCreator )
-							( "textid", SVT_INT )
+							( "textid", SVT_INT32 )
 							( "click", SVT_STRING );
 
 static bool CImageButton_WidgetRegistered = 

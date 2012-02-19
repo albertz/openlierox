@@ -21,7 +21,7 @@ Result Game::loadMod() {
 	
 	float timer = SDL_GetTicks()/1000.0f;
 	
-	// for client (tLX->iGameType == GME_JOIN): client->getGameLobby()[FT_Mod].as<ModInfo>()->name
+	// for client (game.isClient()): client->getGameLobby()[FT_Mod].as<ModInfo>()->name
 	SmartPointer<CGameScript> cGameScript = cCache.GetMod( cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path );
 	if( cGameScript.get() == NULL )
 	{

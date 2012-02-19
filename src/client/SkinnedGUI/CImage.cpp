@@ -140,10 +140,10 @@ CWidget * CImage::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayou
 static bool CImage_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
 							( "file", SVT_STRING )
-							( "crop_x", SVT_INT )
-							( "crop_y", SVT_INT )
-							( "crop_w", SVT_INT )
-							( "crop_h", SVT_INT )
+							( "crop_x", SVT_INT32 )
+							( "crop_y", SVT_INT32 )
+							( "crop_w", SVT_INT32 )
+							( "crop_h", SVT_INT32 )
 							( "click", SVT_STRING );
 
 }; // namespace SkinnedGUI

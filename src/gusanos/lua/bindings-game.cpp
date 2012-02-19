@@ -111,7 +111,7 @@ static int l_olx_getVar(lua_State* L) {
 	
 	switch(varptr->var.type) {
 		case SVT_BOOL:	lua_pushnumber(L, *varptr->var.ptr.b); break;
-		case SVT_INT:	lua_pushnumber(L, *varptr->var.ptr.i); break;
+		case SVT_INT32:	lua_pushnumber(L, *varptr->var.ptr.i); break;
 		case SVT_FLOAT:	lua_pushnumber(L, *varptr->var.ptr.f); break;
 		default:		lua_pushstring(L, varptr->var.toString().c_str());
 	}

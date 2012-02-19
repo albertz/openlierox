@@ -259,7 +259,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	NetworkAddr addr;
 
 	if(!isReconnect) {
-		if(tLX->iGameType == GME_JOIN) {
+		if(game.isClient()) {
 			// If already connected, ignore this
 			if (client->iNetStatus == NET_CONNECTED)  {
 				notes << "CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids" << endl;
@@ -352,7 +352,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->bHostAllowsStrafing = client->getServerVersion() < OLXBetaVersion(0,57,5);
 	}
 	
-	if(tLX->iGameType == GME_JOIN)
+	if(game.isClient())
 		// in CServer::StartServer, we call olxHost
 		// we must do the same here now in case of client
 		network.olxConnect();	
@@ -390,8 +390,8 @@ void CClientNetEngine::ParseTimeIs(CBytestream* bs)
 	if( serverTime > 0.0 )
 	{
 		TimeDiff time = TimeDiff(serverTime);
-		if (time > client->fServertime)
-			client->fServertime = time;
+		if (time > game.serverTime())
+			game.serverFrame = time.milliseconds() / Game::FixedFrameTime;
 	}
 
 	// This is the response of the lx::time packet, which is sent instead of the lx::ping.
@@ -759,27 +759,27 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 	// We've already got this packet
-	if (client->bGameReady && !client->bGameOver)  {
-		((tLX->iGameType == GME_JOIN) ? warnings : notes)
+	if (client->bGameReady && !game.gameOver)  {
+		((game.isClient()) ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: we already got this" << endl;
 		
 		// HINT: we ignore it here for the safety because S2C_PREPAREGAME is 0 and it is
 		// a very common value in corrupted streams
 		// TODO: skip to the right position, the packet could be valid
-		if( tLX->iGameType == GME_JOIN )
+		if( game.isClient() )
 			return false;
 		isReconnect = true;
 	}
 
 	// If we're playing, the game has to be ready
-	if (client->iNetStatus == NET_PLAYING && !client->bGameOver)  {
-		((tLX->iGameType == GME_JOIN) ? warnings : notes)
+	if (client->iNetStatus == NET_PLAYING && !game.gameOver)  {
+		((game.isClient()) ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
 		client->bGameReady = true;
 
 		// The same comment here as above.
 		// TODO: skip to the right position, the packet could be valid
-		if( tLX->iGameType == GME_JOIN )
+		if( game.isClient() )
 			return false;
 		isReconnect = true;
 	}
@@ -789,7 +789,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	if(!isReconnect) {
 		client->bGameRunning = false; // wait for ParseStartGame
-		client->bGameOver = false;
+		game.gameOver = false;
 	}
 	
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
@@ -822,7 +822,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 	else
 		bs->Skip(11);
-	client->fServertime = 0;
+	game.serverFrame = 0;
 	
 	// in server mode, server would reset this
 	if(game.isClient())
@@ -905,7 +905,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			return false;
 		}
 
-		if(tLX->iGameType == GME_JOIN) {
+		if(game.isClient()) {
 
 			// check if we have level
 			if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
@@ -1007,9 +1007,9 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		client->InitializeIngameScore(true);
 
 		// Copy the chat text from lobby to ingame chatbox
-		if( tLX->iGameType == GME_HOST )
+		if( game.isServer() && !game.isLocalGame() )
 			client->sChat_Text = DeprecatedGUI::Menu_Net_HostLobbyGetText();
-		else if( tLX->iGameType == GME_JOIN )
+		else if( game.isClient() )
 			client->sChat_Text = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
 
 		if (!client->sChat_Text.empty())  {
@@ -1280,7 +1280,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	
 	client->fLastSimulationTime = tLX->currentTime;
 	client->iNetStatus = NET_PLAYING;
-	client->fServertime = 0;
+	game.serverFrame = 0;
 
 	// Re-initialize the ingame scoreboard
 	client->InitializeIngameScore(false);
@@ -1444,7 +1444,7 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	wormInfo.applyTo(w);
 
 	if(newWorm) {
-		w->setLives(((int)client->getGameLobby()[FT_Lives] < 0) ? WRM_UNLIM : client->getGameLobby()[FT_Lives]);
+		w->setLives(((int32_t)client->getGameLobby()[FT_Lives] < 0) ? (int32_t)WRM_UNLIM : (int32_t)client->getGameLobby()[FT_Lives]);
 		w->setClient(NULL); // Client-sided worms won't have CServerConnection
 		if (client->iNetStatus == NET_PLAYING || client->bGameReady) {
 			if(game.isClient())
@@ -1549,7 +1549,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 	std::string buf = bs->readString();
 
 	// If we are playing a local game, discard network messages
-	if(tLX->iGameType == GME_LOCAL) {
+	if(game.isLocalGame()) {
 		if(type == TXT_NETWORK)
 			return;
 		if(type != TXT_CHAT)
@@ -1575,9 +1575,9 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 static std::string getChatText(CClient* client) {
 	if(client->getStatus() == NET_PLAYING || client->getGameReady())
 		return client->chatterText();
-	else if(tLX->iGameType == GME_HOST)
+	else if(game.isServer() && !game.isLocalGame())
 		return DeprecatedGUI::Menu_Net_HostLobbyGetText();
-	else if(tLX->iGameType == GME_JOIN)
+	else if(game.isClient())
 		return DeprecatedGUI::Menu_Net_JoinLobbyGetText();
 
 	warnings << "WARNING: getChatText(): cannot find chat source" << endl;
@@ -1588,9 +1588,9 @@ static void setChatText(CClient* client, const std::string& txt) {
 	if(client->getStatus() == NET_PLAYING || client->getGameReady()) {
 		client->chatterText() = txt;
 		client->setChatPos( Utf8StringSize(txt) );
-	} else if(tLX->iGameType == GME_HOST) {
+	} else if(game.isServer() && !game.isLocalGame()) {
 		DeprecatedGUI::Menu_Net_HostLobbySetText( txt );
-	} else if(tLX->iGameType == GME_JOIN) {
+	} else if(game.isClient()) {
 		DeprecatedGUI::Menu_Net_JoinLobbySetText( txt );
 	} else
 		warnings << "WARNING: setChatText(): cannot find chat source" << endl;
@@ -1789,14 +1789,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 		} else
 			client->iMatchWinnerTeam = -1;
 	}
-	
-	// Check
-	if (client->bGameOver)  {
-		notes << "CClientNetEngine::ParseGameOver: the game is already over, ignoring" << endl;
-		return;
-	}
-	
-	
+		
 	// Game over
 	hints << "Client: the game is over";
 	if(client->iMatchWinner >= 0 && client->iMatchWinner < MAX_WORMS) {
@@ -1806,7 +1799,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 		hints << ", the winning team is team " << client->iMatchWinnerTeam;
 	}
 	hints << endl;
-	client->bGameOver = true;
+	game.gameOver = true;
 	client->fGameOverTime = tLX->currentTime;
 
 	if (client->tGameLog)
@@ -1877,7 +1870,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 // Parse a tag update packet
 void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 {
-	if (!client->bGameReady || client->bGameOver)  {
+	if (!client->bGameReady || game.gameOver)  {
 		warnings << "CClientNetEngine::ParseTagUpdate: not playing - ignoring" << endl;
 		return;
 	}
@@ -1917,7 +1910,7 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 {
 	int numworms = bs->readByte();
 
-	if((numworms < 0 || numworms > MAX_PLAYERS) && tLX->iGameType != GME_LOCAL) {
+	if((numworms < 0 || numworms > MAX_PLAYERS) && !game.isLocalGame()) {
 		// bad packet
 		hints << "CClientNetEngine::ParseCLReady: invalid numworms (" << numworms << ")" << endl;
 		bs->SkipAll();
@@ -2025,7 +2018,7 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 			log_worm_t *l = client->GetLogWorm(id);
 			if (l)  {
 				l->bLeft = true;
-				l->fTimeLeft = client->serverTime();
+				l->fTimeLeft = game.serverTime();
 			}
 		}
 		
@@ -2276,7 +2269,7 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 {
 	// Set the server error details
 
-	if (tLX->iGameType != GME_JOIN)  {
+	if (game.isServer())  {
 		warnings << "Got local server leaving packet, ignoring..." << endl;
 		return;
 	}
@@ -2385,7 +2378,7 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	// TODO: Why did we have that code? In hosting mode, we should always trust the server.
 	// Even worse, the check is not fully correct. client->bGameOver means that the game is over.
 	/*
-	if (tLX->iGameType != GME_JOIN)  {
+	if (game.isServer())  {
 		if (!tLX->bQuitEngine)  {
 			warnings << "we should go to lobby but should not quit the game, ignoring game over signal" << endl;
 			return;
@@ -2405,7 +2398,7 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	DeprecatedGUI::Menu_FloatingOptionsShutdown();
 
 
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 
 		// Tell server my worms aren't ready
 		CBytestream bs;
@@ -2433,7 +2426,7 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
     // Set the server error details
 
 	// Ignore if we are hosting/local, it's a nonsense
-	if (tLX->iGameType != GME_JOIN)  {
+	if (game.isServer())  {
 		warnings << "Got dropped from local server (" << bs->readString() << "), ignoring" << endl;
 		return;
 	}

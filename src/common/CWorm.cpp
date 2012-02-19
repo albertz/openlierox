@@ -744,7 +744,7 @@ void CWorm::GetRandomWeapons()
 
 // the first host worm (there can only be one such worm in a game)
 bool CWorm::isFirstLocalHostWorm() {
-	if(tLX->iGameType == GME_JOIN) return false;
+	if(game.isClient()) return false;
 	if(!cServer || !cServer->isServerRunning()) return false;
 	
 	CServerConnection* localConn = cServer->localClientConnection();
@@ -756,7 +756,7 @@ bool CWorm::isFirstLocalHostWorm() {
 }
 
 bool CWorm::isLocalHostWorm() {
-	if(tLX->iGameType == GME_JOIN) return false;
+	if(game.isClient()) return false;
 	if(!cServer || !cServer->isServerRunning()) return false;
 	
 	CServerConnection* localConn = cServer->localClientConnection();
@@ -1218,7 +1218,7 @@ void CWorm::incrementDirtCount(int d) {
 	if(d != 0) {
 		iDirtCount += d;
 		
-		if( tLX->iGameType != GME_JOIN ) {
+		if( game.isServer() ) {
 			game.gameMode()->Carve(this, d);
 		}
 	}

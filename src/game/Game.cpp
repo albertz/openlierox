@@ -33,7 +33,6 @@
 #include "gusanos/glua.h"
 #include "gusanos/luaapi/context.h"
 #include "sound/sfx.h"
-#include "gusanos/network.h"
 #include "OLXConsole.h"
 #include "game/SinglePlayer.h"
 #include "game/SettingsPreset.h"
@@ -41,6 +40,7 @@
 #include "ProfileSystem.h"
 #include "Attr.h"
 #include "gusanos/luaapi/classes.h"
+#include "gusanos/network.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -59,7 +59,83 @@ static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
 
 Game::Game() {
 	uniqueObjId = LuaID<Game>::value;
+	m_isServer = false;
+	m_isLocalGame = false;
+	state = S_Inactive;
 }
+
+void Game::startServer(bool localGame) {
+	m_isServer = true;
+	m_isLocalGame = localGame;
+	state = S_Lobby;
+}
+
+void Game::startClient() {
+	m_isServer = false;
+	m_isLocalGame = false;
+	state = S_Connecting;
+}
+
+void Game::startGame() {
+	if(!isServer()) {
+		errors << "startGame as client" << endl;
+		return;
+	}
+
+	if(state != Game::S_Lobby)
+		warnings << "startGame: expected to be in lobby but game state is " << game.state << endl;
+
+	state = Game::S_Preparing;
+	gameOver = false;
+}
+
+void Game::stop() {
+	m_isServer = false;
+	m_isLocalGame = false;
+	state = S_Inactive;
+}
+
+void checkCurrentGameState() {
+	if(!cClient || cClient->getStatus() == NET_DISCONNECTED) {
+		// S_INACTIVE;
+		if(game.state != Game::S_Inactive)
+			errors << "client is disconnected but game state is " << game.state << endl;
+		return;
+	}
+	if(game.isClient()) {
+		if(cClient->getStatus() == NET_CONNECTING) {
+			// S_CLICONNECTING;
+			if(game.state != Game::S_Connecting)
+				errors << "client is connecting but game state is " << game.state << endl;
+			return;
+		}
+		if(!cClient->getGameReady()) {
+			// S_CLILOBBY;
+			if(game.state != Game::S_Lobby)
+				errors << "client is connected and game is not ready but game state is " << game.state << endl;
+			return;
+		}
+		if(cClient->getStatus() == NET_PLAYING) {
+			// S_CLIPLAYING;
+			if(game.state != Game::S_Playing)
+				errors << "client is connected and playing but game state is " << game.state << endl;
+			return;
+		}
+		// S_CLIWEAPONS;
+		if(game.state != Game::S_Preparing)
+			errors << "client is connected and should be preparing game but game state is " << game.state << endl;
+		return;
+	}
+	if(!cServer->isServerRunning()) {
+		// S_INACTIVE;
+		if(game.state != Game::S_Inactive)
+			errors << "server is not running but game state is " << game.state << endl;
+		return;
+	}
+	//if(!DeprecatedGUI::tMenu || DeprecatedGUI::tMenu->bMenuRunning);
+}
+
+
 
 void Game::prepareGameloop() {
 	// Pre-game initialization
@@ -71,14 +147,14 @@ void Game::prepareGameloop() {
 		SyncServerAndClient();
 	}
 	
-	if(tLX->iGameType != GME_JOIN) {
-		if(cServer->getState() == SVS_LOBBY) {
+	if(game.isServer()) {
+		if(game.state == Game::S_Lobby) {
 			notes << "prepareGameloop: starting game" << endl;
 			std::string errMsg;
 			if(!cServer->PrepareGame(&errMsg)) {
 				errors << "starting game in local game failed for reason: " << errMsg << endl;
 				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
-				if (tLX->iGameType == GME_LOCAL)
+				if (game.isLocalGame())
 					GotoLocalMenu();
 				else
 					GotoNetMenu();
@@ -124,26 +200,40 @@ void Game::prepareGameloop() {
 	CrashHandler::recoverAfterCrash = tLXOptions->bRecoverAfterCrash && GetGameVersion().releasetype == Version::RT_NORMAL;
 	
 	ResetQuitEngineFlag();
-	oldtime = GetTime();	
+	simulationTime = oldtime = GetTime();
 }
 
+/*
+uint64_t calcFramesLeft(AbsTime curTime, AbsTime curSimTime) {
+	TimeDiff diff = curTime - curSimTime;
+	return (diff.milliseconds() + Game::FixedFrameTime - 1) / Game::FixedFrameTime;
+}
+*/
+
+static TimeDiff simulationDelay() {
+	return GetTime() - tLX->currentTime;
+	/*
+	if(simulationTime > tLX->currentTime) { // inside the 100FPS loop
+		curTime = simulationTime;
+		curSimTime = tLX->currentTime;
+		uint64_t framesLeft = calcFramesLeft(curTime, curSimTime);
+		TimeDiff timeLeft = TimeDiff(framesLeft * Game::FixedFrameTime);
+	}
+	*/
+}
+
+bool Game::hasHighSimulationDelay() { return simulationDelay() > TimeDiff(100); }
+bool Game::hasSeriousHighSimulationDelay() { return simulationDelay() > TimeDiff(200); }
+
 void Game::frameOuter() {
-	tLX->currentTime = GetTime();
 	SetCrashHandlerReturnPoint("main game loop");
 	
 	// Timing
+	tLX->currentTime = GetTime();
 	tLX->fDeltaTime = tLX->currentTime - oldtime;
 	tLX->fRealDeltaTime = tLX->fDeltaTime;
 	oldtime = tLX->currentTime;
-	
-	// cap the delta
-	if(tLX->fDeltaTime.seconds() > 0.5f) {
-		warnings << "deltatime " << tLX->fDeltaTime.seconds() << " is too high" << endl;
-		// only if not in new net mode because it would screw up the gamestate there
-		if(!NewNet::Active())
-			tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
-	}
-	
+
 	ProcessEvents();
 	
 	// Main frame
@@ -195,46 +285,86 @@ void Game::frameInner()
 	if(tLXOptions->bEnableChat)
 		ProcessIRC();
 
-	// do lua/gus frames in all cases
-	{
-		// convert speed to lua if needed
-		std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
-		scopedSpeeds.reserve( game.worms()->size() );
-		for_each_iterator(CWorm*, w, game.worms())
-			scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
-		
-		gusLogicFrame();		
+	cClient->ReadPackets();
+
+	cClient->ProcessMapDownloads();
+	cClient->ProcessModDownloads();
+	cClient->ProcessUdpUploads();
+
+	cClient->SimulateHud();
+
+	if(isServer()) {
+		cServer->ProcessRegister();
+		cServer->ProcessGetExternalIP();
+		cServer->ReadPackets();
 	}
-	
-	// Local
-	switch (tLX->iGameType)  {
-		case GME_LOCAL:
-			cClient->Frame();
+
+	// We have a separate fixed 100FPS for game simulation.
+	// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
+	// we have to set it accordingly.
+	AbsTime curTime = tLX->currentTime;
+	TimeDiff curDeltaTime = tLX->fDeltaTime;
+	tLX->currentTime = simulationTime;
+	tLX->fDeltaTime = TimeDiff(Game::FixedFrameTime);
+	tLX->fRealDeltaTime = TimeDiff(Game::FixedFrameTime);
+	while(tLX->currentTime < curTime) {
+
+		if(hasSeriousHighSimulationDelay()) {
+			TimeDiff simDelay = simulationDelay();
+			if(simDelay > 0.5f)
+				warnings << "deltatime " << simDelay.seconds() << " is too high" << endl;
+			// Don't do anything anymore, just skip.
+			// Also don't increment serverFrame so clients know about this.
+			tLX->currentTime += TimeDiff(simDelay.milliseconds() - simDelay.milliseconds() % Game::FixedFrameTime);
+			continue;
+		}
+
+		if(game.state == Game::S_Playing && !isGamePaused())
+			serverFrame++;
+
+		// do lua/gus frames in all cases
+		{
+			// convert speed to lua if needed
+			std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
+			scopedSpeeds.reserve( game.worms()->size() );
+			for_each_iterator(CWorm*, w, game.worms())
+					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
+
+			gusLogicFrame();
+		}
+
+		cClient->Frame();
+		if(isServer())
 			cServer->Frame();
-			
-			if(tLX && !tLX->bQuitEngine)
-				cClient->Draw(VideoPostProcessor::videoSurface());
-			break;
-			
-			
-			// Hosting
-		case GME_HOST:
-			cClient->Frame();
-			cServer->Frame();
-			
-			if(tLX && !tLX->bQuitEngine)
-				cClient->Draw(VideoPostProcessor::videoSurface());
-			break;
-			
-			// Joined
-		case GME_JOIN:
-			cClient->Frame();
-			if(tLX && !tLX->bQuitEngine)
-				cClient->Draw(VideoPostProcessor::videoSurface());
-			break;
-			
-	} // SWITCH
+
+		tLX->currentTime += TimeDiff(Game::FixedFrameTime);
+	}
+	simulationTime = tLX->currentTime;
+	tLX->currentTime = curTime;
+	tLX->fDeltaTime = curDeltaTime;
 	
+	if(tLX && !tLX->bQuitEngine)
+		cClient->Draw(VideoPostProcessor::videoSurface());
+
+	// Gusanos network
+	network.update();
+
+	cClient->SendPackets();
+
+	// Connecting process
+	if (cClient->bConnectingBehindNat)
+		cClient->ConnectingBehindNAT();
+	else
+		cClient->Connecting();
+
+	if(isServer()) {
+		cServer->CheckRegister();
+		if(cServer->isServerRunning()) {
+			cServer->SendFiles();
+			cServer->SendPackets();
+		}
+	}
+
 	iterAttrUpdates(NULL);
 
 	cClient->resetDebugStr();
@@ -247,7 +377,7 @@ void Game::cleanupAfterGameloopEnd() {
 	CrashHandler::recoverAfterCrash = false;
 	
 	// can happen if we have aborted a game
-	if(isServer() && !cServer->getGameOver())
+	if(isServer() && !gameOver)
 		// call gameover because we may do some important cleanup there
 		game.gameMode()->GameOver();
 	
@@ -401,17 +531,13 @@ CGameScript* Game::gameScript() { return m_gameMod.get(); }
 
 CGameMode* Game::gameMode() {
 	if(tLX) {
-		if(tLX->iGameType != GME_JOIN) return gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
+		if(game.isServer()) return gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
 		return cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode;
 	}
 	return NULL;
 }
 
 CWpnRest* Game::weaponRestrictions() { return m_wpnRest.get(); }
-
-bool Game::isServer() {
-	return tLX->iGameType != GME_JOIN;
-}
 
 bool Game::needProxyWormInputHandler() {
 	return isServer();
@@ -427,7 +553,8 @@ bool Game::isTeamPlay() {
 
 
 bool CClient::getGamePaused() {
-	return (tLX->iGameType == GME_LOCAL) && (bGameOver || bViewportMgr || bGameMenu || Con_IsVisible());
+	if(!game.isLocalGame()) return false; // pause only allowed in local game
+	return bViewportMgr || bGameMenu || Con_IsVisible();
 }
 
 bool Game::isGamePaused() {
@@ -438,7 +565,7 @@ bool Game::isGamePaused() {
 bool Game::shouldDoPhysicsFrame() {
 	return !isGamePaused() && cClient->canSimulate() &&
     // We stop a few seconds after the actual game over
-	!(cClient->bGameOver && (tLX->currentTime - cClient->fGameOverTime).seconds() > GAMEOVER_WAIT);
+	!(game.gameOver && (tLX->currentTime - cClient->fGameOverTime).seconds() > GAMEOVER_WAIT);
 }
 
 
@@ -524,5 +651,15 @@ static std::string _wormName(CWorm* w) { return itoa(w->getID()) + ":" + w->getN
 
 std::string Game::wormName(int wormId) {
 	return ifWorm<std::string>(wormId, _wormName, itoa(wormId) + ":<unknown-worm>");
+}
+
+int oldLXStateInt() {
+	switch(game.state) {
+	case Game::S_Lobby: return 0;
+	case Game::S_Preparing: return 1;
+	case Game::S_Playing: return 2;
+	default: warnings << "oldLXStateInt: bad game state " << game.state << endl;
+	}
+	return 0;
 }
 

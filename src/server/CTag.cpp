@@ -156,7 +156,7 @@ int CTag::Winner()
 void CTag::TagWorm(CWorm *worm)
 {
 	// Safety check
-	if(!worm || cServer->getState() != SVS_PLAYING)
+	if(!worm || game.state != Game::S_Playing)
 		return;
 
 	// Go through all the worms, setting their tag to false

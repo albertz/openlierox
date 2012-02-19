@@ -685,7 +685,7 @@ std::string ProcessSetColour(const std::vector<std::string>& params, int sender_
 std::string ProcessSuicide(const std::vector<std::string>& params, int sender_id)
 {
 	// Make sure we are playing
-	if (cServer->getState() != SVS_PLAYING)
+	if (game.state != Game::S_Playing)
 		return "Cannot suicide when not playing";
 
 	// Param check
@@ -717,7 +717,7 @@ std::string ProcessSuicide(const std::vector<std::string>& params, int sender_id
 std::string ProcessSpectate(const std::vector<std::string>& params, int sender_id)
 {
 	// Make sure we are playing
-	if (cServer->getState() != SVS_PLAYING)
+	if (game.state != Game::S_Playing)
 		return "Cannot spectate when not playing";
 
 	// Param check
@@ -782,7 +782,7 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 		return "Invalid worm";
 
 	// Check that not playing already
-	if (cServer->getState() != SVS_LOBBY)
+	if (game.state != Game::S_Lobby)
 		return "The game is already running";
 
 	// Check privileges
@@ -809,7 +809,7 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 		// Leave the frontend
 		DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
 		DeprecatedGUI::tMenu->bMenuRunning = false;
-		tLX->iGameType = GME_HOST;
+		game.startServer(/* localGame */ false);
 	}
 
 	return "";
@@ -823,7 +823,7 @@ std::string ProcessLobby(const std::vector<std::string>& params, int sender_id)
 		return "Invalid worm";
 
 	// Check that not playing already
-	if (cServer->getState() == SVS_LOBBY)
+	if (game.state == Game::S_Lobby)
 		return "Already in lobby";
 
 	// Check privileges
@@ -849,7 +849,7 @@ std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
 		return "Too few parameters";
 
 	// Check that we're in lobby
-	if (cServer->getState() != SVS_LOBBY)
+	if (game.state != Game::S_Lobby)
 		return "Cannot change the mod while playing";
 
 	// Check privileges
@@ -892,7 +892,7 @@ std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 		return "Too few parameters";
 
 	// Check that we're in lobby
-	if (cServer->getState() != SVS_LOBBY)
+	if (game.state != Game::S_Lobby)
 		return "Cannot change the level while playing";
 
 	// Check privileges
@@ -950,7 +950,7 @@ std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 	
 	// Set the loading time
 	gameSettings.overwrite[FT_LoadingTime] = lt;
-	if (cServer->getState() == SVS_LOBBY)
+	if (game.state == Game::S_Lobby)
 		cServer->UpdateGameLobby();
 	else  {
 
@@ -1078,7 +1078,7 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 			return "You can only set the password with Dedicated priviliges";
 	}
 
-	if(cServer->getState() != SVS_LOBBY && params.size() == 2) {
+	if(game.state != Game::S_Lobby && params.size() == 2) {
 		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path )
 			return "You cannot change the map in game";
 
@@ -1125,7 +1125,7 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		return "Invalid parameter count";
 	
 	// Check that we're in game
-	if (cServer->getState() == SVS_LOBBY)
+	if (game.state == Game::S_Lobby)
 		return "Cannot reselect weapons in lobby";
 	
 	if(params.size() == 1) {

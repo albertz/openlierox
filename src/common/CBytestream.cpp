@@ -388,7 +388,7 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 	if(!writeByte( var.type )) return false;
 	switch( var.type ) {
 		case SVT_BOOL: return writeBool(var.toBool());
-		case SVT_INT: return writeInt(var.toInt(), 4);
+		case SVT_INT32: return writeInt(var.toInt(), 4);
 		case SVT_FLOAT: return writeFloat(var.toFloat());
 		case SVT_COLOR: {
 			writeByte(var.toColor().r);
@@ -572,7 +572,7 @@ bool CBytestream::readVar(ScriptVar_t& var, CustomVar* customType) {
 
 	switch( type ) {
 		case SVT_BOOL: var = ScriptVar_t(readBool()); break;
-		case SVT_INT: var = ScriptVar_t(readInt(4)); break;
+		case SVT_INT32: var = ScriptVar_t(readInt(4)); break;
 		case SVT_FLOAT: var = ScriptVar_t(readFloat()); break;
 		case SVT_STRING: var = ScriptVar_t(readString()); break;
 		case SVT_CUSTOM: {

@@ -604,12 +604,12 @@ void QuittoMenu()
 // Go to local menu
 void GotoLocalMenu()
 {
-	if(tLX->iGameType == GME_HOST) {
+	if(game.isServer() && !game.isLocalGame()) {
 		warnings << "called GotoLocalMenu as host, ignoring..." << endl;
 		return;
 	}
 
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		warnings << "called GotoLocalMenu as client, ignoring..." << endl;
 		return;
 	}

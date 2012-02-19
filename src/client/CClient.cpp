@@ -95,7 +95,6 @@ void CClient::Clear()
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
 	bLocalClient = false;
-	fServertime = TimeDiff();
 	
 	tGameLog = NULL;
 	iLastVictim = -1;
@@ -109,7 +108,6 @@ void CClient::Clear()
 	bGameReady = false;
 	bGameRunning = false;
 	bReadySent = false;
-	bGameOver = false;
 	bGameMenu = false;
     bViewportMgr = false;
 	//tGameLobby.bSet = false;
@@ -170,7 +168,6 @@ void CClient::MinorClear()
 	bGameReady = false;
 	bGameRunning = false;
 	bReadySent = false;
-	bGameOver = false;
 	bGameMenu = false;
     bViewportMgr = false;
 	bUpdateScore = true;
@@ -190,7 +187,6 @@ void CClient::MinorClear()
     bClientError = false;
 	bChat_Typing = false;
 	fLastReceived = AbsTime::Max();
-	fServertime = TimeDiff();
 
 	iChat_Numlines = 0;
 	if(!bDedicated)
@@ -326,7 +322,7 @@ int CClient::Initialize()
 	iNetSpeed = tLXOptions->iNetworkSpeed;
 
 	// Local/host games use instant speed
-	if(tLX->iGameType != GME_JOIN)
+	if(game.isServer())
 		iNetSpeed = NST_LOCAL;
 	
 	// Set our version to the current game version
@@ -342,7 +338,7 @@ int CClient::Initialize()
 
 
 	// Open a new socket
-	if( tLX->iGameType == GME_JOIN ) {
+	if( game.isClient() ) {
 		tSocket->OpenUnreliable( tLXOptions->iNetworkPort );	// Open socket on port from options in hopes that user forwarded that port on router
 	}
 	if(!tSocket->isOpen()) {	// If socket won't open that's not error - open another one on random port
@@ -1025,18 +1021,6 @@ void CClient::ProcessModDownloads()
 // Main frame
 void CClient::Frame()
 {
-	if(bGameRunning) {
-		fServertime += tLX->fRealDeltaTime;
-	}
-
-	ReadPackets();
-
-	ProcessMapDownloads();
-	ProcessModDownloads();
-	ProcessUdpUploads();
-
-	SimulateHud();
-
 	// could be that some console command wants to quit
 	if(!tLX || tLX->bQuitEngine || tLX->bQuitGame)
 		return;
@@ -1054,14 +1038,6 @@ void CClient::Frame()
 		else
 			Simulation();
 	}
-
-	SendPackets();
-
-	// Connecting process
-	if (bConnectingBehindNat)
-		ConnectingBehindNAT();
-	else
-		Connecting();
 }
 
 void CClient::NewNet_Frame()
@@ -1130,7 +1106,7 @@ bool CClient::ReadPackets()
 	}
 
 	// Check if our connection with the server timed out
-	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() + TimeDiff((float)LX_CLTIMEOUT) < tLX->currentTime && tLX->iGameType == GME_JOIN) {
+	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() + TimeDiff((float)LX_CLTIMEOUT) < tLX->currentTime && game.isClient()) {
 		// AbsTime out
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
@@ -1154,7 +1130,7 @@ bool CClient::ReadPackets()
 // Send the packets
 void CClient::SendPackets(bool sendPendingOnly)
 {
-	if(tLX->iGameType == GME_JOIN) // in server mode, we call this from CServer::SendPackets
+	if(game.isClient()) // in server mode, we call this from CServer::SendPackets
 		network.olxSend(sendPendingOnly);
 
 	if(!sendPendingOnly) {
@@ -1202,8 +1178,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 bool JoinServer(const std::string& addr, const std::string& name, const std::string& player) {
 	hints << "JoinServer " << addr << " (" << name << ") with player '" << player << "'" << endl;
 	//getGameLobby()->iNumPlayers = 1;
-		
-	tLX->iGameType = GME_JOIN;
+
 	if(!cClient->Initialize()) {
 		warnings << "JoinServer: Could not initialize client" << endl;
 		return false;
@@ -1225,9 +1200,15 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 	
 	cClient->setServerName(name);
 	
-	tLX->iGameType = GME_JOIN;
 	cClient->Connect(addr);
 	
+	if(cClient->getStatus() != NET_CONNECTING) {
+		warnings << "JoinServer: failed to init connection" << endl;
+		return false;
+	}
+
+	game.startClient();
+
 	if(DedicatedControl::Get())
 		DedicatedControl::Get()->Connecting_Signal(addr);
 
@@ -1296,7 +1277,7 @@ void CClient::Connect(const std::string& address)
 }
 
 void CClient::Reconnect() {
-	(tLX->iGameType == GME_JOIN ? notes : warnings)
+	(game.isClient() ? notes : warnings)
 		<< "Reconnecting local client" << endl;
 	
 	if(connectInfo.get() == NULL) {
@@ -1510,7 +1491,7 @@ void CClient::Connecting(bool force)
 	// For local play/hosting: don't send the challenge more times
 	// On slower machines the loading can be pretty slow and take more than 3 seconds
 	// That doesn't mean that the packet is not delivered
-	if (tLX->iGameType != GME_JOIN && iNumConnects > 0)
+	if (game.isServer() && iNumConnects > 0)
 		return;
 
 
@@ -1534,7 +1515,7 @@ void CClient::Connecting(bool force)
 
 	// Check that we have a port
 	if(GetNetAddrPort(cServerAddr) == 0)  {
-		if (tLX->iGameType == GME_JOIN) // Remote joining
+		if (game.isClient()) // Remote joining
 			SetNetAddrPort(cServerAddr, LX_PORT);  // Try the default port if no port specified
 		else // Host or local
 			SetNetAddrPort(cServerAddr, tLXOptions->iNetworkPort);  // Use the port specified in options
@@ -1640,7 +1621,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	// Setup according to top and bottom interface bars
 	SmartPointer<SDL_Surface> topbar = NULL;
 	SmartPointer<SDL_Surface> bottombar = NULL;
-	if (tLX->iGameType == GME_LOCAL)  {
+	if (game.isLocalGame())  {
 		bottombar = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
 		topbar = DeprecatedGUI::gfxGame.bmpGameLocalTopBar;
 	} else {
@@ -1710,7 +1691,7 @@ static std::list<SmartPointer<profile_t> > wormsToAdd;
 
 static void prepareWormAdd() {
 	wormsToAdd.clear();
-	if(tLX->iGameType != GME_JOIN) {
+	if(game.isServer()) {
 		// We are changing the amounts of worms, thus we have to sync the network now.
 		// This is needed because the network protocol depends on the amount of worms
 		// and we cannot parse old packets in the network stream correct anymore.
@@ -1742,7 +1723,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 	if(wormsToAdd.size() == 0)
 		return addedWorms;
 	
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		if(outOfGame) warnings << "updateAddedWorms: we cannot avoid worm spawning" << endl;
 		cClient->connectInfo = new ClientConnectionRequestInfo();
 		cClient->connectInfo->initFromGame();
@@ -1785,7 +1766,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 		hints << " (id " << w->getID() << ", team " << w->getTeam() << ")" << endl;
 
 		if(outOfGame) w->setLives(WRM_OUT);
-		if(cServer->getState() != SVS_LOBBY) {
+		if(game.state != Game::S_Lobby) {
 			w->Prepare(); // prepare serverside
 			cServer->PrepareWorm(w);
 		}
@@ -1799,7 +1780,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 		}
 		
 		// handling for connect during game
-		if( cServer->getState() != SVS_LOBBY ) {
+		if( game.state != Game::S_Lobby ) {
 			for(int ii = 0; ii < MAX_CLIENTS; ii++) {
 				if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
 				if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
@@ -1870,11 +1851,11 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 
 	// grabbed some code from GameServer::ParseConnect
 	
-	if( cServer->getState() == SVS_LOBBY )
+	if( game.state == Game::S_Lobby )
 		cServer->UpdateGameLobby(); // tell everybody about game lobby details
 	
-	if (tLX->iGameType != GME_LOCAL) {
-		if( cServer->getState() == SVS_LOBBY )
+	if (!game.isLocalGame()) {
+		if( game.state == Game::S_Lobby )
 			cServer->SendWormLobbyUpdate(); // to everbody
 		else {
 			for( int i=0; i<MAX_CLIENTS; i++ )
@@ -2301,5 +2282,5 @@ void CClient::SetSocketWithEvents(bool v) {
 	tSocket->setWithEvents(v);
 }
 
-bool CClient::canSimulate() const { return bGameReady && !bGameOver && game.isMapReady(); }
+bool CClient::canSimulate() const { return bGameReady && !game.gameOver && game.isMapReady(); }
 

@@ -244,7 +244,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 ///////////////////
 // Parse a 'im ready' packet
 void CServerNetEngine::ParseImReady(CBytestream *bs) {
-	if ( server->iState == SVS_LOBBY )
+	if ( game.state == Game::S_Lobby )
 	{
 		notes << "GameServer::ParseImReady: Not waiting for ready, packet is being ignored." << endl;
 
@@ -312,7 +312,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 
 	SendClientReady(NULL);
 	
-	if(server->iState == SVS_PLAYING)
+	if(game.state == Game::S_Playing)
 		server->BeginMatch(cl);
 	else if(gameSettings[FT_ImmediateStart])
 		server->BeginMatch(cl);
@@ -332,7 +332,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
 		w->readPacket(bs);
 
-		if(server->iState == SVS_PLAYING) {
+		if(game.state == Game::S_Playing) {
 			// If the worm is shooting, handle it
 			if (w->getWormState()->bShoot && w->getAlive())
 				server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
@@ -349,7 +349,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 // Parse a death packet
 void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 	// No kills in lobby
-	if (server->iState != SVS_PLAYING)  {
+	if (game.state != Game::S_Playing)  {
 		notes << "GameServer::ParseDeathPacket: Not playing, ignoring the packet." << endl;
 
 		// Skip to get the correct position in the stream
@@ -368,7 +368,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 	}
 
 	// If the game is already over, ignore this
-	if (server->bGameOver)  {
+	if (game.gameOver)  {
 		notes("GameServer::killWorm: Game is over, ignoring.\n");
 		return;
 	}
@@ -750,7 +750,7 @@ void CServerNetEngineBeta7::ParseAFK(CBytestream *bs) {
 // Parse a 'update lobby' packet
 void CServerNetEngine::ParseUpdateLobby(CBytestream *bs) {
 	// Must be in lobby
-	if ( server->iState != SVS_LOBBY )  {
+	if ( game.state != Game::S_Lobby )  {
 		notes << "GameServer::ParseUpdateLobby: Not in lobby." << endl;
 
 		// Skip to get the right position
@@ -812,7 +812,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 	int curwpn = bs->readByte();
 
 	// Check
-	if (server->iState != SVS_PLAYING)  {
+	if (game.state != Game::S_Playing)  {
 		notes << "GameServer::ParseGrabBonus: Not playing." << endl;
 		return;
 	}
@@ -934,7 +934,7 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	float damage = bs->readFloat();
 	int offenderId = bs->readByte();
 
-	if( server->iState != SVS_PLAYING )
+	if( game.state != Game::S_Playing )
 		return;
 
 	if( id < 0 || id >= MAX_WORMS || offenderId < 0 || offenderId >= MAX_WORMS )
@@ -995,7 +995,7 @@ void CServerNetEngineBeta9::ParseNewNetChecksum(CBytestream *bs)
 					" our time " << myTime.milliseconds() << endl;
 		return;
 	}
-	if( myChecksum != checksum && ! server->bGameOver )
+	if( myChecksum != checksum && ! game.gameOver )
 	{
 		std::string wormName = "unknown";
 		if( game.wormsOfClient(cl)->isValid() )
@@ -1086,7 +1086,7 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 	}
 	
 	// If were in the game, deny challenges
-	if ( iState != SVS_LOBBY && !serverAllowsConnectDuringGame() ) {
+	if ( game.state != Game::S_Lobby && !serverAllowsConnectDuringGame() ) {
 		// TODO: move this out here
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
@@ -1154,8 +1154,8 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
-	if ( !serverAllowsConnectDuringGame() && iState != SVS_LOBBY )  {
-//	if (iState == SVS_PLAYING) {
+	if ( !serverAllowsConnectDuringGame() && game.state != Game::S_Lobby )  {
+//	if (game.state == Game::S_Playing) {
 		notes << "GameServer::ParseConnect: In game, ignoring." << endl;
 		return;
 	}
@@ -1361,7 +1361,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	}
 
 	// Server full (maxed already, or the number of extra worms wanting to join will go over the max)
-	size_t max_players = (tLX->iGameType == GME_HOST && tLXOptions->iMaxPlayers > 0) ? tLXOptions->iMaxPlayers : MAX_WORMS; // No limits (almost) for local play
+	size_t max_players = ((game.isServer() && !game.isLocalGame()) && tLXOptions->iMaxPlayers > 0) ? tLXOptions->iMaxPlayers : MAX_WORMS; // No limits (almost) for local play
 	if (!newcl->isLocalClient() && game.worms()->size() + numworms > max_players) {
 		notes << "I am full, so the new client cannot join" << endl;
 		CBytestream bytestr;
@@ -1430,7 +1430,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		newcl->getRights()->Nothing();  // Reset the rights here
 	
 	// check version compatibility already earlier to not add/kick bots if not needed
-	if( iState != SVS_LOBBY ) {
+	if( game.state != Game::S_Lobby ) {
 		std::string msg;
 		if(!checkVersionCompatibility(newcl, false, false, &msg)) {
 			notes << "ParseConnect: " << newcl->debugName(false) << " is too old: " << msg << endl;
@@ -1651,7 +1651,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	checkVersionCompatibility(newcl, false);
 
 	
-	if( iState == SVS_LOBBY )
+	if( game.state == Game::S_Lobby )
 		// Tell new client about game lobby details like mod/map and all game settings.
 		// In game, we would send all these info in SendPrepareGame().
 		newcl->getNetEngine()->SendUpdateLobbyGame();
@@ -1667,7 +1667,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	
 	
 	// handling for connect during game
-	if( iState != SVS_LOBBY ) {
+	if( game.state != Game::S_Lobby ) {
 		// we already check for compatibility earlier
 		
 		if(!reconnectFrom) {
@@ -1689,8 +1689,8 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		newcl->getNetEngine()->SendUpdateLobbyGame();
 	}	
 
-	if (tLX->iGameType != GME_LOCAL) {
-		if( iState == SVS_LOBBY )
+	if (!game.isLocalGame()) {
+		if( game.state == Game::S_Lobby )
 			SendWormLobbyUpdate(); // to everbody
 	}
 	
@@ -1699,7 +1699,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	UpdateWorms();
 	
 
-	if( iState != SVS_LOBBY ) {
+	if( game.state != Game::S_Lobby ) {
 		newcl->getNetEngine()->SendTeamScoreUpdate();
 		
 		// TODO: what is the information of this hint? and does it apply here anyway?
@@ -1778,7 +1778,7 @@ void GameServer::ParsePing(const SmartPointer<NetworkSocket>& net_socket)
 	// Ignore pings in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tLX->iGameType != GME_HOST)
+	if (game.isLocalGame())
 		return;
 
 	NetworkAddr		adrFrom = net_socket->remoteAddress();
@@ -1802,7 +1802,7 @@ void GameServer::ParseTime(const SmartPointer<NetworkSocket>& tSocket)
 	// Ignore pings in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tLX->iGameType != GME_HOST)
+	if (game.isLocalGame())
 		return;
 
 
@@ -1813,7 +1813,7 @@ void GameServer::ParseTime(const SmartPointer<NetworkSocket>& tSocket)
 	bs.Clear();
 	bs.writeInt(-1, 4);
 	bs.writeString("lx::timeis");
-	bs.writeFloat( (float)fServertime.seconds() );
+	bs.writeFloat( (float)game.serverTime().seconds() );
 
 	bs.Send(tSocket);
 }
@@ -1829,7 +1829,7 @@ void GameServer::ParseWantsJoin(const SmartPointer<NetworkSocket>& tSocket, CByt
 	// Ignore wants to join in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tLX->iGameType != GME_HOST)
+	if (game.isLocalGame())
 		return;
 
 	// Allowed?
@@ -1860,7 +1860,7 @@ void GameServer::ParseQuery(const SmartPointer<NetworkSocket>& tSocket, CBytestr
 	// Ignore queries in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tLX->iGameType != GME_HOST)
+	if (game.isLocalGame())
 		return;
 
 	bytestr.writeInt(-1, 4);
@@ -1877,7 +1877,7 @@ void GameServer::ParseQuery(const SmartPointer<NetworkSocket>& tSocket, CBytestr
 	bytestr.writeString(OldLxCompatibleString(tLXOptions->sServerName));
 	bytestr.writeByte(game.worms()->size());
 	bytestr.writeByte(tLXOptions->iMaxPlayers);
-	bytestr.writeByte(iState);
+	bytestr.writeByte(oldLXStateInt());
 	bytestr.writeByte(num);
 	// Beta8+ info - old clients will just skip it
 	bytestr.writeString( GetGameVersion().asString() );
@@ -1894,7 +1894,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	// Ignore queries in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tLX->iGameType != GME_HOST)
+	if (game.isLocalGame())
 		return;
 
 	CBytestream     bs;
@@ -1907,10 +1907,10 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 
 	bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
 	bs.writeByte(tLXOptions->iMaxPlayers);
-	bs.writeByte(iState);
+	bs.writeByte(oldLXStateInt());
 
 	// TODO: check if we should append "levels/" string here, it was like this in old code
-	bs.writeString( iState == SVS_PLAYING ? "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path : gameSettings[FT_Map].as<LevelInfo>()->path );
+	bs.writeString( game.state == Game::S_Playing ? "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path : gameSettings[FT_Map].as<LevelInfo>()->path );
 	bs.writeString(gameSettings[FT_Mod].as<ModInfo>()->name);
 	bs.writeByte(game.gameMode()->GeneralGameType());
 	bs.writeInt16(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);

@@ -270,7 +270,7 @@ static int getWormHitKillLimit() {
 
 bool CGameMode::CheckGameOver() {
 	// In game?
-	if (!cServer || cServer->getState() == SVS_LOBBY || cServer->getGameOver())
+	if (!cServer || game.state == Game::S_Lobby || game.gameOver)
 		return true;
 
 	// check for teamscorelimit
@@ -298,11 +298,11 @@ bool CGameMode::CheckGameOver() {
 	
 	// Check if the timelimit has been reached
 	if(TimeLimit() > 0) {		
-		if (cServer->getServerTime() > TimeLimit()) {
+		if (game.serverTime() > TimeLimit()) {
 			cServer->SendPlaySound("timeoutcalled");
 			if(networkTexts->sTimeLimit != "<none>")
 				cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-			notes << "time limit (" << TimeLimit() << ") reached with current time " << cServer->getServerTime().seconds();
+			notes << "time limit (" << TimeLimit() << ") reached with current time " << game.serverTime().seconds();
 			notes << " -> game over" << endl;
 			return true;
 		}
@@ -311,7 +311,7 @@ bool CGameMode::CheckGameOver() {
 	bool allowEmptyGames =
 		gameSettings[FT_AllowEmptyGames] &&
 		tLXOptions->bAllowConnectDuringGame &&
-		tLX->iGameType != GME_LOCAL &&
+		!game.isLocalGame() &&
 		(int)gameSettings[FT_Lives] < 0;
 	
 	if(!allowEmptyGames) {
@@ -322,7 +322,7 @@ bool CGameMode::CheckGameOver() {
 				worms++;
 
 		int minWormsNeeded = 2;
-		if(tLX->iGameType == GME_LOCAL && game.worms()->size() == 1) minWormsNeeded = 1;
+		if(game.isLocalGame() && game.worms()->size() == 1) minWormsNeeded = 1;
 		if(worms < minWormsNeeded) {
 			// TODO: make configureable
 			// HINT: thins is kinda spammy, because in this kind of games everybody knows why it ended
@@ -357,8 +357,8 @@ bool CGameMode::CheckGameOver() {
 void CGameMode::Simulate() {
 	// play time remaining sounds
 	if(TimeLimit() > 0) {		
-		if(cServer->getServerTime() <= TimeLimit()) {
-			int restSecs = int( (TimeDiff(TimeLimit()) - cServer->getServerTime()).seconds() );
+		if(game.serverTime() <= TimeLimit()) {
+			int restSecs = int( (TimeDiff(TimeLimit()) - game.serverTime()).seconds() );
 			// can happen if we set the timelimit while in game
 			if(lastTimeLimitReport < 0) lastTimeLimitReport = restSecs + 1;
 			

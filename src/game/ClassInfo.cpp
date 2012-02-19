@@ -1,12 +1,21 @@
 #include <map>
+#include <boost/shared_ptr.hpp>
 #include "ClassInfo.h"
 
-static std::map<ClassId, ClassInfo> classes;
+typedef std::map<ClassId, ClassInfo> Classes;
+static boost::shared_ptr< Classes > classes;
+
+static void initClassInfo() {
+	if(!classes)
+		classes.reset(new Classes());
+}
 
 const ClassInfo& getClassInfo(ClassId id) {
-	return classes[id];
+	initClassInfo();
+	return (*classes)[id];
 }
 
 void registerClass(const ClassInfo& c) {
-	classes[c.id] = c;
+	initClassInfo();
+	(*classes)[c.id] = c;
 }

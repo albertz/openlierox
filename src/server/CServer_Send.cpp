@@ -170,7 +170,7 @@ void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm, bool show, bool im
 		// Update the position
 		//
 
-		if (cServer->getState() == SVS_PLAYING)  {
+		if (game.state == Game::S_Playing)  {
 			bs.writeByte(S2C_UPDATEWORMS);
 			bs.writeByte(1);  // Worm count
 			bs.writeByte(worm->getID());
@@ -270,7 +270,7 @@ void CServerNetEngine::SendText(const std::string& text, int type)
 
 	std::string nohtml_text = StripHtmlTags(text);
 		
-	std::vector<std::string> split = splitstring(nohtml_text, 63, server->iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
+	std::vector<std::string> split = splitstring(nohtml_text, 63, (game.state == Game::S_Lobby) ? 600 : 300, tLX->cFont);
 	
 	for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
 		// Send it
@@ -604,7 +604,7 @@ void GameServer::SendWormTagged(CWorm *w)
 bool GameServer::checkBandwidth(CServerConnection *cl)
 {
 	// Don't bother checking if the client is on the same comp as the server
-	if( tLX->iGameType == GME_LOCAL )
+	if( game.isLocalGame() )
 		return true;
 	if(cl->getNetSpeed() == 3) // local
 		return true;
@@ -620,7 +620,7 @@ bool GameServer::checkBandwidth(CServerConnection *cl)
 
 // true means we can send further data
 bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
-	if( tLX->iGameType == GME_LOCAL )
+	if( game.isLocalGame() )
 		return true;
 
 	float fMaxRate = getMaxUploadBandwidth();
@@ -902,6 +902,11 @@ int CServerNetEngineBeta5::SendFiles()
 
 void GameServer::SendFiles()
 {
+	if(!cClients) {
+		errors << "GameServer::SendFiles with no clients" << endl;
+		return;
+	}
+
 	// To keep sending packets if no acknowledge received from client -
 	// process will pause for a long time otherwise, 'cause we're in GUI part
 	bool startTimer = false;

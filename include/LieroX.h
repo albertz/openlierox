@@ -35,19 +35,11 @@ struct profile_t;
 class IpToCountryDB;
 
 
-
-// Game types
-enum GameType_t {
-	GME_LOCAL=0,
-	GME_HOST,
-	GME_JOIN
-};
-
 // LieroX structure
 struct lierox_t {
 	lierox_t() :
 			bVideoModeChanged(false), bQuitGame(false), bQuitEngine(false), bQuitCtrlC(false)
-			, iGameType(GME_LOCAL), bHosted(false) {}
+			, bHosted(false) {}
 	AbsTime	currentTime;
 	TimeDiff	fDeltaTime;
 	TimeDiff	fRealDeltaTime; // Delta time used for network synchronization,
@@ -65,7 +57,6 @@ struct lierox_t {
 	float	debug_float;
 	CVec	debug_pos;
 	
-	GameType_t iGameType;
 	bool	bHosted;  // True if the user has run the server at least once this session
 
 	// Default Colours
@@ -234,33 +225,5 @@ bool    MouseInRect(int x, int y, int w, int h);
 
 void	printf(const std::string& txt);
 
-
-
-enum GameState {
-	S_INACTIVE, // server was not started
-	S_SVRLOBBY, // in lobby
-	S_SVRWEAPONS, // in game: in weapon selection
-	S_SVRPLAYING, // in game: playing
-	S_CLICONNECTING, // client game: connecting right now
-	S_CLILOBBY,
-	S_CLIWEAPONS,
-	S_CLIPLAYING
-};
-
-INLINE std::string GameStateAsString(GameState s) {
-	switch(s) {
-		case S_INACTIVE: return "S_INACTIVE";
-		case S_SVRLOBBY: return "S_SVRLOBBY";
-		case S_SVRWEAPONS: return "S_SVRWEAPONS";
-		case S_SVRPLAYING: return "S_SVRPLAYING";
-		case S_CLICONNECTING: return "S_CLICONNECTING";
-		case S_CLILOBBY: return "S_CLILOBBY";
-		case S_CLIWEAPONS: return "S_CLIWEAPONS";
-		case S_CLIPLAYING: return "S_CLIPLAYING";
-	}
-	return "INVALID GAMESTATE";
-}
-
-GameState currentGameState();
 
 #endif  //  __LIEROX_H__

@@ -83,7 +83,7 @@ std::string CGuiSkin::DumpWidgets()
 			switch( f->second )
 			{
 				case SVT_BOOL: ret << "bool"; break;
-				case SVT_INT: ret << "int"; break;
+				case SVT_INT32: ret << "int"; break;
 				case SVT_FLOAT: ret << "float"; break;
 				case SVT_STRING: ret << "string"; break;
 				case SVT_COLOR: ret << "color"; break;
@@ -209,7 +209,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 			{
 				if( i->second == SVT_BOOL )
 					params.push_back( ScriptVar_t( xmlGetBool( Node, i->first ) ) );
-				else if( i->second == SVT_INT )
+				else if( i->second == SVT_INT32 )
 					params.push_back( ScriptVar_t( xmlGetInt( Node, i->first ) ) );
 				else if( i->second == SVT_FLOAT )
 					params.push_back( ScriptVar_t( xmlGetFloat( Node, i->first ) ) );
@@ -605,8 +605,8 @@ static bool CAnimation_WidgetRegistered =
 namespace DeprecatedGUI {
 static bool CBox_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "box", & CBox::WidgetCreator )
-							( "round", SVT_INT )
-							( "border", SVT_INT )
+							( "round", SVT_INT32 )
+							( "border", SVT_INT32 )
 							( "lightcolor", SVT_COLOR )
 							( "darkcolor", SVT_COLOR )
 							( "bgcolor", SVT_COLOR );
@@ -637,9 +637,9 @@ namespace DeprecatedGUI {
 static bool CProgressBar_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "progressbar", & CProgressBar::WidgetCreator )
 							( "file", SVT_STRING )
-							( "label_left", SVT_INT )
-							( "label_top", SVT_INT )
+							( "label_left", SVT_INT32 )
+							( "label_top", SVT_INT32 )
 							( "label_visible", SVT_BOOL )
-							( "numstates", SVT_INT )
+							( "numstates", SVT_INT32 )
 							( "var", SVT_STRING );
 };

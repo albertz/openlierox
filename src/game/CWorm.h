@@ -118,7 +118,7 @@ struct WormJoinInfo;
 class Client;
 class Game;
 
-// TODO: split into classes: one for CClient and one for CServerConnection (latter only containing some general information, more like a simple struct)
+
 class CWorm: public CGameObject {
 	friend class CWormInputHandler;
 	friend class CWormBotInputHandler; // TODO: remove
@@ -207,11 +207,10 @@ protected:
 	std::vector<bool>	bVisibleForWorm;
 	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
-	bool		bTagIT;
+	ATTR(CWorm, bool,	bTagIT, 40, {})
 	TimeDiff	fTagTime;
-	EntityEffect cSparkles;
 
-    int         iDirtCount;
+	ATTR(CWorm, int,	iDirtCount, 42, {})
 
 	AbsTime		fLastBlood;
 
@@ -251,6 +250,8 @@ protected:
     AbsTime       fForceWeapon_Time;
 
 	bool		bDrawMuzzle;
+
+	EntityEffect cSparkles;
 
 	// Score
 	ATTR(CWorm,	int, iKills, 50, {serverside=true;})

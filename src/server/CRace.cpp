@@ -181,10 +181,10 @@ struct Race : public CGameMode {
 		
 		// Check if the timelimit has been reached
 		if(TimeLimit() > 0) {
-			if (cServer->getServerTime() > TimeLimit()) {
+			if (game.serverTime() > TimeLimit()) {
 				if(networkTexts->sTimeLimit != "<none>")
 					cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-				notes << "time limit (" << ((float)gameSettings[FT_TimeLimit]*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
+				notes << "time limit (" << ((float)gameSettings[FT_TimeLimit]*60.0f) << ") reached with current time " << game.serverTime().seconds();
 				notes << " -> game over" << endl;
 				return true;
 			}
@@ -350,10 +350,10 @@ struct TeamRace : public Race {
 		
 		// Check if the timelimit has been reached
 		if(TimeLimit() > 0) {
-			if (cServer->getServerTime() > TimeLimit()) {
+			if (game.serverTime() > TimeLimit()) {
 				if(networkTexts->sTimeLimit != "<none>")
 					cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-				notes << "time limit (" << ((float)gameSettings[FT_TimeLimit]*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
+				notes << "time limit (" << ((float)gameSettings[FT_TimeLimit]*60.0f) << ") reached with current time " << game.serverTime().seconds();
 				notes << " -> game over" << endl;
 				return true;
 			}

@@ -100,7 +100,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 	
 	// client (>=beta8) sends also current server time
 	if(!fromServer && versionOfReceiver >= OLXBetaVersion(8)) {
-		bs->writeFloat( (float)cClient->serverTime().seconds() );
+		bs->writeFloat( (float)game.serverTime().seconds() );
 	}
 
 	// Update the "last" variables
@@ -339,12 +339,12 @@ void CWorm::readPacket(CBytestream *bs)
 	// client (>=beta8) sends also what it thinks what the server time is (was)
 	if(versionOfSender >= OLXBetaVersion(8)) {
 		fServertime = bs->readFloat();
-		if(fServertime < cServer->getServerTime())
-			fServertime = cServer->getServerTime();
+		if(fServertime < game.serverTime())
+			fServertime = game.serverTime();
 	}
 	
 	// If the worm is inside dirt then it is probably carving
-	if (tLX->iGameType == GME_HOST && game.gameMap())
+	if ((game.isServer() && !game.isLocalGame()) && game.gameMap())
 		if(game.gameMap()->GetPixelFlag(x, y) & PX_DIRT)
 			tState.bCarve = true;
 }
@@ -679,6 +679,6 @@ void CWorm::readStatUpdate(CBytestream *bs)
 		tWeapons[cur].Charge = c;
 
 	// If the server is on the same comp as me, just set the charge normally
-	if( tLX->iGameType != GME_JOIN )
+	if( game.isServer() )
 		tWeapons[cur].Charge = c;
 }

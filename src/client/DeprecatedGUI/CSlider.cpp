@@ -96,8 +96,8 @@ DWORD CSlider::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 static bool CSlider_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "slider", & CSlider::WidgetCreator )
-							( "min", SVT_INT )
-							( "max", SVT_INT )
+							( "min", SVT_INT32 )
+							( "max", SVT_INT32 )
 							( "var", SVT_STRING )
 							( "click", SVT_STRING );
 

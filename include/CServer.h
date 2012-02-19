@@ -50,13 +50,6 @@ class challenge_t { public:
 	std::string	sClientVersion;
 };
 
-// Server state
-enum {
-	SVS_LOBBY=0,		// Lobby
-	SVS_GAME,			// Game, waiting for players to load
-	SVS_PLAYING			// Currently playing
-};
-
 // Client leaving reasons
 enum {
 	CLL_QUIT=0,
@@ -84,13 +77,6 @@ public:
 
 private:
 	// Attributes
-
-	// General
-	int			iState;
-
-	// Game rules
-	bool		bGameOver;
-	AbsTime		fGameOverTime;
 	    
 	// Clients
 	CServerConnection *cClients;		// TODO: use std::list or vector
@@ -104,8 +90,6 @@ private:
 	FlagInfo*	m_flagInfo;
 	
 	// Simulation
-	TimeDiff	fServertime;
-	int			iServerFrame;	// TODO: what is this good for
 	int			lastClientSendData;
 	
 	AbsTime		fLastBonusTime;
@@ -275,14 +259,10 @@ public:
 	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
 	CBanList		*getBanList()		{ return &cBanList; }
 	CServerConnection *getClient(int iWormID);
-	bool			getGameOver()		{ return bGameOver; }
-	AbsTime			getGameOverTime()	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
 	CServerConnection* getClients() { return cClients; }
 	CServerConnection* localClientConnection();
-	TimeDiff	getServerTime() { return fServertime; }
 	bool		isServerRunning() const { return cClients; }
-	int		getState() const { return iState; }
 	int		getNumBots() const;
 	int		getLastBot() const;
 	int		getFirstEmptyTeam() const; // -1 if there is no empty team; only possible teams by gamemode

@@ -51,7 +51,7 @@ CClient		*cClient = NULL;
 
 
 bool CClient::shouldDoProjectileSimulation() {
-	if(bDedicated && tLX->iGameType != GME_JOIN && !tLXOptions->doProjectileSimulationInDedicated) return false;
+	if(bDedicated && game.isServer() && !tLXOptions->doProjectileSimulationInDedicated) return false;
 	return true;
 }
 
@@ -71,7 +71,7 @@ void CClient::Simulation()
 		clearLocalWormInputs();
 		
 		// gameover case will be checked below
-		if(!bGameOver) {
+		if(!game.gameOver) {
 			// skip simulations for this frame
 			for_each_iterator(CWorm*, w, game.worms()) {
 				if(!w->get()->getAlive()) continue;
@@ -108,7 +108,7 @@ void CClient::Simulation()
 
 		if(w->getAlive()) {
 
-			if(bGameOver)
+			if(game.gameOver)
 				// TODO: why continue and not break?
                 continue;
 
@@ -139,7 +139,7 @@ void CClient::Simulation()
 			}
 		}
 
-        if(bGameOver)
+		if(game.gameOver)
 			// TODO: why continue and not break?
             continue;
 		
@@ -226,13 +226,13 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 	}
 
 	// Local game always uses old net engine, so NewNet_Simulation() should never be called on local game.
-	if (tLX->iGameType == GME_LOCAL)  {
+	if (game.isLocalGame())  {
 		errors << "WARNING: new net engine is used for local game!" << endl;
 		return;
 	}
 
     // We stop a few seconds after the actual game over
-    if(bGameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
+	if(game.gameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
         return;
 
 
@@ -435,7 +435,7 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	// Send REPORTDAMAGE to server (also calculate & send it for pre-Beta9 clients, when we're hosting)
 	if( realdamage > 0 && getServerVersion() >= OLXBetaVersion(0,58,1) && 
 		( someOwnWorm || 
-		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(0,58,1) ) ) )
+		( game.isServer() && clientver < OLXBetaVersion(0,58,1) ) ) )
 		getNetEngine()->QueueReportDamage( w->getID(), realdamage, owner );
 
 	// Set damage report for local worm for Beta9 server - server won't send it back to us
@@ -482,7 +482,7 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 
 				cNetEngine->SendDeath(w->getID(), owner); // Let the server know that i am dead
         	    
-        	    if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
+				if( game.isServer() && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
         	    	cServer->killWorm(w->getID(), owner);
 
         	   	if( NewNet::Active() )
@@ -1281,7 +1281,7 @@ void CClient::clearHumanWormInputs() {
 // Process any chatter
 void CClient::processChatter()
 {
-	if (tLX->iGameType == GME_LOCAL)
+	if (game.isLocalGame())
 		return;
 
     keyboard_t *kb = GetKeyboard();

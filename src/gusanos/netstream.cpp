@@ -399,7 +399,7 @@ static std::vector<CServerConnection*> getConnsForId(Net_ConnID cid) {
 void Net_Control::olxSend(bool /* sendPendingOnly */) {
 	if(intern->packetsToSend.size() == 0) return;
 		
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		if(cClient->getServerVersion() >= OLXBetaVersion(0,59,1)) {
 			CBytestream bs;
 			if(composePackagesForConn(bs, this->intern, NetConnID_server()))

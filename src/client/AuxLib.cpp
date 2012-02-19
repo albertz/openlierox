@@ -938,9 +938,9 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 	filePrefix += "-";
 	if( tLX )
 	{
-		if( tLX->iGameType == GME_LOCAL )
+		if( game.isLocalGame() )
 			filePrefix += "local";
-		else if( tLX->iGameType == GME_HOST && cServer )
+		else if( game.isServer() )
 			filePrefix += tLXOptions->sServerName;
 		else if( cClient )
 			filePrefix += cClient->getServerName();

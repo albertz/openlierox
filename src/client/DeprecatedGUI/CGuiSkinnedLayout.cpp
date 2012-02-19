@@ -532,8 +532,8 @@ CWidget * CGuiSkinnedLayout::WidgetCreator( const std::vector< ScriptVar_t > & p
 static bool CGuiSkinnedLayout_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "tab", & CGuiSkinnedLayout::WidgetCreator )
 							( "file", SVT_STRING )
-							( "offset_left", SVT_INT )
-							( "offset_top", SVT_INT )
+							( "offset_left", SVT_INT32 )
+							( "offset_top", SVT_INT32 )
 							;
 
 

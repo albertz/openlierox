@@ -266,7 +266,7 @@ struct AutocompleteRequest {
 // TODO: Move this
 static CWorm* CheckWorm(CmdLineIntf* caller, int id, const std::string& request)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(request + " works only as server");
 		return NULL;
 	}
@@ -688,7 +688,7 @@ void Cmd_wantsJoin::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 		caller->writeMsg("\"Wants to join\" messages have been disabled", CNC_NORMAL);
 	}
 	
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg("Note that this has no effect right now; it's for the case when you are hosting next time.");
 		return;
 	}
@@ -697,7 +697,7 @@ void Cmd_wantsJoin::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 COMMAND(serverName, "rename server", "new-name", 1, 1);
 void Cmd_serverName::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -767,7 +767,7 @@ void Cmd_sex::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 
 COMMAND(disconnect, "disconnect from server or exit server", "", 0, 0);
 void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(currentGameState() == S_INACTIVE) {
+	if(game.state == Game::S_Inactive) {
 		caller->writeMsg("game is inactive, cannot disconnect anything", CNC_WARNING);
 		return;
 	}
@@ -792,7 +792,7 @@ void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		DeprecatedGUI::Menu_Current_Shutdown();
 
 		DeprecatedGUI::Menu_SetSkipStart(true);
-		if(tLX->iGameType == GME_LOCAL) {
+		if(game.isLocalGame()) {
 			DeprecatedGUI::Menu_LocalInitialize();			
 		}
 		else {
@@ -1085,7 +1085,7 @@ void Cmd_addHuman::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 		return;
 	}
 	
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1120,7 +1120,7 @@ COMMAND(addBot, "add bot to game", "[botprofile] [ai-diff] [inGame:*true/false]"
 void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
 	// Note: this check only for non-dedicated; in ded, we allow it, although it is a bit experimental
-	if(!bDedicated && (tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning())) {
+	if(!bDedicated && (game.isClient() || !cServer || !cServer->isServerRunning())) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1182,7 +1182,7 @@ COMMAND(addBots, "add bots to game", "number [ai-diff]", 1, 2);
 // adds a worm to the game (By string - id is way to complicated)
 void Cmd_addBots::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1218,7 +1218,7 @@ void Cmd_addBots::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 
 COMMAND(kickBot, "kick bot from game", "[reason]", 0, 1);
 void Cmd_kickBot::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1234,7 +1234,7 @@ void Cmd_kickBot::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 
 COMMAND(kickBots, "kick all bots from game", "[reason]", 0, 1);
 void Cmd_kickBots::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1253,7 +1253,7 @@ void Cmd_kickBots::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 
 COMMAND(killBots, "kill all bots out of game", "", 0, 0);
 void Cmd_killBots::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1272,7 +1272,7 @@ COMMAND(kickWorm, "kick worm", "id [reason]", 1, 2);
 // - if it sends a string atoi will fail at converting it to something sensible
 void Cmd_kickWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1296,7 +1296,7 @@ void Cmd_kickWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 COMMAND(banWorm, "ban worm", "id [reason]", 1, 2);
 void Cmd_banWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1321,7 +1321,7 @@ COMMAND(muteWorm, "mute worm", "id", 1, 1);
 // TODO: Add name muting, if wanted.
 void Cmd_muteWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1342,7 +1342,7 @@ COMMAND(unmuteWorm, "unmute worm", "id", 1, 1);
 // TODO: Add name muting, if wanted.
 void Cmd_unmuteWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1363,12 +1363,12 @@ void Cmd_unmuteWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 COMMAND(spawnWorm, "spawn worm", "id [pos]", 1, 2);
 void Cmd_spawnWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
 	
-	if(cServer->getState() != SVS_PLAYING) {
+	if(game.state != Game::S_Playing) {
 		caller->writeMsg("can only spawn worm when playing");
 		return;
 	}
@@ -1395,7 +1395,7 @@ COMMAND(setWormName, "Rename a worm", "id name [notify:*true/false]", 2, 3);
 // Why? We could for example want to have many bots with the same name.
 void Cmd_setWormName::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client. Use chat command /setmyname instead", CNC_WARNING);
 		return;
 	}
@@ -1441,7 +1441,7 @@ void Cmd_setWormName::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 COMMAND(setWormSkin, "Change the skin of a worm", "id skin", 2, 2);
 void Cmd_setWormSkin::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client. Use chat command /setmyskin instead", CNC_WARNING);
 		return;
 	}
@@ -1468,7 +1468,7 @@ void Cmd_setWormSkin::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 COMMAND(setWormColor, "Change the color of a worm", "id r g b", 4, 4);
 void Cmd_setWormColor::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client. Use chat command /setmycolor instead", CNC_WARNING);
 		return;
 	}
@@ -1501,7 +1501,7 @@ void Cmd_setWormColor::exec(CmdLineIntf* caller, const std::vector<std::string>&
 
 COMMAND(setWormLives, "set worm lives", "id (-2: unlimited, -1: outofgame, >=0: lives)", 2, 2);
 void Cmd_setWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1527,7 +1527,7 @@ void Cmd_setWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>&
 
 COMMAND(getWormLives, "get worm lives", "id", 1, 1);
 void Cmd_getWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1545,7 +1545,7 @@ void Cmd_getWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>&
 COMMAND(setWormTeam, "set worm team", "id team", 2, 2);
 void Cmd_setWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1582,7 +1582,7 @@ void Cmd_setWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 
 COMMAND(setWormSpeedFactor, "set worm speedfactor", "id factor", 2, 2);
 void Cmd_setWormSpeedFactor::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1607,7 +1607,7 @@ void Cmd_setWormSpeedFactor::exec(CmdLineIntf* caller, const std::vector<std::st
 
 COMMAND(setWormDamageFactor, "set worm damagefactor", "id factor", 2, 2);
 void Cmd_setWormDamageFactor::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1632,7 +1632,7 @@ void Cmd_setWormDamageFactor::exec(CmdLineIntf* caller, const std::vector<std::s
 
 COMMAND(setWormShieldFactor, "set worm shieldfactor", "id factor", 2, 2);
 void Cmd_setWormShieldFactor::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1657,7 +1657,7 @@ void Cmd_setWormShieldFactor::exec(CmdLineIntf* caller, const std::vector<std::s
 
 COMMAND(setWormCanUseNinja, "(dis)allow worm to use ninja", "id true/false", 2, 2);
 void Cmd_setWormCanUseNinja::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1682,7 +1682,7 @@ void Cmd_setWormCanUseNinja::exec(CmdLineIntf* caller, const std::vector<std::st
 
 COMMAND(setWormCanAirJump, "enable/disable air jump for worm", "id true/false", 2, 2);
 void Cmd_setWormCanAirJump::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1707,7 +1707,7 @@ void Cmd_setWormCanAirJump::exec(CmdLineIntf* caller, const std::vector<std::str
 
 COMMAND(authorizeWorm, "authorize worm", "id", 1, 1);
 void Cmd_authorizeWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}
@@ -1750,7 +1750,7 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		return;
 	}
 
-	if(cServer && cServer->isServerRunning() && cServer->getState() != SVS_LOBBY) {
+	if(cServer && cServer->isServerRunning() && game.state != Game::S_Lobby) {
 		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path ) {
 			caller->writeMsg("SetVar: You cannot change the map in game");
 			return;
@@ -1826,7 +1826,7 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		return;
 	}
 	
-	if(tLX->iGameType == GME_JOIN && cClient && cClient->getStatus() != NET_DISCONNECTED)  {
+	if(game.isClient() && cClient && cClient->getStatus() != NET_DISCONNECTED)  {
 		caller->writeMsg("cannot start server lobby as client", CNC_WARNING);
 		return;
 	}
@@ -1838,7 +1838,7 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 
 	tLXOptions->iMaxPlayers = CLAMP(tLXOptions->iMaxPlayers, 2, (int)MAX_PLAYERS);
 
-	tLX->iGameType = GME_HOST;
+	game.startServer(/* localGame */ false);
 
 	cClient->Shutdown();
 	cClient->Clear();
@@ -1897,7 +1897,7 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 
 COMMAND(startGame, "start game", "", 0, 0);
 void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->pushReturnArg("cannot start game as client");
 		return;
 	}
@@ -1907,7 +1907,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 		return;
 	}
 
-	if(cServer->getState() != SVS_LOBBY) {
+	if(game.state != Game::S_Lobby) {
 		// we have already started the game -> goto lobby back first and then restart
 		cServer->gotoLobby(false, "Cmd_startGame and we were not in lobby before");
 		for_each_iterator(CWorm*, w, game.localWorms()) {
@@ -1934,12 +1934,12 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 
 COMMAND_EXTRA(map, "set map", "filename", 1, 1, paramCompleters[0] = &autoCompleteForFileListCache<mapList>);
 void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg("cannot set map as client");
 		return;
 	}
 	
-	if(cServer->getState() != SVS_LOBBY) {
+	if(game.state != Game::S_Lobby) {
 		caller->writeMsg("can only set map in lobby");
 		return;
 	}
@@ -1963,12 +1963,12 @@ void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 
 COMMAND_EXTRA(mod, "set mod", "filename", 1, 1, paramCompleters[0] = &autoCompleteForFileListCache<modList>);
 void Cmd_mod::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg("cannot set mod as client");
 		return;
 	}
 	
-	if(cServer->getState() != SVS_LOBBY) {
+	if(game.state != Game::S_Lobby) {
 		caller->writeMsg("can only set mod in lobby");
 		return;
 	}
@@ -2004,12 +2004,12 @@ void Cmd_listMods::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 
 COMMAND(gotoLobby, "go to lobby", "", 0, 0);
 void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg("cannot goto lobby as client");
 		return;
 	}
 
-	if(tLX->iGameType == GME_LOCAL) {
+	if(game.isLocalGame()) {
 		// for local games, we just stop the server and go to local menu
 		hints << "Cmd_gotoLobby: we are quitting server and going to local menu" << endl;
 		GotoLocalMenu();
@@ -2022,7 +2022,7 @@ void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
 
 COMMAND(chatMsg, "give a global chat message", "text", 1, 1);
 void Cmd_chatMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) 
+	if(game.isClient() || !cServer || !cServer->isServerRunning())
 	{
 		if( cClient && (cClient->getStatus() == NET_CONNECTED || cClient->getStatus() == NET_PLAYING) )
 			cClient->getNetEngine()->SendText( params[0], game.localWorms()->tryGet() ? game.localWorms()->tryGet()->getName() : "" );
@@ -2055,7 +2055,7 @@ void Cmd_privateMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 COMMAND(getWormList, "get worm list", "", 0, 0);
 void Cmd_getWormList::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
 	
 	for_each_iterator(CWorm*, w, game.worms())
 		caller->pushReturnArg(itoa(w->get()->getID()));
@@ -2063,7 +2063,7 @@ void Cmd_getWormList::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 
 COMMAND(getComputerWormList, "get computer worm list", "", 0, 0);
 void Cmd_getComputerWormList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
 	
 	for_each_iterator(CWorm*, w, game.worms())
 		if(w->get()->getType() == PRF_COMPUTER)
@@ -2222,13 +2222,13 @@ void Cmd_whoIs::exec(CmdLineIntf* caller, const std::vector<std::string>& params
 		caller->pushReturnArg("NetSpeed: " + NetworkSpeedString((NetworkSpeed)w->getClient()->getNetSpeed()));
 		caller->pushReturnArg("Ping: " + itoa(w->getClient()->getPing()));
 		caller->pushReturnArg("LastResponse: " + ftoa((tLX->currentTime - w->getClient()->getLastReceived()).seconds()) + " secs ago");
-		if(cServer->getState() != SVS_LOBBY) {
+		if(game.state != Game::S_Lobby) {
 			caller->pushReturnArg("IsReady: " + to_string(w->getClient()->getGameReady()));
 		}
 	} else
 		caller->pushReturnArg("Client is INVALID");
 
-	if(cServer->getState() != SVS_LOBBY) {
+	if(game.state != Game::S_Lobby) {
 		caller->pushReturnArg("IsAlive: " + to_string(w->getAlive()));
 	}
 }
@@ -2249,7 +2249,7 @@ void Cmd_mapInfo::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 
 COMMAND(findSpot, "find randm free spot in map (close to pos)", "[(x,y)]", 0, 1);
 void Cmd_findSpot::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
 	if(game.gameMap() == NULL) {
 		caller->writeMsg("map not loaded", CNC_ERROR);
 		return;
@@ -2275,17 +2275,18 @@ void Cmd_findSpot::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 
 COMMAND(getGameState, "get game state", "", 0, 0);
 void Cmd_getGameState::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	GameState state = currentGameState();
-	caller->pushReturnArg(GameStateAsString(state));
+	caller->pushReturnArg(Game::StateAsStr(game.state));
+	caller->pushReturnArg(to_string(game.gameOver));
+	caller->pushReturnArg(to_string(game.isServer()));
+	caller->pushReturnArg(to_string(game.isLocalGame()));
 }
 
 
 COMMAND(dumpGameState, "dump game state", "", 0, 0);
 void Cmd_dumpGameState::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	GameState state = currentGameState();
-	caller->writeMsg("GameState: " + GameStateAsString(state), CNC_DEV);
-	if(state == S_INACTIVE) return;
-	if(cServer && cServer->isServerRunning()) cServer->DumpGameState(caller);
+	caller->writeMsg("GameState: " + Game::StateAsStr(game.state), CNC_DEV);
+	if(game.state == Game::S_Inactive) return;
+	if(game.isServer() && cServer) cServer->DumpGameState(caller);
 	else if(cClient) cClient->DumpGameState(caller);
 	else caller->writeMsg("server nor client correctly initialised", CNC_ERROR);
 }
@@ -2395,7 +2396,7 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 					if(w.getOwner() == NULL)
 						warnings << "worm " << name << " has no owner player set" << endl;
 					
-					if(tLX->iGameType != GME_LOCAL) {
+					if(!game.isLocalGame()) {
 						if(w.getNode() == NULL)
 							warnings << "worm " << name << " has no network node" << endl;
 						else {
@@ -2423,7 +2424,7 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 				if(p.worm()->getOwner() != &p)
 					warnings << p.name() << "'s worm " << p.worm()->getID() << ":" << p.worm()->getName() << " has different player set" << endl;
 
-				if(tLX->iGameType != GME_LOCAL) {
+				if(!game.isLocalGame()) {
 					if(p.getNode() == NULL)
 						warnings << name << " has no network node" << endl;
 					else {

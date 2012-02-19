@@ -523,18 +523,3 @@ Result MainLoopTask::handleFrame() {
 }
 
 
-GameState currentGameState() {
-	if(!cClient || cClient->getStatus() == NET_DISCONNECTED) return S_INACTIVE;
-	if(tLX->iGameType == GME_JOIN) {
-		if(cClient->getStatus() == NET_CONNECTING) return S_CLICONNECTING;
-		if(!cClient->getGameReady()) return S_CLILOBBY;
-		if(cClient->getStatus() == NET_PLAYING) return S_CLIPLAYING;
-		return S_CLIWEAPONS;
-	}
-	if(!cServer->isServerRunning()) return S_INACTIVE;
-	//if(!DeprecatedGUI::tMenu || DeprecatedGUI::tMenu->bMenuRunning);
-	if(cServer->getState() == SVS_LOBBY) return S_SVRLOBBY;
-	if(cServer->getState() == SVS_GAME) return S_SVRWEAPONS;
-	return S_SVRPLAYING;
-}
-

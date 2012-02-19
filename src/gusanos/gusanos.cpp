@@ -39,8 +39,6 @@
 
 using namespace std;
 
-static Uint32 logicLast = 0;
-
 
 bool gusInitBase() {
 	if(!gusGame.init())
@@ -57,73 +55,54 @@ bool gusInit(const std::string& mod) {
 	notes << "Gusanos: set mod " << mod << endl;
 	
 	gusGame.setMod(mod);
-	
-	logicLast = SDL_GetTicks() / 10;
-	
+		
 	return true;
 }
 
 void gusLogicFrame() {
-	Uint32 timer = SDL_GetTicks() / 10;
-	
-	size_t logicFrameCount = 0;
-	while ( logicLast + 1 <= timer )
+	for ( Grid::iterator iter = game.objects.beginAll(); iter;)
 	{
+		if(iter->deleteMe)
+			iter.erase();
+		else
+			++iter;
+	}
 
-		for ( Grid::iterator iter = game.objects.beginAll(); iter;)
+	if ( game.isMapReady() && game.shouldDoPhysicsFrame() && gusGame.isLoaded() )
+	{
+		for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 		{
-			if(iter->deleteMe)
-				iter.erase();
-			else
-				++iter;
+			iter->think();
+			game.objects.relocateIfNecessary(iter);
 		}
-		
-		if ( game.isMapReady() && game.shouldDoPhysicsFrame() && gusGame.isLoaded() )
+
+		game.objects.flush(); // Insert all new objects
+
+		for ( vector<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 		{
-						
-			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
-			{
-				iter->think();
-				game.objects.relocateIfNecessary(iter);
-			}
-			
-			game.objects.flush(); // Insert all new objects
-			
-			for ( vector<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
-			{
-				if(!(*iter)->deleteMe)
-					(*iter)->think();
-			}
-		}
-		
-		gusGame.think();
-		
-#ifndef DEDICATED_ONLY
-		sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
-#endif
-						
-#ifndef DEDICATED_ONLY
-		console.checkInput();
-#endif
-		console.think();
-		
-		spriteList.think();
-		
-		EACH_CALLBACK(i, afterUpdate)
-		{
-			(lua.call(*i))();
-		}
-		
-		++logicLast;
-		++logicFrameCount;
-		
-		if(logicFrameCount > 10) { // don't be too slow
-			logicLast = timer; // skip left frames
-			break;
+			if(!(*iter)->deleteMe)
+				(*iter)->think();
 		}
 	}
-	
-	network.update();
+
+	gusGame.think();
+
+#ifndef DEDICATED_ONLY
+	sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
+#endif
+
+#ifndef DEDICATED_ONLY
+	console.checkInput();
+#endif
+	console.think();
+
+	spriteList.think();
+
+	EACH_CALLBACK(i, afterUpdate)
+	{
+		(lua.call(*i))();
+	}
+
 }
 
 void gusQuit() {

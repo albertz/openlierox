@@ -43,7 +43,8 @@ struct AttrDesc {
 	boost::function<void(BaseObject* base, const AttrDesc* attrDesc)> sync;
 	
 	AttrDesc()
-	: objTypeId(0), attrType(SVT_INVALID), isStatic(true), attrMemOffset(0), attrExtMemOffset(0), attrId(0) {}
+	: objTypeId(0), attrType(SVT_INVALID), isStatic(true), attrMemOffset(0), attrExtMemOffset(0), attrId(0),
+	  serverside(true) {}
 
 	const void* getValuePtr(const BaseObject* base) const {
 		assert(isStatic);
@@ -178,7 +179,8 @@ struct AttrWithMaybeOpts<T,AttrDescT> { \
 	typedef AttrWith ## k ## Opts<T,AttrDescT> Type; \
 }
 
-USE_OPTS_FOR(int, Int);
+USE_OPTS_FOR(int32_t, Int);
+USE_OPTS_FOR(uint64_t, Int);
 USE_OPTS_FOR(float, Basic);
 USE_OPTS_FOR(CVec, Basic);
 

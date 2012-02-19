@@ -133,7 +133,7 @@ enum {
 bool Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 {
 	iJoinMenu = join_connecting;
-	tLX->iGameType = GME_JOIN;
+	game.startClient();
 	sJoinAddress = sAddress;
 	cConnecting.Shutdown();
 	cConnecting.Initialize();
@@ -283,7 +283,7 @@ bool Menu_Net_JoinLobbyInitialize()
     iJoinSpeaking = 0;  // The first player is always speaking
 	tMenu->sSavedChatText = "";
 
-	tLX->iGameType = GME_JOIN;
+	game.startClient();
 
 	return true;
 }
@@ -670,7 +670,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		// Leave the frontend
 		tMenu->bMenuWantsGameStart = true;
 		tMenu->bMenuRunning = false;
-		tLX->iGameType = GME_JOIN;
+		game.startClient();
 
 		// Save the chat text
 		cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);

@@ -117,7 +117,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 	worm->Spawn(pos);
 	visible[worm->getID()] = true; // So that Hide() doesn't ignore our request.
 	Hide(worm, false);
-	fWarmupTime[worm->getID()] = cServer->getServerTime() + TimeDiff((float)gameSettings[FT_HS_HideTime]);
+	fWarmupTime[worm->getID()] = game.serverTime() + TimeDiff((float)gameSettings[FT_HS_HideTime]);
 
 	// Note: Earlier, we spawned only for the same team. This was a hacky workaround to avoid some sparkles to show up.
 	// We have solved this in a clean way now. Of course, we want spawning here. Where the worm is invisible,
@@ -147,7 +147,7 @@ bool CHideAndSeek::Shoot(CWorm* worm)
 
 void CHideAndSeek::Simulate()
 {
-	TimeDiff GameTime = cServer->getServerTime();
+	TimeDiff GameTime = game.serverTime();
 	// Game time up
 	if(GameTime > fGameLength) {
 		for_each_iterator(CWorm*, w, game.worms())
@@ -252,7 +252,7 @@ bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)
 
 void CHideAndSeek::Show(CWorm* worm, bool message)
 {
-	fLastAlert[worm->getID()] = cServer->getServerTime();
+	fLastAlert[worm->getID()] = game.serverTime();
 	if(visible[worm->getID()]) return;
 	makeVisible(worm, true);
 

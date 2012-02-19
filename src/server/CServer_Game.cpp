@@ -37,7 +37,7 @@
 // Spawn a worm
 void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 {
-	if (bGameOver || Worm->isSpectating())
+	if (game.gameOver || Worm->isSpectating())
 		return;
 
 	if(game.gameScript()->gusEngineUsed())
@@ -108,7 +108,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 void GameServer::killWorm( int victim, int killer, int suicidesCount )
 {
 	// If the game is already over, ignore this
-	if (bGameOver)  {
+	if (game.gameOver)  {
 		warnings << "GameServer::killWorm: Game is over, ignoring." << endl;
 		return;
 	}
@@ -166,7 +166,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 // Simulate the game stuff
 void GameServer::SimulateGame()
 {
-	if(iState != SVS_PLAYING)
+	if(game.state != Game::S_Playing)
 		return;
 
 	if( gameSettings[FT_NewNetEngine] )
@@ -174,10 +174,10 @@ void GameServer::SimulateGame()
 
 	// If this is a remote game, and game over,
 	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
-	if(bGameOver
-	&& (tLX->currentTime - fGameOverTime > LX_ENDWAIT || (bDedicated && game.localWorms()->size() <= 1)) // dedicated server should go to lobby immediatly if alone
-	&& iState != SVS_LOBBY
-	&& tLX->iGameType == GME_HOST) {
+	if(game.gameOver
+	&& (game.gameOverTime() > LX_ENDWAIT || (bDedicated && game.localWorms()->size() <= 1)) // dedicated server should go to lobby immediatly if alone
+	&& game.state != Game::S_Lobby
+	&& (game.isServer() && !game.isLocalGame())) {
 		gotoLobby(true, "timeout for gameover scoreboard");
 		return;
 	}
@@ -244,7 +244,7 @@ void GameServer::SimulateGame()
 	}
 
 	// Check if we need to spawn a bonus
-	if(tLX->currentTime - fLastBonusTime > gameSettings[FT_BonusFreq] && gameSettings[FT_Bonuses] && !bGameOver) {
+	if(tLX->currentTime - fLastBonusTime > gameSettings[FT_BonusFreq] && gameSettings[FT_Bonuses] && !game.gameOver) {
 		SpawnBonus();
 		fLastBonusTime = tLX->currentTime;
 	}
@@ -256,7 +256,7 @@ void GameServer::SimulateGame()
 	// Simulate anything needed by the game mode
 	game.gameMode()->Simulate();
 
-	if( game.gameMode()->TimeLimit() > 0 && fServertime > game.gameMode()->TimeLimit() )
+	if( game.gameMode()->TimeLimit() > 0 && game.serverTime() > game.gameMode()->TimeLimit() )
 		RecheckGame();
 }
 
@@ -318,7 +318,7 @@ void GameServer::SpawnBonus()
 
 void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 	// Don't shoot when the game is over
-	if (cClient->isGameOver())
+	if (game.gameOver)
 		return;
 	
 	if(!game.gameMode()->Shoot(w))
@@ -349,7 +349,7 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 	CVec vel = w->getVelocity();
 	speed = NormalizeVector( &vel );
 	
-	TimeDiff time = getServerTime();
+	TimeDiff time = game.serverTime();
 	if( w->hasOwnServerTime() )
 		time = w->serverTime();
 	
@@ -368,7 +368,7 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 void GameServer::WormShoot(CWorm *w)
 {
 	// Don't shoot when the game is over
-	if (cClient->isGameOver())
+	if (game.gameOver)
 		return;
 
 	if(!game.gameMode()->Shoot(w))
@@ -442,7 +442,7 @@ void GameServer::WormShoot(CWorm *w)
 		speed = NormalizeVector( &vel );
 	}
 	
-	TimeDiff time = getServerTime();
+	TimeDiff time = game.serverTime();
 	if( game.isClient() && w->hasOwnServerTime() )
 		time = w->serverTime();
 	
@@ -489,7 +489,7 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 {
 	notes << "GameServer: gotoLobby (" << reason << ")" << endl;
 
-	if(getState() == SVS_LOBBY) {
+	if(game.state == Game::S_Lobby) {
 		notes << "already in lobby, doing nothing" << endl;
 		return;
 	}
@@ -500,7 +500,7 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	SendGlobalPacket(&bs);
 
 	// Clear the info
-	iState = SVS_LOBBY;
+	game.state = Game::S_Lobby;
 	bool bUpdateWorms = false;
 	for_each_iterator(CWorm*, w, game.worms()) {
 		w->get()->Unprepare();
@@ -527,7 +527,6 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	}
 
 	fLastUpdateSent = AbsTime();
-	fGameOverTime = AbsTime();
 
 	SendWormLobbyUpdate();
 	
@@ -545,7 +544,7 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 		cClients[i].getUdpFileDownloader()->allowFileRequest(true);
 
 	// Re-register the server to reflect the state change
-	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
+	if( tLXOptions->bRegServer && (game.isServer() && !game.isLocalGame()) )
 		RegisterServerUdp();
 
 	CheckForFillWithBots();
@@ -561,11 +560,11 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 // Called iff game state has changed (e.g. player left etc.)
 void GameServer::RecheckGame()
 {
-	if(iState == SVS_GAME)
+	if(game.state == Game::S_Preparing)
 		// Check if all the clients are ready
 		CheckReadyClient();
 	
-	if(!bGameOver && iState == SVS_PLAYING)
+	if(!game.gameOver && game.state == Game::S_Playing)
 		if(game.gameMode()->CheckGameOver())
 			GameOver();
 }
@@ -575,7 +574,7 @@ void GameServer::RecheckGame()
 // Checks if all the clients are ready to play
 void GameServer::CheckReadyClient()
 {
-	if(iState != SVS_GAME)
+	if(game.state != Game::S_Preparing)
 		return;
 
 	bool allready = true;

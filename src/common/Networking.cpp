@@ -132,7 +132,7 @@ static const NLaddress* getNLaddr(const NetworkAddr& addr) {
 
 #ifndef WIN32
 static void sigpipe_handler(int i) {
-	warnings << "got SIGPIPE, ignoring..." << endl;
+	printf("Warning: got SIGPIPE, ignoring...\n"); // use printf because the Logger might not be safe to use here anymore
 	signal(SIGPIPE, sigpipe_handler);
 }
 #endif

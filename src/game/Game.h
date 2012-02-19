@@ -21,6 +21,7 @@
 #include "util/Result.h"
 #include "Iter.h"
 #include "util/BaseObject.h"
+#include "Attr.h"
 
 class CWormHumanInputHandler;
 class CWormInputHandler;
@@ -37,6 +38,11 @@ class Game : public BaseObject {
 public:
 	Game();
 
+	void startServer(bool localGame);
+	void startClient();
+	void startGame();
+	void stop();
+
 	void prepareGameloop();
 	void frameOuter();
 	void frameInner();
@@ -50,9 +56,10 @@ public:
 	void onRemovePlayer(CWormInputHandler*);
 	void onNewHumanPlayer(CWormHumanInputHandler*);
 	void onNewHumanPlayer_Lua(CWormHumanInputHandler*);
-	
-	bool isServer();
+
+	bool isServer() { return m_isServer; }
 	bool isClient() { return !isServer(); }
+	bool isLocalGame() { return m_isLocalGame; }
 	bool isTeamPlay();
 	bool isGamePaused();
 	bool shouldDoPhysicsFrame();
@@ -60,6 +67,43 @@ public:
 	bool needToCreateOwnWormInputHandlers();
 	bool needProxyWormInputHandler();
 	
+	enum State {
+		S_Inactive = 0,
+		S_Connecting,
+		S_Lobby,
+		S_Preparing, // includes wpn selection
+		S_Playing
+	};
+	static std::string StateAsStr(int s) {
+		switch(s) {
+		case S_Inactive: return "Inactive";
+		case S_Connecting: return "Connecting";
+		case S_Lobby: return "Lobby";
+		case S_Preparing: return "Preparing";
+		case S_Playing: return "Playing";
+		}
+		return "INVALID STATE";
+	}
+
+	ATTR(Game, int, state, 1, {})
+
+	static const int FixedFPS = 100;
+	static const uint64_t FixedFrameTime = 1000 / FixedFPS;
+
+	ATTR(Game, uint64_t, serverFrame, 2, {}) // always 100FPS
+	ATTR(Game, bool, gameOver, 3, {})
+	ATTR(Game, uint64_t, gameOverFrame, 4, {})
+
+	TimeDiff serverTime() { return TimeDiff(serverFrame * 10); }
+	TimeDiff gameOverTime() {
+		if(!gameOver) return TimeDiff(0);
+		if(gameOverFrame < serverFrame) return TimeDiff(0);
+		return TimeDiff((serverFrame - gameOverFrame) * 10);
+	}
+
+	bool hasHighSimulationDelay();
+	bool hasSeriousHighSimulationDelay();
+
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::vector<CWormInputHandler*> players;
 	
@@ -103,7 +147,11 @@ public:
 private:
 	void reset();
 
+	bool m_isServer;
+	bool m_isLocalGame;
+
 	AbsTime oldtime;
+	AbsTime simulationTime;
 	SmartPointer<CMap> m_gameMap;
 	SmartPointer<CGameScript> m_gameMod;
 	SmartPointer<CGameMode> m_gameMode;
@@ -112,5 +160,7 @@ private:
 };
 
 extern Game game;
+
+int oldLXStateInt();
 
 #endif

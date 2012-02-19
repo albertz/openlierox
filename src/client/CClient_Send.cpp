@@ -55,7 +55,7 @@ void CClientNetEngine::SendWormDetails()
 
 	// TODO: Have we always used the limitcheck from GameServer here?
 	// We should perhaps move it out from GameServer. Looks a bit strange here to use something from GameServer.
-	if(	tLX->iGameType == GME_JOIN // we are a client in a netgame
+	if(	game.isClient() // we are a client in a netgame
 	   && !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
 		return;
 
@@ -84,7 +84,7 @@ void CClientNetEngine::SendWormDetails()
 	
 	// handle Gusanos updates
 	// only for join-mode because otherwise, we would handle it in CServer
-	if(tLX->iGameType == GME_JOIN && network.getNetControl() && !client->getChannel()->ReliableStreamBandwidthLimitHit()) {
+	if(game.isClient() && network.getNetControl() && !client->getChannel()->ReliableStreamBandwidthLimitHit()) {
 		const size_t maxBytes = (size_t) client->getChannel()->MaxDataPossibleToSendInstantly();
 		if(maxBytes > 0 && network.getNetControl()->olxSendNodeUpdates(NetConnID_server(), maxBytes))
 			client->fLastUpdateSent = tLX->currentTime;

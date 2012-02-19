@@ -19,7 +19,7 @@ Result Game::loadWeaponRestrictions() {
 	notes << "Weapon restriction: " << gameSettings[FT_WeaponRest] << endl;
 	m_wpnRest = new CWpnRest();
 
-	if(tLX->iGameType != GME_JOIN)
+	if(game.isServer())
 		m_wpnRest->loadList(gameSettings[FT_WeaponRest], gameSettings[FT_Mod].as<ModInfo>()->path);
 	
 	if(m_gameMod.get())

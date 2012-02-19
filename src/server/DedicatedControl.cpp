@@ -334,7 +334,7 @@ struct DedIntern {
 	void Sig_GameLoopStart() { pushSignal("gameloopstart"); }
 	void Sig_GameLoopEnd() {
 		pushSignal("gameloopend");
-		if(currentGameState() != S_SVRLOBBY && currentGameState() != S_CLILOBBY)
+		if(game.state != Game::S_Lobby)
 			// This is because of the current game logic: It will end the game
 			// loop and then return to the lobby but only in the case if we got a
 			// BackToLobby-signal before; if we didn't get such a signal and
@@ -413,7 +413,7 @@ struct DedIntern {
 			// Leave the frontend
 			DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
 			DeprecatedGUI::tMenu->bMenuRunning = false;
-			tLX->iGameType = GME_JOIN;
+			game.startClient();
 			Sig_ClientGameStarted();
 			return;
 		}
@@ -462,13 +462,13 @@ struct DedIntern {
 			float down = 0;
 			
 			// Get the rates
-			if( tLX->iGameType == GME_JOIN ) {
+			if( game.isClient() ) {
 				if(cClient->getChannel()) {
 					down = cClient->getChannel()->getIncomingRate() / 1024.0f;
 					up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
 				}
 			}
-			else if( tLX->iGameType == GME_HOST ) {
+			else if( (game.isServer() && !game.isLocalGame()) ) {
 				down = cServer->GetDownload() / 1024.0f;
 				up = cServer->GetUpload() / 1024.0f;
 			}
@@ -479,16 +479,22 @@ struct DedIntern {
 		}
 #endif
 
-
-		switch(currentGameState()) {
-			case S_INACTIVE: break;
-			case S_SVRLOBBY: Frame_ServerLobby(); break;
-			case S_SVRWEAPONS: Frame_Playing(); break;
-			case S_SVRPLAYING: Frame_Playing(); break;
-			case S_CLICONNECTING: Frame_ClientConnecting(); break;
-			case S_CLILOBBY: Frame_ClientLobby(); break;
-			case S_CLIPLAYING: Frame_Playing(); break;
-			case S_CLIWEAPONS: Frame_Playing(); break;
+		switch(game.state) {
+		case Game::S_Inactive: break;
+		case Game::S_Connecting:
+			if(game.isServer()) {}
+			else Frame_ClientConnecting();
+			break;
+		case Game::S_Lobby:
+			if(game.isServer()) Frame_ServerLobby();
+			else Frame_ClientLobby();
+			break;
+		case Game::S_Preparing:
+		case Game::S_Playing:
+			Frame_Playing();
+			break;
+		default:
+			warnings << "game.state is invalid: " << game.state << endl;
 		}
 	}
 };

@@ -144,7 +144,7 @@ static void drawUnattachedFlag(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	CMap* map = game.gameMap();
 	VectorD2<int> p = v->physicToReal(flag->getPos(), cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
-	int f = ((int) cClient->serverTime().seconds() *7);
+	int f = ((int) game.serverTime().seconds() *7);
 	if (flag->skin->getFrameCount() != 0)
 		f %= flag->skin->getFrameCount(); // every skin has exactly 21 frames
 	
@@ -211,7 +211,7 @@ void FlagInfo::drawOnMiniMap(CMap* cMap, SDL_Surface* bmpDest, uint miniX, uint 
 
 
 void FlagInfo::checkWorm(CWorm* worm) {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		errors << "FlagInfo::checkWorm: this function is only supposed to be called by the server" << endl;
 		return;
 	}
@@ -344,7 +344,7 @@ void FlagInfo::skipUpdate(CBytestream* bs) {
 
 
 Flag* FlagInfo::applyInitFlag(int id, const CVec& spawnPos) {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		errors << "FlagInfo::applyInitFlag: this function is only supposed to be called by the server" << endl;
 		return NULL;
 	}
@@ -362,7 +362,7 @@ Flag* FlagInfo::applyInitFlag(int id, const CVec& spawnPos) {
 }
 
 void FlagInfo::applyRemoveFlag(int id) {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		errors << "FlagInfo::applyRemoveFlag: this function is only supposed to be called by the server" << endl;
 		return;
 	}
@@ -377,7 +377,7 @@ void FlagInfo::applyRemoveFlag(int id) {
 }
 
 void FlagInfo::applyCustomPos(Flag* flag, const CVec& pos) {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		errors << "FlagInfo::applyCustomPos: this function is only supposed to be called by the server" << endl;
 		return;
 	}
@@ -393,7 +393,7 @@ void FlagInfo::applyCustomPos(Flag* flag, const CVec& pos) {
 }
 
 void FlagInfo::applySpawnPos(Flag* flag, const CVec& spawnPos) {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		errors << "FlagInfo::applySpawnPos: this function is only supposed to be called by the server" << endl;
 		return;
 	}
@@ -409,7 +409,7 @@ void FlagInfo::applySpawnPos(Flag* flag, const CVec& spawnPos) {
 }
 
 void FlagInfo::applyHolderWorm(Flag* flag, int w) {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		errors << "FlagInfo::applyHolderWorm: this function is only supposed to be called by the server" << endl;
 		return;
 	}
@@ -425,7 +425,7 @@ void FlagInfo::applyHolderWorm(Flag* flag, int w) {
 }
 
 void FlagInfo::applySetBack(Flag* flag) {
-	if(tLX->iGameType == GME_JOIN) {
+	if(game.isClient()) {
 		errors << "FlagInfo::applySetBack: this function is only supposed to be called by the server" << endl;
 		return;
 	}

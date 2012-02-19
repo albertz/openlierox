@@ -2288,7 +2288,7 @@ bool CWormBotInputHandler::AI_Shoot()
 
 	// HINT: we don't need this, because we ensure above in the speed-calculation, that we have no problem
 	// TODO: avoiding projectiles should not be done by not shooting but by changing MoveToTarget
-	if(bAim) if (tLX->iGameType == GME_JOIN)  {
+	if(bAim) if (game.isClient())  {
 		// Get the angle
 		float ang = (float)atan2(m_worm->vVelocity.get().x, m_worm->vVelocity.get().y);
 		ang = RAD2DEG(ang);

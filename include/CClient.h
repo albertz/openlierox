@@ -250,7 +250,6 @@ private:
 	AbsTime		fMyPingSent;
 	AbsTime		fMyPingRefreshed;
 	int			iMyPing;
-	TimeDiff	fServertime; // only in >=Beta8 correctly synchronised
 	
 	int			iScoreboard[MAX_WORMS];
 	int			iScorePlayers;
@@ -364,7 +363,6 @@ private:
 
 	bool		bReadySent;
 
-	bool		bGameOver;
 	bool		bGameMenu;
 	int			iMatchWinner;
 	int			iMatchWinnerTeam;
@@ -589,8 +587,6 @@ public:
 	void setPing(int _p);
 
 	int getMyPing()							{ return iMyPing; } // Use only when iGameType == GME_JOIN
-
-	TimeDiff serverTime()						{ return fServertime; }
 	
 	const std::string& getServerAddress()		{ return strServerAddr; }
 	std::string getServerAddr_HumanReadable()		{ return strServerAddr_HumanReadable; }
@@ -632,7 +628,6 @@ public:
 
 	bool		isGameMenu()			{ return bGameMenu; }
 	bool		isChatTyping()			{ return bChat_Typing; }
-	bool		isGameOver()			{ return bGameOver; }
 	bool&		shouldRepaintInfo()		{ return bShouldRepaintInfo; }
 
 	void		setReadySent(bool b)	{ bReadySent = b; }

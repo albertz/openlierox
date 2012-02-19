@@ -164,9 +164,7 @@ bool SinglePlayerGame::startGame() {
 	
 	if(singlePlayerSettings.get()) singlePlayerSettings = NULL; // just to be sure
 	singlePlayerSettings = new SinglePlayerSettingsScope();
-	
-	tLX->iGameType = GME_LOCAL;
-	
+		
 	if(! cClient->Initialize() )
 	{
 		errors << "Could not initialize client" << endl;

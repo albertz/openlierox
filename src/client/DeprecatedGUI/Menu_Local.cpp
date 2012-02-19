@@ -788,9 +788,7 @@ static bool Menu_LocalStartGame_CustomGame() {
 						"but only " + itoa(MAX_PLAYERS) + " players are possible.");
 		return false;
 	}
-	
-	tLX->iGameType = GME_LOCAL;
-	
+		
 	if(! cClient->Initialize() )
 	{
 		errors << "Could not initialize client" << endl;
@@ -852,7 +850,7 @@ static bool Menu_LocalStartGame_CustomGame() {
 		Menu_RedrawMouse(true);
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -869,8 +867,8 @@ void Menu_LocalStartGame()
 	if(ok) {
 		tMenu->bMenuWantsGameStart = true;
 		tMenu->bMenuRunning = false;
-		tLX->iGameType = GME_LOCAL;
-		
+		game.startServer(/* localGame */ true);
+
 		// Tell the client to connect to the server
 		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 		
@@ -1230,7 +1228,7 @@ static void resetItemFromVar(lv_item_t* item, const ScriptVarPtr_t& var) {
 				CTextbox *textBox = (CTextbox *)si->tNext->tWidget;
 				int iVal = 0;
 				
-				if( var.valueType() == SVT_INT )
+				if( var.valueType() == SVT_INT32 )
 				{
 					iVal = var.asScriptVar().toInt();
 					textBox->setText(itoa(iVal));
@@ -1305,7 +1303,7 @@ static void updateFeaturesList(CListview* l)
 					if( l->getWidgetEvent()->cWidget == slider ) // User moved slider - update textbox
 					{
 						int iVal = slider->getValue();
-						if( it->second.var.valueType() == SVT_INT )
+						if( it->second.var.valueType() == SVT_INT32 )
 						{
 							it->second.var.fromScriptVar( ScriptVar_t(iVal) );
 							textBox->setText(itoa(iVal));
@@ -1325,7 +1323,7 @@ static void updateFeaturesList(CListview* l)
 					{
 						it->second.var.fromString(textBox->getText());
 						int iVal = 0;
-						if( it->second.var.valueType() == SVT_INT )
+						if( it->second.var.valueType() == SVT_INT32 )
 						{
 							// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
 							//CLAMP_DIRECT(* it->second.var.i, it->second.min.i, it->second.max.i );
