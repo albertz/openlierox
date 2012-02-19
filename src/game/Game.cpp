@@ -238,10 +238,8 @@ void Game::frameOuter() {
 	
 	// Main frame
 	frameInner();
-	
-	doVideoFrameInMainThread();
+
 	if(DbgSimulateSlow) SDL_Delay(700);
-	CapFPS();	
 }
 
 
@@ -254,10 +252,7 @@ void Game::frameInner()
 	
 	if(bDedicated)
 		DedicatedControl::Get()->GameLoop_Frame();
-	
-    if(tLX->bQuitEngine)
-        return;
-	
+		
 	// Check if user pressed screenshot key
 	if (tLX->cTakeScreenshot.isDownOnce())  {
 		PushScreenshot("scrshots", "");
@@ -285,87 +280,91 @@ void Game::frameInner()
 	if(tLXOptions->bEnableChat)
 		ProcessIRC();
 
-	cClient->ReadPackets();
+	if(state != Game::S_Inactive) {
+		cClient->ReadPackets();
 
-	cClient->ProcessMapDownloads();
-	cClient->ProcessModDownloads();
-	cClient->ProcessUdpUploads();
+		cClient->ProcessMapDownloads();
+		cClient->ProcessModDownloads();
+		cClient->ProcessUdpUploads();
 
-	cClient->SimulateHud();
+		cClient->SimulateHud();
 
-	if(isServer()) {
-		cServer->ProcessRegister();
-		cServer->ProcessGetExternalIP();
-		cServer->ReadPackets();
+		if(isServer() && cServer->isServerRunning()) {
+			cServer->ProcessRegister();
+			cServer->ProcessGetExternalIP();
+			cServer->ReadPackets();
+		}
 	}
 
-	// We have a separate fixed 100FPS for game simulation.
-	// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
-	// we have to set it accordingly.
-	AbsTime curTime = tLX->currentTime;
-	TimeDiff curDeltaTime = tLX->fDeltaTime;
-	tLX->currentTime = simulationTime;
-	tLX->fDeltaTime = TimeDiff(Game::FixedFrameTime);
-	tLX->fRealDeltaTime = TimeDiff(Game::FixedFrameTime);
-	while(tLX->currentTime < curTime) {
+	if(!tLX->bQuitEngine && state >= Game::S_Preparing) {
+		// We have a separate fixed 100FPS for game simulation.
+		// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
+		// we have to set it accordingly.
+		AbsTime curTime = tLX->currentTime;
+		TimeDiff curDeltaTime = tLX->fDeltaTime;
+		tLX->currentTime = simulationTime;
+		tLX->fDeltaTime = TimeDiff(Game::FixedFrameTime);
+		tLX->fRealDeltaTime = TimeDiff(Game::FixedFrameTime);
+		while(tLX->currentTime < curTime) {
 
-		if(hasSeriousHighSimulationDelay()) {
-			TimeDiff simDelay = simulationDelay();
-			if(simDelay > 0.5f)
-				warnings << "deltatime " << simDelay.seconds() << " is too high" << endl;
-			// Don't do anything anymore, just skip.
-			// Also don't increment serverFrame so clients know about this.
-			tLX->currentTime += TimeDiff(simDelay.milliseconds() - simDelay.milliseconds() % Game::FixedFrameTime);
-			continue;
+			if(hasSeriousHighSimulationDelay()) {
+				TimeDiff simDelay = simulationDelay();
+				if(simDelay > 0.5f)
+					warnings << "deltatime " << simDelay.seconds() << " is too high" << endl;
+				// Don't do anything anymore, just skip.
+				// Also don't increment serverFrame so clients know about this.
+				tLX->currentTime += TimeDiff(simDelay.milliseconds() - simDelay.milliseconds() % Game::FixedFrameTime);
+				continue;
+			}
+
+			if(game.state == Game::S_Playing && !isGamePaused())
+				serverFrame++;
+
+			// do lua/gus frames in all cases
+			{
+				// convert speed to lua if needed
+				std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
+				scopedSpeeds.reserve( game.worms()->size() );
+				for_each_iterator(CWorm*, w, game.worms())
+						scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
+
+				gusLogicFrame();
+			}
+
+			cClient->Frame();
+			if(isServer())
+				cServer->Frame();
+
+			tLX->currentTime += TimeDiff(Game::FixedFrameTime);
 		}
-
-		if(game.state == Game::S_Playing && !isGamePaused())
-			serverFrame++;
-
-		// do lua/gus frames in all cases
-		{
-			// convert speed to lua if needed
-			std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
-			scopedSpeeds.reserve( game.worms()->size() );
-			for_each_iterator(CWorm*, w, game.worms())
-					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
-
-			gusLogicFrame();
-		}
-
-		cClient->Frame();
-		if(isServer())
-			cServer->Frame();
-
-		tLX->currentTime += TimeDiff(Game::FixedFrameTime);
+		simulationTime = tLX->currentTime;
+		tLX->currentTime = curTime;
+		tLX->fDeltaTime = curDeltaTime;
 	}
-	simulationTime = tLX->currentTime;
-	tLX->currentTime = curTime;
-	tLX->fDeltaTime = curDeltaTime;
-	
-	if(tLX && !tLX->bQuitEngine)
+
+	if(tLX && !tLX->bQuitEngine && state >= Game::S_Preparing)
 		cClient->Draw(VideoPostProcessor::videoSurface());
 
-	// Gusanos network
-	network.update();
+	if(state != Game::S_Inactive) {
+		iterAttrUpdates(NULL);
 
-	cClient->SendPackets();
+		// Gusanos network
+		network.update();
 
-	// Connecting process
-	if (cClient->bConnectingBehindNat)
-		cClient->ConnectingBehindNAT();
-	else
-		cClient->Connecting();
+		cClient->SendPackets();
 
-	if(isServer()) {
-		cServer->CheckRegister();
-		if(cServer->isServerRunning()) {
+		// Connecting process
+		if (cClient->bConnectingBehindNat)
+			cClient->ConnectingBehindNAT();
+		else
+			cClient->Connecting();
+
+		if(isServer() && cServer->isServerRunning()) {
+			cServer->CheckRegister();
 			cServer->SendFiles();
 			cServer->SendPackets();
 		}
 	}
-
-	iterAttrUpdates(NULL);
 
 	cClient->resetDebugStr();
 	
@@ -402,6 +401,16 @@ void Game::cleanupAfterGameloopEnd() {
 	
 	cleanupCallbacks();
 	cleanupCallbacks.disconnect_all_slots();
+
+	state = Game::S_Lobby;
+	if(isServer()) {
+		if(!cServer->isServerRunning())
+			stop();
+	}
+	else {
+		if(cClient->getStatus() == NET_DISCONNECTED)
+			stop();
+	}
 }
 
 

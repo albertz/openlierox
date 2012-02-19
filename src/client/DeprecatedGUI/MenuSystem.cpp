@@ -249,7 +249,6 @@ void Menu_Frame() {
 		
 	if(bDedicated) {
 		ServerList::get()->process();
-		DedicatedControl::Get()->Menu_Frame();
 		return;
 	}
 
@@ -332,9 +331,6 @@ void Menu_Frame() {
 		Result handle() { VideoPostProcessor::cloneBuffer(); return true; }
 	};
 	doVppOperation(new CopyScreenBuffer());
-	
-	// now do the actual flip&draw
-	doVideoFrameInMainThread();
 }
 
 

@@ -436,11 +436,9 @@ Result MainLoopTask::handle_Menu() {
 		return true;
 	}
 
-	AbsTime oldtime = tLX->currentTime;
-
+	game.frameOuter();
 	DeprecatedGUI::Menu_Frame();
 	if(!DeprecatedGUI::tMenu->bMenuRunning) return true;
-	CapFPS();
 	SetCrashHandlerReturnPoint("Menu_Loop");
 
 #ifdef SINGLETHREADED
@@ -458,16 +456,13 @@ Result MainLoopTask::handle_Menu() {
 	}
 #endif
 
-	ProcessIRC();
-
-	tLX->currentTime = GetTime();
-	tLX->fDeltaTime = tLX->currentTime - oldtime;
-	tLX->fRealDeltaTime = tLX->fDeltaTime;
-
 	// If we have run fine for >=5 seconds, it is probably safe & make sense
 	// to restart the game in case of a crash.
 	if(tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
 		CrashHandler::restartAfterCrash = true;
+
+	doVideoFrameInMainThread();
+	CapFPS();
 
 	return true;
 }
@@ -509,6 +504,9 @@ Result MainLoopTask::handle_Game() {
 	}
 
 	game.frameOuter();
+
+	doVideoFrameInMainThread();
+	CapFPS();
 	return true;
 }
 

@@ -161,7 +161,6 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 	// Process the client frame
 	tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 180, tLX->clNormalLabel, "Connecting to " + cClient->getServerAddr_HumanReadable());
-	cClient->Frame();
 
 
 	// Connected??
@@ -646,8 +645,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	gui_event_t *ev = NULL;
 	int			y;
 
-	// Process the client
-	cClient->Frame();
 
     // If there is a client error, leave
     if(cClient->getClientError()) {

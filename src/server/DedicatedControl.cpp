@@ -371,9 +371,6 @@ struct DedIntern {
 	// ---------- frame handlers --------
 
 	void Frame_ServerLobby() {
-		// Process the server & client frames
-		cServer->Frame();
-		cClient->Frame();
 	}
 
 	void Frame_Playing() {
@@ -381,8 +378,6 @@ struct DedIntern {
 	}
 
 	void Frame_ClientConnecting() {
-		cClient->Frame();
-
 		// are we connected?
 		if(cClient->getStatus() == NET_CONNECTED) {
 			Sig_Connected();
@@ -399,9 +394,6 @@ struct DedIntern {
 	}
 
 	void Frame_ClientLobby() {
-		// Process the client
-		cClient->Frame();
-
 		// If there is a client error, leave
 		if(cClient->getClientError()) {
 			Sig_ClientError();

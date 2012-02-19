@@ -861,10 +861,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 {
 	gui_event_t *ev = NULL;
 
-	// Process the server & client frames
-	cServer->Frame();
-	cClient->Frame();
-
     // Game settings
 	if(bHostGameSettings) {
 		if(Menu_GameSettings_Frame()) {
