@@ -449,6 +449,9 @@ Result MainLoopTask::handle_BeforeMenu() {
 }
 
 Result MainLoopTask::handle_Menu() {
+	if(game.state == Game::S_Lobby && game.isLocalGame())
+		cServer->PrepareGame();
+
 	if(game.state >= Game::S_Preparing) {
 		state = State_AfterMenu;
 		return true;
