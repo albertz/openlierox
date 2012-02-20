@@ -750,7 +750,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	
 	
 	notes << "Client: Got ParsePrepareGame" << endl;
-	game.state = Game::S_Preparing;
 
 	bool isReconnect = false;
 	
@@ -786,7 +785,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(!isReconnect) {
 		game.gameOver = false;
 	}
-	
+	game.state = Game::S_Preparing;
+
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	if(!isReconnect)
 		client->tSocket->setWithEvents(false);

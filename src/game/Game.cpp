@@ -152,11 +152,11 @@ void Game::onSettingsUpdate(BaseObject* /* oPt */, const AttrDesc* attrDesc, Scr
 	case FT_Map:
 	case FT_GameMode:
 	case FT_Mod:
-		// We might need a re-init. This will do it.
-		game.wasPrepared = false;
+		if(game.wasPrepared)
+			// We need a re-init. This will do it.
+			game.cleanupAfterGameloopEnd();
 	default: break; // nop
 	}
-
 }
 
 void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {
@@ -335,8 +335,6 @@ void Game::frameInner()
 		game.startGame();
 
 	if(!wasPrepared && game.state >= Game::S_Preparing) {
-		// The cleanup is always safe. It is only needed if this is a re-init (e.g. by setting wasPrepared=false).
-		cleanupAfterGameloopEnd();
 		prepareGameloop();
 	}
 
