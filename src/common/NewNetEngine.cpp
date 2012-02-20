@@ -100,16 +100,6 @@ CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::FindSpot
 }
 
 
-void DisableAdvancedFeatures()
-{
-	 // Disables bonuses and connect-during-game for now, 
-	 // I can add bonuses but connect-during-game is complicated
-	 gameSettings.overwrite[FT_Bonuses] = false;
-	 tLXOptions->bAllowConnectDuringGame = false;
-	 gameSettings.overwrite[FT_ImmediateStart] = false;
-	 gameSettings.overwrite[FT_AllowWeaponsChange] = false;
-}
-
 void CalculateCurrentState( AbsTime localTime );
 bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs );
 

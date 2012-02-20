@@ -95,8 +95,6 @@ extern NetSyncedRandom netRandom;
 // TODO: recode all the following and make it OOP   !!
 // ---------------------------------------------	!!
 	
-void DisableAdvancedFeatures(); // Required for now
-
 void StartRound( unsigned randomSeed );
 
 void EndRound();

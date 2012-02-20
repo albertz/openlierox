@@ -452,12 +452,6 @@ int GameServer::PrepareGame(std::string* errMsg)
 			UpdateWorms();
 	}
 	
-	if( gameSettings[FT_NewNetEngine] )
-	{
-		warnings << "New net engine enabled, we are disabling some features" << endl;
-		NewNet::DisableAdvancedFeatures();
-	}
-
 	notes << "preparing game mode " << game.gameMode()->Name() << endl;
 	game.gameMode()->PrepareGame();
 	
