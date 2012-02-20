@@ -384,7 +384,6 @@ static void EvHndl_MouseButtonUp(SDL_Event* ev) {
 
 static void EvHndl_Quit(SDL_Event*) {
 	tLX->bQuitGame = true;
-	SetQuitEngineFlag("SDL_QUIT event");
 }
 
 void EvHndl_SysWmEvent_MainThread(SDL_Event* ev) {
