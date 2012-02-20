@@ -19,6 +19,7 @@
 
 #include <list>
 #include "ThreadPool.h"
+#include "ReadWriteLock.h"
 #include <time.h>
 #include <cassert>
 #include "Timer.h"
@@ -162,6 +163,7 @@ struct TimerData {
 	}
 	
 	void breakThread() {
+		ScopedLock lock(mutex);
 		quitSignal = true;
 		SDL_CondSignal(quitCond);
 	}
