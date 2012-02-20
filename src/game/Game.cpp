@@ -59,6 +59,7 @@ static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
 
 
 Game::Game() {
+	menuFrame = 0;
 	uniqueObjId = LuaID<Game>::value;
 	m_isServer = false;
 	m_isLocalGame = false;
@@ -167,6 +168,8 @@ void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t 
 }
 
 void Game::prepareMenu() {
+	menuFrame = 0;
+
 	cClient->SetSocketWithEvents(true);
 	cServer->SetSocketWithEvents(true);
 	ResetQuitEngineFlag();
@@ -297,10 +300,11 @@ void Game::frame() {
 
 	if(game.state <= Game::S_Lobby) {
 		DeprecatedGUI::Menu_Frame();
+		menuFrame++;
 
-		// If we have run fine for >=5 seconds, it is probably safe & make sense
-		// to restart the game in case of a crash.
-		if(tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
+		// If we have run fine for >=5 seconds and 10 frames, it is probably
+		// safe & make sense to restart the game in case of a crash.
+		if(menuFrame >= 10 && tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
 			CrashHandler::restartAfterCrash = true;
 	}
 
@@ -750,6 +754,10 @@ bool Game::allowedToSleepForEvent() {
 		// LX GUI code sucks. It sometimes needs a refresh right after
 		// some event was handled and thus, don't sleep for the next frame.
 		// We reset processedEvent in the next ProcessEvents() call.
+		return false;
+
+	if(menuFrame < 2)
+		// Again, LX GUI code sucks. It needs some refresh right at startup.
 		return false;
 
 	return true;

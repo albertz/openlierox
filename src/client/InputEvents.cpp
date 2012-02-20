@@ -400,7 +400,6 @@ static void EvHndl_UserEvent(SDL_Event* ev) {
 }
 
 void InitEventSystem() {	
-	ProcessEvents(); // TODO: why are we calling that here?
 	for(int k = 0;k<SDLK_LAST;k++)
 		GetKeyboard()->KeyUp[k] = false;
 

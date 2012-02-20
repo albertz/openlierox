@@ -156,6 +156,7 @@ private:
 	bool m_isLocalGame;
 
 	AbsTime menuStartTime;
+	uint64_t menuFrame;
 	AbsTime oldtime;
 	AbsTime simulationTime;
 	SmartPointer<CMap> m_gameMap;
