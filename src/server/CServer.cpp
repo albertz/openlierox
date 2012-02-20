@@ -340,6 +340,11 @@ int GameServer::PrepareGame(std::string* errMsg)
 
 	if(errMsg) *errMsg = "Unknown problem, please ask in forum";
 
+	if(game.state <= Game::S_Lobby) {
+		errors << "server prepare game: current game state " << game.state << " is invalid" << endl;
+		return false;
+	}
+
 	// Check that gamespeed != 0
 	if (-0.05f <= (float)gameSettings[FT_GameSpeed] && (float)gameSettings[FT_GameSpeed] <= 0.05f) {
 		warnings << "WARNING: gamespeed was set to " << gameSettings[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
@@ -369,8 +374,6 @@ int GameServer::PrepareGame(std::string* errMsg)
 	}
 	bRandomMap = false;
 	
-	game.startGame();
-
 	// Note: this code must be after we loaded the mod!
 	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
 	{
