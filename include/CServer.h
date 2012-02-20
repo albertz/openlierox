@@ -85,8 +85,6 @@ private:
 	CBonus		cBonuses[MAX_BONUSES];  // TODO: use std::list or vector
 
 	// Map
-	bool		bRandomMap;		// TODO: what is this good for
-
 	FlagInfo*	m_flagInfo;
 	
 	// Simulation

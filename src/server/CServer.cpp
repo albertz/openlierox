@@ -80,7 +80,6 @@ void GameServer::Clear()
 	cClients = NULL;
 	//cProjectiles = NULL;
 	lastClientSendData = 0;
-	bRandomMap = false;
 	//iMaxWorms = MAX_PLAYERS;
 	//iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
@@ -372,7 +371,6 @@ int GameServer::PrepareGame(std::string* errMsg)
 		if(errMsg) *errMsg = "Error while loading map: " + r.res.humanErrorMsg;
 		return false;
 	}
-	bRandomMap = false;
 	
 	// Note: this code must be after we loaded the mod!
 	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings

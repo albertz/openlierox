@@ -127,10 +127,8 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 void CServerNetEngine::WritePrepareGame(CBytestream *bs) 
 {
 	bs->writeByte(S2C_PREPAREGAME);
-	// TODO: if that is always false, why do we have a variable for it?
-	bs->writeBool(server->bRandomMap);	// Always false as of now
-	if(!server->bRandomMap)
-		bs->writeString("levels/" + gameSettings[FT_Map].as<LevelInfo>()->path);
+	bs->writeBool(false);	// random map; Always false as of now
+	bs->writeString("levels/" + gameSettings[FT_Map].as<LevelInfo>()->path);
 	
 	// Game info
 	bs->writeInt(game.gameMode()->GeneralGameType(),1);
