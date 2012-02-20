@@ -44,8 +44,7 @@ public:
 	void startGame();
 	void stop();
 
-	void frameOuter();
-	void frameInner();
+	void frame();
 		
 	void onPrepareWorm(CWorm* w);
 	void onUnprepareWorm(CWorm* w);
@@ -148,6 +147,7 @@ public:
 private:
 	static void onStateUpdate(BaseObject*,const AttrDesc*,ScriptVar_t);
 	void reset();
+	void frameInner();
 	void prepareMenu();
 	void prepareGameloop();
 	void cleanupAfterGameloopEnd();

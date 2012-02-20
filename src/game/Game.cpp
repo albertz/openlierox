@@ -281,7 +281,7 @@ static TimeDiff simulationDelay() {
 bool Game::hasHighSimulationDelay() { return simulationDelay() > TimeDiff(100); }
 bool Game::hasSeriousHighSimulationDelay() { return simulationDelay() > TimeDiff(200); }
 
-void Game::frameOuter() {
+void Game::frame() {
 	SetCrashHandlerReturnPoint("main game loop");
 
 	// Timing

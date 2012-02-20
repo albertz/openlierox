@@ -22,9 +22,6 @@
 
 
 
-// ParseArguments will set this eventually to true
-bool afterCrash = false;
-static bool afterCrashInformedUser = false;
 
 
 struct VideoHandler {
@@ -365,19 +362,6 @@ void doActionInMainThread(Action* act) {
 
 Result MainLoopTask::handle_Startup() {
 	setCurThreadPriority(0.5f);
-	tLX->bQuitGame = false;
-
-	if(afterCrash && !afterCrashInformedUser) {
-		afterCrashInformedUser = true;
-		DeprecatedGUI::Menu_MessageBox("Sorry",
-									   "The game has crashed. This should not have happend. "
-									   "But it did.\nWe hope we can fix this problem in a future version. "
-									   "Or perhaps there is already a new version; check out our "
-									   "homepage for more information:\nhttp://openlierox.net\n\n"
-									   "If you have an idea why this have happend, please write "
-									   "us a mail or post in our forum. This may help us a lot "
-									   "for fixing the problem.\n\nThanks!", DeprecatedGUI::LMB_OK);
-	}
 
 	// NOTE: This code is really old and outdated.
 	// We might just merge that with the new code.
@@ -398,11 +382,9 @@ Result MainLoopTask::handle_Startup() {
 			SkinnedGUI::cMainSkin->Frame();
 		}
 
-		ShutdownLieroX();
 		return "quit";
 	}
 
-	game.init();
 	state = State_Loop;
 	return true;
 }
@@ -413,7 +395,7 @@ Result MainLoopTask::handle_Loop() {
 		return true;
 	}
 
-	game.frameOuter();
+	game.frame();
 	return true;
 }
 

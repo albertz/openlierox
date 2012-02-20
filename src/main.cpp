@@ -134,6 +134,10 @@ static void DoSystemChecks() {
 
 void setBinaryDirAndName(char* argv0);
 
+// ParseArguments will set this eventually to true
+bool afterCrash = false;
+static bool afterCrashInformedUser = false;
+
 ///////////////////
 // Main entry point
 int main(int argc, char *argv[])
@@ -194,7 +198,7 @@ startpoint:
 
 	CSSParser::test_css();
 
-    // Parse the arguments
+	// Parse the arguments
 	// do it after the loading of the options as this can
 	// overwrite the default options
 	ParseArguments(argc, argv);
@@ -235,8 +239,8 @@ startpoint:
 	DrawLoading(70, "Initializing menu system");
 
 	// Initialize menu
-    if(!DeprecatedGUI::Menu_Initialize()) {
-        SystemError("Error: Could not initialize the menu system.\nError when loading graphics files");
+	if(!DeprecatedGUI::Menu_Initialize()) {
+		SystemError("Error: Could not initialize the menu system.\nError when loading graphics files");
 		return -1;
 	}
 
@@ -253,11 +257,27 @@ startpoint:
 
 	// Setup the global keys
 	tLX->setupInputs();
+
+	tLX->bQuitGame = false;
 	
 	DrawLoading(100, "Done! Starting menu");
 
 	// Everything loaded, this is not needed anymore
 	ShutdownLoading();
+
+	if(afterCrash && !afterCrashInformedUser) {
+		afterCrashInformedUser = true;
+		DeprecatedGUI::Menu_MessageBox("Sorry",
+									   "The game has crashed. This should not have happend. "
+									   "But it did.\nWe hope we can fix this problem in a future version. "
+									   "Or perhaps there is already a new version; check out our "
+									   "homepage for more information:\nhttp://openlierox.net\n\n"
+									   "If you have an idea why this have happend, please write "
+									   "us a mail or post in our forum. This may help us a lot "
+									   "for fixing the problem.\n\nThanks!", DeprecatedGUI::LMB_OK);
+	}
+
+	game.init();
 
 	if(startFunction != NULL) {
 		if(!startFunction(startFunctionData)) {
@@ -276,7 +296,7 @@ startpoint:
 	}
 	startupCommands.clear(); // don't execute them again
 
-    doMainLoop();
+	doMainLoop();
 	
 	if(!bRestartGameAfterQuit)
 		CrashHandler::restartAfterCrash = false;
