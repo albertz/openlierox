@@ -785,7 +785,7 @@ void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	}
 	else if(cClient && cClient->getStatus() != NET_DISCONNECTED)
 		cClient->Shutdown();
-		
+
 	SetQuitEngineFlag("Cmd_disconnect");
 		
 	if(!bDedicated && DeprecatedGUI::tMenu) {
@@ -1043,7 +1043,6 @@ void Cmd_setViewport::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 COMMAND_EXTRA(quit, "quit game", "", 0, 0, registerCommand("exit", this));
 void Cmd_quit::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
 	tLX->bQuitGame = true; // quit main-main-loop
-	SetQuitEngineFlag("DedicatedControl::Cmd_Quit()"); // quit main-game-loop
 }
 
 COMMAND(msg, "print message on stdout", "text", 1, 1);
