@@ -413,7 +413,6 @@ struct DedIntern {
 			Sig_ClientConnectionError(cClient->getServerErrorMsg());
 			cClient->Disconnect();
 			cClient->Shutdown();
-			SetQuitEngineFlag("Frame_ClientLobby: connection error");
 			return;
 		}
 	}

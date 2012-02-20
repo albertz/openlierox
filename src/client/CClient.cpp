@@ -1017,7 +1017,7 @@ void CClient::ProcessModDownloads()
 void CClient::Frame()
 {
 	// could be that some console command wants to quit
-	if(!tLX || tLX->bQuitEngine || tLX->bQuitGame)
+	if(!tLX || tLX->bQuitGame || game.state <= Game::S_Lobby)
 		return;
 	
 	if(

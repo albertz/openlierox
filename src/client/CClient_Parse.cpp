@@ -750,14 +750,10 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	
 	
 	notes << "Client: Got ParsePrepareGame" << endl;
+	game.state = Game::S_Preparing;
 
 	bool isReconnect = false;
 	
-	if(Warning_QuitEngineFlagSet("CClientNetEngine::ParsePrepareGame: ")) {
-		warnings << "some previous action tried to quit the GameLoop; we are ignoring this now" << endl;
-		ResetQuitEngineFlag();
-	}
-
 	// We've already got this packet
 	if (game.state >= Game::S_Preparing && !game.gameOver)  {
 		((game.isClient()) ? warnings : notes)
@@ -788,7 +784,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		NotifyUserOnEvent();
 
 	if(!isReconnect) {
-		game.state = Game::S_Preparing; // wait for ParseStartGame
 		game.gameOver = false;
 	}
 	
@@ -796,7 +791,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(!isReconnect)
 		client->tSocket->setWithEvents(false);
 
-	game.state = Game::S_Preparing;
 	client->flagInfo()->reset();
 	for(int i = 0; i < MAX_TEAMS; ++i) {
 		client->iTeamScores[i] = 0;
@@ -2375,7 +2369,7 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	// Even worse, the check is not fully correct. client->bGameOver means that the game is over.
 	/*
 	if (game.isServer())  {
-		if (!tLX->bQuitEngine)  {
+		if (game.state >= Game::S_Preparing)  {
 			warnings << "we should go to lobby but should not quit the game, ignoring game over signal" << endl;
 			return;
 		}

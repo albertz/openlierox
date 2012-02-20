@@ -785,8 +785,6 @@ void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	}
 	else if(cClient && cClient->getStatus() != NET_DISCONNECTED)
 		cClient->Shutdown();
-
-	SetQuitEngineFlag("Cmd_disconnect");
 		
 	if(!bDedicated && DeprecatedGUI::tMenu) {
 		DeprecatedGUI::Menu_Current_Shutdown();
@@ -878,10 +876,6 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		cClient->Disconnect();
 	
 	DeprecatedGUI::Menu_Current_Shutdown();
-	
-	if(game.state >= Game::S_Lobby) { // we are in game
-		SetQuitEngineFlag("Cmd_Connect & in game");
-	}
 	
 	std::string server = params[0];
 	std::string player =
@@ -2371,7 +2365,7 @@ void Cmd_getServerList::exec(CmdLineIntf* caller, const std::vector<std::string>
 
 COMMAND(debugFindProblems, "do some system checks and print problems - no output means everything seems ok", "", 0, 0);
 void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(!tLX->bQuitEngine) { // game is running
+	if(game.state >= Game::S_Preparing) { // game is running
 		if(cClient == NULL)
 			warnings << "game is running but cClient == NULL" << endl;
 		else {

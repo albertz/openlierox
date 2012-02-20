@@ -616,7 +616,7 @@ int InitializeLieroX()
 // Quit back to the menu
 void QuittoMenu()
 {
-	SetQuitEngineFlag("QuittoMenu");
+	notes << "QuittoMenu" << endl;
     DeprecatedGUI::Menu_SetSkipStart(false);
 	cClient->Disconnect();
 }
@@ -635,7 +635,7 @@ void GotoLocalMenu()
 		return;
 	}
 	
-	SetQuitEngineFlag("GotoLocalMenu");
+	notes << "GotoLocalMenu" << endl;
 	cClient->Disconnect();
 	cServer->Shutdown();
 	cClient->Shutdown();
@@ -650,7 +650,6 @@ void GotoLocalMenu()
 void GotoNetMenu()
 {
 	notes << "GotoNetMenu" << endl;
-	SetQuitEngineFlag("GotoNetMenu");
 	cClient->Disconnect();
 	if(!bDedicated) {
 		DeprecatedGUI::Menu_SetSkipStart(true);

@@ -38,7 +38,7 @@ class IpToCountryDB;
 // LieroX structure
 struct lierox_t {
 	lierox_t() :
-			bVideoModeChanged(false), bQuitGame(false), bQuitEngine(false), bQuitCtrlC(false)
+			bVideoModeChanged(false), bQuitGame(false), bQuitCtrlC(false)
 			, bHosted(false) {}
 	AbsTime	currentTime;
 	TimeDiff	fDeltaTime;
@@ -50,7 +50,6 @@ struct lierox_t {
 	bool	bVideoModeChanged;
 
 	bool	bQuitGame;
-	bool	bQuitEngine;
 	bool	bQuitCtrlC;
 
 	int		debug_int;
@@ -215,8 +214,6 @@ void	GotoLocalMenu();
 void	GotoNetMenu();
 
 void	SetQuitEngineFlag(const std::string& reason);
-void	ResetQuitEngineFlag();
-bool	Warning_QuitEngineFlagSet(const std::string& preText = "");
 
 // Miscellanous routines
 float	GetFixedRandomNum(uchar index);

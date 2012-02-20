@@ -49,7 +49,6 @@
 Game game;
 
 static bool inMainGameLoop = false;
-static std::string quitEngineFlagReason;
 
 static bool DbgSimulateSlow = false;
 
@@ -155,14 +154,7 @@ void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t 
 	}
 	if((int)oldValue <= Game::S_Lobby) {
 		if(game.state >= Game::S_Preparing) {
-			if(tLX->bQuitEngine) {
-				// If we already set the quitengine flag, we want to go back to the menu.
-				// Sometimes, when we get both a PrepareGame and a GotoLobby packet in
-				// a single menu-frame, we quit the menu and set the quitengine flag
-				game.state = Game::S_Lobby;
-			}
-			else
-				game.prepareGameloop();
+			game.prepareGameloop();
 		}
 	}
 }
@@ -172,7 +164,6 @@ void Game::prepareMenu() {
 
 	cClient->SetSocketWithEvents(true);
 	cServer->SetSocketWithEvents(true);
-	ResetQuitEngineFlag();
 
 	if(!bDedicated) {
 		if(!DeprecatedGUI::bSkipStart) {
@@ -258,7 +249,6 @@ void Game::prepareGameloop() {
 	
 	CrashHandler::recoverAfterCrash = tLXOptions->bRecoverAfterCrash && GetGameVersion().releasetype == Version::RT_NORMAL;
 	
-	ResetQuitEngineFlag();
 	simulationTime = oldtime = GetTime();
 }
 
@@ -371,7 +361,7 @@ void Game::frameInner()
 		}
 	}
 
-	if(!tLX->bQuitEngine && state >= Game::S_Preparing) {
+	if(state >= Game::S_Preparing) {
 		// We have a separate fixed 100FPS for game simulation.
 		// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
 		// we have to set it accordingly.
@@ -392,7 +382,7 @@ void Game::frameInner()
 				continue;
 			}
 
-			if(game.state < Game::S_Preparing || tLX->bQuitEngine)
+			if(game.state < Game::S_Preparing)
 				break;
 
 			if(game.state == Game::S_Playing && !isGamePaused())
@@ -422,7 +412,7 @@ void Game::frameInner()
 
 	iterAttrUpdates(NULL);
 
-	if(tLX && !tLX->bQuitEngine && state >= Game::S_Preparing)
+	if(tLX && state >= Game::S_Preparing)
 		cClient->Draw(VideoPostProcessor::videoSurface());
 
 	if(state != Game::S_Inactive) {
@@ -463,7 +453,7 @@ void Game::cleanupAfterGameloopEnd() {
 	
 	PhysicsEngine::UnInit();
 	
-	notes << "GameLoopEnd: " << quitEngineFlagReason << endl;
+	notes << "GameLoopEnd" << endl;
 	inMainGameLoop = false;
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->GameLoopEnd_Signal();		
@@ -492,15 +482,7 @@ void Game::cleanupAfterGameloopEnd() {
 
 
 
-
-void ResetQuitEngineFlag() {
-	tLX->bQuitEngine = false;
-}
-
 void SetQuitEngineFlag(const std::string& reason) {
-	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
-	quitEngineFlagReason = reason;
-	tLX->bQuitEngine = true;
 	if(game.state == Game::S_Inactive)
 		errors << "SetQuitEngineFlag '" << reason << "' in menu" << endl;
 	else if(game.state == Game::S_Connecting)
@@ -511,14 +493,6 @@ void SetQuitEngineFlag(const std::string& reason) {
 		game.state = Game::S_Lobby;
 }
 
-bool Warning_QuitEngineFlagSet(const std::string& preText) {
-	if(tLX->bQuitEngine) {
-		hints << preText << endl;
-		warnings << "bQuitEngine is set because: " << quitEngineFlagReason << endl;
-		return true;
-	}
-	return false;
-}
 
 void Game::onPrepareWorm(CWorm* w) {
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
