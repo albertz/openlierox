@@ -447,6 +447,11 @@ Result MainLoopTask::handle_Menu() {
 		return true;
 	}
 
+	if(tLX->bQuitGame) {
+		state = State_Quit;
+		return true;
+	}
+
 	game.frameOuter();
 	return true;
 }
@@ -482,6 +487,11 @@ Result MainLoopTask::handle_AfterMenu() {
 Result MainLoopTask::handle_Game() {
 	if(tLX->bQuitEngine) {
 		state = State_AfterGame;
+		return true;
+	}
+
+	if(tLX->bQuitGame) {
+		state = State_Quit;
 		return true;
 	}
 
