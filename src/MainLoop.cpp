@@ -326,16 +326,6 @@ void doVideoFrameInMainThread() {
 		VideoPostProcessor::flipBuffers();
 		VideoPostProcessor::process();
 		flipRealVideo();
-
-		SDL_Event ev;
-		memset( &ev, 0, sizeof(ev) );
-		while( SDL_PollEvent(&ev) ) {
-			if( ev.type == SDL_SYSWMEVENT ) {
-				EvHndl_SysWmEvent_MainThread( &ev );
-				continue;
-			}
-			mainQueue->push(ev);
-		}
 	}
 	else
 		videoHandler.pushFrame();
