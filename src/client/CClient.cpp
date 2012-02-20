@@ -1548,6 +1548,8 @@ void CClient::Connecting(bool force)
 // Disconnect
 void CClient::Disconnect()
 {
+	game.state = Game::S_Inactive;
+
 	game.resetWorms();
 	network.olxShutdown();
 	cNetEngine->SendDisconnect();

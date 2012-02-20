@@ -200,21 +200,13 @@ void startMainLockDetector() {
 struct MainLoopTask : LoopTask {
 	enum State {
 		State_Startup,
-		State_BeforeMenu,
-		State_Menu,
-		State_AfterMenu,
-		State_Game,
-		State_AfterGame,
+		State_Loop,
 		State_Quit
 	};
 	State state;
 	MainLoopTask() : state(State_Startup) {}
 	Result handle_Startup();
-	Result handle_BeforeMenu();
-	Result handle_Menu();
-	Result handle_AfterMenu();
-	Result handle_Game();
-	Result handle_AfterGame();
+	Result handle_Loop();
 	Result handle_Quit();
 	Result handleFrame();
 };
@@ -387,6 +379,12 @@ Result MainLoopTask::handle_Startup() {
 									   "for fixing the problem.\n\nThanks!", DeprecatedGUI::LMB_OK);
 	}
 
+	// NOTE: This code is really old and outdated.
+	// We might just merge that with the new code.
+	// Otherwise, it will never work like this because of
+	// missing stuff, e.g. no game.init call (which does
+	// also init the old menu, so we cannot simply call it
+	// like this right now).
 	if( tLXOptions->bNewSkinnedGUI )
 	{
 		// Just for test - it's not real handler yet
@@ -404,104 +402,18 @@ Result MainLoopTask::handle_Startup() {
 		return "quit";
 	}
 
-	state = State_BeforeMenu;
+	game.init();
+	state = State_Loop;
 	return true;
 }
 
-Result MainLoopTask::handle_BeforeMenu() {
-	if(tLX->bQuitGame) {
-		state = State_Quit;
-		return true;
-	}
-
-	SetCrashHandlerReturnPoint("MainLoopThread before lobby");
-
-	cClient->SetSocketWithEvents(true);
-	cServer->SetSocketWithEvents(true);
-	ResetQuitEngineFlag();
-
-	if(!bDedicated) {
-		if(!DeprecatedGUI::bSkipStart) {
-			notes << "Loading main menu" << endl;
-			DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
-			DeprecatedGUI::Menu_MainInitialize();
-		} else
-			DeprecatedGUI::Menu_RedrawMouse(true);
-	}
-
-	DeprecatedGUI::bSkipStart = false;
-
-	tLX->currentTime = GetTime();
-	game.prepareMenu();
-
-	state = State_Menu;
-	return true;
-}
-
-Result MainLoopTask::handle_Menu() {
-	if(game.state == Game::S_Lobby && game.isLocalGame())
-		cServer->PrepareGame();
-
-	if(game.state >= Game::S_Preparing) {
-		state = State_AfterMenu;
-		return true;
-	}
-
+Result MainLoopTask::handle_Loop() {
 	if(tLX->bQuitGame) {
 		state = State_Quit;
 		return true;
 	}
 
 	game.frameOuter();
-	return true;
-}
-
-Result MainLoopTask::handle_AfterMenu() {
-	// If we go out of the menu, it means the user has selected something.
-	// This indicates that everything is fine, so we should restart in case of a crash.
-	// Note that we will set this again to false later on in case the user quitted.
-	CrashHandler::restartAfterCrash = true;
-
-	cClient->SetSocketWithEvents(false);
-	cServer->SetSocketWithEvents(false);
-
-	if(tLX->bQuitGame) {
-		state = State_Quit;
-		return true;
-	}
-
-	if(tLX->bQuitEngine) {
-		// If we already set the quitengine flag, we want to go back to the menu.
-		// Sometimes, when we get both a PrepareGame and a GotoLobby packet in
-		// a single menu-frame, we quit the menu and set the quitengine flag
-		state = State_BeforeMenu;
-		return true;
-	}
-
-	game.prepareGameloop();
-
-	state = State_Game;
-	return true;
-}
-
-Result MainLoopTask::handle_Game() {
-	if(tLX->bQuitEngine) {
-		state = State_AfterGame;
-		return true;
-	}
-
-	if(tLX->bQuitGame) {
-		state = State_Quit;
-		return true;
-	}
-
-	game.frameOuter();
-	return true;
-}
-
-Result MainLoopTask::handle_AfterGame() {
-	game.cleanupAfterGameloopEnd();
-	state = State_BeforeMenu;
 	return true;
 }
 
@@ -517,11 +429,7 @@ Result MainLoopTask::handle_Quit() {
 Result MainLoopTask::handleFrame() {
 	switch(state) {
 	case State_Startup: return handle_Startup();
-	case State_BeforeMenu: return handle_BeforeMenu();
-	case State_Menu: return handle_Menu();
-	case State_AfterMenu: return handle_AfterMenu();
-	case State_Game: return handle_Game();
-	case State_AfterGame: return handle_AfterGame();
+	case State_Loop: return handle_Loop();
 	case State_Quit: return handle_Quit();
 	}
 	return "invalid state";

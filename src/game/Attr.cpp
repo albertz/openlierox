@@ -44,6 +44,15 @@ void pushObjAttrUpdate(WeakRef<BaseObject> obj) {
 	objUpdates.push_back(obj);
 }
 
+static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {
+	// for now, just to console
+	if(attrDesc->objTypeId == LuaID<CGameObject>::value && attrDesc->attrId <= 3 /* vPos or vVel */)
+		return; // no debug msg, too annoying
+	if(attrDesc->objTypeId == LuaID<Game>::value && attrDesc->attrId == 2 /* serverFrame */)
+		return; // no debug msg, too annoying
+	notes << "<" << typeid(*oPt).name() << " 0x" << hex((uintptr_t)oPt) << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
+}
+
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback) {
 	foreach(o, objUpdates) {
 		BaseObject* oPt = o->get();
@@ -61,11 +70,7 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 			if(attrDesc->onUpdate)
 				attrDesc->onUpdate(oPt, attrDesc, oldValue);
 
-			if(attrDesc->objTypeId == LuaID<CGameObject>::value && attrDesc->attrId <= 3 /* vPos or vVel */)
-				continue; // no debug msg, too annoying
-			if(attrDesc->objTypeId == LuaID<Game>::value && attrDesc->attrId == 2 /* serverFrame */)
-				continue; // no debug msg, too annoying
-			notes << "<" << typeid(*oPt).name() << " 0x" << hex((uintptr_t)oPt) << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
+			handleAttrUpdateLogging(oPt, attrDesc, oldValue);
 		}
 
 		oPt->attrUpdates.clear();

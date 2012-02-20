@@ -38,16 +38,14 @@ class Game : public BaseObject {
 public:
 	Game();
 
+	void init();
 	void startServer(bool localGame);
 	void startClient();
 	void startGame();
 	void stop();
 
-	void prepareMenu();
-	void prepareGameloop();
 	void frameOuter();
 	void frameInner();
-	void cleanupAfterGameloopEnd();
 		
 	void onPrepareWorm(CWorm* w);
 	void onUnprepareWorm(CWorm* w);
@@ -86,7 +84,7 @@ public:
 		return "INVALID STATE";
 	}
 
-	ATTR(Game, int, state, 1, {})
+	ATTR(Game, int, state, 1, { onUpdate = Game::onStateUpdate; })
 
 	static const int FixedFPS = 100;
 	static const uint64_t FixedFrameTime = 1000 / FixedFPS;
@@ -148,7 +146,11 @@ public:
 	bool allowedToSleepForEvent();
 
 private:
+	static void onStateUpdate(BaseObject*,const AttrDesc*,ScriptVar_t);
 	void reset();
+	void prepareMenu();
+	void prepareGameloop();
+	void cleanupAfterGameloopEnd();
 
 	bool m_isServer;
 	bool m_isLocalGame;

@@ -39,7 +39,7 @@ struct AttrDesc {
 	ScriptVar_t defaultValue;
 
 	bool serverside;
-	boost::function<bool(BaseObject* base, const AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
+	boost::function<void(BaseObject* base, const AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
 	boost::function<void(BaseObject* base, const AttrDesc* attrDesc)> sync;
 	
 	AttrDesc()

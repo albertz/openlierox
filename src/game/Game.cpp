@@ -57,11 +57,17 @@ static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
 ( DbgSimulateSlow, "SimulateSlow" );
 
 
+
 Game::Game() {
 	uniqueObjId = LuaID<Game>::value;
 	m_isServer = false;
 	m_isLocalGame = false;
-	state = S_Inactive;
+	state = S_Inactive;	
+}
+
+void Game::init() {
+	assert(state == S_Inactive);
+	prepareMenu();
 }
 
 void Game::startServer(bool localGame) {
@@ -136,15 +142,61 @@ void checkCurrentGameState() {
 }
 
 
+void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {
+	assert(oPt == &game);
+	assert(attrDesc == game.state.attrDesc());
+
+	if((int)oldValue >= Game::S_Preparing) {
+		if(game.state <= Game::S_Lobby) {
+			game.cleanupAfterGameloopEnd();
+			game.prepareMenu();
+		}
+	}
+	if((int)oldValue <= Game::S_Lobby) {
+		if(game.state >= Game::S_Preparing) {
+			if(tLX->bQuitEngine) {
+				// If we already set the quitengine flag, we want to go back to the menu.
+				// Sometimes, when we get both a PrepareGame and a GotoLobby packet in
+				// a single menu-frame, we quit the menu and set the quitengine flag
+				game.state = Game::S_Lobby;
+			}
+			else
+				game.prepareGameloop();
+		}
+	}
+}
 
 void Game::prepareMenu() {
-	menuStartTime = GetTime();
+	cClient->SetSocketWithEvents(true);
+	cServer->SetSocketWithEvents(true);
+	ResetQuitEngineFlag();
+
+	if(!bDedicated) {
+		if(!DeprecatedGUI::bSkipStart) {
+			notes << "Loading main menu" << endl;
+			DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
+			DeprecatedGUI::Menu_MainInitialize();
+		} else
+			DeprecatedGUI::Menu_RedrawMouse(true);
+	}
+
+	DeprecatedGUI::bSkipStart = false;
+
+	tLX->currentTime = menuStartTime = GetTime();
 }
 
 void Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 	
+	// If we go out of the menu, it means the user has selected something.
+	// This indicates that everything is fine, so we should restart in case of a crash.
+	// Note that we will set this again to false later on in case the user quitted.
+	CrashHandler::restartAfterCrash = true;
+
+	cClient->SetSocketWithEvents(false);
+	cServer->SetSocketWithEvents(false);
+
 	while(cClient->getStatus() != NET_CONNECTED) {
 		notes << "client not connected yet - waiting" << endl;
 		SDL_Delay(10);
@@ -268,7 +320,10 @@ void Game::frameInner()
 	
 	if(bDedicated)
 		DedicatedControl::Get()->GameLoop_Frame();
-		
+
+	if(game.state == Game::S_Lobby && game.isLocalGame())
+		cServer->PrepareGame();
+
 	// Check if user pressed screenshot key
 	if (tLX->cTakeScreenshot.isDownOnce())  {
 		PushScreenshot("scrshots", "");
@@ -333,6 +388,9 @@ void Game::frameInner()
 				continue;
 			}
 
+			if(game.state < Game::S_Preparing || tLX->bQuitEngine)
+				break;
+
 			if(game.state == Game::S_Playing && !isGamePaused())
 				serverFrame++;
 
@@ -358,12 +416,12 @@ void Game::frameInner()
 		tLX->fDeltaTime = curDeltaTime;
 	}
 
+	iterAttrUpdates(NULL);
+
 	if(tLX && !tLX->bQuitEngine && state >= Game::S_Preparing)
 		cClient->Draw(VideoPostProcessor::videoSurface());
 
 	if(state != Game::S_Inactive) {
-		iterAttrUpdates(NULL);
-
 		// Gusanos network
 		network.update();
 
@@ -418,7 +476,6 @@ void Game::cleanupAfterGameloopEnd() {
 	cleanupCallbacks();
 	cleanupCallbacks.disconnect_all_slots();
 
-	state = Game::S_Lobby;
 	if(isServer()) {
 		if(!cServer->isServerRunning())
 			stop();
@@ -442,6 +499,12 @@ void SetQuitEngineFlag(const std::string& reason) {
 	tLX->bQuitEngine = true;
 	if(game.state == Game::S_Inactive)
 		errors << "SetQuitEngineFlag '" << reason << "' in menu" << endl;
+	else if(game.state == Game::S_Connecting)
+		errors << "SetQuitEngineFlag '" << reason << "' in connecting state" << endl;
+	else if(game.state == Game::S_Lobby)
+		errors << "SetQuitEngineFlag '" << reason << "' in lobby" << endl;
+	else
+		game.state = Game::S_Lobby;
 }
 
 bool Warning_QuitEngineFlagSet(const std::string& preText) {
@@ -678,6 +741,8 @@ std::string Game::wormName(int wormId) {
 bool Game::allowedToSleepForEvent() {
 	if(state > Game::S_Inactive)
 		// we are in connecting, lobby, game or so -> don't sleep
+		// In theory, in connecting/lobby, network events should
+		// be enough. But that has been buggy earlier, so don't sleep for now.
 		return false;
 
 	// in menu

@@ -457,7 +457,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	//
 	// check if Players not yet ready
 	//
-	if (game.state >= Game::S_Preparing)  {
+	if (game.state >= Game::S_Preparing && iNetStatus >= NET_CONNECTED)  {
 		bool ready = true;
 
 		// Go through and draw the first two worms select menus
