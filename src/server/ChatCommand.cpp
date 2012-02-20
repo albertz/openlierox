@@ -799,13 +799,8 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 	// Start
 	if (!bDedicated)
 		DeprecatedGUI::Menu_Net_HostStartGame();
-	else  {
-		// Start the game
-		std::string errMsg;
-		if(!cServer->PrepareGame(&errMsg)) {	// start in dedicated mode
-			return "cannot start the game: " + errMsg;
-		}		
-	}
+	else
+		game.startGame();
 
 	return "";
 }

@@ -1289,12 +1289,7 @@ bool Menu_Net_HostStartGame()
 	gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = GameMode((GameModeIndex)cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0));
 
 	// Start the game
-	std::string errMsg;
-	if(!cServer->PrepareGame(&errMsg)) {	// Dedicated if no start button pressed
-		errors << "Could not start the game for reason: " << errMsg << endl;
-		cClient->getChatbox()->AddText("Error while starting game: " + errMsg, tLX->clNotice, TXT_IMPORTANT, tLX->currentTime);
-		return false;
-	}
+	game.startGame();
 	
 	// Get the map name
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
@@ -1305,9 +1300,6 @@ bool Menu_Net_HostStartGame()
 
 	// Setup the client
 	cClient->SetupViewports();
-
-	// Leave the frontend
-	game.startServer(/* localGame */ false);
 
 	return true;
 }

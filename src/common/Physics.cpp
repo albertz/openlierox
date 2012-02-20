@@ -42,8 +42,6 @@ void PhysicsEngine::UnInit() {
 		delete engine;
 		engine = NULL;
 	}
-	else
-		errors << "PhysicsEngine::UnInit: physics engine not loaded" << endl;
 }
 
 AbsTime GetPhysicsTime() {

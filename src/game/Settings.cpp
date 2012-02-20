@@ -13,6 +13,7 @@
 #include "IniReader.h"
 #include "Debug.h"
 #include "gusanos/luaapi/classes.h"
+#include "game/Game.h"
 
 Settings gameSettings;
 FeatureSettingsLayer modSettings("Mod properties");
@@ -132,6 +133,7 @@ Settings::AttrDescs::AttrDescs() {
 		attrDescs[i].isStatic = false;
 		attrDescs[i].dynGetValue = Settings_attrGetValue;
 		attrDescs[i].dynGetAttrExt = Settings_attrGetAttrExt;
+		attrDescs[i].onUpdate = Game::onSettingsUpdate;
 	}
 }
 

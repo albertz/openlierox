@@ -54,6 +54,7 @@ public:
 	void onRemovePlayer(CWormInputHandler*);
 	void onNewHumanPlayer(CWormHumanInputHandler*);
 	void onNewHumanPlayer_Lua(CWormHumanInputHandler*);
+	static void onSettingsUpdate(BaseObject*,const AttrDesc*,ScriptVar_t);
 
 	bool isServer() { return m_isServer; }
 	bool isClient() { return !isServer(); }
@@ -155,6 +156,7 @@ private:
 	bool m_isServer;
 	bool m_isLocalGame;
 
+	bool wasPrepared;
 	AbsTime menuStartTime;
 	uint64_t menuFrame;
 	AbsTime oldtime;

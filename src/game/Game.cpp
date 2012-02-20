@@ -58,11 +58,12 @@ static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
 
 
 Game::Game() {
+	wasPrepared = false;
 	menuFrame = 0;
 	uniqueObjId = LuaID<Game>::value;
 	m_isServer = false;
 	m_isLocalGame = false;
-	state = S_Inactive;	
+	state = S_Inactive;
 }
 
 void Game::init() {
@@ -93,6 +94,7 @@ void Game::startGame() {
 
 	state = Game::S_Preparing;
 	gameOver = false;
+	serverFrame = 0;
 }
 
 void Game::stop() {
@@ -142,6 +144,21 @@ void checkCurrentGameState() {
 }
 
 
+void Game::onSettingsUpdate(BaseObject* /* oPt */, const AttrDesc* attrDesc, ScriptVar_t /* oldValue */) {
+	assert(attrDesc->objTypeId == LuaID<Settings>::value);
+	FeatureIndex featureIndex = Settings::getAttrDescs().getIndex(attrDesc);
+
+	switch(featureIndex) {
+	case FT_Map:
+	case FT_GameMode:
+	case FT_Mod:
+		// We might need a re-init. This will do it.
+		game.wasPrepared = false;
+	default: break; // nop
+	}
+
+}
+
 void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {
 	assert(oPt == &game);
 	assert(attrDesc == game.state.attrDesc());
@@ -150,11 +167,6 @@ void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t 
 		if(game.state <= Game::S_Lobby) {
 			game.cleanupAfterGameloopEnd();
 			game.prepareMenu();
-		}
-	}
-	if((int)oldValue <= Game::S_Lobby) {
-		if(game.state >= Game::S_Preparing) {
-			game.prepareGameloop();
 		}
 	}
 }
@@ -190,29 +202,31 @@ void Game::prepareGameloop() {
 
 	cClient->SetSocketWithEvents(false);
 	cServer->SetSocketWithEvents(false);
+	
+	if(game.isServer()) {
+		notes << "prepareGameloop: preparing game" << endl;
+		std::string errMsg;
+		if(!cServer->PrepareGame(&errMsg)) {
+			errors << "starting game in local game failed for reason: " << errMsg << endl;
+			if(!bDedicated)
+				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
+			if (game.isLocalGame())
+				GotoLocalMenu();
+			else
+				GotoNetMenu();
+			return;
+		}
+	}
 
-	while(cClient->getStatus() != NET_CONNECTED) {
+	while(cClient->getStatus() == NET_CONNECTING) {
 		notes << "client not connected yet - waiting" << endl;
 		SDL_Delay(10);
 		SyncServerAndClient();
 	}
-	
-	if(game.isServer()) {
-		if(game.state == Game::S_Lobby) {
-			notes << "prepareGameloop: starting game" << endl;
-			std::string errMsg;
-			if(!cServer->PrepareGame(&errMsg)) {
-				errors << "starting game in local game failed for reason: " << errMsg << endl;
-				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
-				if (game.isLocalGame())
-					GotoLocalMenu();
-				else
-					GotoNetMenu();
-				return;
-			}
-		}
-		else
-			warnings << "prepareGameloop: server was not in lobby" << endl;
+	if(cClient->getStatus() == NET_DISCONNECTED) {
+		warnings << "prepareGameLoop: something went wrong, client not connected anymore" << endl;
+		game.state = Game::S_Inactive;
+		return;
 	}
 
 	// we need the gamescript in physics init
@@ -250,6 +264,7 @@ void Game::prepareGameloop() {
 	CrashHandler::recoverAfterCrash = tLXOptions->bRecoverAfterCrash && GetGameVersion().releasetype == Version::RT_NORMAL;
 	
 	simulationTime = oldtime = GetTime();
+	wasPrepared = true;
 }
 
 /*
@@ -315,8 +330,15 @@ void Game::frameInner()
 	if(bDedicated)
 		DedicatedControl::Get()->GameLoop_Frame();
 
+	// no lobby for local games
 	if(game.state == Game::S_Lobby && game.isLocalGame())
-		cServer->PrepareGame();
+		game.startGame();
+
+	if(!wasPrepared && game.state >= Game::S_Preparing) {
+		// The cleanup is always safe. It is only needed if this is a re-init (e.g. by setting wasPrepared=false).
+		cleanupAfterGameloopEnd();
+		prepareGameloop();
+	}
 
 	// Check if user pressed screenshot key
 	if (tLX->cTakeScreenshot.isDownOnce())  {
@@ -441,6 +463,7 @@ void Game::frameInner()
 
 
 void Game::cleanupAfterGameloopEnd() {
+	wasPrepared = false;
 	CrashHandler::recoverAfterCrash = false;
 	
 	// can happen if we have aborted a game

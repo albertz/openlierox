@@ -1910,12 +1910,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	}
 	
 	// Start the game
-	std::string errMsg;
-	if(!cServer->PrepareGame(&errMsg)) {
-		caller->pushReturnArg("cannot start game, got error: " + errMsg);
-		cCache.ClearExtraEntries(); // just to be sure
-		return;
-	}
+	game.startGame();
 }
 
 COMMAND_EXTRA(map, "set map", "filename", 1, 1, paramCompleters[0] = &autoCompleteForFileListCache<mapList>);
