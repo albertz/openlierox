@@ -19,10 +19,11 @@
 
 enum SDLUserEvent {
 	UE_CustomEventHandler = 0,
-	UE_QuitEventThread = 1,
-	UE_DoVideoFrame = 2,
-	UE_DoSetVideoMode = 3,
-	UE_DoActionInMainThread = 4
+	UE_QuitEventThread,
+	UE_DoVideoFrame,
+	UE_DoSetVideoMode,
+	UE_DoActionInMainThread,
+	UE_NopWakeup
 };
 
 
@@ -74,6 +75,8 @@ public:
 	EventQueue();
 	~EventQueue();
 	
+	bool hasItems();
+
 	// Polls for currently pending events.
 	bool poll(EventItem& e);
 	

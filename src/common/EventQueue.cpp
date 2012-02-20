@@ -96,6 +96,12 @@ void ShutdownEventQueue() {
 	}
 }
 
+
+bool EventQueue::hasItems() {
+	ScopedLock lock(data->mutex);
+	return !data->queue.empty();
+}
+
 bool EventQueue::poll(EventItem& event) {
 	ScopedLock lock(data->mutex);
 	
@@ -122,13 +128,27 @@ bool EventQueue::wait(EventItem& event) {
 }
 
 bool EventQueue::push(const EventItem& event) {
-	ScopedLock lock(data->mutex);
-	
-	// TODO: some limit if queue too full? it could happen that OLX eats up all mem if there is no limit
-	data->queue.push_back(event);
-	
-	SDL_CondSignal(data->cond);
-	
+	{
+		ScopedLock lock(data->mutex);
+
+		// TODO: some limit if queue too full? it could happen that OLX eats up all mem if there is no limit
+		data->queue.push_back(event);
+
+		SDL_CondSignal(data->cond);
+	}
+
+#ifdef SINGLETHREADED
+	if(this == mainQueue && !isMainThread()) {
+		// This is somewhat hacky but not that serious.
+		// Wake up main thread if it is sleeping currently.
+		// It could only possibly be sleeping at the SDL event queue.
+		SDL_Event ev;
+		ev.type = SDL_USEREVENT;
+		ev.user.code = UE_NopWakeup;
+		SDL_PushEvent(&ev);
+	}
+#endif
+
 	return true;
 }
 

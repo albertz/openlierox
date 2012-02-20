@@ -213,19 +213,24 @@ struct MainLoopTask : LoopTask {
 static bool handleSDLEvent(SDL_Event& ev) {
 	if(ev.type == SDL_USEREVENT) {
 		switch(ev.user.code) {
-			case UE_QuitEventThread:
-				return false;
-			case UE_DoVideoFrame:
-				videoHandler.frame();
-				return true;
-			case UE_DoSetVideoMode:
-				videoHandler.setVideoMode();
-				return true;
-			case UE_DoActionInMainThread:
-				((Action*)ev.user.data1)->handle();
-				delete (Action*)ev.user.data1;
-				return true;
+		case UE_QuitEventThread:
+			return false;
+		case UE_DoVideoFrame:
+			videoHandler.frame();
+			return true;
+		case UE_DoSetVideoMode:
+			videoHandler.setVideoMode();
+			return true;
+		case UE_DoActionInMainThread:
+			((Action*)ev.user.data1)->handle();
+			delete (Action*)ev.user.data1;
+			return true;
+		case UE_NopWakeup:
+			// do nothing, it's just a wakeup
+			return true;
 		}
+		warnings << "handleSDLEvent: got unknown user event " << (int)ev.user.code << endl;
+		return true;
 	}
 	if( ev.type == SDL_SYSWMEVENT ) {
 		EvHndl_SysWmEvent_MainThread( &ev );

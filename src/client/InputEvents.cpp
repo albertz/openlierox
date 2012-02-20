@@ -503,7 +503,7 @@ void ProcessEvents()
 	ResetCurrentEventStorage();
 
 	bool ret = false;
-	if(game.allowedToSleepForEvent()) {
+	if(game.allowedToSleepForEvent() && !mainQueue->hasItems()) {
 		bWaitingForEvent = true;
 		if(isMainThread())
 			handleSDLEvents(true);
