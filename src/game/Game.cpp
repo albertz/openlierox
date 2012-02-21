@@ -41,6 +41,7 @@
 #include "Attr.h"
 #include "gusanos/luaapi/classes.h"
 #include "gusanos/network.h"
+#include "FlagInfo.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -296,6 +297,19 @@ Result Game::prepareGameloop() {
 	PhysicsEngine::Init();
 		
 	ClearEntities();
+
+	// in server mode, server would reset this
+	if(game.isClient())
+		cClient->permanentText = "";
+
+	cClient->flagInfo()->reset();
+	for(int i = 0; i < MAX_TEAMS; ++i) {
+		cClient->iTeamScores[i] = 0;
+	}
+
+	cClient->projPosMap.clear();
+	cClient->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
+	cClient->cProjectiles.clear();
 
 	if( GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Playing: " + cClient->getServerName());

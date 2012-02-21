@@ -982,19 +982,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 	client->otherGameInfo.clear();
 	
-	// in server mode, server would reset this
-	if(game.isClient())
-		client->permanentText = "";
-
-	client->flagInfo()->reset();
-	for(int i = 0; i < MAX_TEAMS; ++i) {
-		client->iTeamScores[i] = 0;
-	}
-
-	client->projPosMap.clear();
-	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
-	client->cProjectiles.clear();
-
     return true;
 }
 
