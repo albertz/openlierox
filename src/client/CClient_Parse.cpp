@@ -1003,8 +1003,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			client->bChat_Typing = true;
 			client->bChat_CursorVisible = true;
 			client->iChat_Pos = client->sChat_Text.size();
-			if(game.firstLocalHumanWorm())
-				SendAFK( game.firstLocalHumanWorm()->getID(), AFK_TYPING_CHAT );
 		}	
 
 		if(!bDedicated) {

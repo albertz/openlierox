@@ -1367,15 +1367,15 @@ void CClient::SimulateHud()
 			processChatter();
 	}
 	
-	if( CWorm* w = game.firstLocalHumanWorm() ) {
+	for_each_iterator(CWorm*, w, game.localWorms()) {
 		AFK_TYPE curState = AFK_BACK_ONLINE;
-		if(!w->bWeaponsReady) curState = AFK_SELECTING_WPNS;
+		if(!w->get()->bWeaponsReady) curState = AFK_SELECTING_WPNS;
 		if(bChat_Typing) curState = AFK_TYPING_CHAT;
 		if(bGameMenu && !game.gameOver) curState = AFK_MENU;
 		if(Con_IsVisible()) curState = AFK_CONSOLE;
 		if(!ApplicationHasFocus()) curState = AFK_AWAY;
-		if( curState != w->getAFK() ) {
-			cNetEngine->SendAFK( w->getID(), curState );
+		if( curState != w->get()->getAFK() ) {
+			cNetEngine->SendAFK( w->get()->getID(), curState );
 		}
 	}
 }

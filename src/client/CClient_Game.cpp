@@ -1298,8 +1298,6 @@ void CClient::processChatter()
 			sChat_Text = "";
 			bChat_Typing = false;
 			clearHumanWormInputs();
-			if(firstLocalWorm->getType() != PRF_COMPUTER)
-				cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_BACK_ONLINE );
 			return; // TODO: we may lose some chat keys if user typing very fast ;)
 		}
 	}
@@ -1326,10 +1324,6 @@ void CClient::processChatter()
 				kb->keys[SDLK_ESCAPE] = false;
 				kb->KeyDown[SDLK_ESCAPE] = false;
 				kb->KeyUp[SDLK_ESCAPE] = false;
-
-				CWorm* firstLocalWorm = game.localWorms()->tryGet();
-				if(firstLocalWorm && firstLocalWorm->getType() != PRF_COMPUTER)
-					cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_BACK_ONLINE );
 
 				break;
 			}
@@ -1360,10 +1354,6 @@ void CClient::processChatter()
 
 		// Clear the input
 		clearHumanWormInputs();
-		
-		CWorm* firstLocalWorm = game.localWorms()->tryGet();
-		if(firstLocalWorm && firstLocalWorm->getType() != PRF_COMPUTER)
-			cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_TYPING_CHAT );
 
 		return;
 	}
@@ -1426,11 +1416,6 @@ void CClient::processChatter()
 			iChat_Lastchar = 0;
 			bChat_Holding = false;
 			fChat_TimePushed = AbsTime();
-
-			CWorm* firstLocalWorm = game.localWorms()->tryGet();
-			if(firstLocalWorm && firstLocalWorm->getType() != PRF_COMPUTER)
-				cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_TYPING_CHAT );
-
 		}
 
         processChatCharacter(input);
@@ -1530,9 +1515,6 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
 		CWorm* firstLocalWorm = game.localWorms()->tryGet();
 		if(!firstLocalWorm) return;
 		
-		if(firstLocalWorm->getType() != PRF_COMPUTER)
-			cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_BACK_ONLINE );
-
         // Send chat message to the server
 		if(sChat_Text != "") {
 			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
