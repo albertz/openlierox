@@ -796,13 +796,16 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		client->iTeamScores[i] = 0;
 	}
 	
-	int random = bs->readInt(1);
-	std::string sMapFilename;
-	if(!random) {
-		sMapFilename = bs->readString();
-		if(game.isClient())
-			client->getGameLobby().overwrite[FT_Map] = infoForLevel(GetBaseFilename(sMapFilename));
+	if(/* random */ bs->readInt(1))
+	{
+		hints << "CClientNetEngine::ParsePrepareGame: random map requested, and we do not support these anymore" << endl;
+		game.state = Game::S_Lobby;
+		return false;
 	}
+
+	std::string sMapFilename = bs->readString();
+	if(game.isClient())
+		client->getGameLobby().overwrite[FT_Map] = infoForLevel(GetBaseFilename(sMapFilename));
 	
 	// Other game details
 	if(game.isClient()) {
@@ -880,77 +883,67 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			}
 		}
 	}
-	
-	if(random) 
-	{
-		// TODO: why don't we support that anymore? and since when?
-		// Since I've moved all dynamically allocated datas to smartpointers, don't remember why I've removed that
-		hints << "CClientNetEngine::ParsePrepareGame: random map requested, and we do not support these anymore" << endl;
+		
+	// Load the map from a file
+
+	// Invalid packet
+	if (sMapFilename == "")  {
+		hints << "CClientNetEngine::ParsePrepareGame: bad map name (none)" << endl;
 		game.state = Game::S_Lobby;
 		return false;
-	} else
-	{
-		// Load the map from a file
+	}
 
-		// Invalid packet
-		if (sMapFilename == "")  {
-			hints << "CClientNetEngine::ParsePrepareGame: bad map name (none)" << endl;
+	if(game.isClient()) {
+
+		// check if we have level
+		if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
+			client->DownloadMap(GetBaseFilename(sMapFilename));  // Download the map
+			// we have bDownloadingMap = true when this was successfull
+		}
+
+		// If we are downloading a map, wait until it finishes
+		if (!client->bDownloadingMap)  {
+			client->bWaitingForMap = false;
+
+			if(NegResult r = game.loadMap()) {
+				notes << "CClientNetEngine::ParsePrepareGame: could not load map " << sMapFilename << endl;
+
+				// Show a cannot load level error message
+				// If this is a host/local game, something is pretty wrong but if we display the message, things could
+				// go even worse
+				FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
+
+				DeprecatedGUI::Menu_MessageBox(
+							"Loading Error",
+							std::string("Could not load the level '") + sMapFilename + "'.\n" + LxGetLastError() + "\n" + r.res.humanErrorMsg,
+							DeprecatedGUI::LMB_OK);
+				client->bClientError = true;
+
+				// Go back to the menu
+				QuittoMenu();
+
+				game.state = Game::S_Lobby;
+
+				return false;
+			}
+
+			game.gameMap()->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
+		} else {
+			client->bWaitingForMap = true;
+			notes << "Client: we got PrepareGame but we have to wait first until the download of the map finishes" << endl;
+		}
+	} else { // GME_HOST
+
+		game.gameMap()->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
+		client->bMapGrabbed = true;
+
+		if(game.gameMap()->getFilename() != sMapFilename) {
+			errors << "Client (in host mode): we got PrepareGame for map " << sMapFilename << " but server has loaded map " << game.gameMap()->getFilename() << endl;
 			game.state = Game::S_Lobby;
 			return false;
 		}
-
-		if(game.isClient()) {
-
-			// check if we have level
-			if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
-				client->DownloadMap(GetBaseFilename(sMapFilename));  // Download the map
-				// we have bDownloadingMap = true when this was successfull
-			}
-			
-			// If we are downloading a map, wait until it finishes
-			if (!client->bDownloadingMap)  {
-				client->bWaitingForMap = false;
-
-				if(NegResult r = game.loadMap()) {
-					notes << "CClientNetEngine::ParsePrepareGame: could not load map " << sMapFilename << endl;
-
-					// Show a cannot load level error message
-					// If this is a host/local game, something is pretty wrong but if we display the message, things could
-					// go even worse
-					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
-
-					DeprecatedGUI::Menu_MessageBox(
-						"Loading Error",
-						std::string("Could not load the level '") + sMapFilename + "'.\n" + LxGetLastError() + "\n" + r.res.humanErrorMsg,
-						DeprecatedGUI::LMB_OK);
-					client->bClientError = true;
-
-					// Go back to the menu
-					QuittoMenu();
-
-					game.state = Game::S_Lobby;
-
-					return false;
-				}
-				
-				game.gameMap()->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
-			} else {
-				client->bWaitingForMap = true;
-				notes << "Client: we got PrepareGame but we have to wait first until the download of the map finishes" << endl;
-			}
-		} else { // GME_HOST
-			
-			game.gameMap()->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
-			client->bMapGrabbed = true;
-		
-			if(game.gameMap()->getFilename() != sMapFilename) {
-				errors << "Client (in host mode): we got PrepareGame for map " << sMapFilename << " but server has loaded map " << game.gameMap()->getFilename() << endl;
-				game.state = Game::S_Lobby;
-				return false;
-			}
-		}
-
 	}
+
 
 	// NOTE: This was moved from Game:prepareGameLoop to here because it is needed *before* we prepare the worms
 	
