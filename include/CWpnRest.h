@@ -19,13 +19,15 @@
 
 #include <vector>
 #include <list>
+#include "Iter.h"
+#include "StringUtils.h" // stringcaseless
 
 class CGameScript;
 class CBytestream;
 
 
 // Weapon states
-enum {
+enum WpnRestrictionState {
     wpr_enabled = 0,
     wpr_bonus = 1,
     wpr_banned = 2
@@ -34,14 +36,16 @@ enum {
 
 // Weapon Restriction structure
 class wpnrest_t { 
-
 public:
 
-	wpnrest_t( const std::string & _name, int _state ):
-		szName(_name), nState(_state) { };
+	wpnrest_t( const std::string & _name = "", WpnRestrictionState _state = wpr_enabled ):
+		szName(_name), state(_state) { }
 
 	std::string    szName;
-    int     nState;
+	union {
+		int nState;
+		WpnRestrictionState state;
+	};
 
 	bool operator < ( const wpnrest_t & rest ) const;
 
@@ -53,7 +57,8 @@ class CWpnRest {
 private:
     // Attributes
 
-    std::list<wpnrest_t> m_psWeaponList;
+	typedef std::map<std::string, WpnRestrictionState, stringcaseless> WeaponList;
+	WeaponList m_psWeaponList;
 	int			iCycleState;
 
 public:
@@ -81,10 +86,9 @@ public:
 
     int         getWeaponState(const std::string& szName);
 
-    void        sortList();
-
-    std::list<wpnrest_t> & getList();
-    wpnrest_t   *findWeapon(const std::string& szName);
+	Iterator<wpnrest_t>::Ref getList();
+	WpnRestrictionState   *findWeapon(const std::string& szName);
+	void		setWeaponState(const std::string& szName, WpnRestrictionState nState);
     int         getNumWeapons() const;
     static bool weaponExists(const std::string & weapon, const std::vector<std::string> & weaponList);
 

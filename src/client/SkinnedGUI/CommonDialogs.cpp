@@ -615,14 +615,14 @@ void CWeaponOptionsDialog::UpdateListview()
 
 	// Fill the listview
 	int i = 0;
-	for( std::list<wpnrest_t>::const_iterator it = cRestrictionList->getList().begin(); 
-			it != cRestrictionList->getList().end(); it++, i++) 
+	for_each_iterator(wpnrest_t, it, cRestrictionList->getList())
 	{
-		if(cGameScript->weaponExists(it->szName))  {
-			lsvRestrictions->AddItem(it->szName, i);
-			lsvRestrictions->AddTextSubitem(it->szName);
-			lsvRestrictions->AddTextSubitem(states[CLAMP(it->nState, 0, 2)]);
+		if(cGameScript->weaponExists(it->get().szName))  {
+			lsvRestrictions->AddItem(it->get().szName, i);
+			lsvRestrictions->AddTextSubitem(it->get().szName);
+			lsvRestrictions->AddTextSubitem(states[CLAMP(it->get().nState, 0, 2)]);
 		}
+		++i;
 	}
 }
 
@@ -692,8 +692,9 @@ void CWeaponOptionsDialog::ItemClick(CListview *sender, CListviewItem *item, int
 		return;
 
 	// Change the state
-	cRestrictionList->findWeapon(sub->getName())->nState++;
-	cRestrictionList->findWeapon(sub->getName())->nState %= 3;
+	*cRestrictionList->findWeapon(sub->getName()) =
+			(WpnRestrictionState)
+			((int(*cRestrictionList->findWeapon(sub->getName())) + 1) % 3);
 }
 
-}; // namespace SkinnedGUI
+} // namespace SkinnedGUI
