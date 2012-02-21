@@ -786,11 +786,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		game.gameOver = false;
 	}
 	game.state = Game::S_Preparing;
-
-	client->flagInfo()->reset();
-	for(int i = 0; i < MAX_TEAMS; ++i) {
-		client->iTeamScores[i] = 0;
-	}
 	
 	if(/* random */ bs->readInt(1))
 	{
@@ -816,11 +811,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	else
 		bs->Skip(11);
 	game.serverFrame = 0;
-	
-	// in server mode, server would reset this
-	if(game.isClient())
-		client->permanentText = "";
-	
+		
 	if(client->getGeneralGameType() == GMT_TIME) {
 		if(game.isClient())
 			client->getGameLobby().overwrite[FT_TagLimit] = (float)bs->readInt16();
@@ -841,7 +832,14 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		return false;
 	}
 
-	client->m_flagInfo->reset();
+	// in server mode, server would reset this
+	if(game.isClient())
+		client->permanentText = "";
+
+	client->flagInfo()->reset();
+	for(int i = 0; i < MAX_TEAMS; ++i) {
+		client->iTeamScores[i] = 0;
+	}
 	
 	// HINT: gamescript is shut down by the cache
 
