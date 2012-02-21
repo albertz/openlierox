@@ -252,7 +252,10 @@ Result Game::prepareGameloop() {
 	PhysicsEngine::Init();
 		
 	ClearEntities();
-	
+
+	if( GetGlobalIRC() )
+		GetGlobalIRC()->setAwayMessage("Playing: " + cClient->getServerName());
+
 	ProcessEvents();
 	notes << "MaxFPS is " << tLXOptions->nMaxFPS << endl;
 	

@@ -1092,11 +1092,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->bShouldRepaintInfo = true;
 
 	DeprecatedGUI::bJoin_Update = true;
-
-	if(!isReconnect) {
-		if( GetGlobalIRC() )
-			GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
-	}
 	
 	if(game.isClient())
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
