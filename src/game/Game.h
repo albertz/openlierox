@@ -22,6 +22,7 @@
 #include "Iter.h"
 #include "util/BaseObject.h"
 #include "Attr.h"
+#include "util/Result.h"
 
 class CWormHumanInputHandler;
 class CWormInputHandler;
@@ -150,7 +151,7 @@ private:
 	void reset();
 	void frameInner();
 	void prepareMenu();
-	void prepareGameloop();
+	Result prepareGameloop();
 	void cleanupAfterGameloopEnd();
 
 	bool m_isServer;

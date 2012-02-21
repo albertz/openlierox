@@ -360,18 +360,6 @@ int GameServer::PrepareGame(std::string* errMsg)
 	cClient->SetPermanentText("");
 	
 	
-	if(NegResult r = game.loadMod()) {
-		errors << "Error while loading mod: " << r.res.humanErrorMsg << endl;
-		if(errMsg) *errMsg = "Error while loading mod: " + r.res.humanErrorMsg;
-		return false;
-	}
-	
-	if(NegResult r = game.loadMap()) {
-		errors << "Error while loading map: " << r.res.humanErrorMsg << endl;
-		if(errMsg) *errMsg = "Error while loading map: " + r.res.humanErrorMsg;
-		return false;
-	}
-	
 	// Note: this code must be after we loaded the mod!
 	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
 	{

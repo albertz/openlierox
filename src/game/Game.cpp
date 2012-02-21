@@ -191,7 +191,7 @@ void Game::prepareMenu() {
 	tLX->currentTime = menuStartTime = GetTime();
 }
 
-void Game::prepareGameloop() {
+Result Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 	
@@ -202,19 +202,21 @@ void Game::prepareGameloop() {
 
 	cClient->SetSocketWithEvents(false);
 	cServer->SetSocketWithEvents(false);
-	
+		
+	if(NegResult r = game.loadMod())
+		return "Error while loading mod: " + r.res.humanErrorMsg;
+
+	if(NegResult r = game.loadMap())
+		return "Error while loading map: " + r.res.humanErrorMsg;
+
 	if(game.isServer()) {
-		notes << "prepareGameloop: preparing game" << endl;
 		std::string errMsg;
 		if(!cServer->PrepareGame(&errMsg)) {
-			errors << "starting game in local game failed for reason: " << errMsg << endl;
-			if(!bDedicated)
-				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
 			if (game.isLocalGame())
 				GotoLocalMenu();
 			else
 				GotoNetMenu();
-			return;
+			return "starting game in local game failed for reason: " + errMsg;
 		}
 	}
 
@@ -226,7 +228,7 @@ void Game::prepareGameloop() {
 	if(cClient->getStatus() == NET_DISCONNECTED) {
 		warnings << "prepareGameLoop: something went wrong, client not connected anymore" << endl;
 		game.state = Game::S_Inactive;
-		return;
+		return "client did not connect";
 	}
 
 	// we need the gamescript in physics init
@@ -265,6 +267,7 @@ void Game::prepareGameloop() {
 	
 	simulationTime = oldtime = GetTime();
 	wasPrepared = true;
+	return true;
 }
 
 /*
@@ -335,7 +338,17 @@ void Game::frameInner()
 		game.startGame();
 
 	if(!wasPrepared && game.state >= Game::S_Preparing) {
-		prepareGameloop();
+		Result r = prepareGameloop();
+		if(!r) {
+			warnings << "prepageGameloop failed: " << r.humanErrorMsg << endl;
+			if(!bDedicated)
+				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + r.humanErrorMsg);
+			game.state = Game::S_Lobby;
+		}
+		else if(!wasPrepared) {
+			errors << "prepageGameloop: no error but not prepared" << endl;
+			return;
+		}
 	}
 
 	// Check if user pressed screenshot key
