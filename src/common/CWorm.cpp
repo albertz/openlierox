@@ -246,6 +246,16 @@ void CWorm::Prepare()
 	setCanAirJump(cClient->getGameLobby()[FT_InstantAirJump]);
 
 	iCurrentWeapon = 0;
+	for(short i=0;i<iNumWeaponSlots;i++) {
+		tWeapons[i].Weapon = NULL;
+		tWeapons[i].Enabled = false;
+		tWeapons[i].Charge = 1;
+		tWeapons[i].Reloading = false;
+		tWeapons[i].SlotNum = i;
+		tWeapons[i].LastFire = 0;
+	}
+	GetRandomWeapons();
+	// weapons should be loaded properly in initWeaponSelection
 
 	if(m_inputHandler) {
 		warnings << "WARNING: worm " << getName() << " has already the following input handler set: "; warnings.flush();
@@ -361,6 +371,15 @@ void CWorm::Unprepare() {
 	for ( size_t i = 0; i < m_weapons.size(); ++i) {
 		luaDelete(m_weapons[i]);
 		m_weapons[i] = 0;
+	}
+
+	for(short i=0;i<iNumWeaponSlots;i++) {
+		tWeapons[i].Weapon = NULL;
+		tWeapons[i].Enabled = false;
+		tWeapons[i].Charge = 1;
+		tWeapons[i].Reloading = false;
+		tWeapons[i].SlotNum = i;
+		tWeapons[i].LastFire = 0;
 	}
 
 	NetWorm_Shutdown();
