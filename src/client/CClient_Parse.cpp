@@ -842,12 +842,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	
 	/*if(!isReconnect)
 		PhysicsEngine::Get()->initGame();*/
-			
-    // Read the weapon restrictions
+
+	// Read the weapon restrictions
 	if(game.isClient())
 		game.loadWeaponRestrictions();
-    game.weaponRestrictions()->readList(bs);
-	
+	game.weaponRestrictions()->readList(bs);
+
 
 	if(game.isClient()) client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
 	client->bServerChoosesWeapons = false;
