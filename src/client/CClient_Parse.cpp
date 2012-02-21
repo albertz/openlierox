@@ -787,10 +787,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 	game.state = Game::S_Preparing;
 
-	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
-	if(!isReconnect)
-		client->tSocket->setWithEvents(false);
-
 	client->flagInfo()->reset();
 	for(int i = 0; i < MAX_TEAMS; ++i) {
 		client->iTeamScores[i] = 0;
@@ -2361,9 +2357,6 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	}
 	 */
 	
-	// in lobby we need the events again
-	client->tSocket->setWithEvents(true);
-
 	// Do a minor clean up
 	client->MinorClear();
 	game.state = Game::S_Lobby;
