@@ -643,16 +643,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	int			y;
 
 
-    // If there is a client error, leave
-    if(cClient->getClientError()) {
-
-		Menu_Net_JoinShutdown();
-        Menu_NetInitialize();
-		bJoin_Update = true;
-		return;
-    }
-
-
 	// If we have started, leave the frontend
 	if(game.state >= Game::S_Preparing) {
 

@@ -377,8 +377,6 @@ private:
 	bool		bServerError;
 	std::string	strServerErrorMsg;
 
-    bool		bClientError;
-
 	std::string	strDebug;	// This is only a debug string which is reset after each frame and which is printed on the screen.
 	std::string permanentText; // drawn always on top, only reset at gamestart
 	
@@ -551,8 +549,6 @@ public:
 
 	bool		getServerError()		{ return bServerError; }
 	std::string	getServerErrorMsg()		{ return strServerErrorMsg; }
-
-    bool		getClientError()        { return bClientError; }
 
 	AbsTime		getLastReceived()		{ return fLastReceived; }
 	void		setLastReceived(const AbsTime& _l)	{ fLastReceived = _l; }

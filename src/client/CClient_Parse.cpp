@@ -864,7 +864,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 					err += client->getGameLobby()[FT_Mod].as<ModInfo>()->name;
 					err += "\r\n" + result.humanErrorMsg;
 					DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
-					client->bClientError = true;
 					
 					// Go back to the menu
 					GotoNetMenu();
@@ -911,7 +910,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 							"Loading Error",
 							std::string("Could not load the level '") + sMapFilename + "'.\n" + LxGetLastError() + "\n" + r.res.humanErrorMsg,
 							DeprecatedGUI::LMB_OK);
-				client->bClientError = true;
 
 				// Go back to the menu
 				QuittoMenu();

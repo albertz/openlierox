@@ -394,12 +394,6 @@ struct DedIntern {
 	}
 
 	void Frame_ClientLobby() {
-		// If there is a client error, leave
-		if(cClient->getClientError()) {
-			Sig_ClientError();
-			return;
-		}
-
 		// If we have started, leave the frontend
 		if(game.state >= Game::S_Preparing) {
 			Sig_ClientGameStarted();

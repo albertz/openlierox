@@ -113,7 +113,6 @@ void CClient::Clear()
 
 	bBadConnection = false;
 	bServerError = false;
-    bClientError = false;
 	bChat_Typing = false;
 	fLastReceived = AbsTime::Max();
 	fLastUpdateSent = AbsTime();
@@ -180,7 +179,6 @@ void CClient::MinorClear()
 
 	bBadConnection = false;
 	bServerError = false;
-    bClientError = false;
 	bChat_Typing = false;
 	fLastReceived = AbsTime::Max();
 
@@ -267,7 +265,6 @@ CClient::CClient() {
 	bTeamChat = false;
 	fChat_BlinkTime = 0;
 	bChat_CursorVisible = true;
-	bClientError = false;
 	iNetSpeed = 3;
 	fLastUpdateSent = AbsTime();
 	tSocket = new NetworkSocket();
