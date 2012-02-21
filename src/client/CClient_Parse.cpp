@@ -986,9 +986,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(game.isClient()) client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
 	client->bServerChoosesWeapons = false;
 
-	// TODO: Load any other stuff
-	game.state = Game::S_Preparing;
-
 	if(!isReconnect) {
 		// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
 		client->InitializeIngameScore(true);
@@ -1025,6 +1022,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			}
 		}
 	}
+
+	game.state = Game::S_Preparing;
 
 	for_each_iterator(CWorm*, w_, game.worms()) {
 		CWorm* w = w_->get();
