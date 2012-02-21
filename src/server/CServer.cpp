@@ -194,8 +194,7 @@ int GameServer::StartServer()
 	}
 
 	// Initialize the bonuses
-	int i;
-	for(i=0;i<MAX_BONUSES;i++)
+	for(int i=0;i<MAX_BONUSES;i++)
 		cBonuses[i].setUsed(false);
 
 	// Shooting list
@@ -254,7 +253,7 @@ int GameServer::StartServer()
 	}
 
 	// Initialize the clients
-	for(i=0;i<MAX_CLIENTS;i++)
+	for(int i=0;i<MAX_CLIENTS;i++)
 		cClients[i].Clear();
 
 	SetSocketWithEvents(true);
