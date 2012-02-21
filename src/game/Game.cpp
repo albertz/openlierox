@@ -202,12 +202,56 @@ Result Game::prepareGameloop() {
 
 	cClient->SetSocketWithEvents(false);
 	cServer->SetSocketWithEvents(false);
-		
+
+	if(isClient()) {
+		// check if we have level
+		std::string sMapFilename = "levels/" + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path;
+		if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
+			cClient->DownloadMap(GetBaseFilename(sMapFilename));  // Download the map
+			// we have bDownloadingMap = true when this was successfull
+		}
+
+		if(cClient->bDownloadingMod)
+			cClient->bWaitingForMod = true;
+		if(cClient->bDownloadingMap)
+			cClient->bWaitingForMap = true;
+	}
+
 	if(NegResult r = game.loadMod())
 		return "Error while loading mod: " + r.res.humanErrorMsg;
 
 	if(NegResult r = game.loadMap())
 		return "Error while loading map: " + r.res.humanErrorMsg;
+
+	game.gameMap()->SetMinimapDimensions(cClient->tInterfaceSettings.MiniMapW, cClient->tInterfaceSettings.MiniMapH);
+	cClient->bMapGrabbed = true;
+
+	// always also load Gusanos engine
+	// even with LX-stuff-only, we may access/need it (for network stuff and later probably more)
+	if( !game.gameMap()->gusIsLoaded() && (game.isServer() || cClient->getServerVersion() >= OLXBetaVersion(0,59,1) ) ) {
+		// WARNING: This may be temporary
+		// Right now, we load the gus mod in the map loader (gusGame.changeLevel).
+		// Thus, when we don't load a gus level, we must load the mod manually.
+
+		if(!game.gameScript()->gusEngineUsed())
+			gusGame.setMod(gusGame.getDefaultPath());
+		gusGame.loadModWithoutMap();
+	}
+
+	if(gusGame.isEngineNeeded()) {
+		// Unprepare all worms first.
+		// Some init scripts (e.g. Promode) have trouble when there are players
+		// but their bindings.playerInit was not called.
+		// As the bindings.playerInit is firstly set here by the init scripts,
+		// there is no other way.
+		// The worms will get prepared later on again.
+		// TODO: do the preparation client/server independently somewhere else
+		// TODO: as well as the gus loading/init stuff
+		for_each_iterator(CWorm*, w, game.worms())
+			w->get()->Unprepare();
+
+		gusGame.runInitScripts();
+	}
 
 	if(game.isServer()) {
 		std::string errMsg;

@@ -795,9 +795,15 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 	std::string sMapFilename = bs->readString();
+	// Invalid packet
+	if (sMapFilename == "")  {
+		hints << "CClientNetEngine::ParsePrepareGame: bad map name (none)" << endl;
+		game.state = Game::S_Lobby;
+		return false;
+	}
 	if(game.isClient())
 		client->getGameLobby().overwrite[FT_Map] = infoForLevel(GetBaseFilename(sMapFilename));
-	
+
 	// Other game details
 	if(game.isClient()) {
 		client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readInt(1));
@@ -832,148 +838,16 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		return false;
 	}
 
-	// in server mode, server would reset this
-	if(game.isClient())
-		client->permanentText = "";
-
-	client->flagInfo()->reset();
-	for(int i = 0; i < MAX_TEAMS; ++i) {
-		client->iTeamScores[i] = 0;
-	}
-	
-	// HINT: gamescript is shut down by the cache
-
     //bs->Dump();
 	
 	/*if(!isReconnect)
 		PhysicsEngine::Get()->initGame();*/
-	
-	if(!isReconnect) {
-		if(game.isClient()) {
-			if (client->bDownloadingMod)
-				client->bWaitingForMod = true;
-			else {
-				client->bWaitingForMod = false;
-				
-				Result result = game.loadMod();
-				if(!result) {
-					
-					// Show any error messages
-					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
-					std::string err = "Error load game mod ";
-					err += client->getGameLobby()[FT_Mod].as<ModInfo>()->name;
-					err += "\r\n" + result.humanErrorMsg;
-					DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
-					
-					// Go back to the menu
-					GotoNetMenu();
-
-					game.state = Game::S_Lobby;
-					
-					errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->getGameLobby()[FT_Mod].as<ModInfo>()->name << endl;
-					return false;
-				}
-			}
-		}
-	}
-		
-	// Load the map from a file
-
-	// Invalid packet
-	if (sMapFilename == "")  {
-		hints << "CClientNetEngine::ParsePrepareGame: bad map name (none)" << endl;
-		game.state = Game::S_Lobby;
-		return false;
-	}
-
-	if(game.isClient()) {
-
-		// check if we have level
-		if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
-			client->DownloadMap(GetBaseFilename(sMapFilename));  // Download the map
-			// we have bDownloadingMap = true when this was successfull
-		}
-
-		// If we are downloading a map, wait until it finishes
-		if (!client->bDownloadingMap)  {
-			client->bWaitingForMap = false;
-
-			if(NegResult r = game.loadMap()) {
-				notes << "CClientNetEngine::ParsePrepareGame: could not load map " << sMapFilename << endl;
-
-				// Show a cannot load level error message
-				// If this is a host/local game, something is pretty wrong but if we display the message, things could
-				// go even worse
-				FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
-
-				DeprecatedGUI::Menu_MessageBox(
-							"Loading Error",
-							std::string("Could not load the level '") + sMapFilename + "'.\n" + LxGetLastError() + "\n" + r.res.humanErrorMsg,
-							DeprecatedGUI::LMB_OK);
-
-				// Go back to the menu
-				QuittoMenu();
-
-				game.state = Game::S_Lobby;
-
-				return false;
-			}
-
-			game.gameMap()->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
-		} else {
-			client->bWaitingForMap = true;
-			notes << "Client: we got PrepareGame but we have to wait first until the download of the map finishes" << endl;
-		}
-	} else { // GME_HOST
-
-		game.gameMap()->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
-		client->bMapGrabbed = true;
-
-		if(game.gameMap()->getFilename() != sMapFilename) {
-			errors << "Client (in host mode): we got PrepareGame for map " << sMapFilename << " but server has loaded map " << game.gameMap()->getFilename() << endl;
-			game.state = Game::S_Lobby;
-			return false;
-		}
-	}
-
-
-	// NOTE: This was moved from Game:prepareGameLoop to here because it is needed *before* we prepare the worms
-	
-	// always also load Gusanos engine
-	// even with LX-stuff-only, we may access/need it (for network stuff and later probably more)
-	if( !game.gameMap()->gusIsLoaded() && (game.isServer() || client->getServerVersion() >= OLXBetaVersion(0,59,1) ) ) {
-		// WARNING: This may be temporary
-		// Right now, we load the gus mod in the map loader (gusGame.changeLevel).
-		// Thus, when we don't load a gus level, we must load the mod manually.
-		
-		if(!game.gameScript()->gusEngineUsed())
-			gusGame.setMod(gusGame.getDefaultPath());
-		gusGame.loadModWithoutMap();
-	}
-	
-	if(gusGame.isEngineNeeded()) {
-		// Unprepare all worms first.
-		// Some init scripts (e.g. Promode) have trouble when there are players
-		// but their bindings.playerInit was not called.
-		// As the bindings.playerInit is firstly set here by the init scripts,
-		// there is no other way.
-		// The worms will get prepared later on again.
-		// TODO: do the preparation client/server independently somewhere else
-		// TODO: as well as the gus loading/init stuff
-		for_each_iterator(CWorm*, w, game.worms())
-			w->get()->Unprepare();
-
-		gusGame.runInitScripts();
-	}	
-	
+			
     // Read the weapon restrictions
 	if(game.isClient())
 		game.loadWeaponRestrictions();
     game.weaponRestrictions()->readList(bs);
 	
-	client->projPosMap.clear();
-	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
-	client->cProjectiles.clear();
 
 	if(game.isClient()) client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
 	client->bServerChoosesWeapons = false;
@@ -1014,8 +888,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			}
 		}
 	}
-
-	game.state = Game::S_Preparing;
 
 	for_each_iterator(CWorm*, w_, game.worms()) {
 		CWorm* w = w_->get();
@@ -1110,6 +982,19 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 	client->otherGameInfo.clear();
 	
+	// in server mode, server would reset this
+	if(game.isClient())
+		client->permanentText = "";
+
+	client->flagInfo()->reset();
+	for(int i = 0; i < MAX_TEAMS; ++i) {
+		client->iTeamScores[i] = 0;
+	}
+
+	client->projPosMap.clear();
+	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
+	client->cProjectiles.clear();
+
     return true;
 }
 
