@@ -42,6 +42,7 @@
 #include "gusanos/luaapi/classes.h"
 #include "gusanos/network.h"
 #include "FlagInfo.h"
+#include "CWpnRest.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -65,6 +66,7 @@ Game::Game() {
 	m_isServer = false;
 	m_isLocalGame = false;
 	state = S_Inactive;
+	m_wpnRest = new CWpnRest();
 }
 
 void Game::init() {

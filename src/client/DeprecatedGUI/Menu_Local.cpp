@@ -1575,7 +1575,7 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
     cWeaponsRest.Add( new CButton(BUT_SAVE, tMenu->bmpButtons),	wr_Save,   330,445, 60,15);
     cWeaponsRest.Add( new CScrollbar(),                         wr_Scroll, 490,185, 14,230);
 
-	cWpnRestList.reset();
+	cWpnRestList.resetToEnabled();
 	
     //
     // Update the list with the currently selected mod

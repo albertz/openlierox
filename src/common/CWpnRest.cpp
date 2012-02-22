@@ -30,7 +30,7 @@
 // WpnRest Constructor
 CWpnRest::CWpnRest()
 {
-	iCycleState = wpr_banned;
+	Shutdown(); // resets everything
 }
 
 bool wpnrest_t::operator < ( const wpnrest_t & rest ) const
@@ -73,8 +73,8 @@ void CWpnRest::updateList(const std::vector<std::string> & weaponList)
 
 
 ///////////////////
-// Reset all the weapons to default (enabled)
-void CWpnRest::reset()
+// Reset all the weapons to enabled
+void CWpnRest::resetToEnabled()
 {
 	foreach( it, m_psWeaponList )
 		it->second = wpr_enabled;
@@ -160,8 +160,10 @@ void CWpnRest::saveList(const std::string& szFilename)
 {
     // Save it as plain text
     FILE *fp = OpenGameFile(szFilename, "wt");
-    if( !fp )
+	if( !fp ) {
+		errors << "CWpnRest::saveList: couldn't open " << szFilename << endl;
         return;
+	}
 
 	foreach(it, m_psWeaponList)
 		fprintf(fp, "%s,%d\n", it->first.c_str(), (int)it->second);
@@ -323,8 +325,8 @@ void CWpnRest::sendList(CBytestream *psByteS, const std::vector<std::string> & w
 // Receive the list
 void CWpnRest::readList(CBytestream *psByteS)
 {
-    // Initialize all the weapons to a default of 'enabled'
-    reset();
+	// Initialize all the weapons to enabled
+	resetToEnabled();
 
     int nCount = psByteS->readInt(2);
 
@@ -352,6 +354,7 @@ void CWpnRest::readList(CBytestream *psByteS)
 void CWpnRest::Shutdown()
 {
     m_psWeaponList.clear();
+	iCycleState = wpr_banned;
 }
 
 bool CWpnRest::weaponExists(const std::string & weapon, const std::vector<std::string> & weaponList)

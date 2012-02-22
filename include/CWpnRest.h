@@ -72,7 +72,7 @@ public:
     void        Shutdown();
 
     void        updateList(const std::vector<std::string> & weaponList);
-    void        reset();
+	void        resetToEnabled();
     void        resetVisible(const std::vector<std::string> & weaponList);
     void        randomizeVisible(const std::vector<std::string> & weaponList);
 	void		cycleVisible(const std::vector<std::string> & weaponList);

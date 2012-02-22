@@ -14,10 +14,8 @@
 #include "LieroX.h"
 
 Result Game::loadWeaponRestrictions() {
-	m_wpnRest = NULL;
-
 	notes << "Weapon restriction: " << gameSettings[FT_WeaponRest] << endl;
-	m_wpnRest = new CWpnRest();
+	m_wpnRest->Shutdown();
 
 	if(game.isServer())
 		m_wpnRest->loadList(gameSettings[FT_WeaponRest], gameSettings[FT_Mod].as<ModInfo>()->path);
