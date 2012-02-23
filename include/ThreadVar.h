@@ -23,6 +23,7 @@ usage sample:
 #define __THREADVAR_H__
 
 #include "ReadWriteLock.h"
+#include "CodeAttributes.h"
 
 template< typename _T >
 class ThreadVar {
@@ -37,7 +38,7 @@ public:
 	ThreadVar() : data() {}
 	ThreadVar(const _T& v) : data(v) {}
 	
-	class Reader {
+	class Reader : DontCopyTag {
 	private:
 		ThreadVar<_T>& tvar;
 	public:
@@ -46,7 +47,7 @@ public:
 		const _T& get() const { return tvar.data; }
 	};
 
-	class Writer {
+	class Writer : DontCopyTag {
 	private:
 		ThreadVar<_T>& tvar;
 	public:
