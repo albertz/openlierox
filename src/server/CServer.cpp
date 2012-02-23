@@ -333,22 +333,12 @@ void GameServer::SetSocketWithEvents(bool v) {
 // Start the game (prepare it for weapon selection, BeginMatch is the actual start)
 int GameServer::PrepareGame(std::string* errMsg)
 {	
-	// TODO: remove that as soon as we do the gamescript loading in a seperate thread
-	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
-
 	if(errMsg) *errMsg = "Unknown problem, please ask in forum";
 
 	if(game.state <= Game::S_Lobby) {
 		errors << "server prepare game: current game state " << game.state << " is invalid" << endl;
 		return false;
-	}
-
-	// Check that gamespeed != 0
-	if (-0.05f <= (float)gameSettings[FT_GameSpeed] && (float)gameSettings[FT_GameSpeed] <= 0.05f) {
-		warnings << "WARNING: gamespeed was set to " << gameSettings[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
-		gameSettings.overwrite[FT_GameSpeed] = 1;
-	}
-	
+	}	
 
 
 	CBytestream bs;
@@ -359,40 +349,11 @@ int GameServer::PrepareGame(std::string* errMsg)
 	cClient->SetPermanentText("");
 	
 	
-	// Note: this code must be after we loaded the mod!
-	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
-	{
-		if(!game.gameScript()->gusEngineUsed() /*LX56*/) {
-			// Copy over LX56 mod settings. This is an independent layer, so it is also independent from gamePresetSettings.
-			modSettings = game.gameScript()->lx56modSettings;
-		}
-
-		// First, clean up the old settings.
-		gamePresetSettings.makeSet(false);
-		// Now, load further mod custom settings.
-		gamePresetSettings.loadFromConfig(game.gameScript()->directory() + "/gamesettings.cfg", false);
-		// Now, after this, load the settings specified by the game settings preset.
-		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
-		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
-			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
-
-		/* fix some broken settings */
-		if((int)gameSettings[FT_Lives] < 0 && (int)gameSettings[FT_Lives] != WRM_UNLIM)
-			gameSettings.layerFor(FT_Lives)->set(FT_Lives) = (int)WRM_UNLIM;
-
-		gameSettings.dumpAllLayers();
-	}
 
 	// do after loading of mod/map because this also checks map/mod compatibility
 	// but do it anyway as early as possible
 	checkVersionCompatibilities(true);
 
-	// Note: This must be after we have setup the gamePresetSettings because it may change the WeaponRest!
-	// (@pelya: your hack to make it faster cannot work because of this.)
-
-	// Load & update the weapon restrictions
-	game.loadWeaponRestrictions();
-	
 	for( int i = 0; i < MAX_CLIENTS; i++ )
 	{
 		if( !cClients[i].isConnected() )

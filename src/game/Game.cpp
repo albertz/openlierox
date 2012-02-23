@@ -43,6 +43,7 @@
 #include "gusanos/network.h"
 #include "FlagInfo.h"
 #include "CWpnRest.h"
+#include "CChannel.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -197,7 +198,54 @@ void Game::prepareMenu() {
 Result Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
-	
+
+	// TODO: remove that as soon as we do the gamescript/map loading in a seperate thread
+	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
+
+	// Note: This is probably the most hacky way of doing this but it should work fine.
+	// In the future, it probably will be exactly the other way around:
+	// Map/mod loading will be in an extra thread and the main game thread will keep us alive in the meanwhile.
+	// WARNING: This code assumes that we don't access cl->cNetChan in the meanwhile. Even when doing this
+	// in a clean way, we would need that. In case we need this at some time, the only solution is to make CChannel
+	// threadsafe or to add another way to keep us alive (maybe a connection-less ping package with the same effect or so).
+	struct TimeoutAvoider {
+		struct TimeoutAvoiderAction : Action {
+			CChannel* chan;
+			SmartPointer< ThreadVar<bool> > scope;
+
+			Result handle() {
+				int c = 0;
+				while(true) {
+					{
+						ThreadVar<bool>::Reader s(*scope.get());
+						if(!s.get()) break;
+
+						if(c == 1) {
+							// This will kind of keep us alive.
+							CBytestream emptyUnreliable;
+							chan->Transmit(&emptyUnreliable);
+						}
+					}
+					c++; c %= 10;
+					SDL_Delay(100);
+				}
+				return true;
+			}
+		};
+
+		SmartPointer< ThreadVar<bool> > scope;
+		TimeoutAvoider() {
+			if(game.isServer()) return;
+			scope = new ThreadVar<bool>(true);
+			TimeoutAvoiderAction* a = new TimeoutAvoiderAction();
+			a->chan = cClient->cNetChan;
+			a->scope = scope;
+			threadPool->start(a, "prepareGameloop timeout avoider keep-me-alive", true);
+		}
+		~TimeoutAvoider() { if(scope.get()) scope->write() = false; }
+	};
+	TimeoutAvoider timeoutAvoider;
+
 	// If we go out of the menu, it means the user has selected something.
 	// This indicates that everything is fine, so we should restart in case of a crash.
 	// Note that we will set this again to false later on in case the user quitted.
@@ -255,6 +303,42 @@ Result Game::prepareGameloop() {
 
 		gusGame.runInitScripts();
 	}
+
+	if(game.isServer()) {
+		// Check that gamespeed != 0
+		if (-0.05f <= (float)gameSettings[FT_GameSpeed] && (float)gameSettings[FT_GameSpeed] <= 0.05f) {
+			warnings << "WARNING: gamespeed was set to " << gameSettings[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
+			gameSettings.overwrite[FT_GameSpeed] = 1;
+		}
+
+		// Note: this code must be after we loaded the mod!
+		// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
+		if(!gameScript()->gusEngineUsed() /*LX56*/) {
+			// Copy over LX56 mod settings. This is an independent layer, so it is also independent from gamePresetSettings.
+			modSettings = game.gameScript()->lx56modSettings;
+		}
+
+		// First, clean up the old settings.
+		gamePresetSettings.makeSet(false);
+		// Now, load further mod custom settings.
+		gamePresetSettings.loadFromConfig(game.gameScript()->directory() + "/gamesettings.cfg", false);
+		// Now, after this, load the settings specified by the game settings preset.
+		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
+		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
+			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
+
+		// fix some broken settings
+		if((int)gameSettings[FT_Lives] < 0 && (int)gameSettings[FT_Lives] != WRM_UNLIM)
+			gameSettings.layerFor(FT_Lives)->set(FT_Lives) = (int)WRM_UNLIM;
+
+		gameSettings.dumpAllLayers();
+	}
+
+	// Client: In the PrepareGame package (on older servers), we read the list from the server.
+	//   Here, we just update it according to the game script.
+	//   We must do it here now because we haven't loaded the gamescript earlier.
+	// Server: This must be after we have setup the gamePresetSettings because it may change the WeaponRest!
+	game.loadWeaponRestrictions();
 
 	if(game.isServer()) {
 		std::string errMsg;
