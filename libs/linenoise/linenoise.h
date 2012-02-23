@@ -37,28 +37,25 @@
 #ifndef __LINENOISE_H
 #define __LINENOISE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <string>
+#include <vector>
 
-typedef struct linenoiseCompletions {
-  size_t len;
-  char **cvec;
-} linenoiseCompletions;
+typedef std::vector<std::string> LinenoiseCompletions;
 
-typedef void(linenoiseCompletionCallback)(const char *, linenoiseCompletions *);
-void linenoiseSetCompletionCallback(linenoiseCompletionCallback *);
-void linenoiseAddCompletion(linenoiseCompletions *, char *);
+typedef void(LinenoiseCompletionCallback)(const std::string&, LinenoiseCompletions *);
+void linenoiseSetCompletionCallback(LinenoiseCompletionCallback *);
 
-char *linenoise(const char *prompt);
-int linenoiseHistoryAdd(const char *line);
+std::string linenoise(const std::string& prompt);
+int linenoiseHistoryAdd(const std::string& line);
 int linenoiseHistorySetMaxLen(int len);
-int linenoiseHistorySave(char *filename);
-int linenoiseHistoryLoad(char *filename);
-void linenoiseClearScreen(void);
+int linenoiseHistorySave(const std::string& filename);
+int linenoiseHistoryLoad(const std::string& filename);
+void linenoiseClearScreen();
 
-#ifdef __cplusplus
-}
-#endif
+struct LinenoiseEnv {
+	int fd;
+	std::string buf;
+	std::string prompt;
+};
 
 #endif /* __LINENOISE_H */
