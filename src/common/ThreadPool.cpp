@@ -155,6 +155,16 @@ ThreadPoolItem* ThreadPool::start(ThreadFunc fct, void* param, const std::string
 	return NULL;
 }
 
+ThreadPoolItem* ThreadPool::start(boost::function<Result()> fct, const std::string& name, bool headless) {
+	struct FctPtrAction : Action {
+		boost::function<Result()> fct;
+		Result handle() { return fct(); }
+	};
+	FctPtrAction* act = new FctPtrAction();
+	act->fct = fct;
+	return start(act, name, headless);
+}
+
 bool ThreadPool::wait(ThreadPoolItem* thread, int* status) {
 	if(!thread) return false;
 	SDL_mutexP(mutex);
