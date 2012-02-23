@@ -198,6 +198,8 @@ void Game::prepareMenu() {
 }
 
 Result Game::prepareGameloop() {
+	notes << "prepare game loop" << endl;
+
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 
@@ -464,9 +466,8 @@ Result Game::prepareGameloop() {
 		GetGlobalIRC()->setAwayMessage("Playing: " + cClient->getServerName());
 
 	ProcessEvents();
-	notes << "MaxFPS is " << tLXOptions->nMaxFPS << endl;
+	notes << "GameLoopStart. MaxFPS is " << tLXOptions->nMaxFPS << endl;
 
-	notes << "GameLoopStart" << endl;
 	inMainGameLoop = true;
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->GameLoopStart_Signal();
