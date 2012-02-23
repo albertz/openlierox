@@ -602,7 +602,7 @@ void Game::frameInner()
 		}
 	}
 
-	if(state >= Game::S_Preparing) {
+	if(!state.ext.updated && state >= Game::S_Preparing) {
 		// We have a separate fixed 100FPS for game simulation.
 		// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
 		// we have to set it accordingly.
@@ -622,6 +622,10 @@ void Game::frameInner()
 				tLX->currentTime += TimeDiff(simDelay.milliseconds() - simDelay.milliseconds() % Game::FixedFrameTime);
 				continue;
 			}
+
+			if(game.state.ext.updated)
+				// re-check everything outside. too much could have happened
+				break;
 
 			if(game.state < Game::S_Preparing)
 				break;
@@ -653,7 +657,7 @@ void Game::frameInner()
 
 	iterAttrUpdates(NULL);
 
-	if(tLX && state >= Game::S_Preparing)
+	if(tLX && !state.ext.updated && state >= Game::S_Preparing)
 		cClient->Draw(VideoPostProcessor::videoSurface());
 
 	if(state != Game::S_Inactive) {

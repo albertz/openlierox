@@ -1095,6 +1095,11 @@ bool CClient::ReadPackets()
 			while( cNetEngine->ParsePacket(&bs) ) { }
 			bs.Clear();
 		}
+
+		if(game.state.ext.updated)
+			// The game state changed. Maybe we want to prepare the game. This is done in
+			// the next frame in the main loop, so skip everything for now and first prepare.
+			break;
 	}
 
 	// Check if our connection with the server timed out
