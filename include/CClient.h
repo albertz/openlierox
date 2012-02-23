@@ -317,6 +317,7 @@ private:
 
 	// Network
 	CClientNetEngine * cNetEngine;	// Should never be NULL, to skip some checks
+	std::list<CBytestream> outstandingPackets;
 	int			iNetSpeed;
 	int			iNetStatus;
 	int			reconnectingAmount;

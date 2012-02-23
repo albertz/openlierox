@@ -83,7 +83,8 @@ void CClient::Clear()
 	if( cNetChan )
 		delete cNetChan;
 	cNetChan = NULL;
-	iNetStatus 	 = NET_DISCONNECTED;	
+	iNetStatus 	 = NET_DISCONNECTED;
+	outstandingPackets.clear();
 	reconnectingAmount = 0;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
@@ -1057,10 +1058,11 @@ void CClient::NewNet_Frame()
 // Read the packets
 bool CClient::ReadPackets()
 {	
-	CBytestream		bs;
 	bool anythingNew = false;
-	
-	while(bs.Read(tSocket)) {
+
+	while(true) {
+		CBytestream bs;
+		if(!bs.Read(tSocket)) break;
 		anythingNew = true;
 		
 		// each bs.Read reads the next UDP packet and resets the bs
@@ -1090,16 +1092,26 @@ bool CClient::ReadPackets()
 		}		
 		
 		// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
-		while( cNetChan->Process(&bs) )
-		{
-			while( cNetEngine->ParsePacket(&bs) ) { }
+		while(true) {
+			if(!cNetChan->Process(&bs))
+				break;
+			outstandingPackets.push_back(bs);
 			bs.Clear();
 		}
+	}
 
-		if(game.state.ext.updated)
+	while(!outstandingPackets.empty()) {
+		anythingNew = true;
+		CBytestream& bs = outstandingPackets.front();
+		while(true) {
 			// The game state changed. Maybe we want to prepare the game. This is done in
 			// the next frame in the main loop, so skip everything for now and first prepare.
-			break;
+			if(game.state.ext.updated)
+				return true;
+			if(!cNetEngine->ParsePacket(&bs))
+				break;
+		}
+		outstandingPackets.pop_front();
 	}
 
 	// Check if our connection with the server timed out
@@ -1220,6 +1232,7 @@ void CClient::Connect(const std::string& address)
 {
 	notes << "Client connect to " << address << endl;
 	iNetStatus = NET_CONNECTING;
+	outstandingPackets.clear();
 	reconnectingAmount = 0;
 	strServerAddr_HumanReadable = strServerAddr = address;
 	iNumConnects = 0;
