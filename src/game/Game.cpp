@@ -656,16 +656,17 @@ void Game::frameInner()
 		tLX->fDeltaTime = curDeltaTime;
 	}
 
+	const bool stateUpdated = state.ext.updated;
 	iterAttrUpdates(NULL);
 
-	if(tLX && !state.ext.updated && state >= Game::S_Preparing)
+	if(tLX && !stateUpdated && state >= Game::S_Preparing)
 		cClient->Draw(VideoPostProcessor::videoSurface());
 
 	if(state != Game::S_Inactive) {
 		// Gusanos network
 		network.update();
 
-		if(!state.ext.updated) // only if not updated, too unsafe otherwise
+		if(!stateUpdated) // only if not updated, too unsafe otherwise
 			cClient->SendPackets();
 
 		// Connecting process
