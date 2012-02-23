@@ -840,42 +840,9 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
-	for_each_iterator(CWorm*, w_, game.worms()) {
-		CWorm* w = w_->get();
-		
-		// (If this is a local game?), we need to reload the worm graphics
-		// We do this again because we've only just found out what type of game it is
-		// Team games require changing worm colours to match the team colour
-		// Inefficient, but i'm not going to redesign stuff for a simple gametype
-		w->ChangeGraphics(client->getGeneralGameType());
-
-		notes << "Client: preparing worm " << w->getID() << ":" << w->getName() << " for battle" << endl;
-
-		// Also set some game details
-		w->setLives(client->getGameLobby()[FT_Lives]);
-		w->setKills(0);
-		w->setDeaths(0);
-		w->setTeamkills(0);
-		w->setDamage(0);
-		w->setHealth(100);
-		w->bWeaponsReady = false;
-
-		// Prepare for battle!
-		w->Prepare();
-	}
-
 	// The worms are first prepared here in this function and thus the input handlers where not set before.
 	// We have to set the control keys now.
 	client->SetupGameInputs();
-
-
-	// Initialize the worms weapon selection menu & other stuff
-	if (!client->bWaitingForMod)
-		for_each_iterator(CWorm*, w, game.localWorms()) {
-			// we already prepared all the worms (cRemoteWorms) above
-			if(!w->get()->bWeaponsReady)
-				w->get()->initWeaponSelection();
-		}
 	
 	// Start the game logging
 	if(!isReconnect)

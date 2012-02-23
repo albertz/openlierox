@@ -339,17 +339,12 @@ int GameServer::PrepareGame(std::string* errMsg)
 		errors << "server prepare game: current game state " << game.state << " is invalid" << endl;
 		return false;
 	}	
-
-
-	CBytestream bs;
 	
 	notes << "GameServer::PrepareGame(), mod: " << gameSettings[FT_Mod].as<ModInfo>()->name << ", time: " << GetDateTimeText() << endl;
 	
 	// reset here because we may set it already when we load the map and we don't want to overwrite that later on
 	cClient->SetPermanentText("");
 	
-	
-
 	// do after loading of mod/map because this also checks map/mod compatibility
 	// but do it anyway as early as possible
 	checkVersionCompatibilities(true);
@@ -359,18 +354,6 @@ int GameServer::PrepareGame(std::string* errMsg)
 		if( !cClients[i].isConnected() )
 			continue;
 		cClients[i].getNetEngine()->SendPrepareGame();
-	}
-
-	
-	// Set some info on the worms
-	for_each_iterator(CWorm*, w, game.worms()) {
-		w->get()->setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);
-		w->get()->setKills(0);
-		w->get()->setDeaths(0);
-		w->get()->setTeamkills(0);
-		w->get()->setDamage(0);
-		w->get()->bWeaponsReady = false;
-		w->get()->Prepare();
 	}
 
 	// Clear bonuses
@@ -393,38 +376,6 @@ int GameServer::PrepareGame(std::string* errMsg)
 		cClients[i].getUdpFileDownloader()->allowFileRequest(false);
 	}
 
-	//TODO: Move into CTeamDeathMatch | CGameMode
-	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
-	// teams they are on
-	if( (game.isServer() && !game.isLocalGame()) ) {
-		if( game.gameMode()->GameTeams() > 1 )
-			UpdateWorms();
-	}
-	
-	notes << "preparing game mode " << game.gameMode()->Name() << endl;
-	game.gameMode()->PrepareGame();
-	
-	for( int i = 0; i < MAX_CLIENTS; i++ )
-	{
-		if( !cClients[i].isConnected() )
-			continue;
-
-		// Force random weapons for spectating clients
-		bool haveSpectating = false;
-		for_each_iterator(CWorm*, w, game.wormsOfClient(&cClients[i])) {
-			if(w->get()->isSpectating()) {
-				haveSpectating = true;
-				w->get()->GetRandomWeapons();
-				w->get()->bWeaponsReady = true;
-			}
-		}
-
-		if(haveSpectating)	
-			SendWeapons();	// TODO: we're sending multiple weapons packets, but clients handle them okay
-	}
-	
-	//PhysicsEngine::Get()->initGame();
-
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
 	
@@ -432,25 +383,16 @@ int GameServer::PrepareGame(std::string* errMsg)
 	if( tLXOptions->bRegServer && (game.isServer() && !game.isLocalGame()) )
 		RegisterServerUdp();
 	
-	for_each_iterator(CWorm*, w, game.worms())
-		PrepareWorm(w->get());
-
-	for( int i = 0; i < MAX_CLIENTS; i++ ) {
-		if( !cClients[i].isConnected() )
-			continue;
-		cClients[i].getNetEngine()->SendWormProperties(true); // if we have changed them in prepare or so
-	}
-	
-	// update about all other vars
-	UpdateGameLobby();
-	gameSettings.pushUpdateHintAll(); // because of mod specific settings and what not ...
-
 	return true;
 }
 
 void GameServer::PrepareWorm(CWorm* worm) {
 	// initial server side weapon handling
-	if(gameSettings[FT_SameWeaponsAsHostWorm] && game.localWorms()->tryGet()) {
+	if(worm->isSpectating()) {
+		worm->GetRandomWeapons();
+		worm->bWeaponsReady = true;
+	}
+	else if(gameSettings[FT_SameWeaponsAsHostWorm] && game.localWorms()->tryGet()) {
 		if(game.state >= Game::S_Preparing && game.localWorms()->tryGet()->bWeaponsReady) {
 			worm->CloneWeaponsFrom(game.localWorms()->tryGet());
 			worm->bWeaponsReady = true;

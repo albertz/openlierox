@@ -44,6 +44,8 @@
 #include "FlagInfo.h"
 #include "CWpnRest.h"
 #include "CChannel.h"
+#include "CServerConnection.h"
+#include "CServerNetEngine.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -374,7 +376,7 @@ Result Game::prepareGameloop() {
 		// to earlier versions. Thus we overwrite it this way.
 		gameScript()->lx56modSettings.copyTo( cClient->getGameLobby().overwrite );
 	}
-		
+
 	if(isServer()) {
 		// resend lua event index to everyone
 		network.sendEncodedLuaEvents(INVALID_CONN_ID);		
@@ -397,14 +399,69 @@ Result Game::prepareGameloop() {
 	cClient->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
 	cClient->cProjectiles.clear();
 
+	// Set some info on the worms
+	for_each_iterator(CWorm*, w, game.worms()) {
+		notes << "preparing worm " << w->get()->getID() << ":" << w->get()->getName() << " for battle" << endl;
+
+		w->get()->setLives(((int)cClient->getGameLobby()[FT_Lives] < 0) ? WRM_UNLIM : (int)cClient->getGameLobby()[FT_Lives]);
+		w->get()->setKills(0);
+		w->get()->setDeaths(0);
+		w->get()->setTeamkills(0);
+		w->get()->setDamage(0);
+		w->get()->setHealth(100);
+		w->get()->bWeaponsReady = false;
+
+		// (If this is a local game?), we need to reload the worm graphics
+		// We do this again because we've only just found out what type of game it is
+		// Team games require changing worm colours to match the team colour
+		// Inefficient, but i'm not going to redesign stuff for a simple gametype
+		w->get()->ChangeGraphics(cClient->getGeneralGameType());
+
+		w->get()->Prepare();
+	}
+
+	// Initialize the worms weapon selection menu & other stuff
+	if (!cClient->bWaitingForMod)
+		for_each_iterator(CWorm*, w, game.localWorms()) {
+			// we already prepared all the worms (cRemoteWorms) above
+			if(!w->get()->bWeaponsReady)
+				w->get()->initWeaponSelection();
+		}
+
+	//TODO: Move into CTeamDeathMatch | CGameMode
+	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
+	// teams they are on
+	if(game.isServer() && !game.isLocalGame()) {
+		if( game.gameMode()->GameTeams() > 1 )
+			cServer->UpdateWorms();
+	}
+
+	if(game.isServer()) {
+		notes << "preparing game mode " << game.gameMode()->Name() << endl;
+		game.gameMode()->PrepareGame();
+	}
+
+	if(game.isServer()) {
+		for_each_iterator(CWorm*, w, game.worms())
+			cServer->PrepareWorm(w->get());
+
+		for( int i = 0; i < MAX_CLIENTS; i++ ) {
+			if( !cServer->getClients()[i].isConnected() )
+				continue;
+			cServer->getClients()[i].getNetEngine()->SendWormProperties(true); // if we have changed them in prepare or so
+		}
+
+		// update about all other vars
+		cServer->UpdateGameLobby();
+		gameSettings.pushUpdateHintAll(); // because of mod specific settings and what not ...
+	}
+
 	if( GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Playing: " + cClient->getServerName());
 
 	ProcessEvents();
 	notes << "MaxFPS is " << tLXOptions->nMaxFPS << endl;
-	
-	//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
-	
+
 	notes << "GameLoopStart" << endl;
 	inMainGameLoop = true;
 	if( DedicatedControl::Get() )
