@@ -664,7 +664,8 @@ void Game::frameInner()
 		// Gusanos network
 		network.update();
 
-		cClient->SendPackets();
+		if(!state.ext.updated) // only if not updated, too unsafe otherwise
+			cClient->SendPackets();
 
 		// Connecting process
 		if (cClient->bConnectingBehindNat)
