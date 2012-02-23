@@ -363,6 +363,9 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	
 	if( !isReconnect && GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Server: " + client->getServerName());
+
+	if(game.state == Game::S_Connecting)
+		game.state = Game::S_Lobby;
 }
 
 //////////////////
