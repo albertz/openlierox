@@ -428,6 +428,10 @@ Result Game::prepareGameloop() {
 				w->get()->initWeaponSelection();
 		}
 
+	// The worms are first prepared here in this function and thus the input handlers where not set before.
+	// We have to set the control keys now.
+	cClient->SetupGameInputs();
+
 	//TODO: Move into CTeamDeathMatch | CGameMode
 	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 	// teams they are on

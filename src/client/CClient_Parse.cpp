@@ -839,10 +839,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			}
 		}
 	}
-
-	// The worms are first prepared here in this function and thus the input handlers where not set before.
-	// We have to set the control keys now.
-	client->SetupGameInputs();
 	
 	// Start the game logging
 	if(!isReconnect)
