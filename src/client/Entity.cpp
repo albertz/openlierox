@@ -167,6 +167,11 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Color colour, SmartPoi
 			return;
 	}
 
+	if(type == ENT_GIB && img.get() == NULL) {
+		errors << "SpawnEntity: giblet without surface" << endl;
+		return;
+	}
+
 	entity_t *ent = tEntities.getNewObj();
 
 	// Are there any free entitiy slots?
