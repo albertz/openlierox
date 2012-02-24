@@ -503,7 +503,6 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	game.state = Game::S_Lobby;
 	bool bUpdateWorms = false;
 	for_each_iterator(CWorm*, w, game.worms()) {
-		w->get()->Unprepare();
 		if( w->get()->getAFK() == AFK_TYPING_CHAT )
 		{
 			w->get()->setAFK(AFK_BACK_ONLINE, "");

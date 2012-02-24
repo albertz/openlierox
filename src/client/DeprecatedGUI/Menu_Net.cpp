@@ -143,7 +143,7 @@ void Menu_Net_GotoHostLobby()
 
 	Menu_Net_HostGotoLobby();
 
-	SetQuitEngineFlag("Menu_Net_GotoHostLobby");
+	game.state = Game::S_Lobby;
 	bSkipStart = true;
 }
 
