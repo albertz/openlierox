@@ -11,7 +11,7 @@
 #define __MUTEX_H__
 
 #include <SDL_mutex.h>
-#include "Utils.h"
+#include "CodeAttributes.h"
 
 #define INVALID_THREAD_ID (Uint32)-1
 
@@ -42,10 +42,16 @@ public:
 	void unlock()	{ SDL_UnlockMutex(m_mutex); }
 //#endif
 	
-	struct ScopedLock {
+	struct ScopedLock : DontCopyTag {
 		Mutex& mutex;
 		ScopedLock(Mutex& m) : mutex(m) { mutex.lock(); }
 		~ScopedLock() { mutex.unlock(); }
+	};
+
+	struct ScopedUnlock : DontCopyTag {
+		Mutex& mutex;
+		ScopedUnlock(Mutex& m) : mutex(m) { mutex.unlock(); }
+		~ScopedUnlock() { mutex.lock(); }
 	};
 };
 
