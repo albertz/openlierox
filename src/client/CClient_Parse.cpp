@@ -2130,46 +2130,8 @@ void CClientNetEngine::ParseDestroyBonus(CBytestream *bs)
 void CClientNetEngine::ParseGotoLobby(CBytestream *)
 {
 	notes << "Client: received gotoLobby signal" << endl;
-
-	// TODO: Why did we have that code? In hosting mode, we should always trust the server.
-	// Even worse, the check is not fully correct. client->bGameOver means that the game is over.
-	/*
-	if (game.isServer())  {
-		if (game.state >= Game::S_Preparing)  {
-			warnings << "we should go to lobby but should not quit the game, ignoring game over signal" << endl;
-			return;
-		}
-	}
-	 */
-	
-	// Do a minor clean up
-	client->MinorClear();
-	game.state = Game::S_Lobby;
-
-	// Hide the console
-	Con_Hide();
-
-	DeprecatedGUI::Menu_FloatingOptionsShutdown();
-
-
-	if(game.isClient()) {
-
-		// Tell server my worms aren't ready
-		CBytestream bs;
-		bs.Clear();
-		bs.writeByte(C2S_UPDATELOBBY);
-		bs.writeByte(0);
-		client->cNetChan->AddReliablePacketToSend(bs);
-
-		// Goto the join lobby
+	if(game.isClient())
 		GotoJoinLobby();
-	}
-
-	client->ShutdownLog();
-
-	if( GetGlobalIRC() )
-		GetGlobalIRC()->setAwayMessage("Server: " + client->getServerName());
-
 }
 
 

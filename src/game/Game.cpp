@@ -691,7 +691,9 @@ void Game::frameInner()
 void Game::cleanupAfterGameloopEnd() {
 	wasPrepared = false;
 	CrashHandler::recoverAfterCrash = false;
-	
+
+	cClient->ShutdownLog();
+
 	// can happen if we have aborted a game
 	if(isServer() && !gameOver)
 		// call gameover because we may do some important cleanup there
@@ -726,6 +728,28 @@ void Game::cleanupAfterGameloopEnd() {
 	else {
 		if(cClient->getStatus() == NET_DISCONNECTED)
 			stop();
+	}
+
+	if(game.state == Game::S_Lobby) {
+		// Do a minor clean up
+		cClient->MinorClear();
+
+		// Hide the console
+		Con_Hide();
+
+		DeprecatedGUI::Menu_FloatingOptionsShutdown();
+
+		if(game.isClient()) {
+			// Tell server my worms aren't ready
+			CBytestream bs;
+			bs.Clear();
+			bs.writeByte(C2S_UPDATELOBBY);
+			bs.writeByte(0);
+			cClient->cNetChan->AddReliablePacketToSend(bs);
+		}
+
+		if( GetGlobalIRC() )
+			GetGlobalIRC()->setAwayMessage("Server: " + cClient->getServerName());
 	}
 }
 
