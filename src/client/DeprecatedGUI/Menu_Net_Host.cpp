@@ -1298,9 +1298,6 @@ bool Menu_Net_HostStartGame()
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
 	cHostLobby.Shutdown();
 
-	// Setup the client
-	cClient->SetupViewports();
-
 	return true;
 }
 
