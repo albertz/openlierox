@@ -190,6 +190,7 @@ startpoint:
 	}
 
 	teeStdoutFile(GetWriteFullFileName("logs/OpenLieroX - " + GetDateTimeFilename() + ".txt", true));
+	activateStdinCLIHistory();
 	CrashHandler::init();
 
 	if(!NetworkTexts::Init()) {

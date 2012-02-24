@@ -5,6 +5,7 @@
 
 Result initStdinCLISupport();
 void quitStdinCLISupport();
+void activateStdinCLIHistory(); // this must wait until we have the filesystem inited
 bool stdinCLIActive();
 
 // Use this whereever you want to print on stdout.

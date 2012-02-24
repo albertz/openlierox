@@ -6,7 +6,9 @@
 #include "Debug.h"
 #include "InputEvents.h"
 #include "Autocompletion.h"
+#include "FindFile.h"
 
+static const char* HistoryFilename = "stdin-cli-history.txt";
 
 static bool hasStdinCLISupport = false;
 
@@ -18,6 +20,7 @@ Result initStdinCLISupport() {
 }
 
 void quitStdinCLISupport() {}
+void activateStdinCLIHistory() {}
 
 StdinCLI_StdoutScope::StdinCLI_StdoutScope() {}
 StdinCLI_StdoutScope::~StdinCLI_StdoutScope() {}
@@ -47,6 +50,7 @@ StdinCmdLineIntf stdinCLI;
 static Mutex stdoutMutex;
 static bool stdoutInRawMode = false;
 static bool quit = false;
+static bool historySupport = false;
 
 struct LinenoiseEnvCustom : LinenoiseEnv {
 	LinenoiseEnvCustom() {
@@ -117,6 +121,7 @@ bool linenoiseCompletionCallbackFunc(const std::string& buf, LinenoiseCompletion
 
 int handleStdin(void*) {
 	while(!linenoiseEnv.hadReadError) {
+		bool useHistory = false;
 		std::string buf;
 		{
 			Mutex::ScopedLock lock(stdoutMutex);
@@ -124,10 +129,13 @@ int handleStdin(void*) {
 			stdoutInRawMode = true;
 			buf = linenoiseEnv.getNextInput();
 			stdoutInRawMode = false;
+			useHistory = historySupport;
 		}
 		if(!buf.empty()) {
 			Execute( &stdinCLI, buf );
 			WakeupIfNeeded();
+			if(useHistory)
+				linenoiseHistorySave(GetWriteFullFileName(HistoryFilename));
 		}
 	}
 	if(!quit)
@@ -166,6 +174,14 @@ void quitStdinCLISupport() {
 	SDL_WaitThread(stdinHandleThread, NULL);
 	stdinHandleThread = NULL;
 	hasStdinCLISupport = false;
+}
+
+void activateStdinCLIHistory() {
+	if(!hasStdinCLISupport) return;
+
+	Mutex::ScopedLock lock(stdoutMutex);
+	linenoiseHistoryLoad(GetFullFileName(HistoryFilename));
+	historySupport = true;
 }
 
 #endif // HAVE_LINENOISE
