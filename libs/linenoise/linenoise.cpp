@@ -509,6 +509,7 @@ void linenoiseSetCompletionCallback(LinenoiseCompletionCallback *fn) {
 int linenoiseHistoryAdd(const std::string& line) {
     if (history_max_len == 0) return 0;
 	if(line.empty()) return 0;
+	if(!history.empty() && history.back() == line) return 0;
 	history.push_back(line);
 	if(history.size() > history_max_len)
 		history.erase(history.begin(), history.begin() + history.size() - history_max_len);
