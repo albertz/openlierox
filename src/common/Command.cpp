@@ -53,6 +53,7 @@
 #include "game/Level.h"
 #include "game/ServerList.h"
 #include "EventQueue.h"
+#include "client/ClientConnectionRequestInfo.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -1846,6 +1847,10 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		caller->writeMsg("ERROR: Client wouldn't initialize", CNC_ERROR);
 		return;
 	}
+
+	cClient->connectInfo = new ClientConnectionRequestInfo;
+	cClient->connectInfo->worms.push_back(MainHumanProfile());
+
 	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 
 	if(gameSettings[FT_Mod].as<ModInfo>()->path == "")
