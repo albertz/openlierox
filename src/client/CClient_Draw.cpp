@@ -1703,7 +1703,12 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
-			CWorm *p = game.wormById(iScoreboard[i]);
+			CWorm *p = game.wormById(iScoreboard[i], false);
+			if(!p) {
+				cClient->UpdateScoreboard();
+				bUpdateScore = true;
+				return;
+			}
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1762,7 +1767,12 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
-			CWorm *p = game.wormById(iScoreboard[i]);
+			CWorm *p = game.wormById(iScoreboard[i], false);
+			if(!p) {
+				cClient->UpdateScoreboard();
+				bUpdateScore = true;
+				return;
+			}
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1811,7 +1821,12 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
-			CWorm *p = game.wormById(iScoreboard[i]);
+			CWorm *p = game.wormById(iScoreboard[i], false);
+			if(!p) {
+				cClient->UpdateScoreboard();
+				bUpdateScore = true;
+				return;
+			}
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1902,7 +1917,12 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				if (lv->getItemCount() >= 16)
 					lv = Right;
 
-				CWorm* p = game.wormById(iScoreboard[i]);
+				CWorm* p = game.wormById(iScoreboard[i], false);
+				if(!p) {
+					cClient->UpdateScoreboard();
+					bUpdateScore = true;
+					return;
+				}
 
 				if(p->getTeam() != team)
 					continue;
