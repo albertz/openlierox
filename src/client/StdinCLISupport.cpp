@@ -5,6 +5,7 @@
 #include "OLXCommand.h"
 #include "Debug.h"
 #include "InputEvents.h"
+#include "Autocompletion.h"
 
 
 static bool hasStdinCLISupport = false;
@@ -93,9 +94,25 @@ StdinCLI_StdoutScope::~StdinCLI_StdoutScope() {
 	stdoutMutex.unlock();
 }
 
-void linenoiseCompletionCallbackFunc(const std::string& buf, LinenoiseCompletions* lc) {
+bool linenoiseCompletionCallbackFunc(const std::string& buf, LinenoiseCompletions* lc) {
 	Mutex::ScopedUnlock unlock(stdoutMutex);
 
+	// Auto-complete
+	AutocompletionInfo autoCompleteInfo;
+	AutoComplete(linenoiseEnv.buf, linenoiseEnv.pos, stdinCLI, autoCompleteInfo);
+	bool fail = false;
+	AutocompletionInfo::InputState oldState(linenoiseEnv.buf, linenoiseEnv.pos);
+	AutocompletionInfo::InputState newState;
+	autoCompleteInfo.popWait(oldState, newState, fail);
+	if(!fail) {
+		Mutex::ScopedLock lock(stdoutMutex);
+		linenoiseEnv.buf = newState.text;
+		linenoiseEnv.pos = newState.pos;
+		linenoiseEnv.refreshLine();
+		return true;
+	}
+
+	return false;
 }
 
 int handleStdin(void*) {
