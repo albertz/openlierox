@@ -183,66 +183,6 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 	
 };
 
-struct StdinCmdLineIntf : CmdLineIntf {
-	ThreadPoolItem* thread;
-	
-	StdinCmdLineIntf() {
-		thread = threadPool->start(&StdinCmdLineIntf::stdinThreadFunc, this, "Ded stdin watcher");
-	}
-	
-	~StdinCmdLineIntf() {
-		notes << "waiting for stdinThread ..." << endl;
-		threadPool->wait(thread, NULL);
-		thread = NULL;
-	}
-	
-	void pushReturnArg(const std::string& str) {
-		notes << "Dedicated return: " << str << endl;
-	}
-	
-	void finalizeReturn() {
-		notes << "Dedicated return." << endl;
-	}
-
-	void writeMsg(const std::string& str, CmdLineMsgType type) {
-		// TODO: handle type
-		hints << "STDIN Dedicated: " << str << endl;
-	}
-	
-	
-	// reading lines from stdin and put them to pipeOutput
-	static Result stdinThreadFunc(void* o) {
-		StdinCmdLineIntf* owner = (StdinCmdLineIntf*)o;
-
-#ifndef WIN32
-		// TODO: there's no fcntl for Windows!
-		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
-#endif
-			warnings << "ERROR setting standard input into non-blocking mode" << endl;
-
-		while(true) {
-			std::string buf;
-			while(true) {
-				SDL_Delay(10); // TODO: select() here
-				if(tLX->bQuitGame) return true;
-
-				char c;
-
-				if(read(0, &c, 1) >= 0) {
-					if(c == '\n') break;
-					// TODO: why is this needed? is that WIN32 only?
-					if(c == -52) return true;  // CTRL-C
-					buf += c;
-				}
-			}
-
-			Execute( owner, buf );
-		}
-		return true;
-	}	
-};
-
-
 
 
 struct DedIntern {
@@ -250,7 +190,6 @@ struct DedIntern {
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
 	ScriptCmdLineIntf* scriptInterface;
-	StdinCmdLineIntf* stdinInterface;
 	
 	bool quitSignal;
 	SDL_mutex* pendingSignalsMutex;
@@ -265,7 +204,7 @@ struct DedIntern {
 	
 
 	DedIntern() :
-		scriptInterface(NULL), stdinInterface(NULL),
+		scriptInterface(NULL),
 		quitSignal(false),
 		pendingSignalsMutex(NULL), waitingForNextSignal(false)
 	{
@@ -273,14 +212,12 @@ struct DedIntern {
 		pendingSignalsMutex = SDL_CreateMutex();
 
 		scriptInterface = new ScriptCmdLineIntf();
-		stdinInterface = new StdinCmdLineIntf();
 	}
 	
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
 
-		delete stdinInterface; stdinInterface = NULL;
 		delete scriptInterface; scriptInterface = NULL;
 		
 		SDL_DestroyMutex(pendingSignalsMutex);
