@@ -1906,19 +1906,6 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 		caller->pushReturnArg("cannot start game, too few players");
 		return;
 	}
-
-	if(game.state != Game::S_Lobby) {
-		// we have already started the game -> goto lobby back first and then restart
-		cServer->gotoLobby(false, "Cmd_startGame and we were not in lobby before");
-		for_each_iterator(CWorm*, w, game.localWorms()) {
-			/*
-			 If we have host-worm-does-wpn-selection activated, we would skip the new
-			 wpn selection if we don't force it by this way.
-			 */
-			w->get()->bWeaponsReady = false;
-		}
-	}
-	
 	// Start the game
 	game.startGame();
 }
