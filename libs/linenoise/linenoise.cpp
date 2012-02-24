@@ -291,8 +291,9 @@ std::string LinenoiseEnv::getNextInput() {
 		operator bool() { return v; }
 		~RawInputScope() {
 			if(!v) return;
+			l.eraseLine();
 			linenoiseDisableRawMode(l.fd);
-			printf("\n");
+			printf("%s%s\n", l.prompt.c_str(), l.buf.c_str());
 		}
 	};
 	RawInputScope rawInputScope(*this);
