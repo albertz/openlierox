@@ -11,6 +11,7 @@
 #include "StringUtils.h"
 #include "CrashHandler.h"
 #include "OLXCommand.h"
+#include "client/StdinCLISupport.h"
 
 
 #include <time.h>
@@ -615,6 +616,7 @@ static bool logger_output(Logger& log, const std::string& buf) {
 
 	if(!tLXOptions || tLXOptions->iVerbosity >= log.minCoutVerb) {
 		SDL_mutexP(globalCoutMutex);
+		StdinCLI_StdoutScope stdoutScope;
 		ret = PrettyPrint(prefix, buf, CoutPrint(), log.lastWasNewline);
 		//std::cout.flush();
 		SDL_mutexV(globalCoutMutex);

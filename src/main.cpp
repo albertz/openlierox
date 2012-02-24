@@ -53,6 +53,7 @@
 #include "game/Game.h"
 #include "sound/SoundsBase.h"
 #include "game/ServerList.h"
+#include "client/StdinCLISupport.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -144,6 +145,8 @@ int main(int argc, char *argv[])
 {
 	if(DoCrashReport(argc, argv)) return 0;
 
+	// do that before teeStdoutInit so it might fall back to a safer version
+	Result stdinCLIinitRes = initStdinCLISupport();
 	teeStdoutInit();
 	
 	mainThreadId = SDL_ThreadID();
@@ -159,7 +162,10 @@ int main(int argc, char *argv[])
 #endif
 	notes << "Free memory: " << (GetFreeSysMemory() / 1024 / 1024) << " MB" << endl;
 	notes << "Current time: " << GetDateTimeText() << endl;
-	
+
+	if(!stdinCLIinitRes)
+		notes << "stdin CLI support init failed: " << stdinCLIinitRes.humanErrorMsg << endl;
+
 	// Initialize the LieroX structure
 	tLX = new lierox_t;
 
@@ -335,6 +341,7 @@ startpoint:
 	// Uninit the crash handler after all other code
 	CrashHandler::uninit();
 
+	quitStdinCLISupport();
 	teeStdoutQuit();
 	return 0;
 }

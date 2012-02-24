@@ -112,6 +112,7 @@ void		ProcessEvents(); // returns false if no new event
 
 bool		EventSystemInited();
 bool		IsWaitingForEvent();
+void		WakeupIfNeeded();
 
 // Should be called on SDL_SYSWMEVENT from main thread
 void		EvHndl_SysWmEvent_MainThread(SDL_Event* ev);

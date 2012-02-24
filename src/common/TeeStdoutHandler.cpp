@@ -7,9 +7,11 @@
  *
  */
 
+#include <SDL_thread.h>
 #include <string>
 #include <cstddef>
 #include "Debug.h"
+#include "client/StdinCLISupport.h"
 
 #ifndef WIN32
 
@@ -86,20 +88,72 @@ static void teeOlxOutputHandler(int in, int out) {
 }
 
 struct TeeStdoutInfo {
+	SDL_Thread* thread;
 	pid_t proc;
+	int pipestart;
 	int pipeend;
 	int oldstdout;
 	int oldstderr;
+	TeeStdoutInfo() : thread(NULL), proc(0), pipestart(-1), pipeend(-1), oldstdout(-1), oldstderr(-1) {}
+	void initPipeEnd(int pipeend_) {
+		pipeend = pipeend_;
+		oldstdout = dup(STDOUT_FILENO);
+		oldstderr = dup(STDERR_FILENO);
+		dup2(pipeend, STDOUT_FILENO);
+		dup2(pipeend, STDERR_FILENO);
+		setvbuf(stdout, NULL, _IONBF, 0);
+		setvbuf(stderr, NULL, _IONBF, 0);
+	}
 };
 
-static TeeStdoutInfo teeStdoutInfo = {0,0,0,0};
+static TeeStdoutInfo teeStdoutInfo;
 
 #include <sys/errno.h>
 #include <cstdio>
 #include <cstring>
 
+int threadedTeeStdout(void*) {
+	while( true ) {
+		char buf[1024];
+		ssize_t num = read(teeStdoutInfo.pipestart, buf, sizeof(buf)/sizeof(char));
+		if(num <= 0) break;
+		{
+			StdinCLI_StdoutScope stdoutScope;
+			write( teeStdoutInfo.oldstdout, buf, num );
+		}
+		for(size_t i = 0; i < (size_t)num; ++i)
+			teeOlxOutputToFileHandler((unsigned char)buf[i]);
+	}
+
+	teeOlxOutputToFileHandler(EOF);
+	return 0;
+}
+
 void teeStdoutInit() {
 	int pipe_to_handler[2];
+
+	if(stdinCLIActive()) {
+		// we must fall back to a saver teeStdout version which must be synced with the stdin CLI
+		notes << "teeStdout: save multithreaded fallback" << endl;
+
+		teeOlxOutputFile = (char*) malloc(MAXFILENAMESIZE);
+
+		if(pipe(pipe_to_handler) != 0) { // error creating pipe
+			errors << "teeStdout: cannot create pipe: " << strerror(errno) << endl;
+			return;
+		}
+
+		teeStdoutInfo.pipestart = pipe_to_handler[0];
+		teeStdoutInfo.initPipeEnd(pipe_to_handler[1]);
+
+		teeStdoutInfo.thread = SDL_CreateThread(threadedTeeStdout, NULL);
+		if(!teeStdoutInfo.thread) {
+			errors << "teeStdout: failed to create thread" << endl;
+			return;
+		}
+
+		return;
+	}
 	
 #ifdef __APPLE__
 	teeOlxOutputFile = (char*) mmap(0, MAXFILENAMESIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, 0, 0);
@@ -137,13 +191,7 @@ void teeStdoutInit() {
 	else { // parent
 		close(pipe_to_handler[0]);
 		teeStdoutInfo.proc = p;
-		teeStdoutInfo.pipeend = pipe_to_handler[1];
-		teeStdoutInfo.oldstdout = dup(STDOUT_FILENO);
-		teeStdoutInfo.oldstderr = dup(STDERR_FILENO);
-		dup2(pipe_to_handler[1], STDOUT_FILENO);
-		dup2(pipe_to_handler[1], STDERR_FILENO);
-		setvbuf(stdout, NULL, _IONBF, 0);
-		setvbuf(stderr, NULL, _IONBF, 0);
+		teeStdoutInfo.initPipeEnd(pipe_to_handler[1]);
 	}
 }
 
@@ -163,13 +211,19 @@ void teeStdoutFile(const std::string& file) {
 
 // NOTE: We are calling this also when we crashed, so be sure that we only do save operations here!
 void teeStdoutQuit(bool wait) {
-	if(teeStdoutInfo.proc) {
+	if(teeStdoutInfo.proc || teeStdoutInfo.thread) {
+		if(wait)
+			notes << "wait for teeStdout handler quit" << endl;
 		close(STDOUT_FILENO);
 		close(STDERR_FILENO);
+		if(teeStdoutInfo.pipestart >= 0) close(teeStdoutInfo.pipestart);
 		close(teeStdoutInfo.pipeend);
 		// The forked process should quit itself now.
-		if(wait) waitpid(teeStdoutInfo.proc, NULL, 0);
-		
+		if(wait) {
+			if(teeStdoutInfo.proc) waitpid(teeStdoutInfo.proc, NULL, 0);
+			if(teeStdoutInfo.thread) SDL_WaitThread(teeStdoutInfo.thread, NULL);
+		}
+
 		// Recover stdout/err
 		dup2(teeStdoutInfo.oldstdout, STDOUT_FILENO);
 		dup2(teeStdoutInfo.oldstderr, STDERR_FILENO);
@@ -178,8 +232,11 @@ void teeStdoutQuit(bool wait) {
 		printf("Standard Out/Err recovered\n");
 	}
 	
-	if(teeOlxOutputFile) {
-		munmap(teeOlxOutputFile, MAXFILENAMESIZE);
+	if(teeOlxOutputFile && wait /* otherwise unsafe */) {
+		if(teeStdoutInfo.proc)
+			munmap(teeOlxOutputFile, MAXFILENAMESIZE);
+		else if(teeStdoutInfo.thread)
+			free(teeOlxOutputFile);
 		teeOlxOutputFile = NULL;
 	}
 }

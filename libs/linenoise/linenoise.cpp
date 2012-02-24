@@ -296,7 +296,10 @@ std::string LinenoiseEnv::getNextInput() {
 		}
 	};
 	RawInputScope rawInputScope(*this);
-	if(!rawInputScope) return "";
+	if(!rawInputScope) {
+		hadReadError = true;
+		return "";
+	}
 
 	buf = "";
 	pos = 0;

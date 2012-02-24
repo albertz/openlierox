@@ -575,6 +575,13 @@ void ProcessEvents()
 	processedEvent = ret;
 }
 
+void WakeupIfNeeded() {
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT;
+	ev.user.code = UE_NopWakeup;
+	SDL_PushEvent(&ev);
+}
+
 bool ApplicationHasFocus()
 {
 	return nFocus;
