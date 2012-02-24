@@ -187,11 +187,6 @@ void CClient::MinorClear()
 	if(!bDedicated)
 		cChatList->InitializeChatBox();
 	
-	for_each_iterator(CWorm*, w, game.worms()) {
-		w->get()->resetAngleAndDir();
-		w->get()->Unprepare();
-	}
-
 	cProjectiles.clear();
 	projPosMap.clear();
 

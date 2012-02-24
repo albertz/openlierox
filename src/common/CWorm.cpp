@@ -360,6 +360,8 @@ void CWorm::Unprepare() {
 	setTagIT(false);
 	setTagTime(TimeDiff(0));
 
+	resetAngleAndDir();
+
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 	
