@@ -750,6 +750,10 @@ void Game::cleanupAfterGameloopEnd() {
 
 		if( GetGlobalIRC() )
 			GetGlobalIRC()->setAwayMessage("Server: " + cClient->getServerName());
+
+		// update menu
+		DeprecatedGUI::bHost_Update = true;
+		DeprecatedGUI::bJoin_Update = true;
 	}
 }
 
