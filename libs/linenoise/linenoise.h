@@ -53,8 +53,12 @@ int linenoiseHistorySetMaxLen(int len);
 int linenoiseHistorySave(const std::string& filename);
 int linenoiseHistoryLoad(const std::string& filename);
 
+int linenoiseEnableRawMode(int fd);
+void linenoiseDisableRawMode(int fd);
+
 struct LinenoiseEnv {
 	int fd;
+	bool hadReadError;
 	size_t cols;
 	std::string prompt;
 	std::string buf;

@@ -121,10 +121,10 @@ bool linenoiseIsUnsupportedTerm() {
 	return false;
 }
 
-static int enableRawMode(int fd) {
+int linenoiseEnableRawMode(int fd) {
     struct termios raw;
 
-    if (!isatty(STDIN_FILENO)) goto fatal;
+	if (!isatty(fd)) goto fatal;
     if (!atexit_registered) {
         atexit(linenoiseAtExit);
         atexit_registered = 1;
@@ -156,7 +156,7 @@ fatal:
     return -1;
 }
 
-static void disableRawMode(int fd) {
+void linenoiseDisableRawMode(int fd) {
     /* Don't even check the return value as it's too late. */
     if (rawmode && tcsetattr(fd,TCSAFLUSH,&orig_termios) != -1)
         rawmode = 0;
@@ -164,7 +164,7 @@ static void disableRawMode(int fd) {
 
 /* At exit we'll try to fix the terminal to the initial conditions. */
 static void linenoiseAtExit(void) {
-    disableRawMode(STDIN_FILENO);
+	linenoiseDisableRawMode(STDIN_FILENO);
 }
 
 static int getColumns() {
@@ -286,27 +286,24 @@ std::string LinenoiseEnv::getNextInput() {
 		LinenoiseEnv& l;
 		bool v;
 		RawInputScope(LinenoiseEnv& l_) : l(l_) {
-			v = enableRawMode(l.fd) != -1;
+			v = linenoiseEnableRawMode(l.fd) != -1;
 		}
 		operator bool() { return v; }
 		~RawInputScope() {
 			if(!v) return;
-			disableRawMode(l.fd);
+			linenoiseDisableRawMode(l.fd);
 			printf("\n");
 		}
 	};
 	RawInputScope rawInputScope(*this);
 	if(!rawInputScope) return "";
 
+	buf = "";
 	pos = 0;
 	cols = getColumns();
-    int history_index = 0;
 
-	buf = "";
-
-    /* The latest history entry is always our current buffer, that
-     * initially is just an empty string. */
-    linenoiseHistoryAdd("");
+	std::string savedBuf;
+	int history_index = -1; // -1 is savedBuf
     
 	if (write(prompt.c_str(),prompt.size()) == -1) return "";
     while(1) {
@@ -314,7 +311,7 @@ std::string LinenoiseEnv::getNextInput() {
         char seq[2], seq2[2];
 
 		int nread = read(&c,1);
-		if (nread <= 0) return buf;
+		if (nread <= 0) return "";
 
         /* Only autocomplete when the callback is set. It returns < 0 when
          * there was an error reading from fd. Otherwise it will return the
@@ -329,7 +326,7 @@ std::string LinenoiseEnv::getNextInput() {
 
         switch(c) {
         case 13:    /* enter */
-			history.pop_back();
+			linenoiseHistoryAdd(buf);
 			return buf;
         case 3:     /* ctrl-c */
             errno = EAGAIN;
@@ -337,7 +334,8 @@ std::string LinenoiseEnv::getNextInput() {
         case 127:   /* backspace */
         case 8:     /* ctrl-h */
 			if (pos > 0 && buf.size() > 0) {
-				buf.erase(pos - 1, 1);
+				pos--;
+				buf.erase(pos, 1);
 				refreshLine();
             }
             break;
@@ -346,15 +344,12 @@ std::string LinenoiseEnv::getNextInput() {
 				buf.erase(pos, 1);
 				refreshLine();
 			} else if (buf.size() == 0) {
-				history.pop_back();
 				return "";
             }
             break;
         case 20:    /* ctrl-t */
 			if (pos > 0 && pos < buf.size()) {
-				char aux = buf[pos-1];
-                buf[pos-1] = buf[pos];
-                buf[pos] = aux;
+				std::swap(buf[pos-1], buf[pos]);
 				if (pos != buf.size()-1) pos++;
 				refreshLine();
             }
@@ -389,20 +384,22 @@ right_arrow:
             } else if (seq[0] == 91 && (seq[1] == 65 || seq[1] == 66)) {
 up_down_arrow:
                 /* up and down arrow: history */
-				if (history.size() > 1) {
-                    /* Update the current history entry before to
-					 * overwrite it with the next one. */
-					history[history.size()-1-history_index] = buf;
-                    /* Show the new entry */
+				if (history.size() > 0) {
+					if(history_index == -1)
+						savedBuf = buf;
+					/* Show the new entry */
                     history_index += (seq[1] == 65) ? 1 : -1;
-                    if (history_index < 0) {
-                        history_index = 0;
+					if (history_index < -1) {
+						history_index = -1;
                         break;
-					} else if ((size_t)history_index >= history.size()) {
-						history_index = history.size()-1;
+					} else if (history_index > 0 && (size_t)history_index >= history.size()) {
+						history_index = history.size() - 1;
                         break;
                     }
-					buf = history[history.size()-1-history_index];
+					if(history_index == -1)
+						buf = savedBuf;
+					else
+						buf = history[history.size()-1-history_index];
 					pos = buf.size();
 					refreshLine();
                 }
@@ -462,11 +459,16 @@ up_down_arrow:
 
 LinenoiseEnv::LinenoiseEnv() {
 	fd = STDIN_FILENO;
+	hadReadError = false;
 	pos = 0;
 	cols = getColumns();
 }
 
-ssize_t LinenoiseEnv::read(void* d, size_t nbyte) { return ::read(fd, d, nbyte); }
+ssize_t LinenoiseEnv::read(void* d, size_t nbyte) {
+	ssize_t ret = ::read(fd, d, nbyte);
+	if(ret <= 0) hadReadError = true;
+	return ret;
+}
 ssize_t LinenoiseEnv::write(const void* d, size_t nbyte) { return ::write(fd, d, nbyte); }
 
 std::string linenoise(const std::string& prompt) {
@@ -498,6 +500,7 @@ void linenoiseSetCompletionCallback(LinenoiseCompletionCallback *fn) {
 /* Using a circular buffer is smarter, but a bit more complex to handle. */
 int linenoiseHistoryAdd(const std::string& line) {
     if (history_max_len == 0) return 0;
+	if(line.empty()) return 0;
 	history.push_back(line);
 	if(history.size() > history_max_len)
 		history.erase(history.begin(), history.begin() + history.size() - history_max_len);
