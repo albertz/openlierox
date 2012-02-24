@@ -40,6 +40,8 @@
 #include <string>
 #include <vector>
 
+bool linenoiseIsUnsupportedTerm();
+
 typedef std::vector<std::string> LinenoiseCompletions;
 
 typedef void(LinenoiseCompletionCallback)(const std::string&, LinenoiseCompletions *);
@@ -50,12 +52,23 @@ int linenoiseHistoryAdd(const std::string& line);
 int linenoiseHistorySetMaxLen(int len);
 int linenoiseHistorySave(const std::string& filename);
 int linenoiseHistoryLoad(const std::string& filename);
-void linenoiseClearScreen();
 
 struct LinenoiseEnv {
 	int fd;
-	std::string buf;
+	size_t cols;
 	std::string prompt;
+	std::string buf;
+	size_t pos;
+
+	LinenoiseEnv();
+	std::string getNextInput();
+	int completeLine();
+	void eraseLine();
+	void refreshLine();
+	void clearScreen();
+
+	virtual ssize_t read(void* d, size_t nbyte);
+	virtual ssize_t write(const void* d, size_t nbyte);
 };
 
 #endif /* __LINENOISE_H */

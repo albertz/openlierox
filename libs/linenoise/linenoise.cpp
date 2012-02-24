@@ -112,7 +112,7 @@ static std::vector<std::string> history;
 static void linenoiseAtExit();
 int linenoiseHistoryAdd(const std::string& line);
 
-static bool isUnsupportedTerm() {
+bool linenoiseIsUnsupportedTerm() {
     char *term = getenv("TERM");
 
     if (term == NULL) return 0;
@@ -174,11 +174,14 @@ static int getColumns() {
     return ws.ws_col;
 }
 
-static void refreshLine(int fd, const std::string& prompt, const char* buf, size_t len, size_t pos, size_t cols) {
+void LinenoiseEnv::refreshLine() {
+	const char* cbuf = buf.c_str();
+	size_t len = buf.size();
+
     char seq[64];
     
 	while(prompt.size() + pos >= cols) {
-        buf++;
+		cbuf++;
         len--;
         pos--;
     }
@@ -188,20 +191,26 @@ static void refreshLine(int fd, const std::string& prompt, const char* buf, size
 
     /* Cursor to left edge */
     snprintf(seq,64,"\x1b[0G");
-    if (write(fd,seq,strlen(seq)) == -1) return;
+	if (write(seq,strlen(seq)) == -1) return;
     /* Write the prompt and the current buffer content */
-	if (write(fd,prompt.c_str(),prompt.size()) == -1) return;
-    if (write(fd,buf,len) == -1) return;
+	if (write(prompt.c_str(),prompt.size()) == -1) return;
+	if (write(cbuf,len) == -1) return;
     /* Erase to right */
     snprintf(seq,64,"\x1b[0K");
-    if (write(fd,seq,strlen(seq)) == -1) return;
+	if (write(seq,strlen(seq)) == -1) return;
     /* Move cursor to original position. */
 	snprintf(seq,64,"\x1b[0G\x1b[%dC", (int)(pos+prompt.size()));
-    if (write(fd,seq,strlen(seq)) == -1) return;
+	if (write(seq,strlen(seq)) == -1) return;
 }
 
-static void refreshLine(int fd, const std::string& prompt, const std::string& buf, size_t pos, size_t cols) {
-	refreshLine(fd, prompt, buf.c_str(), buf.size(), pos, cols);
+void LinenoiseEnv::eraseLine() {
+	char seq[64];
+	/* Cursor to left edge */
+	snprintf(seq,64,"\x1b[0G");
+	if (write(seq,strlen(seq)) == -1) return;
+	/* Erase to right */
+	snprintf(seq,64,"\x1b[0K");
+	if (write(seq,strlen(seq)) == -1) return;
 }
 
 static void beep() {
@@ -209,25 +218,32 @@ static void beep() {
     fflush(stderr);
 }
 
-static int completeLine(int fd, const std::string& prompt, std::string& buf, size_t *pos, size_t cols) {
+int LinenoiseEnv::completeLine() {
 	LinenoiseCompletions lc;
 	char c = 0;
 
-    completionCallback(buf,&lc);
+	completionCallback(buf, &lc);
 	if (lc.size() == 0) {
         beep();
     } else {
-        size_t stop = 0, i = 0;
+		size_t i = 0;
+		bool stop = false;
 
         while(!stop) {
             /* Show completion or original buffer */
 			if (i < lc.size()) {
-				refreshLine(fd,prompt,lc[i],lc[i].size(),cols);
-            } else {
-				refreshLine(fd,prompt,buf,*pos,cols);
+				std::string origBuf(lc[i]);
+				size_t origPos = lc[i].size();
+				std::swap(origBuf, buf);
+				std::swap(origPos, pos);
+				refreshLine();
+				std::swap(origBuf, buf);
+				std::swap(origPos, pos);
+			} else {
+				refreshLine();
             }
 
-			int nread = read(fd,&c,1);
+			int nread = read(&c,1);
             if (nread <= 0) {
                 return -1;
             }
@@ -240,17 +256,17 @@ static int completeLine(int fd, const std::string& prompt, std::string& buf, siz
                 case 27: /* escape */
                     /* Re-show original buffer */
 					if (i < lc.size()) {
-						refreshLine(fd,prompt,buf,*pos,cols);
+						refreshLine();
                     }
-                    stop = 1;
+					stop = true;
                     break;
                 default:
                     /* Update buffer and return */
 					if (i < lc.size()) {
 						buf = lc[i];
-						*pos = buf.size();
+						pos = buf.size();
                     }
-                    stop = 1;
+					stop = true;
                     break;
             }
         }
@@ -259,15 +275,31 @@ static int completeLine(int fd, const std::string& prompt, std::string& buf, siz
     return c; /* Return last read character */
 }
 
-void linenoiseClearScreen(void) {
-    if (write(STDIN_FILENO,"\x1b[H\x1b[2J",7) <= 0) {
+void LinenoiseEnv::clearScreen() {
+	if (write("\x1b[H\x1b[2J",7) <= 0) {
         /* nothing to do, just to avoid warning. */
     }
 }
 
-static int linenoisePrompt(int fd, std::string& buf, const std::string& prompt) {
-    size_t pos = 0;
-    size_t cols = getColumns();
+std::string LinenoiseEnv::getNextInput() {
+	struct RawInputScope {
+		LinenoiseEnv& l;
+		bool v;
+		RawInputScope(LinenoiseEnv& l_) : l(l_) {
+			v = enableRawMode(l.fd) != -1;
+		}
+		operator bool() { return v; }
+		~RawInputScope() {
+			if(!v) return;
+			disableRawMode(l.fd);
+			printf("\n");
+		}
+	};
+	RawInputScope rawInputScope(*this);
+	if(!rawInputScope) return "";
+
+	pos = 0;
+	cols = getColumns();
     int history_index = 0;
 
 	buf = "";
@@ -276,21 +308,21 @@ static int linenoisePrompt(int fd, std::string& buf, const std::string& prompt) 
      * initially is just an empty string. */
     linenoiseHistoryAdd("");
     
-	if (write(fd,prompt.c_str(),prompt.size()) == -1) return -1;
+	if (write(prompt.c_str(),prompt.size()) == -1) return "";
     while(1) {
         char c;
         char seq[2], seq2[2];
 
-		int nread = read(fd,&c,1);
-		if (nread <= 0) return buf.size();
+		int nread = read(&c,1);
+		if (nread <= 0) return buf;
 
         /* Only autocomplete when the callback is set. It returns < 0 when
          * there was an error reading from fd. Otherwise it will return the
          * character that should be handled next. */
         if (c == 9 && completionCallback != NULL) {
-			c = completeLine(fd,prompt,buf,&pos,cols);
+			c = completeLine();
             /* Return on errors */
-			if (c < 0) return buf.size();
+			if (c < 0) return "";
             /* Read next character when 0 */
             if (c == 0) continue;
         }
@@ -298,24 +330,24 @@ static int linenoisePrompt(int fd, std::string& buf, const std::string& prompt) 
         switch(c) {
         case 13:    /* enter */
 			history.pop_back();
-			return (int)buf.size();
+			return buf;
         case 3:     /* ctrl-c */
             errno = EAGAIN;
-            return -1;
+			return "";
         case 127:   /* backspace */
         case 8:     /* ctrl-h */
 			if (pos > 0 && buf.size() > 0) {
 				buf.erase(pos - 1, 1);
-				refreshLine(fd,prompt,buf,pos,cols);
+				refreshLine();
             }
             break;
         case 4:     /* ctrl-d, remove char at right of cursor */
 			if (buf.size() > 1 && pos < (buf.size()-1)) {
 				buf.erase(pos, 1);
-				refreshLine(fd,prompt,buf,pos,cols);
+				refreshLine();
 			} else if (buf.size() == 0) {
 				history.pop_back();
-                return -1;
+				return "";
             }
             break;
         case 20:    /* ctrl-t */
@@ -324,7 +356,7 @@ static int linenoisePrompt(int fd, std::string& buf, const std::string& prompt) 
                 buf[pos-1] = buf[pos];
                 buf[pos] = aux;
 				if (pos != buf.size()-1) pos++;
-				refreshLine(fd,prompt,buf,pos,cols);
+				refreshLine();
             }
             break;
         case 2:     /* ctrl-b */
@@ -339,20 +371,20 @@ static int linenoisePrompt(int fd, std::string& buf, const std::string& prompt) 
             goto up_down_arrow;
             break;
         case 27:    /* escape sequence */
-            if (read(fd,seq,2) == -1) break;
+			if (read(seq,2) == -1) break;
             if (seq[0] == 91 && seq[1] == 68) {
 left_arrow:
                 /* left arrow */
                 if (pos > 0) {
                     pos--;
-					refreshLine(fd,prompt,buf,pos,cols);
+					refreshLine();
                 }
             } else if (seq[0] == 91 && seq[1] == 67) {
 right_arrow:
                 /* right arrow */
 				if (pos != buf.size()) {
                     pos++;
-					refreshLine(fd,prompt,buf,pos,cols);
+					refreshLine();
                 }
             } else if (seq[0] == 91 && (seq[1] == 65 || seq[1] == 66)) {
 up_down_arrow:
@@ -372,16 +404,16 @@ up_down_arrow:
                     }
 					buf = history[history.size()-1-history_index];
 					pos = buf.size();
-					refreshLine(fd,prompt,buf,pos,cols);
+					refreshLine();
                 }
             } else if (seq[0] == 91 && seq[1] > 48 && seq[1] < 55) {
                 /* extended escape */
-                if (read(fd,seq2,2) == -1) break;
+				if (read(seq2,2) == -1) break;
                 if (seq[1] == 51 && seq2[0] == 126) {
                     /* delete */
 					if (buf.size() > 0 && pos < buf.size()) {
 						buf.erase(pos, 1);
-						refreshLine(fd,prompt,buf,pos,cols);
+						refreshLine();
                     }
                 }
             }
@@ -393,56 +425,52 @@ up_down_arrow:
 				if (prompt.size()+buf.size() < cols) {
 					/* Avoid a full update of the line in the
 						 * trivial case. */
-					if (write(fd,&c,1) == -1) return -1;
+					if (write(&c,1) == -1) return "";
 				} else {
-					refreshLine(fd,prompt,buf,pos,cols);
+					refreshLine();
 				}
 			} else {
 				buf = buf.substr(0, pos) + std::string(&c, 1) + buf.substr(pos);
 				pos++;
-				refreshLine(fd,prompt,buf,pos,cols);
+				refreshLine();
 			}
 			break;
         case 21: /* Ctrl+u, delete the whole line. */
 			buf = "";
 			pos = 0;
-			refreshLine(fd,prompt,buf,pos,cols);
+			refreshLine();
             break;
         case 11: /* Ctrl+k, delete from current to end of line. */
 			buf.erase(pos);
-			refreshLine(fd,prompt,buf,pos,cols);
+			refreshLine();
             break;
         case 1: /* Ctrl+a, go to the start of the line */
             pos = 0;
-			refreshLine(fd,prompt,buf,pos,cols);
+			refreshLine();
             break;
         case 5: /* ctrl+e, go to the end of the line */
 			pos = buf.size();
-			refreshLine(fd,prompt,buf,pos,cols);
+			refreshLine();
             break;
         case 12: /* ctrl+l, clear screen */
-            linenoiseClearScreen();
-			refreshLine(fd,prompt,buf,pos,cols);
+			clearScreen();
+			refreshLine();
         }
     }
-	return buf.size();
+	return buf;
 }
 
-static int linenoiseRaw(std::string& buf, const std::string& prompt) {
-    int fd = STDIN_FILENO;
-
-	if (enableRawMode(fd) == -1) return -1;
-	int count = linenoisePrompt(fd, buf, prompt);
-	disableRawMode(fd);
-	printf("\n");
-
-	return count;
+LinenoiseEnv::LinenoiseEnv() {
+	fd = STDIN_FILENO;
+	pos = 0;
+	cols = getColumns();
 }
+
+ssize_t LinenoiseEnv::read(void* d, size_t nbyte) { return ::read(fd, d, nbyte); }
+ssize_t LinenoiseEnv::write(const void* d, size_t nbyte) { return ::write(fd, d, nbyte); }
 
 std::string linenoise(const std::string& prompt) {
-    int count;
-
-	if (isUnsupportedTerm() || !isatty(STDIN_FILENO)) {
+	if (linenoiseIsUnsupportedTerm() || !isatty(STDIN_FILENO)) {
 		printf("%s",prompt.c_str());
         fflush(stdout);		
 
@@ -456,10 +484,9 @@ std::string linenoise(const std::string& prompt) {
 		return std::string(buf, len);
 
 	} else { // supported term
-		std::string buf;
-		count = linenoiseRaw(buf,prompt);
-		if (count == -1) return "";
-		return buf;
+		LinenoiseEnv l;
+		l.prompt = prompt;
+		return l.getNextInput();
     }
 }
 
