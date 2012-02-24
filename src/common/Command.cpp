@@ -1892,6 +1892,11 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 
 COMMAND(startGame, "start game", "", 0, 0);
 void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(game.state == Game::S_Inactive) {
+		caller->pushReturnArg("game state is inactive, please start lobby first");
+		return;
+	}
+
 	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
 		caller->pushReturnArg("cannot start game as client");
 		return;
