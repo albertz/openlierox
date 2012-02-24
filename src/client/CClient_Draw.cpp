@@ -2584,7 +2584,12 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 		if (i >= 16)  // Left listview overflowed, fill in the right one
 			lv = Right;
 
-        CWorm *p = game.wormById(iScoreboard[i]);
+		CWorm *p = game.wormById(iScoreboard[i], false);
+		if(!p) {
+			UpdateScoreboard();
+			bUpdateScore = false;
+			return;
+		}
 
 		// Get colour
 		if (tLXOptions->bColorizeNicks && getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)
