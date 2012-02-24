@@ -222,7 +222,11 @@ int LinenoiseEnv::completeLine() {
 	LinenoiseCompletions lc;
 	char c = 0;
 
-	completionCallback(buf, &lc);
+	if(completionCallback(buf, &lc)) {
+		// if we got true, it means that the completion-callback already has handled it
+		return c;
+	}
+
 	if (lc.size() == 0) {
         beep();
     } else {

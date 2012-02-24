@@ -44,7 +44,7 @@ bool linenoiseIsUnsupportedTerm();
 
 typedef std::vector<std::string> LinenoiseCompletions;
 
-typedef void(LinenoiseCompletionCallback)(const std::string&, LinenoiseCompletions *);
+typedef bool(LinenoiseCompletionCallback)(const std::string&, LinenoiseCompletions *);
 void linenoiseSetCompletionCallback(LinenoiseCompletionCallback *);
 
 std::string linenoise(const std::string& prompt);
