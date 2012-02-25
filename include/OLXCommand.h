@@ -94,6 +94,8 @@ struct CmdLineIntf {
 void Execute(const CmdLineIntf::Command& cmd);
 INLINE void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, cmd)); }
 
+bool havePendingCommands();
+
 // Executes all commands in the queue. This is called from the gameloopthread.
 void HandlePendingCommands();
 

@@ -1063,6 +1063,10 @@ bool Game::allowedToSleepForEvent() {
 		// be enough. But that has been buggy earlier, so don't sleep for now.
 		return false;
 
+	if(havePendingCommands())
+		// We must wait the next frames for the pending commands to be completed.
+		return false;
+
 	// in menu
 	if(processedEvent)
 		// LX GUI code sucks. It sometimes needs a refresh right after

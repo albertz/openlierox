@@ -2536,6 +2536,11 @@ void Execute(const CmdLineIntf::Command& command) {
 	cmdQueue.pendingCommands.push_back(command);
 }
 
+bool havePendingCommands() {
+	ScopedLock lock(cmdQueue.pendingCommandsMutex);
+	return !cmdQueue.pendingCommands.empty();
+}
+
 void HandlePendingCommands() {
 	while(true) {
 		CmdLineIntf::Command command;
