@@ -366,6 +366,8 @@ void doActionInMainThread(Action* act) {
 
 
 Result MainLoopTask::handle_Startup() {
+	gameloopThreadId = SDL_ThreadID();
+	assert(gameloopThreadId != (uint32_t)-1);
 	setCurThreadPriority(0.5f);
 
 	// NOTE: This code is really old and outdated.
@@ -410,6 +412,7 @@ Result MainLoopTask::handle_Quit() {
 		if(!bDedicated)
 			while(SDL_PushEvent(&quitEv) < 0) {}
 	}
+	gameloopThreadId = -1;
 	return "quit";
 }
 

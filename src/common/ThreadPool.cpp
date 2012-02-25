@@ -21,6 +21,16 @@ bool isMainThread() {
 	return mainThreadId == SDL_ThreadID();
 }
 
+uint32_t gameloopThreadId = -1;
+
+bool isGameloopThread() {
+	if(gameloopThreadId == (uint32_t)-1) {
+		errors << "isGameloopThread: Gameloop thread is not running" << endl;
+		return false;
+	}
+	return gameloopThreadId == SDL_ThreadID();
+}
+
 
 ThreadPool::ThreadPool(unsigned int size) {
 	nextAction = NULL; nextIsHeadless = false; nextData = NULL;

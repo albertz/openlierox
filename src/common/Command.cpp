@@ -2481,6 +2481,8 @@ void Cmd_signal::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 
 
 static void HandleCommand(const CmdLineIntf::Command& command) {
+	assert(isGameloopThread());
+
 	std::string cmdstr = command.cmd; TrimSpaces(cmdstr);
 	std::string params;
 	size_t f = cmdstr.find(' ');

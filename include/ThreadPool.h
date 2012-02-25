@@ -74,6 +74,8 @@ void UnInitThreadPool();
 
 extern uint32_t mainThreadId;
 bool isMainThread();
+extern uint32_t gameloopThreadId;
+bool isGameloopThread();
 
 template<typename _T>
 struct _ThreadFuncWrapper {
