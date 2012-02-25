@@ -129,7 +129,15 @@ int linenoiseEnableRawMode(int fd) {
         atexit(linenoiseAtExit);
         atexit_registered = 1;
     }
-	if (!rawmode && tcgetattr(fd,&orig_termios) == -1) goto fatal;
+	if (!rawmode) {
+		if(tcgetattr(fd,&orig_termios) == -1) goto fatal;
+		// Reset some flags. When OLX crashed earlier or so or some
+		// other tool left the terminal in some strange state,
+		// just overwrite them with some sane defaults.
+		orig_termios.c_iflag |= BRKINT | ICRNL | INPCK | ISTRIP | IXON;
+		orig_termios.c_oflag |= OPOST;
+		orig_termios.c_lflag |= ECHO | ICANON | IEXTEN | ISIG;
+	}
 
     raw = orig_termios;  /* modify the original mode */
     /* input modes: no break, no CR to NL, no parity check, no strip char,
