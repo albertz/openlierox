@@ -307,7 +307,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 
 
 	// Set this client to 'ready'
-	notes << "Server: client " << cl->debugName() << " got ready" << endl;
+	notes << "Server: client " << cl->debugName(true) << " got ready" << endl;
 	cl->setGameReady(true);
 
 	SendClientReady(NULL);
