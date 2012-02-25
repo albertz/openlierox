@@ -790,12 +790,18 @@ void Menu_Net_HostLobbySetText(const std::string& str) {
 // TODO: describe the difference between Menu_Net_GotoHostLobby and Menu_Net_HostGotoLobby
 void Menu_Net_HostGotoLobby()
 {
-	game.startServer(/* localGame */ false);
+	if(game.state != Game::S_Lobby) {
+		errors << "Menu_Net_HostGotoLobby called but we are not in lobby. game state = " << game.state << endl;
+		return;
+	}
+
+	tMenu->iMenuType = MNU_NETWORK;
 	iNetMode = net_host;
 	iHostType = 1;
 	bHostGameSettings = false;
     bHostWeaponRest = false;
     iSpeaking = 0;
+	bSkipStart = true;
 
     // Draw the lobby
 	if(!bDedicated)
@@ -1322,6 +1328,7 @@ void Menu_Net_HostLobbyShutdown()
 	cServer->SendDisconnect();
 
 	// Shutdown server & clients
+	cClient->Disconnect();
 	cClient->Shutdown();
 	cServer->Shutdown();
 

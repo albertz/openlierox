@@ -1380,15 +1380,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 		bs.writeByte(S2C_DROPPED);
 		bs.writeString(OldLxCompatibleString(cl_msg));
 		cl->getChannel()->AddReliablePacketToSend(bs);
-	}
-	
-	/*
-	if( NewNet::Active() )
-	{
-		gotoLobby();
-		SendGlobalText("New net engine doesn't support client leaving yet!",TXT_NETWORK);
-	}
-	*/
+	}	
 }
 
 // WARNING: We are using SendWormsOut here, that means that we cannot use the specific client anymore

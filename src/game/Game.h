@@ -43,6 +43,7 @@ public:
 	void startServer(bool localGame);
 	void startClient();
 	void startGame();
+	void gotoLobby(const std::string& reason);
 	void stop();
 
 	void frame();

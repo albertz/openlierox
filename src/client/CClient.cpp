@@ -2066,8 +2066,6 @@ void CClient::ShutdownLog()
 ///////////////////
 // Shutdown the client
 void CClient::Shutdown() {	
-	game.state = Game::S_Inactive;
-
 	// Projectiles
 	cProjectiles.clear();
 	projPosMap.clear();

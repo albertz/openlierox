@@ -822,7 +822,7 @@ std::string ProcessLobby(const std::vector<std::string>& params, int sender_id)
 		return "You do not have sufficient privileges to start the game (and thus also not to go to lobby)";
 
 	// Go to lobby
-	cServer->gotoLobby(true, "chat command");
+	game.gotoLobby("chat command");
 
 	return "";
 }

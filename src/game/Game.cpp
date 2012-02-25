@@ -103,6 +103,26 @@ void Game::startGame() {
 	serverFrame = 0;
 }
 
+void Game::gotoLobby(const std::string &reason) {
+	if(!isServer()) {
+		errors << "gotoLobby as client" << endl;
+		return;
+	}
+
+	if(state == Game::S_Inactive) {
+		errors << "gotoLobby: server not started, we are inactive" << endl;
+		return;
+	}
+
+	if(isLocalGame()) {
+		errors << "gotoLobby in local game" << endl;
+		return;
+	}
+
+	notes << "gotoLobby: " << reason << endl;
+	state = S_Lobby;
+}
+
 void Game::stop() {
 	m_isServer = false;
 	m_isLocalGame = false;
@@ -706,7 +726,7 @@ void Game::cleanupAfterGameloopEnd() {
 	
 	PhysicsEngine::UnInit();
 	
-	notes << "GameLoopEnd" << endl;
+	notes << "GameLoopEnd, state: " << StateAsStr(game.state) << endl;
 	inMainGameLoop = false;
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->GameLoopEnd_Signal();		
@@ -756,6 +776,47 @@ void Game::cleanupAfterGameloopEnd() {
 		// update menu
 		DeprecatedGUI::bHost_Update = true;
 		DeprecatedGUI::bJoin_Update = true;
+	}
+
+	if(game.state == Game::S_Lobby && game.isServer()) {
+		// Clear the info
+		bool bUpdateWorms = false;
+		for_each_iterator(CWorm*, w, game.worms()) {
+			if( w->get()->getAFK() == AFK_TYPING_CHAT )
+			{
+				w->get()->setAFK(AFK_BACK_ONLINE, "");
+				CBytestream bs;
+				bs.writeByte( S2C_AFK );
+				bs.writeByte( (uchar)w->get()->getID() );
+				bs.writeByte( AFK_BACK_ONLINE );
+				bs.writeString( "" );
+
+				CServerConnection *cl;
+				int i;
+				for( i=0, cl=cServer->getClients(); i < MAX_CLIENTS; i++, cl++ )
+					if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() >= OLXBetaVersion(7) )
+						cl->getNetEngine()->SendPacket(&bs);
+			}
+		}
+
+		if(bUpdateWorms)
+			cServer->UpdateWorms();
+
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->BackToServerLobby_Signal();
+
+		// Goto the host lobby
+
+		for( short i=0; i<MAX_CLIENTS; i++ )
+			cServer->getClients()[i].getUdpFileDownloader()->allowFileRequest(true);
+
+		// Re-register the server to reflect the state change
+		if( tLXOptions->bRegServer && (game.isServer() && !game.isLocalGame()) )
+			cServer->RegisterServerUdp();
+
+		cServer->CheckForFillWithBots();
+
+		cServer->gotoLobby();
 	}
 }
 

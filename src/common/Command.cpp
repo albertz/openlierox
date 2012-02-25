@@ -1994,8 +1994,12 @@ void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
 		return;
 	}
 	
-	cServer->gotoLobby(true, "Cmd_gotoLobby");
-	// The client will get the gotolobby and handle the menu stuff.
+	if(game.state == Game::S_Lobby) {
+		caller->writeMsg("we are already in lobby");
+		return;
+	}
+
+	game.gotoLobby("Cmd_gotoLobby");
 }
 
 COMMAND(chatMsg, "give a global chat message", "text", 1, 1);

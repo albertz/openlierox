@@ -157,7 +157,7 @@ public:
 	void		WormShootEnd(CWorm* w, const weapon_t* weapon);
     void        RecheckGame();
 
-	void		gotoLobby(bool alsoWithMenu, const std::string& reason);
+	void		gotoLobby();
 
 
 	// Network

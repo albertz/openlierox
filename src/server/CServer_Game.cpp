@@ -178,7 +178,7 @@ void GameServer::SimulateGame()
 	&& (game.gameOverTime() > LX_ENDWAIT || (bDedicated && game.localWorms()->size() <= 1)) // dedicated server should go to lobby immediatly if alone
 	&& game.state != Game::S_Lobby
 	&& (game.isServer() && !game.isLocalGame())) {
-		gotoLobby(true, "timeout for gameover scoreboard");
+		game.gotoLobby("timeout for gameover scoreboard");
 		return;
 	}
 
@@ -485,12 +485,10 @@ void GameServer::WormShoot(CWorm *w)
 
 ///////////////////
 // Go back to the lobby
-void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
+void GameServer::gotoLobby()
 {
-	notes << "GameServer: gotoLobby (" << reason << ")" << endl;
-
-	if(game.state == Game::S_Lobby) {
-		notes << "already in lobby, doing nothing" << endl;
+	if(game.state != Game::S_Lobby) {
+		errors << "server gotolobby handling: not in lobby, current state: " << game.state << endl;
 		return;
 	}
 	
@@ -499,26 +497,6 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	bs.writeByte(S2C_GOTOLOBBY);
 	SendGlobalPacket(&bs);
 
-	// Clear the info
-	game.state = Game::S_Lobby;
-	bool bUpdateWorms = false;
-	for_each_iterator(CWorm*, w, game.worms()) {
-		if( w->get()->getAFK() == AFK_TYPING_CHAT )
-		{
-			w->get()->setAFK(AFK_BACK_ONLINE, "");
-			CBytestream bs;
-			bs.writeByte( S2C_AFK );
-			bs.writeByte( (uchar)w->get()->getID() );
-			bs.writeByte( AFK_BACK_ONLINE );
-			bs.writeString( "" );
-
-			CServerConnection *cl;
-			int i;
-			for( i=0, cl=cClients; i < MAX_CLIENTS; i++, cl++ )
-				if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() >= OLXBetaVersion(7) )
-					cl->getNetEngine()->SendPacket(&bs);
-		}
-	}
 	UpdateGameLobby();
 
 	for(short i=0; i<MAX_CLIENTS; i++) {
@@ -528,27 +506,8 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	fLastUpdateSent = AbsTime();
 
 	SendWormLobbyUpdate();
-	
-	if(bUpdateWorms)
-		UpdateWorms();
 
-	if( DedicatedControl::Get() )
-		DedicatedControl::Get()->BackToServerLobby_Signal();
-
-	// Goto the host lobby
-	if(alsoWithMenu)
-		DeprecatedGUI::Menu_Net_GotoHostLobby();
-
-	for( short i=0; i<MAX_CLIENTS; i++ )
-		cClients[i].getUdpFileDownloader()->allowFileRequest(true);
-
-	// Re-register the server to reflect the state change
-	if( tLXOptions->bRegServer && (game.isServer() && !game.isLocalGame()) )
-		RegisterServerUdp();
-
-	CheckForFillWithBots();
-	
-	// HINT: the gamescript is shut down by the cache
+	DeprecatedGUI::Menu_Net_GotoHostLobby();
 }
 
 

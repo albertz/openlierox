@@ -120,7 +120,10 @@ bool Menu_NetInitialize(bool withSubMenu)
 // Go to the host lobby
 void Menu_Net_GotoHostLobby()
 {
-	notes << "Menu_Net_GotoHostLobby" << endl;
+	if(game.state != Game::S_Lobby) {
+		errors << "Menu_Net_HostGotoLobby called but we are not in lobby. game state = " << game.state << endl;
+		return;
+	}
 
 	tMenu->iMenuType = MNU_NETWORK;
 	iNetMode = net_host;
@@ -141,10 +144,9 @@ void Menu_Net_GotoHostLobby()
 		//cNetButtons[4].Setup(4, 460, 110, 50, 15);
 	}
 
-	Menu_Net_HostGotoLobby();
-
-	game.state = Game::S_Lobby;
 	bSkipStart = true;
+
+	Menu_Net_HostGotoLobby();
 }
 
 

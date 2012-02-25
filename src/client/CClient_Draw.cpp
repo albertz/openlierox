@@ -1596,7 +1596,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 					if(game.isLocalGame())
 						GotoLocalMenu();
 					else
-						cServer->gotoLobby(true, "Client gamemenu -> quitgame");
+						game.gotoLobby("Client gamemenu -> quitgame");
 				}
 				else
 					GotoNetMenu();
