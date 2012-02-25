@@ -1538,21 +1538,6 @@ enum {
 };
 
 
-std::list< wpnrest_t > tWeaponList;
-
-/////////////////
-// Updates the weapon list that is shown in the dialog
-static void UpdateWeaponList()
-{
-	tWeaponList.clear();
-	
-	for_each_iterator(wpnrest_t, it, cWpnRestList.getList())
-	{
-		if(cWpnRestList.weaponExists(it->get().szName, cWeaponList))
-			tWeaponList.push_back(it->get());
-    }
-}
-
 ///////////////////
 // Initialize the weapons restrictions
 void Menu_WeaponsRestrictions(const std::string& szMod)
@@ -1585,9 +1570,6 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
 	// Load the weapons
 	cWpnRestList.loadList(gameSettings[FT_WeaponRest], sModDirectory);
 	cWpnRestList.updateList( cWeaponList );
-
-    // Get the weapons for the list
-	UpdateWeaponList();
 }
 
 //////////////////
@@ -1622,8 +1604,8 @@ bool Menu_WeaponsRestrictions_Frame()
 
 	int w, j;
 	w = j = 0;
-	for (std::list< wpnrest_t >::iterator it = tWeaponList.begin(); it != tWeaponList.end(); it++)  {
-        if( w++ < count )
+	for_each_iterator(wpnrest_t, it, cWpnRestList.getList()) {
+		if( w++ < count )
             continue;
         if( j > 10 )
             break;
@@ -1632,10 +1614,11 @@ bool Menu_WeaponsRestrictions_Frame()
         int y = 190 + (j++)*20;
         Color Colour = tLX->clNormalLabel;
 		Color StateColour = Colour;
-		if( (*it).nState == wpr_bonus ) // Different color will make it more comfortable for eyes
+		if( it->get().nState == wpr_bonus ) // Different color will make it more comfortable for eyes
 			StateColour = tLX->clSubHeading;
-		if( (*it).nState == wpr_banned )
+		if( it->get().nState == wpr_banned )
 			StateColour = tLX->clDisabled;
+		int state = it->get().nState;
 
         // If a mouse is over the line, highlight it
         if( Mouse->X > 150 && Mouse->X < 450 ) {
@@ -1645,26 +1628,26 @@ bool Menu_WeaponsRestrictions_Frame()
 
                 // If the mouse has been clicked, cycle through the states
                 if( Mouse->Up & SDL_BUTTON(1) ) {
-					(*it).nState++;
-					(*it).nState %= 3;
-					cWpnRestList.setWeaponState(it->szName, (WpnRestrictionState)it->nState);
+					state++;
+					state %= 3;
+					cWpnRestList.setWeaponState(it->get().szName, (WpnRestrictionState)state);
     
 					gameSettings.overwrite[FT_WeaponRest] = "cfg/wpnrest.dat";
 				}
             }
         }
 
-		std::string buf = (*it).szName;
+		std::string buf = it->get().szName;
 		stripdot(buf,245);
         tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 150, y, Colour, buf );
-		tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, StateColour, szStates[(*it).nState] );
+		tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, StateColour, szStates[state] );
 	}
 
     // Adjust the scrollbar
     cWeaponsRest.SendMessage(wr_Scroll, SCM_SETITEMSPERBOX, 12, 0);
     cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMIN, (DWORD)0, 0);
-	if(tWeaponList.size() > 10)
-		cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, tWeaponList.size() + 1, 0);
+	if(cWpnRestList.getNumWeapons() > 10)
+		cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, cWpnRestList.getNumWeapons() + 1, 0);
     else
         cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, (DWORD)0, 0);
 
@@ -1888,7 +1871,6 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 							std::string fn = "cfg/presets/" + t->getText();
 							wpnrest->loadList(fn, "");
 							wpnrest->updateList( cWeaponList );
-							UpdateWeaponList();
 							gameSettings.overwrite[FT_WeaponRest] = GetBaseFilename(t->getText());
 						}
 					}

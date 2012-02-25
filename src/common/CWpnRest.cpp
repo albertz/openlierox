@@ -104,7 +104,7 @@ void CWpnRest::randomizeVisible(const std::vector<std::string> & weaponList)
 // Cycles the weapon states (enabled -> bonus -> disabled)
 void CWpnRest::cycleVisible(const std::vector<std::string> & weaponList)
 {
-	if (iCycleState == 3) iCycleState = 0;
+	if (iCycleState >= 3) iCycleState = 0;
 
 	foreach( it, m_psWeaponList )
 		if( std::find_if( weaponList.begin(), weaponList.end(), findWeaponByName(it->first) ) != weaponList.end() )
