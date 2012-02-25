@@ -2537,15 +2537,17 @@ void Execute(const CmdLineIntf::Command& command) {
 }
 
 void HandlePendingCommands() {
-	std::list<CmdLineIntf::Command> cmds;
-	{
-		ScopedLock lock(cmdQueue.pendingCommandsMutex);
-		cmds.swap(cmdQueue.pendingCommands);
-	}
-	
-	while( cmds.size() > 0 ) {
-		CmdLineIntf::Command command = cmds.front();
-		cmds.pop_front();
+	while(true) {
+		CmdLineIntf::Command command;
+		{
+			ScopedLock lock(cmdQueue.pendingCommandsMutex);
+			if(cmdQueue.pendingCommands.size() > 0) {
+				command = cmdQueue.pendingCommands.front();
+				cmdQueue.pendingCommands.pop_front();
+			}
+			else
+				break;
+		}
 
 		HandleCommand(command);
 		command.sender->finishedCommand(command.cmd);

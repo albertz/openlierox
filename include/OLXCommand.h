@@ -82,7 +82,7 @@ struct CmdLineIntf {
 	struct Command {
 		CmdLineIntf* sender;
 		std::string cmd;
-		Command(CmdLineIntf* s, const std::string& c) : sender(s), cmd(c) {}
+		Command(CmdLineIntf* s = NULL, const std::string& c = "") : sender(s), cmd(c) {}
 	};
 
 
