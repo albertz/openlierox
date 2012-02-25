@@ -242,8 +242,6 @@ void Menu_SetSkipStart(int s)
 }
 	
 void Menu_Frame() {
-	HandlePendingCommands();
-		
 	if(bDedicated) {
 		ServerList::get()->process();
 		return;
