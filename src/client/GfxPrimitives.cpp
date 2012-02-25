@@ -499,7 +499,7 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 	// Remove alpha and colorkey
 	SDL_SetAlpha(src, 0, 0);
 	SDL_SetColorKey(src, 0, 0);
-	
+
 	// Blit
 	DrawImageAdv(dst, src, sx, sy, dx, dy, w, h);
 
@@ -511,6 +511,7 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 }
 
 SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
+	assert(bmpSrc != NULL);
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 															bmpSrc->flags,
 															bmpSrc->w, bmpSrc->h,
@@ -520,7 +521,11 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 															bmpSrc->format->Bmask,
 															bmpSrc->format->Amask);
 	if (result.get() == NULL) return NULL;
-	
+
+	// reset flags.
+	// SDL_CreateRGBSurface doesn't really set the flags as we request them. e.g., it usually always sets SDL_SRCALPHA.
+	result->flags = bmpSrc->flags;
+
 	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
 	
 	if(bmpSrc->flags & SDL_SRCCOLORKEY) {
@@ -528,6 +533,9 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
 	}
 	
+	assert(PixelFormatEqual(bmpSrc->format, result->format));
+	assert(bmpSrc->flags == result->flags);
+
 	return result;
 }
 
