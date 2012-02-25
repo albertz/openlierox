@@ -707,6 +707,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
 	notes << "Client: Got ParsePrepareGame" << endl;
 
+	if(game.isServer() && game.state <= Game::S_Lobby) {
+		warnings << "We already switched to lobby again, so skip this" << endl;
+		bs->SkipAll();
+		return false;
+	}
+
 	bool isReconnect = false;
 	
 	// We've already got this packet
