@@ -2551,6 +2551,11 @@ void HandlePendingCommands() {
 
 		HandleCommand(command);
 		command.sender->finishedCommand(command.cmd);
+
+		if(game.state.ext.updated)
+			// Next frame, we will continue with other pending commands.
+			// For now, skip the rest because we might have some other work to do.
+			break;
 	}
 }
 
