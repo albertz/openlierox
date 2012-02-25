@@ -2994,7 +2994,7 @@ void CMap::putColorTo(long x, long y, Color c) {
 		PutPixel(bmpImage.get(),x, y, c.get(bmpImage->format));
 		UnlockSurface(bmpImage);		
 
-		DrawRectFill2x2(GetDrawImage().get(), x*2, y*2, c);
+		DrawRectFill2x2(bmpDrawImage.get(), x*2, y*2, c);
 	}
 }
 
@@ -3004,7 +3004,7 @@ void CMap::putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int s
 	}
 	else if(bmpImage.get()) {
 		DrawImageAdv(GetImage().get(), surf, sx, sy, x, y, sw, sh);
-		DrawImageStretch2(GetDrawImage().get(), GetImage(), x, y, x*2, y*2, sw, sh);
+		DrawImageStretch2(bmpDrawImage.get(), GetImage(), x, y, x*2, y*2, sw, sh);
 	}
 }
 
