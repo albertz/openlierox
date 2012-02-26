@@ -7,12 +7,12 @@
 #include "game/ClassInfo.h"
 
 template<class T> struct LuaID {};
-template<uint32_t id> struct LuaClassInfo {
+template<ClassId id> struct LuaClassInfo {
 	static const char* name(uint32_t) { assert(false); return NULL; }
 };
 
 #define CLASSID(name_, id_) \
-template<> struct LuaID<name_> { static uint32_t const value = id_; }; \
+template<> struct LuaID<name_> { static ClassId const value = id_; }; \
 template<> struct LuaClassInfo<id_> { \
 	static uint32_t const id = id_; \
 	static const char* name() { return # name_; } \

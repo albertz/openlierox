@@ -24,10 +24,9 @@ struct AttrExt {
 };
 
 struct AttrDesc {
-	typedef uint32_t ObjTypeId;
 	typedef uint32_t AttrId;
 
-	ObjTypeId objTypeId;
+	ClassId objTypeId;
 	ScriptVarType_t attrType;
 	bool isStatic; // if true -> use memOffsets; otherwise, dyn funcs
 	intptr_t attrMemOffset;
@@ -68,7 +67,7 @@ struct AttrDesc {
 };
 
 struct AttribRef {
-	AttrDesc::ObjTypeId objTypeId;
+	ClassId objTypeId;
 	AttrDesc::AttrId attrId;
 
 	const AttrDesc* getAttrDesc() const;
@@ -79,15 +78,29 @@ struct AttribRef {
 	}
 };
 
-struct ObjAttrRef {
+struct ObjRef {
+	ClassId classId;
 	BaseObject::ObjId objId;
 	WeakRef<BaseObject> obj;
+
+	bool operator==(const ObjRef& o) const {
+		return classId == o.classId && objId == o.objId;
+	}
+	bool operator!=(const ObjRef& o) const { return !(*this == o); }
+	bool operator<(const ObjRef& o) const {
+		if(classId != o.classId) return classId < o.classId;
+		return objId < o.objId;
+	}
+};
+
+struct ObjAttrRef {
+	ObjRef obj;
 	AttribRef attr;
 
 	ScriptVar_t get() const;
 
 	bool operator<(const ObjAttrRef& o) const {
-		if(objId != o.objId) return objId < o.objId;
+		if(obj != o.obj) return obj < o.obj;
 		return attr < o.attr;
 	}
 };

@@ -25,7 +25,7 @@ const AttrDesc* AttribRef::getAttrDesc() const {
 }
 
 ScriptVar_t ObjAttrRef::get() const {
-	const BaseObject* oPt = obj.get();
+	const BaseObject* oPt = obj.obj.get();
 	assert(oPt != NULL); // or should we return the attr default?
 	const AttrDesc* attrDesc = attr.getAttrDesc();
 	assert(attrDesc != NULL);
