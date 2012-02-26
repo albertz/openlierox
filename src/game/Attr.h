@@ -83,6 +83,10 @@ struct ObjRef {
 	BaseObject::ObjId objId;
 	WeakRef<BaseObject> obj;
 
+	ObjRef() : classId(-1), objId(-1) {}
+	operator bool() const {
+		return classId != ClassId(-1) && objId != BaseObject::ObjId(-1);
+	}
 	bool operator==(const ObjRef& o) const {
 		return classId == o.classId && objId == o.objId;
 	}
