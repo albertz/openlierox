@@ -10,7 +10,7 @@
 
 struct BaseObject;
 
-typedef uint32_t ClassId;
+typedef uint16_t ClassId;
 
 struct ClassInfo {
 	ClassInfo() : id(-1) {}
