@@ -23,7 +23,7 @@ struct AttrUpdateInfo {
 };
 
 struct BaseObject : DontCopyTag {
-	typedef uint32_t ObjId;
+	typedef uint16_t ObjId;
 	typedef ::WeakRef<BaseObject> WeakRef;
 
 	BaseObject();
