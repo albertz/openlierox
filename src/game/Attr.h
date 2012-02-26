@@ -24,7 +24,7 @@ struct AttrExt {
 };
 
 struct AttrDesc {
-	typedef uint32_t AttrId;
+	typedef uint16_t AttrId;
 
 	ClassId objTypeId;
 	ScriptVarType_t attrType;
