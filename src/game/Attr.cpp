@@ -40,8 +40,8 @@ void registerAttrDesc(AttrDesc& attrDesc) {
 
 static std::vector< WeakRef<BaseObject> > objUpdates;
 
-void pushObjAttrUpdate(WeakRef<BaseObject> obj) {
-	objUpdates.push_back(obj);
+void pushObjAttrUpdate(BaseObject& obj) {
+	objUpdates.push_back(obj.thisRef.obj);
 }
 
 static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {

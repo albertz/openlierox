@@ -91,8 +91,9 @@ struct ObjAttrRef {
 };
 
 void registerAttrDesc(AttrDesc& attrDesc);
-void pushObjAttrUpdate(WeakRef<BaseObject> obj);
+void pushObjAttrUpdate(BaseObject& obj);
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
+
 
 template <typename T, typename AttrDescT>
 struct Attr {
@@ -113,7 +114,7 @@ struct Attr {
 	operator T() const { return get(); }
 	T& write() {
 		if(parent()->attrUpdates.empty())
-			pushObjAttrUpdate(parent()->thisRef.obj);
+			pushObjAttrUpdate(*parent());
 		if(!ext.updated || parent()->attrUpdates.empty()) {
 			assert(&value == attrDesc()->getValuePtr(parent()));
 			assert(&ext == &attrDesc()->getAttrExt(parent()));

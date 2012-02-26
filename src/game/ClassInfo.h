@@ -37,4 +37,8 @@ static bool registerClass_ ## name_ () { \
 static bool registerClass_ ## name_ ## _init = registerClass_ ## name_ ();
 
 
+
+void pushObjCreation(BaseObject& obj);
+void pushObjDeletion(BaseObject& obj);
+
 #endif // OLX_CLASSINFO_H

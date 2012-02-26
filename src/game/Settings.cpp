@@ -154,7 +154,7 @@ FeatureIndex Settings::AttrDescs::getIndex(const AttrDesc* attrDesc) {
 void Settings::pushUpdateHint(FeatureIndex i) {
 	// must basically match Attr::write
 	if(attrUpdates.empty())
-		pushObjAttrUpdate(thisRef.obj);
+		pushObjAttrUpdate(*this);
 	if(!attrExts[i].updated || attrUpdates.empty()) {
 		AttrUpdateInfo info;
 		info.attrDesc = &getAttrDescs().attrDescs[i];
@@ -178,3 +178,5 @@ AttrExt& Settings::attrGetAttrExt(const AttrDesc* attrDesc) {
 	FeatureIndex i = getAttrDescs().getIndex(attrDesc);
 	return attrExts[i];
 }
+
+REGISTER_CLASS(Settings)

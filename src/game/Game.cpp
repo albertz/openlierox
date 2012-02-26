@@ -855,6 +855,7 @@ void Game::onRemoveWorm(CWorm* w) {
 	std::map<int,CWorm*>::iterator i = m_worms.find(w->getID());
 	assert(i->second == w);
 	m_worms.erase(i);
+	pushObjDeletion(*w);
 }
 
 void Game::onNewPlayer(CWormInputHandler* player) {
@@ -1015,6 +1016,7 @@ CWorm* Game::findWormByName(const std::string& name) {
 
 CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>& profile, const Version& clientVersion) {
 	assert(wormById(wormId, false) == NULL);
+	assert(wormId >= 0);
 	CWorm* w = new CWorm();
 	w->setID(wormId);
 	w->fLastSimulationTime = GetPhysicsTime(); 
@@ -1031,7 +1033,9 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	w->setLocal(local);
 	w->setClientVersion(clientVersion);
 	w->setProfile(profile);
+	w->thisRef.objId = wormId;
 	m_worms[wormId] = w;
+	pushObjCreation(*w);
 	return w;
 }
 
@@ -1092,4 +1096,6 @@ int oldLXStateInt() {
 	}
 	return 0;
 }
+
+REGISTER_CLASS(Game)
 

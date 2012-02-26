@@ -70,6 +70,8 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 
 CWorm::CWorm() : cNinjaRope(this), cSparkles(this), m_fireconeAnimator(NULL), m_animator(NULL)
 {
+	thisRef.classId = LuaID<CWorm>::value;
+
 	// set all pointers to NULL
 	m_inputHandler = NULL;
 	cOwner = NULL;
