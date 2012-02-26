@@ -19,7 +19,7 @@ struct ClassInfo {
 	boost::function<BaseObject*()> createInstance;
 };
 
-const ClassInfo& getClassInfo(ClassId id);
+const ClassInfo* getClassInfo(ClassId id);
 void registerClass(const ClassInfo& c);
 
 #define REGISTER_CLASS(name_) \

@@ -78,25 +78,6 @@ struct AttribRef {
 	}
 };
 
-struct ObjRef {
-	ClassId classId;
-	BaseObject::ObjId objId;
-	WeakRef<BaseObject> obj;
-
-	ObjRef() : classId(-1), objId(-1) {}
-	operator bool() const {
-		return classId != ClassId(-1) && objId != BaseObject::ObjId(-1);
-	}
-	bool operator==(const ObjRef& o) const {
-		return classId == o.classId && objId == o.objId;
-	}
-	bool operator!=(const ObjRef& o) const { return !(*this == o); }
-	bool operator<(const ObjRef& o) const {
-		if(classId != o.classId) return classId < o.classId;
-		return objId < o.objId;
-	}
-};
-
 struct ObjAttrRef {
 	ObjRef obj;
 	AttribRef attr;
@@ -132,7 +113,7 @@ struct Attr {
 	operator T() const { return get(); }
 	T& write() {
 		if(parent()->attrUpdates.empty())
-			pushObjAttrUpdate(parent()->thisWeakRef);
+			pushObjAttrUpdate(parent()->thisRef.obj);
 		if(!ext.updated || parent()->attrUpdates.empty()) {
 			assert(&value == attrDesc()->getValuePtr(parent()));
 			assert(&ext == &attrDesc()->getAttrExt(parent()));

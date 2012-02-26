@@ -9,10 +9,9 @@
 #include "BaseObject.h"
 
 BaseObject::BaseObject() {
-	uniqueObjId = -1;
-	thisWeakRef.set(this);
+	thisRef.obj.set(this);
 }
 
 BaseObject::~BaseObject() {
-	thisWeakRef.overwriteShared(NULL);
+	thisRef.obj.overwriteShared(NULL);
 }

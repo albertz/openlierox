@@ -65,7 +65,8 @@ static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
 Game::Game() {
 	wasPrepared = false;
 	menuFrame = 0;
-	uniqueObjId = LuaID<Game>::value;
+	thisRef.classId = LuaID<Game>::value;
+	thisRef.objId = 1;
 	m_isServer = false;
 	m_isLocalGame = false;
 	state = S_Inactive;

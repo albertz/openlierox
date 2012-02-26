@@ -14,8 +14,31 @@
 #include "CodeAttributes.h"
 #include "WeakRef.h"
 #include "CScriptableVars.h"
+#include "game/ClassInfo.h"
+
+typedef uint16_t ObjId;
 
 struct AttrDesc;
+struct BaseObject;
+
+struct ObjRef {
+	ClassId classId;
+	ObjId objId;
+	WeakRef<BaseObject> obj;
+
+	ObjRef() : classId(-1), objId(-1) {}
+	operator bool() const {
+		return classId != ClassId(-1) && objId != ObjId(-1);
+	}
+	bool operator==(const ObjRef& o) const {
+		return classId == o.classId && objId == o.objId;
+	}
+	bool operator!=(const ObjRef& o) const { return !(*this == o); }
+	bool operator<(const ObjRef& o) const {
+		if(classId != o.classId) return classId < o.classId;
+		return objId < o.objId;
+	}
+};
 
 struct AttrUpdateInfo {
 	const AttrDesc* attrDesc;
@@ -23,15 +46,13 @@ struct AttrUpdateInfo {
 };
 
 struct BaseObject : DontCopyTag {
-	typedef uint16_t ObjId;
 	typedef ::WeakRef<BaseObject> WeakRef;
 
 	BaseObject();
 	virtual ~BaseObject();
 	
-	ObjId uniqueObjId;
 	std::vector<AttrUpdateInfo> attrUpdates;
-	WeakRef thisWeakRef;
+	ObjRef thisRef;
 };
 
 #endif

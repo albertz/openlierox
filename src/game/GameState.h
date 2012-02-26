@@ -23,23 +23,22 @@ struct AttribState {
 };
 
 struct ObjectState {
-	ObjectState() : objId(-1) {}
-	ObjectState(BaseObject* obj_) : objId(obj_->uniqueObjId), obj(obj_->thisWeakRef) {}
-	BaseObject::ObjId objId;
-	BaseObject::WeakRef obj;
+	ObjectState() {}
+	ObjectState(BaseObject* obj_) : obj(obj_->thisRef) {}
+	ObjRef obj;
 	std::map<AttribRef, AttribState> attribs;
 };
 
 struct GameStateUpdates {
-	std::vector<BaseObject::ObjId> objDeletions;
-	std::map<BaseObject::ObjId, ClassId> objCreations;
+	std::vector<ObjRef> objDeletions;
+	std::map<ObjRef, ClassId> objCreations;
 	std::set<ObjAttrRef> objs;
 };
 
 struct GameState {
 	GameState();
 	ObjectState& registerObj(BaseObject* obj);
-	std::map<BaseObject::ObjId, ObjectState> objs;
+	std::map<ObjRef, ObjectState> objs;
 };
 
 #endif // OLX_GAMESTATE_H

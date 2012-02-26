@@ -10,9 +10,11 @@ static void initClassInfo() {
 		classes.reset(new Classes());
 }
 
-const ClassInfo& getClassInfo(ClassId id) {
+const ClassInfo* getClassInfo(ClassId id) {
 	initClassInfo();
-	return (*classes)[id];
+	Classes::iterator it = classes->find(id);
+	if(it != classes->end()) return &it->second;
+	return NULL;
 }
 
 void registerClass(const ClassInfo& c) {

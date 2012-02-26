@@ -138,7 +138,8 @@ Settings::AttrDescs::AttrDescs() {
 }
 
 Settings::Settings() {
-	uniqueObjId = LuaID<Settings>::value;
+	thisRef.classId = LuaID<Settings>::value;
+	thisRef.objId = 1;
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
 		wrappers[i].i = (FeatureIndex)i;
 		wrappers[i].s = this;
@@ -153,7 +154,7 @@ FeatureIndex Settings::AttrDescs::getIndex(const AttrDesc* attrDesc) {
 void Settings::pushUpdateHint(FeatureIndex i) {
 	// must basically match Attr::write
 	if(attrUpdates.empty())
-		pushObjAttrUpdate(thisWeakRef);
+		pushObjAttrUpdate(thisRef.obj);
 	if(!attrExts[i].updated || attrUpdates.empty()) {
 		AttrUpdateInfo info;
 		info.attrDesc = &getAttrDescs().attrDescs[i];

@@ -18,5 +18,5 @@ GameState::GameState() {
 }
 
 ObjectState& GameState::registerObj(BaseObject* obj) {
-	return objs[obj->uniqueObjId] = ObjectState(obj);
+	return objs[obj->thisRef] = ObjectState(obj);
 }
