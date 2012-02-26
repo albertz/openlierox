@@ -30,14 +30,18 @@ struct ObjectState {
 };
 
 struct GameStateUpdates {
-	std::vector<ObjRef> objDeletions;
-	std::map<ObjRef, ClassId> objCreations;
+	std::set<ObjRef> objDeletions;
+	std::set<ObjRef> objCreations;
 	std::set<ObjAttrRef> objs;
+	void pushObjAttrUpdate(ObjAttrRef);
+	void pushObjCreation(ObjRef);
+	void pushObjDeletion(ObjRef);
+	void reset();
 };
 
 struct GameState {
 	GameState();
-	ObjectState& registerObj(BaseObject* obj);
+	void updateToCurrent();
 	std::map<ObjRef, ObjectState> objs;
 };
 

@@ -10,13 +10,41 @@
 #include "GameState.h"
 #include "Game.h"
 #include "Settings.h"
+#include "CWorm.h"
+
+void GameStateUpdates::pushObjAttrUpdate(ObjAttrRef a) {
+	objs.insert(a);
+}
+
+void GameStateUpdates::pushObjCreation(ObjRef o) {
+	objDeletions.erase(o);
+	objCreations.insert(o);
+}
+
+void GameStateUpdates::pushObjDeletion(ObjRef o) {
+	objCreations.erase(o);
+	objDeletions.insert(o);
+}
+
+void GameStateUpdates::reset() {
+	objs.clear();
+	objCreations.clear();
+	objDeletions.clear();
+}
+
+static ObjectState& GameState_registerObj(GameState& s, BaseObject* obj) {
+	return s.objs[obj->thisRef] = ObjectState(obj);
+}
 
 GameState::GameState() {
 	// register singletons which are always there
-	registerObj(&game);
-	registerObj(&gameSettings);
+	GameState_registerObj(*this, &game);
+	GameState_registerObj(*this, &gameSettings);
 }
 
-ObjectState& GameState::registerObj(BaseObject* obj) {
-	return objs[obj->thisRef] = ObjectState(obj);
+void GameState::updateToCurrent() {
+	*this = GameState();
+	for_each_iterator(CWorm*, w, game.worms()) {
+		GameState_registerObj(*this, w->get());
+	}
 }
