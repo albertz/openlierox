@@ -387,18 +387,31 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
 	if(!writeByte( var.type )) return false;
 	switch( var.type ) {
-		case SVT_BOOL: return writeBool(var.toBool());
-		case SVT_INT32: return writeInt(var.toInt(), 4);
-		case SVT_FLOAT: return writeFloat(var.toFloat());
-		case SVT_COLOR: {
-			writeByte(var.toColor().r);
-			writeByte(var.toColor().g);
-			writeByte(var.toColor().b);
-			writeByte(var.toColor().a);
-			return true;
-		}		
-		default: return writeString(var.toString());
+	case SVT_BOOL: return writeBool(var.toBool());
+	case SVT_INT32: return writeInt(var.toInt(), 4);
+	case SVT_UINT64: return writeUInt64((uint64_t)var);
+	case SVT_FLOAT: return writeFloat(var.toFloat());
+	case SVT_VEC2: {
+		writeFloat(CVec(var).x);
+		writeFloat(CVec(var).y);
+		return true;
 	}
+	case SVT_COLOR: {
+		writeByte(var.toColor().r);
+		writeByte(var.toColor().g);
+		writeByte(var.toColor().b);
+		writeByte(var.toColor().a);
+		return true;
+	}
+	case SVT_STRING: return writeString(var.toString());
+	case SVT_BASEOBJ:
+	case SVT_CUSTOM:
+	case SVT_CALLBACK:
+	case SVT_DYNAMIC:
+		assert(false); // should not happen
+	}
+	assert(false); // should not happen
+	return false;
 }
 
 
@@ -571,41 +584,50 @@ bool CBytestream::readVar(ScriptVar_t& var, CustomVar* customType) {
 	ScriptVarType_t type = (ScriptVarType_t)readByte();
 
 	switch( type ) {
-		case SVT_BOOL: var = ScriptVar_t(readBool()); break;
-		case SVT_INT32: var = ScriptVar_t(readInt(4)); break;
-		case SVT_FLOAT: var = ScriptVar_t(readFloat()); break;
-		case SVT_STRING: var = ScriptVar_t(readString()); break;
-		case SVT_CUSTOM: {
-			std::string str = readString();
-			if(customType) {
-				CustomVar::Ref custom = customType->copy();
-				custom->fromString(str);
-				var = ScriptVar_t(custom.get());
-			}
-			else
-				// Note: This is not quite correct (different type) but we need the customtype info
-				// to do it correct.
-				// I don't put a warning here because I want to have this behaviour here.
-				// If you want to skip such cases, please add another parameter and be sure
-				// that you use it correct everywhere.
-				var = ScriptVar_t(str);
-			break;
+	case SVT_BOOL: var = ScriptVar_t(readBool()); return true;
+	case SVT_INT32: var = ScriptVar_t(readInt(4)); return true;
+	case SVT_UINT64: var = ScriptVar_t(readUInt64()); return true;
+	case SVT_FLOAT: var = ScriptVar_t(readFloat()); return true;
+	case SVT_VEC2: {
+		float x = readFloat();
+		float y = readFloat();
+		return ScriptVar_t(CVec(x, y));
+	}
+	case SVT_STRING: var = ScriptVar_t(readString()); return true;
+	case SVT_CUSTOM: {
+		std::string str = readString();
+		if(customType) {
+			CustomVar::Ref custom = customType->copy();
+			custom->fromString(str);
+			var = ScriptVar_t(custom.get());
 		}
-		case SVT_COLOR: {
-			Color c;
-			c.r = readInt(1);
-			c.g = readInt(1);
-			c.b = readInt(1);
-			c.a = readInt(1);
-			var = ScriptVar_t(c);
-			break;
-		}
-		default:
-			warnings << "read var has invalid type" << endl;
-			return false;
+		else
+			// Note: This is not quite correct (different type) but we need the customtype info
+			// to do it correct.
+			// I don't put a warning here because I want to have this behaviour here.
+			// If you want to skip such cases, please add another parameter and be sure
+			// that you use it correct everywhere.
+			var = ScriptVar_t(str);
+		return true;
+	}
+	case SVT_COLOR: {
+		Color c;
+		c.r = readInt(1);
+		c.g = readInt(1);
+		c.b = readInt(1);
+		c.a = readInt(1);
+		var = ScriptVar_t(c);
+		return true;
+	}
+	case SVT_BASEOBJ:
+	case SVT_CALLBACK:
+	case SVT_DYNAMIC:
+		warnings << "read var has not-supported type " << (int)type << endl;
+		return false;
 	}
 
-	return true;
+	warnings << "read var has unknown type " << (int)type << endl;
+	return false;
 }
 
 
