@@ -122,7 +122,8 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 			attrDesc->getAttrExt(oPt).updated = false;
 			if(oldValue == attrDesc->get(oPt)) continue;
 
-			game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
+			if(oPt->thisRef) // if registered
+				game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
 
 			if(callback)
 				callback(oPt, attrDesc, oldValue);
