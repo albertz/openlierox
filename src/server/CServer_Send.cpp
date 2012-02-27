@@ -148,7 +148,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 
 void CServerNetEngine::SendPrepareGame()
 {
-	CBytestream bs;	
+	CBytestream bs;
 	WritePrepareGame(&bs);
 	SendPacket( &bs );
 }
@@ -338,6 +338,7 @@ void CServerNetEngineBeta7::SendChatCommandCompletionList(const std::string& sta
 // send S2C_WORMSOUT
 void CServerNetEngine::SendWormsOut(const std::list<byte>& ids) {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 	if(ids.size() == 0) return; // ignore
 	
 	CBytestream bs;
@@ -448,7 +449,7 @@ bool GameServer::SendUpdate()
 				}
 			}
 
-			if(!game.gameScript()->gusEngineUsed()) {
+			if(!game.gameScript()->gusEngineUsed() && cl->getClientVersion() < OLXBetaVersion(0,59,10)) {
 				CBytestream update_packets;  // Contains all the update packets except the one from this client
 
 				byte num_worms = 0;
@@ -579,7 +580,8 @@ void GameServer::SendGameStateUpdates() {
 void CServerNetEngine::SendWeapons()
 {
 	if(cl->isLocalClient()) return;
-	
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
+
 	CBytestream bs;
 	
 	for_each_iterator(CWorm*, w, game.worms()) {
@@ -691,6 +693,7 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs, const Version&
 void CServerNetEngine::SendUpdateLobbyGame()
 {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 	CBytestream bs;
 	WriteUpdateLobbyGame(&bs);
 	SendPacket(&bs);
@@ -745,8 +748,8 @@ void GameServer::UpdateGameLobby()
 }
 
 void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
-{
-    CServerConnection *cl = server->cClients;
+{	
+	CServerConnection *cl = server->cClients;
 	for(short c=0; c<MAX_CLIENTS; c++,cl++) 
 	{
 	    if( target )
@@ -760,6 +763,8 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 
         if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
             continue;
+
+		if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) continue;
 
         // Set the client worms lobby ready state
 		for_each_iterator(CWorm*, w, game.wormsOfClient(cl)) {
@@ -779,6 +784,7 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, int forworm, bool show, bool immediate)
 {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 
 	if (!worm)  {
 		errors << "Invalid worm or receiver in SendHideWorm" << endl;
@@ -840,6 +846,7 @@ void GameServer::SendDisconnect()
 void CServerNetEngine::SendUpdateWorm( CWorm* w )
 {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 	CBytestream bytestr;
 	bytestr.writeByte(S2C_WORMINFO);
 	bytestr.writeInt(w->getID(), 1);
@@ -851,6 +858,7 @@ void CServerNetEngine::SendUpdateWorm( CWorm* w )
 void CServerNetEngineBeta9::SendUpdateWorm( CWorm* w )
 {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 	CBytestream bytestr;
 	bytestr.writeByte(S2C_WORMINFO);
 	bytestr.writeInt(w->getID(), 1);

@@ -768,11 +768,11 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		game.state = Game::S_Lobby;
 		return false;
 	}
-	if(game.isClient())
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
 		client->getGameLobby().overwrite[FT_Map] = infoForLevel(GetBaseFilename(sMapFilename));
 
 	// Other game details
-	if(game.isClient()) {
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10)) {
 		client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readInt(1));
 		client->getGameLobby().overwrite[FT_Lives] = bs->readInt16();
 		client->getGameLobby().overwrite[FT_KillLimit] = bs->readInt16();
@@ -786,14 +786,14 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	game.serverFrame = 0;
 		
 	if(client->getGeneralGameType() == GMT_TIME) {
-		if(game.isClient())
+		if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
 			client->getGameLobby().overwrite[FT_TagLimit] = (float)bs->readInt16();
 		else
 			bs->Skip(2);
 	}
 
 	// Set the gamescript
-	if(game.isClient())
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
 		client->getGameLobby().overwrite[FT_Mod] = infoForMod(bs->readString());
 	else
 		bs->SkipString();
@@ -814,7 +814,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	game.weaponRestrictions()->readList(bs);
 
 
-	if(game.isClient()) client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
+		client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
 	client->bServerChoosesWeapons = false;
 
 	if(!isReconnect) {
@@ -885,7 +886,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	DeprecatedGUI::bJoin_Update = true;
 	
-	if(game.isClient())
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
 		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {
 			// Before 0.59b6, many settings have been outside of the FT array.
@@ -918,7 +919,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngine::ParsePrepareGame(bs) )
 		return false;
 
-	if(game.isClient()) {
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10)) {
 		// >=Beta7 is sending this
 		client->getGameLobby().overwrite[FT_GameSpeed] = bs->readFloat();
 		client->bServerChoosesWeapons = bs->readBool();
@@ -932,7 +933,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 
 void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	// FeatureSettings() constructor initializes with default values, and we want here an unset values
-	if(game.isClient())
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
 		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {
 			// Before 0.59b6, many settings have been outside of the FT array.
@@ -960,7 +961,7 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 			errors << "ParseFeatureSettings: error while reading var " << name << " (" << humanName << ")" << endl;
 		bool olderClientsSupported = bs->readBool(); // to be understand as: if feature is unknown to us, it's save to ignore
 		
-		if(game.isServer()) continue; // ignore
+		if(game.isServer() || client->getServerVersion() >= OLXBetaVersion(0,59,10)) continue; // ignore
 
 		// f != NULL -> we know about the feature -> we support it
 		if(f) {
@@ -992,7 +993,7 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 
-	if(game.isClient()) {
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10)) {
 		client->tGameInfo.overwrite[FT_TimeLimit] = bs->readFloat();
 		if((float)client->tGameInfo[FT_TimeLimit] < 0) client->tGameInfo.overwrite[FT_TimeLimit] = -1.0f;
 	}
@@ -1001,7 +1002,7 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	
 	ParseFeatureSettings(bs);
 
-	if(game.isClient())
+	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
 		client->getGameLobby().overwrite[FT_GameMode] = client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->withNewName(bs->readString());
 	else
 		bs->SkipString();
