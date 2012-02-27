@@ -176,6 +176,8 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 			ScriptVarPtr_t p = attrDesc->getValueScriptPtr(o);
 			p.fromScriptVar(v);
 		}
+
+		notes << "game state update: <" << r.obj.description() << "> " << attrDesc->attrName << " to " << v.toString() << endl;
 	}
 }
 

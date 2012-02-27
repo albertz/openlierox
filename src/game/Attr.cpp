@@ -9,7 +9,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <typeinfo>
 #include <boost/shared_ptr.hpp>
 #include "Attr.h"
 #include "util/macros.h"
@@ -106,7 +105,9 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 		return; // no debug msg, too annoying
 	if(attrDesc->objTypeId == LuaID<Game>::value && attrDesc->attrId == 2 /* serverFrame */)
 		return; // no debug msg, too annoying
-	notes << "<" << typeid(*oPt).name() << " 0x" << hex((uintptr_t)oPt) << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
+	if(!oPt->thisRef)
+		return; // obj not really registered
+	notes << "<" << oPt->thisRef.description() << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
 }
 
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback) {
