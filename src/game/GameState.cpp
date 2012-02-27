@@ -78,14 +78,17 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		// we only handle/support CWorm objects for now...
 		if(game.isServer()) {
 			errors << "GameStateUpdates::handleFromBs: got obj creation as server" << endl;
+			bs->SkipAll();
 			return;
 		}
 		if(r.classId != LuaID<CWorm>::value) {
 			errors << "GameStateUpdates::handleFromBs: obj-creation: invalid class-id " << r.classId << endl;
+			bs->SkipAll();
 			return;
 		}
 		if(game.wormById(r.objId, false) != NULL) {
 			errors << "GameStateUpdates::handleFromBs: worm-creation: worm " << r.objId << " already exists" << endl;
+			bs->SkipAll();
 			return;
 		}
 		game.createNewWorm(r.objId, false, NULL, Version());
@@ -99,15 +102,18 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		// we only handle/support CWorm objects for now...
 		if(game.isServer()) {
 			errors << "GameStateUpdates::handleFromBs: got obj deletion as server" << endl;
+			bs->SkipAll();
 			return;
 		}
 		if(r.classId != LuaID<CWorm>::value) {
 			errors << "GameStateUpdates::handleFromBs: obj-deletion: invalid class-id " << r.classId << endl;
+			bs->SkipAll();
 			return;
 		}
 		CWorm* w = game.wormById(r.objId, false);
 		if(!w) {
 			errors << "GameStateUpdates::handleFromBs: obj-deletion: worm " << r.objId << " does not exist" << endl;
+			bs->SkipAll();
 			return;
 		}
 		game.removeWorm(w);
@@ -123,17 +129,20 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		const AttrDesc* attrDesc = r.attr.getAttrDesc();
 		if(attrDesc == NULL) {
 			errors << "GameStateUpdates::handleFromBs: AttrDesc for update not found" << endl;
+			bs->SkipAll();
 			return;
 		}
 
 		const ClassInfo* classInfo = getClassInfo(r.obj.classId);
 		if(classInfo == NULL) {
 			errors << "GameStateUpdates::handleFromBs: class " << r.obj.classId << " for obj-update unknown" << endl;
+			bs->SkipAll();
 			return;
 		}
 
 		if(!attrBelongsToClass(classInfo, attrDesc)) {
 			errors << "GameStateUpdates::handleFromBs: attr " << attrDesc->description() << " does not belong to class " << r.obj.classId << " for obj-update" << endl;
+			bs->SkipAll();
 			return;
 		}
 
@@ -141,10 +150,12 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		if(r.obj.classId == LuaID<Settings>::value) {
 			if(game.isServer()) {
 				errors << "GameStateUpdates::handleFromBs: got settings update as server" << endl;
+				bs->SkipAll();
 				return;
 			}
 			if(!Settings::getAttrDescs().belongsToUs(attrDesc)) {
 				errors << "GameStateUpdates::handleFromBs: settings update AttrDesc " << attrDesc->description() << " is not a setting attr" << endl;
+				bs->SkipAll();
 				return;
 			}
 			FeatureIndex fIndex = Settings::getAttrDescs().getIndex(attrDesc);
@@ -154,10 +165,12 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 			BaseObject* o = getObjFromRef(r.obj);
 			if(o == NULL) {
 				errors << "GameStateUpdates::handleFromBs: object for attr update not found" << endl;
+				bs->SkipAll();
 				return;
 			}
 			if(o->thisRef != r.obj) {
 				errors << "GameStateUpdates::handleFromBs: object-ref for attr update invalid" << endl;
+				bs->SkipAll();
 				return;
 			}
 			ScriptVarPtr_t p = attrDesc->getValueScriptPtr(o);
