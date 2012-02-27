@@ -255,11 +255,12 @@ void GameState::updateToCurrent() {
 		objs[*o] = ObjectState(*o);
 	}
 	foreach(u, game.gameStateUpdates->objs) {
-		Objs::iterator it = objs.find(u->obj);
+		ObjAttrRef r = *u;
+		Objs::iterator it = objs.find(r.obj);
 		assert(it != objs.end());
 		ObjectState& s = it->second;
 		assert(s.obj == it->first);
-		s.attribs[u->attr].value = u->get();
+		s.attribs[u->attr].value = r.get();
 	}
 }
 
