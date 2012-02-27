@@ -42,7 +42,7 @@
 // Worm frame state
 struct worm_state_t {
 	worm_state_t() {
-		iFlags = iX = iY = iAngle = iHookType = iHookX = iHookY = 0;
+		iFlags = iX = iY = iAngle = 0;
 		bShoot = bCarve = bMove = bJump = false;
 		iFaceDirectionSide = iWeapon = 0;
 	}
@@ -51,9 +51,6 @@ struct worm_state_t {
 
 	int		iX, iY;
 	int		iAngle;
-
-	int		iHookType;
-	int		iHookX, iHookY;
 
 	// Command byte
 	bool	bShoot;
