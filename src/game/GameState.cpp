@@ -62,7 +62,7 @@ static BaseObject* getObjFromRef(ObjRef r) {
 
 void GameStateUpdates::handleFromBs(CBytestream* bs) {
 	// WARNING/TODO: We have many asserts here, so this will crash
-	// for unsafe date. Also, unsafe data isn't really handled
+	// for unsafe data. Also, unsafe data isn't really handled
 	// well anyway. This has to be fixed in future releases.
 
 	uint16_t creationsNum = bs->readInt16();
@@ -74,6 +74,7 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		//o->thisRef.objId = r.objId;
 
 		// we only handle/support CWorm objects for now...
+		assert(game.isClient());
 		assert(r.classId == LuaID<CWorm>::value);
 		game.createNewWorm(r.objId, false, NULL, Version());
 	}
@@ -84,6 +85,7 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		r.readFromBs(bs);
 
 		// we only handle/support CWorm objects for now...
+		assert(game.isClient());
 		assert(r.classId == LuaID<CWorm>::value);
 		CWorm* w = game.wormById(r.objId);
 		game.removeWorm(w);
