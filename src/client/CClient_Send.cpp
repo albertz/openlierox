@@ -33,6 +33,7 @@
 #include "game/Game.h"
 #include "gusanos/network.h"
 #include "CGameScript.h"
+#include "game/GameState.h"
 
 
 
@@ -386,3 +387,18 @@ void CClientNetEngineBeta9NewNet::SendNewNetChecksum()
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
+void CClient::SendGameStateUpdates() {
+	GameState& state = *serverGameState;
+	GameStateUpdates updates;
+	updates.diffFromStateToCurrent(state);
+	if(!updates) return;
+
+	{
+		CBytestream bs;
+		bs.writeByte(C2S_GAMEATTRUPDATE);
+		updates.writeToBs(&bs);
+		cNetChan->AddReliablePacketToSend(bs);
+	}
+
+	state.updateToCurrent();
+}

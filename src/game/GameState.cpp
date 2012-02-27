@@ -208,15 +208,31 @@ void GameStateUpdates::reset() {
 	objDeletions.clear();
 }
 
+static bool ownObject(ObjRef o) {
+	// This is very custom right now and need to be made somewhat more general.
+	if(o.classId == LuaID<CWorm>::value) {
+		CWorm* w = game.wormById(o.objId, false);
+		if(!w) return false;
+		return w->getLocal();
+	}
+	if(game.isServer()) return true;
+	return false;
+}
+
 void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	reset();
 	foreach(o, game.gameStateUpdates->objCreations) {
+		if(!ownObject(*o)) continue;
 		if(!s.haveObject(*o))
 			pushObjCreation(*o);
 	}
 	foreach(u, game.gameStateUpdates->objs) {
+		if(!ownObject(u->obj)) continue;
+		const AttrDesc* attrDesc = u->attr.getAttrDesc();
+		if(game.isServer() && !attrDesc->serverside) continue;
+		if(game.isClient() && attrDesc->serverside) continue;
 		ScriptVar_t curValue = u->get();
-		ScriptVar_t stateValue = u->attr.getAttrDesc()->defaultValue;
+		ScriptVar_t stateValue = attrDesc->defaultValue;
 		if(s.haveObject(u->obj))
 			stateValue = s.getValue(*u);
 		//notes << "update " << u->description() << ": " << curValue.toString() << " -> " << stateValue.toString() << endl;
@@ -224,6 +240,7 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 			pushObjAttrUpdate(*u);
 	}
 	foreach(o, game.gameStateUpdates->objDeletions) {
+		if(!ownObject(*o)) continue;
 		if(s.haveObject(*o))
 			pushObjDeletion(*o);
 	}

@@ -58,7 +58,7 @@
 #include "CGameScript.h"
 #include "client/ClientConnectionRequestInfo.h"
 #include <zip.h> // For unzipping downloaded mod
-
+#include "game/GameState.h"
 
 
 ///////////////////
@@ -77,6 +77,9 @@ void CClient::Clear()
 
 	tGameInfo = EngineSettings();
 	otherGameInfo.clear();
+
+	serverGameState = new GameState;
+
 	cProjectiles.clear();
 	projPosMap.clear();
 	bMapGrabbed = false;
@@ -225,6 +228,7 @@ void CClient::ReinitLocalWorms() {
 CClient::CClient() {
 	// TODO: merge this with Clear()
 	//notes << "cl:Constructor" << endl;
+	serverGameState = NULL;
 	m_flagInfo = NULL;
 	cBonuses = NULL;
 	bmpBoxBuffer = NULL;
@@ -2117,6 +2121,10 @@ void CClient::Shutdown() {
 		delete m_flagInfo;
 		m_flagInfo = NULL;
 	}
+
+	if(serverGameState)
+		delete serverGameState;
+	serverGameState = NULL;
 
 	// Close the socket
 	tSocket->Clear();

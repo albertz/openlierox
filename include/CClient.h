@@ -54,6 +54,7 @@ class CMap;
 struct profile_t;
 class FlagInfo;
 struct ClientConnectionRequestInfo;
+struct GameState;
 
 // TODO: this is just a small helper for now; some of these parts should just move into CClient::Connect
 bool JoinServer(const std::string& addr, const std::string& name, const std::string& player);
@@ -238,8 +239,11 @@ public:
 	
 private:	
 	// Game
+	GameState* serverGameState;
+
 	EngineSettings tGameInfo;	// Also game lobby
 	FeatureCompatibleSettingList otherGameInfo;	
+
 	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
 	FlagInfo*	m_flagInfo;
 
@@ -503,6 +507,7 @@ public:
 
 	bool		ReadPackets();
 	void		SendPackets(bool sendPendingOnly = false);
+	void		SendGameStateUpdates();
 
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);

@@ -691,6 +691,10 @@ void Game::frameInner()
 		// Gusanos network
 		network.update();
 
+		if(isClient()) {
+			cClient->SendGameStateUpdates();
+		}
+
 		if(!stateUpdated) // only if not updated, too unsafe otherwise
 			cClient->SendPackets();
 
