@@ -212,15 +212,13 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 		Objs& curObjs = game.gameStateUpdates->objs;
 		Objs::iterator itStart = curObjs.lower_bound(ObjAttrRef::LowerLimit(*o));
 		Objs::iterator itEnd = curObjs.upper_bound(ObjAttrRef::UpperLimit(*o));
-		for(Objs::iterator it = itStart; it != itEnd; ) {
-			Objs::iterator next = it; next++;
+		for(Objs::iterator it = itStart; it != itEnd; ++it) {
 			ScriptVar_t curValue = it->get();
 			ScriptVar_t stateValue = it->attr.getAttrDesc()->defaultValue;
 			if(s.haveObject(it->obj))
 				stateValue = s.getValue(*it);
 			if(curValue != stateValue)
 				pushObjAttrUpdate(*it);
-			it = next;
 		}
 	}
 	foreach(o, game.gameStateUpdates->objDeletions) {
