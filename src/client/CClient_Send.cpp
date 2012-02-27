@@ -45,7 +45,8 @@ std::string OldLxCompatibleString(const std::string &Utf8String);
 void CClientNetEngine::SendWormDetails()
 {
 	if(game.isServer()) return;
-	
+	if(client->getServerVersion() >= OLXBetaVersion(0,59,10)) return;
+
 	// Don't flood packets so often
 	// we are checking in w->checkPacketNeeded() if we need to send an update
 	// we are checking with bandwidth if we should add an update
@@ -59,7 +60,7 @@ void CClientNetEngine::SendWormDetails()
 	   && !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
 		return;
 
-	if(!game.gameScript()->gusEngineUsed()) {		
+	if(!game.gameScript()->gusEngineUsed()) {
 		// Check if we need to write the state update
 		bool update = false;
 		for_each_iterator(CWorm*, w, game.localWorms())
