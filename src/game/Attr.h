@@ -79,6 +79,7 @@ struct AttribRef {
 	AttribRef(const AttrDesc* attrDesc);
 	void writeToBs(CBytestream* bs) const;
 	void readFromBs(CBytestream* bs);
+	std::string description() const;
 	const AttrDesc* getAttrDesc() const;
 
 	bool operator==(const AttribRef& o) const {
@@ -98,6 +99,7 @@ struct ObjAttrRef {
 	ObjAttrRef(ObjRef o, const AttrDesc* attrDesc);
 	void writeToBs(CBytestream* bs) const;
 	void readFromBs(CBytestream* bs);
+	std::string description() const;
 	static ObjAttrRef LowerLimit(ObjRef o);
 	static ObjAttrRef UpperLimit(ObjRef o);
 	ScriptVar_t get() const;

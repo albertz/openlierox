@@ -42,6 +42,12 @@ void AttribRef::readFromBs(CBytestream* bs) {
 	attrId = bs->readInt16();
 }
 
+std::string AttribRef::description() const {
+	const AttrDesc* attrDesc = getAttrDesc();
+	if(attrDesc) return attrDesc->attrName;
+	else return "<unknown attr " + to_string(objTypeId) + ":" + to_string(attrId) + ">";
+}
+
 const AttrDesc* AttribRef::getAttrDesc() const {
 	AttrDescs::iterator it = attrDescs->find(*this);
 	if(it != attrDescs->end()) return it->second;
@@ -61,6 +67,10 @@ void ObjAttrRef::writeToBs(CBytestream* bs) const {
 void ObjAttrRef::readFromBs(CBytestream* bs) {
 	obj.readFromBs(bs);
 	attr.readFromBs(bs);
+}
+
+std::string ObjAttrRef::description() const {
+	return "<" + obj.description() + "> " + attr.description();
 }
 
 ObjAttrRef ObjAttrRef::LowerLimit(ObjRef o) {
