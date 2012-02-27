@@ -32,6 +32,7 @@ struct ObjectState {
 	Attribs attribs;
 
 	ObjectState() {}
+	ObjectState(ObjRef obj_) : obj(obj_) {}
 	ObjectState(BaseObject* obj_) : obj(obj_->thisRef) {}
 	ScriptVar_t getValue(AttribRef) const;
 };
@@ -62,6 +63,7 @@ struct GameState {
 	static GameState Current();
 	void reset();
 	void updateToCurrent();
+	void addObject(ObjRef);
 
 	bool haveObject(ObjRef) const;
 	ScriptVar_t getValue(ObjAttrRef) const;

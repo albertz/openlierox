@@ -1575,6 +1575,13 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			bytestr.writeInt(w->get()->getID(), 1);
 
 		bytestr.Send(net_socket.get());
+
+		// The client will know about the clients via the package above.
+		// We don't send obj-creation-info for these worms anymore.
+		// This is not as easy to cleanup because we anyway need a
+		// way to tell the client that it owns the worms.
+		for_each_iterator(CWorm*, w, game.wormsOfClient(newcl))
+			newcl->gameState->addObject(w->get()->thisRef);
 	}
 
 	// If we now the client version already, we can avoid this for newer clients.

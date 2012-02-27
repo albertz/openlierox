@@ -186,6 +186,11 @@ void GameState::updateToCurrent() {
 	}
 }
 
+void GameState::addObject(ObjRef o) {
+	assert(!haveObject(o));
+	objs[o] = ObjectState(o);
+}
+
 bool GameState::haveObject(ObjRef o) const {
 	Objs::const_iterator it = objs.find(o);
 	return it != objs.end();
