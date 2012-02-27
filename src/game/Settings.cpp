@@ -134,6 +134,7 @@ Settings::AttrDescs::AttrDescs() {
 		attrDescs[i].dynGetValue = Settings_attrGetValue;
 		attrDescs[i].dynGetAttrExt = Settings_attrGetAttrExt;
 		attrDescs[i].onUpdate = Game::onSettingsUpdate;
+		registerAttrDesc(attrDescs[i]);
 	}
 }
 
