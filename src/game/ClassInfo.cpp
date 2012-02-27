@@ -22,6 +22,3 @@ void registerClass(const ClassInfo& c) {
 	(*classes)[c.id] = c;
 }
 
-
-void pushObjCreation(BaseObject& obj) {}
-void pushObjDeletion(BaseObject& obj) {}

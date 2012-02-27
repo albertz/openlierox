@@ -15,13 +15,42 @@
 #include "Debug.h"
 #include "util/StringConv.h"
 #include "gusanos/luaapi/classes.h"
+#include "Game.h"
+#include "GameState.h"
 
 std::string AttrDesc::description() const {
 	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
 }
 
+AttribRef::AttribRef(const AttrDesc* attrDesc) {
+	objTypeId = attrDesc->objTypeId;
+	attrId = attrDesc->attrId;
+}
+
 const AttrDesc* AttribRef::getAttrDesc() const {
+	assert(false); // TODO ...
 	return NULL;
+}
+
+ObjAttrRef::ObjAttrRef(ObjRef o, const AttrDesc* attrDesc) {
+	obj = o;
+	attr = AttribRef(attrDesc);
+}
+
+ObjAttrRef ObjAttrRef::LowerLimit(ObjRef o) {
+	ObjAttrRef r;
+	r.obj = o;
+	r.attr.objTypeId = 0;
+	r.attr.attrId = 0;
+	return r;
+}
+
+ObjAttrRef ObjAttrRef::UpperLimit(ObjRef o) {
+	ObjAttrRef r;
+	r.obj = o;
+	r.attr.objTypeId = ClassId(-1);
+	r.attr.attrId = AttrDesc::AttrId(-1);
+	return r;
 }
 
 ScriptVar_t ObjAttrRef::get() const {
@@ -64,6 +93,8 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 
 			attrDesc->getAttrExt(oPt).updated = false;
 			if(oldValue == attrDesc->get(oPt)) continue;
+
+			game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
 
 			if(callback)
 				callback(oPt, attrDesc, oldValue);

@@ -46,6 +46,7 @@
 #include "CChannel.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
+#include "GameState.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -71,6 +72,7 @@ Game::Game() {
 	m_isLocalGame = false;
 	state = S_Inactive;
 	m_wpnRest = new CWpnRest();
+	gameStateUpdates = new GameStateUpdates;
 }
 
 void Game::init() {
@@ -855,7 +857,7 @@ void Game::onRemoveWorm(CWorm* w) {
 	std::map<int,CWorm*>::iterator i = m_worms.find(w->getID());
 	assert(i->second == w);
 	m_worms.erase(i);
-	pushObjDeletion(*w);
+	gameStateUpdates->pushObjDeletion(w->thisRef);
 }
 
 void Game::onNewPlayer(CWormInputHandler* player) {
@@ -1035,7 +1037,7 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	w->setProfile(profile);
 	w->thisRef.objId = wormId;
 	m_worms[wormId] = w;
-	pushObjCreation(*w);
+	gameStateUpdates->pushObjCreation(w->thisRef);
 	return w;
 }
 

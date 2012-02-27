@@ -70,8 +70,13 @@ struct AttribRef {
 	ClassId objTypeId;
 	AttrDesc::AttrId attrId;
 
+	AttribRef() : objTypeId(-1), attrId(-1) {}
+	AttribRef(const AttrDesc* attrDesc);
 	const AttrDesc* getAttrDesc() const;
 
+	bool operator==(const AttribRef& o) const {
+		return objTypeId == o.objTypeId && attrId == o.attrId;
+	}
 	bool operator<(const AttribRef& o) const {
 		if(objTypeId != o.objTypeId) return objTypeId < o.objTypeId;
 		return attrId < o.attrId;
@@ -82,8 +87,15 @@ struct ObjAttrRef {
 	ObjRef obj;
 	AttribRef attr;
 
+	ObjAttrRef() {}
+	ObjAttrRef(ObjRef o, const AttrDesc* attrDesc);
+	static ObjAttrRef LowerLimit(ObjRef o);
+	static ObjAttrRef UpperLimit(ObjRef o);
 	ScriptVar_t get() const;
 
+	bool operator==(const ObjAttrRef& o) const {
+		return obj == o.obj && attr == o.attr;
+	}
 	bool operator<(const ObjAttrRef& o) const {
 		if(obj != o.obj) return obj < o.obj;
 		return attr < o.attr;

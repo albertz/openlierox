@@ -18,31 +18,51 @@
 #include "util/BaseObject.h"
 #include "game/ClassInfo.h"
 
+struct GameState;
+
 struct AttribState {
 	ScriptVar_t value;
 };
 
 struct ObjectState {
+	typedef std::map<AttribRef, AttribState> Attribs;
+
+	ObjRef obj;
+	Attribs attribs;
+
 	ObjectState() {}
 	ObjectState(BaseObject* obj_) : obj(obj_->thisRef) {}
-	ObjRef obj;
-	std::map<AttribRef, AttribState> attribs;
+	ScriptVar_t getValue(AttribRef) const;
 };
 
 struct GameStateUpdates {
+	typedef std::set<ObjAttrRef> Objs;
+
 	std::set<ObjRef> objDeletions;
 	std::set<ObjRef> objCreations;
-	std::set<ObjAttrRef> objs;
+	Objs objs;
+
+	operator bool() const;
 	void pushObjAttrUpdate(ObjAttrRef);
 	void pushObjCreation(ObjRef);
 	void pushObjDeletion(ObjRef);
 	void reset();
+	void diffFromStateToCurrent(const GameState& s);
 };
 
 struct GameState {
+	typedef std::map<ObjRef, ObjectState> Objs;
+
+	Objs objs;
+
 	GameState();
+	static GameState Current();
+	void reset();
 	void updateToCurrent();
-	std::map<ObjRef, ObjectState> objs;
+
+	bool haveObject(ObjRef) const;
+	ScriptVar_t getValue(ObjAttrRef) const;
 };
+
 
 #endif // OLX_GAMESTATE_H

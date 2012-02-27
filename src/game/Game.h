@@ -34,6 +34,8 @@ class CWpnRest;
 class CServerConnection;
 struct Version;
 struct profile_t;
+struct GameState;
+struct GameStateUpdates;
 
 class Game : public BaseObject {
 public:
@@ -109,6 +111,7 @@ public:
 	std::vector<CWormInputHandler*> players;
 	
 	Grid objects;
+	SmartPointer<GameStateUpdates> gameStateUpdates;
 
 	Iterator<CWorm*>::Ref worms();
 	Iterator<CWorm*>::Ref localWorms();
