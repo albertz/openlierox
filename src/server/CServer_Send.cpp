@@ -539,7 +539,7 @@ bool GameServer::SendUpdate()
 					network.getNetControl()->olxSendNodeUpdates(NetConnID_conn(cl), maxBytes);
 			}
 			
-			lastClientSendData = cServer->getClients() - cl;
+			lastClientSendData = cl - cServer->getClients();
 		}		
 	}
 
@@ -572,7 +572,7 @@ void GameServer::SendGameStateUpdates() {
 
 		cl->gameState->updateToCurrent();
 
-		lastClientSendData = cServer->getClients() - cl;
+		lastClientSendData = cl - cServer->getClients();
 	}
 }
 
