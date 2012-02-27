@@ -1025,13 +1025,15 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	w->fLastSimulationTime = GetPhysicsTime(); 
 	w->iTotalWins = w->iTotalLosses = w->iTotalKills = w->iTotalDeaths = w->iTotalSuicides = 0;
 	w->setClient(NULL); // Local worms won't get CServerConnection owner
-	w->setName(profile->sName);
-	w->setSkin(profile->cSkin);
-	w->setTeam(profile->iTeam);
-	w->setType(WormType::fromInt(profile->iType));
-	if(local && bDedicated && w->getType() == PRF_HUMAN) {
-		warnings << "createNewWorm: local human worm creation on dedicated server -> make it a bot instead" << endl;
-		w->setType(PRF_COMPUTER);
+	if(profile.get()) {
+		w->setName(profile->sName);
+		w->setSkin(profile->cSkin);
+		w->setTeam(profile->iTeam);
+		w->setType(WormType::fromInt(profile->iType));
+		if(local && bDedicated && w->getType() == PRF_HUMAN) {
+			warnings << "createNewWorm: local human worm creation on dedicated server -> make it a bot instead" << endl;
+			w->setType(PRF_COMPUTER);
+		}
 	}
 	w->setLocal(local);
 	w->setClientVersion(clientVersion);
