@@ -56,6 +56,7 @@ enum C2S_MESSAGES {
 	C2S_NEWNET_CHECKSUM = 14, // since Beta9
 	C2S_GUSANOS			= 15, // >=0.59 beta1
 	C2S_GUSANOSUPDATE	= 16, // >=0.59 beta5
+	C2S_GAMEATTRUPDATE	= 17, // >=0.59 beta10
 };
 
 // Server->Client
@@ -97,6 +98,7 @@ enum S2C_MESSAGES {
 	S2C_GUSANOS			= 34, // >=0.59 beta1
 	S2C_PLAYSOUND		= 35, // >=0.59 beta1
 	S2C_GUSANOSUPDATE	= 36, // >=0.59 beta5
+	S2C_GAMEATTRUPDATE	= 37, // >=0.59 beta10
 };
 
 

@@ -18,6 +18,8 @@
 #include "util/macros.h"
 #include "util/BaseObject.h"
 
+class CBytestream;
+
 struct AttrExt {
 	bool updated;
 	AttrExt() : updated(false) {}
@@ -49,6 +51,9 @@ struct AttrDesc {
 		assert(isStatic);
 		return (void*)(uintptr_t(base) + attrMemOffset);
 	}
+	ScriptVarPtr_t getValueScriptPtr(BaseObject* base) const {
+		return ScriptVarPtr_t(attrType, (void*)getValuePtr(base), defaultValue);
+	}
 	AttrExt& getAttrExt(BaseObject* base) const {
 		if(isStatic)
 			return *(AttrExt*)(uintptr_t(base) + attrMemOffset + attrExtMemOffset);
@@ -58,7 +63,7 @@ struct AttrDesc {
 	ScriptVar_t get(const BaseObject* base) const {
 		if(isStatic)
 			// the const-cast is safe because ScriptVarPtr_t.asScriptVar doesn't modify it
-			return ScriptVarPtr_t(attrType, (void*)getValuePtr(base), defaultValue).asScriptVar();
+			return getValueScriptPtr((BaseObject*)base).asScriptVar();
 		else
 			return dynGetValue(base, this);
 	}
@@ -72,6 +77,8 @@ struct AttribRef {
 
 	AttribRef() : objTypeId(-1), attrId(-1) {}
 	AttribRef(const AttrDesc* attrDesc);
+	void writeToBs(CBytestream* bs) const;
+	void readFromBs(CBytestream* bs);
 	const AttrDesc* getAttrDesc() const;
 
 	bool operator==(const AttribRef& o) const {
@@ -89,6 +96,8 @@ struct ObjAttrRef {
 
 	ObjAttrRef() {}
 	ObjAttrRef(ObjRef o, const AttrDesc* attrDesc);
+	void writeToBs(CBytestream* bs) const;
+	void readFromBs(CBytestream* bs);
 	static ObjAttrRef LowerLimit(ObjRef o);
 	static ObjAttrRef UpperLimit(ObjRef o);
 	ScriptVar_t get() const;

@@ -20,6 +20,7 @@ typedef uint16_t ObjId;
 
 struct AttrDesc;
 struct BaseObject;
+class CBytestream;
 
 struct ObjRef {
 	ClassId classId;
@@ -27,6 +28,8 @@ struct ObjRef {
 	WeakRef<BaseObject> obj;
 
 	ObjRef() : classId(-1), objId(-1) {}
+	void writeToBs(CBytestream* bs) const;
+	void readFromBs(CBytestream* bs);
 	operator bool() const {
 		return classId != ClassId(-1) && objId != ObjId(-1);
 	}

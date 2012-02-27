@@ -19,6 +19,7 @@
 #include "game/ClassInfo.h"
 
 struct GameState;
+class CBytestream;
 
 struct AttribState {
 	ScriptVar_t value;
@@ -43,6 +44,8 @@ struct GameStateUpdates {
 	Objs objs;
 
 	operator bool() const;
+	void writeToBs(CBytestream* bs) const;
+	static void handleFromBs(CBytestream* bs);
 	void pushObjAttrUpdate(ObjAttrRef);
 	void pushObjCreation(ObjRef);
 	void pushObjDeletion(ObjRef);

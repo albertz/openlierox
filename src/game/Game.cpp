@@ -703,6 +703,7 @@ void Game::frameInner()
 		if(isServer() && cServer->isServerRunning()) {
 			cServer->CheckRegister();
 			cServer->SendFiles();
+			cServer->SendGameStateUpdates();
 			cServer->SendPackets();
 		}
 	}

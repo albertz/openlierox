@@ -17,6 +17,7 @@
 #include "gusanos/luaapi/classes.h"
 #include "Game.h"
 #include "GameState.h"
+#include "CBytestream.h"
 
 std::string AttrDesc::description() const {
 	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
@@ -27,6 +28,16 @@ AttribRef::AttribRef(const AttrDesc* attrDesc) {
 	attrId = attrDesc->attrId;
 }
 
+void AttribRef::writeToBs(CBytestream* bs) const {
+	bs->writeInt16(objTypeId);
+	bs->writeInt16(attrId);
+}
+
+void AttribRef::readFromBs(CBytestream* bs) {
+	objTypeId = bs->readInt16();
+	attrId = bs->readInt16();
+}
+
 const AttrDesc* AttribRef::getAttrDesc() const {
 	assert(false); // TODO ...
 	return NULL;
@@ -35,6 +46,16 @@ const AttrDesc* AttribRef::getAttrDesc() const {
 ObjAttrRef::ObjAttrRef(ObjRef o, const AttrDesc* attrDesc) {
 	obj = o;
 	attr = AttribRef(attrDesc);
+}
+
+void ObjAttrRef::writeToBs(CBytestream* bs) const {
+	obj.writeToBs(bs);
+	attr.writeToBs(bs);
+}
+
+void ObjAttrRef::readFromBs(CBytestream* bs) {
+	obj.readFromBs(bs);
+	attr.readFromBs(bs);
 }
 
 ObjAttrRef ObjAttrRef::LowerLimit(ObjRef o) {

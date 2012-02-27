@@ -39,6 +39,7 @@
 #include "game/Level.h"
 #include "CGameScript.h"
 #include "Utils.h"
+#include "game/GameState.h"
 
 
 // declare them only locally here as nobody really should use them explicitly
@@ -404,9 +405,9 @@ bool GameServer::SendUpdate()
 	size_t uploadAmount = 0;
 
 	{
-		int last = lastClientSendData;
+		const int last = lastClientSendData;
 		for (int i = 0; i < MAX_CLIENTS; i++)  {
-			CServerConnection* cl = &cClients[ (i + lastClientSendData + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
+			CServerConnection* cl = &cClients[ (i + last + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
 
 			if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 				continue;
@@ -538,15 +539,41 @@ bool GameServer::SendUpdate()
 					network.getNetControl()->olxSendNodeUpdates(NetConnID_conn(cl), maxBytes);
 			}
 			
-			if(!cl->isLocalClient())
-				last = i;
-		}
-		
-		lastClientSendData = last;
+			lastClientSendData = cServer->getClients() - cl;
+		}		
 	}
 
 	// All good
 	return true;
+}
+
+void GameServer::SendGameStateUpdates() {
+	const int last = lastClientSendData;
+	for (int i = 0; i < MAX_CLIENTS; i++)  {
+		CServerConnection* cl = &cClients[ (i + last + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
+		if(cl->isLocalClient())
+			continue;
+		if(!cl->isConnected())
+			continue;
+		if(!checkBandwidth(cl))
+			continue;
+
+		GameState& state = *cl->gameState;
+		GameStateUpdates updates;
+		updates.diffFromStateToCurrent(state);
+		if(!updates) continue;
+
+		{
+			CBytestream bs;
+			bs.writeByte(S2C_GAMEATTRUPDATE);
+			updates.writeToBs(&bs);
+			cl->getChannel()->AddReliablePacketToSend(bs);
+		}
+
+		cl->gameState->updateToCurrent();
+
+		lastClientSendData = cServer->getClients() - cl;
+	}
 }
 
 void CServerNetEngine::SendWeapons()
