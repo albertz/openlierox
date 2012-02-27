@@ -53,7 +53,6 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	
 	cShootList.Initialize();
 	gameState = NULL;
-	gameStateUpdates = NULL;
 
 	fLastFileRequest = fConnectTime = tLX->currentTime;
 	
@@ -86,9 +85,6 @@ void CServerConnection::Clear()
 	if(gameState)
 		delete gameState;
 	gameState = new GameState;
-	if(gameStateUpdates)
-		delete gameStateUpdates;
-	gameStateUpdates = new GameStateUpdates;
 	
 	fLastFileRequest = fLastFileRequestPacketReceived = tLX->currentTime;
 	getUdpFileDownloader()->reset();
@@ -142,9 +138,6 @@ void CServerConnection::Shutdown()
 	if(gameState)
 		delete gameState;
 	gameState = NULL;
-	if(gameStateUpdates)
-		delete gameStateUpdates;
-	gameStateUpdates = NULL;
 
 	// Net engine
 	if (cNetEngine)

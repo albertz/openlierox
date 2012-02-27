@@ -33,7 +33,6 @@ class CWorm;
 class GameServer;
 class CServerNetEngine;
 class GameState;
-class GameStateUpdates;
 
 
 // Client rights on a server
@@ -85,7 +84,6 @@ private:
 	CShootList	cShootList;
 public:
 	GameState*	gameState;
-	GameStateUpdates* gameStateUpdates;
 private:
 
     AbsTime       fZombieTime;
