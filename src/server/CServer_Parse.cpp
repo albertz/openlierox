@@ -1311,31 +1311,6 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			bLocalClientConnected = true; // we just assume that
 			reconnectFrom->setLocalClient(false);
 		}
-				
-		/*
-		 // Must not have got the connection good packet
-		 if(cl->getStatus() == NET_CONNECTED) {
-		 hints << "Duplicate connection" << endl;
-		 
-		 // Resend the 'good connection' packet
-		 bytestr.Clear();
-		 bytestr.writeInt(-1,4);
-		 bytestr.writeString("lx::goodconnection");
-		 // Send the worm ids
-		 for( int i=0; i<cl->getNumWorms(); i++ )
-		 bytestr.writeInt(cl->getWorm(i)->getID(), 1);
-		 bytestr.Send(net_socket);
-		 return;
-		 }
-		 
-		 // TODO: does this make sense? the already connected client tries to connect again while playing?
-		 // Trying to connect while playing? Drop the client
-		 if(cl->getStatus() == NET_PLAYING) {
-		 //conprintf("Client tried to reconnect\n");
-		 //DropClient(&players[p]);
-		 return;
-		 }
-		 */		
 	}
 
 	// Find a spot for the client
