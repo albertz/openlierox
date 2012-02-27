@@ -206,13 +206,12 @@ void GameStateUpdates::reset() {
 
 void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	reset();
-	for_each_iterator(CWorm*, w, game.worms()) {
-		ObjRef o = w->get()->thisRef;
-		if(!s.haveObject(o))
-			pushObjCreation(o);
+	foreach(o, game.gameStateUpdates->objCreations) {
+		if(!s.haveObject(*o))
+			pushObjCreation(*o);
 		Objs& curObjs = game.gameStateUpdates->objs;
-		Objs::iterator itStart = curObjs.lower_bound(ObjAttrRef::LowerLimit(o));
-		Objs::iterator itEnd = curObjs.upper_bound(ObjAttrRef::UpperLimit(o));
+		Objs::iterator itStart = curObjs.lower_bound(ObjAttrRef::LowerLimit(*o));
+		Objs::iterator itEnd = curObjs.upper_bound(ObjAttrRef::UpperLimit(*o));
 		for(Objs::iterator it = itStart; it != itEnd; ) {
 			Objs::iterator next = it; next++;
 			ScriptVar_t curValue = it->get();
@@ -223,6 +222,10 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 				pushObjAttrUpdate(*it);
 			it = next;
 		}
+	}
+	foreach(o, game.gameStateUpdates->objDeletions) {
+		if(s.haveObject(*o))
+			pushObjDeletion(*o);
 	}
 }
 
@@ -248,8 +251,15 @@ void GameState::reset() {
 
 void GameState::updateToCurrent() {
 	reset();
-	for_each_iterator(CWorm*, w, game.worms()) {
-		GameState_registerObj(*this, w->get());
+	foreach(o, game.gameStateUpdates->objCreations) {
+		objs[*o] = ObjectState(*o);
+	}
+	foreach(u, game.gameStateUpdates->objs) {
+		Objs::iterator it = objs.find(u->obj);
+		assert(it != objs.end());
+		ObjectState& s = it->second;
+		assert(s.obj == it->first);
+		s.attribs[u->attr].value = u->get();
 	}
 }
 
