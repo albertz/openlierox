@@ -32,6 +32,8 @@ class CChannel;
 class CWorm;
 class GameServer;
 class CServerNetEngine;
+class GameState;
+class GameStateUpdates;
 
 
 // Client rights on a server
@@ -81,6 +83,10 @@ private:
 	CBytestream	bsUnreliable;
 
 	CShootList	cShootList;
+public:
+	GameState*	gameState;
+	GameStateUpdates* gameStateUpdates;
+private:
 
     AbsTime       fZombieTime;
 	AbsTime		fLastUpdateSent;

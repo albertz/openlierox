@@ -31,6 +31,7 @@
 #include "CServerNetEngine.h"
 #include "CChannel.h"
 #include "Debug.h"
+#include "game/GameState.h"
 
 
 
@@ -51,6 +52,8 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	m_gusLoggedIn = false;
 	
 	cShootList.Initialize();
+	gameState = NULL;
+	gameStateUpdates = NULL;
 
 	fLastFileRequest = fConnectTime = tLX->currentTime;
 	
@@ -63,7 +66,7 @@ void CServerConnection::resetChannel() {
 }
 
 ///////////////////
-// Clear the client details
+// Clear/reset the client details
 void CServerConnection::Clear()
 {
 	if( cNetChan )
@@ -79,6 +82,13 @@ void CServerConnection::Clear()
 
 	cShootList.Shutdown();
 	cShootList.Initialize();
+
+	if(gameState)
+		delete gameState;
+	gameState = new GameState;
+	if(gameStateUpdates)
+		delete gameStateUpdates;
+	gameStateUpdates = new GameStateUpdates;
 	
 	fLastFileRequest = fLastFileRequestPacketReceived = tLX->currentTime;
 	getUdpFileDownloader()->reset();
@@ -128,6 +138,13 @@ void CServerConnection::Shutdown()
 {	
 	// Shooting list
 	cShootList.Shutdown();
+
+	if(gameState)
+		delete gameState;
+	gameState = NULL;
+	if(gameStateUpdates)
+		delete gameStateUpdates;
+	gameStateUpdates = NULL;
 
 	// Net engine
 	if (cNetEngine)
