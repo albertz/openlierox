@@ -28,7 +28,7 @@ struct StaticVar {
 		return *(T*)&var;
 	}
 
-	T* operator->() const { return &get(); }
+	T* operator->() { return &get(); }
 
 };
 
