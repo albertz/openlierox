@@ -19,6 +19,16 @@ void ObjRef::readFromBs(CBytestream* bs) {
 	objId = bs->readInt16();
 }
 
+std::string ObjRef::description() const {
+	const ClassInfo* classInfo = getClassInfo(classId);
+	std::string r;
+	if(classInfo) r += classInfo->name;
+	else r += "<unknown class " + to_string(classId) + ">";
+	r += ":";
+	r += to_string(objId);
+	return r;
+}
+
 BaseObject::BaseObject() {
 	thisRef.obj.set(this);
 }
