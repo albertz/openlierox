@@ -143,11 +143,7 @@ CWorm::CWorm() : cNinjaRope(this), cSparkles(this), m_fireconeAnimator(NULL), m_
 	//bUsesMouse = false;
 	fLastInputTime = tLX->currentTime;
 
-	short i;
-	for(i=0;i<NUM_FRAMES;i++)
-		fFrameTimes[i] = AbsTime();
-
-	for(i=0; i<5; i++)
+	for(short i=0; i<MAX_WEAPONSLOTS; i++)
 		tWeapons[i].Weapon = NULL;
 
 

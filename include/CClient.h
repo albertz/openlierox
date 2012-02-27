@@ -237,9 +237,6 @@ public:
 	ProjectilePosMap projPosMap;
 	
 private:	
-	// Frames
-	frame_t		tFrames[NUM_FRAMES];
-
 	// Game
 	EngineSettings tGameInfo;	// Also game lobby
 	FeatureCompatibleSettingList otherGameInfo;	
@@ -562,8 +559,6 @@ public:
 	
     void        setZombieTime(const AbsTime& z)      { fZombieTime = z; }
     AbsTime       getZombieTime()         { return fZombieTime; }
-
-	frame_t		*getFrame(int FrameID)		{ return &tFrames[ FrameID ]; }
 
 	int			getTeamScore(int team)		{ if(team >= 0 && team < MAX_TEAMS) return iTeamScores[team]; else return 0; }
 

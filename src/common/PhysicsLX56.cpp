@@ -470,15 +470,6 @@ public:
 		}
 		
 		simulateWormWeapon(wpnDT, worm);
-
-
-		// Fill in the info for sending
-		if(local) {
-			ws->iAngle = (int)worm->getAngle();
-			ws->iFaceDirectionSide = worm->getFaceDirectionSide();
-			ws->iX = (int)worm->getPos().x;
-			ws->iY = (int)worm->getPos().y;
-		}
 		
 		worm->posRecordings.push_back(worm->getPos());
 

@@ -403,10 +403,6 @@ void CWormHumanInputHandler::getInput() {
 		}
 	}
 
-	ws->iAngle = (int)m_worm->fAngle;
-	ws->iX = (int)m_worm->vPos.get().x;
-	ws->iY = (int)m_worm->vPos.get().y;
-
 
 	cUp.reset();
 	cDown.reset();
@@ -612,10 +608,6 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 		if( NewNet::CanPlaySound(getID()) )
 			PlaySoundSample(sfxGame.smpNinja);
 	}
-
-	ws->iAngle = (int)fAngle;
-	ws->iX = (int)vPos.get().x;
-	ws->iY = (int)vPos.get().y;
 
 	// Clean up expired damage report values
 	if( tLXOptions->bColorizeDamageByWorm )

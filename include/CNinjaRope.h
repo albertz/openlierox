@@ -25,6 +25,14 @@
 #include "gusanos/particle.h"
 #include <vector>
 
+// Rope types
+#define		ROP_NONE		0x00
+#define		ROP_SHOOTING	0x01
+#define		ROP_HOOKED		0x02
+#define		ROP_FALLING		0x04
+#define		ROP_PLYHOOKED	0x08
+
+
 #ifndef DEDICATED_ONLY
 class SpriteSet;
 class BaseAnimator;

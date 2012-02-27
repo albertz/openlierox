@@ -215,10 +215,6 @@ protected:
 	AbsTime		fLastBlood;
 
 
-
-	// Network
-	AbsTime		fFrameTimes[NUM_FRAMES];
-
 	// server
 	worm_state_t tLastState; // Used for checking if we need to send the packet
 	float		fLastAngle;

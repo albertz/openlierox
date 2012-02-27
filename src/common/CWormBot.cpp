@@ -1121,9 +1121,7 @@ void CWormBotInputHandler::getInput() {
     }
 
     // we have no strafing for bots at the moment
-	ws->iFaceDirectionSide = m_worm->iMoveDirectionSide = m_worm->iFaceDirectionSide;
-
-	ws->iAngle = (int)m_worm->fAngle;	
+	m_worm->iMoveDirectionSide = m_worm->iFaceDirectionSide;
 }
 
 static bool moveToOwnBase(int t, CVec& pos) {
@@ -3360,9 +3358,8 @@ static bool isJumpingGivingDisadvantage(NEW_ai_node_t* node, CWorm* w) {
 }
 
 static float estimateXDiffAfterMove(CWorm* w, float dt) {
-	worm_state_t *ws = w->getWormState();
 	float speed = w->isOnGround() ? (float)cClient->getGameLobby()[FT_WormGroundSpeed] : (float)cClient->getGameLobby()[FT_WormAirSpeed];
-	if(ws->iFaceDirectionSide == DIR_LEFT) speed = -speed;
+	if(w->getFaceDirectionSide() == DIR_LEFT) speed = -speed;
 	
 	return CLAMP(w->getVelocity().x + speed * 90.0f, -30.0f, 30.0f) * dt;
 }
@@ -4268,28 +4265,29 @@ void CWormBotInputHandler::subThink() {
 	bool oldNinja = m_worm->cNinjaRope.isReleased();
 	CVec oldNinjaPos = m_worm->cNinjaRope.getHookPos();
 	worm_state_t oldS = *m_worm->getWormState();
-	
+	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
+
 	m_worm->fAngle = (float)m_worm->aimAngle.toDeg() - 90.0f;
 	//m_worm->fAngle = 180.0f - (m_worm->aimAngle.toDeg() + 90.0f);
-	oldS.iAngle = (int)m_worm->fAngle;
 	getInput();
 
 	bool newNinja = m_worm->cNinjaRope.isReleased();
 	CVec newNinjaPos = m_worm->cNinjaRope.getHookPos();
 	worm_state_t& newS = *m_worm->getWormState();
+	DIR_TYPE newMoveDir = m_worm->getMoveDirectionSide();
 
 	if(oldS.bMove && newS.bMove) {
-		if(oldS.iFaceDirectionSide == DIR_LEFT && newS.iFaceDirectionSide == DIR_RIGHT) {
+		if(oldMoveDir == DIR_LEFT && newMoveDir == DIR_RIGHT) {
 			baseActionStop(LEFT);
 			baseActionStart(RIGHT);
 		}
-		if(oldS.iFaceDirectionSide == DIR_RIGHT && newS.iFaceDirectionSide == DIR_LEFT) {
+		if(oldMoveDir == DIR_RIGHT && newMoveDir == DIR_LEFT) {
 			baseActionStop(RIGHT);
 			baseActionStart(LEFT);
 		}
 	}
-	if(oldS.bMove && !newS.bMove) baseActionStop((oldS.iFaceDirectionSide == DIR_LEFT) ? LEFT : RIGHT);
-	if(!oldS.bMove && newS.bMove) baseActionStart((newS.iFaceDirectionSide == DIR_LEFT) ? LEFT : RIGHT);
+	if(oldS.bMove && !newS.bMove) baseActionStop((oldMoveDir == DIR_LEFT) ? LEFT : RIGHT);
+	if(!oldS.bMove && newS.bMove) baseActionStart((newMoveDir == DIR_LEFT) ? LEFT : RIGHT);
 
 	if(oldS.bJump && !newS.bJump) baseActionStop(JUMP);
 	if(!oldS.bJump && newS.bJump) baseActionStart(JUMP);
