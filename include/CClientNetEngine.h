@@ -108,8 +108,6 @@ protected:
 	virtual void ParseSelectWeapons(CBytestream* bs);
 	virtual void ParsePlaySound(CBytestream* bs) {}
 
-	void		ParseWormCanRespawnNow(CBytestream* bs);
-	
 	void		 ParseUpdateLobby_Internal(CBytestream *bs, std::vector<byte> * updatedWorms = NULL); // Second parameter is used only in CClientNetEngineBeta9::ParseUpdateLobby()
 	
 };
