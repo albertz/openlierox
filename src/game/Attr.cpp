@@ -10,6 +10,7 @@
 #include <set>
 #include <vector>
 #include <typeinfo>
+#include <boost/shared_ptr.hpp>
 #include "Attr.h"
 #include "util/macros.h"
 #include "Debug.h"
@@ -18,6 +19,14 @@
 #include "Game.h"
 #include "GameState.h"
 #include "CBytestream.h"
+
+typedef std::map<AttribRef, const AttrDesc*> AttrDescs;
+static boost::shared_ptr<AttrDescs> attrDescs;
+
+static void initAttrDescs() {
+	if(!attrDescs)
+		attrDescs.reset(new AttrDescs);
+}
 
 std::string AttrDesc::description() const {
 	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
@@ -39,7 +48,9 @@ void AttribRef::readFromBs(CBytestream* bs) {
 }
 
 const AttrDesc* AttribRef::getAttrDesc() const {
-	assert(false); // TODO ...
+	initAttrDescs();
+	AttrDescs::iterator it = attrDescs->find(*this);
+	if(it != attrDescs->end()) return it->second;
 	return NULL;
 }
 
@@ -84,7 +95,8 @@ ScriptVar_t ObjAttrRef::get() const {
 
 
 void registerAttrDesc(AttrDesc& attrDesc) {
-	
+	initAttrDescs();
+	(*attrDescs)[AttribRef(&attrDesc)] = &attrDesc;
 }
 
 
