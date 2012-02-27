@@ -146,8 +146,12 @@ Settings::Settings() {
 	}
 }
 
+bool Settings::AttrDescs::belongsToUs(const AttrDesc *attrDesc) {
+	return attrDesc >= &attrDescs[0] && attrDesc < &attrDesc[FeatureArrayLen];
+}
+
 FeatureIndex Settings::AttrDescs::getIndex(const AttrDesc* attrDesc) {
-	assert(attrDesc >= &attrDescs[0] && attrDesc < &attrDesc[FeatureArrayLen]);
+	assert(belongsToUs(attrDesc));
 	return FeatureIndex(attrDesc - &attrDescs[0]);
 }
 
@@ -179,4 +183,4 @@ AttrExt& Settings::attrGetAttrExt(const AttrDesc* attrDesc) {
 	return attrExts[i];
 }
 
-REGISTER_CLASS(Settings)
+REGISTER_CLASS(Settings, ClassId(-1))

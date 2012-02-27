@@ -116,6 +116,7 @@ struct Settings : BaseObject {
 	struct AttrDescs {
 		AttrDesc attrDescs[FeatureArrayLen];
 		AttrDescs();
+		bool belongsToUs(const AttrDesc* attrDesc);
 		FeatureIndex getIndex(const AttrDesc* attrDesc);
 	};
 	static AttrDescs& getAttrDescs() {

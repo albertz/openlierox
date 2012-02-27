@@ -1595,5 +1595,5 @@ void CWorm::setClientVersion(const Version & v) {
 }
 
 
-REGISTER_CLASS(CWorm)
+REGISTER_CLASS(CWorm, LuaID<CGameObject>::value)
 

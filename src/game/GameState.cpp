@@ -49,22 +49,24 @@ void GameStateUpdates::writeToBs(CBytestream* bs) const {
 
 static BaseObject* getObjFromRef(ObjRef r) {
 	switch(r.classId) {
-	case LuaID<Game>::value:
-		assert(r.objId == 1);
-		return &game;
-	case LuaID<CWorm>::value:
-		return game.wormById(r.objId);
-	default:
-		assert(false);
+	case LuaID<Game>::value: return &game;
+	case LuaID<CWorm>::value: return game.wormById(r.objId);
+	default: break;
 	}
 	return NULL;
 }
 
-void GameStateUpdates::handleFromBs(CBytestream* bs) {
-	// WARNING/TODO: We have many asserts here, so this will crash
-	// for unsafe data. Also, unsafe data isn't really handled
-	// well anyway. This has to be fixed in future releases.
+static bool attrBelongsToClass(const ClassInfo* classInfo, const AttrDesc* attrDesc) {
+	if(attrDesc->objTypeId == classInfo->id) return true;
+	if(classInfo->superClassId != ClassId(-1)) {
+		const ClassInfo* superClassInfo = getClassInfo(classInfo->superClassId);
+		assert(superClassInfo != NULL); // if there is a superClassId, we always should have the ClassInfo
+		return attrBelongsToClass(superClassInfo, attrDesc);
+	}
+	return false;
+}
 
+void GameStateUpdates::handleFromBs(CBytestream* bs) {
 	uint16_t creationsNum = bs->readInt16();
 	for(uint16_t i = 0; i < creationsNum; ++i) {
 		ObjRef r;
@@ -74,8 +76,18 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		//o->thisRef.objId = r.objId;
 
 		// we only handle/support CWorm objects for now...
-		assert(game.isClient());
-		assert(r.classId == LuaID<CWorm>::value);
+		if(game.isServer()) {
+			errors << "GameStateUpdates::handleFromBs: got obj creation as server" << endl;
+			return;
+		}
+		if(r.classId != LuaID<CWorm>::value) {
+			errors << "GameStateUpdates::handleFromBs: obj-creation: invalid class-id " << r.classId << endl;
+			return;
+		}
+		if(game.wormById(r.objId, false) != NULL) {
+			errors << "GameStateUpdates::handleFromBs: worm-creation: worm " << r.objId << " already exists" << endl;
+			return;
+		}
 		game.createNewWorm(r.objId, false, NULL, Version());
 	}
 
@@ -85,9 +97,19 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		r.readFromBs(bs);
 
 		// we only handle/support CWorm objects for now...
-		assert(game.isClient());
-		assert(r.classId == LuaID<CWorm>::value);
-		CWorm* w = game.wormById(r.objId);
+		if(game.isServer()) {
+			errors << "GameStateUpdates::handleFromBs: got obj deletion as server" << endl;
+			return;
+		}
+		if(r.classId != LuaID<CWorm>::value) {
+			errors << "GameStateUpdates::handleFromBs: obj-deletion: invalid class-id " << r.classId << endl;
+			return;
+		}
+		CWorm* w = game.wormById(r.objId, false);
+		if(!w) {
+			errors << "GameStateUpdates::handleFromBs: obj-deletion: worm " << r.objId << " does not exist" << endl;
+			return;
+		}
 		game.removeWorm(w);
 	}
 
@@ -98,17 +120,47 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		ScriptVar_t v;
 		bs->readVar(v);
 
+		const AttrDesc* attrDesc = r.attr.getAttrDesc();
+		if(attrDesc == NULL) {
+			errors << "GameStateUpdates::handleFromBs: AttrDesc for update not found" << endl;
+			return;
+		}
+
+		const ClassInfo* classInfo = getClassInfo(r.obj.classId);
+		if(classInfo == NULL) {
+			errors << "GameStateUpdates::handleFromBs: class " << r.obj.classId << " for obj-update unknown" << endl;
+			return;
+		}
+
+		if(!attrBelongsToClass(classInfo, attrDesc)) {
+			errors << "GameStateUpdates::handleFromBs: attr " << attrDesc->description() << " does not belong to class " << r.obj.classId << " for obj-update" << endl;
+			return;
+		}
+
 		// for now, this is somewhat specific to the only types we support
 		if(r.obj.classId == LuaID<Settings>::value) {
-			assert(game.isClient());
-			FeatureIndex fIndex = Settings::getAttrDescs().getIndex(r.attr.getAttrDesc());
+			if(game.isServer()) {
+				errors << "GameStateUpdates::handleFromBs: got settings update as server" << endl;
+				return;
+			}
+			if(!Settings::getAttrDescs().belongsToUs(attrDesc)) {
+				errors << "GameStateUpdates::handleFromBs: settings update AttrDesc " << attrDesc->description() << " is not a setting attr" << endl;
+				return;
+			}
+			FeatureIndex fIndex = Settings::getAttrDescs().getIndex(attrDesc);
 			cClient->getGameLobby().overwrite[fIndex] = v;
 		}
 		else {
 			BaseObject* o = getObjFromRef(r.obj);
-			assert(o != NULL);
-			assert(o->thisRef == r.obj);
-			ScriptVarPtr_t p = r.attr.getAttrDesc()->getValueScriptPtr(o);
+			if(o == NULL) {
+				errors << "GameStateUpdates::handleFromBs: object for attr update not found" << endl;
+				return;
+			}
+			if(o->thisRef != r.obj) {
+				errors << "GameStateUpdates::handleFromBs: object-ref for attr update invalid" << endl;
+				return;
+			}
+			ScriptVarPtr_t p = attrDesc->getValueScriptPtr(o);
 			p.fromScriptVar(v);
 		}
 	}

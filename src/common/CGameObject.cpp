@@ -164,3 +164,6 @@ float convertAccel_LXToGus(float v) {
 float convertAccel_GusToLX(float v) {
 	return (v / LX56PhysicsDT.seconds()) / LX56PhysicsDT.seconds();
 }
+
+
+REGISTER_CLASS(CGameObject, ClassId(-1))

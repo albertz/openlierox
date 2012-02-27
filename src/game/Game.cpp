@@ -1100,5 +1100,5 @@ int oldLXStateInt() {
 	return 0;
 }
 
-REGISTER_CLASS(Game)
+REGISTER_CLASS(Game, ClassId(-1))
 

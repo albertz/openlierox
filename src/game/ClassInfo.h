@@ -13,23 +13,27 @@ struct BaseObject;
 typedef uint16_t ClassId;
 
 struct ClassInfo {
-	ClassInfo() : id(-1) {}
+	ClassInfo() : id(-1), superClassId(-1) {}
 	ClassId id;
+	ClassId superClassId;
 	std::string name;
+	size_t memSize;
 	boost::function<BaseObject*()> createInstance;
 };
 
 const ClassInfo* getClassInfo(ClassId id);
 void registerClass(const ClassInfo& c);
 
-#define REGISTER_CLASS(name_) \
+#define REGISTER_CLASS(name_, super_) \
 static BaseObject* createInstance_ ## name_ () { \
 	return new name_(); \
 } \
 static bool registerClass_ ## name_ () { \
 	ClassInfo info; \
 	info.id = LuaID<name_>::value; \
+	info.superClassId = super_; \
 	info.name = #name_; \
+	info.memSize = sizeof(name_); \
 	info.createInstance = createInstance_ ## name_; \
 	registerClass(info); \
 	return true; \
