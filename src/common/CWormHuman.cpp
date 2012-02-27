@@ -61,8 +61,14 @@ void CWormHumanInputHandler::getInput() {
 		return;
 	}
 	
-	TimeDiff dt = GetPhysicsTime() - m_worm->fLastInputTime;
-	m_worm->fLastInputTime = GetPhysicsTime();
+	TimeDiff dt;
+	// We may have called CWorm::getInput from outside the game inner
+	// 100-fixed-FPS loop and thus have a different GetPhysicsTime()
+	// from what we have there. So this case here can rarely happen.
+	if(GetPhysicsTime() > m_worm->fLastInputTime) {
+		dt = GetPhysicsTime() - m_worm->fLastInputTime;
+		m_worm->fLastInputTime = GetPhysicsTime();
+	}
 
 	int		weap = false;
 
