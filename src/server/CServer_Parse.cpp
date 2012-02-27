@@ -49,6 +49,7 @@
 #include "game/Game.h"
 #include "CGameScript.h"
 #include "client/ClientConnectionRequestInfo.h" // for WormJoinInfo
+#include "game/GameState.h"
 
 
 #ifdef _MSC_VER
@@ -185,6 +186,10 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			network.olxParseUpdate(NetConnID_conn(cl), *bs);
 			break;
 		
+		case C2S_GAMEATTRUPDATE:
+			GameStateUpdates::handleFromBs(bs);
+			break;
+
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
 			// which leads to warnings here - we simply parse it here and avoid warnings

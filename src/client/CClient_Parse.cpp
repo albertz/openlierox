@@ -61,6 +61,7 @@
 #include "CGameScript.h"
 #include "ClientConnectionRequestInfo.h"
 #include "util/macros.h"
+#include "game/GameState.h"
 
 
 #ifdef _MSC_VER
@@ -642,6 +643,10 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 
 			case S2C_GUSANOSUPDATE:
 				network.olxParseUpdate(NetConnID_server(), *bs);
+				break;
+
+			case S2C_GAMEATTRUPDATE:
+				GameStateUpdates::handleFromBs(bs);
 				break;
 
 			default:
@@ -2449,4 +2454,3 @@ void CClientNetEngineBeta9::ParsePlaySound(CBytestream* bs) {
 	
 	PlayGameSound(fn);
 }
-
