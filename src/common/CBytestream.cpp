@@ -403,9 +403,9 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 		writeByte(var.toColor().a);
 		return true;
 	}
+	case SVT_CUSTOM:
 	case SVT_STRING: return writeString(var.toString());
 	case SVT_BASEOBJ:
-	case SVT_CUSTOM:
 	case SVT_CALLBACK:
 	case SVT_DYNAMIC:
 		assert(false); // should not happen
