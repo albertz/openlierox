@@ -580,7 +580,7 @@ std::string CBytestream::readData( size_t size )
 	return Data.substr( oldpos, size );
 }
 
-bool CBytestream::readVar(ScriptVar_t& var, CustomVar* customType) {
+bool CBytestream::readVar(ScriptVar_t& var, const CustomVar* customType) {
 	ScriptVarType_t type = (ScriptVarType_t)readByte();
 
 	switch( type ) {
