@@ -123,8 +123,6 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 	for(uint32_t i = 0; i < attrUpdatesNum; ++i) {
 		ObjAttrRef r;
 		r.readFromBs(bs);
-		ScriptVar_t v;
-		bs->readVar(v);
 
 		const AttrDesc* attrDesc = r.attr.getAttrDesc();
 		if(attrDesc == NULL) {
@@ -145,6 +143,12 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 			bs->SkipAll();
 			return;
 		}
+
+		ScriptVar_t v;
+		const CustomVar* customType = NULL;
+		if(attrDesc->attrType == SVT_CUSTOM)
+			customType = &attrDesc->defaultValue.ptrCustom().get();
+		bs->readVar(v, customType);
 
 		// for now, this is somewhat specific to the only types we support
 		if(r.obj.classId == LuaID<Settings>::value) {
@@ -209,17 +213,15 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	foreach(o, game.gameStateUpdates->objCreations) {
 		if(!s.haveObject(*o))
 			pushObjCreation(*o);
-		Objs& curObjs = game.gameStateUpdates->objs;
-		Objs::iterator itStart = curObjs.lower_bound(ObjAttrRef::LowerLimit(*o));
-		Objs::iterator itEnd = curObjs.upper_bound(ObjAttrRef::UpperLimit(*o));
-		for(Objs::iterator it = itStart; it != itEnd; ++it) {
-			ScriptVar_t curValue = it->get();
-			ScriptVar_t stateValue = it->attr.getAttrDesc()->defaultValue;
-			if(s.haveObject(it->obj))
-				stateValue = s.getValue(*it);
-			if(curValue != stateValue)
-				pushObjAttrUpdate(*it);
-		}
+	}
+	foreach(u, game.gameStateUpdates->objs) {
+		ScriptVar_t curValue = u->get();
+		ScriptVar_t stateValue = u->attr.getAttrDesc()->defaultValue;
+		if(s.haveObject(u->obj))
+			stateValue = s.getValue(*u);
+		//notes << "update " << u->description() << ": " << curValue.toString() << " -> " << stateValue.toString() << endl;
+		if(curValue != stateValue)
+			pushObjAttrUpdate(*u);
 	}
 	foreach(o, game.gameStateUpdates->objDeletions) {
 		if(s.haveObject(*o))

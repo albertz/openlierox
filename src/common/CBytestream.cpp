@@ -591,7 +591,8 @@ bool CBytestream::readVar(ScriptVar_t& var, const CustomVar* customType) {
 	case SVT_VEC2: {
 		float x = readFloat();
 		float y = readFloat();
-		return ScriptVar_t(CVec(x, y));
+		var = ScriptVar_t(CVec(x, y));
+		return true;
 	}
 	case SVT_STRING: var = ScriptVar_t(readString()); return true;
 	case SVT_CUSTOM: {
