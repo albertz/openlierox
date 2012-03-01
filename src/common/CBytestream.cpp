@@ -623,11 +623,11 @@ bool CBytestream::readVar(ScriptVar_t& var, const CustomVar* customType) {
 	case SVT_BASEOBJ:
 	case SVT_CALLBACK:
 	case SVT_DYNAMIC:
-		warnings << "read var has not-supported type " << (int)type << endl;
+		errors << "read var has not-supported type " << (int)type << endl;
 		return false;
 	}
 
-	warnings << "read var has unknown type " << (int)type << endl;
+	errors << "read var has unknown type " << (int)type << endl;
 	return false;
 }
 
