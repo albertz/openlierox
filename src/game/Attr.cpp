@@ -10,6 +10,7 @@
 #include <set>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 #include "Attr.h"
 #include "util/macros.h"
 #include "util/StaticVar.h"
@@ -46,6 +47,20 @@ std::string AttribRef::description() const {
 	const AttrDesc* attrDesc = getAttrDesc();
 	if(attrDesc) return attrDesc->attrName;
 	else return "<unknown attr " + to_string(objTypeId) + ":" + to_string(attrId) + ">";
+}
+
+AttribRef AttribRef::LowerLimit(ClassId c) {
+	AttribRef r;
+	r.objTypeId = c;
+	r.attrId = 0;
+	return r;
+}
+
+AttribRef AttribRef::UpperLimit(ClassId c) {
+	AttribRef r;
+	r.objTypeId = c;
+	r.attrId = AttrDesc::AttrId(-1);
+	return r;
 }
 
 const AttrDesc* AttribRef::getAttrDesc() const {
@@ -102,6 +117,31 @@ void registerAttrDesc(AttrDesc& attrDesc) {
 	attrDescs.get()[AttribRef(&attrDesc)] = &attrDesc;
 }
 
+void iterAttrDescs(ClassId classId, bool withSuperClasses, boost::function<void(const AttrDesc* attrDesc)> callback) {
+	AttrDescs::iterator itStart = attrDescs->lower_bound(AttribRef::LowerLimit(classId));
+	AttrDescs::iterator itEnd = attrDescs->upper_bound(AttribRef::UpperLimit(classId));
+	for(AttrDescs::iterator it = itStart; it != itEnd; ++it)
+		callback(it->second);
+
+	if(withSuperClasses) {
+		const ClassInfo* classInfo = getClassInfo(classId);
+		assert(classInfo != NULL);
+		if(classInfo->superClassId != ClassId(-1))
+			iterAttrDescs(classInfo->superClassId, withSuperClasses, callback);
+	}
+}
+
+static void _addAttrDesc(std::vector<const AttrDesc*>& vec, const AttrDesc* attrDesc) {
+	vec.push_back(attrDesc);
+}
+
+std::vector<const AttrDesc*> getAttrDescs(ClassId classId, bool withSuperClasses) {
+	using namespace boost;
+	std::vector<const AttrDesc*> vec;
+	function<void(const AttrDesc* attrDesc)> callback = bind(_addAttrDesc, ref(vec), _1);
+	iterAttrDescs(classId, withSuperClasses, callback);
+	return vec;
+}
 
 static std::vector< WeakRef<BaseObject> > objUpdates;
 

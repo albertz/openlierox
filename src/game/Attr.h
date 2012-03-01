@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 #include <boost/function.hpp>
 #include "util/WeakRef.h"
 #include "CScriptableVars.h"
@@ -80,6 +81,8 @@ struct AttribRef {
 	void writeToBs(CBytestream* bs) const;
 	void readFromBs(CBytestream* bs);
 	std::string description() const;
+	static AttribRef LowerLimit(ClassId c);
+	static AttribRef UpperLimit(ClassId c);
 	const AttrDesc* getAttrDesc() const;
 
 	bool operator==(const AttribRef& o) const {
@@ -114,6 +117,15 @@ struct ObjAttrRef {
 };
 
 void registerAttrDesc(AttrDesc& attrDesc);
+void iterAttrDescs(ClassId classId, bool withSuperClasses, boost::function<void(const AttrDesc* attrDesc)> callback);
+std::vector<const AttrDesc*> getAttrDescs(ClassId classId, bool withSuperClasses);
+
+
+struct AttrUpdateInfo {
+	const AttrDesc* attrDesc;
+	ScriptVar_t oldValue;
+};
+
 void pushObjAttrUpdate(BaseObject& obj);
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
 

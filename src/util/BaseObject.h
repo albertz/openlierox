@@ -13,7 +13,6 @@
 #include <stdint.h>
 #include "CodeAttributes.h"
 #include "WeakRef.h"
-#include "CScriptableVars.h"
 #include "game/ClassInfo.h"
 
 typedef uint16_t ObjId;
@@ -44,15 +43,14 @@ struct ObjRef {
 	}
 };
 
-struct AttrUpdateInfo {
-	const AttrDesc* attrDesc;
-	ScriptVar_t oldValue;
-};
+struct AttrUpdateInfo;
 
-struct BaseObject : DontCopyTag {
+struct BaseObject {
 	typedef ::WeakRef<BaseObject> WeakRef;
 
 	BaseObject();
+	BaseObject(const BaseObject& o);
+	BaseObject& operator=(const BaseObject& o);
 	virtual ~BaseObject();
 	
 	std::vector<AttrUpdateInfo> attrUpdates;
