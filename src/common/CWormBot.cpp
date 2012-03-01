@@ -4166,8 +4166,8 @@ void CWormBotInputHandler::initWeaponSelection() {
 	bool bRandomWeaps = true;
 	// Combo (rifle)
 	if (((int)cClient->getGameLobby()[FT_LoadingTime] > 15 && (int)cClient->getGameLobby()[FT_LoadingTime] < 26) && 
-		(cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Classic") != std::string::npos || 
-		 cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Liero v1.0") != std::string::npos ))  {
+		(cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Classic") != std::string::npos ||
+		 cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Liero v1.0") != std::string::npos ))  {
 		if (game.weaponRestrictions()->isEnabled("Rifle"))  {
 			for (short i=0; i<5; i++)
 				m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon("Rifle");  // set all weapons to Rifle
@@ -4176,8 +4176,8 @@ void CWormBotInputHandler::initWeaponSelection() {
 		}
 	}
 	// 100 lt
-	else if ((cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Liero") != std::string::npos || 
-			  cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Classic") != std::string::npos) && 
+	else if ((cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Liero") != std::string::npos ||
+			  cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Classic") != std::string::npos) &&
 			 (int)cClient->getGameLobby()[FT_LoadingTime] == 100)  {
 		int MyWeaps = game.weaponRestrictions()->isEnabled("Super Shotgun") + game.weaponRestrictions()->isEnabled("Napalm") +  game.weaponRestrictions()->isEnabled("Cannon") + game.weaponRestrictions()->isEnabled("Doomsday") + game.weaponRestrictions()->isEnabled("Chaingun");
 		if (MyWeaps == 5)  {
@@ -4192,8 +4192,8 @@ void CWormBotInputHandler::initWeaponSelection() {
 		}
 	}
 	// Mortar game
-	else if ((cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("MW 1.0") != std::string::npos || 
-			  cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Modern Warfare1.0") != std::string::npos) && 
+	else if ((cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("MW 1.0") != std::string::npos ||
+			  cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Modern Warfare1.0") != std::string::npos) &&
 			 (int)cClient->getGameLobby()[FT_LoadingTime] < 50)  {
 		if (game.weaponRestrictions()->isEnabled("Mortar Launcher"))  {
 			for (short i=0; i<5; i++)

@@ -343,8 +343,8 @@ void Menu_LocalShutdown()
 
 	// Save the level and mod
 	if (tLXOptions)  {
-		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
-		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->path, 0);
+		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path.write(), 0);
+		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->path.write(), 0);
 	}
 
 	cLocalMenu.Shutdown();
@@ -768,8 +768,8 @@ void Menu_LocalShowMinimap(bool bReload)
 static bool Menu_LocalStartGame_CustomGame() {
 	
 	// Level
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->name, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path.write(), 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->name.write(), 0);
 	
 	
 	//
@@ -824,7 +824,7 @@ static bool Menu_LocalStartGame_CustomGame() {
 	}
 	
 	// Save the current level in the options
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path.write(), 0);
 	
 	//
 	// Game Info
@@ -892,7 +892,7 @@ bool Menu_LocalCheckPlaying(int index)
 		bool operator() (const std::string& abs_filename) {
 			ModInfo info = infoForMod(abs_filename, true);
 			if(info.valid)
-				combobox->addItem(info.path, info.name + " [" + info.typeShort + "]");
+				combobox->addItem(info.path, info.name + " [" + info.typeShort.get() + "]");
 
 			return true;
 		}

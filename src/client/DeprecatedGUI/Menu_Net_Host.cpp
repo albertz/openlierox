@@ -739,9 +739,9 @@ void Menu_Net_HostLobbyCreateGui()
 	// Don't show chat box selection
 	//lv->setShowSelect(false);
 
-	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
-	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->name, 0);
-	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->path, 0);
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path.write(), 0);
+	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->name.write(), 0);
+	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->path.write(), 0);
 
 	CCombobox *gtype = (CCombobox *)cHostLobby.getWidget(hl_Gamemode);
 	if (gtype)  {
@@ -941,7 +941,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			errors << "No level is selected, cannot save it to options" << endl;
 
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->name, 0);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->name.write(), 0);
 
 		Menu_HostShowMinimap();
 	}
@@ -1062,7 +1062,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if(ev->iEventMsg == CMB_CHANGED) {
 					Menu_HostShowMinimap();
 
-					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
+					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path.write(), 0);
 					cServer->UpdateGameLobby();
 				}
 				break;
@@ -1070,8 +1070,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
             // Mod change
             case hl_ModName:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURNAME, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->name, 0);
-                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->path, 0);
+					cHostLobby.SendMessage(hl_ModName, CBS_GETCURNAME, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->name.write(), 0);
+					cHostLobby.SendMessage(hl_ModName, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->path.write(), 0);
 					cServer->UpdateGameLobby();
                 }
                 break;
@@ -1298,10 +1298,10 @@ bool Menu_Net_HostStartGame()
 	game.startGame();
 	
 	// Get the map name
-	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
-	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->name, 0);
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path.write(), 0);
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->name.write(), 0);
 	// Save the current level in the options
-	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path.write(), 0);
 	cHostLobby.Shutdown();
 
 	return true;

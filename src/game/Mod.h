@@ -12,15 +12,16 @@
 
 #include <string>
 #include "util/CustomVar.h"
+#include "game/Attr.h"
 
 struct ModInfo : CustomVar {
 	ModInfo();
 	static ModInfo ByPath(const std::string& _p) { ModInfo info; info.valid = true; info.path = _p; return info; }
 	bool valid;
-	std::string name;
-	std::string path;
+	ATTR(ModInfo, std::string, name, 1, {})
+	ATTR(ModInfo, std::string, path, 2, {})
+	ATTR(ModInfo, std::string, typeShort, 3, {})
 	std::string type;
-	std::string typeShort;
 	
 	virtual CustomVar* copy() const { return new ModInfo(*this); }
 	virtual bool operator==(const CustomVar&) const;

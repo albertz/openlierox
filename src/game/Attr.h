@@ -184,8 +184,8 @@ struct AttrWithBasicOpts : public Attr<T, AttrDescT> {
 	template<typename T2> T operator-(T2 o) const { return this->value - o; }
 	template<typename T2> T operator*(T2 o) const { return this->value * o; }
 	template<typename T2> T operator/(T2 o) const { return this->value / o; }
-	bool operator==(T o) const { return this->value == o; }
-	bool operator!=(T o) const { return this->value != o; }
+	template<typename T2> bool operator==(T2 o) const { return this->value == o; }
+	template<typename T2> bool operator!=(T2 o) const { return this->value != o; }
 };
 
 template <typename T, typename AttrDescT>
@@ -202,8 +202,17 @@ struct AttrWithIntOpts : public Attr<T, AttrDescT> {
 	template<typename T2> T operator-(T2 o) const { return this->value - o; }
 	template<typename T2> T operator*(T2 o) const { return this->value * o; }
 	template<typename T2> T operator/(T2 o) const { return this->value / o; }
-	bool operator==(T o) const { return this->value == o; }
-	bool operator!=(T o) const { return this->value != o; }
+	template<typename T2> bool operator==(T2 o) const { return this->value == o; }
+	template<typename T2> bool operator!=(T2 o) const { return this->value != o; }
+};
+
+template <typename T, typename AttrDescT>
+struct AttrWithStrOpts : public Attr<T, AttrDescT> {
+	template<typename T2> AttrWithStrOpts& operator+=(T2 i) { *this = this->value + i; return *this; }
+	template<typename T2> AttrWithStrOpts& operator=(const T2& v) { Attr<T, AttrDescT>::operator=(v); return *this; }
+	template<typename T2> T operator+(T2 o) const { return this->value + o; }
+	template<typename T2> bool operator==(T2 o) const { return this->value == o; }
+	template<typename T2> bool operator!=(T2 o) const { return this->value != o; }
 };
 
 template <typename T, typename AttrDescT>
@@ -221,6 +230,7 @@ USE_OPTS_FOR(int32_t, Int);
 USE_OPTS_FOR(uint64_t, Int);
 USE_OPTS_FOR(float, Basic);
 USE_OPTS_FOR(CVec, Basic);
+USE_OPTS_FOR(std::string, Str);
 
 #undef USE_OPTS_FOR
 

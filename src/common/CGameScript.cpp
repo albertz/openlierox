@@ -527,7 +527,7 @@ static bool checkLXSourceMod(const std::string& dir, bool abs_filename, ModInfo&
 	}
 	
 	info.valid = true;
-	ReadString(filename,"General","ModName", info.name,"untitled", abs_filename);	
+	ReadString(filename,"General","ModName", info.name.write(),"untitled", abs_filename);
 	info.path = GetBaseFilename(dir);
 	info.type = "LieroX mod source";
 	info.typeShort = "LX src";

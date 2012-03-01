@@ -22,7 +22,7 @@
 static GameSettingsPresetInfo settingsInfo(const std::string& path, bool global) {
 	GameSettingsPresetInfo info;
 	info.global = global;
-	if(!ReadString(path, "GameSettings", "Name", info.name, ""))
+	if(!ReadString(path, "GameSettings", "Name", info.name.write(), ""))
 		info.name = GetBaseFilenameWithoutExt(path);
 	ReadString(path, "GameSettings", "Description", info.description, "");
 	info.path = path;

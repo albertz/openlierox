@@ -712,8 +712,8 @@ void CClient::FinishModDownloads()
 			for_each_iterator(CWorm*, w, game.localWorms())
 				w->get()->initWeaponSelection();
 		} else {
-			warnings("The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name +").\n");
-			Menu_MessageBox("Error", "The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name +")", DeprecatedGUI::LMB_OK);
+			warnings("The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name.get() +").\n");
+			Menu_MessageBox("Error", "The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name.get() +")", DeprecatedGUI::LMB_OK);
 			Disconnect();
 			GotoNetMenu();
 			return;
@@ -834,7 +834,7 @@ void CClient::ProcessMapDownloads()
 			}
 		}
 		
-		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()[FT_Map].as<LevelInfo>()->path ) {
+		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()[FT_Map].as<LevelInfo>()->path.get() ) {
 			bDownloadingMap = true;
 			iDownloadMethod = DL_UDP;
 		}

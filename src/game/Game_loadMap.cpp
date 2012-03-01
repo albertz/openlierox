@@ -31,10 +31,10 @@ mapCreate:
 		
 	{
 		float timer = SDL_GetTicks()/1000.0f;
-		std::string sMapFilename = "levels/" + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path;
+		std::string sMapFilename = "levels/" + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path.get();
 		if(!m_gameMap->Load(sMapFilename)) {
-			errors << "Game::loadMap: Could not load the level " << cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path << endl;
-			return "Could not load level " + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path;
+			errors << "Game::loadMap: Could not load the level " << cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path.get() << endl;
+			return "Could not load level " + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path.get();
 		}
 		notes << "Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 	}

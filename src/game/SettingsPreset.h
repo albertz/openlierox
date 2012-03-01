@@ -14,14 +14,15 @@
 #include <set>
 #include "gui/List.h"
 #include "util/CustomVar.h"
+#include "game/Attr.h"
 
 struct GameSettingsPresetInfo : CustomVar {
 	GameSettingsPresetInfo();
 	static GameSettingsPresetInfo Default();
 	
 	bool global;
-	std::string name;
-	std::string path;
+	ATTR(GameSettingsPresetInfo, std::string, name, 1, {})
+	ATTR(GameSettingsPresetInfo, std::string, path, 2, {})
 	std::string description;
 	
 	std::pair<bool,std::string> compareData() const { return std::make_pair(global, name); }

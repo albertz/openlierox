@@ -1742,17 +1742,12 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	}
 
 	if(cServer && cServer->isServerRunning() && game.state != Game::S_Lobby) {
-		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path ) {
+		if( varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] ) {
 			caller->writeMsg("SetVar: You cannot change the map in game");
 			return;
 		}
 		
-		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->name ) {
-			caller->writeMsg("SetVar: You cannot change the map-name in game");
-			return;
-		}
-		
-		if( varptr->var.ptr.s == &gameSettings[FT_Mod].as<ModInfo>()->path ) {
+		if( varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] ) {
 			caller->writeMsg("SetVar: You cannot change the mod in game");
 			return;
 		}
@@ -1858,7 +1853,7 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	{
 		ModInfo modInfo = infoForMod(gameSettings[FT_Mod].as<ModInfo>()->path);
 		if(!modInfo.valid) {
-			caller->writeMsg("no mod for dedicated, " + gameSettings[FT_Mod].as<ModInfo>()->path + " not found");
+			caller->writeMsg("no mod for dedicated, " + gameSettings[FT_Mod].as<ModInfo>()->path.get() + " not found");
 			// TODO..			
 		}
 		else

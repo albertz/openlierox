@@ -105,6 +105,7 @@ struct Settings : BaseObject {
 		virtual ScriptVarType_t type() { return featureArray[i].valueType; }
 		virtual ScriptVar_t asScriptVar() { return (*s)[i]; }
 		virtual void fromScriptVar(const ScriptVar_t& v) { s->overwrite[i].fromScriptVar(v); }
+		virtual const AttrDesc* getAttrDesc() const { return &Settings::getAttrDescs().attrDescs[i]; }
 	};
 	ScriptVarWrapper wrappers[FeatureArrayLen];
 	

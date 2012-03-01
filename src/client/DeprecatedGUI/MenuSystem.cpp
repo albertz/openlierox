@@ -961,7 +961,7 @@ void Menu_AddDefaultWidgets()
 		bool operator() (const std::string& filename) {
 			LevelInfo info = infoForLevel(filename, true);
 			if(info.valid)
-				cmb->addItem(info.path, info.name + " [" + info.typeShort + "]");
+				cmb->addItem(info.path, info.name + " [" + info.typeShort.get() + "]");
 
 			return true;
 		}

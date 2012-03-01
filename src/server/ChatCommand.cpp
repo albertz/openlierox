@@ -865,7 +865,7 @@ std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
 	cServer->UpdateGameLobby();
 
 	// Notify everybody
-	cServer->SendGlobalText(w->getName() + " changed mod to [" + info.typeShort + "] " + info.name, TXT_NOTICE);
+	cServer->SendGlobalText(w->getName() + " changed mod to [" + info.typeShort.get() + "] " + info.name.get(), TXT_NOTICE);
 
 	return "";
 }
@@ -1069,13 +1069,10 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	}
 
 	if(game.state != Game::S_Lobby && params.size() == 2) {
-		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path )
+		if( varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] )
 			return "You cannot change the map in game";
 
-		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->name )
-			return "You cannot change the map-name in game";
-
-		if( varptr->var.ptr.s == &gameSettings[FT_Mod].as<ModInfo>()->path )
+		if( varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] )
 			return "You cannot change the mod in game";
 
 		if( stringcaseequal(var, "GameOptions.GameInfo.GameType") )

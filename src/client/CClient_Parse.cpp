@@ -2193,7 +2193,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 			fclose(ff);
 
 			if( client->getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
-					IsFileAvailable( "levels/" + client->getGameLobby()[FT_Map].as<LevelInfo>()->path ) )
+					IsFileAvailable( "levels/" + client->getGameLobby()[FT_Map].as<LevelInfo>()->path.get() ) )
 			{
 				client->bDownloadingMap = false;
 				client->bWaitingForMap = false;

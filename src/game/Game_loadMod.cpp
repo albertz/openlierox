@@ -39,8 +39,8 @@ Result Game::loadMod() {
 		
 		int result = cGameScript->Load( cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path );
 		if(result != GSE_OK) {
-			errors << "Game::game.gameMap: Could not load the game script \"" << cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path << "\"" << endl;
-			return "Could not load the game script \"" + cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path + "\"";
+			errors << "Game::game.gameMap: Could not load the game script \"" << cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path.get() << "\"" << endl;
+			return "Could not load the game script \"" + cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path.get() + "\"";
 		}
 		
 		cCache.SaveMod( cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path, cGameScript );

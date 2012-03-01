@@ -32,6 +32,7 @@
 
 
 struct BaseObject;
+struct AttrDesc;
 
 
 // Groups for options ( I came up with six groups, and named them pretty lame, TODO: fix that )
@@ -325,6 +326,7 @@ struct _DynamicVar {
 	virtual ScriptVarType_t type() = 0;
 	virtual ScriptVar_t asScriptVar() = 0;
 	virtual void fromScriptVar(const ScriptVar_t&) = 0;
+	virtual const AttrDesc* getAttrDesc() const { return NULL; }
 };
 
 template < typename T >

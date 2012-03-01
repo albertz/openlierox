@@ -13,16 +13,18 @@
 #include <string>
 #include "util/CustomVar.h"
 #include "SmartPointer.h"
+#include "game/Attr.h"
+
 struct SDL_Surface;
 
 struct LevelInfo : CustomVar {
 	LevelInfo();
 	static LevelInfo ByPath(const std::string& _p) { LevelInfo info; info.valid = true; info.path = _p; return info; }
 	bool valid;
-	std::string name;
-	std::string path;
+	ATTR(LevelInfo, std::string, name, 1, {})
+	ATTR(LevelInfo, std::string, path, 2, {})
+	ATTR(LevelInfo, std::string, typeShort, 3, {})
 	std::string type;
-	std::string typeShort;
 	
 	virtual CustomVar* copy() const { return new LevelInfo(*this); }
 	virtual bool operator==(const CustomVar&) const;

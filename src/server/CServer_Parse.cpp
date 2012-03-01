@@ -1897,7 +1897,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	bs.writeByte(oldLXStateInt());
 
 	// TODO: check if we should append "levels/" string here, it was like this in old code
-	bs.writeString( game.state == Game::S_Playing ? "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path : gameSettings[FT_Map].as<LevelInfo>()->path );
+	bs.writeString( game.state == Game::S_Playing ? "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path.get() : gameSettings[FT_Map].as<LevelInfo>()->path.get() );
 	bs.writeString(gameSettings[FT_Mod].as<ModInfo>()->name);
 	bs.writeByte(game.gameMode()->GeneralGameType());
 	bs.writeInt16(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);

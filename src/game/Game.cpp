@@ -283,7 +283,7 @@ Result Game::prepareGameloop() {
 
 	if(isClient()) {
 		// check if we have level
-		std::string sMapFilename = "levels/" + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path;
+		std::string sMapFilename = "levels/" + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path.get();
 		if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
 			cClient->DownloadMap(GetBaseFilename(sMapFilename));  // Download the map
 			// we have bDownloadingMap = true when this was successfull

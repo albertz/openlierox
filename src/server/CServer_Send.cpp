@@ -129,7 +129,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 {
 	bs->writeByte(S2C_PREPAREGAME);
 	bs->writeBool(false);	// random map; Always false as of now
-	bs->writeString("levels/" + gameSettings[FT_Map].as<LevelInfo>()->path);
+	bs->writeString("levels/" + gameSettings[FT_Map].as<LevelInfo>()->path.get());
 	
 	// Game info
 	bs->writeInt(game.gameMode()->GeneralGameType(),1);
