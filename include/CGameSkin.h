@@ -21,6 +21,7 @@
 #include "Color.h"
 #include "ThreadPool.h"
 #include "DynDraw.h"
+#include "util/CustomVar.h"
 
 // Some basic defines
 #define CPU_WIDTH 10
@@ -32,7 +33,7 @@ class CViewport;
 struct SkinAction_Colorize;
 struct SkinAction_Load;
 
-class CGameSkin  {
+class CGameSkin : CustomVar {
 public:
 	CGameSkin(int fw, int fh, int fs, int sw, int sh);
 	CGameSkin(const std::string& file, int fw, int fh, int fs, int sw, int sh);
@@ -106,6 +107,14 @@ public:
 	int getFrameCount() const;
 	int getSkinWidth() const { return iSkinWidth; }
 	int getSkinHeight() const { return iSkinHeight; }
+
+	// --- CustomVar ---
+
+	virtual CustomVar* copy() const { return new CGameSkin(*this); }
+	virtual bool operator==(const CustomVar& o) const;
+	virtual bool operator<(const CustomVar& o) const;
+	virtual std::string toString() const;
+	virtual bool fromString( const std::string & str);
 };
 
 #define WORM_SKIN_FRAME_WIDTH 32

@@ -473,6 +473,19 @@ bool CGameSkin::operator ==(const CGameSkin &oth)
 		return bmpSurface.get() == oth.bmpSurface.get();
 }
 
+bool CGameSkin::operator==(const CustomVar& o) const {
+	const CGameSkin* os = dynamic_cast<const CGameSkin*>(&o);
+	if(!os) return false;
+	return *this == *os;
+}
+
+bool CGameSkin::operator<(const CustomVar& o) const {
+	const CGameSkin* os = dynamic_cast<const CGameSkin*>(&o);
+	if(!os) return this < &o;
+	return stringcasecmp(sFileName, os->sFileName) < 0;
+}
+
+
 Color CGameSkin::renderColorAt(int x, int y, int frame, bool mirrored) {
 	Mutex::ScopedLock lock(thread->mutex);
 	if(!thread->ready) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);	
@@ -748,4 +761,13 @@ int CGameSkin::getFrameCount() const
 		return bmpSurface->w / iFrameWidth;
 	else
 		return 0;
+}
+
+std::string CGameSkin::toString() const {
+	return sFileName;
+}
+
+bool CGameSkin::fromString( const std::string & str) {
+	Change(str);
+	return true;
 }
