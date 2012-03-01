@@ -19,6 +19,8 @@ struct ClassInfo {
 	std::string name;
 	size_t memSize;
 	boost::function<BaseObject*()> createInstance;
+
+	bool isTypeOf(ClassId id) const;
 };
 
 const ClassInfo* getClassInfo(ClassId id);

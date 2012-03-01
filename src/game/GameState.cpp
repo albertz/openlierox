@@ -57,13 +57,7 @@ static BaseObject* getObjFromRef(ObjRef r) {
 }
 
 static bool attrBelongsToClass(const ClassInfo* classInfo, const AttrDesc* attrDesc) {
-	if(attrDesc->objTypeId == classInfo->id) return true;
-	if(classInfo->superClassId != ClassId(-1)) {
-		const ClassInfo* superClassInfo = getClassInfo(classInfo->superClassId);
-		assert(superClassInfo != NULL); // if there is a superClassId, we always should have the ClassInfo
-		return attrBelongsToClass(superClassInfo, attrDesc);
-	}
-	return false;
+	return classInfo->isTypeOf(attrDesc->objTypeId);
 }
 
 void GameStateUpdates::handleFromBs(CBytestream* bs) {

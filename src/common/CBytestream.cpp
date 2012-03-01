@@ -596,19 +596,9 @@ bool CBytestream::readVar(ScriptVar_t& var, const CustomVar* customType) {
 	}
 	case SVT_STRING: var = ScriptVar_t(readString()); return true;
 	case SVT_CUSTOM: {
-		std::string str = readString();
-		if(customType) {
-			CustomVar::Ref custom = customType->copy();
-			custom->fromString(str);
-			var = ScriptVar_t(custom.get());
-		}
-		else
-			// Note: This is not quite correct (different type) but we need the customtype info
-			// to do it correct.
-			// I don't put a warning here because I want to have this behaviour here.
-			// If you want to skip such cases, please add another parameter and be sure
-			// that you use it correct everywhere.
-			var = ScriptVar_t(str);
+		CustomVar::Ref custom = CustomVar::FromBytestream(this);
+		if(!custom) return false;
+		var = ScriptVar_t(custom.get());
 		return true;
 	}
 	case SVT_COLOR: {
@@ -662,6 +652,12 @@ bool CBytestream::SkipString() {
 
 bool CBytestream::Skip(size_t num) {
 	pos += num;
+	return isPosAtEnd();
+}
+
+bool CBytestream::SkipVar() {
+	ScriptVar_t var;
+	readVar(var);
 	return isPosAtEnd();
 }
 

@@ -124,7 +124,8 @@ public:
 	bool		SkipString();
 	void		SkipAll()		{ pos = Data.size(); }
 	bool	SkipRestBits() { if(isPosAtEnd()) return true; ResetBitPos(); pos++; return isPosAtEnd(); }
-	
+	bool SkipVar();
+
 	// Networking stuff
 	bool	Send(NetworkSocket* sock);
 	size_t	Read(NetworkSocket* sock);
