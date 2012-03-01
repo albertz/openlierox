@@ -16,7 +16,7 @@
 #include "util/CustomVar.h"
 
 struct GameSettingsPresetInfo : CustomVar {
-	GameSettingsPresetInfo() : global(true) {}
+	GameSettingsPresetInfo();
 	static GameSettingsPresetInfo Default();
 	
 	bool global;

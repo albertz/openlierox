@@ -12,6 +12,7 @@
 #include "MapLoader.h"
 #include "StringUtils.h"
 #include "GfxPrimitives.h"
+#include "gusanos/luaapi/classes.h"
 
 LevelInfo infoForLevel(const std::string& f, bool absolute) {
 	MapLoad* loader = MapLoad::open(absolute ? f : ("levels/" + f), absolute, false);
@@ -42,6 +43,10 @@ SmartPointer<SDL_Surface> minimapForLevel(const std::string& f, bool absolute) {
 	return loader->getMinimap();
 }
 
+LevelInfo::LevelInfo() : valid(false) {
+	thisRef.classId = LuaID<LevelInfo>::value;
+}
+
 bool LevelInfo::operator==(const CustomVar& o) const {
 	const LevelInfo* oi = dynamic_cast<const LevelInfo*> (&o);
 	return oi && stringcaseequal(path, oi->path);
@@ -61,3 +66,5 @@ bool LevelInfo::fromString( const std::string & str) {
 	*this = infoForLevel(str, false);
 	return true;
 }
+
+REGISTER_CLASS(LevelInfo, LuaID<CustomVar>::value)

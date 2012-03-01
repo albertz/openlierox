@@ -81,6 +81,10 @@ GameSettingsPresetInfo GameSettingsPresetInfo::Default() {
 }
 
 
+GameSettingsPresetInfo::GameSettingsPresetInfo() : global(true) {
+	thisRef.classId = LuaID<GameSettingsPresetInfo>::value;
+}
+
 bool GameSettingsPresetInfo::operator==(const CustomVar& o) const {
 	const GameSettingsPresetInfo* oi = dynamic_cast<const GameSettingsPresetInfo*> (&o);
 	return oi && (*oi == *this);
@@ -101,3 +105,5 @@ bool GameSettingsPresetInfo::fromString( const std::string & str) {
 	*this = settingsInfo(str, global);
 	return true;
 }
+
+REGISTER_CLASS(GameSettingsPresetInfo, LuaID<CustomVar>::value)

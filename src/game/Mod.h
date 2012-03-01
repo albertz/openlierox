@@ -14,7 +14,7 @@
 #include "util/CustomVar.h"
 
 struct ModInfo : CustomVar {
-	ModInfo() : valid(false) {}
+	ModInfo();
 	static ModInfo ByPath(const std::string& _p) { ModInfo info; info.valid = true; info.path = _p; return info; }
 	bool valid;
 	std::string name;

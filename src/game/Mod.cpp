@@ -25,6 +25,10 @@ std::string modName(const std::string& f) {
 	return "";
 }
 
+ModInfo::ModInfo() : valid(false) {
+	thisRef.classId = LuaID<ModInfo>::value;
+}
+
 bool ModInfo::operator==(const CustomVar& o) const {
 	const ModInfo* oi = dynamic_cast<const ModInfo*> (&o);
 	return oi && stringcaseequal(path, oi->path);
@@ -45,4 +49,4 @@ bool ModInfo::fromString(const std::string & str) {
 	return true;
 }
 
-
+REGISTER_CLASS(ModInfo, LuaID<CustomVar>::value)

@@ -45,6 +45,9 @@ class SpriteSet;
 class Settings;
 class Game;
 struct CustomVar;
+struct LevelInfo;
+struct ModInfo;
+struct GameSettingsPresetInfo;
 
 namespace OmfgGUI
 {
@@ -84,11 +87,14 @@ CLASSID(CNinjaRope, 25);
 CLASSID(Settings, 26);
 CLASSID(Game, 27);
 CLASSID(CustomVar, 28);
+CLASSID(LevelInfo, 29);
+CLASSID(ModInfo, 30);
+CLASSID(GameSettingsPresetInfo, 31);
 
 #undef CLASSID
 
 INLINE const char* LuaClassName(uint32_t id_) {
-	return LuaClassInfo<28>::name(id_);
+	return LuaClassInfo<31>::name(id_);
 }
 
 template<class T>
