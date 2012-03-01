@@ -22,13 +22,16 @@ class CBytestream;
 struct CustomVar : BaseObject {
 	typedef ::Ref<CustomVar> Ref;
 	virtual ~CustomVar() {}
+
 	virtual CustomVar* copy() const = 0;
 	virtual bool operator==(const CustomVar&) const = 0;
 	virtual bool operator<(const CustomVar&) const = 0;
 	virtual std::string toString() const = 0;
 	virtual bool fromString( const std::string & str) = 0;
+
 	virtual Result toBytestream( CBytestream* bs ) const;
 	virtual Result fromBytestream( CBytestream* bs );
+
 	static Ref FromBytestream( CBytestream* bs );
 	bool operator!=(const CustomVar& o) const { return !(*this == o); }
 };
