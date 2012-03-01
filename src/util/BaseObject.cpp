@@ -35,6 +35,11 @@ BaseObject::BaseObject() {
 }
 
 BaseObject::BaseObject(const BaseObject& o) {
+	(*this) = o;
+}
+
+BaseObject& BaseObject::operator=(const BaseObject& o) {
+	if(thisRef.obj) thisRef.obj.overwriteShared(NULL);
 	thisRef.obj.set(this);
 	if(o.thisRef.objId != ObjId(-1))
 		// The reason this is an error is because we cannot really know if
@@ -46,11 +51,6 @@ BaseObject::BaseObject(const BaseObject& o) {
 		// Right now, we only want to allow copying objects which are not
 		// registered by an objId. E.g. CustomVar objects.
 		errors << "BaseObject copy: the source has a specific objId" << endl;
-}
-
-BaseObject& BaseObject::operator=(const BaseObject& o) {
-	this->~BaseObject();
-	new (this) BaseObject(o);
 	return *this;
 }
 
