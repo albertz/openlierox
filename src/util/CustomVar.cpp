@@ -13,7 +13,7 @@
 #include "game/Attr.h"
 #include "util/macros.h"
 
-Result CustomVar::toBytestream(CBytestream *bs) {
+Result CustomVar::toBytestream(CBytestream *bs) const {
 	assert( thisRef.classId != ClassId(-1) );
 	bs->writeInt16(thisRef.classId);
 
