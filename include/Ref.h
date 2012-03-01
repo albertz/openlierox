@@ -31,6 +31,7 @@ public:
 	Ref& operator=(_Obj* obj) { if(obj != m_obj) { clear(); m_obj = obj; } return *this; }
 	Ref& operator=(const Ref& ref) { if(ref.m_obj != m_obj) { clear(); m_obj = ref->copy(); } return *this; }
 
+	operator bool() const { return isSet(); }
 	_Obj* operator->() { return m_obj; }
 	const _Obj* operator->() const { return m_obj; }
 	_Obj& get() { return *m_obj; }
