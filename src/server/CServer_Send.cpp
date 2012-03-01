@@ -682,7 +682,16 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs, const Version&
 			sendCount ++;
 			bs1.writeString( f->get()->name );
 			bs1.writeString( f->get()->humanReadableName );
-			bs1.writeVar( gameSettings.hostGet(f->get()) );
+			{
+				ScriptVar_t value = gameSettings.hostGet(f->get());
+				if(compatVer >= OLXBetaVersion(0,59,10) || value.type <= SVT_COLOR)
+					bs1.writeVar( value );
+				else {
+					// The client does not support the type. Thus convert it to a string.
+					ScriptVar_t strValue(value.toString());
+					bs1.writeVar( strValue );
+				}
+			}
 			bs1.writeBool( gameSettings.olderClientsSupportSetting(f->get()) );
 		}
 	}
