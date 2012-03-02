@@ -764,3 +764,5 @@ bool CGameSkin::fromString( const std::string & str) {
 	Change(str);
 	return true;
 }
+
+REGISTER_CLASS(CGameSkin, LuaID<CustomVar>::value)

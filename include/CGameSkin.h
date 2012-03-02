@@ -39,8 +39,9 @@ struct SkinAction_Load;
 #define WORM_SKIN_WIDTH 20
 #define WORM_SKIN_HEIGHT 18
 
-class CGameSkin : CustomVar {
+class CGameSkin : public CustomVar {
 public:
+	CGameSkin() { *this = WormSkin(); }
 	CGameSkin(int fw, int fh, int fs, int sw, int sh);
 	~CGameSkin();
 
