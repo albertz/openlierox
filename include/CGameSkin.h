@@ -33,11 +33,26 @@ class CViewport;
 struct SkinAction_Colorize;
 struct SkinAction_Load;
 
+#define WORM_SKIN_FRAME_WIDTH 32
+#define WORM_SKIN_FRAME_HEIGHT 18
+#define WORM_SKIN_FRAME_SPACING 4
+#define WORM_SKIN_WIDTH 20
+#define WORM_SKIN_HEIGHT 18
+
 class CGameSkin : CustomVar {
 public:
 	CGameSkin(int fw, int fh, int fs, int sw, int sh);
 	~CGameSkin();
-	
+
+	static CGameSkin WormSkin() {
+		CGameSkin skin(WORM_SKIN_FRAME_WIDTH,
+					   WORM_SKIN_FRAME_HEIGHT,
+					   WORM_SKIN_FRAME_SPACING,
+					   WORM_SKIN_WIDTH,
+					   WORM_SKIN_HEIGHT);
+		return skin;
+	}
+
 	CGameSkin(const CGameSkin& skin);
 	CGameSkin& operator=(const CGameSkin& oth);
 
@@ -114,24 +129,6 @@ public:
 	virtual bool operator<(const CustomVar& o) const;
 	virtual std::string toString() const;
 	virtual bool fromString( const std::string & str);
-};
-
-#define WORM_SKIN_FRAME_WIDTH 32
-#define WORM_SKIN_FRAME_HEIGHT 18
-#define WORM_SKIN_FRAME_SPACING 4
-#define WORM_SKIN_WIDTH 20
-#define WORM_SKIN_HEIGHT 18
-
-class CWormSkin : public CGameSkin  {
-public:
-	CWormSkin() : CGameSkin(WORM_SKIN_FRAME_WIDTH,
-		WORM_SKIN_FRAME_HEIGHT,
-		WORM_SKIN_FRAME_SPACING,
-		WORM_SKIN_WIDTH,
-		WORM_SKIN_HEIGHT)  {}
-
-	CWormSkin(const CWormSkin& oth) : CGameSkin(oth) {}
-	CWormSkin& operator=(const CWormSkin& oth) { this->CGameSkin::operator=(oth); return *this; }
 };
 
 #endif

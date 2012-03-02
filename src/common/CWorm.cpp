@@ -68,7 +68,9 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 	}
 };
 
-CWorm::CWorm() : cNinjaRope(this), cSparkles(this), m_fireconeAnimator(NULL), m_animator(NULL)
+CWorm::CWorm() :
+	cNinjaRope(this), cSkin(CGameSkin::WormSkin()), cSparkles(this),
+	m_fireconeAnimator(NULL), m_animator(NULL)
 {
 	thisRef.classId = LuaID<CWorm>::value;
 

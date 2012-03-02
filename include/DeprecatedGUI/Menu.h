@@ -304,7 +304,7 @@ struct menu_t {
 	SmartPointer<SDL_Surface> bmpTriangleDown;
 
 	SmartPointer<SDL_Surface> bmpAI;
-	CWormSkin cSkin;
+	CGameSkin cSkin;
 
 	SmartPointer<SDL_Surface> bmpMapEdTool;
 

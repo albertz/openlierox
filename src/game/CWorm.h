@@ -234,7 +234,7 @@ protected:
 	bool		bLobbyReady; // Lobby Ready state
 
 	// Graphics
-	CWormSkin	cSkin;
+	CGameSkin	cSkin;
 	struct SkinDynDrawer; SkinDynDrawer* skinPreviewDrawerP;
 	SmartPointer<DynDrawIntf> skinPreviewDrawer;
 	SmartPointer<SDL_Surface> bmpGibs;
@@ -500,8 +500,8 @@ public:
 	void		setTagTime(const TimeDiff& _t)		{ fTagTime = _t; }
 	void		incrementTagTime(const TimeDiff& dt)	{ fTagTime+=dt; }
 
-	CWormSkin&	getSkin()				{ return cSkin; }
-	void		setSkin(const CWormSkin& skin)	{ cSkin = skin; }
+	CGameSkin&	getSkin()				{ return cSkin; }
+	void		setSkin(const CGameSkin& skin)	{ cSkin = skin; }
 	void		setSkin(const std::string& skin)	{ cSkin.Change(skin); }
 
 	bool		isShooting()				{ return tState.bShoot; }
