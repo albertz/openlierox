@@ -167,13 +167,6 @@ void CGameSkin::uninit() {
 	// all other stuff have its own destructors
 }
 
-CGameSkin::CGameSkin(const std::string &file, int fw, int fh, int fs, int sw, int sh) : thread(NULL)
-{
-	init(fw,fh,fs,sw,sh);
-
-	Change(file);
-}
-
 CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh) : thread(NULL)
 {
 	init(fw,fh,fs,sw,sh);

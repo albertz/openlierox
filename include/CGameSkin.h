@@ -36,7 +36,6 @@ struct SkinAction_Load;
 class CGameSkin : CustomVar {
 public:
 	CGameSkin(int fw, int fh, int fs, int sw, int sh);
-	CGameSkin(const std::string& file, int fw, int fh, int fs, int sw, int sh);
 	~CGameSkin();
 	
 	CGameSkin(const CGameSkin& skin);
@@ -130,12 +129,6 @@ public:
 		WORM_SKIN_FRAME_SPACING,
 		WORM_SKIN_WIDTH,
 		WORM_SKIN_HEIGHT)  {}
-	CWormSkin(const std::string& file) : CGameSkin(file, 
-		WORM_SKIN_FRAME_WIDTH, 
-		WORM_SKIN_FRAME_HEIGHT,
-		WORM_SKIN_FRAME_SPACING,
-		WORM_SKIN_WIDTH,
-		WORM_SKIN_HEIGHT) {}
 
 	CWormSkin(const CWormSkin& oth) : CGameSkin(oth) {}
 	CWormSkin& operator=(const CWormSkin& oth) { this->CGameSkin::operator=(oth); return *this; }

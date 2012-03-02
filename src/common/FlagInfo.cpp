@@ -34,8 +34,9 @@
 #define FLAG_HEIGHT 18
 
 Flag::Flag(int i) : id(i), holderWorm(-1), atSpawnPoint(true), skin(NULL) {
-	skin = new CGameSkin("../data/gfx/flags.png", FLAG_FRAME_WIDTH, FLAG_FRAME_HEIGHT, FLAG_SPACING, FLAG_WIDTH, FLAG_HEIGHT);
-	
+	skin = new CGameSkin(FLAG_FRAME_WIDTH, FLAG_FRAME_HEIGHT, FLAG_SPACING, FLAG_WIDTH, FLAG_HEIGHT);
+	skin->Change("../data/gfx/flags.png");
+
 	if(i >= 0 && i < MAX_TEAMS) {
 		skin->Colorize(tLX->clTeamColors[i]);
 	}
