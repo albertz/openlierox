@@ -232,6 +232,9 @@ public:
 		}
 		return NULL;
 	}
+	bool isCustomType() const {
+		return type == SVT_CUSTOM || type == SVT_CustomWeakRefToStatic;
+	}
 
 	bool operator==(const ScriptVar_t& var) const {
 		if(var.type != type) return false;
@@ -509,6 +512,15 @@ struct ScriptVarPtr_t
 	void setDefault() const { fromScriptVar(defaultValue); }
 	ScriptVar_t asScriptVar() const;
 	void fromScriptVar(const ScriptVar_t&) const;
+
+	CustomVar* customVar() const {
+		switch(type) {
+		case SVT_CUSTOM: return &ptr.custom->get();
+		case SVT_CustomWeakRefToStatic: return ptr.customRef;
+		default: assert(false);
+		}
+		return NULL;
+	}
 	
 };
 

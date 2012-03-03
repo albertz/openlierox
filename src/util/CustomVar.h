@@ -16,6 +16,7 @@
 #include "util/Result.h"
 
 class CBytestream;
+class ScriptVar_t;
 
 // for custom variables types (not just string/bool/int/float)
 // This can be used in the scriptable vars system.
@@ -30,6 +31,7 @@ struct CustomVar : BaseObject {
 	virtual bool fromString( const std::string & str) = 0;
 
 	virtual void copyFrom(const CustomVar&);
+	virtual void fromScriptVar(const ScriptVar_t& v);
 	virtual Result toBytestream( CBytestream* bs ) const;
 	virtual Result fromBytestream( CBytestream* bs );
 

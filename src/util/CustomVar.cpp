@@ -26,6 +26,16 @@ void CustomVar::copyFrom(const CustomVar& v) {
 	}
 }
 
+void CustomVar::fromScriptVar(const ScriptVar_t& v) {
+	if(v.isCustomType()
+			&& v.customVar()->thisRef.classId != ClassId(-1)
+			&& v.customVar()->thisRef.classId == thisRef.classId
+	)
+		copyFrom(*v.customVar());
+	else
+		fromString(v.toString());
+}
+
 Result CustomVar::toBytestream(CBytestream *bs) const {
 	assert( thisRef.classId != ClassId(-1) );
 	bs->writeInt16(thisRef.classId);
