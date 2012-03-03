@@ -107,7 +107,7 @@ public:
 	void		read2Int4(short& x, short& y);
 	bool		readBit();
 	std::string	readData( size_t size = (size_t)(-1) );
-	bool		readVar(ScriptVar_t& var, const CustomVar* customType = NULL);
+	bool		readVar(ScriptVar_t& var);
 
 	// Peeks
 	uchar		peekByte() const;

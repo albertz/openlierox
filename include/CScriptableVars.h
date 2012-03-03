@@ -18,6 +18,7 @@
 #include <list>
 #include <cassert>
 #include <iostream>
+#include <boost/type_traits/is_base_of.hpp>
 
 #include "Color.h"
 #include "StringUtils.h"
@@ -92,6 +93,7 @@ enum ScriptVarType_t
 	SVT_VEC2 = 5,
 	SVT_BASEOBJ = 10,
 	SVT_CUSTOM = 20,
+	SVT_CustomWeakRefToStatic = 21,
 	SVT_CALLBACK,	// Cannot be referenced from XML files directly, only as string
 	SVT_DYNAMIC
 };
@@ -99,6 +101,7 @@ enum ScriptVarType_t
 static const ScriptVarType_t SVT_INVALID = ScriptVarType_t(-1);
 
 template<typename T> struct GetType;
+
 template<> struct GetType<bool> { typedef bool type; static const ScriptVarType_t value = SVT_BOOL; };
 template<> struct GetType<int32_t> { typedef int32_t type; static const ScriptVarType_t value = SVT_INT32; };
 template<> struct GetType<uint64_t> { typedef uint64_t type; static const ScriptVarType_t value = SVT_UINT64; };
@@ -109,6 +112,16 @@ template<> struct GetType<CVec> { typedef CVec type; static const ScriptVarType_
 template<> struct GetType<WeakRef<BaseObject> > { typedef WeakRef<BaseObject> type; static const ScriptVarType_t value = SVT_BASEOBJ; };
 template<> struct GetType<CustomVar::Ref> { typedef CustomVar::Ref type; static const ScriptVarType_t value = SVT_CUSTOM; };
 template<> struct GetType<const char*> : GetType<std::string> {};
+
+template<bool> struct GetType_BaseCustomVar;
+template<> struct GetType_BaseCustomVar<true> {
+	struct Type {
+		typedef CustomVar::WeakRef type;
+		static const ScriptVarType_t value = SVT_CustomWeakRefToStatic;
+	};
+};
+
+template<typename T> struct GetType : GetType_BaseCustomVar<boost::is_base_of<CustomVar,T>::value>::Type {};
 
 
 
@@ -129,6 +142,7 @@ private:
 		PODForClass<CVec> vec2;
 		PODForClass<WeakRef<BaseObject> > baseObj;
 		PODForClass<CustomVar::Ref> custom;
+		PODForClass<CustomVar::WeakRef> customRef;
 	};
 
 public:
@@ -142,8 +156,10 @@ public:
 	ScriptVar_t( const char* v ): type(SVT_STRING) { str.init(v); }
 	ScriptVar_t( Color v ): type(SVT_COLOR) { col.init(v); }
 	ScriptVar_t( CVec v ): type(SVT_VEC2) { vec2.init(v); }
-	ScriptVar_t( WeakRef<BaseObject> v ) : type(SVT_BASEOBJ) { baseObj.init(v); }
-	ScriptVar_t( const CustomVar& c ): type(SVT_CUSTOM) { custom.init(c.copy()); }
+	//ScriptVar_t( WeakRef<BaseObject> v ) : type(SVT_BASEOBJ) { baseObj.init(v); } // not yet used...
+	explicit ScriptVar_t( const CustomVar& c ): type(SVT_CUSTOM) { custom.init(c.copy()); }
+	ScriptVar_t( const CustomVar::Ref& c ): type(SVT_CUSTOM) { custom.init(c); }
+	ScriptVar_t( const CustomVar::WeakRef& c ): type(SVT_CustomWeakRefToStatic) { customRef.init(c); }
 
 	ScriptVar_t( const ScriptVar_t& v ) : type(v.type), isUnsigned(v.isUnsigned) {
 		switch(v.type) {
@@ -156,15 +172,10 @@ public:
 		case SVT_VEC2: vec2.init(v.vec2.get()); break;
 		case SVT_BASEOBJ: baseObj.init(v.baseObj.get()); break;
 		case SVT_CUSTOM: custom.init(v.custom); break;
+		case SVT_CustomWeakRefToStatic: customRef.init(v.customRef); break;
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
-	}
-
-	ScriptVar_t& operator=(const ScriptVar_t& v) {
-		this -> ~ScriptVar_t(); // uninit
-		new (this) ScriptVar_t(v); // init again
-		return *this;
 	}
 
 	~ScriptVar_t() {
@@ -174,6 +185,7 @@ public:
 		case SVT_VEC2: vec2.uninit(); break;
 		case SVT_BASEOBJ: baseObj.uninit(); break;
 		case SVT_CUSTOM: custom.uninit(); break;
+		case SVT_CustomWeakRefToStatic: customRef.uninit(); break;
 		default: break;
 		}
 	}
@@ -186,9 +198,6 @@ public:
 	operator Color() const { assert(type == SVT_COLOR); return col.get(); }
 	operator CVec() const { assert(type == SVT_VEC2); return vec2.get(); }
 	operator WeakRef<BaseObject>() const { assert(type == SVT_BASEOBJ); return baseObj.get(); }
-
-	template<typename T>
-	ScriptVar_t& operator=(const T& v) { fromScriptVar(ScriptVar_t(v)); return *this; }
 	
 	template<typename T> T* as() { assert(type == SVT_CUSTOM); return dynamic_cast<T*> (&custom.get().get()); }
 	template<typename T> const T* as() const { assert(type == SVT_CUSTOM); return dynamic_cast<const T*> (&custom.get().get()); }
@@ -199,8 +208,30 @@ public:
 	template<typename T>
 	const T* ptr() const { assert(type == GetType<T>::value); return (T*)&b; }
 
-	CustomVar::Ref& ptrCustom() { assert(type == SVT_CUSTOM); return custom.get(); }
-	const CustomVar::Ref& ptrCustom() const { assert(type == SVT_CUSTOM); return custom.get(); }
+	CustomVar::Ref* ptrCustom() { assert(type == SVT_CUSTOM); return &custom.get(); }
+	const CustomVar::Ref* ptrCustom() const { assert(type == SVT_CUSTOM); return &custom.get(); }
+
+	CustomVar::WeakRef customVarRef() const {
+		assert(type == SVT_CustomWeakRefToStatic);
+		return customRef.get();
+	}
+
+	CustomVar* customVar() {
+		switch(type) {
+		case SVT_CUSTOM: return &custom.get().get();
+		case SVT_CustomWeakRefToStatic: return dynamic_cast<CustomVar*>(customRef.get().get());
+		default: assert(false);
+		}
+		return NULL;
+	}
+	const CustomVar* customVar() const {
+		switch(type) {
+		case SVT_CUSTOM: return &custom.get().get();
+		case SVT_CustomWeakRefToStatic: return dynamic_cast<const CustomVar*>(customRef.get().get());
+		default: assert(false);
+		}
+		return NULL;
+	}
 
 	bool operator==(const ScriptVar_t& var) const {
 		if(var.type != type) return false;
@@ -213,7 +244,11 @@ public:
 		case SVT_COLOR: return col == var.col;
 		case SVT_VEC2: return vec2 == var.vec2;
 		case SVT_BASEOBJ: return baseObj == var.baseObj;
-		case SVT_CUSTOM: return custom.get().get() == var.custom.get().get();
+		case SVT_CUSTOM:
+		case SVT_CustomWeakRefToStatic:
+			if(customVar() == NULL || var.customVar() == NULL)
+				return customVar() == var.customVar();
+			return *customVar() == *customVar();
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
@@ -232,7 +267,11 @@ public:
 		case SVT_COLOR: return col < var.col;
 		case SVT_VEC2: return vec2 < var.vec2;
 		case SVT_BASEOBJ: return baseObj < var.baseObj;
-		case SVT_CUSTOM: return custom.get().get() < var.custom.get().get();
+		case SVT_CUSTOM:
+		case SVT_CustomWeakRefToStatic:
+			if(customVar() == NULL || var.customVar() == NULL)
+				return customVar() < var.customVar();
+			return *customVar() < *var.customVar();
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
@@ -264,6 +303,7 @@ public:
 		case SVT_VEC2: return (int)vec2.get().x; // everything else doesn't make sense
 		case SVT_BASEOBJ: return baseObj.get().get() ? 1 : 0;
 		case SVT_CUSTOM: return from_string<int>(toString());
+		case SVT_CustomWeakRefToStatic: return from_string<int>(toString());
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
@@ -280,6 +320,7 @@ public:
 		case SVT_VEC2: return vec2.get().x; // everything else doesn't make sense
 		case SVT_BASEOBJ: return baseObj.get().get() ? 1 : 0;
 		case SVT_CUSTOM: return from_string<float>(toString());
+		case SVT_CustomWeakRefToStatic: return from_string<float>(toString());
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
@@ -296,13 +337,23 @@ public:
 		case SVT_VEC2: return Color::fromDefault((Uint32)toInt());
 		case SVT_BASEOBJ: return toBool() ? Color(255,255,255) : Color();
 		case SVT_CUSTOM: return StrToCol(toString());
+		case SVT_CustomWeakRefToStatic: return StrToCol(toString());
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
 		assert(false); return Color();
 	}
 
-	// Note: the difference to op= is that we keep the same type here
+	ScriptVar_t& operator=(const ScriptVar_t& v) {
+		this -> ~ScriptVar_t(); // uninit
+		new (this) ScriptVar_t(v); // init again
+		return *this;
+	}
+
+	template<typename T>
+	ScriptVar_t& operator=(const T& v) { fromScriptVar(ScriptVar_t(v)); return *this; }
+
+	// Note: the difference to op=(ScriptVar) is that we keep the same type here
 	void fromScriptVar(const ScriptVar_t& v) {
 		switch(type) {
 		case SVT_BOOL: assert(v.type == SVT_BOOL); b = v.b; break;
@@ -313,7 +364,20 @@ public:
 		case SVT_COLOR: assert(v.type == SVT_COLOR); col.get() = v.col.get(); break;
 		case SVT_VEC2: assert(v.type == SVT_VEC2); vec2.get() = v.vec2.get(); break;
 		case SVT_BASEOBJ: assert(v.type == SVT_BASEOBJ); baseObj.get() = v.baseObj.get();
-		case SVT_CUSTOM: assert(v.type == SVT_CUSTOM); custom.get() = v.custom.get(); break;
+		case SVT_CUSTOM:
+			assert(v.type == SVT_CUSTOM || v.type == SVT_CustomWeakRefToStatic);
+			assert(v.customVar() != NULL);
+			custom.get() = v.customVar()->copy();
+			break;
+		case SVT_CustomWeakRefToStatic: {
+			assert(v.type == SVT_CUSTOM || v.type == SVT_CustomWeakRefToStatic);
+			CustomVar* thisVar = customVar();
+			const CustomVar* otherVar = v.customVar();
+			assert(thisVar != NULL);
+			assert(otherVar != NULL);
+			thisVar->copyFrom(*otherVar);
+			break;
+		}
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
@@ -354,6 +418,7 @@ struct __ScriptVarPtrRaw {
 		CVec * vec2;
 		WeakRef<BaseObject> * baseObj;
 		CustomVar::Ref* custom;
+		CustomVar* customRef;
 		ScriptCallback_t cb;
 		_DynamicVar* dynVar;
 	};
@@ -395,7 +460,8 @@ struct ScriptVarPtr_t
 		case SVT_COLOR:
 		case SVT_VEC2:
 		case SVT_BASEOBJ: ptr.b = v->ptr<bool>(); break;
-		case SVT_CUSTOM: ptr.custom = &v->ptrCustom(); break;
+		case SVT_CUSTOM: ptr.custom = v->ptrCustom(); break;
+		case SVT_CustomWeakRefToStatic: ptr.customRef = v->customVar();
 		default: assert(false);
 		}
 	}
@@ -412,7 +478,8 @@ struct ScriptVarPtr_t
 		case SVT_COLOR:
 		case SVT_VEC2:
 		case SVT_BASEOBJ: return ptr.b == var->ptr<bool>();
-		case SVT_CUSTOM: return ptr.custom == &var->ptrCustom();
+		case SVT_CUSTOM: return ptr.custom == var->ptrCustom();
+		case SVT_CustomWeakRefToStatic: return ptr.customRef == var->customVar();
 		default: assert(false);
 		}
 		return false;

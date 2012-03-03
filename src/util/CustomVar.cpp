@@ -13,6 +13,19 @@
 #include "game/Attr.h"
 #include "util/macros.h"
 
+void CustomVar::copyFrom(const CustomVar& v) {
+	assert( thisRef.classId != ClassId(-1) );
+	assert( v.thisRef.classId != ClassId(-1) );
+	assert( thisRef.classId == v.thisRef.classId );
+
+	std::vector<const AttrDesc*> attribs = getAttrDescs(thisRef.classId, true);
+	foreach(a, attribs) {
+		ScriptVar_t value = (*a)->get(&v);
+		if(value == (*a)->get(this)) continue;
+		(*a)->set(this, value);
+	}
+}
+
 Result CustomVar::toBytestream(CBytestream *bs) const {
 	assert( thisRef.classId != ClassId(-1) );
 	bs->writeInt16(thisRef.classId);

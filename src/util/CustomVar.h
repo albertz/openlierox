@@ -29,6 +29,7 @@ struct CustomVar : BaseObject {
 	virtual std::string toString() const = 0;
 	virtual bool fromString( const std::string & str) = 0;
 
+	virtual void copyFrom(const CustomVar&);
 	virtual Result toBytestream( CBytestream* bs ) const;
 	virtual Result fromBytestream( CBytestream* bs );
 

@@ -76,6 +76,9 @@ std::string ScriptVar_t::toString() const {
 	case SVT_COLOR: return ColToHex(col.get());
 	case SVT_VEC2: return to_string(vec2.get());
 	case SVT_CUSTOM: return custom.get().get().toString();
+	case SVT_CustomWeakRefToStatic:
+		assert(customVar() != NULL);
+		return customVar()->toString();
 	default: assert(false); return "";
 	}
 }
@@ -90,6 +93,10 @@ bool ScriptVar_t::fromString( const std::string & s )
 	case SVT_COLOR: col.get() = StrToCol(s); break;
 	case SVT_VEC2: vec2.get() = from_string<CVec>(s); break;
 	case SVT_CUSTOM: custom.get().get().fromString(s); break;
+	case SVT_CustomWeakRefToStatic:
+		assert(customVar() != NULL);
+		customVar()->fromString(s);
+		break;
 	default: assert(false); return false;
 	}
 	return true;
@@ -106,6 +113,7 @@ std::string ScriptVarPtr_t::toString() const
 	case SVT_COLOR: return ColToHex(*ptr.cl);
 	case SVT_VEC2: return to_string(*ptr.vec2);
 	case SVT_CUSTOM: return ptr.custom->get().toString();
+	case SVT_CustomWeakRefToStatic: return ptr.customRef->toString();
 	case SVT_DYNAMIC: return ptr.dynVar->asScriptVar().toString();
 	case SVT_CALLBACK: return "callback(0x" + hex((long)ptr.cb) + ")";
 	default: assert(false); return "";
@@ -139,6 +147,7 @@ bool ScriptVarPtr_t::fromString( const std::string & _str) const {
 	case SVT_COLOR: *ptr.cl = StrToCol(str); break;
 	case SVT_VEC2: *ptr.vec2 = from_string<CVec>(str); break;
 	case SVT_CUSTOM: return ptr.custom->get().fromString(_str);
+	case SVT_CustomWeakRefToStatic: return ptr.customRef->fromString(_str);
 	case SVT_DYNAMIC: {
 		ScriptVar_t var = ptr.dynVar->asScriptVar();
 		if(!var.fromString(str)) return false;
@@ -161,6 +170,7 @@ ScriptVar_t ScriptVarPtr_t::asScriptVar() const {
 	case SVT_VEC2: return ScriptVar_t(*ptr.vec2);
 	case SVT_BASEOBJ: return ScriptVar_t(*ptr.baseObj);
 	case SVT_CUSTOM: return ScriptVar_t(ptr.custom->get());
+	case SVT_CustomWeakRefToStatic: return ScriptVar_t(*ptr.customRef);
 	case SVT_DYNAMIC: return ptr.dynVar->asScriptVar();
 	case SVT_CALLBACK: assert(false);
 	}
@@ -178,6 +188,7 @@ void ScriptVarPtr_t::fromScriptVar(const ScriptVar_t& v) const {
 	case SVT_VEC2: *ptr.vec2 = v; break;
 	case SVT_BASEOBJ: *ptr.baseObj = v;
 	case SVT_CUSTOM: ptr.custom->get().fromString(v.toString()); break;
+	case SVT_CustomWeakRefToStatic: ptr.customRef->fromString(v.toString()); break;
 	case SVT_DYNAMIC: ptr.dynVar->fromScriptVar(v); break;
 	case SVT_CALLBACK: assert(false);
 	}
@@ -260,6 +271,7 @@ std::string CScriptableVars::DumpVars()
 		case SVT_STRING: ret << "string: "; break;
 		case SVT_COLOR: ret << "color: "; break;
 		case SVT_CUSTOM: ret << "custom: "; break;
+		case SVT_CustomWeakRefToStatic: ret << "static custom: "; break;
 		case SVT_CALLBACK: ret << "callback: "; break;
 		default: assert(false);
 		}

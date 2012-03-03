@@ -957,7 +957,7 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 		std::string humanName = bs->readString();
 		
 		ScriptVar_t value;
-		if(!bs->readVar(value, (f && f->valueType == SVT_CUSTOM) ? &f->unsetValue.ptrCustom().get() : NULL))
+		if(!bs->readVar(value))
 			errors << "ParseFeatureSettings: error while reading var " << name << " (" << humanName << ")" << endl;
 		bool olderClientsSupported = bs->readBool(); // to be understand as: if feature is unknown to us, it's save to ignore
 		

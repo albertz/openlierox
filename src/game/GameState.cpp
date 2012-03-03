@@ -139,10 +139,7 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		}
 
 		ScriptVar_t v;
-		const CustomVar* customType = NULL;
-		if(attrDesc->attrType == SVT_CUSTOM)
-			customType = &attrDesc->defaultValue.ptrCustom().get();
-		bs->readVar(v, customType);
+		bs->readVar(v);
 
 		// for now, this is somewhat specific to the only types we support
 		if(r.obj.classId == LuaID<Settings>::value) {

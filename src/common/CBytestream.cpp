@@ -405,6 +405,7 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 	}
 	case SVT_STRING: return writeString(var.toString());
 	case SVT_CUSTOM: return var.as<CustomVar>()->toBytestream(this);
+	case SVT_CustomWeakRefToStatic: return var.customVar()->toBytestream(this);
 	case SVT_BASEOBJ:
 	case SVT_CALLBACK:
 	case SVT_DYNAMIC:
@@ -580,7 +581,7 @@ std::string CBytestream::readData( size_t size )
 	return Data.substr( oldpos, size );
 }
 
-bool CBytestream::readVar(ScriptVar_t& var, const CustomVar* customType) {
+bool CBytestream::readVar(ScriptVar_t& var) {
 	ScriptVarType_t type = (ScriptVarType_t)readByte();
 
 	switch( type ) {
@@ -595,12 +596,6 @@ bool CBytestream::readVar(ScriptVar_t& var, const CustomVar* customType) {
 		return true;
 	}
 	case SVT_STRING: var = ScriptVar_t(readString()); return true;
-	case SVT_CUSTOM: {
-		CustomVar::Ref custom = CustomVar::FromBytestream(this);
-		if(!custom) return false;
-		var = ScriptVar_t(custom.get());
-		return true;
-	}
 	case SVT_COLOR: {
 		Color c;
 		c.r = readInt(1);
@@ -608,6 +603,13 @@ bool CBytestream::readVar(ScriptVar_t& var, const CustomVar* customType) {
 		c.b = readInt(1);
 		c.a = readInt(1);
 		var = ScriptVar_t(c);
+		return true;
+	}
+	case SVT_CUSTOM:
+	case SVT_CustomWeakRefToStatic: {
+		CustomVar::Ref custom = CustomVar::FromBytestream(this);
+		if(!custom) return false;
+		var = ScriptVar_t(custom.get());
 		return true;
 	}
 	case SVT_BASEOBJ:
