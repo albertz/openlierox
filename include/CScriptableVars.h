@@ -241,7 +241,7 @@ public:
 		if(isCustomType() && var.isCustomType()) {
 			if(customVar() == NULL || var.customVar() == NULL)
 				return customVar() == var.customVar();
-			return *customVar() == *customVar();
+			return *customVar() == *var.customVar();
 		}
 		if(var.type != type) return false;
 		switch(type) {
