@@ -24,6 +24,21 @@
 typedef std::map<AttribRef, const AttrDesc*> AttrDescs;
 static StaticVar<AttrDescs> attrDescs;
 
+void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
+	assert(isStatic); // not yet implemented otherwise... we would need another dynamic function
+	if(base->attrUpdates.empty())
+		pushObjAttrUpdate(*base);
+	AttrExt& ext = getAttrExt(base);
+	if(!ext.updated || base->attrUpdates.empty()) {
+		AttrUpdateInfo info;
+		info.attrDesc = this;
+		info.oldValue = get(base);
+		base->attrUpdates.push_back(info);
+		ext.updated = true;
+	}
+	getValueScriptPtr(base).fromScriptVar(v);
+}
+
 std::string AttrDesc::description() const {
 	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
 }

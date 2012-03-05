@@ -68,10 +68,7 @@ struct AttrDesc {
 		else
 			return dynGetValue(base, this);
 	}
-	void set(BaseObject* base, const ScriptVar_t& v) const {
-		assert(isStatic); // not yet implemented otherwise... we would need another dynamic function
-		getValueScriptPtr(base).fromScriptVar(v);
-	}
+	void set(BaseObject* base, const ScriptVar_t& v) const;
 
 	std::string description() const;
 };
