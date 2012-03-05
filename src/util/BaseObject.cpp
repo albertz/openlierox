@@ -35,12 +35,11 @@ BaseObject::BaseObject() {
 }
 
 BaseObject::BaseObject(const BaseObject& o) {
+	thisRef.obj.set(this);
 	(*this) = o;
 }
 
 BaseObject& BaseObject::operator=(const BaseObject& o) {
-	if(thisRef.obj) thisRef.obj.overwriteShared(NULL);
-	thisRef.obj.set(this);
 	if(thisRef.classId == ClassId(-1))
 		// Note: This classId assignment is a bit risky
 		// because we cannot assure at this point that it is
