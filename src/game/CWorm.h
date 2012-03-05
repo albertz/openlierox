@@ -154,7 +154,7 @@ public:
 	ATTR(CWorm, CGameSkin, cSkin, 3, {serverside = false;})
 
 	// Game
-	ATTR(CWorm, int,	iLives, 5, {})
+	ATTR(CWorm, int32_t,	iLives, 5, { defaultValue = (int32_t)-2; })
 	ATTR(CWorm, bool,	bAlive, 6, {})
 
 	ATTR(CWorm, bool, bCanRespawnNow, 10, {serverside = true;})
@@ -197,11 +197,11 @@ protected:
     float       fAngleSpeed;
     float		fMoveSpeedX;
 	
-	ATTR(CWorm,	float,	fSpeedFactor, 30, {})
-	ATTR(CWorm, bool,	bCanUseNinja, 31, {})
-	ATTR(CWorm, float,	fDamageFactor, 32, {})
-	ATTR(CWorm, float,	fShieldFactor, 33, {})
-	ATTR(CWorm, bool,	bCanAirJump, 34, {}) // For instant air jump
+	ATTR(CWorm,	float,	fSpeedFactor, 30, { defaultValue = 1.0f; })
+	ATTR(CWorm, bool,	bCanUseNinja, 31, { defaultValue = true; })
+	ATTR(CWorm, float,	fDamageFactor, 32, { defaultValue = 1.0f; })
+	ATTR(CWorm, float,	fShieldFactor, 33, { defaultValue = 1.0f; })
+	ATTR(CWorm, bool,	bCanAirJump, 34, { defaultValue = false; }) // For instant air jump
 	
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
