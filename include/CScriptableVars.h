@@ -237,6 +237,12 @@ public:
 	}
 
 	bool operator==(const ScriptVar_t& var) const {
+		if(isNumeric() && var.isNumeric()) return getNumber() == var.getNumber();
+		if(isCustomType() && var.isCustomType()) {
+			if(customVar() == NULL || var.customVar() == NULL)
+				return customVar() == var.customVar();
+			return *customVar() == *customVar();
+		}
 		if(var.type != type) return false;
 		switch(type) {
 		case SVT_BOOL: return b == var.b;
@@ -249,9 +255,6 @@ public:
 		case SVT_BASEOBJ: return baseObj == var.baseObj;
 		case SVT_CUSTOM:
 		case SVT_CustomWeakRefToStatic:
-			if(customVar() == NULL || var.customVar() == NULL)
-				return customVar() == var.customVar();
-			return *customVar() == *customVar();
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
@@ -260,6 +263,11 @@ public:
 	bool operator!=(const ScriptVar_t& var) const { return !(*this == var); }
 	bool operator<(const ScriptVar_t& var) const {
 		if(isNumeric() && var.isNumeric()) return getNumber() < var.getNumber();
+		if(isCustomType() && var.isCustomType()) {
+			if(customVar() == NULL || var.customVar() == NULL)
+				return customVar() < var.customVar();
+			return *customVar() < *var.customVar();
+		}
 		if(var.type != type) return type < var.type;
 		switch(type) {
 		case SVT_BOOL: return b < var.b;
@@ -272,9 +280,6 @@ public:
 		case SVT_BASEOBJ: return baseObj < var.baseObj;
 		case SVT_CUSTOM:
 		case SVT_CustomWeakRefToStatic:
-			if(customVar() == NULL || var.customVar() == NULL)
-				return customVar() < var.customVar();
-			return *customVar() < *var.customVar();
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
