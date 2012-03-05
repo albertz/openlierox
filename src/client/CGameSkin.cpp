@@ -150,7 +150,6 @@ void CGameSkin::init(int fw, int fh, int fs, int sw, int sh) {
 	bmpMirroredShadow = NULL;
 	bmpPreview = NULL;
 	bmpNormal = NULL;
-	sFileName = "";
 	bColorized = false;
 	iBotIcon = -1;
 	
@@ -196,10 +195,8 @@ CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 
 		// we must reload it because it's not guaranteed that the other skin itself is ready
 		iDefaultColor = oth.iDefaultColor;
-		bColorized = oth.bColorized;
 		iColor = oth.iColor;
-		sFileName = "";
-		Change(oth.sFileName);
+		sFileName = oth.sFileName;
 	}
 	return *this;
 }
