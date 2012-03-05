@@ -1045,6 +1045,10 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	w->thisRef.objId = wormId;
 	m_worms[wormId] = w;
 	gameStateUpdates->pushObjCreation(w->thisRef);
+
+	DeprecatedGUI::bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
+
 	return w;
 }
 
