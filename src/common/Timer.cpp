@@ -25,6 +25,7 @@
 #include "Timer.h"
 #include "Debug.h"
 #include "InputEvents.h"
+#include "game/Game.h"
 
 
 TimeCounter timeCounter;
@@ -181,7 +182,7 @@ struct TimerData {
 				while(true) {
 					SDL_CondWaitTimeout(data->quitCond, data->mutex, data->interval);
 					
-					bool lastEvent = data->once || data->quitSignal;
+					bool lastEvent = data->once || data->quitSignal || game.state == Game::S_Quit;
 					onInternTimerSignal.pushToMainQueue(InternTimerEventData(data, lastEvent));
 	
 					if(lastEvent) {
