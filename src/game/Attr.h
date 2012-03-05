@@ -166,6 +166,7 @@ struct Attr {
 		write() = v;
 		return *this;
 	}
+	Attr& operator=(const Attr& o) { return *this = o.get(); }
 };
 
 template <typename T, typename AttrDescT>
