@@ -1062,6 +1062,9 @@ void Game::removeWorm(CWorm* w) {
 	assert(w != NULL);
 	w->deleteThis();
 	// onRemoveWorm will be called and will remove the worm from the list
+
+	DeprecatedGUI::bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
 }
 
 static std::string _wormName(CWorm* w) { return itoa(w->getID()) + ":" + w->getName(); }
