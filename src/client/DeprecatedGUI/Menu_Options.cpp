@@ -747,7 +747,7 @@ void Menu_OptionsFrame()
 						if(restart) {
 							// HINT: after changing ogl or bpp, if the user changes some other gfx setting like fullscreen, there are mess ups of course
 							// to workaround the problems, we simply restart the game here
-							tLX->bQuitGame = true; // quit
+							game.state = Game::S_Quit; // quit
 							Menu_OptionsShutdown(); // cleanup for this menu
 							bRestartGameAfterQuit = true; // set restart-flag
 							startFunction = &Menu_StartWithSysOptionsMenu; // set function which loads this menu after start
@@ -934,7 +934,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	SetGameCursor(CURSOR_ARROW);
 	CInput::InitJoysticksTemp();
 	ProcessEvents(); // drop all current events in queue
-	while(!tLX->bQuitGame) {
+	while(game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
 
 		DrawCursor(VideoPostProcessor::videoSurface());

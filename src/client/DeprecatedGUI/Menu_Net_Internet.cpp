@@ -492,7 +492,7 @@ void Menu_Net_NETAddServer()
 	cAddSvr.Add( new CTextbox(),							na_Address, 280, 265, 140, tLX->cFont.GetHeight());
 
 	ProcessEvents();
-	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && !tLX->bQuitGame) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
@@ -607,7 +607,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 	nTries = 0;
 	fStart = AbsTime();
 
-	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !tLX->bQuitGame) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && game.state != Game::S_Quit) {
 		tLX->currentTime = GetTime();
 
 		Menu_RedrawMouse(true);

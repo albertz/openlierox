@@ -913,7 +913,7 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 			if(seconds == 0)
 				seconds = -1;
 			
-			while( tLX && !tLX->bQuitGame ) // TODO: put mutex here
+			while( game.state != Game::S_Quit ) // TODO: put mutex here
 			{
 				if(params[0] == "game" && cClient && cClient->getStatus() == NET_PLAYING) // TODO: put mutex here
 				{
@@ -937,7 +937,7 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 				SDL_Delay(1000);
 			}
 			
-			if( ! (tLX && !tLX->bQuitGame) ) // TODO: put mutex here
+			if( game.state == Game::S_Quit ) // TODO: put mutex here
 				return "OLX exited";
 				
 			for( std::vector<std::string>::iterator it = (++params.begin()); it != params.end(); )
@@ -1037,7 +1037,7 @@ void Cmd_setViewport::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 
 COMMAND_EXTRA(quit, "quit game", "", 0, 0, registerCommand("exit", this));
 void Cmd_quit::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
-	tLX->bQuitGame = true; // quit main-main-loop
+	game.state = Game::S_Quit; // quit main-main-loop
 }
 
 COMMAND(msg, "print message on stdout", "text", 1, 1);

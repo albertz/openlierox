@@ -265,8 +265,6 @@ startpoint:
 
 	// Setup the global keys
 	tLX->setupInputs();
-
-	tLX->bQuitGame = false;
 	
 	DrawLoading(100, "Done! Starting menu");
 
@@ -526,7 +524,6 @@ int InitializeLieroX()
 	AutoSetupHTTPProxy();
 
 	tLX->bVideoModeChanged = false;
-	tLX->bQuitGame = false;
 	tLX->bQuitCtrlC = false;
 	tLX->debug_string = "";
 	tLX->currentTime = 0;

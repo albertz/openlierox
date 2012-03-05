@@ -71,7 +71,8 @@ public:
 	bool needProxyWormInputHandler();
 	
 	enum State {
-		S_Inactive = 0,
+		S_Quit = 0,
+		S_Inactive,
 		S_Connecting,
 		S_Lobby,
 		S_Preparing, // game loaded but no simulation. we might wait for wpn selection or so. it doesn't imply wpn selection though, CWorm::bWeaponsReady says if a specific worm is doing wpn selection or not.
@@ -79,6 +80,7 @@ public:
 	};
 	static std::string StateAsStr(int s) {
 		switch(s) {
+		case S_Quit: return "Quit";
 		case S_Inactive: return "Inactive";
 		case S_Connecting: return "Connecting";
 		case S_Lobby: return "Lobby";

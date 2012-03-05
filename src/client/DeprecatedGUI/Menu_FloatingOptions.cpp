@@ -699,7 +699,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 	SetGameCursor(CURSOR_ARROW);
 	CInput::InitJoysticksTemp();
 	ProcessEvents(); // drop all current events in queue
-	while(!tLX->bQuitGame) {
+	while(game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
 
 		DrawCursor(VideoPostProcessor::videoSurface());

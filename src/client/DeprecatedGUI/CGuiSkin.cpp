@@ -543,7 +543,7 @@ void ExitApplication( const std::string & param, CWidget * source )
 {
 	if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES )
 	{
-		tLX->bQuitGame = true;
+		game.state = Game::S_Quit;
 		Menu_MainShutdown();
 	}
 }

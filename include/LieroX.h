@@ -38,8 +38,8 @@ class IpToCountryDB;
 // LieroX structure
 struct lierox_t {
 	lierox_t() :
-			bVideoModeChanged(false), bQuitGame(false), bQuitCtrlC(false)
-			, bHosted(false) {}
+			bVideoModeChanged(false), bQuitCtrlC(false), bHosted(false) {}
+
 	AbsTime	currentTime;
 	TimeDiff	fDeltaTime;
 	TimeDiff	fRealDeltaTime; // Delta time used for network synchronization,
@@ -49,7 +49,6 @@ struct lierox_t {
 
 	bool	bVideoModeChanged;
 
-	bool	bQuitGame;
 	bool	bQuitCtrlC;
 
 	int		debug_int;

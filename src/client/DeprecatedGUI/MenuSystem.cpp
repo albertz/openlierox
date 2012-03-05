@@ -649,7 +649,7 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 			}
 		}
 
-		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && !tLX->bQuitGame && ret == MBR_INVALID) {
+		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && game.state != Game::S_Quit && ret == MBR_INVALID) {
 			DrawCursor(VideoPostProcessor::videoSurface());
 			doVideoFrameInMainThread();
 			CapFPS();

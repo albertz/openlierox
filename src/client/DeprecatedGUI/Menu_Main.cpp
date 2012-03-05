@@ -189,7 +189,7 @@ void Menu_MainFrame()
                     cMainMenu.Draw(tMenu->bmpBuffer.get());
 
                     if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
-						tLX->bQuitGame = true;
+						game.state = Game::S_Quit;
 					    Menu_MainShutdown();
 				    } else {
 
@@ -334,7 +334,7 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 		// the order of the searchpaths changed etc.
 
 		// restart game
-		tLX->bQuitGame = true; // quit
+		game.state = Game::S_Quit; // quit
 		Menu_MainShutdown(); // cleanup for this menu
 		bRestartGameAfterQuit = true; // set restart-flag
 	}

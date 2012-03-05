@@ -14,15 +14,15 @@
 
 #include <list>
 #include <cassert>
-#include "ThreadPool.h"
-#include <SDL_events.h>
 #include <time.h>
-
+#include <SDL_events.h>
+#include "ThreadPool.h"
 #include "LieroX.h"
 #include "EventQueue.h"
 #include "ReadWriteLock.h"
 #include "Debug.h"
 #include "InputEvents.h"
+#include "game/Game.h"
 
 static void InitQuitSignalHandler();
 
@@ -209,7 +209,7 @@ static BOOL QuitSignalHandler( DWORD fdwCtrlType )
 	ev.type = SDL_QUIT;
 	mainQueue->push(ev);
 	tLX->bQuitCtrlC = true; // Set the special CTRL-C flag, so Dedicated Server won't try to close the non-existant pipe
-	tLX->bQuitGame = true;
+	game.state = Game::S_Quit;
 	return TRUE;
 }
 
@@ -233,7 +233,7 @@ static void QuitSignalHandler(int sig)
 	} else {
 		warnings << "got quit-signal and mainQueue is not set" << endl;
 	}
-	if(tLX) tLX->bQuitGame = true;
+	game.state = Game::S_Quit;
 }
 
 static void InitQuitSignalHandler()

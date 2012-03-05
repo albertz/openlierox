@@ -129,7 +129,7 @@ void startMainLockDetector() {
 			AbsTime oldTime = tLX->currentTime;
 			for(Uint32 t = 0; t < time; t += 100) {
 				if(!tLX) return false;
-				if(tLX->bQuitGame) return false;
+				if(game.state == Game::S_Quit) return false;
 				if(oldTime != tLX->currentTime) return true;
 				SDL_Delay(100);
 			}
@@ -137,11 +137,11 @@ void startMainLockDetector() {
 		}
 		Result handle() {
 			// We should always have tLX!=NULL here as we uninit it after the thread-shutdown now.
-			while(tLX && !tLX->bQuitGame) {
+			while(game.state != Game::S_Quit) {
 				AbsTime oldTime = tLX->currentTime;
 				if(!wait(1000)) return true;
 				if(!tLX) return true;
-				if(tLX->bQuitGame) return true;
+				if(game.state == Game::S_Quit) return true;
 				if(IsWaitingForEvent()) continue;
 
 				// HINT: Comment that out and you'll find a lot of things in OLX which could be improved.
@@ -155,7 +155,7 @@ void startMainLockDetector() {
 					//RaiseDebugger();
 
 					if(!wait(5*1000)) return true;
-					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
+					if(tLX && game.state != Game::S_Quit && oldTime == tLX->currentTime) {
 						hints << "Still locked after 5 seconds. Current threads:" << endl;
 						threadPool->dumpState(stdoutCLI());
 						hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
@@ -165,7 +165,7 @@ void startMainLockDetector() {
 
 					// pause for a while, don't be so hard
 					if(!wait(25*1000)) return true;
-					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
+					if(tLX && game.state != Game::S_Quit && oldTime == tLX->currentTime) {
 						warnings << "we still are locked after 30 seconds" << endl;
 						if(tLXOptions && tLXOptions->bFullscreen) {
 							notes << "we are in fullscreen, going to window mode now" << endl;
@@ -178,7 +178,7 @@ void startMainLockDetector() {
 
 					// pause for a while, don't be so hard
 					if(!wait(25*1000)) return true;
-					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
+					if(tLX && game.state != Game::S_Quit && oldTime == tLX->currentTime) {
 						errors << "we still are locked after 60 seconds" << endl;
 						if(!AmIBeingDebugged()) {
 							errors << "aborting now" << endl;
@@ -381,7 +381,7 @@ Result MainLoopTask::handle_Startup() {
 		// Just for test - it's not real handler yet
 		SkinnedGUI::cMainSkin->Load("default");
 		SkinnedGUI::cMainSkin->OpenLayout("test.skn");
-		while (!tLX->bQuitGame)  {
+		while (game.state != Game::S_Quit)  {
 			tLX->fDeltaTime = GetTime() - tLX->currentTime;
 			tLX->currentTime = GetTime();
 
@@ -397,7 +397,7 @@ Result MainLoopTask::handle_Startup() {
 }
 
 Result MainLoopTask::handle_Loop() {
-	if(tLX->bQuitGame) {
+	if(game.state == Game::S_Quit) {
 		state = State_Quit;
 		return true;
 	}

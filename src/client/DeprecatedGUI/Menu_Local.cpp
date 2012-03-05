@@ -1804,7 +1804,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	}
 	
 	ProcessEvents();
-	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && !tLX->bQuitGame) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
 
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 300, 180);

@@ -383,7 +383,7 @@ static void EvHndl_MouseButtonUp(SDL_Event* ev) {
 }
 
 static void EvHndl_Quit(SDL_Event*) {
-	tLX->bQuitGame = true;
+	game.state = Game::S_Quit;
 }
 
 void EvHndl_SysWmEvent_MainThread(SDL_Event* ev) {

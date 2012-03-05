@@ -26,6 +26,7 @@
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "Version.h"
+#include "game/Game.h"
 
 
 int		GotError = false;
@@ -106,7 +107,7 @@ void SystemError(const std::string& text)
 	
 	// Shudown only when not already shutting down
 	if (tLX)
-		if (!tLX->bQuitGame)
+		if (game.state != Game::S_Quit)
 			ShutdownLieroX();
 
 #ifdef WIN32

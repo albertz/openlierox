@@ -1352,7 +1352,7 @@ void CClient::SimulateHud()
 			Con_Process(tLX->fDeltaTime);
 			
 			// could be that some command wants to quit
-			if(!tLX || tLX->bQuitGame || game.state <= Game::S_Lobby)
+			if(!tLX || game.state <= Game::S_Lobby)
 				return;
 		}
 

@@ -76,7 +76,7 @@ Game::Game() {
 }
 
 void Game::init() {
-	assert(state == S_Inactive);
+	state = S_Inactive;
 	prepareMenu();
 }
 
