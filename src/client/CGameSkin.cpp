@@ -464,16 +464,20 @@ bool CGameSkin::operator==(const CustomVar& o) const {
 	const CGameSkin* os = dynamic_cast<const CGameSkin*>(&o);
 	if(!os) return false;
 
-	if (sFileName.get().size())
-		return stringcaseequal(sFileName, os->sFileName);
-	else
-		return bmpSurface.get() == os->bmpSurface.get();
+	if(!stringcaseequal(sFileName, os->sFileName)) return false;
+	if(iColor.get() != os->iColor.get()) return false;
+	if(iDefaultColor.get() != os->iDefaultColor.get()) return false;
+	return true;
 }
 
 bool CGameSkin::operator<(const CustomVar& o) const {
 	const CGameSkin* os = dynamic_cast<const CGameSkin*>(&o);
 	if(!os) return this < &o;
-	return stringcasecmp(sFileName, os->sFileName) < 0;
+
+	{ int c = stringcasecmp(sFileName, os->sFileName); if(c) return c < 0; }
+	if(iColor.get() != os->iColor.get()) return iColor.get() < os->iColor.get();
+	if(iDefaultColor.get() != os->iDefaultColor.get()) return iDefaultColor.get() < os->iDefaultColor.get();
+	return false; // equal
 }
 
 
