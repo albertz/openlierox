@@ -169,6 +169,7 @@ void CGameSkin::uninit() {
 
 CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh) : thread(NULL)
 {
+	thisRef.classId = LuaID<CGameSkin>::value;
 	init(fw,fh,fs,sw,sh);
 }
 
@@ -197,18 +198,18 @@ struct SkinAction_Load : Skin_Action {
 
 
 void CGameSkin::Load_Execute(bool& breakSignal) {
-	bmpSurface = LoadGameImage("skins/" + sFileName, true);
+	bmpSurface = LoadGameImage("skins/" + sFileName.get(), true);
 	if(breakSignal) return;
 
 	if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
-		warnings << "CGameSkin::Change: couldn't find skin " << sFileName << endl;
+		warnings << "CGameSkin::Change: couldn't find skin " << sFileName.get() << endl;
 		bmpSurface = LoadGameImage("skins/default.png", true);
 	}
 	
 	if (bmpSurface.get())  {
 		SetColorKey(bmpSurface.get());
 		if (bmpSurface->w % iFrameWidth != 0 || bmpSurface->h != 2 * iFrameHeight) {
-			notes << "The skin " << sFileName << " has a non-standard size (" << bmpSurface->w << "x" << bmpSurface->h << ")" << endl;
+			notes << "The skin " << sFileName.get() << " has a non-standard size (" << bmpSurface->w << "x" << bmpSurface->h << ")" << endl;
 			SmartPointer<SDL_Surface> old = bmpSurface;
 			bmpSurface = gfxCreateSurfaceAlpha( old->w - (old->w % iFrameWidth), 2 * iFrameHeight );
 			if(bmpSurface.get()) {
@@ -223,7 +224,7 @@ void CGameSkin::Load_Execute(bool& breakSignal) {
 	if (bmpSurface.get())  {
 		if(getFrameCount() < 5) {
 			// GeneratePreview would crash in this case
-			warnings << "CGameSkin: skin " << sFileName << " too small: only " << getFrameCount() << " frames" << endl;
+			warnings << "CGameSkin: skin " << sFileName.get() << " too small: only " << getFrameCount() << " frames" << endl;
 			bmpSurface = NULL;
 		}
 	}
@@ -460,7 +461,7 @@ CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 // Comparison operator
 bool CGameSkin::operator ==(const CGameSkin &oth)
 {
-	if (sFileName.size())
+	if (sFileName.get().size())
 		return stringcaseequal(sFileName, oth.sFileName);
 	else
 		return bmpSurface.get() == oth.bmpSurface.get();

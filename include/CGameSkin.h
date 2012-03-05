@@ -22,6 +22,7 @@
 #include "ThreadPool.h"
 #include "DynDraw.h"
 #include "util/CustomVar.h"
+#include "game/Attr.h"
 
 // Some basic defines
 #define CPU_WIDTH 10
@@ -64,7 +65,7 @@ private:
 	SmartPointer<SDL_Surface>	bmpShadow;
 	SmartPointer<SDL_Surface>	bmpMirroredShadow;
 	SmartPointer<SDL_Surface>	bmpPreview;
-	std::string					sFileName;
+	ATTR(CGameSkin, std::string, sFileName, 1, {})
 	Color						iColor;
 	Color						iDefaultColor;
 	bool						bColorized;
@@ -113,7 +114,7 @@ public:
 	void	Change(const std::string& file);
 	SmartPointer<DynDrawIntf> getPreview();
 
-	const std::string& getFileName() const  { return sFileName; }
+	std::string getFileName() const  { return sFileName; }
 	int getBotIcon() const	{ return iBotIcon; }
 	void setBotIcon(int _i) { iBotIcon = _i; }
 	Color getColor() const	{ return iColor; }
