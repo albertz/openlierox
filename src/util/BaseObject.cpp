@@ -41,6 +41,14 @@ BaseObject::BaseObject(const BaseObject& o) {
 BaseObject& BaseObject::operator=(const BaseObject& o) {
 	if(thisRef.obj) thisRef.obj.overwriteShared(NULL);
 	thisRef.obj.set(this);
+	if(thisRef.classId == ClassId(-1))
+		// Note: This classId assignment is a bit risky
+		// because we cannot assure at this point that it is
+		// correct because op= might be called at an early
+		// point.
+		thisRef.classId = o.thisRef.classId;
+	else
+		assert(thisRef.classId == o.thisRef.classId);
 	if(o.thisRef.objId != ObjId(-1))
 		// The reason this is an error is because we cannot really know if
 		// the copy is really a takeover (in that case, we want to copy the
