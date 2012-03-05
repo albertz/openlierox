@@ -227,7 +227,7 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 			if(game.isClient()) continue;
 		}
 		else { // non serverside attr
-			if(!ownObject(u->obj)) continue;
+			if(game.isClient() && !ownObject(u->obj)) continue;
 		}
 		ScriptVar_t curValue = u->get();
 		ScriptVar_t stateValue = attrDesc->defaultValue;
