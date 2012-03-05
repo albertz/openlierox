@@ -52,7 +52,7 @@ void GameStateUpdates::writeToBs(CBytestream* bs) const {
 static BaseObject* getObjFromRef(ObjRef r) {
 	switch(r.classId) {
 	case LuaID<Game>::value: return &game;
-	case LuaID<CWorm>::value: return game.wormById(r.objId);
+	case LuaID<CWorm>::value: return game.wormById(r.objId, false);
 	default: break;
 	}
 	return NULL;
@@ -161,12 +161,12 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 		else {
 			BaseObject* o = getObjFromRef(r.obj);
 			if(o == NULL) {
-				errors << "GameStateUpdates::handleFromBs: object for attr update not found" << endl;
+				errors << "GameStateUpdates::handleFromBs: object for attr update not found: " << r.description() << endl;
 				bs->SkipAll();
 				return;
 			}
 			if(o->thisRef != r.obj) {
-				errors << "GameStateUpdates::handleFromBs: object-ref for attr update invalid" << endl;
+				errors << "GameStateUpdates::handleFromBs: object-ref for attr update invalid: " << r.description() << endl;
 				bs->SkipAll();
 				return;
 			}
