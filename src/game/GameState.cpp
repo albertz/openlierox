@@ -71,12 +71,12 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 
 		// we only handle/support CWorm objects for now...
 		if(game.isServer()) {
-			errors << "GameStateUpdates::handleFromBs: got obj creation as server" << endl;
+			errors << "GameStateUpdates::handleFromBs: got obj creation as server: " << r.description() << endl;
 			bs->SkipAll();
 			return;
 		}
 		if(r.classId != LuaID<CWorm>::value) {
-			errors << "GameStateUpdates::handleFromBs: obj-creation: invalid class-id " << r.classId << endl;
+			errors << "GameStateUpdates::handleFromBs: obj-creation: invalid class: " << r.description() << endl;
 			bs->SkipAll();
 			return;
 		}
@@ -95,12 +95,12 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 
 		// we only handle/support CWorm objects for now...
 		if(game.isServer()) {
-			errors << "GameStateUpdates::handleFromBs: got obj deletion as server" << endl;
+			errors << "GameStateUpdates::handleFromBs: got obj deletion as server: " << r.description() << endl;
 			bs->SkipAll();
 			return;
 		}
 		if(r.classId != LuaID<CWorm>::value) {
-			errors << "GameStateUpdates::handleFromBs: obj-deletion: invalid class-id " << r.classId << endl;
+			errors << "GameStateUpdates::handleFromBs: obj-deletion: invalid class: " << r.description() << endl;
 			bs->SkipAll();
 			return;
 		}
