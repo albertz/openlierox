@@ -213,6 +213,7 @@ static bool ownObject(ObjRef o) {
 void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	reset();
 	foreach(o, game.gameStateUpdates->objCreations) {
+		if(game.isClient()) continue; // none-at-all right now... worm-creation is handled independently atm
 		if(!ownObject(*o)) continue;
 		if(!s.haveObject(*o))
 			pushObjCreation(*o);
@@ -231,6 +232,7 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 			pushObjAttrUpdate(*u);
 	}
 	foreach(o, game.gameStateUpdates->objDeletions) {
+		if(game.isClient()) continue; // see obj-creations
 		if(!ownObject(*o)) continue;
 		if(s.haveObject(*o))
 			pushObjDeletion(*o);
