@@ -151,7 +151,6 @@ void CGameSkin::init(int fw, int fh, int fs, int sw, int sh) {
 	bmpPreview = NULL;
 	bmpNormal = NULL;
 	sFileName = "";
-	iDefaultColor = iColor = iColor_Type::attrDesc()->defaultValue;
 	bColorized = false;
 	iBotIcon = -1;
 	
@@ -182,6 +181,27 @@ CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
 {
 	// we will init the thread also there
 	operator=(skin);
+}
+
+CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
+{
+	if (this != &oth)  { // Check for self-assignment
+		// we must do this because we could need surfaces of different width
+		uninit();
+
+		this -> CustomVar::operator =(oth);
+
+		init(oth.iFrameWidth, oth.iFrameHeight, oth.iFrameSpacing, oth.iSkinWidth, oth.iSkinHeight);
+		iBotIcon = oth.iBotIcon;
+
+		// we must reload it because it's not guaranteed that the other skin itself is ready
+		iDefaultColor = oth.iDefaultColor;
+		bColorized = oth.bColorized;
+		iColor = oth.iColor;
+		sFileName = "";
+		Change(oth.sFileName);
+	}
+	return *this;
 }
 
 CGameSkin::~CGameSkin()
@@ -452,29 +472,6 @@ void CGameSkin::GenerateShadow()
 	UnlockSurface(bmpMirroredShadow);
 }
 
-
-///////////////////
-// Assignment operator
-CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
-{
-	if (this != &oth)  { // Check for self-assignment
-		// we must do this because we could need surfaces of different width
-		uninit();
-
-		this -> CustomVar::operator =(oth);
-
-		init(oth.iFrameWidth, oth.iFrameHeight, oth.iFrameSpacing, oth.iSkinWidth, oth.iSkinHeight);
-		iBotIcon = oth.iBotIcon;
-		
-		// we must reload it because it's not guaranteed that the other skin itself is ready
-		iDefaultColor = oth.iDefaultColor;
-		bColorized = oth.bColorized;
-		iColor = oth.iColor;
-		sFileName = "";
-		Change(oth.sFileName);
-	}
-	return *this;
-}
 
 bool CGameSkin::operator==(const CustomVar& o) const {
 	const CGameSkin* os = dynamic_cast<const CGameSkin*>(&o);
