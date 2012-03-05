@@ -142,14 +142,14 @@ struct Attr {
 	AttrExt ext;
 	Attr() {
 		// also inits attrDesc which is needed here
-		value = (T) attrDesc()->defaultValue;
+		value = attrDesc()->defaultValue . template castConst<T>();
 	}
-	const AttrDescT* attrDesc() {
+	static const AttrDescT* attrDesc() {
 		static const AttrDescT desc;
 		return &desc;
 	}
 	BaseObject* parent() { return (BaseObject*)(uintptr_t(this) - attrDesc()->attrMemOffset); }
-	T get() const { return value; }
+	const T& get() const { return value; }
 	operator T() const { return get(); }
 	T& write() {
 		if(parent()->attrUpdates.empty())

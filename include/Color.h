@@ -96,9 +96,9 @@ struct Color {
 	INLINE Color(Uint8 _r, Uint8 _g, Uint8 _b) : r(_r), g(_g), b(_b), a(SDL_ALPHA_OPAQUE) {}
 	INLINE Color(Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a) : r(_r), g(_g), b(_b), a(_a) {}
 	INLINE Color(SDL_PixelFormat *f, Uint32 cl) { SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
-	INLINE explicit Color(Uint32 cl)	{ set(getMainPixelFormat(), cl); }
 	INLINE Color(const SDL_Color& cl) : r(cl.r), g(cl.g), b(cl.b), a(SDL_ALPHA_OPAQUE) {}
-	static INLINE Color fromDefault(Uint32 cl) { return Color(Uint8(cl >> 24), Uint8(cl >> 16), Uint8(cl >> 8), Uint8(cl)); }
+	static Color fromDefault(Uint32 cl) { return Color(Uint8(cl >> 24), Uint8(cl >> 16), Uint8(cl >> 8), Uint8(cl)); }
+	static Color fromMainFormat(Uint32 i) { return Color(getMainPixelFormat(), i); }
 	
 	Uint8 r;
 	Uint8 g;

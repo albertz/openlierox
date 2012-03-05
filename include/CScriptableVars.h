@@ -124,6 +124,7 @@ template<> struct GetType_BaseCustomVar<true> {
 template<typename T> struct GetType : GetType_BaseCustomVar<boost::is_base_of<CustomVar,T>::value>::Type {};
 
 
+template<typename T> T CastScriptVarConst(const ScriptVar_t& s);
 
 class ScriptVar_t
 {
@@ -198,7 +199,9 @@ public:
 	operator Color() const { assert(type == SVT_COLOR); return col.get(); }
 	operator CVec() const { assert(type == SVT_VEC2); return vec2.get(); }
 	operator WeakRef<BaseObject>() const { assert(type == SVT_BASEOBJ); return baseObj.get(); }
-	
+
+	template <typename T> T castConst() const { return CastScriptVarConst<T>(*this); }
+
 	template<typename T> T* as() { assert(type == SVT_CUSTOM); return dynamic_cast<T*> (&custom.get().get()); }
 	template<typename T> const T* as() const { assert(type == SVT_CUSTOM); return dynamic_cast<const T*> (&custom.get().get()); }
 
@@ -391,6 +394,34 @@ public:
 		}
 	}
 };
+
+
+template<typename T> T CastScriptVarConst(const ScriptVar_t& s);
+
+template<bool> struct CastScriptVar1;
+template<typename T> struct CastScriptVar1_IsSimpleType {
+	static const bool value = GetType<T>::value < SVT_BASEOBJ;
+};
+template<> struct CastScriptVar1<true> {
+	template<typename T> static T castConst(const ScriptVar_t& s, const T& /*dummy*/) { return (T) s; }
+};
+
+template<bool> struct CastScriptVar2;
+template<typename T> struct CastScriptVar2_IsCustomVar {
+	static const bool value = boost::is_base_of<CustomVar,T>::value;
+};
+template<> struct CastScriptVar2<true> {
+	template<typename T> static T castConst(const ScriptVar_t& s, const T& /*dummy*/) { return *s.as<T>(); }
+};
+
+template<> struct CastScriptVar1<false> {
+	template<typename T> static T castConst(const ScriptVar_t& s, const T& /*dummy*/) {
+		return CastScriptVar2<CastScriptVar2_IsCustomVar<T>::value>::castConst(s, T());
+	}
+};
+template<typename T> T CastScriptVarConst(const ScriptVar_t& s) {
+	return CastScriptVar1<CastScriptVar1_IsSimpleType<T>::value>::castConst(s, T());
+}
 
 
 struct _DynamicVar {
