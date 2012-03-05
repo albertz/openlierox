@@ -54,9 +54,9 @@ void WormJoinInfo::applyTo(CWorm* worm) const {
 	worm->sName = sName;
 	worm->m_type = m_type;
 	worm->iTeam = iTeam;	
-	worm->cSkin.Change(skinFilename);
-	worm->cSkin.setDefaultColor(skinColor);
-	worm->cSkin.Colorize(skinColor);
+	worm->cSkin.write().Change(skinFilename);
+	worm->cSkin.write().setDefaultColor(skinColor);
+	worm->cSkin.write().Colorize(skinColor);
 }
 
 

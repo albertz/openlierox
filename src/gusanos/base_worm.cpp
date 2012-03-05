@@ -569,7 +569,7 @@ void CWorm::draw(CViewport* viewport)
 			
 			//int colour = universalToLocalColor(this->getSkin().getColor().get());
 			//skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getPointingAngle())->draw(where, renderX, renderY);			
-			cSkin.DrawHalf(where->surf.get(), where->sub_x + renderX - cSkin.getSkinWidth() / 4, where->sub_y + renderY - cSkin.getSkinHeight() / 4, f, false, flipped);
+			cSkin.get().DrawHalf(where->surf.get(), where->sub_x + renderX - cSkin.get().getSkinWidth() / 4, where->sub_y + renderY - cSkin.get().getSkinHeight() / 4, f, false, flipped);
 
 			if ( m_weapons[currentWeapon] )
 				m_weapons[currentWeapon]->drawTop(where, renderX, renderY);

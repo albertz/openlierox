@@ -42,8 +42,10 @@ void GameStateUpdates::writeToBs(CBytestream* bs) const {
 
 	bs->writeInt((uint32_t)objs.size(), 4);
 	foreach(a, objs) {
-		a->writeToBs(bs);
-		bs->writeVar(a->get());
+		const ObjAttrRef& attr = *a;
+		ScriptVar_t curValue = a->get();
+		attr.writeToBs(bs);
+		bs->writeVar(curValue);
 	}
 }
 

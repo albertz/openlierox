@@ -42,7 +42,7 @@ struct SkinAction_Load;
 
 class CGameSkin : public CustomVar {
 public:
-	CGameSkin() { *this = WormSkin(); }
+	CGameSkin() : thread(NULL) { *this = WormSkin(); }
 	CGameSkin(int fw, int fh, int fs, int sw, int sh);
 	~CGameSkin();
 
@@ -66,8 +66,8 @@ private:
 	SmartPointer<SDL_Surface>	bmpMirroredShadow;
 	SmartPointer<SDL_Surface>	bmpPreview;
 	ATTR(CGameSkin, std::string, sFileName, 1, {})
-	Color						iColor;
-	Color						iDefaultColor;
+	ATTR(CGameSkin, Color,		iColor, 2, { defaultValue = Color(128, 128, 128); })
+	ATTR(CGameSkin, Color,		iDefaultColor, 3, { defaultValue = Color(128, 128, 128); })
 	bool						bColorized;
 	int							iBotIcon;
 	int							iFrameWidth;  // Width of one frame
@@ -97,17 +97,14 @@ private:
 	void	GenerateMirroredImage();
 	void	Colorize_Execute(bool& breakSignal);
 	void	Load_Execute(bool& breakSignal);
-	void	DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady, bool half);
+	void	DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady, bool half) const;
 
 public:
-	bool operator==(const CGameSkin& oth);
-	bool operator!=(const CGameSkin& oth)  { return !(*this == oth); }
-
-	void	Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady = false);
-	void	DrawHalf(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady = false);
-	void	DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored);
-	void	DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int x, int y, int frame, bool mirrored);
-	Color	renderColorAt(int x, int y, int frame, bool mirrored);
+	void	Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady = false) const;
+	void	DrawHalf(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady = false) const;
+	void	DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored) const;
+	void	DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int x, int y, int frame, bool mirrored) const;
+	Color	renderColorAt(int x, int y, int frame, bool mirrored) const;
 	
 	void	Colorize(Color col);
 	void	RemoveColorization()	{ Colorize(iDefaultColor); }

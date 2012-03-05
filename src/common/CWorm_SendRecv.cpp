@@ -38,10 +38,10 @@ void CWorm::writeInfo(CBytestream *bs)
 	bs->writeString(RemoveSpecialChars(sName));
 	bs->writeInt(m_type->toInt(), 1);
 	bs->writeInt(iTeam, 1);
-	bs->writeString(cSkin.getFileName());
+	bs->writeString(cSkin.get().getFileName());
 
 	for(short i = 0; i < 3; i++)
-		bs->writeInt(cSkin.getDefaultColor()[i], 1);
+		bs->writeInt(cSkin.get().getDefaultColor()[i], 1);
 }
 
 

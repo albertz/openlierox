@@ -151,9 +151,11 @@ public:
 	ATTR(CWorm, int,	iTeam, 1, {serverside = false;})
 	ATTR(CWorm, std::string,	sName, 2, {serverside = false;})
 
+	ATTR(CWorm, CGameSkin, cSkin, 3, {serverside = false;})
+
 	// Game
-	ATTR(CWorm, int,	iLives, 3, {})
-	ATTR(CWorm, bool,	bAlive, 4, {})
+	ATTR(CWorm, int,	iLives, 5, {})
+	ATTR(CWorm, bool,	bAlive, 6, {})
 
 	ATTR(CWorm, bool, bCanRespawnNow, 10, {serverside = true;})
 	ATTR(CWorm, bool, bRespawnRequested, 11, {serverside = false;})
@@ -234,7 +236,6 @@ protected:
 	bool		bLobbyReady; // Lobby Ready state
 
 	// Graphics
-	CGameSkin	cSkin;
 	struct SkinDynDrawer; SkinDynDrawer* skinPreviewDrawerP;
 	SmartPointer<DynDrawIntf> skinPreviewDrawer;
 	SmartPointer<SDL_Surface> bmpGibs;
@@ -376,8 +377,8 @@ public:
 	std::string getName()			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
 	Color		getGameColour();
-	void		setColour(Color c)			{ cSkin.Colorize(c); }
-	void		setColour(Uint8 r, Uint8 g, Uint8 b) { cSkin.Colorize(Color(r,g,b)); }
+	void		setColour(Color c)			{ cSkin.write().Colorize(c); }
+	void		setColour(Uint8 r, Uint8 g, Uint8 b) { setColour(Color(r,g,b)); }
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal()				{ return bLocal; }
@@ -500,9 +501,10 @@ public:
 	void		setTagTime(const TimeDiff& _t)		{ fTagTime = _t; }
 	void		incrementTagTime(const TimeDiff& dt)	{ fTagTime+=dt; }
 
-	CGameSkin&	getSkin()				{ return cSkin; }
+	const CGameSkin&	getSkin()			{ return cSkin.get(); }
+	CGameSkin&	writeSkin()					{ return cSkin.write(); }
 	void		setSkin(const CGameSkin& skin)	{ cSkin = skin; }
-	void		setSkin(const std::string& skin)	{ cSkin.Change(skin); }
+	void		setSkin(const std::string& skin)	{ cSkin.write().Change(skin); }
 
 	bool		isShooting()				{ return tState.bShoot; }
 	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading; }

@@ -69,7 +69,7 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 };
 
 CWorm::CWorm() :
-	cNinjaRope(this), cSkin(CGameSkin::WormSkin()), cSparkles(this),
+	cNinjaRope(this), cSparkles(this),
 	m_fireconeAnimator(NULL), m_animator(NULL)
 {
 	thisRef.classId = LuaID<CWorm>::value;
@@ -583,7 +583,7 @@ bool CWorm::ChangeGraphics(int generalgametype)
 	// Destroy any previous graphics
 	FreeGraphics();
 
-	Color colour = cSkin.getDefaultColor();
+	Color colour = cSkin.get().getDefaultColor();
 	// If we are in a team game, use the team colours
 	if(generalgametype == GMT_TEAMS) {
 		team = true;
@@ -597,7 +597,7 @@ bool CWorm::ChangeGraphics(int generalgametype)
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
 	// Colourise the skin
-	cSkin.Colorize(colour);
+	cSkin.write().Colorize(colour);
 
 	return bmpGibs.get() != NULL;
 }
@@ -633,7 +633,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 	int x,y;
 	Uint32 pixel;
 
-	Color colour = cSkin.getColor();
+	Color colour = cSkin.get().getColor();
 	if (team)
 		colour = tLX->clTeamColors[iTeam];
 
@@ -899,7 +899,7 @@ Color CWorm::renderColorAt(/* relative game coordinates */ int x, int y) {
 	f += ang;
 			
 	// multiplied by 2 because skin have double res
-	return cSkin.renderColorAt(x*2 + cSkin.getSkinWidth()/2, y*2 + cSkin.getSkinHeight()/2, f, iFaceDirectionSide == DIR_LEFT);	
+	return cSkin.get().renderColorAt(x*2 + cSkin.get().getSkinWidth()/2, y*2 + cSkin.get().getSkinHeight()/2, f, iFaceDirectionSide == DIR_LEFT);
 }
 
 ///////////////////
@@ -1094,7 +1094,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the worm
 	if (isWormVisible(this, v)) {
-		cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iFaceDirectionSide == DIR_LEFT);
+		cSkin.get().Draw(bmpDest, x - cSkin.get().getSkinWidth()/2, y - cSkin.get().getSkinHeight()/2, f, false, iFaceDirectionSide == DIR_LEFT);
 		cSparkles.Process();
 	}
 	
@@ -1206,7 +1206,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Later we should render the world layer by layer so this trouble will be gone
 		// The CMap::DrawObjectShadow function is slow and also logically incorrect - why should a map know about other
 		// objects?
-		cSkin.DrawShadowOnMap(game.gameMap(), v, bmpDest, (int)vPos.get().x, (int)vPos.get().y, f, iFaceDirectionSide == DIR_LEFT);
+		cSkin.get().DrawShadowOnMap(game.gameMap(), v, bmpDest, (int)vPos.get().x, (int)vPos.get().y, f, iFaceDirectionSide == DIR_LEFT);
 	}
 }
 
@@ -1445,7 +1445,7 @@ Color CWorm::getGameColour()
 		case GMT_TEAMS:
 			return tLX->clTeamColors[iTeam];
 		default:
-			return cSkin.getDefaultColor();
+			return cSkin.get().getDefaultColor();
 	}
 	return Color();
 }

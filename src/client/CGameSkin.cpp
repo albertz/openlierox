@@ -146,7 +146,7 @@ void CGameSkin::init(int fw, int fh, int fs, int sw, int sh) {
 	bmpPreview = NULL;
 	bmpNormal = NULL;
 	sFileName = "";
-	iDefaultColor = iColor = Color(128, 128, 128);
+	iDefaultColor = iColor = iColor_Type::attrDesc()->defaultValue;
 	bColorized = false;
 	iBotIcon = -1;
 	
@@ -444,6 +444,9 @@ CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 	if (this != &oth)  { // Check for self-assignment
 		// we must do this because we could need surfaces of different width
 		uninit();
+
+		this -> CustomVar::operator =(oth);
+
 		init(oth.iFrameWidth, oth.iFrameHeight, oth.iFrameSpacing, oth.iSkinWidth, oth.iSkinHeight);
 		iBotIcon = oth.iBotIcon;
 		
@@ -457,20 +460,14 @@ CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 	return *this;
 }
 
-////////////////////
-// Comparison operator
-bool CGameSkin::operator ==(const CGameSkin &oth)
-{
-	if (sFileName.get().size())
-		return stringcaseequal(sFileName, oth.sFileName);
-	else
-		return bmpSurface.get() == oth.bmpSurface.get();
-}
-
 bool CGameSkin::operator==(const CustomVar& o) const {
 	const CGameSkin* os = dynamic_cast<const CGameSkin*>(&o);
 	if(!os) return false;
-	return *this == *os;
+
+	if (sFileName.get().size())
+		return stringcaseequal(sFileName, os->sFileName);
+	else
+		return bmpSurface.get() == os->bmpSurface.get();
 }
 
 bool CGameSkin::operator<(const CustomVar& o) const {
@@ -480,7 +477,7 @@ bool CGameSkin::operator<(const CustomVar& o) const {
 }
 
 
-Color CGameSkin::renderColorAt(int x, int y, int frame, bool mirrored) {
+Color CGameSkin::renderColorAt(int x, int y, int frame, bool mirrored) const {
 	Mutex::ScopedLock lock(thread->mutex);
 	if(!thread->ready) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);	
 	if(x < 0 || y < 0 || x >= iSkinWidth || y >= iSkinHeight) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
@@ -504,7 +501,7 @@ Color CGameSkin::renderColorAt(int x, int y, int frame, bool mirrored) {
 
 ///////////////////////
 // Draw the worm skin at the specified coordinates
-void CGameSkin::DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady, bool half)
+void CGameSkin::DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady, bool half) const
 {
 	// No skins in dedicated mode
 	if (bDedicated)
@@ -550,12 +547,12 @@ void CGameSkin::DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool dr
 	}
 }
 
-void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady)
+void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady) const
 {
 	DrawInternal(surf, x, y, frame, draw_cpu, mirrored, blockUntilReady, false);
 }
 
-void CGameSkin::DrawHalf(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady)
+void CGameSkin::DrawHalf(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady) const
 {
 	DrawInternal(surf, x, y, frame, draw_cpu, mirrored, blockUntilReady, true);
 }
@@ -578,7 +575,7 @@ SmartPointer<DynDrawIntf> CGameSkin::getPreview() {
 
 /////////////////////
 // Draw the worm skin shadow
-void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored)
+void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored) const
 {
 	// No skins in dedicated mode
 	if (bDedicated) return;
@@ -603,7 +600,7 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 	}
 }
 
-void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int x, int y, int frame, bool mirrored) {
+void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int x, int y, int frame, bool mirrored) const {
 	// No skins in dedicated mode
 	if (bDedicated) return;
 	
@@ -672,7 +669,7 @@ void CGameSkin::Colorize_Execute(bool& breakSignal)
 	// Get the color
 	// TODO: cleanup
 	thread->mutex.lock();
-	const Uint8 colR = iColor.r, colG = iColor.g, colB = iColor.b;
+	const Uint8 colR = iColor.get().r, colG = iColor.get().g, colB = iColor.get().b;
 	thread->mutex.unlock();
 
     // Set the colour of the worm

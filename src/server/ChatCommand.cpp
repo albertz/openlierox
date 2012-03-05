@@ -643,7 +643,7 @@ std::string ProcessSetMyColour(const std::vector<std::string>& params, int sende
 		return "Cannot change colour of a non-existing worm";
 
 	// Set the colour
-	worm->getSkin().setDefaultColor(Color(r, g, b));
+	worm->writeSkin().setDefaultColor(Color(r, g, b));
 	worm->setColour(r, g, b);
 	cServer->UpdateWorm(worm);
 
