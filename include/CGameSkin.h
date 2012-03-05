@@ -65,8 +65,8 @@ private:
 	SmartPointer<SDL_Surface>	bmpShadow;
 	SmartPointer<SDL_Surface>	bmpMirroredShadow;
 	SmartPointer<SDL_Surface>	bmpPreview;
-	ATTR(CGameSkin, std::string, sFileName, 1, {})
-	ATTR(CGameSkin, Color,		iColor, 2, { defaultValue = Color(128, 128, 128); })
+	ATTR(CGameSkin, std::string, sFileName, 1, { onUpdate = onFilenameUpdate; })
+	ATTR(CGameSkin, Color,		iColor, 2, { defaultValue = Color(128, 128, 128); onUpdate = onColorUpdate; })
 	ATTR(CGameSkin, Color,		iDefaultColor, 3, { defaultValue = Color(128, 128, 128); })
 	bool						bColorized;
 	int							iBotIcon;
@@ -98,6 +98,9 @@ private:
 	void	Colorize_Execute(bool& breakSignal);
 	void	Load_Execute(bool& breakSignal);
 	void	DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady, bool half) const;
+
+	static void onFilenameUpdate(BaseObject* base, const AttrDesc* attrDesc, ScriptVar_t oldValue);
+	static void onColorUpdate(BaseObject* base, const AttrDesc* attrDesc, ScriptVar_t oldValue);
 
 public:
 	void	Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady = false) const;

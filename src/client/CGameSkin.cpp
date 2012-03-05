@@ -72,7 +72,12 @@ struct CGameSkin::Thread {
 	void pushAction__unsafe(Skin_Action* a) {
 		actionQueue.push_back(a);
 	}
-	
+
+	void pushActionUnique__unsafe(Skin_Action* a) {
+		removeActions__unsafe(typeid(*a));
+		pushAction__unsafe(a);
+	}
+
 	static void cleanAction__unsafe(Skin_Action*& a) {
 		delete a;
 		a = NULL;
@@ -197,6 +202,15 @@ struct SkinAction_Load : Skin_Action {
 };
 
 
+struct SkinAction_Colorize : Skin_Action {
+	SkinAction_Colorize(CGameSkin* s) : Skin_Action(s) {}
+	Result handle() {
+		skin->Colorize_Execute(breakSignal);
+		return true;
+	}
+};
+
+
 void CGameSkin::Load_Execute(bool& breakSignal) {
 	bmpSurface = LoadGameImage("skins/" + sFileName.get(), true);
 	if(breakSignal) return;
@@ -241,23 +255,25 @@ void CGameSkin::Load_Execute(bool& breakSignal) {
 // Change the skin
 void CGameSkin::Change(const std::string &file)
 {
-	if(stringcaseequal(sFileName, file))
-		return;
-	
-	thread->forceStopThread(); // also removes all actions
-	// We are assuming here that no other thread is accessing the skin right now in this moment.
-	
 	sFileName = file;
-	if(bDedicated) return;
+}
 
-	thread->pushAction__unsafe(new SkinAction_Load(this, /* generatePreview = */ !bColorized));
-	
-	if (bColorized) {
-		bColorized = false; // To force the recolorization
-		Colorize(iColor);
-	}
-	
-	thread->startThread(this);
+void CGameSkin::onFilenameUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, ScriptVar_t /*oldValue*/) {
+	if(bDedicated) return;
+	CGameSkin* s = (CGameSkin*) base;
+
+	notes << "CGameSkin::onFilenameUpdate: " << s->sFileName.get() << endl;
+
+	Mutex::ScopedLock lock(s->thread->mutex);
+
+	s->thread->removeActions__unsafe();
+
+	s->thread->pushAction__unsafe(new SkinAction_Load(s, /* generatePreview = */ !s->bColorized));
+
+	if (s->bColorized)
+		s->thread->pushActionUnique__unsafe(new SkinAction_Colorize(s));
+
+	s->thread->startThread__unsafe(s);
 }
 
 /////////////////////
@@ -630,30 +646,20 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 	}
 }
 
-struct SkinAction_Colorize : Skin_Action {
-	SkinAction_Colorize(CGameSkin* s) : Skin_Action(s) {}
-	Result handle() {
-		skin->Colorize_Execute(breakSignal);
-		return true;
-	}
-};
-
 void CGameSkin::Colorize(Color col) {
-	// No skins in dedicated mode
-	if (bDedicated) return;
-	
-	Mutex::ScopedLock lock(thread->mutex);
-	
-	// Check if we need to change the color
-	if (bColorized && col == iColor)
-		return;
-
 	iColor = col;
-	bColorized = true;
-	
-	thread->removeActions__unsafe(typeid(SkinAction_Colorize));
-	thread->pushAction__unsafe(new SkinAction_Colorize(this));
-	thread->startThread__unsafe(this);
+}
+
+void CGameSkin::onColorUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, ScriptVar_t /*oldValue*/) {
+	if (bDedicated) return;
+	CGameSkin* s = (CGameSkin*) base;
+
+	Mutex::ScopedLock lock(s->thread->mutex);
+
+	s->bColorized = true;
+
+	s->thread->pushActionUnique__unsafe(new SkinAction_Colorize(s));
+	s->thread->startThread__unsafe(s);
 }
 
 ////////////////////////
