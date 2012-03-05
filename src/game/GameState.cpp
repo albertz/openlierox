@@ -221,8 +221,12 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	foreach(u, game.gameStateUpdates->objs) {
 		if(!ownObject(u->obj)) continue;
 		const AttrDesc* attrDesc = u->attr.getAttrDesc();
-		if(game.isServer() && !attrDesc->serverside) continue;
-		if(game.isClient() && attrDesc->serverside) continue;
+		if(attrDesc->serverside) {
+			if(game.isClient()) continue;
+		}
+		else { // non serverside attr
+			if(!ownObject(u->obj)) continue;
+		}
 		ScriptVar_t curValue = u->get();
 		ScriptVar_t stateValue = attrDesc->defaultValue;
 		if(s.haveObject(u->obj))
