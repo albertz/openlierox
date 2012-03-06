@@ -60,18 +60,16 @@ enum {
 };
 
 int		iJoinMenu = join_connecting;
-std::string	sJoinAddress;
 
 
 ///////////////////
 // Join a server
-bool Menu_Net_JoinInitialize(const std::string& sAddress)
+bool Menu_Net_JoinInitialize()
 {
 	iNetMode = net_join;
 	iJoinMenu = join_connecting;
-	sJoinAddress = sAddress;
 
-	if(!Menu_Net_JoinConnectionInitialize(sAddress)) {
+	if(!Menu_Net_JoinConnectionInitialize()) {
 		// Error
 		return false;
 	}
@@ -130,10 +128,9 @@ enum {
 
 ///////////////////
 // Initialize the connection menu
-bool Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
+bool Menu_Net_JoinConnectionInitialize()
 {
 	iJoinMenu = join_connecting;
-	sJoinAddress = sAddress;
 	cConnecting.Shutdown();
 	cConnecting.Initialize();
 
@@ -180,11 +177,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 		warnings << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
 		Menu_MessageBox("Connection Error", cClient->getBadConnectionMsg(), LMB_OK);
 
-		cClient->Shutdown();
-
-		// Shutdown
-		Menu_Net_JoinConnectionShutdown();
-		Menu_NetInitialize();
+		game.state = Game::S_Inactive;
 		return;
 	}
 
@@ -288,13 +281,7 @@ bool Menu_Net_JoinLobbyInitialize()
 // Shutdown the join lobby
 void Menu_Net_JoinLobbyShutdown()
 {
-	if (cClient)
-		cClient->Disconnect();
-
 	cJoinLobby.Shutdown();
-
-	if (cClient)
-		cClient->Shutdown();
 
 	tMenu->sSavedChatText = "";
 }
@@ -762,11 +749,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				if(ev->iEventMsg == BTN_CLICKED) {
 					// Click
 					PlaySoundSample(sfxGeneral.smpClick);
-
-					Menu_Net_JoinLobbyShutdown();
-
-					// Back to net menu
-					Menu_NetInitialize();
+					game.state = Game::S_Inactive;
 				}
 				break;
 

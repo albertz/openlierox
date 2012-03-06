@@ -768,7 +768,7 @@ void Cmd_sex::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 
 COMMAND(disconnect, "disconnect from server or exit server", "", 0, 0);
 void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(game.state == Game::S_Inactive) {
+	if(game.state <= Game::S_Inactive) {
 		caller->writeMsg("game is inactive, cannot disconnect anything", CNC_WARNING);
 		return;
 	}
@@ -858,9 +858,7 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	
 	if(cClient && cClient->getStatus() != NET_DISCONNECTED)
 		cClient->Disconnect();
-	
-	DeprecatedGUI::Menu_Current_Shutdown();
-	
+		
 	std::string server = params[0];
 	std::string player =
 		(params.size() >= 2) ? params[1] :
@@ -868,16 +866,6 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		tLXOptions->sLastSelectedPlayer;
 	if(params.size() == 1 && player == "") player = MainHumanProfile()->sName;
 	if(!JoinServer(server, server, player)) return;
-	
-	if(!bDedicated) {
-		// goto the joining dialog
-		DeprecatedGUI::Menu_SetSkipStart(true);
-		DeprecatedGUI::Menu_NetInitialize(false);
-		DeprecatedGUI::Menu_Net_JoinInitialize(server);
-		
-		// when we leave the server
-		DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
-	}
 }
 
 COMMAND(wait, "Execute commands after wait", "seconds|lobby|game command [args] [ ; command2 args... ]", 2, INT_MAX);
@@ -1862,9 +1850,6 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		DeprecatedGUI::Menu_SetSkipStart(true);
 		DeprecatedGUI::Menu_NetInitialize(false);
 		DeprecatedGUI::Menu_Net_HostGotoLobby();
-		
-		// when we leave the server
-		DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;	
 	}
 }
 

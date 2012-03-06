@@ -442,16 +442,7 @@ void Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sNam
 	tLXOptions->sLastSelectedPlayer = item->index();
 
 	if(!JoinServer(sAddress, sName, item->index()))
-		return;
-
-	// Shutdown
-	cInternet.Shutdown();
-	
-	iNetMode = net_join;
-	tMenu->iReturnTo = net_internet;
-	
-	// Connect to the server
-	Menu_Net_JoinConnectionInitialize(sAddress);
+		return;	
 }
 
 

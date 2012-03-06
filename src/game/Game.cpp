@@ -190,6 +190,36 @@ void Game::onSettingsUpdate(BaseObject* /* oPt */, const AttrDesc* attrDesc, Scr
 
 static void cleanupAfterDisconnect();
 
+static void stateUpdate_connectingMenu() {
+	assert(game.isClient());
+	if(!bDedicated) {
+		// goto the joining dialog
+		DeprecatedGUI::Menu_Current_Shutdown();
+		DeprecatedGUI::Menu_SetSkipStart(true);
+		DeprecatedGUI::Menu_NetInitialize(false);
+		DeprecatedGUI::Menu_Net_JoinInitialize();
+	}
+}
+
+static void stateUpdate_gotoNetState() {
+	if(bDedicated) return;
+	if(game.isLocalGame()) return;
+
+	// when we leave the net-state (return to S_Inactive)
+	DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
+}
+
+static void stateUpdate_leaveNetState() {
+	if(bDedicated) return;
+
+	DeprecatedGUI::Menu_Current_Shutdown();
+	DeprecatedGUI::Menu_SetSkipStart(true);
+	if(game.isLocalGame())
+		DeprecatedGUI::Menu_LocalInitialize();
+	else
+		DeprecatedGUI::Menu_NetInitialize(true);
+}
+
 void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {
 	assert(oPt == &game);
 	assert(attrDesc == game.state.attrDesc());
@@ -200,6 +230,12 @@ void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t 
 		cleanupAfterDisconnect();
 	if((int)oldValue >= Game::S_Preparing && game.state <= Game::S_Lobby)
 		game.prepareMenu();
+	if((int)oldValue <= Game::S_Inactive && game.state >= Game::S_Connecting)
+		stateUpdate_gotoNetState();
+	if((int)oldValue > Game::S_Inactive && game.state == Game::S_Inactive)
+		stateUpdate_leaveNetState();
+	if(game.state == Game::S_Connecting && game.isClient())
+		stateUpdate_connectingMenu();
 }
 
 void Game::prepareMenu() {
@@ -639,7 +675,7 @@ void Game::frameInner()
 	if(tLXOptions->bEnableChat)
 		ProcessIRC();
 
-	if(state != Game::S_Inactive) {
+	if(state > Game::S_Inactive) {
 		cClient->ReadPackets();
 
 		cClient->ProcessMapDownloads();
@@ -714,7 +750,7 @@ void Game::frameInner()
 	if(tLX && !stateUpdated && state >= Game::S_Preparing)
 		cClient->Draw(VideoPostProcessor::videoSurface());
 
-	if(state != Game::S_Inactive) {
+	if(state > Game::S_Inactive) {
 		// Gusanos network
 		network.update();
 

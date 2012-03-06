@@ -325,7 +325,7 @@ struct DedIntern {
 		if(cClient->getBadConnection()) {
 			warnings << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
 			Sig_ConnectError(cClient->getBadConnectionMsg());
-			cClient->Shutdown();
+			game.state = Game::S_Inactive;
 			return;
 		}
 	}

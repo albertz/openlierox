@@ -525,7 +525,7 @@ void	Menu_Net_LAN_ServerList_Refresher();
 
 
 // Net::Joining menu
-bool	Menu_Net_JoinInitialize(const std::string& sAddress);
+bool	Menu_Net_JoinInitialize();
 void	Menu_Net_JoinShutdown();
 void	Menu_Net_JoinFrame(int mouse);
 
@@ -549,7 +549,7 @@ bool	Menu_Net_ChatInitialize();
 void	Menu_Net_ChatShutdown();
 void	Menu_Net_ChatFrame(int mouse);
 
-bool	Menu_Net_JoinConnectionInitialize(const std::string& sAddress);
+bool	Menu_Net_JoinConnectionInitialize();
 void	Menu_Net_JoinConnectionFrame(int mouse);
 void	Menu_Net_JoinConnectionShutdown();
 

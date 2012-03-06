@@ -635,11 +635,6 @@ void GotoLocalMenu()
 	
 	notes << "GotoLocalMenu" << endl;
 	game.state = Game::S_Inactive;
-	if(!bDedicated) {
-		DeprecatedGUI::Menu_Current_Shutdown();
-		DeprecatedGUI::Menu_SetSkipStart(true);
-		DeprecatedGUI::Menu_LocalInitialize();
-	}
 }
 
 //////////////////
@@ -648,14 +643,6 @@ void GotoNetMenu()
 {
 	notes << "GotoNetMenu" << endl;
 	game.state = Game::S_Inactive;
-	if(!bDedicated) {
-		DeprecatedGUI::Menu_Current_Shutdown();
-		DeprecatedGUI::Menu_SetSkipStart(true);
-		DeprecatedGUI::Menu_NetInitialize(true);
-
-		// when we leave the server
-		DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
-	}
 }
 
 ////////////////////

@@ -439,20 +439,10 @@ void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 	tLXOptions->sLastSelectedPlayer = item->index();
 	
 	if(!JoinServer(sAddress, sName, item->index()))
-		return;
-	
-	// Shutdown
-	cFavourites.Shutdown();
-
-	iNetMode = net_join;
+		return;	
 
 	// Save the list
 	ServerList::get()->save();
-
-	tMenu->iReturnTo = net_favourites;
-
-	// Connect to the server
-	Menu_Net_JoinConnectionInitialize(sAddress);
 }
 
 enum  {

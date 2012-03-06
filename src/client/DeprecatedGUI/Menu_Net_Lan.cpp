@@ -391,13 +391,6 @@ void Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sNam
 	
 	if(!JoinServer(sAddress, sName, item->index()))
 		return;
-
-	// Shutdown
-	cLan.Shutdown();
-
-	tMenu->iReturnTo = net_lan;
-
-	Menu_Net_JoinInitialize(sAddress);
 }
 
 // TODO: remove this here!
