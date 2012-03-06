@@ -170,6 +170,12 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 				bs->SkipAll();
 				return;
 			}
+			if(attrDesc == game.state.attrDesc()) {
+				if((int)v == Game::S_Quit) {
+					notes << "GameStateUpdates: server quitted OLX, we just go to inactive" << endl;
+					v = Game::S_Inactive;
+				}
+			}
 			ScriptVarPtr_t p = attrDesc->getValueScriptPtr(o);
 			p.fromScriptVar(v);
 		}
