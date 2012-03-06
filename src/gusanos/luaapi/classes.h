@@ -49,6 +49,7 @@ struct LevelInfo;
 struct ModInfo;
 struct GameSettingsPresetInfo;
 class CGameSkin;
+struct worm_state_t;
 
 namespace OmfgGUI
 {
@@ -92,11 +93,12 @@ CLASSID(LevelInfo, 29);
 CLASSID(ModInfo, 30);
 CLASSID(GameSettingsPresetInfo, 31);
 CLASSID(CGameSkin, 32);
+CLASSID(worm_state_t, 33);
 
 #undef CLASSID
 
 INLINE const char* LuaClassName(uint32_t id_) {
-	return LuaClassInfo<32>::name(id_);
+	return LuaClassInfo<33>::name(id_);
 }
 
 template<class T>

@@ -34,6 +34,7 @@
 #include "game/CGameObject.h"
 #include "util/VecTimeRecorder.h"
 #include "game/Attr.h"
+#include "util/CustomVar.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -106,16 +107,25 @@ struct wpnslot_t {
 // Worm frame state
 // Created 22/7/02
 // Jason Boettcher
-struct worm_state_t {
-	worm_state_t() {
-		bShoot = bCarve = bMove = bJump = false;
-	}
-
-	// Command byte
+struct worm_state_t : CustomVar {
 	bool	bShoot;
 	bool	bCarve;
 	bool	bMove;
 	bool	bJump;
+
+	worm_state_t();
+	uint8_t asInt() const;
+	void fromInt(uint8_t i);
+
+	virtual CustomVar* copy() const;
+	virtual bool operator==(const CustomVar&) const;
+	virtual bool operator<(const CustomVar&) const;
+	virtual std::string toString() const;
+	virtual bool fromString( const std::string & str);
+
+	virtual void copyFrom(const CustomVar&);
+	virtual Result toBytestream( CBytestream* bs ) const;
+	virtual Result fromBytestream( CBytestream* bs );
 };
 
 

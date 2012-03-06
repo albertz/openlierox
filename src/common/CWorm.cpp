@@ -47,6 +47,61 @@
 #include "gusanos/luaapi/classes.h"
 
 
+worm_state_t::worm_state_t() {
+	bShoot = bCarve = bMove = bJump = false;
+	thisRef.classId = LuaID<worm_state_t>::value;
+}
+
+uint8_t worm_state_t::asInt() const {
+	uint8_t i = 0;
+	if(bShoot) i |= 1;
+	if(bCarve) i |= 2;
+	if(bMove) i |= 4;
+	if(bJump) i |= 8;
+	return i;
+}
+
+void worm_state_t::fromInt(uint8_t i) {
+	bShoot = i & 1;
+	bCarve = i & 2;
+	bMove = i & 4;
+	bJump = i & 8;
+}
+
+CustomVar* worm_state_t::copy() const { return new worm_state_t(*this); }
+
+bool worm_state_t::operator==(const CustomVar& o) const {
+	const worm_state_t* os = dynamic_cast<const worm_state_t*>(&o);
+	if(!os) return false;
+	return asInt() == os->asInt();
+}
+
+bool worm_state_t::operator<(const CustomVar& o) const {
+	const worm_state_t* os = dynamic_cast<const worm_state_t*>(&o);
+	if(!os) return this < &o;
+	return asInt() < os->asInt();
+}
+
+std::string worm_state_t::toString() const { return to_string(asInt()); }
+bool worm_state_t::fromString(const std::string& str) { fromInt(from_string<uint8_t>(str)); return true; }
+
+void worm_state_t::copyFrom(const CustomVar& o) {
+	const worm_state_t* os = dynamic_cast<const worm_state_t*>(&o);
+	assert(os != NULL);
+	*this = *os;
+}
+
+Result worm_state_t::toBytestream( CBytestream* bs ) const {
+	bs->writeInt(asInt(), 1);
+	return true;
+}
+
+Result worm_state_t::fromBytestream( CBytestream* bs ) {
+	fromInt(bs->readInt(1));
+	return true;
+}
+
+
 struct CWorm::SkinDynDrawer : DynDrawIntf {
 	Mutex mutex;
 	CWorm* worm;
@@ -1594,4 +1649,5 @@ void CWorm::setClientVersion(const Version & v) {
 
 
 REGISTER_CLASS(CWorm, LuaID<CGameObject>::value)
+REGISTER_CLASS(worm_state_t, LuaID<CustomVar>::value)
 
