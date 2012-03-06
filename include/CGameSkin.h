@@ -59,6 +59,7 @@ public:
 	CGameSkin& operator=(const CGameSkin& oth);
 
 private:
+	bool loaded;
 	SmartPointer<SDL_Surface>	bmpSurface;
 	SmartPointer<SDL_Surface>	bmpNormal;
 	SmartPointer<SDL_Surface>	bmpMirrored;
@@ -82,7 +83,8 @@ private:
 	friend struct GameSkinPreviewDrawer;
 	friend struct SkinAction_Colorize;
 	friend struct SkinAction_Load;
-	
+	friend void skin_load(const CGameSkin& s);
+
 private:
 	void init(int fw, int fh, int fs, int sw, int sh); void uninit();
 	void createSurfaces();

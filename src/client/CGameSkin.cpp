@@ -143,7 +143,9 @@ struct CGameSkin::Thread {
 	}
 };
 
-void CGameSkin::init(int fw, int fh, int fs, int sw, int sh) {	
+void CGameSkin::init(int fw, int fh, int fs, int sw, int sh) {
+	loaded = false;
+
 	bmpSurface = NULL;
 	bmpMirrored = NULL;
 	bmpShadow = NULL;
@@ -213,7 +215,12 @@ struct SkinAction_Load : Skin_Action {
 	Result handle() {
 		skin->Load_Execute(breakSignal);
 		if(breakSignal) return true;
-		if(genPreview) skin->GeneratePreview();	
+		if(genPreview) skin->GeneratePreview();
+		{
+			Mutex::ScopedLock lock(skin->thread->mutex);
+			skin->loaded = true;
+			WakeupIfNeeded();
+		}
 		return true;
 	}
 };
@@ -275,22 +282,28 @@ void CGameSkin::Change(const std::string &file)
 	sFileName = file;
 }
 
+void skin_load(const CGameSkin& skin) {
+	CGameSkin& s = (CGameSkin&) skin; // cast away constness. this is safe when we get here... i know, it's hacky, sorry...
+
+	Mutex::ScopedLock lock(s.thread->mutex);
+
+	s.thread->removeActions__unsafe();
+
+	s.thread->pushAction__unsafe(new SkinAction_Load(&s, /* generatePreview = */ !s.bColorized));
+
+	if (s.bColorized)
+		s.thread->pushActionUnique__unsafe(new SkinAction_Colorize(&s));
+
+	s.thread->startThread__unsafe(&s);
+}
+
 void CGameSkin::onFilenameUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, ScriptVar_t /*oldValue*/) {
 	if(bDedicated) return;
 	CGameSkin* s = (CGameSkin*) base;
 
-	notes << "CGameSkin::onFilenameUpdate: " << s->sFileName.get() << endl;
-
 	Mutex::ScopedLock lock(s->thread->mutex);
-
+	s->loaded = false;
 	s->thread->removeActions__unsafe();
-
-	s->thread->pushAction__unsafe(new SkinAction_Load(s, /* generatePreview = */ !s->bColorized));
-
-	if (s->bColorized)
-		s->thread->pushActionUnique__unsafe(new SkinAction_Colorize(s));
-
-	s->thread->startThread__unsafe(s);
 }
 
 /////////////////////
@@ -493,7 +506,8 @@ bool CGameSkin::operator<(const CustomVar& o) const {
 
 Color CGameSkin::renderColorAt(int x, int y, int frame, bool mirrored) const {
 	Mutex::ScopedLock lock(thread->mutex);
-	if(!thread->ready) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);	
+	if(!thread->ready) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
+	if(!loaded) { skin_load(*this); return Color(0,0,0,SDL_ALPHA_TRANSPARENT); }
 	if(x < 0 || y < 0 || x >= iSkinWidth || y >= iSkinHeight) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
 	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
 	
@@ -522,7 +536,8 @@ void CGameSkin::DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool dr
 		return;
 
 	Mutex::ScopedLock lock(thread->mutex);
-	if(!thread->ready) {
+	if(!thread->ready || !loaded) {
+		if(!loaded) skin_load(*this);
 		if(!blockUntilReady) {
 			DrawLoadingAni(surf, x + iSkinWidth/2, y + iSkinWidth/2, iSkinWidth/2, iSkinHeight/2, Color(255,0,0), Color(0,255,0), LAT_CAKE);
 			return;			
@@ -575,6 +590,7 @@ void GameSkinPreviewDrawer::draw(SDL_Surface* dest, int x, int y) {
 	Mutex::ScopedLock lock(mutex);
 	if(skin) {
 		Mutex::ScopedLock lock2(skin->thread->mutex);
+		if(!skin->loaded) skin_load(*skin);
 		if(skin->thread->ready && skin->bmpPreview.get())
 			DrawImage(dest, skin->bmpPreview, x, y);
 		else
@@ -596,7 +612,7 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 
 	Mutex::ScopedLock lock(thread->mutex);
 	if(!thread->ready) return;
-	
+	if(!loaded) { skin_load(*this); return; }
 	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
 	
 	if (getFrameCount() != 0)
@@ -620,6 +636,7 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 	
 	Mutex::ScopedLock lock(thread->mutex);
 	if(!thread->ready) return;
+	if(!loaded) { skin_load(*this); return; }
 
 	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
 	
@@ -649,8 +666,8 @@ void CGameSkin::onColorUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, Sc
 	CGameSkin* s = (CGameSkin*) base;
 
 	Mutex::ScopedLock lock(s->thread->mutex);
-
 	s->bColorized = true;
+	if(!s->loaded) return;
 
 	s->thread->pushActionUnique__unsafe(new SkinAction_Colorize(s));
 	s->thread->startThread__unsafe(s);
