@@ -244,7 +244,7 @@ bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)
 		return true;
 
 	// Different teams, and invisible so no need I think
-	if(game.wormsOfClient(cl)->get()->getTeam() != worm->getTeam() && !visible[worm->getID()] && !worm->getWormState()->bCarve)
+	if(game.wormsOfClient(cl)->get()->getTeam() != worm->getTeam() && !visible[worm->getID()] && !worm->tState.get().bCarve)
 		return false;
 
 	return true;

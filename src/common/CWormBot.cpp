@@ -1026,14 +1026,11 @@ void CWormBotInputHandler::getInput() {
 		return;
 	}
 	
-	worm_state_t *ws = &m_worm->tState;
+	worm_state_t *ws = &m_worm->tState.write();
 	
 
 	// Init the ws
-	ws->bCarve = false;
-	ws->bMove = false;
-	ws->bShoot = false;
-	ws->bJump = false;
+	ws->reset();
 	
 	// Behave like humans and don't play immediatelly after spawn
 	if ((tLX->currentTime - m_worm->fSpawnTime) < 0.4f)
@@ -1091,7 +1088,7 @@ void CWormBotInputHandler::getInput() {
 			if (fabs(m_worm->fAngle - rope_angle) <= 50)
 				m_worm->cNinjaRope.Clear();
 		}
-		m_worm->tState.bMove = false;
+		m_worm->tState.write().bMove = false;
 
 		
     } else {
@@ -1726,7 +1723,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 // Used if we have no path
 void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
 {
-    worm_state_t *ws = &m_worm->tState;
+	worm_state_t *ws = &m_worm->tState.write();
 
     // Simple
 	ws->bMove = true;
@@ -2086,7 +2083,7 @@ bool CWormBotInputHandler::AI_Shoot()
 		if(!bDirect) return false;
 		if(!AI_SetAim(cTrgPos)) return false;
 		
-		m_worm->tState.bShoot = true;
+		m_worm->tState.write().bShoot = true;
 		fLastShoot = tLX->currentTime;
 		return true;
 	}
@@ -2101,7 +2098,7 @@ bool CWormBotInputHandler::AI_Shoot()
 			if (w >= 0 && AI_GetRockBetween(m_worm->vPos, cTrgPos) <= 3) {
 				m_worm->iCurrentWeapon = w;
 				if(AI_SetAim(cTrgPos)) {
-					m_worm->tState.bShoot = true;
+					m_worm->tState.write().bShoot = true;
 					return true;
 				}
 				else
@@ -2312,7 +2309,7 @@ bool CWormBotInputHandler::AI_Shoot()
 		fBadAimTime += tLX->fDeltaTime;
 		if((fBadAimTime) > 4) {
 			if(game.gameMap()->IsEmptyForWorm(m_worm->pos() + CVec(0,-5)))
-				m_worm->tState.bJump = true;
+				m_worm->tState.write().bJump = true;
 			fBadAimTime = 0;
 		}
 
@@ -2333,7 +2330,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	vLastShootTargetPos = cTrgPos;
 
     // Shoot
-	m_worm->tState.bShoot = true;
+	m_worm->tState.write().bShoot = true;
 	fLastShoot = tLX->currentTime;
 	return true;
 }
@@ -2408,14 +2405,14 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 				if (!m_worm->tWeapons[2].Reloading)
 				// Don't use cannon when we're on ninja rope, we will avoid suicides
 					if (!m_worm->cNinjaRope.isAttached())  {
-						m_worm->tState.bMove = false;  // Don't move, avoid suicides
+						m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 						return 2;
 					}
 			}
 			// We don't see the target
 			else  {
 				//notes << "bot: GAM_100LT: i think we should not shoot here" << endl;
-				m_worm->tState.bJump = true; // Jump, we might get better position
+				m_worm->tState.write().bJump = true; // Jump, we might get better position
 				return -1;
 			}
 		}
@@ -2433,7 +2430,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 				if (!m_worm->tWeapons[2].Reloading)
 					// Don't use cannon when we're on ninja rope, we will avoid suicides
 					if (!m_worm->cNinjaRope.isReleased())  {
-						m_worm->tState.bMove = false;  // Don't move, avoid suicides
+						m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 						return 2;
 					}
 
@@ -2445,7 +2442,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 				if (!m_worm->tWeapons[3].Reloading)
 					// Don't use doomsday when we're on ninja rope, we will avoid suicides
 					if (!m_worm->cNinjaRope.isAttached())  {
-						m_worm->tState.bMove = false;  // Don't move, avoid suicides
+						m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 						return 3;
 					}
 			} // End of direct shooting weaps
@@ -2460,7 +2457,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 			if (!m_worm->tWeapons[3].Reloading)  {
 				// Don't use doomsday when we're on ninja rope, we will avoid suicides
 				if (!m_worm->cNinjaRope.isAttached())  {
-					m_worm->tState.bMove = false;  // Don't move, avoid suicides
+					m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 					return 3;
 				}
 			}
@@ -2479,7 +2476,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 				if (!m_worm->cNinjaRope.isReleased())  {
 					// Aim a bit up
 					// AI_SetAim(CVec(cTrgPos.x,cTrgPos.y+5.0f)); // don't do aiming here
-					m_worm->tState.bMove = false;  // Don't move, avoid suicides
+					m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 					return 2;
 				}
 		}
@@ -3331,10 +3328,10 @@ void CWormBotInputHandler::AI_Carve()
 	// Don't carve too fast
 	if (tLX->currentTime - m_worm->fLastCarve > 0.2f)  {
 		m_worm->fLastCarve = tLX->currentTime;
-		m_worm->tState.bCarve = true; // Carve
+		m_worm->tState.write().bCarve = true; // Carve
 	}
 	else  {
-		m_worm->tState.bCarve = false;
+		m_worm->tState.write().bCarve = false;
 	}
 }
 
@@ -3380,14 +3377,14 @@ bool CWormBotInputHandler::AI_Jump()
 	// Don't jump so often
 	if ((GetTime() - fLastJump).seconds() > 0.3f && (m_worm->bOnGround || m_worm->canAirJump()) && !isJumpingGivingDisadvantage(NEW_psCurrentNode, m_worm))  {
 		fLastJump = GetTime();
-		m_worm->tState.bJump = true;
+		m_worm->tState.write().bJump = true;
 	}
 	// TODO: why this? we should have reset it anyway. and multiple calls to AI_Jump should not make it false again
 	/*else  {
 		m_worm->tState.bJump = false;
 	}*/
 
-	return m_worm->tState.bJump;
+	return m_worm->tState.get().bJump;
 }
 
 /////////////////////
@@ -3396,7 +3393,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 {
 //	printf("Moving to target");
 
-    worm_state_t *ws = &m_worm->tState;
+	worm_state_t *ws = &m_worm->tState.write();
 
 	// No target?
 	if (nAITargetType == AIT_NONE || (nAITargetType == AIT_WORM && game.wormById(nAITargetWormId, false) == NULL))  {
@@ -4264,7 +4261,7 @@ void CWormBotInputHandler::subThink() {
 	
 	bool oldNinja = m_worm->cNinjaRope.isReleased();
 	CVec oldNinjaPos = m_worm->cNinjaRope.getHookPos();
-	worm_state_t oldS = *m_worm->getWormState();
+	worm_state_t oldS = m_worm->tState.get();
 	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
 
 	m_worm->fAngle = (float)m_worm->aimAngle.toDeg() - 90.0f;
@@ -4273,7 +4270,7 @@ void CWormBotInputHandler::subThink() {
 
 	bool newNinja = m_worm->cNinjaRope.isReleased();
 	CVec newNinjaPos = m_worm->cNinjaRope.getHookPos();
-	worm_state_t& newS = *m_worm->getWormState();
+	const worm_state_t& newS = m_worm->tState.get();
 	DIR_TYPE newMoveDir = m_worm->getMoveDirectionSide();
 
 	if(oldS.bMove && newS.bMove) {

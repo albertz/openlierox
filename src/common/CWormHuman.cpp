@@ -74,7 +74,7 @@ void CWormHumanInputHandler::getInput() {
 
 	mouse_t *ms = GetMouse();
 
-	worm_state_t *ws = &m_worm->tState;
+	worm_state_t *ws = &m_worm->tState.write();
 
 	// Init the ws
 	ws->bCarve = false;
@@ -426,19 +426,19 @@ NewNet::KeyState_t CWorm::NewNet_GetKeys()
 	getInput();
 	NewNet::KeyState_t ret;
 
-	if( tState.bJump )
+	if( tState.get().bJump )
 		ret.keys[NewNet::K_JUMP] = true;
 
-	if( tState.bShoot )
+	if( tState.get().bShoot )
 		ret.keys[NewNet::K_SHOOT] = true;
 
-	if( tState.bCarve )
+	if( tState.get().bCarve )
 	{
 		ret.keys[NewNet::K_LEFT] = true;
 		ret.keys[NewNet::K_RIGHT] = true;
 	}
 	
-	if( tState.bMove )
+	if( tState.get().bMove )
 	{
 		if( iMoveDirectionSide == DIR_LEFT )
 			ret.keys[NewNet::K_LEFT] = true;
@@ -484,13 +484,10 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	bool leftOnce = keys.keys[NewNet::K_LEFT] && keysChanged.keys[NewNet::K_LEFT];
 	bool rightOnce = keys.keys[NewNet::K_RIGHT] && keysChanged.keys[NewNet::K_RIGHT];
 	
-	worm_state_t *ws = &tState;
+	worm_state_t *ws = &tState.write();
 
 	// Init the ws
-	ws->bCarve = false;
-	ws->bMove = false;
-	ws->bShoot = false;
-	ws->bJump = false;
+	ws->reset();
 
 	{
 		if( keys.keys[NewNet::K_UP] && keys.keys[NewNet::K_DOWN] )

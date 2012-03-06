@@ -48,8 +48,12 @@
 
 
 worm_state_t::worm_state_t() {
-	bShoot = bCarve = bMove = bJump = false;
 	thisRef.classId = LuaID<worm_state_t>::value;
+	reset();
+}
+
+void worm_state_t::reset() {
+	bShoot = bCarve = bMove = bJump = false;
 }
 
 uint8_t worm_state_t::asInt() const {
@@ -82,8 +86,8 @@ bool worm_state_t::operator<(const CustomVar& o) const {
 	return asInt() < os->asInt();
 }
 
-std::string worm_state_t::toString() const { return to_string(asInt()); }
-bool worm_state_t::fromString(const std::string& str) { fromInt(from_string<uint8_t>(str)); return true; }
+std::string worm_state_t::toString() const { return to_string<int>(asInt()); }
+bool worm_state_t::fromString(const std::string& str) { fromInt(from_string<int>(str)); return true; }
 
 void worm_state_t::copyFrom(const CustomVar& o) {
 	const worm_state_t* os = dynamic_cast<const worm_state_t*>(&o);
@@ -485,10 +489,7 @@ void CWorm::clearInput() {
 	fLastInputTime = GetPhysicsTime();
 	
 	// Clear the state
-	tState.bCarve = false;
-	tState.bMove  = false;
-	tState.bShoot = false;
-	tState.bJump  = false;
+	tState.write().reset();
 	
 	if(bLocal && m_inputHandler)
 		m_inputHandler->clearInput();

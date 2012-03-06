@@ -114,6 +114,7 @@ struct worm_state_t : CustomVar {
 	bool	bJump;
 
 	worm_state_t();
+	void reset();
 	uint8_t asInt() const;
 	void fromInt(uint8_t i);
 
@@ -126,6 +127,8 @@ struct worm_state_t : CustomVar {
 	virtual void copyFrom(const CustomVar&);
 	virtual Result toBytestream( CBytestream* bs ) const;
 	virtual Result fromBytestream( CBytestream* bs );
+
+	bool operator!=(const CustomVar& o) const { return !(*this == o); }
 };
 
 
@@ -192,12 +195,12 @@ public:
 	int			iNumWeaponSlots;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
 
+	ATTR(CWorm, worm_state_t, tState, 22, {serverside = false;})
+
 protected:
 	SmartPointer<profile_t> tProfile; // used to read (AI)nDifficulty and read/write human player weapons
 	
 	// Simulation
-	worm_state_t tState;
-
 	CVec		vLastPos;
 	CVec		vDrawPos;
 	bool		bOnGround;
@@ -456,8 +459,6 @@ public:
 	bool		isOnGround()				{ return bOnGround; }
 	void		setOnGround(bool g)			{ bOnGround = g; }
 
-	worm_state_t *getWormState()		{ return &tState; }
-
 	bool		hasOwnServerTime();
 	TimeDiff	serverTime()				{ return fServertime; }
 
@@ -530,7 +531,7 @@ public:
 	void		setSkin(const CGameSkin& skin)	{ cSkin = skin; }
 	void		setSkin(const std::string& skin)	{ cSkin.write().Change(skin); }
 
-	bool		isShooting()				{ return tState.bShoot; }
+	bool		isShooting()				{ return tState.get().bShoot; }
 	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading; }
 
 	bool		isSpectating()				{ return bSpectating; }

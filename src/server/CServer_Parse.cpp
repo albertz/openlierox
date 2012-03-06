@@ -333,17 +333,17 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 	for_each_iterator(CWorm*, w_, game.wormsOfClient(cl)) {
 		CWorm* w = w_->get();
 
-		bool wasShootingBefore = w->getWormState()->bShoot;
+		bool wasShootingBefore = w->tState.get().bShoot;
 		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
 		w->readPacket(bs);
 
 		if(game.state == Game::S_Playing) {
 			// If the worm is shooting, handle it
-			if (w->getWormState()->bShoot && w->getAlive())
+			if (w->tState.get().bShoot && w->getAlive())
 				server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
 			
 			// handle FinalProj for weapon
-			if(oldWeapon && ((wasShootingBefore && !w->getWormState()->bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
+			if(oldWeapon && ((wasShootingBefore && !w->tState.get().bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
 				server->WormShootEnd(w, oldWeapon);
 		}
 	}
@@ -852,7 +852,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 						}
 						
 						// handle worm shoot end if needed
-						if(oldWeapon && wpn->Weapon != oldWeapon && w->getWormState()->bShoot)
+						if(oldWeapon && wpn->Weapon != oldWeapon && w->tState.get().bShoot)
 							server->WormShootEnd(w, oldWeapon);
 					}
 				}

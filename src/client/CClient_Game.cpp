@@ -98,7 +98,7 @@ void CClient::Simulation()
 	for_each_iterator(CWorm*, _w, game.worms()) {
 		CWorm* w = _w->get();
 
-		bool wasShootingBefore = w->getWormState()->bShoot;
+		bool wasShootingBefore = w->tState.get().bShoot;
 		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
 
 		// Simulate the worm. In case the worm is dead, it (the inputhandler) might do some thinking or
@@ -140,11 +140,11 @@ void CClient::Simulation()
 		// from CServerNetEngine::ParseUpdate. we don't send updates of local worms anymore, so we have to handle this here
 		if(game.isServer()) {
 			// If the worm is shooting, handle it
-			if (w->getWormState()->bShoot && w->getAlive())
+			if (w->tState.get().bShoot && w->getAlive())
 				cServer->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
 			
 			// handle FinalProj for weapon
-			if(oldWeapon && ((wasShootingBefore && !w->getWormState()->bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
+			if(oldWeapon && ((wasShootingBefore && !w->tState.get().bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
 				cServer->WormShootEnd(w, oldWeapon);
 		}
 
@@ -153,7 +153,7 @@ void CClient::Simulation()
 		if(w->getAlive()) {
 
 			// Shoot
-			if(w->getWormState()->bShoot) {
+			if(w->tState.get().bShoot) {
 				// This handles only client-side weapons, like jetpack and for beam drawing
 				// It doesn't process the shot itself.
 				// The shot-info will be sent to the server which sends it back and
@@ -243,7 +243,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		if(w->getAlive()) 
 		{
 			// Shoot
-			if(w->getWormState()->bShoot) {
+			if(w->tState.get().bShoot) {
 				// This handles only client-side weapons, like jetpack and for beam drawing
 				// It doesn't process the shot itself.
 				// The shot-info will be sent to the server which sends it back and

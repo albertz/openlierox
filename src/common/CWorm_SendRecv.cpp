@@ -69,17 +69,17 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 
 	// Bit flags
 	uchar bits = 0;
-	if(tState.bCarve)
+	if(tState.get().bCarve)
 		bits |= 0x01;
 	if(iFaceDirectionSide == DIR_RIGHT)
 		bits |= 0x02;
-	if(tState.bMove)
+	if(tState.get().bMove)
 		bits |= 0x04;
-	if(tState.bJump)
+	if(tState.get().bJump)
 		bits |= 0x08;
 	if(cNinjaRope.isReleased())
 		bits |= 0x10;
-	if(tState.bShoot)
+	if(tState.get().bShoot)
 		bits |= 0x20;
 
 	bs->writeByte( bits );
@@ -92,7 +92,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 
 	// Velocity
 	const Version& versionOfReceiver = fromServer ? receiver->getClientVersion() : cClient->getServerVersion();
-	if(tState.bShoot || versionOfReceiver >= OLXBetaVersion(5)) {
+	if(tState.get().bShoot || versionOfReceiver >= OLXBetaVersion(5)) {
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );
 		bs->writeInt16( (Sint16)v.y );
@@ -128,17 +128,13 @@ bool CWorm::checkPacketNeeded()
 		return false;
 
 	// State
-	if (tState.bCarve)
+	if (tState.get().bCarve)
 		return true;
-	if (tState.bShoot && !tWeapons[iCurrentWeapon].Reloading)
+	if (tState.get().bShoot && !tWeapons[iCurrentWeapon].Reloading)
 		return true;
 
-	if (
-		(tLastState.bCarve != tState.bCarve) ||
-		(tLastState.bMove != tState.bMove) ||
-		(tLastState.bJump != tState.bJump) ||
-		(tLastState.bShoot != tState.bShoot))
-			return true;
+	if (tLastState != tState.get())
+		return true;
 
 	// Changed weapon
 	if(iLastCurWeapon != iCurrentWeapon)
@@ -313,12 +309,12 @@ void CWorm::readPacket(CBytestream *bs)
 
 	iMoveDirectionSide = iFaceDirectionSide = DIR_LEFT;
 
-	tState.bCarve = (bits & 0x01) != 0;
+	tState.write().bCarve = (bits & 0x01) != 0;
 	if(bits & 0x02)
 		iMoveDirectionSide = iFaceDirectionSide = DIR_RIGHT;
-	tState.bMove = (bits & 0x04) != 0;
-	tState.bJump = (bits & 0x08) != 0;
-	tState.bShoot = (bits & 0x20) != 0;
+	tState.write().bMove = (bits & 0x04) != 0;
+	tState.write().bJump = (bits & 0x08) != 0;
+	tState.write().bShoot = (bits & 0x20) != 0;
 
 	// Ninja rope
 	bool rope = (bits & 0x10) != 0;
@@ -329,7 +325,7 @@ void CWorm::readPacket(CBytestream *bs)
 
 	// Velocity
 	const Version& versionOfSender = getClient()->getClientVersion();
-	if(tState.bShoot || versionOfSender >= OLXBetaVersion(5)) {
+	if(tState.get().bShoot || versionOfSender >= OLXBetaVersion(5)) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
@@ -345,7 +341,7 @@ void CWorm::readPacket(CBytestream *bs)
 	// If the worm is inside dirt then it is probably carving
 	if ((game.isServer() && !game.isLocalGame()) && game.gameMap())
 		if(game.gameMap()->GetPixelFlag(x, y) & PX_DIRT)
-			tState.bCarve = true;
+			tState.write().bCarve = true;
 }
 
 ////////////////
@@ -444,13 +440,13 @@ void CWorm::readPacketState(CBytestream *bs)
 
 	iMoveDirectionSide = iFaceDirectionSide = DIR_LEFT;
 
-	tState.bCarve = (bits & 0x01);
+	tState.write().bCarve = (bits & 0x01);
 	if(bits & 0x02) {
 		iMoveDirectionSide = iFaceDirectionSide = DIR_RIGHT;
 	}
-	tState.bMove = (bits & 0x04) != 0;
-	tState.bJump = (bits & 0x08) != 0;
-	tState.bShoot = (bits & 0x20) != 0;
+	tState.write().bMove = (bits & 0x04) != 0;
+	tState.write().bJump = (bits & 0x08) != 0;
+	tState.write().bShoot = (bits & 0x20) != 0;
 
 	// Ninja rope
 	bool rope = (bits & 0x10) != 0;
@@ -466,7 +462,7 @@ void CWorm::readPacketState(CBytestream *bs)
 	}
 
 	const Version& versionOfSender = cClient->getServerVersion();
-	bool gotVelocity = tState.bShoot || versionOfSender >= OLXBetaVersion(5);
+	bool gotVelocity = tState.get().bShoot || versionOfSender >= OLXBetaVersion(5);
 
 	// Update the position
 	CVec oldPos = vPos;
@@ -498,7 +494,7 @@ void CWorm::readPacketState(CBytestream *bs)
 		incrementDirtCount( CarveHole(vPos) );
 	}
 	
-	if(tState.bCarve && game.isMapReady()) {
+	if(tState.get().bCarve && game.isMapReady()) {
 		/* If we get the updates too infrequently, it could be that we don't have carved everything.
 		 * Thus, if the len is not too big, we still carve the whole way.
 		 */
@@ -512,7 +508,7 @@ void CWorm::readPacketState(CBytestream *bs)
 	}
 	
 	// carve a bit further were we are heading to (same as in simulation)
-	if(tState.bCarve && game.isMapReady()) {
+	if(tState.get().bCarve && game.isMapReady()) {
 
 		// Calculate dir
 		const CVec dir = getFaceDirection();

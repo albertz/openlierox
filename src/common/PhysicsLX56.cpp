@@ -253,7 +253,7 @@ public:
 		// HINT: when stucked horizontal we move slower - it's more like original LX
 		if ((clip & 0x04) && (clip & 0x08))  {
 			worm->pos().write().y = vOldPos.y;
-			if (!worm->getWormState()->bJump)  // HINT: this is almost exact as old LX
+			if (!worm->tState.get().bJump)  // HINT: this is almost exact as old LX
 				worm->pos().write().x = vOldPos.x;
 		}
 
@@ -310,7 +310,7 @@ public:
 				cClient->shouldRepaintInfo() = true;
 		}
 
-		worm_state_t *ws = worm->getWormState();
+		const worm_state_t *ws = &worm->tState.get();
 		
 	simulateWormStart:
 	
@@ -465,7 +465,7 @@ public:
 			worm->processPhysics();
 			worm->processMoveAndDig();
 			
-			ws->bJump = worm->jumping; // we may have overwritten this
+			worm->tState.write().bJump = worm->jumping; // we may have overwritten this
 		}
 		
 		simulateWormWeapon(wpnDT, worm);

@@ -165,12 +165,14 @@ void pushObjAttrUpdate(BaseObject& obj) {
 }
 
 static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {
-	// for now, just to console
-	// for some, no debug msg, too annoying
-	if(attrDesc->objTypeId == LuaID<CGameObject>::value && attrDesc->attrId <= 3 /* vPos or vVel */) return;
-	if(attrDesc->objTypeId == LuaID<Game>::value && attrDesc->attrId == 2 /* serverFrame */) return;
-	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrId == 100 /* iAFK */) return;
-	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrId == 101 /* sAFK */) return;
+	// For now, just to console.
+	// For some, no debug msg, too annoying.
+	if(attrDesc->objTypeId == LuaID<CGameObject>::value && attrDesc->attrName == "vPos") return;
+	if(attrDesc->objTypeId == LuaID<CGameObject>::value && attrDesc->attrName == "vVelocity") return;
+	if(attrDesc->objTypeId == LuaID<Game>::value && attrDesc->attrName == "serverFrame") return;
+	//if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "tState") return;
+	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "iAFK") return;
+	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "sAFKMessage") return;
 	if(!oPt->thisRef)
 		return; // obj not really registered
 	notes << "<" << oPt->thisRef.description() << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
