@@ -170,7 +170,7 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 	if(attrDesc->objTypeId == LuaID<CGameObject>::value && attrDesc->attrName == "vPos") return;
 	if(attrDesc->objTypeId == LuaID<CGameObject>::value && attrDesc->attrName == "vVelocity") return;
 	if(attrDesc->objTypeId == LuaID<Game>::value && attrDesc->attrName == "serverFrame") return;
-	//if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "tState") return;
+	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "tState") return;
 	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "iAFK") return;
 	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "sAFKMessage") return;
 	if(!oPt->thisRef)
