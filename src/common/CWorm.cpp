@@ -149,18 +149,7 @@ CWorm::CWorm() :
 	m_type = PRF_HUMAN;
 	cOwner = NULL;
 	bSpectating = false;
-	iAFK = AFK_BACK_ONLINE;
-	sAFKMessage = "";
 
-	iKills = 0;
-	iDeaths = 0;
-	iSuicides = 0;
-	iTeamkills = 0;
-	fDamage = 0.0f;
-
-	health = 100.0f;
-	iLives = 10;
-	bAlive = false;
 	iFaceDirectionSide = DIR_RIGHT;
 	fAngle = 0;
 	fAngleSpeed = 0;
@@ -171,20 +160,12 @@ CWorm::CWorm() :
 	fVisibilityChangeTime = 0;
 
 	bOnGround = false;
-	vPos = CVec(0,0);
-	vVelocity = CVec(0,0);
 	fLastUpdateWritten = AbsTime();
-	tLastState = worm_state_t();
 	fLastAngle = -1;
 	iLastCharge = 255;
 	iLastCurWeapon = 255;
 
 	cNinjaRope.Clear();
-	setSpeedFactor(1);
-	setCanUseNinja(true);
-	setDamageFactor(1);
-	setShieldFactor(1);
-	setCanAirJump(false);
 	fLastAirJumpTime = 0;
 
 	bWeaponsReady = false;
