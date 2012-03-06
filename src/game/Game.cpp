@@ -188,16 +188,18 @@ void Game::onSettingsUpdate(BaseObject* /* oPt */, const AttrDesc* attrDesc, Scr
 	}
 }
 
+static void cleanupAfterDisconnect();
+
 void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {
 	assert(oPt == &game);
 	assert(attrDesc == game.state.attrDesc());
 
-	if((int)oldValue >= Game::S_Preparing) {
-		if(game.state <= Game::S_Lobby) {
-			game.cleanupAfterGameloopEnd();
-			game.prepareMenu();
-		}
-	}
+	if((int)oldValue >= Game::S_Preparing && game.state <= Game::S_Lobby)
+		game.cleanupAfterGameloopEnd();
+	if((int)oldValue >= Game::S_Lobby && game.state < Game::S_Lobby)
+		cleanupAfterDisconnect();
+	if((int)oldValue >= Game::S_Preparing && game.state <= Game::S_Lobby)
+		game.prepareMenu();
 }
 
 void Game::prepareMenu() {
@@ -567,6 +569,31 @@ void Game::frameInner()
 	if(bDedicated)
 		DedicatedControl::Get()->GameLoop_Frame();
 
+	if(game.state >= Game::S_Connecting) {
+		// Check if the communication link between us & server is still ok
+		if(cClient->getServerError()) {
+			// Check for any communication errors
+			notes << "servererror: " << cClient->getServerErrorMsg() << endl;
+
+			if(!bDedicated) {
+				// Show message box, shutdown and quit back to menu
+				DrawImage(DeprecatedGUI::tMenu->bmpBuffer.get(), DeprecatedGUI::tMenu->bmpMainBack_common, 0, 0);
+				DeprecatedGUI::Menu_RedrawMouse(true);
+				EnableSystemMouseCursor(false);
+
+				DeprecatedGUI::Menu_MessageBox("Communication", cClient->getServerErrorMsg(), DeprecatedGUI::LMB_OK);
+			}
+			if(DedicatedControl::Get())
+				DedicatedControl::Get()->ClientConnectionError_Signal(cClient->getServerErrorMsg());
+
+			if(game.isLocalGame())
+				GotoLocalMenu();
+			else
+				GotoNetMenu();
+			return;
+		}
+	}
+
 	// no lobby for local games
 	if(game.state == Game::S_Lobby && game.isLocalGame())
 		game.startGame();
@@ -828,6 +855,26 @@ void Game::cleanupAfterGameloopEnd() {
 	}
 }
 
+static void cleanupAfterDisconnect() {
+	network.olxShutdown();
+
+	// Stop any file downloads
+	if (cClient->getDownloadingMap() && cClient->getHttpDownloader())
+		cClient->getHttpDownloader()->RemoveAllDownloads();
+	cClient->getUdpFileDownloader()->reset();
+
+	if( GetGlobalIRC() )
+		GetGlobalIRC()->setAwayMessage("");
+
+	if(game.state == Game::S_Inactive) {
+		if(cServer && cServer->isServerRunning())
+			// Tell any clients that we're leaving
+			cServer->SendDisconnect();
+
+		cClient->Shutdown();
+		cServer->Shutdown();
+	}
+}
 
 
 void SetQuitEngineFlag(const std::string& reason) {

@@ -618,14 +618,6 @@ int InitializeLieroX()
 }
 
 
-///////////////////
-// Quit back to the menu
-void QuittoMenu()
-{
-	notes << "QuittoMenu" << endl;
-    DeprecatedGUI::Menu_SetSkipStart(false);
-	cClient->Disconnect();
-}
 
 //////////////////
 // Go to local menu
@@ -642,10 +634,9 @@ void GotoLocalMenu()
 	}
 	
 	notes << "GotoLocalMenu" << endl;
-	cClient->Disconnect();
-	cServer->Shutdown();
-	cClient->Shutdown();
+	game.state = Game::S_Inactive;
 	if(!bDedicated) {
+		DeprecatedGUI::Menu_Current_Shutdown();
 		DeprecatedGUI::Menu_SetSkipStart(true);
 		DeprecatedGUI::Menu_LocalInitialize();
 	}
@@ -656,10 +647,14 @@ void GotoLocalMenu()
 void GotoNetMenu()
 {
 	notes << "GotoNetMenu" << endl;
-	cClient->Disconnect();
+	game.state = Game::S_Inactive;
 	if(!bDedicated) {
+		DeprecatedGUI::Menu_Current_Shutdown();
 		DeprecatedGUI::Menu_SetSkipStart(true);
-		DeprecatedGUI::Menu_NetInitialize();
+		DeprecatedGUI::Menu_NetInitialize(true);
+
+		// when we leave the server
+		DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
 	}
 }
 

@@ -776,30 +776,13 @@ void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	if(cClient && cClient->getStatus() != NET_DISCONNECTED)
 		cClient->Disconnect();
 	
-	if(cServer && cServer->isServerRunning()) {
-		// Tell any clients that we're leaving
-		cServer->SendDisconnect();
-		
-		// Shutdown server & clients
-		cClient->Shutdown();
-		cServer->Shutdown();			
-	}
-	else if(cClient && cClient->getStatus() != NET_DISCONNECTED)
-		cClient->Shutdown();
+	game.state = Game::S_Inactive;
 		
 	if(!bDedicated && DeprecatedGUI::tMenu) {
-		DeprecatedGUI::Menu_Current_Shutdown();
-
-		DeprecatedGUI::Menu_SetSkipStart(true);
-		if(game.isLocalGame()) {
-			DeprecatedGUI::Menu_LocalInitialize();			
-		}
-		else {
-			DeprecatedGUI::Menu_NetInitialize(true);
-			
-			// when we leave the server
-			DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
-		}
+		if(game.isLocalGame())
+			GotoLocalMenu();
+		else
+			GotoNetMenu();
 	}
 }
 

@@ -606,9 +606,8 @@ void CClient::FinishMapDownloads()
 			notes << "Loading just downloaded map " << sMapDownloadName << endl;
 			if (NegResult r = game.loadMap())  {  // Load the map
 				// Weird
-				errors << "Could not load the downloaded map! " << r.res.humanErrorMsg << endl;
-				Disconnect();
-				GotoNetMenu();
+				bServerError = true;
+				strServerErrorMsg = "Could not load the downloaded map! " + r.res.humanErrorMsg;
 			}
 		}
 	}
@@ -628,20 +627,18 @@ void CClient::FinishModDownloads()
 
 		zip * zipfile = zip_open( Utf8ToSystemNative(fname).c_str(), 0, NULL );
 		if( zipfile == NULL ) {
-			warnings("Cannot access the downloaded mod!\n");
 			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
-				Disconnect();
-				GotoNetMenu();
+				bServerError = true;
+				strServerErrorMsg = "Cannot access the downloaded mod! zip_open failed.";
 			}
 			return;
 		}
 
 		if( zip_name_locate(zipfile, (sModDownloadName + "/script.lgs").c_str(), ZIP_FL_NOCASE) == -1 )
 		{
-			warnings("Cannot access the downloaded mod!\n");
 			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
-				Disconnect();
-				GotoNetMenu();
+				bServerError = true;
+				strServerErrorMsg = "Cannot access the downloaded mod! zip_name_locate failed.";
 			}
 			return;
 		}
@@ -671,11 +668,9 @@ void CClient::FinishModDownloads()
 
 	// Check that the script.lgs file is available
 	if (!infoForMod(sModDownloadName).valid)  {
-		warnings << "Cannot access the downloaded mod!" << endl;
-
 		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
-			Disconnect();
-			GotoNetMenu();
+			bServerError = true;
+			strServerErrorMsg = "Cannot access the downloaded mod! mod cannot be loaded.";
 		}
 
 		return;
@@ -700,10 +695,8 @@ void CClient::FinishModDownloads()
 
 		if (stringcaseequal(getGameLobby()[FT_Mod].as<ModInfo>()->name, sModDownloadName))  {
 			if(NegResult r = game.loadMod()) {
-				errors << "Could not load the downloaded mod: " << r.res.humanErrorMsg << endl;
-				Menu_MessageBox("Error", "Could not load the downloaded mod: " + r.res.humanErrorMsg, DeprecatedGUI::LMB_OK);
-				Disconnect();
-				GotoNetMenu();
+				bServerError = true;
+				strServerErrorMsg = "Could not load the downloaded mod: " + r.res.humanErrorMsg;
 				return;
 			}
 			bWaitingForMod = false;
@@ -712,10 +705,8 @@ void CClient::FinishModDownloads()
 			for_each_iterator(CWorm*, w, game.localWorms())
 				w->get()->initWeaponSelection();
 		} else {
-			warnings("The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name.get() +").\n");
-			Menu_MessageBox("Error", "The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name.get() +")", DeprecatedGUI::LMB_OK);
-			Disconnect();
-			GotoNetMenu();
+			bServerError = true;
+			strServerErrorMsg = "The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name.get() +")";
 			return;
 		}
 	}
@@ -765,8 +756,8 @@ void CClient::ProcessMapDownloads()
 			sDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
 
 			if (bWaitingForMap)  {
-				Disconnect();
-				GotoNetMenu();
+				bServerError = true;
+				strServerErrorMsg = "Download error: " + sDlError;
 				return;
 			}
 
@@ -827,8 +818,8 @@ void CClient::ProcessMapDownloads()
 
 				// If waiting for the map ingame, just quit
 				if (bWaitingForMap)  {
-					Disconnect();
-					GotoNetMenu();
+					bServerError = true;
+					strServerErrorMsg = "Download error: " + sDlError;
 					return;
 				}
 			}
@@ -901,8 +892,8 @@ void CClient::ProcessModDownloads()
 			sDlError = sModDownloadName + ".zip" + " downloading error: " + error.sErrorMsg;
 
 			if (bWaitingForMod)  {
-				Disconnect();
-				GotoNetMenu();
+				bServerError = true;
+				strServerErrorMsg = "Download error: " + sDlError;
 				return;
 			}
 
@@ -958,8 +949,8 @@ void CClient::ProcessModDownloads()
 			tModDlCallback();
 
 		if (bWaitingForMod)  {
-			Disconnect();
-			GotoNetMenu();
+			bServerError = true;
+			strServerErrorMsg = "UDP file download aborted but still waiting for mod.";
 			return;
 		}
 	}
@@ -984,8 +975,8 @@ void CClient::ProcessModDownloads()
 
 				// If waiting for the map ingame, just quit
 				if (bWaitingForMod)  {
-					Disconnect();
-					GotoNetMenu();
+					bServerError = true;
+					strServerErrorMsg = "Mod download error: connection timeout";
 					return;
 				}
 			}
@@ -1230,6 +1221,9 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 void CClient::Connect(const std::string& address)
 {
 	notes << "Client connect to " << address << endl;
+
+	Disconnect(); // disconnect if we were connected to some other server
+
 	iNetStatus = NET_CONNECTING;
 	outstandingPackets.clear();
 	reconnectingAmount = 0;
@@ -1562,25 +1556,15 @@ void CClient::Connecting(bool force)
 // Disconnect
 void CClient::Disconnect()
 {
-	game.state = Game::S_Inactive;
+	if(iNetStatus != NET_DISCONNECTED && cNetEngine) {
+		cNetEngine->SendDisconnect();
 
-	game.resetWorms();
-	network.olxShutdown();
-	cNetEngine->SendDisconnect();
+		// Log leaving the server
+		if (tLXOptions->bLogConvos && convoLogger)
+			convoLogger->leaveServer();
+	}
 
 	iNetStatus = NET_DISCONNECTED;
-
-	if (bDownloadingMap)
-		cHttpDownloader->CancelFileDownload(sMapDownloadName);
-	getUdpFileDownloader()->reset();
-
-
-	// Log leaving the server
-	if (tLXOptions->bLogConvos && convoLogger)
-		convoLogger->leaveServer();
-	
-	if( GetGlobalIRC() )
-		GetGlobalIRC()->setAwayMessage("");
 }
 
 
@@ -2070,6 +2054,8 @@ void CClient::ShutdownLog()
 ///////////////////
 // Shutdown the client
 void CClient::Shutdown() {	
+	Disconnect(); // disconnect if not yet disconnected
+
 	// Projectiles
 	cProjectiles.clear();
 	projPosMap.clear();

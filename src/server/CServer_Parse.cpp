@@ -124,17 +124,14 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			ParseImReady(bs);
 			break;
 
-			// Update packet
 		case C2S_UPDATE:
 			ParseUpdate(bs);
 			break;
 
-			// Death
 		case C2S_DEATH:
 			ParseDeathPacket(bs);
 			break;
 
-			// Chat text
 		case C2S_CHATTEXT:
 			ParseChatText(bs);
 			break;
@@ -147,17 +144,14 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			ParseAFK(bs);
 			break;
 
-			// Update lobby
 		case C2S_UPDATELOBBY:
 			ParseUpdateLobby(bs);
 			break;
 
-			// Disconnect
 		case C2S_DISCONNECT:
 			ParseDisconnect();
 			break;
 
-			// Bonus grabbed
 		case C2S_GRABBONUS:
 			ParseGrabBonus(bs);
 			break;

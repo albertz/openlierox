@@ -360,16 +360,7 @@ CHttpDownloadManager::~CHttpDownloadManager()
 	bBreakThread = true;
 	threadPool->wait(tThread, NULL);
 
-	Lock();
-
-	// Stop the downloads
-	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
-		(*i)->Stop();
-		delete (*i);
-	}
-	iActiveDownloads = 0;
-
-	Unlock();
+	RemoveAllDownloads();
 
 	SDL_DestroyMutex(tMutex);
 }
@@ -422,6 +413,20 @@ void CHttpDownloadManager::RemoveFileDownload(const std::string &filename)
 				break;
 			}
 		}
+
+	Unlock();
+}
+
+void CHttpDownloadManager::RemoveAllDownloads() {
+	Lock();
+
+	// Stop the downloads
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
+		(*i)->Stop();
+		delete (*i);
+	}
+	tDownloads.clear();
+	iActiveDownloads = 0;
 
 	Unlock();
 }

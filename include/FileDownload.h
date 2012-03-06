@@ -159,6 +159,7 @@ public:
 	void						StartFileDownload(const std::string& filename, const std::string& dest_dir);
 	void						CancelFileDownload(const std::string& filename);
 	void						RemoveFileDownload(const std::string& filename);
+	void						RemoveAllDownloads();
 	bool						IsFileDownloaded(const std::string& filename);
 	DownloadError				FileDownloadError(const std::string& filename);
 	int							GetFileProgress(const std::string& filename);

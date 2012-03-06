@@ -36,6 +36,7 @@ public:
 	void WormLeft_Signal(CWorm* w);
 	void WeaponSelections_Signal();
 	void GameStarted_Signal();
+	void ClientConnectionError_Signal(const std::string& msg);
 	void Connecting_Signal(const std::string& addr);
 	void ChatMessage_Signal(CWorm* w, const std::string& message);
 	void PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message);

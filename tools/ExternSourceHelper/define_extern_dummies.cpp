@@ -81,7 +81,6 @@ bool		bRestartGameAfterQuit = false;
 keyboard_t	*kb = NULL;
 void GotoLocalMenu(){};
 void GotoNetMenu(){};
-void QuittoMenu(){};
 void doActionInMainThread(Action* act) {};
 void doVideoFrameInMainThread() {};
 void doSetVideoModeInMainThread() {};

@@ -336,16 +336,6 @@ struct DedIntern {
 			Sig_ClientGameStarted();
 			return;
 		}
-
-
-		// Check if the communication link between us & server is still ok
-		if(cClient->getServerError()) {
-			warnings << "Client connection error: " << cClient->getServerErrorMsg() << endl;
-			Sig_ClientConnectionError(cClient->getServerErrorMsg());
-			cClient->Disconnect();
-			cClient->Shutdown();
-			return;
-		}
 	}
 
 	void Frame_Basic() {
@@ -452,6 +442,7 @@ void DedicatedControl::BackToServerLobby_Signal() { internData->Sig_BackToLobby(
 void DedicatedControl::BackToClientLobby_Signal() { internData->Sig_ClientGotoLobby(); }
 void DedicatedControl::WeaponSelections_Signal() { internData->Sig_WeaponSelections(); }
 void DedicatedControl::GameStarted_Signal() { internData->Sig_GameStarted(); }
+void DedicatedControl::ClientConnectionError_Signal(const std::string &msg) { internData->Sig_ClientConnectionError(msg); }
 void DedicatedControl::Connecting_Signal(const std::string& addr) { internData->Sig_Connecting(addr); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { internData->Sig_NewWorm(w); }
 void DedicatedControl::WormLeft_Signal(CWorm* w) { internData->Sig_WormLeft(w); }

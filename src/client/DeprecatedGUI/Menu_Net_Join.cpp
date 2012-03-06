@@ -660,23 +660,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 
-	// Check if the communication link between us & server is still ok
-	if(cClient->getServerError()) {
-		// Create the buffer
-		DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
-		Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_LOBBY);
-
-		Menu_MessageBox("Communication", cClient->getServerErrorMsg(), LMB_OK);
-
-        cJoinLobby.Shutdown();
-
-		Menu_NetInitialize();
-
-		bJoin_Update = true;
-		return;
-	}
-
-
     // Clear the player list and game settings
     Menu_redrawBufferRect(15, 15,  400, 230);
     Menu_redrawBufferRect(360,15,  280, 200);

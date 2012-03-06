@@ -208,7 +208,6 @@ void    ParseArguments(int argc, char *argv[]);
 int		InitializeLieroX();
 void	ShutdownLieroX();
 void	GameLoopFrame();
-void	QuittoMenu();
 void	GotoLocalMenu();
 void	GotoNetMenu();
 

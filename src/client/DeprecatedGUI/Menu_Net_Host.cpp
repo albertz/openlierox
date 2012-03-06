@@ -1327,13 +1327,10 @@ void Menu_Net_HostLobbyShutdown()
 	// Tell any clients that we're leaving
 	cServer->SendDisconnect();
 
-	// Shutdown server & clients
-	cClient->Disconnect();
-	cClient->Shutdown();
-	cServer->Shutdown();
-
 	// Recover the host type
 	iHostType = 0;
+
+	game.state = Game::S_Inactive;
 }
 
 

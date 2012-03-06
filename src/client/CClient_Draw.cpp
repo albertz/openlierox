@@ -425,35 +425,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// currently both control structure and the drawing itself is in here
 
 
-	// Check for any communication errors
-	if(bServerError) {
-
-		network.olxShutdown();
-		
-		// Stop any file downloads
-		if (bDownloadingMap && cHttpDownloader)
-			cHttpDownloader->CancelFileDownload(sMapDownloadName);
-		getUdpFileDownloader()->reset();
-
-		if(bDedicated) {
-			errors << "servererror: " << strServerErrorMsg << endl;
-		} else {
-			// Show message box, shutdown and quit back to menu
-			DrawImage(DeprecatedGUI::tMenu->bmpBuffer.get(), DeprecatedGUI::tMenu->bmpMainBack_common, 0, 0);
-			DeprecatedGUI::Menu_RedrawMouse(true);
-			EnableSystemMouseCursor(false);
-
-			DeprecatedGUI::Menu_MessageBox("Connection error", strServerErrorMsg, DeprecatedGUI::LMB_OK);
-		}
-
-		GotoNetMenu();
-		
-		if( GetGlobalIRC() )
-			GetGlobalIRC()->setAwayMessage("");
-
-		return;
-	}
-
 	//
 	// check if Players not yet ready
 	//

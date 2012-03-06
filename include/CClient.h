@@ -494,7 +494,7 @@ public:
 	void		DrawChatter(SDL_Surface * bmpDest);
 	void		SetupGameInputs(); // Re-setup inputs for worms, viewports and all game actions
 	
-	CClientNetEngine * getNetEngine() { return cNetEngine; };
+	CClientNetEngine * getNetEngine() { return cNetEngine; }
 	void		setNetEngineFromServerVersion();
 
 	void		Connect(const std::string& address);
@@ -607,15 +607,16 @@ public:
 	bool		getDownloadingError()			{ return bDlError; }
 	void		clearDownloadingError()			{ bDlError = false; }
 	std::string	getDownloadingErrorMessage()	{ return sDlError; }
+	CHttpDownloadManager* getHttpDownloader()	{ return cHttpDownloader; }
 
 	CViewport * getViewports()					{ return cViewports; }
 	bool		isWormVisibleOnAnyViewport(int worm) const; 
 
-	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; };
-	AbsTime		getLastFileRequest()					{ return fLastFileRequest; };
-	void		setLastFileRequest( const AbsTime& _f ) 			{ fLastFileRequest = _f; };
-	AbsTime		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
-	void		setLastFileRequestPacketReceived( const AbsTime& _f ) { fLastFileRequestPacketReceived = _f; };
+	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; }
+	AbsTime		getLastFileRequest()					{ return fLastFileRequest; }
+	void		setLastFileRequest( const AbsTime& _f ) 			{ fLastFileRequest = _f; }
+	AbsTime		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; }
+	void		setLastFileRequestPacketReceived( const AbsTime& _f ) { fLastFileRequestPacketReceived = _f; }
 
 	bool		isGameMenu()			{ return bGameMenu; }
 	bool		isChatTyping()			{ return bChat_Typing; }
