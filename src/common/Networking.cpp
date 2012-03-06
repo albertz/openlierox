@@ -130,13 +130,6 @@ static const NLaddress* getNLaddr(const NetworkAddr& addr) {
 // ------------------------------------------------------------------------
 
 
-#ifndef WIN32
-static void sigpipe_handler(int i) {
-	printf("Warning: got SIGPIPE, ignoring...\n"); // use printf because the Logger might not be safe to use here anymore
-	signal(SIGPIPE, sigpipe_handler);
-}
-#endif
-
 
 /*
  *
@@ -202,8 +195,7 @@ bool InitNetworkSystem() {
 	dnsCache = new ThreadVar<dnsCacheT>();
 
 #ifndef WIN32
-	//sigignore(SIGPIPE);
-	signal(SIGPIPE, sigpipe_handler);
+	sigignore(SIGPIPE);
 #endif
 	
 	nlSystemUseChangeLock.endWriteAccess();
