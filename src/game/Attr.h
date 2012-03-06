@@ -68,7 +68,7 @@ struct AttrDesc {
 		else
 			return dynGetValue(base, this);
 	}
-	void set(BaseObject* base, const ScriptVar_t& v) const;
+	void set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServer = false) const;
 
 	std::string description() const;
 };

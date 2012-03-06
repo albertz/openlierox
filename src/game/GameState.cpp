@@ -226,8 +226,7 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 					v = Game::S_Inactive;
 				}
 			}
-			ScriptVarPtr_t p = attrDesc->getValueScriptPtr(o);
-			p.fromScriptVar(v);
+			attrDesc->set(o, v, true);
 		}
 
 		//notes << "game state update: <" << r.obj.description() << "> " << attrDesc->attrName << " to " << v.toString() << endl;

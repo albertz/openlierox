@@ -24,7 +24,7 @@
 typedef std::map<AttribRef, const AttrDesc*> AttrDescs;
 static StaticVar<AttrDescs> attrDescs;
 
-void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
+void AttrDesc::set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServer) const {
 	assert(isStatic); // not yet implemented otherwise... we would need another dynamic function
 	pushObjAttrUpdate(*base, this);
 	getValueScriptPtr(base).fromScriptVar(v);
