@@ -23,7 +23,6 @@
 #include "ProfileSystem.h"
 #include "Physics.h"
 #include "CGameScript.h"
-#include "Frame.h"
 #include "MathLib.h"
 #include "game/CWorm.h"
 #include "Entity.h"

@@ -30,7 +30,6 @@
 #include "Version.h"
 #include "FileDownload.h"
 #include "DeprecatedGUI/CGuiLayout.h"
-#include "Frame.h"
 #include "CProjectile.h"
 #include "CWpnRest.h"
 #include "Consts.h"

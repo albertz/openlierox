@@ -24,7 +24,6 @@
 #include "CNinjaRope.h"
 #include "CWpnRest.h"
 #include "Options.h" // for control_t
-#include "Frame.h"
 #include "DeprecatedGUI/CBar.h"
 #include "game/CMap.h"
 #include "CGameSkin.h"
@@ -102,6 +101,21 @@ struct wpnslot_t {
 	float		LastFire;
 	bool		Enabled;
 	wpnslot_t() : Weapon(NULL), SlotNum(0), Charge(0), Reloading(false), LastFire(0), Enabled(false) {}
+};
+
+// Worm frame state
+// Created 22/7/02
+// Jason Boettcher
+struct worm_state_t {
+	worm_state_t() {
+		bShoot = bCarve = bMove = bJump = false;
+	}
+
+	// Command byte
+	bool	bShoot;
+	bool	bCarve;
+	bool	bMove;
+	bool	bJump;
 };
 
 
