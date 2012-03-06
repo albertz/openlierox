@@ -404,8 +404,8 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 		return true;
 	}
 	case SVT_STRING: return writeString(var.toString());
-	case SVT_CUSTOM: return var.as<CustomVar>()->toBytestream(this);
-	case SVT_CustomWeakRefToStatic: return var.customVar()->toBytestream(this);
+	case SVT_CUSTOM: return var.as<CustomVar>()->ToBytestream(this);
+	case SVT_CustomWeakRefToStatic: return var.customVar()->ToBytestream(this);
 	case SVT_BASEOBJ:
 	case SVT_CALLBACK:
 	case SVT_DYNAMIC:

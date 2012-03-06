@@ -35,6 +35,7 @@ struct CustomVar : BaseObject {
 	virtual Result toBytestream( CBytestream* bs ) const;
 	virtual Result fromBytestream( CBytestream* bs );
 
+	Result ToBytestream( CBytestream* bs ) const; // includes type-signature
 	static Ref FromBytestream( CBytestream* bs );
 	bool operator!=(const CustomVar& o) const { return !(*this == o); }
 };

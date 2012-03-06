@@ -36,9 +36,14 @@ void CustomVar::fromScriptVar(const ScriptVar_t& v) {
 		fromString(v.toString());
 }
 
-Result CustomVar::toBytestream(CBytestream *bs) const {
+Result CustomVar::ToBytestream( CBytestream* bs ) const {
 	assert( thisRef.classId != ClassId(-1) );
 	bs->writeInt16(thisRef.classId);
+	return toBytestream(bs);
+}
+
+Result CustomVar::toBytestream(CBytestream *bs) const {
+	assert( thisRef.classId != ClassId(-1) );
 
 	std::vector<const AttrDesc*> attribs = getAttrDescs(thisRef.classId, true);
 	foreach(a, attribs) {
