@@ -646,7 +646,7 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				break;
 
 			case S2C_GAMEATTRUPDATE:
-				GameStateUpdates::handleFromBs(bs);
+				GameStateUpdates::handleFromBs(bs, NULL);
 				break;
 
 			default:

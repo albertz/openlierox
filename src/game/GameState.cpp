@@ -14,6 +14,7 @@
 #include "CBytestream.h"
 #include "ClassInfo.h"
 #include "ProfileSystem.h"
+#include "CServerConnection.h"
 
 ScriptVar_t ObjectState::getValue(AttribRef a) const {
 	Attribs::const_iterator it = attribs.find(a);
@@ -62,7 +63,40 @@ static bool attrBelongsToClass(const ClassInfo* classInfo, const AttrDesc* attrD
 	return classInfo->isTypeOf(attrDesc->objTypeId);
 }
 
-void GameStateUpdates::handleFromBs(CBytestream* bs) {
+static bool ownObject(ObjRef o) {
+	// This is very custom right now and need to be made somewhat more general.
+	if(o.classId == LuaID<CWorm>::value) {
+		CWorm* w = game.wormById(o.objId, false);
+		if(!w) return false;
+		return w->getLocal();
+	}
+	if(game.isServer()) return true;
+	return false;
+}
+
+// This only make sense as server.
+static bool ownObject(CServerConnection* source, ObjRef o) {
+	assert(game.isServer());
+	// This is very custom right now and need to be made somewhat more general.
+	if(o.classId == LuaID<CWorm>::value) {
+		return source->OwnsWorm(o.objId);
+	}
+	return false;
+}
+
+void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) {
+	if(game.isServer()) {
+		assert(source != NULL);
+		if(source->isLocalClient()) {
+			// This shouldn't happen. It means sth in our server connection list is messed up.
+			errors << "GameStateUpdates::handleFromBs as server from local client" << endl;
+			bs->SkipAll();
+			return;
+		}
+	}
+	else
+		assert(source == NULL);
+
 	uint16_t creationsNum = bs->readInt16();
 	for(uint16_t i = 0; i < creationsNum; ++i) {
 		ObjRef r;
@@ -140,6 +174,22 @@ void GameStateUpdates::handleFromBs(CBytestream* bs) {
 			return;
 		}
 
+		// see GameStateUpdates::diffFromStateToCurrent for the other side
+		if(attrDesc->serverside) {
+			if(game.isServer()) {
+				errors << "GameStateUpdates::handleFromBs: got serverside attr update as server: " << r.description() << endl;
+				bs->SkipAll();
+				return;
+			}
+		}
+		else { // client-side attr
+			if(game.isServer() && !ownObject(source, r.obj)) {
+				errors << "GameStateUpdates::handleFromBs: got update from not-authorized client " << source->debugName() << ": " << r.description() << endl;
+				bs->SkipAll();
+				return;
+			}
+		}
+
 		ScriptVar_t v;
 		bs->readVar(v);
 
@@ -205,17 +255,6 @@ void GameStateUpdates::reset() {
 	objs.clear();
 	objCreations.clear();
 	objDeletions.clear();
-}
-
-static bool ownObject(ObjRef o) {
-	// This is very custom right now and need to be made somewhat more general.
-	if(o.classId == LuaID<CWorm>::value) {
-		CWorm* w = game.wormById(o.objId, false);
-		if(!w) return false;
-		return w->getLocal();
-	}
-	if(game.isServer()) return true;
-	return false;
 }
 
 void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {

@@ -187,7 +187,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			break;
 		
 		case C2S_GAMEATTRUPDATE:
-			GameStateUpdates::handleFromBs(bs);
+			GameStateUpdates::handleFromBs(bs, cl);
 			break;
 
 		default:

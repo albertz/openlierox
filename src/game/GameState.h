@@ -20,6 +20,7 @@
 
 struct GameState;
 class CBytestream;
+class CServerConnection;
 
 struct AttribState {
 	ScriptVar_t value;
@@ -46,7 +47,7 @@ struct GameStateUpdates {
 
 	operator bool() const;
 	void writeToBs(CBytestream* bs) const;
-	static void handleFromBs(CBytestream* bs);
+	static void handleFromBs(CBytestream* bs, CServerConnection* source);
 	void pushObjAttrUpdate(ObjAttrRef);
 	void pushObjCreation(ObjRef);
 	void pushObjDeletion(ObjRef);
