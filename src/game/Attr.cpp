@@ -26,16 +26,7 @@ static StaticVar<AttrDescs> attrDescs;
 
 void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
 	assert(isStatic); // not yet implemented otherwise... we would need another dynamic function
-	if(base->attrUpdates.empty())
-		pushObjAttrUpdate(*base);
-	AttrExt& ext = getAttrExt(base);
-	if(!ext.updated || base->attrUpdates.empty()) {
-		AttrUpdateInfo info;
-		info.attrDesc = this;
-		info.oldValue = get(base);
-		base->attrUpdates.push_back(info);
-		ext.updated = true;
-	}
+	pushObjAttrUpdate(*base, this);
 	getValueScriptPtr(base).fromScriptVar(v);
 }
 
@@ -160,8 +151,21 @@ std::vector<const AttrDesc*> getAttrDescs(ClassId classId, bool withSuperClasses
 
 static std::vector< WeakRef<BaseObject> > objUpdates;
 
-void pushObjAttrUpdate(BaseObject& obj) {
+static void pushObjAttrUpdate(BaseObject& obj) {
 	objUpdates.push_back(obj.thisRef.obj);
+}
+
+void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
+	if(obj.attrUpdates.empty())
+		pushObjAttrUpdate(obj);
+	AttrExt& ext = attrDesc->getAttrExt(&obj);
+	if(!ext.updated || obj.attrUpdates.empty()) {
+		AttrUpdateInfo info;
+		info.attrDesc = attrDesc;
+		info.oldValue = attrDesc->get(&obj);
+		obj.attrUpdates.push_back(info);
+		ext.updated = true;
+	}
 }
 
 static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {

@@ -127,7 +127,7 @@ struct AttrUpdateInfo {
 	ScriptVar_t oldValue;
 };
 
-void pushObjAttrUpdate(BaseObject& obj);
+void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc);
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
 
 
@@ -149,17 +149,9 @@ struct Attr {
 	const T& get() const { return value; }
 	operator T() const { return get(); }
 	T& write() {
-		if(parent()->attrUpdates.empty())
-			pushObjAttrUpdate(*parent());
-		if(!ext.updated || parent()->attrUpdates.empty()) {
-			assert(&value == attrDesc()->getValuePtr(parent()));
-			assert(&ext == &attrDesc()->getAttrExt(parent()));
-			AttrUpdateInfo info;
-			info.attrDesc = attrDesc();
-			info.oldValue = ScriptVar_t(value);
-			parent()->attrUpdates.push_back(info);
-			ext.updated = true;
-		}
+		assert(&value == attrDesc()->getValuePtr(parent()));
+		assert(&ext == &attrDesc()->getAttrExt(parent()));
+		pushObjAttrUpdate(*parent(), attrDesc());
 		return value;
 	}
 	Attr& operator=(const T& v) {
