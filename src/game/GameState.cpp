@@ -221,9 +221,10 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 				return;
 			}
 			if(attrDesc == game.state.attrDesc()) {
-				if((int)v == Game::S_Quit) {
-					notes << "GameStateUpdates: server quitted OLX, we just go to inactive" << endl;
-					v = Game::S_Inactive;
+				if((int)v < Game::S_Lobby) {
+					notes << "GameStateUpdates: server changed to " << Game::StateAsStr(v) << ", we wait for drop/leaving package" << endl;
+					//v = Game::S_Inactive;
+					continue;
 				}
 			}
 			attrDesc->set(o, v, true);
