@@ -1657,6 +1657,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		}
 		newcl->setGameReady(false);
 
+		if(!newcl->isLocalClient())
 		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
 			(*w)->Prepare();
 		}
