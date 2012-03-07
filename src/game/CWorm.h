@@ -408,7 +408,7 @@ public:
 	void		setColour(Uint8 r, Uint8 g, Uint8 b) { setColour(Color(r,g,b)); }
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
-	bool		getLocal()				{ return bLocal; }
+	bool		getLocal() const			{ return bLocal; }
 
 	bool		isPrepared() const { return bPrepared; }
 
@@ -449,7 +449,7 @@ public:
 	const SmartPointer<profile_t>& getProfile() const;
 	void setProfile(const SmartPointer<profile_t>& p);
 	
-	bool		getAlive()				{ return bAlive; }
+	bool		getAlive() const		{ return bAlive; }
 
 	AbsTime		getTimeofDeath()		{ return fTimeofDeath; }
 
