@@ -364,9 +364,6 @@ void CWorm::Prepare()
 			} while(!uniqueID);
 			
 			m_inputHandler->uniqueID = uniqueID;
-			//savedScores[uniqueID] = player->stats; // TODO: merge this somehow with OLX? savedScores is from gus Server
-			
-			//console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
 			m_inputHandler->assignNetworkRole(true);
 			m_inputHandler->assignWorm(this);
 		}		
