@@ -274,6 +274,7 @@ void CWorm::Prepare()
 	gusSkinVisble = true;
 	bCanRespawnNow = false;
 	bRespawnRequested = false;
+	fTimeofDeath = tLX->currentTime;
 	
 	setTeamkills(0);
 	setSuicides(0);
