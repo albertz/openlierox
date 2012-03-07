@@ -131,6 +131,10 @@ void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc);
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
 
 
+struct CmdLineIntf;
+void dumpObject(const BaseObject* obj, CmdLineIntf* cliOut = NULL);
+
+
 template <typename T, typename AttrDescT>
 struct Attr {
 	typedef T ValueType;

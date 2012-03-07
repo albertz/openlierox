@@ -20,6 +20,7 @@
 #include "Game.h"
 #include "GameState.h"
 #include "CBytestream.h"
+#include "OLXCommand.h"
 
 typedef std::map<AttribRef, const AttrDesc*> AttrDescs;
 static StaticVar<AttrDescs> attrDescs;
@@ -209,5 +210,19 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 	}
 
 	objUpdates.clear();
+}
+
+
+void dumpObject(const BaseObject* obj, CmdLineIntf* cliOut) {
+	assert(obj != NULL);
+	assert(obj->thisRef.classId != ClassId(-1));
+	if(cliOut == NULL) cliOut = &stdoutCLI();
+
+	cliOut->writeMsg(obj->thisRef.description() + " = {");
+	std::vector<const AttrDesc*> attrDescs = getAttrDescs(obj->thisRef.classId, true);
+	foreach(a, attrDescs) {
+		cliOut->writeMsg("  " + (*a)->attrName + ": " + (*a)->get(obj).toString());
+	}
+	cliOut->writeMsg("}");
 }
 
