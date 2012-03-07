@@ -425,6 +425,20 @@ static void updateDetailsList(CListview* l) {
 		for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 			if( cClient->getGameLobby()[f->get()] == f->get()->unsetValue )
 				continue;
+			switch(featureArrayIndex(f->get())) {
+			case FT_Map:
+			case FT_Mod:
+			case FT_GameMode:
+			case FT_Lives:
+			case FT_KillLimit:
+			case FT_TimeLimit:
+			case FT_LoadingTime:
+			case FT_Bonuses:
+				// they are all covered above
+				continue;
+			default: break;
+			}
+
 			i = l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel);
 			l->AddSubitem(LVS_TEXT, f->get()->humanReadableName + ":", (DynDrawIntf*)NULL, NULL); 
 			l->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);
