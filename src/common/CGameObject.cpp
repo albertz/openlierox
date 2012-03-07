@@ -26,6 +26,13 @@ CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) { gusInit
 CGameObject::~CGameObject() { gusShutdown(); }
 
 
+bool CGameObject::canUpdateAttribs(const BaseObject* obj, const AttrDesc* attrDesc) {
+	const CWorm* w = dynamic_cast<const CWorm*>(obj);
+	if(!w) return true; // not yet implemented/handled. pass on to other checks in Attr code
+	if(!w->getAlive()) return game.isServer();
+	return w->getLocal();
+}
+
 bool CGameObject::injure(float damage) {
 	health -= damage;
 

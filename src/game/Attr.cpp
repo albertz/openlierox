@@ -35,6 +35,7 @@ void AttrDesc::set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServ
 
 bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
 	assert(base != NULL);
+	if(authorizedToWriteExtra && !authorizedToWriteExtra(base, this)) return false;
 	if(base->thisRef.objId == ObjId(-1)) return true; // not registered objects can always be written
 	if(game.state <= Game::S_Inactive) return true;
 	if(game.isServer()) return true;

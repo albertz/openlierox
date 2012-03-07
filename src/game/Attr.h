@@ -42,7 +42,7 @@ struct AttrDesc {
 
 	bool serverside;
 	boost::function<void(BaseObject* base, const AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
-	boost::function<void(BaseObject* base, const AttrDesc* attrDesc)> sync;
+	boost::function<bool(const BaseObject* base, const AttrDesc* attrDesc)> authorizedToWriteExtra;
 	
 	AttrDesc()
 	: objTypeId(0), attrType(SVT_INVALID), isStatic(true), attrMemOffset(0), attrExtMemOffset(0), attrId(0),
