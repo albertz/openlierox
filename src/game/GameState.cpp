@@ -15,6 +15,7 @@
 #include "ClassInfo.h"
 #include "ProfileSystem.h"
 #include "CServerConnection.h"
+#include "game/Attr.h"
 
 ScriptVar_t ObjectState::getValue(AttribRef a) const {
 	Attribs::const_iterator it = attribs.find(a);
@@ -205,8 +206,10 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 				bs->SkipAll();
 				return;
 			}
+			// Somewhat hacky right now. We don't really manipulate gameSettings.
 			FeatureIndex fIndex = Settings::getAttrDescs().getIndex(attrDesc);
 			cClient->getGameLobby().overwrite[fIndex] = v;
+			::pushObjAttrUpdate(gameSettings, attrDesc);
 		}
 		else {
 			BaseObject* o = getObjFromRef(r.obj);
