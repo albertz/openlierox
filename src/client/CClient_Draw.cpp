@@ -1216,20 +1216,22 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			x += 2;
 			w -= 4;
 			CWormHumanInputHandler* wInput = dynamic_cast<CWormHumanInputHandler*>(worm->inputHandler());
-			if(wInput == NULL && worm->getLocal()) {
-				DrawRectFill(bmpDest, x, y, x + w, y + h, Color(70,0,0,100));
-				tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
-									  "Waiting for sync ...");
-			} else if(wInput && worm->bCanRespawnNow) {
-				DrawRectFill(bmpDest, x, y, x + w, y + h, Color(0,0,0,100));
-				tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
-									  "Press Jump (" + wInput->getInputJump().getEventName() + ") to respawn");
+			std::string msg;
+			Color col(0,0,0,100);
+			if(!worm->getLocal()) {
+				msg = "Waiting for respawn of remote player ...";
+			} else if(wInput == NULL) {
+				col = Color(70,0,0,100);
+				msg = "Waiting for sync ...";
+			} else if(worm->bCanRespawnNow) {
+				msg = "Press Jump (" + wInput->getInputJump().getEventName() + ") to respawn";
 			}
 			else {
-				DrawRectFill(bmpDest, x, y, x + w, y + h, Color(50,0,0,100));
-				tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
-									  "Waiting for respawn ...");				
+				col = Color(50,0,0,100);
+				msg = "Waiting for respawn ...";
 			}
+			DrawRectFill(bmpDest, x, y, x + w, y + h, col);
+			tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel, msg);
 		}
 	}
 }
