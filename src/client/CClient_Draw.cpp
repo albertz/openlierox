@@ -1216,7 +1216,11 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			x += 2;
 			w -= 4;
 			CWormHumanInputHandler* wInput = dynamic_cast<CWormHumanInputHandler*>(worm->inputHandler());
-			if(wInput && worm->bCanRespawnNow) {
+			if(wInput == NULL && worm->getLocal()) {
+				DrawRectFill(bmpDest, x, y, x + w, y + h, Color(70,0,0,100));
+				tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
+									  "Waiting for sync ...");
+			} else if(wInput && worm->bCanRespawnNow) {
 				DrawRectFill(bmpDest, x, y, x + w, y + h, Color(0,0,0,100));
 				tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
 									  "Press Jump (" + wInput->getInputJump().getEventName() + ") to respawn");
