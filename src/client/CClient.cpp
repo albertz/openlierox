@@ -155,8 +155,6 @@ void CClient::Clear()
 	sSpectatorViewportMsg = "";
 	bWaitingForMap = false;
 	bWaitingForMod = false;
-	bHaveMap = false;
-	bHaveMod = false;
 	permanentText = "";
 }
 
@@ -289,7 +287,10 @@ CClient::CClient() {
 	bDlError = false;
 	sDlError = "";
 	iDlProgress = 0;
-	
+
+	bHaveMap = true;
+	bHaveMod = true;
+
 	Clear();
 }
 
@@ -583,7 +584,6 @@ void CClient::FinishMapDownloads()
 	std::string levelname = CMap::GetLevelName(sMapDownloadName);
 	if (levelname != "")  {
 		if (getGameLobby()[FT_Map].as<LevelInfo>()->path == sMapDownloadName)  {
-			bHaveMap = true;
 			getGameLobby().overwrite[FT_Map] = infoForLevel(sMapDownloadName); // reset to add levelname if possible
 			if (tMapDlCallback)
 				tMapDlCallback();

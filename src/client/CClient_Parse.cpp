@@ -1880,11 +1880,11 @@ static bool onlyUpdateInLobby(CClient* client, FeatureIndex i, const T& update) 
 void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	/*client->getGameLobby()->iMaxPlayers =*/ bs->readByte();
-	const bool recheckMap = onlyUpdateInLobby(client, FT_Map, infoForLevel(bs->readString()));
+	onlyUpdateInLobby(client, FT_Map, infoForLevel(bs->readString()));
 	ModInfo modInfo;
 	modInfo.name = bs->readString();
 	modInfo.path = bs->readString();
-	const bool recheckMod = onlyUpdateInLobby(client, FT_Mod, modInfo);
+	onlyUpdateInLobby(client, FT_Mod, modInfo);
 	client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readByte());
 	client->getGameLobby().overwrite[FT_Lives] = bs->readInt16();
 	client->getGameLobby().overwrite[FT_KillLimit] = bs->readInt16();
@@ -1895,12 +1895,6 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
 	client->getGameLobby().overwrite[FT_ForceRandomWeapons] = false;
 	client->getGameLobby().overwrite[FT_SameWeaponsAsHostWorm] = false;
-	
-	if(recheckMap)
-		client->bHaveMap = infoForLevel(client->getGameLobby()[FT_Map].as<LevelInfo>()->path).valid;
-	
-	if(recheckMod)
-		client->bHaveMod = infoForMod(client->getGameLobby()[FT_Mod].as<ModInfo>()->path).valid;
 
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
 		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {

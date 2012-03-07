@@ -173,19 +173,32 @@ void checkCurrentGameState() {
 }
 
 
-void Game::onSettingsUpdate(BaseObject* /* oPt */, const AttrDesc* attrDesc, ScriptVar_t /* oldValue */) {
+void Game::onSettingsUpdate(BaseObject* settingsObj, const AttrDesc* attrDesc, ScriptVar_t /* oldValue */) {
 	assert(attrDesc->objTypeId == LuaID<Settings>::value);
 	FeatureIndex featureIndex = Settings::getAttrDescs().getIndex(attrDesc);
+	ScriptVar_t curValue = attrDesc->get(settingsObj);
 
 	switch(featureIndex) {
 	case FT_Map:
-	case FT_GameMode:
+		if(cClient)
+			cClient->bHaveMap = infoForLevel(curValue.as<LevelInfo>()->path).valid;
+		break;
 	case FT_Mod:
+		if(cClient)
+			cClient->bHaveMod = infoForMod(curValue.as<ModInfo>()->path).valid;
+		break;
+	default: break; // nop
+	}
+
+	if(featureIndex == FT_Map || featureIndex == FT_Mod || featureIndex == FT_GameMode) {
 		if(game.wasPrepared)
 			// We need a re-init. This will do it.
 			game.cleanupAfterGameloopEnd();
-	default: break; // nop
 	}
+
+	// whenever we need that...
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 }
 
 static void cleanupAfterDisconnect();
@@ -202,6 +215,8 @@ static void stateUpdate_connectingMenu() {
 }
 
 static void stateUpdate_gotoNetState() {
+	gameSettings.pushUpdateHintAll();
+
 	if(bDedicated) return;
 	if(game.isLocalGame()) return;
 
