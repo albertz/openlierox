@@ -462,40 +462,7 @@ Result Game::prepareGameloop() {
 	cClient->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
 	cClient->cProjectiles.clear();
 
-	// Set some info on the worms
-	for_each_iterator(CWorm*, w, game.worms()) {
-		notes << "preparing worm " << w->get()->getID() << ":" << w->get()->getName() << " for battle" << endl;
-
-		w->get()->setLives(((int)cClient->getGameLobby()[FT_Lives] < 0) ? WRM_UNLIM : (int)cClient->getGameLobby()[FT_Lives]);
-		w->get()->setKills(0);
-		w->get()->setDeaths(0);
-		w->get()->setTeamkills(0);
-		w->get()->setDamage(0);
-		w->get()->setHealth(100);
-		w->get()->bWeaponsReady = false;
-
-		// (If this is a local game?), we need to reload the worm graphics
-		// We do this again because we've only just found out what type of game it is
-		// Team games require changing worm colours to match the team colour
-		// Inefficient, but i'm not going to redesign stuff for a simple gametype
-		w->get()->ChangeGraphics(cClient->getGeneralGameType());
-
-		w->get()->Prepare();
-	}
-
-	// Initialize the worms weapon selection menu & other stuff
-	if (!cClient->bWaitingForMod)
-		for_each_iterator(CWorm*, w, game.localWorms()) {
-			// we already prepared all the worms (cRemoteWorms) above
-			if(!w->get()->bWeaponsReady)
-				w->get()->initWeaponSelection();
-		}
-
 	cClient->SetupViewports();
-
-	// The worms are first prepared here in this function and thus the input handlers where not set before.
-	// We have to set the control keys now.
-	cClient->SetupGameInputs();
 
 	//TODO: Move into CTeamDeathMatch | CGameMode
 	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
@@ -508,17 +475,6 @@ Result Game::prepareGameloop() {
 	if(game.isServer()) {
 		notes << "preparing game mode " << game.gameMode()->Name() << endl;
 		game.gameMode()->PrepareGame();
-	}
-
-	if(game.isServer()) {
-		for_each_iterator(CWorm*, w, game.worms())
-			cServer->PrepareWorm(w->get());
-
-		for( int i = 0; i < MAX_CLIENTS; i++ ) {
-			if( !cServer->getClients()[i].isConnected() )
-				continue;
-			cServer->getClients()[i].getNetEngine()->SendWormProperties(true); // if we have changed them in prepare or so
-		}
 
 		// update about all other vars
 		cServer->UpdateGameLobby();
@@ -691,7 +647,62 @@ void Game::frameInner()
 		}
 	}
 
-	if(!state.ext.updated && state >= Game::S_Preparing) {
+	if(state >= Game::S_Preparing && wasPrepared) {
+		bool update = false;
+		bool updateLocal = false;
+
+		// Prepare worms if needed
+		for_each_iterator(CWorm*, w, game.worms()) {
+			if(w->get()->isPrepared()) continue;
+
+			notes << "preparing worm " << w->get()->getID() << ":" << w->get()->getName() << " for battle" << endl;
+
+			w->get()->setLives(((int)cClient->getGameLobby()[FT_Lives] < 0) ? WRM_UNLIM : (int)cClient->getGameLobby()[FT_Lives]);
+			w->get()->setKills(0);
+			w->get()->setDeaths(0);
+			w->get()->setTeamkills(0);
+			w->get()->setDamage(0);
+			w->get()->setHealth(100);
+			w->get()->bWeaponsReady = false;
+
+			// (If this is a local game?), we need to reload the worm graphics
+			// We do this again because we've only just found out what type of game it is
+			// Team games require changing worm colours to match the team colour
+			// Inefficient, but i'm not going to redesign stuff for a simple gametype
+			w->get()->ChangeGraphics(cClient->getGeneralGameType());
+
+			w->get()->Prepare();
+
+			if(w->get()->getLocal()) {
+				updateLocal = true;
+
+				// Initialize the worms weapon selection menu & other stuff
+				if (!cClient->bWaitingForMod)
+					if(!w->get()->bWeaponsReady)
+						w->get()->initWeaponSelection();
+			}
+
+			if(game.isServer()) {
+				cServer->PrepareWorm(w->get());
+
+				for( int i = 0; i < MAX_CLIENTS; i++ ) {
+					if( !cServer->getClients()[i].isConnected() )
+						continue;
+					cServer->getClients()[i].getNetEngine()->SendWormProperties(w->get()); // if we have changed them in prepare or so
+				}
+			}
+
+			update = true;
+		}
+
+		if(update) cClient->UpdateScoreboard();
+		if(updateLocal)
+			// The worms are first prepared here in this function and thus the input handlers where not set before.
+			// We have to set the control keys now.
+			cClient->SetupGameInputs();
+	}
+
+	if(!state.ext.updated && state >= Game::S_Preparing && wasPrepared) {
 		// We have a separate fixed 100FPS for game simulation.
 		// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
 		// we have to set it accordingly.

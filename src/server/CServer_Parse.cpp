@@ -1656,11 +1656,6 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			newcl->getUdpFileDownloader()->allowFileRequest(false);
 		}
 		newcl->setGameReady(false);
-
-		if(!newcl->isLocalClient())
-		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
-			(*w)->Prepare();
-		}
 		
 		if(newcl->getClientVersion() <= OLXBetaVersion(0,57,8))
 			// HINT: this is necessary because of beta8 which doesn't update all its state variables from preparegame
@@ -1697,32 +1692,9 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			if(!cl->getGameReady()) continue;
 			cl->getNetEngine()->SendClientReady(newcl);
 		}
-		
-		/*
-		 // TODO: This should only be needed if gamemode or other stuff changed it to some unexpected value.
-		 // Should we perhaps change it? Or let gamemode (or other code) just take care about this anyway?
-		 // Set some info about the new worms
-		 for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
-		 for(int ii = 0; ii < MAX_CLIENTS; ii++)
-		 cClients[ii].getNetEngine()->SendWormScore( (*w) );
-		 }*/
-		
+
 		m_flagInfo->sendCurrentState(newcl);
 				
-		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
-			PrepareWorm(*w);
-
-			// send other clients non-default worm properties of new worms 
-
-			if(CServerNetEngine::isWormPropertyDefault(*w)) continue;
-			
-			for( int i = 0; i < MAX_CLIENTS; i++ ) {
-				if( newcl == &cClients[i] ) continue;
-				if( cClients[i].getStatus() != NET_CONNECTED ) continue;
-				cClients[i].getNetEngine()->SendWormProperties(*w); // if we have changed them in prepare or so
-			}
-		}
-
 		newcl->getNetEngine()->SendWormProperties(true); // send new client other non-default worm properties
 	}
 	

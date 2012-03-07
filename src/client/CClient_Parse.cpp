@@ -1218,10 +1218,6 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	if(newWorm) {
 		w->setLives(((int32_t)client->getGameLobby()[FT_Lives] < 0) ? (int32_t)WRM_UNLIM : (int32_t)client->getGameLobby()[FT_Lives]);
 		w->setClient(NULL); // Client-sided worms won't have CServerConnection
-		if (client->iNetStatus == NET_PLAYING || game.state >= Game::S_Preparing) {
-			if(game.isClient())
-				w->Prepare();
-		}
 		if( client->getServerVersion() < OLXBetaVersion(0,58,1) &&
 			! w->getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
 			w->setClientVersion(Version());	// LX56 version
