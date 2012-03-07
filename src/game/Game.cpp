@@ -943,17 +943,6 @@ static void cleanupAfterDisconnect() {
 }
 
 
-void SetQuitEngineFlag(const std::string& reason) {
-	if(game.state == Game::S_Inactive)
-		errors << "SetQuitEngineFlag '" << reason << "' in menu" << endl;
-	else if(game.state == Game::S_Connecting)
-		errors << "SetQuitEngineFlag '" << reason << "' in connecting state" << endl;
-	else if(game.state == Game::S_Lobby)
-		errors << "SetQuitEngineFlag '" << reason << "' in lobby" << endl;
-	else
-		game.state = Game::S_Lobby;
-}
-
 
 void Game::onPrepareWorm(CWorm* w) {
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
@@ -1065,6 +1054,17 @@ bool Game::needProxyWormInputHandler() {
 
 bool Game::needToCreateOwnWormInputHandlers() {
 	return isServer() || (cClient->getServerVersion() < OLXBetaVersion(0,59,1));
+}
+
+bool Game::needManualClientSideStateManagement() {
+	if(isServer()) return false;
+	if(state <= Game::S_Inactive) return false;
+	if(!cClient) return true;
+	if(!cClient->getNetEngine()) return true;
+	// Old versions don't sync the objects/attribs, thus also not the game.state.
+	// Thus, in ParsePrepareGame and co, we need to update game.state manually.
+	if(cClient->getServerVersion() < OLXBetaVersion(0,59,10)) return true;
+	return false;
 }
 
 bool Game::isTeamPlay() {

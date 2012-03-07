@@ -365,7 +365,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	if( !isReconnect && GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Server: " + client->getServerName());
 
-	if(game.state == Game::S_Connecting)
+	if(game.state == Game::S_Connecting && game.needManualClientSideStateManagement())
 		game.state = Game::S_Lobby;
 }
 
@@ -737,7 +737,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if (client->iNetStatus == NET_PLAYING && !game.gameOver)  {
 		((game.isClient()) ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
-		game.state = std::max((int32_t)Game::S_Preparing, (int32_t)game.state);
+		if(game.state < Game::S_Preparing && game.needManualClientSideStateManagement())
+			game.state = Game::S_Preparing;
 
 		// The same comment here as above.
 		// TODO: skip to the right position, the packet could be valid
@@ -752,12 +753,14 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(!isReconnect) {
 		game.gameOver = false;
 	}
-	game.state = Game::S_Preparing;
+	if(game.needManualClientSideStateManagement())
+		game.state = Game::S_Preparing;
 	
 	if(/* random */ bs->readInt(1))
 	{
 		hints << "CClientNetEngine::ParsePrepareGame: random map requested, and we do not support these anymore" << endl;
-		game.state = Game::S_Lobby;
+		if(game.needManualClientSideStateManagement())
+			game.state = Game::S_Lobby;
 		return false;
 	}
 
@@ -765,7 +768,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// Invalid packet
 	if (sMapFilename == "")  {
 		hints << "CClientNetEngine::ParsePrepareGame: bad map name (none)" << endl;
-		game.state = Game::S_Lobby;
+		if(game.needManualClientSideStateManagement())
+			game.state = Game::S_Lobby;
 		return false;
 	}
 	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
@@ -801,7 +805,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// Bad packet
 	if (client->getGameLobby()[FT_Mod].as<ModInfo>()->name == "")  {
 		hints << "CClientNetEngine::ParsePrepareGame: invalid mod name (none)" << endl;
-		game.state = Game::S_Lobby;
+		if(game.needManualClientSideStateManagement())
+			game.state = Game::S_Lobby;
 		return false;
 	}
 
@@ -1042,7 +1047,8 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 		return;
 	}
 	notes << endl;
-	game.state = Game::S_Playing;
+	if(game.needManualClientSideStateManagement())
+		game.state = Game::S_Playing;
 	
 	// Already got this
 	if (client->iNetStatus == NET_PLAYING)  {
@@ -2132,8 +2138,8 @@ void CClientNetEngine::ParseDestroyBonus(CBytestream *bs)
 void CClientNetEngine::ParseGotoLobby(CBytestream *)
 {
 	notes << "Client: received gotoLobby signal" << endl;
-	if(game.isClient())
-		GotoJoinLobby();
+	if(game.needManualClientSideStateManagement())
+		game.state = Game::S_Lobby;
 }
 
 

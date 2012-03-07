@@ -35,7 +35,6 @@
 #include "HTTP.h"
 #include "ThreadVar.h"
 
-void GotoJoinLobby();
 
 enum {
 	// Menu sockets

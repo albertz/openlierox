@@ -583,7 +583,6 @@ void Menu_Net_JoinLobbyCreateGui()
 
 ///////////////////
 // Go straight back to the join lobby
-// TODO: please comment the difference between Menu_Net_JoinGotoLobby and GotoJoinLobby
 void Menu_Net_JoinGotoLobby()
 {
     //Menu_redrawBufferRect(0, 0, 640, 480);

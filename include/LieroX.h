@@ -211,8 +211,6 @@ void	GameLoopFrame();
 void	GotoLocalMenu();
 void	GotoNetMenu();
 
-void	SetQuitEngineFlag(const std::string& reason);
-
 // Miscellanous routines
 float	GetFixedRandomNum(uchar index);
 void	ConvertTime(TimeDiff time, int *hours, int *minutes, int *seconds);

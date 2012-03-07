@@ -93,7 +93,6 @@ void* startFunctionData = NULL;
 
 
 
-void SetQuitEngineFlag(const std::string& reason) { }
 #ifndef WIN32
 sigjmp_buf longJumpBuffer;
 #endif

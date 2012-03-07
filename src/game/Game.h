@@ -69,6 +69,7 @@ public:
 	
 	bool needToCreateOwnWormInputHandlers();
 	bool needProxyWormInputHandler();
+	bool needManualClientSideStateManagement();
 	
 	enum State {
 		S_Quit = 0,
