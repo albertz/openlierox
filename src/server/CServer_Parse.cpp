@@ -368,16 +368,16 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 
 	// If the game is already over, ignore this
 	if (game.gameOver)  {
-		notes("GameServer::killWorm: Game is over, ignoring.\n");
+		notes("GameServer::ParseDeathPacket: Game is over, ignoring.\n");
 		return;
 	}
 	// Safety check
 	if (victim < 0 || victim >= MAX_WORMS)  {
-		warnings("GameServer::killWorm: victim ID out of bounds.\n");
+		warnings("GameServer::ParseDeathPacket: victim ID out of bounds.\n");
 		return;
 	}
 	if (killer < 0 || killer >= MAX_WORMS)  {
-		warnings("GameServer::killWorm: killer ID out of bounds.\n");
+		warnings("GameServer::ParseDeathPacket: killer ID out of bounds.\n");
 		return;
 	}
 
