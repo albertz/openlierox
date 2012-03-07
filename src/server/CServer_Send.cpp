@@ -577,18 +577,21 @@ void GameServer::SendGameStateUpdates() {
 	}
 }
 
-void CServerNetEngine::SendWeapons()
+void CServerNetEngine::SendWeapons(CWorm* specificW)
 {
 	if(cl->isLocalClient()) return;
 	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 
 	CBytestream bs;
 	
-	for_each_iterator(CWorm*, w, game.worms()) {
-		if(!w->get()->bWeaponsReady)
-			continue;
-		bs.writeByte(S2C_WORMWEAPONINFO);
-		w->get()->writeWeapons(&bs);
+	for_each_iterator(CWorm*, _w, game.worms()) {
+		CWorm* w = _w->get();
+		if(specificW) w = specificW;
+		if(w->bWeaponsReady) {
+			bs.writeByte(S2C_WORMWEAPONINFO);
+			w->writeWeapons(&bs);
+		}
+		if(specificW) break;
 	}
 	
 	SendPacket(&bs);
@@ -596,13 +599,13 @@ void CServerNetEngine::SendWeapons()
 
 ///////////////////
 // Send weapons to the client, or, if client is NULL, send to all clients
-void GameServer::SendWeapons(CServerConnection* cl)
+void GameServer::SendWeapons(CServerConnection* cl, CWorm* w)
 {
 	if(cl)
-		cl->getNetEngine()->SendWeapons();
+		cl->getNetEngine()->SendWeapons(w);
 	else
 		for(int c = 0; c < MAX_CLIENTS; c++)
-			cClients[c].getNetEngine()->SendWeapons();
+			cClients[c].getNetEngine()->SendWeapons(w);
 }
 
 ///////////////////

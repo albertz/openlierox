@@ -75,7 +75,7 @@ public:
 	void SendClientReady(CServerConnection* receiver); // If Receiver != NULL we're sending to worm connected during game
 	void SendWormsOut(const std::list<byte>& ids);
 	void SendWormDied(CWorm *Worm);
-	void SendWeapons();
+	void SendWeapons(CWorm* w = NULL);
 	void SendSpawnWorm(CWorm *Worm, CVec pos);
 	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
 	virtual void SendTeamScoreUpdate() {}

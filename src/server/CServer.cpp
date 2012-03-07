@@ -404,13 +404,8 @@ void GameServer::PrepareWorm(CWorm* worm) {
 		worm->bWeaponsReady = true;
 	}
 	
-	if(worm->bWeaponsReady) {
-		// TODO: move that out here
-		CBytestream bs;
-		bs.writeByte(S2C_WORMWEAPONINFO);
-		worm->writeWeapons(&bs);
-		SendGlobalPacket(&bs);
-	}
+	if(worm->bWeaponsReady)
+		SendWeapons(NULL, worm);
 	
 	game.gameMode()->PrepareWorm(worm);	
 }

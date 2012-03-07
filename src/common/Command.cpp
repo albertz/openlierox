@@ -2131,11 +2131,7 @@ void Cmd_selectWeapons::exec(CmdLineIntf* caller, const std::vector<std::string>
 	// NOTE: random weapons for host worms (in case bSameWeaponsAsHostWorm) are handled in local client
 	if(!gameSettings[FT_SameWeaponsAsHostWorm] && gameSettings[FT_ForceRandomWeapons]) {
 		w->GetRandomWeapons();
-		// TODO: move that out here
-		CBytestream bs;
-		bs.writeByte(S2C_WORMWEAPONINFO);
-		w->writeWeapons(&bs);
-		cServer->SendGlobalPacket(&bs);		
+		cServer->SendWeapons(NULL, w);
 		return;
 	}
 	
