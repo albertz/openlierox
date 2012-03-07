@@ -260,7 +260,6 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 			pushObjCreation(*o);
 	}
 	foreach(u, game.gameStateUpdates->objs) {
-		if(!u->obj.ownThis()) continue;
 		const AttrDesc* attrDesc = u->attr.getAttrDesc();
 		if(attrDesc->serverside) {
 			if(game.isClient()) continue;
