@@ -46,7 +46,7 @@ void GameServer::SpawnWorm(CWorm *Worm, const std::string& reason, CVec * _pos, 
 	
 	CVec pos;
 
-	notes << "spawn worm " << Worm->getID() << ":" << Worm->getName() << ": " << reason << endl;
+	//notes << "spawn worm " << Worm->getID() << ":" << Worm->getName() << ": " << reason << endl;
 
 	if( _pos )
 		pos = *_pos;
