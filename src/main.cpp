@@ -634,7 +634,8 @@ void GotoLocalMenu()
 	}
 	
 	notes << "GotoLocalMenu" << endl;
-	game.state = Game::S_Inactive;
+	if(game.state > Game::S_Inactive)
+		game.state = Game::S_Inactive;
 }
 
 //////////////////
@@ -642,7 +643,8 @@ void GotoLocalMenu()
 void GotoNetMenu()
 {
 	notes << "GotoNetMenu" << endl;
-	game.state = Game::S_Inactive;
+	if(game.state > Game::S_Inactive)
+		game.state = Game::S_Inactive;
 }
 
 ////////////////////
