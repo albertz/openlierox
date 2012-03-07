@@ -64,18 +64,8 @@ static bool attrBelongsToClass(const ClassInfo* classInfo, const AttrDesc* attrD
 	return classInfo->isTypeOf(attrDesc->objTypeId);
 }
 
-static bool ownObject(ObjRef o) {
-	// This is very custom right now and need to be made somewhat more general.
-	if(o.classId == LuaID<CWorm>::value) {
-		CWorm* w = game.wormById(o.objId, false);
-		if(!w) return false;
-		return w->getLocal();
-	}
-	if(game.isServer()) return true;
-	return false;
-}
-
 // This only make sense as server.
+// See also ObjRef::ownThis
 static bool ownObject(CServerConnection* source, ObjRef o) {
 	assert(game.isServer());
 	// This is very custom right now and need to be made somewhat more general.
@@ -264,18 +254,18 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	reset();
 	foreach(o, game.gameStateUpdates->objCreations) {
 		if(game.isClient()) continue; // none-at-all right now... worm-creation is handled independently atm
-		if(!ownObject(*o)) continue;
+		if(!o->ownThis()) continue;
 		if(!s.haveObject(*o))
 			pushObjCreation(*o);
 	}
 	foreach(u, game.gameStateUpdates->objs) {
-		if(!ownObject(u->obj)) continue;
+		if(!u->obj.ownThis()) continue;
 		const AttrDesc* attrDesc = u->attr.getAttrDesc();
 		if(attrDesc->serverside) {
 			if(game.isClient()) continue;
 		}
 		else { // non serverside attr
-			if(game.isClient() && !ownObject(u->obj)) continue;
+			if(game.isClient() && !u->obj.ownThis()) continue;
 		}
 		ScriptVar_t curValue = u->get();
 		ScriptVar_t stateValue = attrDesc->defaultValue;
@@ -287,7 +277,7 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	}
 	foreach(o, game.gameStateUpdates->objDeletions) {
 		if(game.isClient()) continue; // see obj-creations
-		if(!ownObject(*o)) continue;
+		if(!o->ownThis()) continue;
 		if(s.haveObject(*o))
 			pushObjDeletion(*o);
 	}

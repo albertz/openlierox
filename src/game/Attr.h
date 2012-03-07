@@ -70,6 +70,7 @@ struct AttrDesc {
 	}
 	void set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServer = false) const;
 
+	bool authorizedToWrite(const BaseObject* base) const;
 	std::string description() const;
 };
 
@@ -155,6 +156,13 @@ struct Attr {
 	T& write() {
 		assert(&value == attrDesc()->getValuePtr(parent()));
 		assert(&ext == &attrDesc()->getAttrExt(parent()));
+		if(!attrDesc()->authorizedToWrite(parent())) {
+			// provide some hacky dummy fallback
+			// do it all silently for now because of too much old code
+			static T fallback;
+			fallback = value;
+			return fallback;
+		}
 		pushObjAttrUpdate(*parent(), attrDesc());
 		return value;
 	}

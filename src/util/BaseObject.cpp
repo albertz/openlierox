@@ -9,6 +9,8 @@
 #include "BaseObject.h"
 #include "CBytestream.h"
 #include "game/Attr.h"
+#include "game/Game.h"
+#include "game/CWorm.h"
 
 void ObjRef::writeToBs(CBytestream* bs) const {
 	bs->writeInt16(classId);
@@ -18,6 +20,17 @@ void ObjRef::writeToBs(CBytestream* bs) const {
 void ObjRef::readFromBs(CBytestream* bs) {
 	classId = bs->readInt16();
 	objId = bs->readInt16();
+}
+
+bool ObjRef::ownThis() const {
+	// This is very custom right now and need to be made somewhat more general.
+	if(classId == LuaID<CWorm>::value) {
+		CWorm* w = game.wormById(objId, false);
+		if(!w) return false;
+		return w->getLocal();
+	}
+	if(game.isServer()) return true;
+	return false;
 }
 
 std::string ObjRef::description() const {

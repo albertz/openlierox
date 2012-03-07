@@ -29,6 +29,7 @@ struct ObjRef {
 	ObjRef() : classId(-1), objId(-1) {}
 	void writeToBs(CBytestream* bs) const;
 	void readFromBs(CBytestream* bs);
+	bool ownThis() const;
 	std::string description() const;
 	operator bool() const {
 		return classId != ClassId(-1) && objId != ObjId(-1);

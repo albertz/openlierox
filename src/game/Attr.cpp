@@ -27,8 +27,19 @@ static StaticVar<AttrDescs> attrDescs;
 
 void AttrDesc::set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServer) const {
 	assert(isStatic); // not yet implemented otherwise... we would need another dynamic function
+	if(!authorizedByServer && !authorizedToWrite(base)) return; // silently for now...
 	pushObjAttrUpdate(*base, this);
 	getValueScriptPtr(base).fromScriptVar(v);
+}
+
+bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
+	assert(base != NULL);
+	if(base->thisRef.objId == ObjId(-1)) return true; // not registered objects can always be written
+	if(game.state <= Game::S_Inactive) return true;
+	if(game.isServer()) return true;
+	if(!serverside && base->thisRef.ownThis()) return true;
+	if(this == Game::state_Type::attrDesc()) return true; // small exception
+	return false;
 }
 
 std::string AttrDesc::description() const {
