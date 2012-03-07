@@ -559,18 +559,17 @@ void CWorm::Spawn(CVec position) {
 	if(game.gameScript() && game.gameScript()->gusEngineUsed())
 		// Gusanos will use its own spawning fct
 		return;
-	
-	bAlive = true;
+
+	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
+	health = 100.0f;
 	bSpawnedOnce = true;
 	bCanRespawnNow = false;
 	bRespawnRequested = false;
 	fVisibilityChangeTime = 0;
 	resetAngleAndDir();
 	fMoveSpeedX = 0;
-	health = 100.0f;
 	iMoveDirectionSide = DIR_RIGHT;
 	fLastInputTime = GetPhysicsTime();
-	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	posRecordings.clear(vPos);
 	cNinjaRope.Clear();
@@ -604,6 +603,8 @@ void CWorm::Spawn(CVec position) {
 	}
 
 	cDamageReport.clear();
+
+	bAlive = true;
 }
 
 
