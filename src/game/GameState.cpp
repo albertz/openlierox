@@ -223,8 +223,8 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 			attrDesc->set(o, v, true);
 		}
 
-		if(attrDesc->attrName != "serverFrame")
-			notes << "game state update: <" << r.obj.description() << "> " << attrDesc->attrName << " to " << v.toString() << endl;
+		/*if(attrDesc->attrName != "serverFrame")
+			notes << "game state update: <" << r.obj.description() << "> " << attrDesc->attrName << " to " << v.toString() << endl;*/
 	}
 }
 
@@ -273,8 +273,8 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 			stateValue = s.getValue(*u);
 		if(curValue == stateValue) continue;
 
-		if(attrDesc->attrName != "serverFrame")
-			notes << "send update " << u->description() << ": " << stateValue.toString() << " -> " << curValue.toString() << endl;
+		/*if(attrDesc->attrName != "serverFrame")
+			notes << "send update " << u->description() << ": " << stateValue.toString() << " -> " << curValue.toString() << endl;*/
 
 		pushObjAttrUpdate(*u);
 	}
