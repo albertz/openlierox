@@ -688,7 +688,12 @@ void Game::frameInner()
 
 			w->get()->Prepare();
 
-			if(w->get()->getLocal()) {
+			// needToCreateOwnWormInputHandlers: Since 0.59, player objects
+			// are dynamically synced via Gusanos protocol. CWorm::Prepare
+			// doesn't create the inputHandler in that case and thus we
+			// also cannot setup game inputs and do the weapon selection.
+			// We do that on-the-fly when we get the object.
+			if(w->get()->getLocal() && needToCreateOwnWormInputHandlers()) {
 				updateLocal = true;
 
 				// Initialize the worms weapon selection menu & other stuff
