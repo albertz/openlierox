@@ -44,7 +44,7 @@ protected:
 	ATTR(CGameObject, CVec, vPos, 2, {serverside = false; authorizedToWriteExtra = canUpdateAttribs;})
 	ATTR(CGameObject, CVec, vVelocity, 3, {serverside = false; authorizedToWriteExtra = canUpdateAttribs;})
 
-	ATTR(CGameObject, float, health, 4, {serverside = false; defaultValue = 100.0f; authorizedToWriteExtra = canUpdateAttribs;})
+	ATTR(CGameObject, float, health, 4, {serverside = false; defaultValue = 100.0f;})
 
 public:
 
