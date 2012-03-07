@@ -1218,7 +1218,11 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			CWormHumanInputHandler* wInput = dynamic_cast<CWormHumanInputHandler*>(worm->inputHandler());
 			std::string msg;
 			Color col(0,0,0,100);
-			if(!worm->getLocal()) {
+			if(!worm->bWeaponsReady && worm->getLocal()) {
+				msg = "Waiting for weapon selection ...";
+			} else if(!worm->bWeaponsReady && !worm->getLocal()) {
+				msg = "Waiting for weapon selection of remote player ...";
+			} else if(!worm->getLocal()) {
 				msg = "Waiting for respawn of remote player ...";
 			} else if(wInput == NULL) {
 				col = Color(70,0,0,100);
