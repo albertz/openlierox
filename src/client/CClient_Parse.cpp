@@ -1085,7 +1085,7 @@ void CClientNetEngineBeta9NewNet::ParseGotoLobby(CBytestream *bs)
 	NewNet::EndRound();
 	CClientNetEngine::ParseGotoLobby(bs);
 	CClient * cl = client;
-	delete cl->cNetEngine; // Warning: deletes *this, so "client" var is inaccessible
+	delete cl->cNetEngine; // Warning: deletes *this, so "client" var is inaccessib:le
 	cl->cNetEngine = new CClientNetEngineBeta9(cl);
 }
 

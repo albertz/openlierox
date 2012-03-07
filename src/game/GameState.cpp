@@ -223,7 +223,8 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 			attrDesc->set(o, v, true);
 		}
 
-		//notes << "game state update: <" << r.obj.description() << "> " << attrDesc->attrName << " to " << v.toString() << endl;
+		if(attrDesc->attrName != "serverFrame")
+			notes << "game state update: <" << r.obj.description() << "> " << attrDesc->attrName << " to " << v.toString() << endl;
 	}
 }
 
@@ -271,9 +272,12 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 		ScriptVar_t stateValue = attrDesc->defaultValue;
 		if(s.haveObject(u->obj))
 			stateValue = s.getValue(*u);
-		//notes << "update " << u->description() << ": " << curValue.toString() << " -> " << stateValue.toString() << endl;
-		if(curValue != stateValue)
-			pushObjAttrUpdate(*u);
+		if(curValue == stateValue) continue;
+
+		if(attrDesc->attrName != "serverFrame")
+			notes << "send update " << u->description() << ": " << stateValue.toString() << " -> " << curValue.toString() << endl;
+
+		pushObjAttrUpdate(*u);
 	}
 	foreach(o, game.gameStateUpdates->objDeletions) {
 		if(game.isClient()) continue; // see obj-creations
