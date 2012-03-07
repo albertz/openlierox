@@ -21,6 +21,7 @@
 #include "GameState.h"
 #include "CBytestream.h"
 #include "OLXCommand.h"
+#include "CClient.h"
 
 typedef std::map<AttribRef, const AttrDesc*> AttrDescs;
 static StaticVar<AttrDescs> attrDescs;
@@ -37,6 +38,7 @@ bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
 	if(base->thisRef.objId == ObjId(-1)) return true; // not registered objects can always be written
 	if(game.state <= Game::S_Inactive) return true;
 	if(game.isServer()) return true;
+	if(cClient->getServerVersion() < OLXBetaVersion(0,59,10)) return true; // old protocol, we just manage it manually
 	if(!serverside && base->thisRef.ownThis()) return true;
 	if(this == Game::state_Type::attrDesc()) return true; // small exception
 	return false;
