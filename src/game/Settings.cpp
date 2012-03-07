@@ -14,6 +14,7 @@
 #include "Debug.h"
 #include "gusanos/luaapi/classes.h"
 #include "game/Game.h"
+#include "CClient.h"
 
 Settings gameSettings;
 FeatureSettingsLayer modSettings("Mod properties");
@@ -167,7 +168,10 @@ void Settings::pushUpdateHintAll() {
 
 ScriptVar_t Settings::attrGetValue(const AttrDesc* attrDesc) const {
 	FeatureIndex i = getAttrDescs().getIndex(attrDesc);
-	return (*this)[i];
+	if(game.isServer() || game.state <= Game::S_Inactive)
+		return (*this)[i];
+	else
+		return cClient->getGameLobby()[i];
 }
 
 AttrExt& Settings::attrGetAttrExt(const AttrDesc* attrDesc) {
