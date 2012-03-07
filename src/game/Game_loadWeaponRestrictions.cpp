@@ -14,10 +14,10 @@
 #include "LieroX.h"
 
 Result Game::loadWeaponRestrictions() {
-	notes << "Weapon restriction: " << gameSettings[FT_WeaponRest] << endl;
-
-	if(game.isServer())
+	if(game.isServer()) {
+		notes << "Weapon restriction: " << gameSettings[FT_WeaponRest] << endl;
 		m_wpnRest->loadList(gameSettings[FT_WeaponRest], gameSettings[FT_Mod].as<ModInfo>()->path);
+	}
 
 	if(m_gameMod.get())
 		m_wpnRest->updateList(m_gameMod->GetWeaponList());
