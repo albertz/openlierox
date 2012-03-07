@@ -784,7 +784,7 @@ void Game::frameInner()
 		// Gusanos network
 		network.update();
 
-		if(isClient()) {
+		if(isClient() && state >= Game::S_Lobby) {
 			cClient->SendGameStateUpdates();
 		}
 
