@@ -699,11 +699,7 @@ void CClient::FinishModDownloads()
 				strServerErrorMsg = "Could not load the downloaded mod: " + r.res.humanErrorMsg;
 				return;
 			}
-			bWaitingForMod = false;
-			
-			// Initialize the weapon selection
-			for_each_iterator(CWorm*, w, game.localWorms())
-				w->get()->initWeaponSelection();
+			bWaitingForMod = false;			
 		} else {
 			bServerError = true;
 			strServerErrorMsg = "The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name.get() +")";

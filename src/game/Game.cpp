@@ -662,7 +662,7 @@ void Game::frameInner()
 		}
 	}
 
-	if(state >= Game::S_Preparing && wasPrepared) {
+	if(state >= Game::S_Preparing && wasPrepared && !cClient->bWaitingForMod) {
 		bool update = false;
 		bool updateLocal = false;
 
@@ -692,9 +692,8 @@ void Game::frameInner()
 				updateLocal = true;
 
 				// Initialize the worms weapon selection menu & other stuff
-				if (!cClient->bWaitingForMod)
-					if(!w->get()->bWeaponsReady)
-						w->get()->initWeaponSelection();
+				if(!w->get()->bWeaponsReady)
+					w->get()->initWeaponSelection();
 			}
 
 			if(game.isServer()) {
