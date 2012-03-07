@@ -371,13 +371,22 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 		notes("GameServer::ParseDeathPacket: Game is over, ignoring.\n");
 		return;
 	}
+
+	CWorm* victimW = game.wormById(victim, false);
+	CWorm* killerW = game.wormById(killer, false);
+
 	// Safety check
-	if (victim < 0 || victim >= MAX_WORMS)  {
-		warnings("GameServer::ParseDeathPacket: victim ID out of bounds.\n");
+	if (!victimW)  {
+		warnings << "GameServer::ParseDeathPacket: victim ID " << victim << " invalid." << endl;
 		return;
 	}
-	if (killer < 0 || killer >= MAX_WORMS)  {
-		warnings("GameServer::ParseDeathPacket: killer ID out of bounds.\n");
+	if (!killerW)  {
+		warnings << "GameServer::ParseDeathPacket: killer ID " << killer << " invalid." << endl;
+		return;
+	}
+
+	if(!victimW->getAlive()) {
+		// silently ignore for now. too much legancy code...
 		return;
 	}
 
