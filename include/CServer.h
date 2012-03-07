@@ -149,7 +149,7 @@ public:
 	void		BeginMatch(CServerConnection* cl = NULL); // if NULL, begin match for everybody; or only for cl
 	void		GameOver();
 
-	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL, CServerConnection * client = NULL);
+	void		SpawnWorm(CWorm *Worm, const std::string& reason, CVec * _pos = NULL, CServerConnection * client = NULL);
 	void		SimulateGame();
 	
 	void		SpawnBonus();

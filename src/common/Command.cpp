@@ -1349,7 +1349,7 @@ void Cmd_spawnWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 		havePos = true;
 	}
 	
-	cServer->SpawnWorm(w, havePos ? &pos : NULL);
+	cServer->SpawnWorm(w, "Cmd_spawnWorm", havePos ? &pos : NULL);
 }
 
 COMMAND(setWormName, "Rename a worm", "id name [notify:*true/false]", 2, 3);

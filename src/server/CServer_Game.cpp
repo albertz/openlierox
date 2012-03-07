@@ -35,7 +35,7 @@
 
 ///////////////////
 // Spawn a worm
-void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
+void GameServer::SpawnWorm(CWorm *Worm, const std::string& reason, CVec * _pos, CServerConnection * client)
 {
 	if (game.gameOver || Worm->isSpectating())
 		return;
@@ -45,6 +45,8 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		return;
 	
 	CVec pos;
+
+	notes << "spawn worm " << Worm->getID() << ":" << Worm->getName() << ": " << reason << endl;
 
 	if( _pos )
 		pos = *_pos;
@@ -205,12 +207,14 @@ void GameServer::SimulateGame()
 				// with MaxRespawnTime set, we automatically spawn if that time has been hit
 				if((float)gameSettings[FT_MaxRespawnTime] >= 0.f &&
 				   (tLX->currentTime > w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_MaxRespawnTime]))) {
-					SpawnWorm(w);						
+					SpawnWorm(w, "max respawn-time reached");
 				}
 				else { // MaxRespawnTime disabled or not yet reached
 					// only spawn if the client cannot. otherwise wait for clientside respawn request
-					if(w->bRespawnRequested || !CanWormHandleClientSideRespawn(w))
-						SpawnWorm(w);
+					if(w->bRespawnRequested)
+						SpawnWorm(w, "respawn requested");
+					else if(!CanWormHandleClientSideRespawn(w))
+						SpawnWorm(w, "worm cannot handle respawn-request");
 					else
 						w->bCanRespawnNow = true;
 				}
