@@ -20,7 +20,7 @@ CustomVar* CustomVar::copy() const {
 	assert( classInfo != NULL );
 	BaseObject* obj = classInfo->createInstance();
 	assert( obj != NULL );
-	CustomVar* v = dynamic_cast<BaseObject*>(obj);
+	CustomVar* v = dynamic_cast<CustomVar*>(obj);
 	assert( v != NULL );
 	v->copyFrom(*this);
 	return v;
