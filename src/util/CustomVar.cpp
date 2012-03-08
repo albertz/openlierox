@@ -13,6 +13,47 @@
 #include "game/Attr.h"
 #include "util/macros.h"
 
+CustomVar* CustomVar::copy() const {
+	// this copy() relies on the ClassInfo. otherwise it cannot work. provide your own in this case, it's virtual
+	assert( thisRef.classId != ClassId(-1) );
+	const ClassInfo* classInfo = getClassInfo(thisRef.classId);
+	assert( classInfo != NULL );
+	BaseObject* obj = classInfo->createInstance();
+	assert( obj != NULL );
+	CustomVar* v = dynamic_cast<BaseObject*>(obj);
+	assert( v != NULL );
+	v->copyFrom(*this);
+	return v;
+}
+
+bool CustomVar::operator==(const CustomVar& v) const {
+	if( thisRef.classId != v.thisRef.classId ) return false;
+	assert( thisRef.classId != ClassId(-1) );
+
+	std::vector<const AttrDesc*> attribs = getAttrDescs(thisRef.classId, true);
+	foreach(a, attribs) {
+		ScriptVar_t value = (*a)->get(this);
+		if(value != (*a)->get(&v)) return false;
+	}
+
+	return true;
+}
+
+bool CustomVar::operator<(const CustomVar& v) const {
+	if( thisRef.classId != v.thisRef.classId )
+		return thisRef.classId < v.thisRef.classId;
+	assert( thisRef.classId != ClassId(-1) );
+
+	std::vector<const AttrDesc*> attribs = getAttrDescs(thisRef.classId, true);
+	foreach(a, attribs) {
+		ScriptVar_t value = (*a)->get(this);
+		if(value != (*a)->get(&v))
+			return value < (*a)->get(&v);
+	}
+
+	return true;
+}
+
 void CustomVar::copyFrom(const CustomVar& v) {
 	assert( thisRef.classId != ClassId(-1) );
 	assert( v.thisRef.classId != ClassId(-1) );

@@ -24,11 +24,11 @@ struct CustomVar : BaseObject {
 	typedef ::Ref<CustomVar> Ref;
 	virtual ~CustomVar() {}
 
-	virtual CustomVar* copy() const = 0;
-	virtual bool operator==(const CustomVar&) const = 0;
-	virtual bool operator<(const CustomVar&) const = 0;
+	virtual CustomVar* copy() const;
+	virtual bool operator==(const CustomVar&) const;
+	virtual bool operator<(const CustomVar&) const;
 	virtual std::string toString() const = 0;
-	virtual bool fromString( const std::string & str) = 0;
+	virtual bool fromString(const std::string & str) = 0;
 
 	virtual void copyFrom(const CustomVar&);
 	virtual void fromScriptVar(const ScriptVar_t& v);
