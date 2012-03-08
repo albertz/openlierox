@@ -35,6 +35,7 @@
 #include "util/VecTimeRecorder.h"
 #include "game/Attr.h"
 #include "util/CustomVar.h"
+#include "util/List.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -194,6 +195,7 @@ public:
 	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
 	int			iNumWeaponSlots;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
+	List<wpnslot_t> weaponList;
 
 	ATTR(CWorm, worm_state_t, tState, 22, {serverside = false;})
 
