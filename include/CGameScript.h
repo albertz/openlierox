@@ -143,6 +143,7 @@ public:
 	std::string	getError(int code);
 
 	const weapon_t	*FindWeapon(const std::string& name);
+	int32_t		FindWeaponId(const std::string &name);
     bool        weaponExists(const std::string& szName);
 
 	static bool	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false, ModInfo* info = NULL);

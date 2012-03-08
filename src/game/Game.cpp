@@ -37,6 +37,7 @@
 #include "game/SinglePlayer.h"
 #include "game/SettingsPreset.h"
 #include "CGameScript.h"
+#include "WeaponDesc.h"
 #include "ProfileSystem.h"
 #include "Attr.h"
 #include "gusanos/luaapi/classes.h"
@@ -1213,6 +1214,25 @@ bool Game::allowedToSleepForEvent() {
 		return false;
 
 	return true;
+}
+
+
+
+int32_t Game::getRandomEnabledWpn() {
+	if(gameScript() == NULL) return -1;
+	if(!gameScript()->isLoaded()) return -1;
+
+	std::vector<int32_t> enabledWpns;
+	enabledWpns.reserve(gameScript()->GetNumWeapons());
+
+	for(int i = 0; i < gameScript()->GetNumWeapons(); ++i) {
+		const weapon_t* wpn = gameScript()->GetWeapons() + i;
+		if(!game.weaponRestrictions() || game.weaponRestrictions()->isEnabled( wpn->Name ))
+			enabledWpns.push_back(i);
+	}
+
+	if(enabledWpns.empty()) return -1;
+	return randomChoiceFrom(enabledWpns);
 }
 
 

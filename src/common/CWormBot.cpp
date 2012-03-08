@@ -1458,14 +1458,14 @@ void CWormBotInputHandler::AI_Think()
 	{
 		// search for weapon if we need some
 		int wpnNum = 0;
-		for(int i = 0; i < 5; ++i)
-			if(m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon)
+		for(int i = 0; i < m_worm->iNumWeaponSlots; ++i)
+			if(m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].weapon())
 				wpnNum++;
-		if(wpnNum < 5) {
+		if(wpnNum < m_worm->iNumWeaponSlots) {
 			if(AI_FindBonus(BNS_WEAPON)) {
 				// select disabled weapon (which should be replaced by bonus)
 				for(int i = 0; i < 5; ++i)
-					if(!m_worm->tWeapons[i].Enabled || !m_worm->tWeapons[i].Weapon) {
+					if(!m_worm->tWeapons[i].Enabled || !m_worm->tWeapons[i].weapon()) {
 						m_worm->iCurrentWeapon = i;
 						break;
 					}
@@ -1786,20 +1786,20 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 		return -1;
 
 	// search a good projectile weapon
-    for (short i=0; i<5; i++) {
-    	if(m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
+	for (short i=0; i<m_worm->iNumWeaponSlots; i++) {
+		if(m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE) {
 			// TODO: not really all cases...
-			Proj_ActionType type = m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type;
+			Proj_ActionType type = m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type;
 
 			// Nothing that could fall back onto us
-			if (!canIgnoreSelfHit && m_worm->tWeapons[i].Weapon->Proj.Speed < 100.0f) {
-				if (!m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity || m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity > 30)
+			if (!canIgnoreSelfHit && m_worm->tWeapons[i].weapon()->Proj.Speed < 100.0f) {
+				if (!m_worm->tWeapons[i].weapon()->Proj.Proj->UseCustomGravity || m_worm->tWeapons[i].weapon()->Proj.Proj->Gravity > 30)
 					continue;
 			}
 
 			// Suspicious
 			std::string name;
-			name = m_worm->tWeapons[i].Weapon->Name;
+			name = m_worm->tWeapons[i].weapon()->Name;
 			stringlwr(name);
 			if(strincludes(name,"dirt") || strincludes(name,"napalm") || strincludes(name,"grenade") || strincludes(name,"nuke") || strincludes(name,"mine"))
 				continue;
@@ -1812,8 +1812,8 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 	}
 
 	// accept also beam-weapons as a second choice
-    for (short i=0; i<5; i++)
- 		if(m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+	for (short i=0; i<m_worm->iNumWeaponSlots; i++)
+		if(m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
 			return i;
 
     // No suitable weapons
@@ -1833,7 +1833,7 @@ bool CWormBotInputHandler::weaponCanHit(float gravity, float speed, CVec cTrgPos
 
 	// Get the projectile
 	wpnslot_t* wpnslot = m_worm->getWeapon(m_worm->getCurrentWeapon());
-	const weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
+	const weapon_t* wpn = wpnslot ? wpnslot->weapon() : NULL;
 	proj_t* wpnproj = wpn ? wpn->Proj.Proj : NULL;
 	if(!wpnproj) // no valid weapon
 		return false;
@@ -1986,18 +1986,18 @@ static bool canShootRightNowWithCurWeapon(CWorm* w) {
 	if (!Slot->Enabled)
 		return false;
 	
-	if(!Slot->Weapon)
+	if(!Slot->weapon())
 		return false;
 
-	if(Slot->Weapon->Type == WPN_SPECIAL) {
-		switch(Slot->Weapon->Special) {
+	if(Slot->weapon()->Type == WPN_SPECIAL) {
+		switch(Slot->weapon()->Special) {
 			case SPC_JETPACK: return true;
 			default: return false;
 		}
 	}
 	
 	// Must be a projectile
-	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM)
+	if(Slot->weapon()->Type != WPN_PROJECTILE && Slot->weapon()->Type != WPN_BEAM)
 		return false;
 	
 	return true;
@@ -2130,7 +2130,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	bool bShoot = false;
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
-	const weapon_t *weap = m_worm->getCurWeapon() ? m_worm->getCurWeapon()->Weapon : NULL;
+	const weapon_t *weap = m_worm->getCurWeapon() ? m_worm->getCurWeapon()->weapon() : NULL;
 	if(!weap) return false;
 	if(weap->Proj.Proj)  {
 		switch (weap->Proj.Proj->Hit.Type)  {
@@ -2504,10 +2504,10 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     // Case 1: The target is on the bottom of the level, a perfect spot to lob an indirect weapon
     //
     if(cTrgPos.y > game.gameMap()->GetHeight()-50 && fDistance < 200) {
-		for (int i=0; i<5; i++)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
-				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if (m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_EXPLODE)
+				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE)
+					if (m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type == PJ_EXPLODE)
 						return i;
     }
 
@@ -2524,18 +2524,17 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     //
     if(fDistance < 100 && bDirect) {
         // First try beam
-		int i;
-		for (i=0; i<5; i++)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
-				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
 					return i;
 
 		// If beam not available, try projectile
-		for (i=0; i<5; i++)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
-				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
+				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE)
+					if( m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 					//if (tWeapons[i].Weapon->Proj.Proj->Type == PRJ_PIXEL)
 					return i;
 
@@ -2549,18 +2548,17 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     if(fDistance < 150 && bDirect) {
 
 		// First try beam
-		int i;
-		for (i=0; i<5; i++)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
-				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
 					return i;
 
 		// If beam not available, try projectile
-		for (i=0; i<5; i++)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
-				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
+				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE)
+					if( m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 					/*if (tWeapons[i].Weapon->Proj.Proj->Type == PRJ_PIXEL || tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_BOUNCE)*/
 						return i;
 
@@ -2573,25 +2571,25 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     //
     if(bDirect) {
 		// First try projectile
-		int i;
-		for (i=0; i<5; i++)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
-				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
+				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE)
+					if( m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 						return i;
 
 		// If projectile not available, try beam
-		for (i=0; i<5; i++)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
-				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
 					return i;
 
 		// If everything fails, try some random weapons
-		int num=0;
-		for (i=0; i<5; i++, num=GetRandomInt(4))
-			if (!m_worm->tWeapons[num].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++) {
+			int num = GetRandomInt(m_worm->iNumWeaponSlots-1);
+			if (!m_worm->tWeapons[num].Reloading && m_worm->tWeapons[num].Enabled && m_worm->tWeapons[num].weapon())
 				return num;
+		}
 
 		//return -1;
     }
@@ -2612,9 +2610,9 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
         }
 
 		// try projectile weapons
-		for (int i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-				if (m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_EXPLODE || m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_BOUNCE)
+		for (int i=0; i<m_worm->iNumWeaponSlots; i++)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE)
+				if (m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type == PJ_EXPLODE || m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type == PJ_BOUNCE)
 					return i;
 
     }
@@ -2625,9 +2623,8 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     //
 
     // Shoot a beam (we cant suicide with that)
-	int i;
-	for (i=0; i<5; i++)
-		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+	for (int i=0; i<m_worm->iNumWeaponSlots; i++)
+		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
 			return i;
 
 
@@ -2640,15 +2637,16 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		}*/
 
 	// If everything fails, try some random weapons
-	int num = GetRandomInt(4);
-	for (i=0; i<5; i++, num=GetRandomInt(4))
-		if (!m_worm->tWeapons[num].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon)
+	for (int i=0; i<m_worm->iNumWeaponSlots; i++) {
+		int num = GetRandomInt(m_worm->iNumWeaponSlots-1);
+		if (!m_worm->tWeapons[num].Reloading && m_worm->tWeapons[num].Enabled && m_worm->tWeapons[num].weapon())
 			return num;
+	}
 
 	// If everything fails, try all weapons
-	for (i=0; i<5; i++)
-		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon)
-			return num;
+	for (int i=0; i<m_worm->iNumWeaponSlots; i++)
+		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].weapon())
+			return i;
 
 //	printf("simply everything failed, no luck with that\n");
     return -1;
@@ -2731,7 +2729,7 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 
 	if(!game.gameScript()->gusEngineUsed()) {
 
-		if(!m_worm->getCurWeapon() || !m_worm->getCurWeapon()->Weapon)
+		if(!m_worm->getCurWeapon() || !m_worm->getCurWeapon()->weapon())
 			return 0;
 		
 
@@ -2740,7 +2738,7 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 		//
 
 		// Beam
-		if (m_worm->tWeapons[m_worm->iCurrentWeapon].Weapon->Type == WPN_BEAM)  {
+		if (m_worm->tWeapons[m_worm->iCurrentWeapon].weapon()->Type == WPN_BEAM)  {
 			first_division = 1;
 			divisions = 1;
 		}
@@ -3754,8 +3752,8 @@ find_one_visible_node:
 			fireNinja = true;
 
 			// If there's no dirt around and we have jetpack in our arsenal, lets use it!
-			for (short i=0;i<5;i++) {
-				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon->Recoil < 0 && !m_worm->tWeapons[i].Reloading)  {
+			for (short i=0;i<m_worm->iNumWeaponSlots;i++) {
+				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].weapon()->Recoil < 0 && !m_worm->tWeapons[i].Reloading)  {
 					m_worm->iCurrentWeapon = i;
 					ws->bShoot = AI_SetAim(nodePos);
 					if(ws->bShoot) fireNinja = false;
@@ -3981,12 +3979,12 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 	bool have_flying = false;
 
 	// Check what weapons we have
-	for (int i=0; i < 5; i++)  {
-		if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Proj.Proj)  {
+	for (int i=0; i < m_worm->iNumWeaponSlots; i++)  {
+		if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Proj.Proj)  {
 			// Get the gravity
 			float gravity = 100.0f;  // Default
-			if (m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity)
-				gravity = (float)m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity;
+			if (m_worm->tWeapons[i].weapon()->Proj.Proj->UseCustomGravity)
+				gravity = (float)m_worm->tWeapons[i].weapon()->Proj.Proj->Gravity;
 			gravity *= (float)cClient->getGameLobby()[FT_ProjGravityFactor];
 			
 			// Change the flags according to the gravity
@@ -4166,8 +4164,8 @@ void CWormBotInputHandler::initWeaponSelection() {
 		(cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Classic") != std::string::npos ||
 		 cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Liero v1.0") != std::string::npos ))  {
 		if (game.weaponRestrictions()->isEnabled("Rifle"))  {
-			for (short i=0; i<5; i++)
-				m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon("Rifle");  // set all weapons to Rifle
+			for (short i=0; i<m_worm->iNumWeaponSlots; i++)
+				m_worm->tWeapons[i].WeaponId = game.gameScript()->FindWeaponId("Rifle");  // set all weapons to Rifle
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_RIFLES);
 		}
@@ -4177,13 +4175,13 @@ void CWormBotInputHandler::initWeaponSelection() {
 			  cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Classic") != std::string::npos) &&
 			 (int)cClient->getGameLobby()[FT_LoadingTime] == 100)  {
 		int MyWeaps = game.weaponRestrictions()->isEnabled("Super Shotgun") + game.weaponRestrictions()->isEnabled("Napalm") +  game.weaponRestrictions()->isEnabled("Cannon") + game.weaponRestrictions()->isEnabled("Doomsday") + game.weaponRestrictions()->isEnabled("Chaingun");
-		if (MyWeaps == 5)  {
+		if (MyWeaps == 5 && m_worm->iNumWeaponSlots >= 5)  {
 			// Set our weapons
-			m_worm->tWeapons[0].Weapon = game.gameScript()->FindWeapon("Super Shotgun");
-			m_worm->tWeapons[1].Weapon = game.gameScript()->FindWeapon("Napalm");
-			m_worm->tWeapons[2].Weapon = game.gameScript()->FindWeapon("Cannon");
-			m_worm->tWeapons[3].Weapon = game.gameScript()->FindWeapon("Doomsday");
-			m_worm->tWeapons[4].Weapon = game.gameScript()->FindWeapon("Chaingun");
+			m_worm->tWeapons[0].WeaponId = game.gameScript()->FindWeaponId("Super Shotgun");
+			m_worm->tWeapons[1].WeaponId = game.gameScript()->FindWeaponId("Napalm");
+			m_worm->tWeapons[2].WeaponId = game.gameScript()->FindWeaponId("Cannon");
+			m_worm->tWeapons[3].WeaponId = game.gameScript()->FindWeaponId("Doomsday");
+			m_worm->tWeapons[4].WeaponId = game.gameScript()->FindWeaponId("Chaingun");
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_100LT);
 		}
@@ -4193,8 +4191,8 @@ void CWormBotInputHandler::initWeaponSelection() {
 			  cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Modern Warfare1.0") != std::string::npos) &&
 			 (int)cClient->getGameLobby()[FT_LoadingTime] < 50)  {
 		if (game.weaponRestrictions()->isEnabled("Mortar Launcher"))  {
-			for (short i=0; i<5; i++)
-				m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
+			for (short i=0; i<m_worm->iNumWeaponSlots; i++)
+				m_worm->tWeapons[i].WeaponId = game.gameScript()->FindWeaponId("Mortar Launcher");  // set all weapons to Mortar
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_MORTARS);
 		}
@@ -4206,9 +4204,11 @@ void CWormBotInputHandler::initWeaponSelection() {
 		AI_SetGameType(GAM_OTHER);
 	}
 
-	// Note: Right now, it's as easy as this. But it could be more complicated later and we have to update this then.
-	for(int i = 0; i < 5; ++i)
-		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].Weapon != NULL;
+	for(int i = 0; i < m_worm->iNumWeaponSlots; ++i) {
+		if(m_worm->tWeapons[i].weapon() == NULL)
+			m_worm->tWeapons[i].WeaponId = game.getRandomEnabledWpn();
+		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].weapon() != NULL;
+	}
 	
 	m_worm->bWeaponsReady = true;
 

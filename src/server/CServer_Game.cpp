@@ -390,7 +390,7 @@ void GameServer::WormShoot(CWorm *w)
 	if (!Slot->Enabled)
 		return;
 
-	if(!Slot->Weapon) {
+	if(!Slot->weapon()) {
 		warnings << "WormShoot: trying to shoot with an unitialized weapon!" << endl;
 		return;
 	}
@@ -398,22 +398,22 @@ void GameServer::WormShoot(CWorm *w)
 	// Safe the ROF time (Rate of Fire). That's the pause time after each shot.
 	// In simulateWormWeapon, we decrease this by deltatime and
 	// the next shot is allowed if lastfire<=0.
-	Slot->LastFire = Slot->Weapon->ROF;
+	Slot->LastFire = Slot->weapon()->ROF;
 
 
 	// Must be a projectile or beam.
 	// We send also beam via the shootlist. See CClient::ProcessShot which is calling CClient::ProcessShot_Beam in that case.
-	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM) {
+	if(Slot->weapon()->Type != WPN_PROJECTILE && Slot->weapon()->Type != WPN_BEAM) {
 		// It's not a projectile, so the client is handling this, but we take track of charge to disable weapon if needed.
 		
 		// Drain the Weapon charge
-		Slot->Charge -= Slot->Weapon->Drain / 100;
+		Slot->Charge -= Slot->weapon()->Drain / 100;
 		if(Slot->Charge <= 0) {
 			Slot->Charge = 0;
 			
 			if(gameSettings[FT_DisableWpnsWhenEmpty]) {
 				Slot->Enabled = false;
-				Slot->Weapon = NULL;
+				Slot->WeaponId = -1;
 				SendWeapons(NULL, w);
 			} else
 				Slot->Reloading = true;
@@ -436,7 +436,7 @@ void GameServer::WormShoot(CWorm *w)
 	float speed = 0.0f;
 
 	// only projectile wpns have speed; Beam weapons have no speed
-	if(Slot->Weapon->Type == WPN_PROJECTILE) {
+	if(Slot->weapon()->Type == WPN_PROJECTILE) {
 		// Add the shot to the shooting list
 		CVec vel = w->getVelocity();
 		speed = NormalizeVector( &vel );
@@ -452,7 +452,7 @@ void GameServer::WormShoot(CWorm *w)
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
-		cl->getShootList()->addShoot(Slot->Weapon->ID, time, speed, (int)Angle, w, false);
+		cl->getShootList()->addShoot(Slot->weapon()->ID, time, speed, (int)Angle, w, false);
 	}
 
 	
@@ -463,13 +463,13 @@ void GameServer::WormShoot(CWorm *w)
 	//
 
 	// Drain the Weapon charge
-	Slot->Charge -= Slot->Weapon->Drain / 100;
+	Slot->Charge -= Slot->weapon()->Drain / 100;
 	if(Slot->Charge <= 0) {
 		Slot->Charge = 0;
 		
 		if(gameSettings[FT_DisableWpnsWhenEmpty]) {
 			Slot->Enabled = false;
-			Slot->Weapon = NULL;
+			Slot->WeaponId = -1;
 			SendWeapons(NULL, w);
 		} else
 			Slot->Reloading = true;

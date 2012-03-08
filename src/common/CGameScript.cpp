@@ -1199,6 +1199,12 @@ const weapon_t *CGameScript::FindWeapon(const std::string& name)
 	return NULL;
 }
 
+int32_t CGameScript::FindWeaponId(const std::string &name) {
+	const weapon_t* wpn = FindWeapon(name);
+	if(wpn) return wpn->ID;
+	return -1;
+}
+
 
 ///////////////////
 // Returns true if the weapon is in the game script

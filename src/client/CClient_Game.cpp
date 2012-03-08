@@ -99,7 +99,7 @@ void CClient::Simulation()
 		CWorm* w = _w->get();
 
 		bool wasShootingBefore = w->tState.get().bShoot;
-		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
+		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->weapon() : NULL;
 
 		// Simulate the worm. In case the worm is dead, it (the inputhandler) might do some thinking or
 		// request for respawn or so.
@@ -144,7 +144,7 @@ void CClient::Simulation()
 				cServer->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
 			
 			// handle FinalProj for weapon
-			if(oldWeapon && ((wasShootingBefore && !w->tState.get().bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
+			if(oldWeapon && ((wasShootingBefore && !w->tState.get().bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->weapon())))
 				cServer->WormShootEnd(w, oldWeapon);
 		}
 
@@ -162,8 +162,8 @@ void CClient::Simulation()
 			}
 
 			// If the worm is using a weapon with a laser sight, spawn a laser sight
-			if (w->getCurWeapon()->Weapon)
-				if(w->getCurWeapon()->Weapon->LaserSight && !w->getCurWeapon()->Reloading)
+			if (w->getCurWeapon()->weapon())
+				if(w->getCurWeapon()->weapon()->LaserSight && !w->getCurWeapon()->Reloading)
 					LaserSight(w, w->getAngle());
 			
 			// Show vision cone of seeker worm
@@ -253,8 +253,8 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 
 			// TODO: we should move this stuff to drawing, we may skip it for physics calculation
 			// If the worm is using a weapon with a laser sight, spawn a laser sight
-			if (w->getCurWeapon()->Weapon)
-				if(w->getCurWeapon()->Weapon->LaserSight && !w->getCurWeapon()->Reloading)
+			if (w->getCurWeapon()->weapon())
+				if(w->getCurWeapon()->weapon()->LaserSight && !w->getCurWeapon()->Reloading)
 					LaserSight(w, w->getAngle());
 		}
 	}
@@ -567,7 +567,7 @@ void CClient::PlayerShoot(CWorm *w)
 	if(!Slot->Enabled)
 		return;
 	
-	if(!Slot->Weapon) {
+	if(!Slot->weapon()) {
 		errors << "PlayerShoot: Slot->Weapon not set. Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
 		return;
 	}
@@ -575,16 +575,16 @@ void CClient::PlayerShoot(CWorm *w)
 	// Safe the ROF time (Rate of Fire). That's the pause time after each shot.
 	// In simulateWormWeapon, we decrease this by deltatime and
 	// the next shot is allowed if lastfire<=0.
-	Slot->LastFire = Slot->Weapon->ROF;
+	Slot->LastFire = Slot->weapon()->ROF;
 
 	// Special weapons get processed differently
-	if(Slot->Weapon->Type == WPN_SPECIAL) {
+	if(Slot->weapon()->Type == WPN_SPECIAL) {
 		ShootSpecial(w);
 		return;
 	}
 
 	// Beam weapons get processed differently
-	if(Slot->Weapon->Type == WPN_BEAM) {
+	if(Slot->weapon()->Type == WPN_BEAM) {
 		DrawBeam(w);
 		return;
 	}
@@ -607,22 +607,22 @@ void CClient::ShootSpecial(CWorm *w)
 	TimeDiff dt = tLX->fDeltaTime;
 
 	// Safety
-	if(!Slot->Weapon)
+	if(!Slot->weapon())
 	{
 		errors << "ShootSpecial: Slot->Weapon was not set! Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
 		return;
 	}
 
-	switch(Slot->Weapon->Special) {
+	switch(Slot->weapon()->Special) {
 		case SPC_NONE: break;
 
 		// Jetpack
 		case SPC_JETPACK: {
-			w->velocity().write().y += -50.0f * ((float)Slot->Weapon->tSpecial.Thrust * (float)dt.seconds());
+			w->velocity().write().y += -50.0f * ((float)Slot->weapon()->tSpecial.Thrust * (float)dt.seconds());
 
 			Color blue = Color(80,150,200);
 			CVec s = CVec(15,0) * GetRandomNum();
-			SpawnEntity(ENT_JETPACKSPRAY, 0, w->getPos(), s + CVec(0,1) * (float)Slot->Weapon->tSpecial.Thrust, blue, NULL);
+			SpawnEntity(ENT_JETPACKSPRAY, 0, w->getPos(), s + CVec(0,1) * (float)Slot->weapon()->tSpecial.Thrust, blue, NULL);
 			break;
 		}
 			
@@ -631,7 +631,7 @@ void CClient::ShootSpecial(CWorm *w)
 
 
 	// Drain the Weapon charge
-	Slot->Charge -= Slot->Weapon->Drain / 100;
+	Slot->Charge -= Slot->weapon()->Drain / 100;
 	if(Slot->Charge < 0) {
 		Slot->Charge = 0;
 		Slot->Reloading = true;
@@ -648,7 +648,7 @@ void CClient::DrawBeam(CWorm *w)
 	wpnslot_t *Slot = w->getCurWeapon();
 
 	// Safety
-	if(!Slot->Weapon)
+	if(!Slot->weapon())
 	{
 		errors << "DrawBeam: Slot->Weapon was not set! Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
 		return;
@@ -674,7 +674,7 @@ void CClient::DrawBeam(CWorm *w)
 	std::vector<bool> goodWidthParts;
 	bool drawBeam = false;
 	// Don't draw the beam if it is 255,0,255
-	Color col = Slot->Weapon->Bm.Colour;
+	Color col = Slot->weapon()->Bm.Colour;
 	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 	// If you want to make that better, you would have to give the CViewport to DrawBeam.
 	if(col != tLX->clPink && w->isVisibleForEverybody())
@@ -689,9 +689,9 @@ void CClient::DrawBeam(CWorm *w)
 		worms.push_back(w2->get());
 	}
 	
-	for(int i=0; i<Slot->Weapon->Bm.Length; ++i) {
+	for(int i=0; i<Slot->weapon()->Bm.Length; ++i) {
 		{
-			int newWidth = int(float(Slot->Weapon->Bm.InitWidth) + Slot->Weapon->Bm.WidthIncrease * i);
+			int newWidth = int(float(Slot->weapon()->Bm.InitWidth) + Slot->weapon()->Bm.WidthIncrease * i);
 			newWidth = MIN( newWidth, MIN( game.gameMap()->GetWidth(), game.gameMap()->GetHeight() ) );
 			if(newWidth != width) {
 				goodWidthParts.resize(newWidth);
@@ -715,10 +715,10 @@ void CClient::DrawBeam(CWorm *w)
 
 				if((px & PX_DIRT) || (px & PX_ROCK)) {
 					// Don't draw explosion when damage is -1
-					if (Slot->Weapon->Bm.Damage != -1) {
+					if (Slot->weapon()->Bm.Damage != -1) {
 						if(width <= 2) SpawnEntity(ENT_EXPLOSION, 5, p, CVec(0,0), Color(), NULL);
-						int damage = Slot->Weapon->Bm.Damage;
-						if(Slot->Weapon->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(Slot->Weapon->Bm.Damage); }
+						int damage = Slot->weapon()->Bm.Damage;
+						if(Slot->weapon()->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(Slot->weapon()->Bm.Damage); }
 						int d = game.gameMap()->CarveHole(damage, p, getGameLobby()[FT_InfiniteMap]);
 						w->incrementDirtCount(d);
 					}
@@ -731,7 +731,7 @@ void CClient::DrawBeam(CWorm *w)
 				for(std::list<CWorm*>::iterator w2 = worms.begin(); w2 != worms.end(); ++w2) {					
 					static const float wormsize = 5;
 					if((p - (*w2)->getPos()).GetLength2() < wormsize*wormsize) {
-						if (Slot->Weapon->Bm.Damage != -1)
+						if (Slot->weapon()->Bm.Damage != -1)
 							SpawnEntity(ENT_EXPLOSION, 3, p+CVec(1,1), CVec(0,0), Color(), NULL);
 
 						goodWidthParts[j] = false;
@@ -751,10 +751,10 @@ void CClient::DrawBeam(CWorm *w)
 
 	// Spawn a beam entity
 	if(drawBeam) {
-		if(Slot->Weapon->Bm.InitWidth != 1 || Slot->Weapon->Bm.WidthIncrease != 0) {
+		if(Slot->weapon()->Bm.InitWidth != 1 || Slot->weapon()->Bm.WidthIncrease != 0) {
 			Line startLine;
-			startLine.start = w->getPos() - orth_dir * Slot->Weapon->Bm.InitWidth / 2;
-			startLine.end = w->getPos() + orth_dir * Slot->Weapon->Bm.InitWidth / 2;
+			startLine.start = w->getPos() - orth_dir * Slot->weapon()->Bm.InitWidth / 2;
+			startLine.end = w->getPos() + orth_dir * Slot->weapon()->Bm.InitWidth / 2;
 			Line endLine;
 			endLine.start = pos + orth_dir * width / 2;
 			endLine.end = pos - orth_dir * width / 2;			
@@ -971,7 +971,7 @@ void CClient::DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm 
 	shot.nAngle = nAngle;
 	shot.nRandom = GetRandomInt(255);
 	shot.nSpeed = (int)( fSpeed*100 );
-	shot.nWeapon = pcWorm->getCurWeapon()->Weapon->ID;
+	shot.nWeapon = pcWorm->getCurWeapon()->weapon()->ID;
 	shot.nWormID = pcWorm->getID();
 
 	ProcessShot( &shot, tLX->currentTime );
@@ -991,27 +991,27 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 	if (!Slot->Enabled)
 		return;
 
-	if(!Slot->Weapon) {
+	if(!Slot->weapon()) {
 		errors << "WARNING: trying to shoot with an unitialized weapon!" << endl;
 		return;
 	}
 
-	Slot->LastFire = Slot->Weapon->ROF;
+	Slot->LastFire = Slot->weapon()->ROF;
 
 	// Special weapons get processed differently
-	if(Slot->Weapon->Type == WPN_SPECIAL) {
+	if(Slot->weapon()->Type == WPN_SPECIAL) {
 		ShootSpecial(w);
 		return;
 	}
 
 	// Beam weapons get processed differently
-	if(Slot->Weapon->Type == WPN_BEAM) {
+	if(Slot->weapon()->Type == WPN_BEAM) {
 		DrawBeam(w);
 		return;
 	}
 
 	// Must be a projectile
-	if(Slot->Weapon->Type != WPN_PROJECTILE)
+	if(Slot->weapon()->Type != WPN_PROJECTILE)
 		return;
 
 	shoot_t shot;
@@ -1020,7 +1020,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 	shot.cWormVel = w->getVelocity();
 	shot.fTime = GetPhysicsTime().seconds();
 	shot.nRandom = w->NewNet_random.getInt(255);
-	shot.nWeapon = w->getCurWeapon()->Weapon->ID;
+	shot.nWeapon = w->getCurWeapon()->weapon()->ID;
 	shot.nWormID = w->getID();
 
 
@@ -1039,7 +1039,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 	float speed = 0.0f;
 
 	// only projectile wpns have speed; Beam weapons have no speed
-	if(Slot->Weapon->Type == WPN_PROJECTILE) {
+	if(Slot->weapon()->Type == WPN_PROJECTILE) {
 		// Add the shot to the shooting list
 		CVec vel = w->getVelocity();
 		speed = NormalizeVector( &vel );
@@ -1055,7 +1055,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 	//
 
 	// Drain the Weapon charge
-	Slot->Charge -= Slot->Weapon->Drain / 100;
+	Slot->Charge -= Slot->weapon()->Drain / 100;
 	if(Slot->Charge <= 0) {
 		Slot->Charge = 0;
 		Slot->Reloading = true;

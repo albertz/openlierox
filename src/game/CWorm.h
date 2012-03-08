@@ -95,13 +95,21 @@ class CWpnRest;
 struct weapon_t;
 
 // Weapon slot structure
-struct wpnslot_t {
-	const weapon_t	*Weapon;
-	float		Charge;
-	bool		Reloading;
-	float		LastFire;
-	bool		Enabled;
-	wpnslot_t() : Weapon(NULL), Charge(0), Reloading(false), LastFire(0), Enabled(false) {}
+struct wpnslot_t : CustomVar {
+	ATTR(wpnslot_t, int32_t,	WeaponId,	1, { defaultValue = -1; })
+	ATTR(wpnslot_t, float,		Charge,		2, { defaultValue = 0.f; })
+	ATTR(wpnslot_t, bool,		Reloading,	3, { defaultValue = false; })
+	ATTR(wpnslot_t, float,		LastFire,	4, { defaultValue = 0.f; })
+	ATTR(wpnslot_t, bool,		Enabled,	5, { defaultValue = false; })
+
+	const weapon_t* weapon() const;
+
+	wpnslot_t();
+	void reset();
+
+	virtual CustomVar* copy() const { return new wpnslot_t(*this); }
+	virtual std::string toString() const;
+	virtual bool fromString(const std::string & str);
 };
 
 // Worm frame state

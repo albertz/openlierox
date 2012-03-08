@@ -105,6 +105,40 @@ Result worm_state_t::fromBytestream( CBytestream* bs ) {
 	return true;
 }
 
+wpnslot_t::wpnslot_t() {
+	thisRef.classId = LuaID<wpnslot_t>::value;
+}
+
+void wpnslot_t::reset() {
+	*this = wpnslot_t();
+}
+
+const weapon_t* wpnslot_t::weapon() const {
+	if(!game.gameScript()) return NULL;
+	if(!game.gameScript()->isLoaded()) return NULL;
+	if(WeaponId < 0 || WeaponId >= game.gameScript()->GetNumWeapons()) return NULL;
+	return game.gameScript()->GetWeapons() + WeaponId;
+}
+
+std::string wpnslot_t::toString() const {
+	if(!game.gameScript()) return "<gamescript not loaded>";
+	if(!game.gameScript()->isLoaded()) return "<gamescript not loaded>";
+	const weapon_t* wpn = weapon();
+	if(!wpn) return "<weapon " + to_string(WeaponId) + " invalid>";
+	return wpn->Name;
+}
+
+bool wpnslot_t::fromString(const std::string & str) {
+	if(!game.gameScript()) return false;
+	if(!game.gameScript()->isLoaded()) return false;
+	const weapon_t* wpn = game.gameScript()->FindWeapon(str);
+	if(!wpn) return false;
+	reset();
+	WeaponId = wpn - game.gameScript()->GetWeapons();
+	return false;
+}
+
+
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
 	Mutex mutex;
@@ -186,7 +220,7 @@ CWorm::CWorm() :
 	fLastInputTime = tLX->currentTime;
 
 	for(short i=0; i<MAX_WEAPONSLOTS; i++)
-		tWeapons[i].Weapon = NULL;
+		tWeapons[i].WeaponId = -1;
 
 
 
@@ -288,7 +322,7 @@ void CWorm::Prepare()
 
 	iCurrentWeapon = 0;
 	for(short i=0;i<iNumWeaponSlots;i++) {
-		tWeapons[i].Weapon = NULL;
+		tWeapons[i].WeaponId = -1;
 		tWeapons[i].Enabled = false;
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
@@ -413,7 +447,7 @@ void CWorm::Unprepare() {
 	}
 
 	for(short i=0;i<iNumWeaponSlots;i++) {
-		tWeapons[i].Weapon = NULL;
+		tWeapons[i].WeaponId = -1;
 		tWeapons[i].Enabled = false;
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
@@ -740,11 +774,11 @@ void CWorm::GetRandomWeapons()
 	
 	if(game.gameScript() == NULL || game.gameScript()->GetNumWeapons() <= 0) {
 		errors << "CWorm::GetRandomWeapons: gamescript is not loaded" << endl;
-		for(short i = 0; i < 5; ++i) tWeapons[i].Weapon = NULL; // not sure if needed but just to be sure
+		for(short i = 0; i < iNumWeaponSlots; ++i) tWeapons[i].WeaponId = -1; // not sure if needed but just to be sure
 		return;
 	}
 	
-	for(short i=0; i<5; i++) {
+	for(short i=0; i<iNumWeaponSlots; i++) {
 		int num = MAX(1, GetRandomInt(game.gameScript()->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
 		// Cycle through weapons starting from the random one until we get an enabled weapon
@@ -758,7 +792,7 @@ void CWorm::GetRandomWeapons()
 			// Have we already got this weapon?
 			bool bSelected = false;
 			for(int k=0; k<i; k++) {
-				if(tWeapons[k].Weapon && (game.gameScript()->GetWeapons()+n)->ID == tWeapons[k].Weapon->ID) {
+				if(tWeapons[k].weapon() && (game.gameScript()->GetWeapons()+n)->ID == tWeapons[k].weapon()->ID) {
 					bSelected = true;
 					break;
 				}
@@ -781,11 +815,11 @@ void CWorm::GetRandomWeapons()
 
 		}  // while
 		if(n >= 0 && n < game.gameScript()->GetNumWeapons()) {
-			tWeapons[i].Weapon = game.gameScript()->GetWeapons()+n;
+			tWeapons[i].WeaponId = n;
 			tWeapons[i].Enabled = true;
 		}
 		else {
-			tWeapons[i].Weapon = NULL;
+			tWeapons[i].WeaponId = -1;
 			tWeapons[i].Enabled = false;
 		}
 	}
@@ -829,7 +863,7 @@ bool CWorm::shouldDoOwnWeaponSelection() {
 
 void CWorm::CloneWeaponsFrom(CWorm* w) {
 	for(int i = 0; i < 5; ++i) {
-		tWeapons[i].Weapon = w->getWeapon(i)->Weapon;
+		tWeapons[i].WeaponId = w->getWeapon(i)->WeaponId;
 		tWeapons[i].Enabled = w->getWeapon(i)->Enabled;
 		
 		tWeapons[i].Charge = 1;
@@ -1194,8 +1228,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		if(CWormHumanInputHandler* h = dynamic_cast<CWormHumanInputHandler*>(m_inputHandler))
 			drawWpnName |= h->getInputWeapon().isDown();
 		if(drawWpnName) {
-			if(Slot->Weapon)
-				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
+			if(Slot->weapon())
+				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->weapon()->Name);
 
 			if( tLX->currentTime > fForceWeapon_Time )
 				bForceWeapon_Name = false;
@@ -1354,7 +1388,7 @@ bool CWorm::GiveBonus(CBonus *b)
 
 		// Replace our current weapon
 		if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
-			tWeapons[iCurrentWeapon].Weapon = game.gameScript()->GetWeapons() + b->getWeapon();
+			tWeapons[iCurrentWeapon].WeaponId = b->getWeapon();
 			tWeapons[iCurrentWeapon].Charge = 1;
 			tWeapons[iCurrentWeapon].Reloading = false;
 			tWeapons[iCurrentWeapon].Enabled = true;
@@ -1627,4 +1661,4 @@ void CWorm::setClientVersion(const Version & v) {
 
 REGISTER_CLASS(CWorm, LuaID<CGameObject>::value)
 REGISTER_CLASS(worm_state_t, LuaID<CustomVar>::value)
-
+REGISTER_CLASS(wpnslot_t, LuaID<CustomVar>::value)

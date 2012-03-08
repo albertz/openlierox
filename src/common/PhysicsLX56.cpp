@@ -490,7 +490,7 @@ public:
 
 		wpnslot_t *Slot = worm->getWeapon(worm->getCurrentWeapon());
 
-		if(!Slot->Weapon) return;
+		if(!Slot->weapon()) return;
 
 		// Slot should still do the reloading even without enabled wpn, thus uncommented this check.
 		//if(!Slot->Enabled) return;
@@ -502,7 +502,7 @@ public:
 			if((int)cClient->getGameLobby()[FT_LoadingTime] == 0)
 				Slot->Charge = 1;
 			else
-				Slot->Charge += fabs((float)dt.seconds()) * (Slot->Weapon->Recharge * (1.0f/((int)cClient->getGameLobby()[FT_LoadingTime] * 0.01f)));
+				Slot->Charge += fabs((float)dt.seconds()) * (Slot->weapon()->Recharge * (1.0f/((int)cClient->getGameLobby()[FT_LoadingTime] * 0.01f)));
 
 			if(Slot->Charge >= 1) {
 				Slot->Charge = 1;

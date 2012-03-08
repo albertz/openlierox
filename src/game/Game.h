@@ -150,6 +150,8 @@ public:
 	Result loadWeaponRestrictions();
 	
 	bool		isMapReady() const;	
+	int32_t		getRandomEnabledWpn();
+
 
 	bool allowedToSleepForEvent();
 

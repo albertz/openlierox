@@ -1058,8 +1058,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 		// Weapon
 		wpnslot_t *Slot = worm->getCurWeapon();
-		if(Slot->Weapon) {
-			std::string weapon_name = Slot->Weapon->Name;
+		if(Slot->weapon()) {
+			std::string weapon_name = Slot->weapon()->Name;
 			stripdot(weapon_name, 100);
 			weapon_name += ":";
 			tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);

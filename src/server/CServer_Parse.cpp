@@ -291,11 +291,11 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 			}
 			//notes << "Server:ParseImReady: ";
 			w->readWeapons(bs);
-			for (j = 0; j < 5; j++) {
-				if(w->getWeapon(j)->Weapon)
+			for (j = 0; j < w->iNumWeaponSlots; j++) {
+				if(w->getWeapon(j)->weapon())
 					w->getWeapon(j)->Enabled =
-						game.weaponRestrictions()->isEnabled(w->getWeapon(j)->Weapon->Name) ||
-						game.weaponRestrictions()->isBonus(w->getWeapon(j)->Weapon->Name);
+						game.weaponRestrictions()->isEnabled(w->getWeapon(j)->weapon()->Name) ||
+						game.weaponRestrictions()->isBonus(w->getWeapon(j)->weapon()->Name);
 			}
 			
 		} else { // wrong id -> Skip to get the right position
@@ -328,7 +328,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 		CWorm* w = w_->get();
 
 		bool wasShootingBefore = w->tState.get().bShoot;
-		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
+		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->weapon() : NULL;
 		w->readPacket(bs);
 
 		if(game.state == Game::S_Playing) {
@@ -337,7 +337,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 				server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
 			
 			// handle FinalProj for weapon
-			if(oldWeapon && ((wasShootingBefore && !w->tState.get().bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
+			if(oldWeapon && ((wasShootingBefore && !w->tState.get().bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->weapon())))
 				server->WormShootEnd(w, oldWeapon);
 		}
 	}
@@ -841,21 +841,21 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 
 					if (curwpn >= 0 && curwpn < 5) {
 						wpnslot_t *wpn = w->getWeapon(curwpn);
-						const weapon_t* oldWeapon = wpn->Weapon;
+						const weapon_t* oldWeapon = wpn->weapon();
 						if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
-							wpn->Weapon = game.gameScript()->GetWeapons() + b->getWeapon();
+							wpn->WeaponId = b->getWeapon();
 							wpn->Enabled = true;
 							wpn->Charge = 1;
 							wpn->Reloading = false;
 						}
 						else {
 							notes << "worm " << w->getID() << " selected invalid bonus weapon" << endl;
-							wpn->Weapon = NULL;
+							wpn->WeaponId = -1;
 							wpn->Enabled = false;
 						}
 						
 						// handle worm shoot end if needed
-						if(oldWeapon && wpn->Weapon != oldWeapon && w->tState.get().bShoot)
+						if(oldWeapon && wpn->weapon() != oldWeapon && w->tState.get().bShoot)
 							server->WormShootEnd(w, oldWeapon);
 					}
 				}

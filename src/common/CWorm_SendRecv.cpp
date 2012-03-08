@@ -525,10 +525,10 @@ void CWorm::writeWeapons(CBytestream *bs)
 {
 	bs->writeByte(iID);
 
-	for(ushort i=0; i<5; i++) {
+	for(ushort i=0; i<iNumWeaponSlots; i++) {
 		if(tWeapons[i].Enabled) {
-			if(tWeapons[i].Weapon)
-				bs->writeByte(tWeapons[i].Weapon->ID);
+			if(tWeapons[i].weapon())
+				bs->writeByte(tWeapons[i].weapon()->ID);
 			else {
 				bs->writeByte(255);
 				errors << "tWeapons[" << i << "].Weapon not set" << endl;
@@ -546,27 +546,27 @@ void CWorm::readWeapons(CBytestream *bs)
 {
 	//notes << "weapons for " << iID << ":" << sName << ": ";
 	
-	for(ushort i=0; i<5; i++) {
+	for(ushort i=0; i<iNumWeaponSlots; i++) {
 		//if(i > 0) notes << ", ";
 		int id = bs->readByte();
 
-		tWeapons[i].Weapon = NULL;
+		tWeapons[i].WeaponId = -1;
 		tWeapons[i].Enabled = false;
 
 		if(game.gameScript()) {
 			if(id >= 0 && id < game.gameScript()->GetNumWeapons()) {
-				tWeapons[i].Weapon = game.gameScript()->GetWeapons() + id;
+				tWeapons[i].WeaponId = id;
 				tWeapons[i].Enabled = true;
 				//notes << tWeapons[i].Weapon->Name;
 			}
 			else if(id == 255) { // special case to unset weapon
-				tWeapons[i].Weapon = NULL;
+				tWeapons[i].WeaponId = -1;
 				tWeapons[i].Enabled = false;
 				//notes << "UNSET";
 			}
 			else {
 				warnings << "Error when reading weapons (ID is over num weapons)" << endl;
-				tWeapons[i].Weapon = NULL;
+				tWeapons[i].WeaponId = -1;
 				tWeapons[i].Enabled = false;
 				//notes << id << "?";
 			}
@@ -646,7 +646,7 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	if(!tWeapons[cur].Enabled)
 		return;
 	
-	if(tWeapons[cur].Weapon == NULL) {
+	if(tWeapons[cur].weapon() == NULL) {
 		warnings << "readStatUpdate: Weapon " << int(cur) << " not set" << endl;
 		return;
 	}
@@ -654,7 +654,7 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	iCurrentWeapon = cur;
 
 	// If this is a special weapon, and the charge is processed client side, don't set the charge
-	if( tWeapons[cur].Weapon->Type == WPN_SPECIAL )
+	if( tWeapons[cur].weapon()->Type == WPN_SPECIAL )
 		return;
 
 
