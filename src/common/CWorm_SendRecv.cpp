@@ -582,7 +582,6 @@ void CWorm::readWeapons(CBytestream *bs)
 	for(ushort i=0; i<5; i++) {
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
-		tWeapons[i].SlotNum = i;
 		tWeapons[i].LastFire = 0;
 	}
 	

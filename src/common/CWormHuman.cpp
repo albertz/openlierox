@@ -776,7 +776,6 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	for(short n=0;n<m_worm->iNumWeaponSlots;n++) {
 		m_worm->tWeapons[n].Charge = 1;
 		m_worm->tWeapons[n].Reloading = false;
-		m_worm->tWeapons[n].SlotNum = n;
 		m_worm->tWeapons[n].LastFire = 0;
 	}
 	

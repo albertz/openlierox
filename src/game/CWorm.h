@@ -97,12 +97,11 @@ struct weapon_t;
 // Weapon slot structure
 struct wpnslot_t {
 	const weapon_t	*Weapon;
-	int			SlotNum;
 	float		Charge;
 	bool		Reloading;
 	float		LastFire;
 	bool		Enabled;
-	wpnslot_t() : Weapon(NULL), SlotNum(0), Charge(0), Reloading(false), LastFire(0), Enabled(false) {}
+	wpnslot_t() : Weapon(NULL), Charge(0), Reloading(false), LastFire(0), Enabled(false) {}
 };
 
 // Worm frame state

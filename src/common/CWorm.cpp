@@ -292,7 +292,6 @@ void CWorm::Prepare()
 		tWeapons[i].Enabled = false;
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
-		tWeapons[i].SlotNum = i;
 		tWeapons[i].LastFire = 0;
 	}
 	GetRandomWeapons();
@@ -418,7 +417,6 @@ void CWorm::Unprepare() {
 		tWeapons[i].Enabled = false;
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
-		tWeapons[i].SlotNum = i;
 		tWeapons[i].LastFire = 0;
 	}
 
@@ -586,7 +584,6 @@ void CWorm::Spawn(CVec position) {
 	for(ushort n = 0; n < iNumWeaponSlots; n++) {
 		tWeapons[n].Charge = 1;
 		tWeapons[n].Reloading = false;
-		tWeapons[n].SlotNum = n;
 		tWeapons[n].LastFire = 0;
 	}
 
@@ -837,7 +834,6 @@ void CWorm::CloneWeaponsFrom(CWorm* w) {
 		
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
-		tWeapons[i].SlotNum = i;
 		tWeapons[i].LastFire = 0;
 	}
 }
