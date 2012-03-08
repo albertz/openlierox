@@ -11,18 +11,18 @@ using std::cerr;
 using std::endl;
 
 template<class T>
-struct List
+struct GridObjectList
 {
 	typedef size_t size_type;
 	
-	List()
+	GridObjectList()
 	: firstS(0), firstD(0), count(0)
 	{
 	}
 	
 	struct iterator
 	{
-		friend struct List;
+		friend struct GridObjectList;
 		
 		iterator()
 		: ptr(0)
@@ -85,7 +85,7 @@ struct List
 	
 	struct light_iterator
 	{
-		friend struct List;
+		friend struct GridObjectList;
 		
 		light_iterator()
 		: ptr(0)
@@ -346,7 +346,7 @@ public:
 	
 	static const int layerCount = ColLayerCount * RenderLayerCount;
 	
-	typedef List<CGameObject> ObjectList;
+	typedef GridObjectList<CGameObject> ObjectList;
 	
 	struct Layer
 	{
