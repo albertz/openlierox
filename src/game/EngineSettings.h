@@ -62,7 +62,13 @@ public:
 		OverwriteVarWrapper operator[](Feature* f) { return (*this)[FeatureIndex(f - &featureArray[0])]; }
 	};
 	OverwriteWrapper overwrite;
-	
+
+	ScriptVar_t& write(FeatureIndex i) {
+		assert(game.isClient());
+		return settings[i];
+	}
+	ScriptVar_t& write(Feature* f) { return write(FeatureIndex(f - &featureArray[0])); }
+
 };
 
 #endif

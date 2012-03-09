@@ -13,6 +13,15 @@
 #include "game/Attr.h"
 #include "util/macros.h"
 
+void CustomVar::reset() {
+	assert( thisRef.classId != ClassId(-1) );
+
+	std::vector<const AttrDesc*> attribs = getAttrDescs(thisRef.classId, true);
+	foreach(a, attribs) {
+		(*a)->set(this, (*a)->defaultValue);
+	}
+}
+
 CustomVar* CustomVar::copy() const {
 	// this copy() relies on the ClassInfo. otherwise it cannot work. provide your own in this case, it's virtual
 	assert( thisRef.classId != ClassId(-1) );
@@ -83,24 +92,64 @@ Result CustomVar::ToBytestream( CBytestream* bs ) const {
 	return toBytestream(bs);
 }
 
-Result CustomVar::toBytestream(CBytestream *bs) const {
+Result CustomVar::toBytestream(CBytestream *bs, const CustomVar* diffTo) const {
 	assert( thisRef.classId != ClassId(-1) );
+	if(diffTo)
+		assert( thisRef.classId == diffTo->thisRef.classId );
 
 	std::vector<const AttrDesc*> attribs = getAttrDescs(thisRef.classId, true);
-	foreach(a, attribs) {
-		ScriptVar_t value = (*a)->get(this);
-		if(value == (*a)->defaultValue) continue;
-		bs->writeInt16((*a)->objTypeId);
-		bs->writeInt16((*a)->attrId);
-		bs->writeVar(value);
+
+	size_t numChangesOld = 0;
+	size_t numChangesDefault = 0;
+	if(diffTo) {
+		foreach(a, attribs) {
+			ScriptVar_t value = (*a)->get(this);
+			if(value != (*a)->defaultValue) numChangesDefault++;
+			if(diffTo && value != (*a)->get(diffTo)) numChangesOld++;
+		}
 	}
-	bs->writeInt16(ClassId(-1));
+
+	if(diffTo && numChangesOld < numChangesDefault) {
+		bs->writeInt(CUSTOMVAR_STREAM_DiffToOld, 1);
+		foreach(a, attribs) {
+			ScriptVar_t value = (*a)->get(this);
+			if(value == (*a)->get(diffTo)) continue;
+			bs->writeInt16((*a)->objTypeId);
+			bs->writeInt16((*a)->attrId);
+			bs->writeVar(value);
+		}
+		bs->writeInt16(ClassId(-1));
+	}
+	else {
+		bs->writeInt(CUSTOMVAR_STREAM_DiffToDefault, 1);
+		foreach(a, attribs) {
+			ScriptVar_t value = (*a)->get(this);
+			if(value == (*a)->defaultValue) continue;
+			bs->writeInt16((*a)->objTypeId);
+			bs->writeInt16((*a)->attrId);
+			bs->writeVar(value);
+		}
+		bs->writeInt16(ClassId(-1));
+	}
 
 	return true;
 }
 
 Result CustomVar::fromBytestream(CBytestream *bs) {
 	assert( thisRef.classId != ClassId(-1) );
+
+	{
+		int streamType = bs->readInt(1);
+		switch(streamType) {
+		case CUSTOMVAR_STREAM_DiffToDefault: reset(); break;
+		case CUSTOMVAR_STREAM_DiffToOld: /* nothing to do */ break;
+		default:
+			errors << "CustomVar::fromBytestream: got invalid streamType " << streamType << " for object " << thisRef.description() << endl;
+			// It doesn't really make sense to continue.
+			// This cannot be a bug, the stream is messed up.
+			return "stream messed up. invalid streamtype";
+		}
+	}
 
 	Result r = true;
 	while(true) {

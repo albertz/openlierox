@@ -181,9 +181,6 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 			}
 		}
 
-		ScriptVar_t v;
-		bs->readVar(v);
-
 		// for now, this is somewhat specific to the only types we support
 		if(r.obj.classId == LuaID<Settings>::value) {
 			if(game.isServer()) {
@@ -197,9 +194,9 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 				return;
 			}
 			// Somewhat hacky right now. We don't really manipulate gameSettings.
-			FeatureIndex fIndex = Settings::getAttrDescs().getIndex(attrDesc);
-			cClient->getGameLobby().overwrite[fIndex] = v;
 			::pushObjAttrUpdate(gameSettings, attrDesc);
+			FeatureIndex fIndex = Settings::getAttrDescs().getIndex(attrDesc);
+			bs->readVar(cClient->getGameLobby().write(fIndex));
 		}
 		else {
 			BaseObject* o = getObjFromRef(r.obj);
@@ -213,14 +210,26 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 				bs->SkipAll();
 				return;
 			}
-			if(attrDesc == game.state.attrDesc()) {
-				if((int)v < Game::S_Lobby) {
-					notes << "GameStateUpdates: server changed to " << Game::StateAsStr(v) << ", we wait for drop/leaving package" << endl;
-					//v = Game::S_Inactive;
-					continue;
-				}
+
+			if(attrDesc->attrType == SVT_CustomWeakRefToStatic) {
+				CustomVar* v = (CustomVar*)attrDesc->getValuePtr(o);
+				::pushObjAttrUpdate(*o, attrDesc);
+				ScriptVar_t scriptVarRef(v->thisRef.obj);
+				bs->readVar(scriptVarRef);
 			}
-			attrDesc->set(o, v, true);
+			else {
+				ScriptVar_t v;
+				bs->readVar(v);
+
+				if(attrDesc == game.state.attrDesc()) {
+					if((int)v < Game::S_Lobby) {
+						notes << "GameStateUpdates: server changed to " << Game::StateAsStr(v) << ", we wait for drop/leaving package" << endl;
+						//v = Game::S_Inactive;
+						continue;
+					}
+				}
+				attrDesc->set(o, v, true);
+			}
 		}
 
 		/*if(attrDesc->attrName != "serverFrame")

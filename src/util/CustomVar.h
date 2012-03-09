@@ -18,12 +18,16 @@
 class CBytestream;
 class ScriptVar_t;
 
+#define CUSTOMVAR_STREAM_DiffToDefault 1
+#define CUSTOMVAR_STREAM_DiffToOld 2
+
 // for custom variables types (not just string/bool/int/float)
 // This can be used in the scriptable vars system.
 struct CustomVar : BaseObject {
 	typedef ::Ref<CustomVar> Ref;
 	virtual ~CustomVar() {}
 
+	virtual void reset();
 	virtual CustomVar* copy() const;
 	virtual bool operator==(const CustomVar&) const;
 	virtual bool operator<(const CustomVar&) const;
@@ -32,7 +36,7 @@ struct CustomVar : BaseObject {
 
 	virtual void copyFrom(const CustomVar&);
 	virtual void fromScriptVar(const ScriptVar_t& v);
-	virtual Result toBytestream( CBytestream* bs ) const;
+	virtual Result toBytestream( CBytestream* bs, const CustomVar* diffTo = NULL ) const;
 	virtual Result fromBytestream( CBytestream* bs );
 
 	Result ToBytestream( CBytestream* bs ) const; // includes type-signature

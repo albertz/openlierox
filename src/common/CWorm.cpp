@@ -95,7 +95,7 @@ void worm_state_t::copyFrom(const CustomVar& o) {
 	*this = *os;
 }
 
-Result worm_state_t::toBytestream( CBytestream* bs ) const {
+Result worm_state_t::toBytestream( CBytestream* bs, const CustomVar* diffTo) const {
 	bs->writeInt(asInt(), 1);
 	return true;
 }

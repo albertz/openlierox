@@ -607,10 +607,21 @@ bool CBytestream::readVar(ScriptVar_t& var) {
 	}
 	case SVT_CUSTOM:
 	case SVT_CustomWeakRefToStatic: {
-		CustomVar::Ref custom = CustomVar::FromBytestream(this);
-		if(!custom) return false;
-		var = ScriptVar_t(custom.get());
-		return true;
+		if(var.type == SVT_CustomWeakRefToStatic) {
+			ClassId classId = readInt16();
+			if(classId != var.customVar()->thisRef.classId) {
+				errors << "read var: got invalid classId " << classId << " << for static CustomVar with classId " << var.customVar()->thisRef.classId << endl;
+				return false;
+			}
+			var.customVar()->fromBytestream(this);
+			return true;
+		}
+		else {
+			CustomVar::Ref custom = CustomVar::FromBytestream(this);
+			if(!custom) return false;
+			var = ScriptVar_t(custom.get());
+			return true;
+		}
 	}
 	case SVT_BASEOBJ:
 	case SVT_CALLBACK:

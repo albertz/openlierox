@@ -133,7 +133,7 @@ struct worm_state_t : CustomVar {
 	virtual bool fromString( const std::string & str);
 
 	virtual void copyFrom(const CustomVar&);
-	virtual Result toBytestream( CBytestream* bs ) const;
+	virtual Result toBytestream( CBytestream* bs, const CustomVar* diffTo ) const;
 	virtual Result fromBytestream( CBytestream* bs );
 
 	bool operator!=(const CustomVar& o) const { return !(*this == o); }
