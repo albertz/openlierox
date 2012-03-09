@@ -748,9 +748,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	m_worm->iCurrentWeapon = 0;
 	
 	m_worm->bWeaponsReady = false;
-	
-	m_worm->iNumWeaponSlots = 5;
-	
+		
 	m_worm->clearInput();
 	
 	// Safety

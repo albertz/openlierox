@@ -203,7 +203,7 @@ CWorm::CWorm() :
 	fLastAirJumpTime = 0;
 
 	bWeaponsReady = false;
-	iNumWeaponSlots = 2;
+	iNumWeaponSlots = 5;
 	iCurrentWeapon = 0;
 
 	bGotTarget = false;
