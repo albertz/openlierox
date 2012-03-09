@@ -525,8 +525,12 @@ void CWorm::writeWeapons(CBytestream *bs)
 {
 	bs->writeByte(iID);
 
-	for(ushort i=0; i<iNumWeaponSlots; i++) {
-		if(tWeapons[i].Enabled) {
+	// Old LX just supports 5 weapon slots. This is simply fixed there.
+	// As this function (read/write weapons) is anyway only used for old
+	// LX, this is not so problematic.
+	static const uint OldLXNumWpnSlots = 5;
+	for(ushort i=0; i<OldLXNumWpnSlots; i++) {
+		if(i < tWeapons.size() && tWeapons[i].Enabled) {
 			if(tWeapons[i].weapon())
 				bs->writeByte(tWeapons[i].weapon()->ID);
 			else {
@@ -546,7 +550,10 @@ void CWorm::readWeapons(CBytestream *bs)
 {
 	//notes << "weapons for " << iID << ":" << sName << ": ";
 	
-	for(ushort i=0; i<iNumWeaponSlots; i++) {
+	static const uint OldLXNumWpnSlots = 5;
+	tWeapons.resize(OldLXNumWpnSlots);
+
+	for(ushort i=0; i<tWeapons.size(); i++) {
 		//if(i > 0) notes << ", ";
 		int id = bs->readByte();
 
@@ -579,12 +586,12 @@ void CWorm::readWeapons(CBytestream *bs)
 	//notes << endl;
 
 	// Reset the weapons
-	for(ushort i=0; i<5; i++) {
+	for(size_t i=0; i<tWeapons.size(); i++) {
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
 		tWeapons[i].LastFire = 0;
 	}
-	
+		
 	bWeaponsReady = true;
 }
 

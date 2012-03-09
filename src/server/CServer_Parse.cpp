@@ -257,7 +257,6 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 		return;
 	}
 
-	int i, j;
 	// Note: This isn't a lobby ready
 
 	// Read the worms weapons
@@ -266,7 +265,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 		// It's only a note because <Beta9 clients will do that wrong anyway.
 		notes << "ParseImReady: " << cl->debugName() << " wants to set own weapons but we have serverChoosesWeapons" << endl;		
 	}
-	for (i = 0; i < num; i++) {
+	for (int i = 0; i < num; i++) {
 		if(bs->isPosAtEnd()) {
 			warnings << "ParseImReady: packaged screwed" << endl;
 			break;
@@ -291,7 +290,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 			}
 			//notes << "Server:ParseImReady: ";
 			w->readWeapons(bs);
-			for (j = 0; j < w->iNumWeaponSlots; j++) {
+			for (size_t j = 0; j < w->tWeapons.size(); j++) {
 				if(w->getWeapon(j)->weapon())
 					w->getWeapon(j)->Enabled =
 						game.weaponRestrictions()->isEnabled(w->getWeapon(j)->weapon()->Name) ||

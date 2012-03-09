@@ -231,10 +231,10 @@ void CWormHumanInputHandler::getInput() {
 				m_worm->iCurrentWeapon ++;
 			else
 				m_worm->iCurrentWeapon --;
-			if(m_worm->iCurrentWeapon >= m_worm->iNumWeaponSlots)
-				m_worm->iCurrentWeapon=0;
+			if(m_worm->iCurrentWeapon >= (int)m_worm->tWeapons.size())
+				m_worm->iCurrentWeapon = 0;
 			if(m_worm->iCurrentWeapon < 0)
-				m_worm->iCurrentWeapon=m_worm->iNumWeaponSlots-1;
+				m_worm->iCurrentWeapon = (int)m_worm->tWeapons.size() - 1;
 		}
 	}
 
@@ -291,12 +291,12 @@ void CWormHumanInputHandler::getInput() {
 			// we don't want keyrepeats here, so only count the first down-event
 			int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
 			m_worm->iCurrentWeapon += change;
-			MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+			MOD(m_worm->iCurrentWeapon, m_worm->tWeapons.size());
 
 			// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
 			if (cSelWeapon.isJoystick() && change == 0 && cSelWeapon.isDownOnce())  {
 				m_worm->iCurrentWeapon++;
-				MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+				MOD(m_worm->iCurrentWeapon, m_worm->tWeapons.size());
 			}
 		}
 
@@ -315,7 +315,7 @@ void CWormHumanInputHandler::getInput() {
 	}
 
 	// Safety: clamp the current weapon
-	m_worm->iCurrentWeapon = CLAMP((int)m_worm->iCurrentWeapon, 0, m_worm->iNumWeaponSlots-1);
+	m_worm->iCurrentWeapon = CLAMP((int)m_worm->iCurrentWeapon, 0, (int)m_worm->tWeapons.size()-1);
 
 
 
@@ -459,11 +459,11 @@ NewNet::KeyState_t CWorm::NewNet_GetKeys()
 		// I'll probably remove K_SELWEAP and add K_SELWEAP_1 - K_SELWEAP_5 "buttons"
 		ret.keys[NewNet::K_SELWEAP] = true;
 		int WeaponLeft = iCurrentWeapon + 1;
-		MOD(WeaponLeft, iNumWeaponSlots);
+		MOD(WeaponLeft, tWeapons.size());
 		if( WeaponLeft == oldState.iCurrentWeapon )
 			ret.keys[NewNet::K_LEFT] = true;
 		int WeaponRight = iCurrentWeapon - 1;
-		MOD(WeaponRight, iNumWeaponSlots);
+		MOD(WeaponRight, tWeapons.size());
 		if( WeaponRight == oldState.iCurrentWeapon )
 			ret.keys[NewNet::K_RIGHT] = true;
 	};
@@ -544,11 +544,11 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 		// we don't want keyrepeats here, so only count the first down-event
 		int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
 		iCurrentWeapon += change;
-		MOD(iCurrentWeapon, iNumWeaponSlots);
+		MOD(iCurrentWeapon, tWeapons.size());
 	}
 
 	// Safety: clamp the current weapon
-	iCurrentWeapon = CLAMP((int)iCurrentWeapon, 0, iNumWeaponSlots-1);
+	iCurrentWeapon = CLAMP((int)iCurrentWeapon, 0, (int)tWeapons.size()-1);
 
 	ws->bShoot = keys.keys[NewNet::K_SHOOT];
 
@@ -758,7 +758,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	}
 	
 	// Load previous settings from profile
-	for(short i=0;i<m_worm->iNumWeaponSlots;i++) {
+	for(size_t i=0;i<m_worm->tWeapons.size();i++) {
 		
 		m_worm->tWeapons[i].WeaponId = game.gameScript()->FindWeaponId( m_worm->tProfile->sWeaponSlots[i] );
 		
@@ -771,7 +771,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	}
 	
 	
-	for(short n=0;n<m_worm->iNumWeaponSlots;n++) {
+	for(size_t n=0;n<m_worm->tWeapons.size();n++) {
 		m_worm->tWeapons[n].Charge = 1;
 		m_worm->tWeapons[n].Reloading = false;
 		m_worm->tWeapons[n].LastFire = 0;
@@ -812,7 +812,6 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	
 	int l = 0;
 	int t = 0;
-	short i;
 	int centrex = 320; // TODO: hardcoded screen width here
 	
     if( v ) {
@@ -835,13 +834,13 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	bool bChat_Typing = cClient->isTyping();
 	
 	int y = t + 100;
-	for(i=0;i<m_worm->iNumWeaponSlots;i++) {
+	for(size_t i=0;i<m_worm->tWeapons.size();i++) {
 		
 		std::string slotDesc;
 		if(m_worm->tWeapons[i].weapon()) slotDesc = m_worm->tWeapons[i].weapon()->Name;
 		else slotDesc = "* INVALID WEAPON *";
 		Color col = tLX->clWeaponSelectionActive;		
-		if(m_worm->iCurrentWeapon != i) col = tLX->clWeaponSelectionDefault;
+		if(m_worm->iCurrentWeapon != (int)i) col = tLX->clWeaponSelectionDefault;
 		tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, col,  slotDesc);
 		
 		if (bChat_Typing)  {
@@ -850,7 +849,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 		}
 		
 		// Changing weapon
-		if(m_worm->iCurrentWeapon == i && !bChat_Typing) {
+		if(m_worm->iCurrentWeapon == (int)i && !bChat_Typing) {
 			int change = cRight.wasDown() - cLeft.wasDown();
 			if(cSelWeapon.isDown()) change *= 6; // jump with multiple speed if selWeapon is pressed
 			int id = m_worm->tWeapons[i].weapon() ? m_worm->tWeapons[i].weapon()->ID : 0;
@@ -879,11 +878,11 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 		y += 18;
 	}
 	
-	for(i=0;i<m_worm->iNumWeaponSlots;i++)
+	for(size_t i=0;i<m_worm->tWeapons.size();i++)
 		m_worm->tProfile->sWeaponSlots[i] = m_worm->tWeapons[i].weapon() ? m_worm->tWeapons[i].weapon()->Name : "";
 	
     // Note: The extra weapon weapon is the 'random' button
-    if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots) {
+	if(m_worm->iCurrentWeapon == (int)m_worm->tWeapons.size()) {
 		
 		// Fire on the random button?
 		if((cShoot.isDownOnce()) && !bChat_Typing) {
@@ -893,7 +892,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	
 	
 	// Note: The extra weapon slot is the 'done' button
-	if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots+1) {
+	if(m_worm->iCurrentWeapon == (int)m_worm->tWeapons.size()+1) {
 		
 		// Fire on the done button?
 		// we have to check isUp() here because if we continue while it is still down, we will fire after in the game
@@ -911,14 +910,14 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	
 	
     y+=5;
-	if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots)
+	if(m_worm->iCurrentWeapon == (int)m_worm->tWeapons.size())
 		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionActive, "Random");
 	else
 		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionDefault, "Random");
 	
     y+=18;
 	
-	if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots+1)
+	if(m_worm->iCurrentWeapon == (int)m_worm->tWeapons.size()+1)
 		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionActive, "Done");
 	else
 		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionDefault, "Done");
@@ -941,13 +940,13 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	if(!bChat_Typing) {
 		// move selection up or down
 		if (cDown.isJoystickThrottle() || cUp.isJoystickThrottle())  {
-			m_worm->iCurrentWeapon = (cUp.getJoystickValue() + 32768) * (m_worm->iNumWeaponSlots + 2) / 65536; // We have 7 rows and 65536 throttle states
+			m_worm->iCurrentWeapon = (cUp.getJoystickValue() + 32768) * (m_worm->tWeapons.size() + 2) / 65536; // We have 7 rows and 65536 throttle states
 			
 		} else {
 			int change = cDown.wasDown() - cUp.wasDown();
 			m_worm->iCurrentWeapon += change;
-			m_worm->iCurrentWeapon %= m_worm->iNumWeaponSlots + 2;
-			if(m_worm->iCurrentWeapon < 0) m_worm->iCurrentWeapon += m_worm->iNumWeaponSlots + 2;
+			m_worm->iCurrentWeapon %= m_worm->tWeapons.size() + 2;
+			if(m_worm->iCurrentWeapon < 0) m_worm->iCurrentWeapon += m_worm->tWeapons.size() + 2;
 		}
 	}
 }

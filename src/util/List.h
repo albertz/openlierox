@@ -55,6 +55,9 @@ public:
 	T& write(size_t i) { assert(i < size()); return list[i]; }
 	const T& get(size_t i) const { assert(i < size()); return list[i]; }
 
+	T& operator[](size_t i) { return write(i); }
+	const T& operator[](size_t i) const { return get(i); }
+
 private:
 	ImplType list;
 

@@ -66,8 +66,6 @@ struct profile_t;
 #pragma warning(disable:4355)
 #endif
 
-enum { MAX_WEAPONSLOTS = 10 };
-
 // Direction
 enum DIR_TYPE
 {
@@ -97,7 +95,7 @@ struct weapon_t;
 // Weapon slot structure
 struct wpnslot_t : CustomVar {
 	ATTR(wpnslot_t, int32_t,	WeaponId,	1, { defaultValue = -1; })
-	ATTR(wpnslot_t, float,		Charge,		2, { defaultValue = 0.f; })
+	ATTR(wpnslot_t, float,		Charge,		2, { defaultValue = 1.f; })
 	ATTR(wpnslot_t, bool,		Reloading,	3, { defaultValue = false; })
 	ATTR(wpnslot_t, float,		LastFire,	4, { defaultValue = 0.f; })
 	ATTR(wpnslot_t, bool,		Enabled,	5, { defaultValue = false; })
@@ -200,9 +198,7 @@ public:
 	// Arsenal
 	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;})
 	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
-	int			iNumWeaponSlots;
-	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
-	List<wpnslot_t> weaponList;
+	List<wpnslot_t>	tWeapons;
 
 	ATTR(CWorm, worm_state_t, tState, 22, {serverside = false;})
 

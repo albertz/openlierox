@@ -203,7 +203,7 @@ CWorm::CWorm() :
 	fLastAirJumpTime = 0;
 
 	bWeaponsReady = false;
-	iNumWeaponSlots = 5;
+	tWeapons.resize(5);
 	iCurrentWeapon = 0;
 
 	bGotTarget = false;
@@ -316,13 +316,7 @@ void CWorm::Prepare()
 	setCanAirJump(cClient->getGameLobby()[FT_InstantAirJump]);
 
 	iCurrentWeapon = 0;
-	for(short i=0;i<iNumWeaponSlots;i++) {
-		tWeapons[i].WeaponId = -1;
-		tWeapons[i].Enabled = false;
-		tWeapons[i].Charge = 1;
-		tWeapons[i].Reloading = false;
-		tWeapons[i].LastFire = 0;
-	}
+	tWeapons.reset();
 	GetRandomWeapons();
 	// weapons should be loaded properly in initWeaponSelection
 
@@ -441,13 +435,7 @@ void CWorm::Unprepare() {
 		m_weapons[i] = 0;
 	}
 
-	for(short i=0;i<iNumWeaponSlots;i++) {
-		tWeapons[i].WeaponId = -1;
-		tWeapons[i].Enabled = false;
-		tWeapons[i].Charge = 1;
-		tWeapons[i].Reloading = false;
-		tWeapons[i].LastFire = 0;
-	}
+	tWeapons.reset();
 
 	NetWorm_Shutdown();
 	FreeGraphics();
@@ -607,10 +595,9 @@ void CWorm::Spawn(CVec position) {
 	bForceWeapon_Name = false;
 
 	bOnGround = false;
-	iNumWeaponSlots = 5;
 
 	// Reset the weapons
-	for(ushort n = 0; n < iNumWeaponSlots; n++) {
+	for(ushort n = 0; n < tWeapons.size(); n++) {
 		tWeapons[n].Charge = 1;
 		tWeapons[n].Reloading = false;
 		tWeapons[n].LastFire = 0;
@@ -769,11 +756,12 @@ void CWorm::GetRandomWeapons()
 	
 	if(game.gameScript() == NULL || game.gameScript()->GetNumWeapons() <= 0) {
 		errors << "CWorm::GetRandomWeapons: gamescript is not loaded" << endl;
-		for(short i = 0; i < iNumWeaponSlots; ++i) tWeapons[i].WeaponId = -1; // not sure if needed but just to be sure
+		for(size_t i = 0; i < tWeapons.size(); ++i)
+			tWeapons[i].WeaponId = -1; // not sure if needed but just to be sure
 		return;
 	}
 	
-	for(short i=0; i<iNumWeaponSlots; i++) {
+	for(size_t i=0; i<tWeapons.size(); i++) {
 		int num = MAX(1, GetRandomInt(game.gameScript()->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
 		// Cycle through weapons starting from the random one until we get an enabled weapon
@@ -786,7 +774,7 @@ void CWorm::GetRandomWeapons()
 
 			// Have we already got this weapon?
 			bool bSelected = false;
-			for(int k=0; k<i; k++) {
+			for(size_t k=0; k<i; k++) {
 				if(tWeapons[k].weapon() && (game.gameScript()->GetWeapons()+n)->ID == tWeapons[k].weapon()->ID) {
 					bSelected = true;
 					break;
@@ -1622,7 +1610,7 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	
 	COPY( NewNet_random );
 	
-	COPY( weaponList );
+	COPY( tWeapons );
 
 	#undef COPY
 };
