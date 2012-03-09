@@ -44,4 +44,10 @@ struct CustomVar : BaseObject {
 	bool operator!=(const CustomVar& o) const { return !(*this == o); }
 };
 
+struct NullCustomVar : CustomVar {
+	virtual CustomVar* copy() const { return new NullCustomVar(); }
+	virtual std::string toString() const { return "NullCustomVar"; }
+	virtual bool fromString(const std::string & str) { return false; }
+};
+
 #endif

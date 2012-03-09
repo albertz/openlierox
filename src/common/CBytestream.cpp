@@ -415,7 +415,6 @@ bool CBytestream::writeVar(const ScriptVar_t& var, const CustomVar* diffToOld) {
 	case SVT_CUSTOM:
 	case SVT_CustomWeakRefToStatic:
 		return var.customVar()->ToBytestream(this, diffToOld);
-	case SVT_BASEOBJ:
 	case SVT_CALLBACK:
 	case SVT_DYNAMIC:
 		assert(false); // should not happen
@@ -632,7 +631,6 @@ bool CBytestream::readVar(ScriptVar_t& var) {
 			return true;
 		}
 	}
-	case SVT_BASEOBJ:
 	case SVT_CALLBACK:
 	case SVT_DYNAMIC:
 		errors << "read var has not-supported type " << (int)type << endl;
