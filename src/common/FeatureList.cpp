@@ -225,7 +225,7 @@ static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature), featureArray
 
 
 Feature* featureByName(const std::string& name) {
-	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, ArrayRef(featureArray,featureArrayLen()) ) {
 		if( stringcaseequal(f->get()->name, name) )
 			return f->get();
 	}

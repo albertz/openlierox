@@ -422,7 +422,7 @@ static void updateDetailsList(CListview* l) {
 		for( int rm = index; rm < numItems; rm++ )
 			l->RemoveItem(rm);
 		
-		for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		for_each_iterator( Feature*, f, ArrayRef(featureArray,featureArrayLen()) ) {
 			if( cClient->getGameLobby()[f->get()] == f->get()->unsetValue )
 				continue;
 			switch(featureArrayIndex(f->get())) {

@@ -560,7 +560,7 @@ GameModeIndex GetGameModeIndex(CGameMode* gameMode, GameModeIndex fallback) {
 
 
 Iterator<CGameMode*>::Ref GameModeIterator() {
-	return GetConstIterator(Array(gameModes, gameModesSize));
+	return GetConstIterator(ArrayRef(gameModes, gameModesSize));
 }
 
 std::string guessGeneralGameTypeName(int iGeneralGameType)

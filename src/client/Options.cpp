@@ -253,13 +253,13 @@ bool GameOptions::Init() {
 	( tLXOptions->iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 120, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons, ALT_VeryAdvanced, true, 10, 500 )
 	;
 	
-	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, ArrayRef(featureArray,featureArrayLen()) ) {
 		CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( &gameSettings.wrappers[featureArrayIndex(f->get())], f->get()->name, f->get()->defaultValue, 
 			f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->unsignedValue, f->get()->minValue, f->get()->maxValue );
 	}
 
-	for_each_iterator( Feature*, f, Array(ClientSettingsArray,ClientSettingsArrayLen) ) {
+	for_each_iterator( Feature*, f, ArrayRef(ClientSettingsArray,ClientSettingsArrayLen) ) {
 		CScriptableVars::RegisterVars("GameOptions")
 		( clientSettings[f->get()], f->get()->name, f->get()->defaultValue, 
 		 f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->unsignedValue, f->get()->minValue, f->get()->maxValue );
@@ -571,7 +571,7 @@ void GameOptions::SaveToDisc(const std::string& cfgfilename)
 	}
 
 	fprintf(fp, "\n[GameInfo]\n");
-	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, ArrayRef(featureArray,featureArrayLen()) ) {
 		if(customSettings.isSet[featureArrayIndex(f->get())])
 			fprintf(fp, "%s = %s\n", f->get()->name.c_str(), customSettings[f->get()].toString().c_str());
 	}

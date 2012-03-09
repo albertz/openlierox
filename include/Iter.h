@@ -111,15 +111,15 @@ public:
 };
 
 template<typename _T>
-struct CArray {
+struct CArrayRef {
 	_T* array;
 	unsigned long len;
-	CArray(_T* a, unsigned long l) : array(a), len(l) {}
+	CArrayRef(_T* a, unsigned long l) : array(a), len(l) {}
 	typedef _T value_type;
 };
 
 template<typename _T>
-CArray<_T> Array(_T* a, unsigned long l) { return CArray<_T>(a,l); }
+CArrayRef<_T> ArrayRef(_T* a, unsigned long l) { return CArrayRef<_T>(a,l); }
 
 template<typename _T>
 class CArrayIterator : public Iterator<_T*> {
@@ -128,7 +128,7 @@ private:
 	_T* array;	
 public:
 	CArrayIterator(_T* _arr, size_t _len) : i(0), len(_len), array(_arr) {}		
-	CArrayIterator(const CArray<_T>& a) : i(0), len(a.len), array(a.array) {}	
+	CArrayIterator(const CArrayRef<_T>& a) : i(0), len(a.len), array(a.array) {}
 	CArrayIterator(const CArrayIterator& it) : i(it.i), array(it.array) {}	
 	virtual Iterator<_T*>* copy() const { return new CArrayIterator(*this); }
 	virtual bool isValid() { return i < len; }
@@ -147,7 +147,7 @@ private:
 	_T* array;
 public:
 	CArrayConstIterator(_T* _arr, size_t _len) : i(0), len(_len), array(_arr) {}
-	CArrayConstIterator(const CArray<_T>& a) : i(0), len(a.len), array(a.array) {}
+	CArrayConstIterator(const CArrayRef<_T>& a) : i(0), len(a.len), array(a.array) {}
 	CArrayConstIterator(const CArrayConstIterator& it) : i(it.i), array(it.array) {}
 	virtual Iterator<_T>* copy() const { return new CArrayConstIterator(*this); }
 	virtual bool isValid() { return i < len; }
@@ -236,10 +236,10 @@ typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return 
 //typename Iterator< std::pair<_I,_T> >::Ref GetIterator(std::map<_I,_T>& s) { return s.begin(); }
 
 template< typename _T >
-typename Iterator<_T*>::Ref GetIterator(const CArray<_T>& s) { return new CArrayIterator<_T>(s); }
+typename Iterator<_T*>::Ref GetIterator(const CArrayRef<_T>& s) { return new CArrayIterator<_T>(s); }
 
 template< typename _T >
-typename Iterator<_T>::Ref GetConstIterator(const CArray<_T>& s) { return new CArrayConstIterator<_T>(s); }
+typename Iterator<_T>::Ref GetConstIterator(const CArrayRef<_T>& s) { return new CArrayConstIterator<_T>(s); }
 
 template< typename T >
 typename Iterator<T>::Ref GetIterator(::Ref< Iterator<T> > i) { return i; }
