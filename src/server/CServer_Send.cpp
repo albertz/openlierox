@@ -567,7 +567,7 @@ void GameServer::SendGameStateUpdates() {
 		{
 			CBytestream bs;
 			bs.writeByte(S2C_GAMEATTRUPDATE);
-			updates.writeToBs(&bs);
+			updates.writeToBs(&bs, state);
 			cl->getChannel()->AddReliablePacketToSend(bs);
 		}
 

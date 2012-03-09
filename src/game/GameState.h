@@ -46,7 +46,7 @@ struct GameStateUpdates {
 	Objs objs;
 
 	operator bool() const;
-	void writeToBs(CBytestream* bs) const;
+	void writeToBs(CBytestream* bs, const GameState& oldState) const;
 	static void handleFromBs(CBytestream* bs, CServerConnection* source);
 	void pushObjAttrUpdate(ObjAttrRef);
 	void pushObjCreation(ObjRef);

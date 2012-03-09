@@ -396,7 +396,7 @@ void CClient::SendGameStateUpdates() {
 	{
 		CBytestream bs;
 		bs.writeByte(C2S_GAMEATTRUPDATE);
-		updates.writeToBs(&bs);
+		updates.writeToBs(&bs, state);
 		cNetChan->AddReliablePacketToSend(bs);
 	}
 

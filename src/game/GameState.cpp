@@ -31,7 +31,7 @@ GameStateUpdates::operator bool() const {
 	return false;
 }
 
-void GameStateUpdates::writeToBs(CBytestream* bs) const {
+void GameStateUpdates::writeToBs(CBytestream* bs, const GameState& oldState) const {
 	bs->writeInt16((uint16_t)objCreations.size());
 	foreach(o, objCreations) {
 		o->writeToBs(bs);
@@ -47,7 +47,13 @@ void GameStateUpdates::writeToBs(CBytestream* bs) const {
 		const ObjAttrRef& attr = *a;
 		ScriptVar_t curValue = a->get();
 		attr.writeToBs(bs);
-		bs->writeVar(curValue);
+		if((attr.attr.getAttrDesc()->attrType == SVT_CustomWeakRefToStatic || attr.attr.getAttrDesc()->attrType == SVT_CUSTOM) && oldState.haveObject(attr.obj)) {
+			ScriptVar_t oldValue = oldState.getValue(attr);
+			assert(oldValue.isCustomType());
+			bs->writeVar(curValue, oldValue.customVar());
+		}
+		else
+			bs->writeVar(curValue);
 	}
 }
 
