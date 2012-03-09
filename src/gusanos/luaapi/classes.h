@@ -51,6 +51,7 @@ struct GameSettingsPresetInfo;
 class CGameSkin;
 struct worm_state_t;
 struct wpnslot_t;
+class DynamicList;
 
 namespace OmfgGUI
 {
@@ -96,11 +97,12 @@ CLASSID(GameSettingsPresetInfo, 31);
 CLASSID(CGameSkin, 32);
 CLASSID(worm_state_t, 33);
 CLASSID(wpnslot_t, 34);
+CLASSID(DynamicList, 35);
 
 #undef CLASSID
 
 INLINE const char* LuaClassName(uint32_t id_) {
-	return LuaClassInfo<34>::name(id_);
+	return LuaClassInfo<35>::name(id_);
 }
 
 template<class T>

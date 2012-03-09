@@ -13,15 +13,45 @@
 #include "util/CustomVar.h"
 #include "CScriptableVars.h"
 
+class DynamicList : public CustomVar {
+private:
+	ScriptVarType_t typeId;
+	std::vector<ScriptVar_t> list;
+
+public:
+	DynamicList();
+
+	virtual void reset(); // doesn't resize. just resets all to default
+	virtual ScriptVarType_t type() const { return typeId; }
+	virtual size_t size() const { return list.size(); }
+	virtual bool canResize() const { return true; }
+	virtual void resize(size_t s) { list.resize(s, ScriptVar_t::FromType(type())); }
+	virtual void writeGeneric(size_t i, const ScriptVar_t& v) { assert(i < size()); list[i] = v; }
+	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return list[i]; }
+
+	virtual CustomVar* copy() const;
+	virtual void copyFrom(const CustomVar& o);
+	virtual bool operator==(const CustomVar& o) const;
+	virtual bool operator<(const CustomVar& o) const;
+	virtual std::string toString() const;
+	virtual bool fromString(const std::string & str);
+	virtual Result toBytestream(CBytestream* bs, const CustomVar* diffTo) const;
+	virtual Result fromBytestream(CBytestream* bs, bool expectDiffToDefault);
+};
+
 template<typename T, typename ImplType = std::vector<T> >
-class List : CustomVar {
+class List : public DynamicList {
 public:
 	static const ScriptVarType_t typeId = GetType<T>::value;
-	typedef T type;
-	typedef ImplType impl_type;
+	typedef T value_type;
+	typedef ImplType list_impl_type;
 
-	size_t size() const { return list.size(); }
-	void resize(size_t s) { list.resize(s); }
+	virtual ScriptVarType_t type() const { return typeId; }
+	virtual size_t size() const { return list.size(); }
+	virtual void resize(size_t s) { list.resize(s); }
+	virtual void writeGeneric(size_t i, const ScriptVar_t& v) { assert(i < size()); list[i] = v.castConst<T>(); }
+	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t(list[i]); }
+
 	T& write(size_t i) { assert(i < size()); return list[i]; }
 	const T& get(size_t i) const { assert(i < size()); return list[i]; }
 
@@ -30,35 +60,46 @@ private:
 
 public:
 	virtual CustomVar* copy() const { return new List(*this); }
-	virtual bool operator==(const CustomVar& o) const {
-		const List* ol = dynamic_cast<const List*>(&o);
-		if(ol == NULL) return false;
-		return list == ol->list;
-	}
-	virtual bool operator<(const CustomVar& o) const {
-		const List* ol = dynamic_cast<const List*>(&o);
-		if(ol == NULL) return this < &o;
-		return list < ol->list;
-	}
-	virtual std::string toString() const {
-		std::string r = "[";
-		for(typename ImplType::const_iterator i = list.begin(); i != list.end(); ++i) {
-			if(i != list.begin()) r += ", ";
-			r += ScriptVar_t(*i).toString();
-		}
-		r += "]";
-		return r;
-	}
-	virtual bool fromString( const std::string & str) { return false; }
 
 	virtual void copyFrom(const CustomVar& o) {
 		const List* ol = dynamic_cast<const List*>(&o);
 		assert(ol != NULL);
 		*this = *ol;
 	}
+};
 
-	virtual Result toBytestream( CBytestream* bs, const CustomVar* diffTo ) const { return true; }
-	virtual Result fromBytestream( CBytestream* bs, bool expectDiffToDefault ) { return true; }
+template<typename T, size_t Size>
+class Array : public DynamicList {
+public:
+	static const ScriptVarType_t typeId = GetType<T>::value;
+	typedef T value_type;
+
+	virtual ScriptVarType_t type() const { return typeId; }
+	virtual size_t size() const { return Size; }
+	virtual bool canResize() const { return false; }
+	virtual void resize(size_t s) { assert(s == size()); /* we cannot resize a static array */ }
+	virtual void writeGeneric(size_t i, const ScriptVar_t& v) { assert(i < size()); list[i] = v.castConst<T>(); }
+	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t(list[i]); }
+
+	T& write(size_t i) { assert(i < size()); return list[i]; }
+	const T& get(size_t i) const { assert(i < size()); return list[i]; }
+
+private:
+	T list[Size];
+
+public:
+	Array() {
+		for(size_t i = 0; i < size(); ++i)
+			list[i] = T();
+	}
+
+	virtual CustomVar* copy() const { return new Array(*this); }
+
+	virtual void copyFrom(const CustomVar& o) {
+		const Array* ol = dynamic_cast<const Array*>(&o);
+		assert(ol != NULL);
+		*this = *ol;
+	}
 };
 
 #endif // OLX_LIST_H
