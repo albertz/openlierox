@@ -219,11 +219,6 @@ CWorm::CWorm() :
 	//bUsesMouse = false;
 	fLastInputTime = tLX->currentTime;
 
-	for(short i=0; i<MAX_WEAPONSLOTS; i++)
-		tWeapons[i].WeaponId = -1;
-
-
-
 	bmpGibs = NULL;
 
 	bLobbyReady = false;
@@ -1627,8 +1622,8 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	
 	COPY( NewNet_random );
 	
-	for( int i=0; i<MAX_WEAPONSLOTS; i++ )
-		COPY( tWeapons[i] );
+	COPY( weaponList );
+
 	#undef COPY
 };
 
