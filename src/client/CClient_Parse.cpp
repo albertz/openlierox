@@ -1420,7 +1420,7 @@ void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 // Parse AFK packet
 void CClientNetEngineBeta7::ParseAFK(CBytestream *bs)
 {
-	CWorm* w = getWorm(client, bs, "CClientNetEngine::ParseAFK", SkipMult<Skip<2>, SkipString>);
+	CWorm* w = getWorm(client, bs, "CClientNetEngine::ParseAFK", SkipMult<Skip<1>, SkipString>);
 	if(!w) return;
 	
 	AFK_TYPE afkType = (AFK_TYPE)bs->readByte();
