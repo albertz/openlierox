@@ -100,7 +100,7 @@ Result worm_state_t::toBytestream( CBytestream* bs, const CustomVar* diffTo) con
 	return true;
 }
 
-Result worm_state_t::fromBytestream( CBytestream* bs ) {
+Result worm_state_t::fromBytestream( CBytestream* bs, bool expectDiffToDefault ) {
 	fromInt(bs->readInt(1));
 	return true;
 }

@@ -92,7 +92,7 @@ public:
 	bool		write2Int4(short x, short y);
 	bool		writeBit(bool bit);
 	bool		writeData(const std::string& value);	// Do not append '\0' at the end, writes just the raw data
-	bool		writeVar(const ScriptVar_t& var);
+	bool		writeVar(const ScriptVar_t& var, const CustomVar* diffToOld = NULL);
 	
 	// Reads
 	uchar		readByte();

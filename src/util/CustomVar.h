@@ -37,9 +37,9 @@ struct CustomVar : BaseObject {
 	virtual void copyFrom(const CustomVar&);
 	virtual void fromScriptVar(const ScriptVar_t& v);
 	virtual Result toBytestream( CBytestream* bs, const CustomVar* diffTo = NULL ) const;
-	virtual Result fromBytestream( CBytestream* bs );
+	virtual Result fromBytestream( CBytestream* bs, bool expectDiffToDefault = true );
 
-	Result ToBytestream( CBytestream* bs ) const; // includes type-signature
+	Result ToBytestream( CBytestream* bs, const CustomVar* diffTo = NULL ) const; // includes type-signature
 	static Ref FromBytestream( CBytestream* bs );
 	bool operator!=(const CustomVar& o) const { return !(*this == o); }
 };

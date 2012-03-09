@@ -383,8 +383,16 @@ bool CBytestream::writeData(const std::string& value)
 	return true;
 }
 
-bool CBytestream::writeVar(const ScriptVar_t& var) {
+bool CBytestream::writeVar(const ScriptVar_t& var, const CustomVar* diffToOld) {
 	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
+	if(var.isCustomType()) {
+		assert(var.customVar() != NULL);
+		assert(var.customVar()->thisRef.classId != ClassId(-1));
+	}
+	if(diffToOld) {
+		assert(var.isCustomType());
+		assert(var.customVar()->thisRef.classId == diffToOld->thisRef.classId);
+	}
 	if(!writeByte( var.type )) return false;
 	switch( var.type ) {
 	case SVT_BOOL: return writeBool(var.toBool());
@@ -404,8 +412,9 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 		return true;
 	}
 	case SVT_STRING: return writeString(var.toString());
-	case SVT_CUSTOM: return var.as<CustomVar>()->ToBytestream(this);
-	case SVT_CustomWeakRefToStatic: return var.customVar()->ToBytestream(this);
+	case SVT_CUSTOM:
+	case SVT_CustomWeakRefToStatic:
+		return var.customVar()->ToBytestream(this, diffToOld);
 	case SVT_BASEOBJ:
 	case SVT_CALLBACK:
 	case SVT_DYNAMIC:
@@ -613,7 +622,7 @@ bool CBytestream::readVar(ScriptVar_t& var) {
 				errors << "read var: got invalid classId " << classId << " << for static CustomVar with classId " << var.customVar()->thisRef.classId << endl;
 				return false;
 			}
-			var.customVar()->fromBytestream(this);
+			var.customVar()->fromBytestream(this, false);
 			return true;
 		}
 		else {

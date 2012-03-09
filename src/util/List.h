@@ -57,8 +57,8 @@ public:
 		*this = *ol;
 	}
 
-	virtual Result toBytestream( CBytestream* bs ) const { return true; }
-	virtual Result fromBytestream( CBytestream* bs ) { return true; }
+	virtual Result toBytestream( CBytestream* bs, const CustomVar* diffTo ) const { return true; }
+	virtual Result fromBytestream( CBytestream* bs, bool expectDiffToDefault ) { return true; }
 };
 
 #endif // OLX_LIST_H

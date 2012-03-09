@@ -134,7 +134,7 @@ struct worm_state_t : CustomVar {
 
 	virtual void copyFrom(const CustomVar&);
 	virtual Result toBytestream( CBytestream* bs, const CustomVar* diffTo ) const;
-	virtual Result fromBytestream( CBytestream* bs );
+	virtual Result fromBytestream( CBytestream* bs, bool expectDiffToDefault );
 
 	bool operator!=(const CustomVar& o) const { return !(*this == o); }
 };

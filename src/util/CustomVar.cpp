@@ -86,10 +86,10 @@ void CustomVar::fromScriptVar(const ScriptVar_t& v) {
 		fromString(v.toString());
 }
 
-Result CustomVar::ToBytestream( CBytestream* bs ) const {
+Result CustomVar::ToBytestream(CBytestream* bs, const CustomVar* diffTo) const {
 	assert( thisRef.classId != ClassId(-1) );
 	bs->writeInt16(thisRef.classId);
-	return toBytestream(bs);
+	return toBytestream(bs, diffTo);
 }
 
 Result CustomVar::toBytestream(CBytestream *bs, const CustomVar* diffTo) const {
@@ -135,14 +135,19 @@ Result CustomVar::toBytestream(CBytestream *bs, const CustomVar* diffTo) const {
 	return true;
 }
 
-Result CustomVar::fromBytestream(CBytestream *bs) {
+Result CustomVar::fromBytestream(CBytestream *bs, bool expectDiffToDefault) {
 	assert( thisRef.classId != ClassId(-1) );
 
 	{
 		int streamType = bs->readInt(1);
 		switch(streamType) {
 		case CUSTOMVAR_STREAM_DiffToDefault: reset(); break;
-		case CUSTOMVAR_STREAM_DiffToOld: /* nothing to do */ break;
+		case CUSTOMVAR_STREAM_DiffToOld:
+			if(expectDiffToDefault) {
+				errors << "CustomVar::fromBytestream: got unexpected diffToOld data on " << thisRef.description();
+				// continue anyway, there might be still something useful
+			}
+			/* nothing to do */ break;
 		default:
 			errors << "CustomVar::fromBytestream: got invalid streamType " << streamType << " for object " << thisRef.description() << endl;
 			// It doesn't really make sense to continue.
@@ -215,7 +220,7 @@ CustomVar::Ref CustomVar::FromBytestream( CBytestream* bs ) {
 		return NULL;
 	}
 
-	if(NegResult r = obj->fromBytestream(bs)) {
+	if(NegResult r = obj->fromBytestream(bs, true)) {
 		errors << "CustomVar::FromBytestream: error while reading " << classInfo->name << " instance: " << r.res.humanErrorMsg << endl;
 		// continue anyway, maybe we have some useful data
 	}
