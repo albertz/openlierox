@@ -193,6 +193,7 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "iAFK") return;
 	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "sAFKMessage") return;
 	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "iCurrentWeapon") return;
+	if(attrDesc->objTypeId == LuaID<CWorm>::value && attrDesc->attrName == "weaponSlots") return;
 	if(!oPt->thisRef)
 		return; // obj not really registered
 	notes << "<" << oPt->thisRef.description() << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
