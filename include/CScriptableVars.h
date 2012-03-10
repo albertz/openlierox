@@ -122,10 +122,12 @@ template<> struct GetType_BaseCustomVar<true> {
 template<typename T> struct GetType : GetType_BaseCustomVar<boost::is_base_of<CustomVar,T>::value>::Type {};
 
 
+template<typename T> T* PtrFromScriptVar(ScriptVar_t& v, T* dummy = NULL);
 template<typename T> T CastScriptVarConst(const ScriptVar_t& s);
 
 class ScriptVar_t
 {
+	template<typename T> friend T* PtrFromScriptVar(ScriptVar_t& v, T* dummy);
 public:
 	const ScriptVarType_t type;
 	PIVar(bool,false) isUnsigned;  // True for values that are unsigned and where negative values mean infinity
@@ -184,7 +186,7 @@ public:
 		case SVT_COLOR: return ScriptVar_t(Color());
 		case SVT_VEC2: return ScriptVar_t(CVec());
 		case SVT_CUSTOM: return ScriptVar_t(NullCustomVar());
-		case SVT_CustomWeakRefToStatic:
+		case SVT_CustomWeakRefToStatic: return ScriptVar_t(NullCustomVar());
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
@@ -216,14 +218,13 @@ public:
 	template<typename T> T* as() { assert(type == SVT_CUSTOM); return dynamic_cast<T*> (&custom.get().get()); }
 	template<typename T> const T* as() const { assert(type == SVT_CUSTOM); return dynamic_cast<const T*> (&custom.get().get()); }
 
-	template<typename T>
-	T* ptr() { assert(type == GetType<T>::value); return (T*)&b; }
+	template<typename T> T* ptr();
 
 	template<typename T>
-	const T* ptr() const { assert(type == GetType<T>::value); return (T*)&b; }
-
-	CustomVar::Ref* ptrCustom() { assert(type == SVT_CUSTOM); return &custom.get(); }
-	const CustomVar::Ref* ptrCustom() const { assert(type == SVT_CUSTOM); return &custom.get(); }
+	const T* ptr() const {
+		assert(type == GetType<T>::value);
+		return ((ScriptVar_t*)this)->ptr<T>();
+	}
 
 	CustomVar::WeakRef customVarRef() const {
 		assert(type == SVT_CustomWeakRefToStatic);
@@ -401,6 +402,22 @@ public:
 };
 
 
+
+template<> inline bool* PtrFromScriptVar(ScriptVar_t& v, bool*) { assert(v.type == SVT_BOOL); return (bool*)&v.b; }
+template<> inline int32_t* PtrFromScriptVar(ScriptVar_t& v, int32_t*) { assert(v.type == SVT_INT32); return (int32_t*)&v.i; }
+template<> inline uint64_t* PtrFromScriptVar(ScriptVar_t& v, uint64_t*) { assert(v.type == SVT_UINT64); return (uint64_t*)&v.i_uint64; }
+template<> inline float* PtrFromScriptVar(ScriptVar_t& v, float*) { assert(v.type == SVT_FLOAT); return (float*)&v.f; }
+template<> inline std::string* PtrFromScriptVar(ScriptVar_t& v, std::string*) { assert(v.type == SVT_STRING); return (std::string*)&v.str.get(); }
+template<> inline Color* PtrFromScriptVar(ScriptVar_t& v, Color*) { assert(v.type == SVT_COLOR); return (Color*)&v.col.get(); }
+template<> inline CVec* PtrFromScriptVar(ScriptVar_t& v, CVec*) { assert(v.type == SVT_VEC2); return (CVec*)&v.vec2.get(); }
+template<> inline CustomVar::Ref* PtrFromScriptVar(ScriptVar_t& v, CustomVar::Ref*) { assert(v.type == SVT_CUSTOM); return (CustomVar::Ref*)&v.custom.get(); }
+
+template<typename T> T* ScriptVar_t::ptr() {
+	assert(type == GetType<T>::value);
+	return PtrFromScriptVar<T>(*this, (T*)NULL);
+}
+
+
 template<typename T> T CastScriptVarConst(const ScriptVar_t& s);
 
 template<bool> struct CastScriptVar1;
@@ -408,7 +425,7 @@ template<typename T> struct CastScriptVar1_IsSimpleType {
 	static const bool value = GetType<T>::value < SVT_CUSTOM;
 };
 template<> struct CastScriptVar1<true> {
-	template<typename T> static T castConst(const ScriptVar_t& s, const T& /*dummy*/) { return (T) s; }
+	template<typename T> static T castConst(const ScriptVar_t& s, const T* /*dummy*/) { return (T) s; }
 };
 
 template<bool> struct CastScriptVar2;
@@ -416,16 +433,20 @@ template<typename T> struct CastScriptVar2_IsCustomVar {
 	static const bool value = boost::is_base_of<CustomVar,T>::value;
 };
 template<> struct CastScriptVar2<true> {
-	template<typename T> static T castConst(const ScriptVar_t& s, const T& /*dummy*/) { return *s.as<T>(); }
+	template<typename T> static T castConst(const ScriptVar_t& s, const T* /*dummy*/) {
+		const CustomVar* v = s.customVar();
+		const T* p = dynamic_cast<const T*>(v);
+		return *p;
+	}
 };
 
 template<> struct CastScriptVar1<false> {
-	template<typename T> static T castConst(const ScriptVar_t& s, const T& /*dummy*/) {
-		return CastScriptVar2<CastScriptVar2_IsCustomVar<T>::value>::castConst(s, T());
+	template<typename T> static T castConst(const ScriptVar_t& s, const T* /*dummy*/) {
+		return CastScriptVar2<CastScriptVar2_IsCustomVar<T>::value>::castConst(s, (T*)NULL);
 	}
 };
 template<typename T> T CastScriptVarConst(const ScriptVar_t& s) {
-	return CastScriptVar1<CastScriptVar1_IsSimpleType<T>::value>::castConst(s, T());
+	return CastScriptVar1<CastScriptVar1_IsSimpleType<T>::value>::castConst(s, (T*)NULL);
 }
 
 
@@ -454,7 +475,7 @@ struct __ScriptVarPtrRaw {
 	{
 		void* voidPt;
 		bool * b;	// Pointer to static var
-		int * i;
+		int32_t * i;
 		uint64_t * i_uint64;
 		float * f;
 		std::string * s;
@@ -495,32 +516,32 @@ struct ScriptVarPtr_t
 	ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t& def ) : type(v->type), isUnsigned(v->isUnsigned), defaultValue(def) {
 		assert(v->type == def.type);
 		switch(type) {
-		case SVT_BOOL:
-		case SVT_INT32:
-		case SVT_UINT64:
-		case SVT_FLOAT:
-		case SVT_STRING:
-		case SVT_COLOR:
-		case SVT_VEC2:
-		case SVT_CUSTOM: ptr.custom = v->ptrCustom(); break;
+		case SVT_BOOL: ptr.b = v->ptr<bool>(); break;
+		case SVT_INT32: ptr.i = v->ptr<int32_t>(); break;
+		case SVT_UINT64: ptr.i_uint64 = v->ptr<uint64_t>(); break;
+		case SVT_FLOAT: ptr.f = v->ptr<float>(); break;
+		case SVT_STRING: ptr.s = v->ptr<std::string>(); break;
+		case SVT_COLOR: ptr.cl = v->ptr<Color>(); break;
+		case SVT_VEC2: ptr.vec2 = v->ptr<CVec>(); break;
+		case SVT_CUSTOM: ptr.custom = v->ptr<CustomVar::Ref>(); break;
 		case SVT_CustomWeakRefToStatic: ptr.customRef = v->customVar();
 		default: assert(false);
 		}
 	}
 
-	bool operator==(const ScriptVar_t* var) const {
-		if(var == NULL) return ptr.b == NULL;
-		if(var->type != type) return false;
+	bool operator==(const ScriptVar_t* v) const {
+		if(v == NULL) return ptr.b == NULL;
+		if(v->type != type) return false;
 		switch(type) {
-		case SVT_BOOL:
-		case SVT_INT32:
-		case SVT_UINT64:
-		case SVT_FLOAT:
-		case SVT_STRING:
-		case SVT_COLOR:
-		case SVT_VEC2:
-		case SVT_CUSTOM: return ptr.custom == var->ptrCustom();
-		case SVT_CustomWeakRefToStatic: return ptr.customRef == var->customVar();
+		case SVT_BOOL: return ptr.b == v->ptr<bool>();
+		case SVT_INT32: return ptr.i == v->ptr<int32_t>();
+		case SVT_UINT64: return ptr.i_uint64 == v->ptr<uint64_t>();
+		case SVT_FLOAT: return ptr.f == v->ptr<float>();
+		case SVT_STRING: return ptr.s == v->ptr<std::string>();
+		case SVT_COLOR: return ptr.cl == v->ptr<Color>();
+		case SVT_VEC2: return ptr.vec2 == v->ptr<CVec>();
+		case SVT_CUSTOM: return ptr.custom == v->ptr<CustomVar::Ref>();
+		case SVT_CustomWeakRefToStatic: return ptr.customRef == v->customVar();
 		default: assert(false);
 		}
 		return false;
