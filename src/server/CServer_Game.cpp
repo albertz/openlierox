@@ -192,13 +192,6 @@ void GameServer::SimulateGame()
 	for_each_iterator(CWorm*, w_, game.worms()) {
 		CWorm* w = w_->get();
 
-		// HINT: this can happen when a new client connects during game and has not selected weapons yet
-		// We just skip him
-		if (w->getClient())
-			// TODO: why do we check getGameReady() and not getWeaponsReady() here? what's the difference?
-			if (!w->getClient()->getGameReady())
-				continue;
-
 		if(!w->getAlive() && w->getLives() != WRM_OUT && w->bWeaponsReady) {
 
 			// Check to see if they have been dead for longer than fRespawnTime (originally 2.5 seconds)
