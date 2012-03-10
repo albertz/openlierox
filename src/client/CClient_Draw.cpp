@@ -526,8 +526,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 #endif
 
 	// Draw the viewports
-	// HINT: before we get packet with map info and load the map, game.gameMap() is undefined
-	// bGameReady says if the game (including map) has been initialized
 	if(((iNetStatus == NET_CONNECTED  && game.state >= Game::S_Preparing ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
 
 		// Draw the viewports
