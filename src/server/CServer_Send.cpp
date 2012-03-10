@@ -975,9 +975,14 @@ void GameServer::SendFiles()
 
 void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 {
+	for( size_t i = 0; i < Worm->tWeapons.size(); i++ )
+	{
+		Worm->weaponSlots.write()[i].Charge=0;
+		Worm->weaponSlots.write()[i].Reloading=1;
+	}
+
 	if(game.gameScript()->gusEngineUsed()) return;
 	
-	CBytestream bs;
 	CServerConnection * cl = Worm->getClient();
 	if(cl == NULL) {
 		errors << "GS::SendEmptyWeaponsOnRespawn: client of worm " << Worm->getID() << ":" << Worm->getName() << " is unset" << endl;
@@ -985,15 +990,14 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 		return;
 	}
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
+
 	int curWeapon = Worm->getCurrentWeapon();
-	for( int i = 0; i < 5; i++ )
+
+	CBytestream bs;
+	for( size_t i=0; i<Worm->tWeapons.size(); i++ )
 	{
-		Worm->getWeapon(i)->Charge=0;
-		Worm->getWeapon(i)->Reloading=1;
-	}
-	for( int i=0; i<5; i++ )
-	{
-		if( i != curWeapon )
+		if( i != (size_t)curWeapon )
 		{
 			Worm->setCurrentWeapon(i);
 			bs.writeByte( S2C_UPDATESTATS );

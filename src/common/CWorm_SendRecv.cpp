@@ -551,35 +551,36 @@ void CWorm::readWeapons(CBytestream *bs)
 	//notes << "weapons for " << iID << ":" << sName << ": ";
 	
 	static const uint OldLXNumWpnSlots = 5;
-	tWeapons.resize(OldLXNumWpnSlots);
+	weaponSlots.write().resize(OldLXNumWpnSlots);
 
 	for(ushort i=0; i<tWeapons.size(); i++) {
 		//if(i > 0) notes << ", ";
 		int id = bs->readByte();
 
-		tWeapons[i].WeaponId = -1;
-		tWeapons[i].Enabled = false;
+		wpnslot_t& slot = weaponSlots.write()[i];
+		slot.WeaponId = -1;
+		slot.Enabled = false;
 
 		if(game.gameScript()) {
 			if(id >= 0 && id < game.gameScript()->GetNumWeapons()) {
-				tWeapons[i].WeaponId = id;
-				tWeapons[i].Enabled = true;
+				slot.WeaponId = id;
+				slot.Enabled = true;
 				//notes << tWeapons[i].Weapon->Name;
 			}
 			else if(id == 255) { // special case to unset weapon
-				tWeapons[i].WeaponId = -1;
-				tWeapons[i].Enabled = false;
+				slot.WeaponId = -1;
+				slot.Enabled = false;
 				//notes << "UNSET";
 			}
 			else {
 				warnings << "Error when reading weapons (ID is over num weapons)" << endl;
-				tWeapons[i].WeaponId = -1;
-				tWeapons[i].Enabled = false;
+				slot.WeaponId = -1;
+				slot.Enabled = false;
 				//notes << id << "?";
 			}
 		} else {
 			errors << "readWeapons: cGameScript == NULL" << endl;
-			tWeapons[i].Enabled = false;
+			slot.Enabled = false;
 			//notes << id;
 		}
 	}
@@ -587,9 +588,9 @@ void CWorm::readWeapons(CBytestream *bs)
 
 	// Reset the weapons
 	for(size_t i=0; i<tWeapons.size(); i++) {
-		tWeapons[i].Charge = 1;
-		tWeapons[i].Reloading = false;
-		tWeapons[i].LastFire = 0;
+		weaponSlots.write()[i].Charge = 1;
+		weaponSlots.write()[i].Reloading = false;
+		weaponSlots.write()[i].LastFire = 0;
 	}
 		
 	bWeaponsReady = true;
@@ -645,7 +646,7 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	}
 	
     // Check
-	if (cur > 4)  {
+	if (cur >= weaponSlots.get().size())  {
 		warnings << "CWorm::readStatUpdate: current weapon not in range, ignored." << endl;
 		return;
 	}
@@ -665,19 +666,19 @@ void CWorm::readStatUpdate(CBytestream *bs)
 		return;
 
 
-	tWeapons[cur].Reloading = (charge & 0x80) != 0;
+	weaponSlots.write()[cur].Reloading = (charge & 0x80) != 0;
 
 	charge &= ~(0x80);
 
 	float c = (float)charge/100.0f;
 
 	if( tWeapons[cur].Reloading && (c > tWeapons[cur].Charge || fabs(c - tWeapons[cur].Charge) > 0.1f) )
-		tWeapons[cur].Charge = c;
+		weaponSlots.write()[cur].Charge = c;
 
 	if( !tWeapons[cur].Reloading && c < tWeapons[cur].Charge )
-		tWeapons[cur].Charge = c;
+		weaponSlots.write()[cur].Charge = c;
 
 	// If the server is on the same comp as me, just set the charge normally
 	if( game.isServer() )
-		tWeapons[cur].Charge = c;
+		weaponSlots.write()[cur].Charge = c;
 }

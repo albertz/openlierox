@@ -1832,7 +1832,7 @@ bool CWormBotInputHandler::weaponCanHit(float gravity, float speed, CVec cTrgPos
 		return false;
 
 	// Get the projectile
-	wpnslot_t* wpnslot = m_worm->getWeapon(m_worm->getCurrentWeapon());
+	const wpnslot_t* wpnslot = m_worm->getWeapon(m_worm->getCurrentWeapon());
 	const weapon_t* wpn = wpnslot ? wpnslot->weapon() : NULL;
 	proj_t* wpnproj = wpn ? wpn->Proj.Proj : NULL;
 	if(!wpnproj) // no valid weapon
@@ -1973,7 +1973,7 @@ static bool canShootRightNowWithCurWeapon(CWorm* w) {
 	// code from GameServer::WormShoot, CClient::PlayerShoot
 	// and look also at CClient::ShootSpecial for special weapons like jetpack
 	
-	wpnslot_t *Slot = w->getCurWeapon();
+	const wpnslot_t *Slot = w->getCurWeapon();
 	if(!Slot) return false;
 	
 	if(Slot->Reloading)
@@ -4165,7 +4165,7 @@ void CWormBotInputHandler::initWeaponSelection() {
 		 cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.get().find("Liero v1.0") != std::string::npos ))  {
 		if (game.weaponRestrictions()->isEnabled("Rifle"))  {
 			for (size_t i=0; i<m_worm->tWeapons.size(); i++)
-				m_worm->tWeapons[i].WeaponId = game.gameScript()->FindWeaponId("Rifle");  // set all weapons to Rifle
+				m_worm->weaponSlots.write()[i].WeaponId = game.gameScript()->FindWeaponId("Rifle");  // set all weapons to Rifle
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_RIFLES);
 		}
@@ -4177,11 +4177,11 @@ void CWormBotInputHandler::initWeaponSelection() {
 		int MyWeaps = game.weaponRestrictions()->isEnabled("Super Shotgun") + game.weaponRestrictions()->isEnabled("Napalm") +  game.weaponRestrictions()->isEnabled("Cannon") + game.weaponRestrictions()->isEnabled("Doomsday") + game.weaponRestrictions()->isEnabled("Chaingun");
 		if (MyWeaps == 5 && m_worm->tWeapons.size() >= 5)  {
 			// Set our weapons
-			m_worm->tWeapons[0].WeaponId = game.gameScript()->FindWeaponId("Super Shotgun");
-			m_worm->tWeapons[1].WeaponId = game.gameScript()->FindWeaponId("Napalm");
-			m_worm->tWeapons[2].WeaponId = game.gameScript()->FindWeaponId("Cannon");
-			m_worm->tWeapons[3].WeaponId = game.gameScript()->FindWeaponId("Doomsday");
-			m_worm->tWeapons[4].WeaponId = game.gameScript()->FindWeaponId("Chaingun");
+			m_worm->weaponSlots.write()[0].WeaponId = game.gameScript()->FindWeaponId("Super Shotgun");
+			m_worm->weaponSlots.write()[1].WeaponId = game.gameScript()->FindWeaponId("Napalm");
+			m_worm->weaponSlots.write()[2].WeaponId = game.gameScript()->FindWeaponId("Cannon");
+			m_worm->weaponSlots.write()[3].WeaponId = game.gameScript()->FindWeaponId("Doomsday");
+			m_worm->weaponSlots.write()[4].WeaponId = game.gameScript()->FindWeaponId("Chaingun");
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_100LT);
 		}
@@ -4192,7 +4192,7 @@ void CWormBotInputHandler::initWeaponSelection() {
 			 (int)cClient->getGameLobby()[FT_LoadingTime] < 50)  {
 		if (game.weaponRestrictions()->isEnabled("Mortar Launcher"))  {
 			for (size_t i=0; i<m_worm->tWeapons.size(); i++)
-				m_worm->tWeapons[i].WeaponId = game.gameScript()->FindWeaponId("Mortar Launcher");  // set all weapons to Mortar
+				m_worm->weaponSlots.write()[i].WeaponId = game.gameScript()->FindWeaponId("Mortar Launcher");  // set all weapons to Mortar
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_MORTARS);
 		}
@@ -4206,8 +4206,8 @@ void CWormBotInputHandler::initWeaponSelection() {
 
 	for(size_t i = 0; i < m_worm->tWeapons.size(); ++i) {
 		if(m_worm->tWeapons[i].weapon() == NULL)
-			m_worm->tWeapons[i].WeaponId = game.getRandomEnabledWpn();
-		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].weapon() != NULL;
+			m_worm->weaponSlots.write()[i].WeaponId = game.getRandomEnabledWpn();
+		m_worm->weaponSlots.write()[i].Enabled = m_worm->tWeapons[i].weapon() != NULL;
 	}
 	
 	m_worm->bWeaponsReady = true;

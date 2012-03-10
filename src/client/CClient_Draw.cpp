@@ -1057,7 +1057,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		}
 
 		// Weapon
-		wpnslot_t *Slot = worm->getCurWeapon();
+		const wpnslot_t *Slot = worm->getCurWeapon();
 		if(Slot->weapon()) {
 			std::string weapon_name = Slot->weapon()->Name;
 			stripdot(weapon_name, 100);

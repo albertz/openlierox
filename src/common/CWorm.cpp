@@ -203,7 +203,7 @@ CWorm::CWorm() :
 	fLastAirJumpTime = 0;
 
 	bWeaponsReady = false;
-	tWeapons.resize(5);
+	weaponSlots.write().resize(5);
 	iCurrentWeapon = 0;
 
 	bGotTarget = false;
@@ -316,7 +316,7 @@ void CWorm::Prepare()
 	setCanAirJump(cClient->getGameLobby()[FT_InstantAirJump]);
 
 	iCurrentWeapon = 0;
-	tWeapons.reset();
+	weaponSlots.write().reset();
 	GetRandomWeapons();
 	// weapons should be loaded properly in initWeaponSelection
 
@@ -435,7 +435,7 @@ void CWorm::Unprepare() {
 		m_weapons[i] = 0;
 	}
 
-	tWeapons.reset();
+	weaponSlots.write().reset();
 
 	NetWorm_Shutdown();
 	FreeGraphics();
@@ -598,9 +598,9 @@ void CWorm::Spawn(CVec position) {
 
 	// Reset the weapons
 	for(ushort n = 0; n < tWeapons.size(); n++) {
-		tWeapons[n].Charge = 1;
-		tWeapons[n].Reloading = false;
-		tWeapons[n].LastFire = 0;
+		weaponSlots.write()[n].Charge = 1;
+		weaponSlots.write()[n].Reloading = false;
+		weaponSlots.write()[n].LastFire = 0;
 	}
 
 	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = GetPhysicsTime();
@@ -757,7 +757,7 @@ void CWorm::GetRandomWeapons()
 	if(game.gameScript() == NULL || game.gameScript()->GetNumWeapons() <= 0) {
 		errors << "CWorm::GetRandomWeapons: gamescript is not loaded" << endl;
 		for(size_t i = 0; i < tWeapons.size(); ++i)
-			tWeapons[i].WeaponId = -1; // not sure if needed but just to be sure
+			weaponSlots.write()[i].WeaponId = -1; // not sure if needed but just to be sure
 		return;
 	}
 	
@@ -798,12 +798,12 @@ void CWorm::GetRandomWeapons()
 
 		}  // while
 		if(n >= 0 && n < game.gameScript()->GetNumWeapons()) {
-			tWeapons[i].WeaponId = n;
-			tWeapons[i].Enabled = true;
+			weaponSlots.write()[i].WeaponId = n;
+			weaponSlots.write()[i].Enabled = true;
 		}
 		else {
-			tWeapons[i].WeaponId = -1;
-			tWeapons[i].Enabled = false;
+			weaponSlots.write()[i].WeaponId = -1;
+			weaponSlots.write()[i].Enabled = false;
 		}
 	}
 
@@ -845,13 +845,14 @@ bool CWorm::shouldDoOwnWeaponSelection() {
 }
 
 void CWorm::CloneWeaponsFrom(CWorm* w) {
-	for(int i = 0; i < 5; ++i) {
-		tWeapons[i].WeaponId = w->getWeapon(i)->WeaponId;
-		tWeapons[i].Enabled = w->getWeapon(i)->Enabled;
+	weaponSlots.write().resize( w->weaponSlots.get().size() );
+	for(size_t i = 0; i < w->weaponSlots.get().size(); ++i) {
+		weaponSlots.write()[i].WeaponId = w->getWeapon(i)->WeaponId;
+		weaponSlots.write()[i].Enabled = w->getWeapon(i)->Enabled;
 		
-		tWeapons[i].Charge = 1;
-		tWeapons[i].Reloading = false;
-		tWeapons[i].LastFire = 0;
+		weaponSlots.write()[i].Charge = 1;
+		weaponSlots.write()[i].Reloading = false;
+		weaponSlots.write()[i].LastFire = 0;
 	}
 }
 
@@ -1203,7 +1204,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if(isWormVisible(this, v))
 		cClient->flagInfo()->drawWormAttachedFlag(this, bmpDest, v);
 
-	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
+	const wpnslot_t *Slot = getCurWeapon();
 
 	// Draw the weapon name
 	if(bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
@@ -1366,15 +1367,17 @@ bool CWorm::CheckBonusCollision(CBonus *b)
 // Returns true if we picked it up
 bool CWorm::GiveBonus(CBonus *b)
 {
+	if(weaponSlots.get().size() == 0) return false;
+
 	// Weapon
 	if(b->getType() == BNS_WEAPON) {
 
 		// Replace our current weapon
 		if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
-			tWeapons[iCurrentWeapon].WeaponId = b->getWeapon();
-			tWeapons[iCurrentWeapon].Charge = 1;
-			tWeapons[iCurrentWeapon].Reloading = false;
-			tWeapons[iCurrentWeapon].Enabled = true;
+			writeCurWeapon()->WeaponId = b->getWeapon();
+			writeCurWeapon()->Charge = 1;
+			writeCurWeapon()->Reloading = false;
+			writeCurWeapon()->Enabled = true;
 		}
 		else {
 			warnings << "selected bonus has invalid weapon " << b->getWeapon() << endl;

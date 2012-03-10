@@ -488,7 +488,7 @@ public:
 			return;
 		}
 
-		wpnslot_t *Slot = worm->getWeapon(worm->getCurrentWeapon());
+		wpnslot_t *Slot = worm->writeCurWeapon();
 
 		if(!Slot->weapon()) return;
 

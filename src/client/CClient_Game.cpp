@@ -556,7 +556,8 @@ void CClient::SendCarve(CVec pos)
 // but later by the server. The server itself checks for w->tState.bShoot, so we don't care about that here.
 void CClient::PlayerShoot(CWorm *w)
 {
-	wpnslot_t *Slot = w->getCurWeapon();
+	if(w->tWeapons.size() == 0) return;
+	wpnslot_t *Slot = w->writeCurWeapon();
 
 	if(Slot->Reloading)
 		return;
@@ -603,7 +604,8 @@ void CClient::PlayerShoot(CWorm *w)
 // Shoot a special weapon
 void CClient::ShootSpecial(CWorm *w)
 {
-	wpnslot_t *Slot = w->getCurWeapon();
+	if(w->tWeapons.size() == 0) return;
+	wpnslot_t *Slot = w->writeCurWeapon();
 	TimeDiff dt = tLX->fDeltaTime;
 
 	// Safety
@@ -645,7 +647,7 @@ void CClient::DrawBeam(CWorm *w)
 {
 	//return;
 
-	wpnslot_t *Slot = w->getCurWeapon();
+	const wpnslot_t *Slot = w->getCurWeapon();
 
 	// Safety
 	if(!Slot->weapon())
@@ -979,7 +981,8 @@ void CClient::DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm 
 
 void CClient::NewNet_DoLocalShot( CWorm *w ) 
 {
-	wpnslot_t *Slot = w->getCurWeapon();
+	if(w->tWeapons.size() == 0) return;
+	wpnslot_t *Slot = w->writeCurWeapon();
 
 	if(Slot->Reloading)
 		return;

@@ -378,7 +378,8 @@ void GameServer::WormShoot(CWorm *w)
 	if(!game.gameMode()->Shoot(w))
 		return;
 
-	wpnslot_t *Slot = w->getCurWeapon();
+	if(w->tWeapons.size() == 0) return;
+	wpnslot_t *Slot = w->writeCurWeapon();
 
 	if(Slot->Reloading)
 		return;

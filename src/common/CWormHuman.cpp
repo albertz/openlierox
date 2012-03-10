@@ -760,21 +760,21 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	// Load previous settings from profile
 	for(size_t i=0;i<m_worm->tWeapons.size();i++) {
 		
-		m_worm->tWeapons[i].WeaponId = game.gameScript()->FindWeaponId( m_worm->tProfile->sWeaponSlots[i] );
+		m_worm->weaponSlots.write()[i].WeaponId = game.gameScript()->FindWeaponId( m_worm->tProfile->sWeaponSlots[i] );
 		
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
 		if( !m_worm->tWeapons[i].weapon() || !game.weaponRestrictions()->isEnabled( m_worm->tWeapons[i].weapon()->Name ) ) {
-			m_worm->tWeapons[i].WeaponId = game.gameScript()->FindWeaponId( game.weaponRestrictions()->findEnabledWeapon( game.gameScript()->GetWeaponList() ) );
+			m_worm->weaponSlots.write()[i].WeaponId = game.gameScript()->FindWeaponId( game.weaponRestrictions()->findEnabledWeapon( game.gameScript()->GetWeaponList() ) );
         }
 
-		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].weapon() != NULL;
+		m_worm->weaponSlots.write()[i].Enabled = m_worm->tWeapons[i].weapon() != NULL;
 	}
 	
 	
 	for(size_t n=0;n<m_worm->tWeapons.size();n++) {
-		m_worm->tWeapons[n].Charge = 1;
-		m_worm->tWeapons[n].Reloading = false;
-		m_worm->tWeapons[n].LastFire = 0;
+		m_worm->weaponSlots.write()[n].Charge = 1;
+		m_worm->weaponSlots.write()[n].Reloading = false;
+		m_worm->weaponSlots.write()[n].LastFire = 0;
 	}
 	
 	// Skip the dialog if there's only one weapon available
@@ -871,8 +871,8 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 					if(m_worm->tWeapons[i].weapon() && id == m_worm->tWeapons[i].weapon()->ID) // back where we were before
 						break;
 				}
-			m_worm->tWeapons[i].WeaponId = id;
-			m_worm->tWeapons[i].Enabled = true;
+			m_worm->weaponSlots.write()[i].WeaponId = id;
+			m_worm->weaponSlots.write()[i].Enabled = true;
 		}
 		
 		y += 18;

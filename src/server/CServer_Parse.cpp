@@ -292,7 +292,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 			w->readWeapons(bs);
 			for (size_t j = 0; j < w->tWeapons.size(); j++) {
 				if(w->getWeapon(j)->weapon())
-					w->getWeapon(j)->Enabled =
+					w->weaponSlots.write()[j].Enabled =
 						game.weaponRestrictions()->isEnabled(w->getWeapon(j)->weapon()->Name) ||
 						game.weaponRestrictions()->isBonus(w->getWeapon(j)->weapon()->Name);
 			}
@@ -838,8 +838,8 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 				// If it's a weapon, change the worm's current weapon
 				if (b->getType() == BNS_WEAPON) {
 
-					if (curwpn >= 0 && curwpn < 5) {
-						wpnslot_t *wpn = w->getWeapon(curwpn);
+					if (curwpn >= 0 && (size_t)curwpn < w->tWeapons.size()) {
+						wpnslot_t *wpn = &w->weaponSlots.write()[curwpn];
 						const weapon_t* oldWeapon = wpn->weapon();
 						if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
 							wpn->WeaponId = b->getWeapon();

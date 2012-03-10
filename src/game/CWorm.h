@@ -198,9 +198,18 @@ public:
 	// Arsenal
 	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;})
 	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
-	List<wpnslot_t>	tWeapons;
+	ATTR(CWorm, List<wpnslot_t>,	weaponSlots, 22, {serverside = false;})
 
-	ATTR(CWorm, worm_state_t, tState, 22, {serverside = false;})
+	struct WeaponSlotWrapper {
+		const CWorm* parent() const { return (const CWorm*)__OLX_BASETHIS(CWorm, tWeapons); }
+		const wpnslot_t& operator[](size_t i) const {
+			return parent()->weaponSlots.get()[i];
+		}
+		size_t size() const { return parent()->weaponSlots.get().size(); }
+	}
+	tWeapons;
+
+	ATTR(CWorm, worm_state_t, tState, 23, {serverside = false;})
 
 protected:
 	SmartPointer<profile_t> tProfile; // used to read (AI)nDifficulty and read/write human player weapons
@@ -501,10 +510,29 @@ public:
 	
 	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 
-	wpnslot_t	*getCurWeapon()			{ return &tWeapons[MIN(4, iCurrentWeapon)]; }
-	int			getCurrentWeapon()		{ return MIN(4, iCurrentWeapon); }
-	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
-	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
+	const wpnslot_t	*getCurWeapon()			{
+		if(tWeapons.size() == 0) {
+			static wpnslot_t dummy;
+			return &dummy; // it's a disabled wpn slot, thus a good fallback to return here
+		}
+		return &tWeapons[MIN(tWeapons.size()-1, (size_t)iCurrentWeapon)];
+	}
+	wpnslot_t	*writeCurWeapon()			{
+		assert(tWeapons.size() > 0);
+		return &weaponSlots.write()[MIN(tWeapons.size()-1, (size_t)iCurrentWeapon)];
+	}
+	int			getCurrentWeapon()		{
+		if(tWeapons.size() == 0) return 0;
+		return MIN(tWeapons.size() - 1, (size_t)iCurrentWeapon);
+	}
+	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = _w; }
+	const wpnslot_t	*getWeapon(int id)		{
+		if(id < 0 || (size_t)id >= tWeapons.size()) {
+			static wpnslot_t dummy;
+			return &dummy; // it's a disabled wpn slot, thus a good fallback to return here
+		}
+		return &tWeapons[id];
+	}
 
 	void		setLobbyReady(bool _g)		{ bLobbyReady = _g; }
 	bool		getLobbyReady() const		{ return bLobbyReady; }
