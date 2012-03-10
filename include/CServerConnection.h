@@ -139,8 +139,8 @@ public:
 
 	int			OwnsWorm(int id);
 
-	bool		getGameReady()				{ return bGameReady; }
-	void		setGameReady(bool _g)		{ bGameReady = _g; }
+	bool		getGameReady();
+	void		setGameReady(bool _g);
 
 	AbsTime		getLastReceived()			{ return fLastReceived; }
 	void		setLastReceived(const AbsTime& _l)	{ fLastReceived = _l; }

@@ -128,6 +128,28 @@ int CServerConnection::OwnsWorm(int id)
 }
 
 
+// Note: We actually don't need the bGameReady variable for new versions.
+// This is just for old clients where we need to inform about the ready state.
+
+bool CServerConnection::getGameReady() {
+	if(isLocalClient() || getClientVersion() >= OLXBetaVersion(0,59,10)) {
+		for_each_iterator(CWorm*, w, game.wormsOfClient(this)) {
+			if(!w->get()->bWeaponsReady) return false;
+		}
+		return true;
+	}
+	return bGameReady;
+}
+
+void CServerConnection::setGameReady(bool _g) {
+	bGameReady = _g;
+	if(isLocalClient() || getClientVersion() >= OLXBetaVersion(0,59,10)) {
+		if(bGameReady != getGameReady())
+			errors << "CServerConnection::setGameReady missmatch: var = " << bGameReady << ", " << " wpns = " << getGameReady() << endl;
+	}
+}
+
+
 ///////////////////
 // Shutdown the client
 void CServerConnection::Shutdown()
