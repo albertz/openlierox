@@ -95,6 +95,8 @@ void CClientNetEngine::SendWormDetails()
 
 void CClientNetEngine::SendGameReady()
 {
+	if(client->getServerVersion() >= OLXBetaVersion(0,59,10)) return;
+
 	CBytestream bs;
 	bs.writeByte(C2S_IMREADY);
 	

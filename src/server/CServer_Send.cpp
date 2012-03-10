@@ -85,7 +85,18 @@ void GameServer::SendGlobalPacket(CBytestream *bs, const Version& minVersion)
 // and the parameter should be the ready client.
 void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 	// Let everyone know this client is ready to play
-	
+	if(!receiver) {
+		for(int i = 0; i < MAX_CLIENTS; ++i) {
+			if(cServer->getClients()[i].getStatus() != NET_CONNECTED) continue;
+			if(cServer->getClients()[i].getNetEngine() == NULL) continue;
+			SendClientReady(&cServer->getClients()[i]);
+		}
+		return;
+	}
+
+	if(receiver->isLocalClient()) return;
+	if(receiver->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
+
 	//if(server->serverChoosesWeapons()) {
 		// We don't necessarily have to send the weapons, we send them directly
 		// (e.g. in cloneWeaponsToAllWorms() or in PrepareWorm()).
@@ -103,10 +114,7 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 			w->get()->writeWeapons(&bytes);
 		}
 		
-		if(receiver)
-			receiver->getNetEngine()->SendPacket(&bytes);
-		else
-			server->SendGlobalPacket(&bytes);
+		receiver->getNetEngine()->SendPacket(&bytes);
 		
 	} else { // old client && numworms > 2
 
@@ -117,10 +125,7 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 			bytes.writeByte(S2C_CLREADY);
 			bytes.writeByte(1);
 			w->get()->writeWeapons(&bytes);
-			if(receiver)
-				receiver->getNetEngine()->SendPacket(&bytes);
-			else
-				server->SendGlobalPacket(&bytes);
+			receiver->getNetEngine()->SendPacket(&bytes);
 		}
 	}
 }
