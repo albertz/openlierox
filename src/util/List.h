@@ -21,6 +21,7 @@ private:
 public:
 	DynamicList();
 
+	virtual ScriptVar_t defaultValue() const;
 	virtual void reset(); // doesn't resize. just resets all to default
 	virtual ScriptVarType_t type() const { return typeId; }
 	virtual size_t size() const { return list.size(); }
@@ -46,6 +47,7 @@ public:
 	typedef T value_type;
 	typedef ImplType list_impl_type;
 
+	virtual ScriptVar_t defaultValue() const { return ScriptVar_t(T()); }
 	virtual ScriptVarType_t type() const { return typeId; }
 	virtual size_t size() const { return list.size(); }
 	virtual void resize(size_t s) { list.resize(s); }
@@ -77,6 +79,7 @@ public:
 	static const ScriptVarType_t typeId = GetType<T>::value;
 	typedef T value_type;
 
+	virtual ScriptVar_t defaultValue() const { return ScriptVar_t(T()); }
 	virtual ScriptVarType_t type() const { return typeId; }
 	virtual size_t size() const { return Size; }
 	virtual bool canResize() const { return false; }

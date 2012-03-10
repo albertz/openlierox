@@ -13,9 +13,14 @@ DynamicList::DynamicList() {
 	thisRef.classId = LuaID<DynamicList>::value;
 }
 
+ScriptVar_t DynamicList::defaultValue() const {
+	assert(type() != SVT_CustomWeakRefToStatic); // we cannot have any senseful default which can be used by reset() or others
+	return ScriptVar_t::FromType(type());
+}
+
 void DynamicList::reset() {
 	 for(size_t i = 0; i < size(); ++i)
-		 writeGeneric(i, ScriptVar_t::FromType(type()));
+		 writeGeneric(i, defaultValue());
 }
 
 CustomVar* DynamicList::copy() const { return new DynamicList(*this); }
