@@ -609,8 +609,15 @@ void GameServer::SendWeapons(CServerConnection* cl, CWorm* w)
 	if(cl)
 		cl->getNetEngine()->SendWeapons(w);
 	else
-		for(int c = 0; c < MAX_CLIENTS; c++)
-			cClients[c].getNetEngine()->SendWeapons(w);
+		for(int c = 0; c < MAX_CLIENTS; c++) {
+			CServerConnection* cl = &getClients()[c];
+
+			if(cl->isLocalClient()) continue;
+			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+			if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) continue;
+
+			cl->getNetEngine()->SendWeapons(w);
+		}
 }
 
 ///////////////////
@@ -630,7 +637,15 @@ void GameServer::SendWormTagged(CWorm *w)
 	bs.writeFloat((float)w->getTagTime().seconds());
 
 	// Send
-	SendGlobalPacket(&bs);
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		CServerConnection* cl = &getClients()[c];
+
+		if(cl->isLocalClient()) continue;
+		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+		if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) continue;
+
+		cl->getNetEngine()->SendPacket(&bs);
+	}
 }
 
 ///////////////////
@@ -1023,7 +1038,8 @@ void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 {
 	Worm->setSpawnedOnce();
 	if(cl->isLocalClient()) return;
-	
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
+
 	CBytestream bs;
 	bs.writeByte(S2C_SPAWNWORM);
 	bs.writeInt(Worm->getID(), 1);
@@ -1036,6 +1052,7 @@ void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 void CServerNetEngine::SendWormDied(CWorm *Worm)
 {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 	if(game.gameScript()->gusEngineUsed())
 		// we don't use this in Gusanos
 		return;
@@ -1050,6 +1067,8 @@ void CServerNetEngine::SendWormDied(CWorm *Worm)
 void CServerNetEngine::SendWormScore(CWorm *Worm)
 {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
+
 	CBytestream bs;
 	bs.writeByte(S2C_SCOREUPDATE);
 	bs.writeInt(Worm->getID(), 1);
@@ -1066,9 +1085,11 @@ void CServerNetEngine::SendWormScore(CWorm *Worm)
 
 void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 {
-	if(cl->isLocalClient()) return;
 	// If we have some damage reports in buffer send them first so clients won't sum up updated damage score and reported damage packet sent later
 	SendReportDamage(true);
+
+	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 
 	CBytestream bs;
 	bs.writeByte(S2C_SCOREUPDATE);
@@ -1159,6 +1180,7 @@ void CServerNetEngine::SendWormProperties(CWorm* worm) {
 
 void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 
 	CBytestream bs;
 	bs.writeByte(S2C_SETWORMPROPS);
@@ -1187,6 +1209,7 @@ void CServerNetEngine::SendSelectWeapons(CWorm* worm) {
 
 void CServerNetEngineBeta9::SendSelectWeapons(CWorm* worm) {
 	if(cl->isLocalClient()) return;
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 
 	CBytestream bs;
 	bs.writeByte(S2C_SELECTWEAPONS);
