@@ -1220,6 +1220,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 				msg = "Waiting for weapon selection ...";
 			} else if(!worm->bWeaponsReady && !worm->getLocal()) {
 				msg = "Waiting for weapon selection of remote player ...";
+			} else if(game.state == Game::S_Preparing) {
+				msg = "Game not yet started, preparing ...";
 			} else if(!worm->getLocal()) {
 				msg = "Waiting for respawn of remote player ...";
 			} else if(wInput == NULL) {
