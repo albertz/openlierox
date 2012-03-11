@@ -745,6 +745,10 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 
 
 
+void CWorm::onWeaponsReadyUpdate(BaseObject *obj, const AttrDesc *attrDesc, ScriptVar_t old) {
+	cServer->RecheckGame();
+}
+
 ///////////////////
 // Randomize the weapons
 void CWorm::GetRandomWeapons()

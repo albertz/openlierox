@@ -196,7 +196,7 @@ public:
 	ATTR(CWorm, bool, bSpectating, 13, {serverside = false;})
 
 	// Arsenal
-	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;})
+	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false; onUpdate = onWeaponsReadyUpdate; })
 	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
 	ATTR(CWorm, List<wpnslot_t>,	weaponSlots, 22, {serverside = false;})
 
@@ -354,7 +354,7 @@ public:
 	// Weapon
 	void		GetRandomWeapons();
 	void		CloneWeaponsFrom(CWorm* w);
-
+	static void	onWeaponsReadyUpdate(BaseObject* obj, const AttrDesc* attrDesc, ScriptVar_t old);
 
 	//
 	// Graphics
