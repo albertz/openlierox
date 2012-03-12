@@ -1288,9 +1288,14 @@ void GameServer::CheckForFillWithBots() {
 }
 
 CServerConnection* GameServer::localClientConnection() {
-	for( int i=0; i<MAX_CLIENTS; i++ )
-		if(getClients()[i].isLocalClient())
-			return &getClients()[i];
+	assert(isServerRunning());
+	for( int i=0; i<MAX_CLIENTS; i++ ) {
+		CServerConnection* cl = &getClients()[i];
+		if(!cl->isUsed()) continue;
+		if(!cl->isConnected()) continue;
+		if(!cl->isLocalClient()) continue;
+		return cl;
+	}
 	return NULL;
 }
 
