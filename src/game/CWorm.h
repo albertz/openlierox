@@ -105,7 +105,6 @@ struct wpnslot_t : CustomVar {
 	wpnslot_t();
 	void reset();
 
-	virtual CustomVar* copy() const { return new wpnslot_t(*this); }
 	virtual std::string toString() const;
 	virtual bool fromString(const std::string & str);
 };
