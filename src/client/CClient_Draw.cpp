@@ -2331,8 +2331,10 @@ void CClient::ProcessSpectatorViewportKeys()
 	// (also don't proceed when waiting for respawn)
 	for_each_iterator(CWorm*, w, game.localWorms()) {
 		if(w->get()->getType() == PRF_HUMAN) {
-			if(w->get()->getAlive())
+			if(w->get()->getAlive()) {
+				sSpectatorViewportMsg = "";
 				return;
+			}
 			if(tLX->currentTime <= w->get()->getTimeofDeath() + 3.0f)
 				return;
 		}
