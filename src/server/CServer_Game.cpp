@@ -78,6 +78,7 @@ void GameServer::SpawnWorm(CWorm *Worm, const std::string& reason, CVec * _pos, 
 	if(!game.gameMode()->Spawn(Worm, pos))
 		return;
 
+	Worm->pos().ext.S2CupdateNeeded = true;
 	Worm->Spawn(pos);
 	bool sendWormUpdate = true;
 	if(Worm->getLives() == WRM_OUT) {
