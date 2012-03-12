@@ -144,7 +144,7 @@ Result CustomVar::fromBytestream(CBytestream *bs, bool expectDiffToDefault) {
 		case CUSTOMVAR_STREAM_DiffToDefault: reset(); break;
 		case CUSTOMVAR_STREAM_DiffToOld:
 			if(expectDiffToDefault) {
-				errors << "CustomVar::fromBytestream: got unexpected diffToOld data on " << thisRef.description();
+				errors << "CustomVar::fromBytestream: got unexpected diffToOld data on " << thisRef.description() << endl;
 				// continue anyway, there might be still something useful
 			}
 			/* nothing to do */ break;
