@@ -2317,7 +2317,7 @@ void CClient::ProcessSpectatorViewportKeys()
 		return;
 
 	// reset viewports when spawned
-	for(int i = 0; i < 2; ++i) {
+	for(int i = 0; i < NUM_VIEWPORTS; ++i) {
 		if(!cViewports[i].getUsed()) continue;
 		CWorm* w = cViewports[i].getOrigTarget();
 		if(!w) continue;

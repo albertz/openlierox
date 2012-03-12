@@ -202,7 +202,6 @@ public:
 private:
 	// Attributes
 
-	//int			iDrawingViews[2];
     CViewport   cViewports[NUM_VIEWPORTS];
 
 	// Logging
