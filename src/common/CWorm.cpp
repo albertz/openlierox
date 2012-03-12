@@ -1649,6 +1649,19 @@ void CWorm::setClientVersion(const Version & v) {
 	cClientVersion = v;
 }
 
+bool CWorm::weOwnThis() const {
+	return getLocal();
+}
+
+CServerConnection* CWorm::ownerClient() const {
+	if(game.state <= Game::S_Inactive) return NULL;
+	if(game.isClient()) return NULL;
+	assert(cServer != NULL);
+	assert(cServer->isServerRunning());
+	assert(getClient() != NULL);
+	assert(getClient()->OwnsWorm(getID()));
+	return getClient();
+}
 
 REGISTER_CLASS(CWorm, LuaID<CGameObject>::value)
 REGISTER_CLASS(worm_state_t, LuaID<CustomVar>::value)

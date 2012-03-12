@@ -26,6 +26,10 @@
 typedef std::map<AttribRef, const AttrDesc*> AttrDescs;
 static StaticVar<AttrDescs> attrDescs;
 
+std::string AttrDesc::description() const {
+	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
+}
+
 void AttrDesc::set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServer) const {
 	assert(isStatic); // not yet implemented otherwise... we would need another dynamic function
 	if(!authorizedByServer && !authorizedToWrite(base)) return; // silently for now...
@@ -33,20 +37,23 @@ void AttrDesc::set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServ
 	getValueScriptPtr(base).fromScriptVar(v);
 }
 
-bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
+bool AttrDesc::authorizedToWrite(BaseObject* base) const {
 	assert(base != NULL);
+	if(game.isServer() && getAttrExt(base).S2CupdateNeeded) return true;
 	if(authorizedToWriteExtra && !authorizedToWriteExtra(base, this)) return false;
 	if(base->thisRef.objId == ObjId(-1)) return true; // not registered objects can always be written
 	if(game.state <= Game::S_Inactive) return true;
 	if(game.isServer()) return true;
 	if(cClient->getServerVersion() < OLXBetaVersion(0,59,10)) return true; // old protocol, we just manage it manually
-	if(!serverside && base->thisRef.ownThis()) return true;
+	if(!serverside && base->weOwnThis()) return true;
 	if(this == Game::state_Type::attrDesc()) return true; // small exception
 	return false;
 }
 
-std::string AttrDesc::description() const {
-	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
+bool AttrDesc::shouldUpdate(BaseObject* base) const {
+	if(!authorizedToWrite(base)) return false;
+	if(game.isClient() && serverside) return false;
+	return true;
 }
 
 AttribRef::AttribRef(const AttrDesc* attrDesc) {

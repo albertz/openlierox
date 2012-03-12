@@ -163,6 +163,9 @@ public:
 	CWorm();
 	~CWorm();
 
+	virtual bool weOwnThis() const;
+	virtual CServerConnection* ownerClient() const;
+
 private:
 	// disallow these!
 	CWorm(const CWorm&);
@@ -467,7 +470,7 @@ public:
 	AbsTime		getTimeofDeath()		{ return fTimeofDeath; }
 
 	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
-    CServerConnection     *getClient()            { return cOwner; }
+	CServerConnection     *getClient()    const     { return cOwner; }
 
 	bool		isOnGround()				{ return bOnGround; }
 	void		setOnGround(bool g)			{ bOnGround = g; }

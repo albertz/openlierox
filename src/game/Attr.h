@@ -23,7 +23,8 @@ class CBytestream;
 
 struct AttrExt {
 	bool updated;
-	AttrExt() : updated(false) {}
+	bool S2CupdateNeeded;
+	AttrExt() : updated(false), S2CupdateNeeded(false) {}
 };
 
 struct AttrDesc {
@@ -47,6 +48,7 @@ struct AttrDesc {
 	AttrDesc()
 	: objTypeId(0), attrType(SVT_INVALID), isStatic(true), attrMemOffset(0), attrExtMemOffset(0), attrId(0),
 	  serverside(true) {}
+	std::string description() const;
 
 	const void* getValuePtr(const BaseObject* base) const {
 		assert(isStatic);
@@ -70,8 +72,8 @@ struct AttrDesc {
 	}
 	void set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServer = false) const;
 
-	bool authorizedToWrite(const BaseObject* base) const;
-	std::string description() const;
+	bool authorizedToWrite(BaseObject* base) const;
+	bool shouldUpdate(BaseObject* base) const;
 };
 
 struct AttribRef {

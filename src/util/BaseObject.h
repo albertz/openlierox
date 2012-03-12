@@ -20,6 +20,7 @@ typedef uint16_t ObjId;
 struct AttrDesc;
 struct BaseObject;
 class CBytestream;
+class CServerConnection;
 
 struct ObjRef {
 	ClassId classId;
@@ -29,7 +30,6 @@ struct ObjRef {
 	ObjRef() : classId(-1), objId(-1) {}
 	void writeToBs(CBytestream* bs) const;
 	void readFromBs(CBytestream* bs);
-	bool ownThis() const;
 	std::string description() const;
 	operator bool() const {
 		return classId != ClassId(-1) && objId != ObjId(-1);
@@ -53,7 +53,10 @@ struct BaseObject {
 	BaseObject(const BaseObject& o);
 	BaseObject& operator=(const BaseObject& o);
 	virtual ~BaseObject();
-	
+
+	virtual bool weOwnThis() const;
+	virtual CServerConnection* ownerClient() const;
+
 	std::vector<AttrUpdateInfo> attrUpdates;
 	ObjRef thisRef;
 };

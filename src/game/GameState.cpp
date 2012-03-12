@@ -270,15 +270,20 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	reset();
 	foreach(o, game.gameStateUpdates->objCreations) {
 		if(game.isClient()) continue; // none-at-all right now... worm-creation is handled independently atm
-		if(!o->ownThis()) continue;
+		if(!o->obj) continue;
+		if(!o->obj.get()->weOwnThis()) continue;
 		if(!s.haveObject(*o))
 			pushObjCreation(*o);
 	}
 	foreach(u, game.gameStateUpdates->objs) {
-		if(!u->obj.obj) continue;
+		BaseObject* obj = u->obj.obj.get();
+		if(!obj) continue;
 		const AttrDesc* attrDesc = u->attr.getAttrDesc();
-		if(!attrDesc->authorizedToWrite(u->obj.obj.get())) continue;
-		if(game.isClient() && attrDesc->serverside) continue;
+		assert(attrDesc != NULL);
+		if(!attrDesc->shouldUpdate(obj)) continue;
+
+		attrDesc->getAttrExt(obj).S2CupdateNeeded = false;
+
 		ScriptVar_t curValue = u->get();
 		ScriptVar_t stateValue = attrDesc->defaultValue;
 		if(s.haveObject(u->obj))
@@ -292,7 +297,8 @@ void GameStateUpdates::diffFromStateToCurrent(const GameState& s) {
 	}
 	foreach(o, game.gameStateUpdates->objDeletions) {
 		if(game.isClient()) continue; // see obj-creations
-		if(!o->ownThis()) continue;
+		if(!o->obj) continue;
+		if(!o->obj.get()->weOwnThis()) continue;
 		if(s.haveObject(*o))
 			pushObjDeletion(*o);
 	}
