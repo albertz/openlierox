@@ -25,6 +25,7 @@
 #include "Condition.h"
 #include "game/CMap.h" // for CMap::DrawObjectShadow
 #include "PixelFunctors.h"
+#include "game/CWorm.h"
 
 // global mutex to force only one execution at time
 static Mutex skinActionHandlerMutex;
@@ -782,6 +783,14 @@ std::string CGameSkin::toString() const {
 bool CGameSkin::fromString( const std::string & str) {
 	Change(str);
 	return true;
+}
+
+BaseObject* CGameSkin::parentObject() const {
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(&w->get()->cSkin.get() == this)
+			return w->get();
+	}
+	return NULL;
 }
 
 REGISTER_CLASS(CGameSkin, LuaID<CustomVar>::value)

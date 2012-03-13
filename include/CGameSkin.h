@@ -58,6 +58,8 @@ public:
 	CGameSkin(const CGameSkin& skin);
 	CGameSkin& operator=(const CGameSkin& oth);
 
+	virtual BaseObject* parentObject() const;
+
 private:
 	bool loaded;
 	SmartPointer<SDL_Surface>	bmpSurface;
