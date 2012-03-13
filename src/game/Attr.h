@@ -190,6 +190,10 @@ struct AttrWithBasicOpts : public Attr<T, AttrDescT> {
 	template<typename T2> T operator/(T2 o) const { return this->value / o; }
 	template<typename T2> bool operator==(T2 o) const { return this->value == o; }
 	template<typename T2> bool operator!=(T2 o) const { return this->value != o; }
+	template<typename T2> bool operator<(T2 o) const { return this->value < o; }
+	template<typename T2> bool operator>(T2 o) const { return this->value > o; }
+	template<typename T2> bool operator<=(T2 o) const { return this->value <= o; }
+	template<typename T2> bool operator>=(T2 o) const { return this->value >= o; }
 };
 
 template <typename T, typename AttrDescT>
@@ -208,6 +212,10 @@ struct AttrWithIntOpts : public Attr<T, AttrDescT> {
 	template<typename T2> T operator/(T2 o) const { return this->value / o; }
 	template<typename T2> bool operator==(T2 o) const { return this->value == o; }
 	template<typename T2> bool operator!=(T2 o) const { return this->value != o; }
+	template<typename T2> bool operator<(T2 o) const { return this->value < o; }
+	template<typename T2> bool operator>(T2 o) const { return this->value > o; }
+	template<typename T2> bool operator<=(T2 o) const { return this->value <= o; }
+	template<typename T2> bool operator>=(T2 o) const { return this->value >= o; }
 };
 
 template <typename T, typename AttrDescT>
