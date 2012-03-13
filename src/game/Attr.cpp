@@ -41,12 +41,12 @@ bool AttrDesc::authorizedToWrite(BaseObject* base) const {
 	assert(base != NULL);
 	if(game.isServer() && getAttrExt(base).S2CupdateNeeded) return true;
 	if(authorizedToWriteExtra && !authorizedToWriteExtra(base, this)) return false;
-	if(base->thisRef.objId == ObjId(-1)) return true; // not registered objects can always be written
 	if(game.state <= Game::S_Inactive) return true;
 	if(game.isServer()) return true;
 	if(cClient->getServerVersion() < OLXBetaVersion(0,59,10)) return true; // old protocol, we just manage it manually
-	if(!serverside && base->weOwnThis()) return true;
+	if(!serverside) return base->weOwnThis();
 	if(this == Game::state_Type::attrDesc()) return true; // small exception
+	if(base->thisRef.objId == ObjId(-1)) return true; // not registered objects can always be written
 	return false;
 }
 
