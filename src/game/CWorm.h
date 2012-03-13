@@ -95,9 +95,9 @@ struct weapon_t;
 // Weapon slot structure
 struct wpnslot_t : CustomVar {
 	ATTR(wpnslot_t, int32_t,	WeaponId,	1, { defaultValue = -1; serverside = false; })
-	ATTR(wpnslot_t, float,		Charge,		2, { defaultValue = 1.f; serverside = false; })
-	ATTR(wpnslot_t, bool,		Reloading,	3, { defaultValue = false; serverside = false; })
-	ATTR(wpnslot_t, float,		LastFire,	4, { defaultValue = 0.f; serverside = false; })
+	ATTR(wpnslot_t, float,		Charge,		2, { defaultValue = 1.f; serverside = true; })
+	ATTR(wpnslot_t, bool,		Reloading,	3, { defaultValue = false; serverside = true; })
+	ATTR(wpnslot_t, float,		LastFire,	4, { defaultValue = 0.f; serverside = true; })
 	ATTR(wpnslot_t, bool,		Enabled,	5, { defaultValue = false; serverside = false; })
 
 	const weapon_t* weapon() const;
