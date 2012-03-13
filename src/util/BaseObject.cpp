@@ -68,11 +68,21 @@ BaseObject::~BaseObject() {
 	thisRef.obj.overwriteShared(NULL);
 }
 
+BaseObject* BaseObject::parentObject() const {
+	return NULL;
+}
+
 bool BaseObject::weOwnThis() const {
+	if(parentObject()) return parentObject()->weOwnThis();
+	if(game.isServer()) {
+		CServerConnection* cl = ownerClient();
+		if(cl) return cl == cServer->localClientConnection();
+	}
 	return game.isServer();
 }
 
 CServerConnection* BaseObject::ownerClient() const {
+	if(parentObject()) return parentObject()->ownerClient();
 	if(game.state <= Game::S_Inactive) return NULL;
 	if(game.isClient()) return NULL;
 	assert(cServer != NULL);

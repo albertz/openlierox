@@ -94,17 +94,18 @@ struct weapon_t;
 
 // Weapon slot structure
 struct wpnslot_t : CustomVar {
-	ATTR(wpnslot_t, int32_t,	WeaponId,	1, { defaultValue = -1; })
-	ATTR(wpnslot_t, float,		Charge,		2, { defaultValue = 1.f; })
-	ATTR(wpnslot_t, bool,		Reloading,	3, { defaultValue = false; })
-	ATTR(wpnslot_t, float,		LastFire,	4, { defaultValue = 0.f; })
-	ATTR(wpnslot_t, bool,		Enabled,	5, { defaultValue = false; })
+	ATTR(wpnslot_t, int32_t,	WeaponId,	1, { defaultValue = -1; serverside = false; })
+	ATTR(wpnslot_t, float,		Charge,		2, { defaultValue = 1.f; serverside = false; })
+	ATTR(wpnslot_t, bool,		Reloading,	3, { defaultValue = false; serverside = false; })
+	ATTR(wpnslot_t, float,		LastFire,	4, { defaultValue = 0.f; serverside = false; })
+	ATTR(wpnslot_t, bool,		Enabled,	5, { defaultValue = false; serverside = false; })
 
 	const weapon_t* weapon() const;
 
 	wpnslot_t();
 	void reset();
 
+	virtual BaseObject* parentObject() const;
 	virtual std::string toString() const;
 	virtual bool fromString(const std::string & str);
 };
@@ -122,6 +123,8 @@ struct worm_state_t : CustomVar {
 	void reset();
 	uint8_t asInt() const;
 	void fromInt(uint8_t i);
+
+	virtual BaseObject* parentObject() const;
 
 	virtual CustomVar* copy() const;
 	virtual bool operator==(const CustomVar&) const;

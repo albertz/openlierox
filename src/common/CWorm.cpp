@@ -72,6 +72,14 @@ void worm_state_t::fromInt(uint8_t i) {
 	bJump = i & 8;
 }
 
+BaseObject* worm_state_t::parentObject() const {
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(&w->get()->tState.get() == this)
+			return w->get();
+	}
+	return NULL;
+}
+
 CustomVar* worm_state_t::copy() const { return new worm_state_t(*this); }
 
 bool worm_state_t::operator==(const CustomVar& o) const {
@@ -118,6 +126,17 @@ const weapon_t* wpnslot_t::weapon() const {
 	if(!game.gameScript()->isLoaded()) return NULL;
 	if(WeaponId < 0 || WeaponId >= game.gameScript()->GetNumWeapons()) return NULL;
 	return game.gameScript()->GetWeapons() + WeaponId;
+}
+
+BaseObject* wpnslot_t::parentObject() const {
+	for_each_iterator(CWorm*, w, game.worms()) {
+		for(size_t i = 0; i < w->get()->weaponSlots.get().size(); ++i) {
+			const wpnslot_t& slot = w->get()->weaponSlots.get().get(i);
+			if(&slot == this)
+				return w->get();
+		}
+	}
+	return NULL;
 }
 
 std::string wpnslot_t::toString() const {

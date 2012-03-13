@@ -54,6 +54,7 @@ struct BaseObject {
 	BaseObject& operator=(const BaseObject& o);
 	virtual ~BaseObject();
 
+	virtual BaseObject* parentObject() const; // if defined, ownage-properties are overtaken
 	virtual bool weOwnThis() const;
 	virtual CServerConnection* ownerClient() const;
 
