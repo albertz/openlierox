@@ -59,6 +59,8 @@ public:
 	~CNinjaRope();
 	CNinjaRope& operator=(const CNinjaRope&);
 
+	virtual BaseObject* parentObject() const { return (BaseObject*)owner; }
+
 private:	
 	// Attributes
 	
