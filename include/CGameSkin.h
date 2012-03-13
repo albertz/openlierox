@@ -66,9 +66,9 @@ private:
 	SmartPointer<SDL_Surface>	bmpShadow;
 	SmartPointer<SDL_Surface>	bmpMirroredShadow;
 	SmartPointer<SDL_Surface>	bmpPreview;
-	ATTR(CGameSkin, std::string, sFileName, 1, { onUpdate = onFilenameUpdate; })
-	ATTR(CGameSkin, Color,		iColor, 2, { defaultValue = Color(128, 128, 128); onUpdate = onColorUpdate; })
-	ATTR(CGameSkin, Color,		iDefaultColor, 3, { defaultValue = Color(128, 128, 128); })
+	ATTR(CGameSkin, std::string, sFileName, 1, { onUpdate = onFilenameUpdate; serverside = false; })
+	ATTR(CGameSkin, Color,		iColor, 2, { defaultValue = Color(128, 128, 128); onUpdate = onColorUpdate; serverside = false; })
+	ATTR(CGameSkin, Color,		iDefaultColor, 3, { defaultValue = Color(128, 128, 128); serverside = false; })
 	bool						bColorized;
 	int							iBotIcon;
 	int							iFrameWidth;  // Width of one frame
