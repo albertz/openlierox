@@ -1139,6 +1139,7 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	assert(wormById(wormId, false) == NULL);
 	assert(wormId >= 0);
 	CWorm* w = new CWorm();
+	w->setLocal(local);
 	w->setID(wormId);
 	w->fLastSimulationTime = GetPhysicsTime(); 
 	w->iTotalWins = w->iTotalLosses = w->iTotalKills = w->iTotalDeaths = w->iTotalSuicides = 0;
@@ -1153,7 +1154,6 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 			w->setType(PRF_COMPUTER);
 		}
 	}
-	w->setLocal(local);
 	w->setClientVersion(clientVersion);
 	w->setProfile(profile);
 	w->thisRef.objId = wormId;
