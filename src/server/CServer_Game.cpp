@@ -214,12 +214,6 @@ void GameServer::SimulateGame()
 				}
 			}
 		}
-
-		// Simulate the worm's weapons
-		// TODO: why are we doing this? we are not simulating the worm but why the weapon?
-		// please try to remove this here and then remove also the dt parameter in PhysicsEngine
-		if( w->getAlive() )
-			PhysicsEngine::Get()->simulateWormWeapon(w);
 	}
 
 	// Check if any bonuses have been in for too long and need to be destroyed
