@@ -475,12 +475,6 @@ public:
 		goto simulateWormStart;
 	}
 
-	virtual void simulateWormWeapon(CWorm* worm) {
-		// we use deltatime here and not realdeltatime because we want to have it the same way as the call from simulateWorm
-		TimeDiff dt = tLX->fDeltaTime * (float)cClient->getGameLobby()[FT_GameSpeed];
-		simulateWormWeapon(dt, worm);
-	}
-
 	void simulateWormWeapon(TimeDiff dt, CWorm* worm) {
 		// Weird
 		if (worm->getCurrentWeapon() < 0 || worm->getCurrentWeapon() >= 5) {

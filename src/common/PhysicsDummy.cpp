@@ -13,7 +13,6 @@ struct DummyPhysicsEngine : PhysicsEngine {
 	virtual bool isInitialised() { return m_inited; }
 
 	virtual void simulateWorm(CWorm* worm, bool local) {}
-	virtual void simulateWormWeapon(CWorm* worm) {}
 	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs) {}
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) {}
 
