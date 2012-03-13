@@ -615,7 +615,7 @@ bool CBytestream::readVar(ScriptVar_t& var) {
 	}
 	case SVT_CUSTOM:
 	case SVT_CustomWeakRefToStatic: {
-		if(var.type == SVT_CustomWeakRefToStatic) {
+		if(var.isCustomType()) {
 			ClassId classId = readInt16();
 			if(classId != var.customVar()->thisRef.classId) {
 				errors << "read var: got invalid classId " << classId << " << for static CustomVar with classId " << var.customVar()->thisRef.classId << endl;
