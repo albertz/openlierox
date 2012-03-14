@@ -182,7 +182,7 @@ public:
 	void		CheckTimeouts();
 	void		CheckWeaponSelectionTime();
 	void		DropClient(CServerConnection *cl, int reason, const std::string& sReason, bool showReason = true);
-	CWorm*		AddWorm(const WormJoinInfo& wormInfo);
+	CWorm*		AddWorm(const WormJoinInfo& wormInfo, CServerConnection* cl);
 	void		PrepareWorm(CWorm* worm);
 	void		RemoveClient(CServerConnection *cl, const std::string& reason);
 	void		RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms, const std::string& reason);

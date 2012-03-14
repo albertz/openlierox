@@ -74,6 +74,7 @@ BaseObject* BaseObject::parentObject() const {
 
 bool BaseObject::weOwnThis() const {
 	if(parentObject()) return parentObject()->weOwnThis();
+	if(thisRef.objId == ObjId(-1)) return true; // not registered objects without parent are always owned
 	if(game.isServer()) {
 		CServerConnection* cl = ownerClient();
 		if(cl) return cl == cServer->localClientConnection();

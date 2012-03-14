@@ -186,7 +186,7 @@ protected:
 	bool            bPrepared;
 
 public:
-	ATTR(CWorm, int,	iTeam, 1, {serverside = false;})
+	ATTR(CWorm, int,	iTeam, 1, {serverside = true;})
 	ATTR(CWorm, std::string,	sName, 2, {serverside = false;})
 
 	ATTR(CWorm, CGameSkin, cSkin, 3, {serverside = false;})
@@ -203,7 +203,7 @@ public:
 	// Arsenal
 	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false; onUpdate = onWeaponsReadyUpdate; })
 	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
-	ATTR(CWorm, List<wpnslot_t>,	weaponSlots, 22, {serverside = false;})
+	ATTR(CWorm, List<wpnslot_t>,	weaponSlots, 22, { serverside = false; defaultValue = List<wpnslot_t>(5); })
 
 	struct WeaponSlotWrapper {
 		const CWorm* parent() const { return (const CWorm*)__OLX_BASETHIS(CWorm, tWeapons); }

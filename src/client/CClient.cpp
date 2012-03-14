@@ -1726,12 +1726,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 	
 	// we can do it direct as host (similar to kickWorm)
 
-	CServerConnection* localConn = NULL;
-	for( int i=0; i<MAX_CLIENTS; i++ )
-		if(cServer->getClients()[i].isLocalClient()) {
-			localConn = &cServer->getClients()[i];
-			break;
-		}
+	CServerConnection* localConn = cServer->localClientConnection();
 	if(localConn == NULL) {
 		errors << "updateAddedWorms: localClient not found" << endl;
 		return addedWorms;
@@ -1742,17 +1737,14 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 		
 		WormJoinInfo info;
 		info.loadFromProfile(*newWormProf);
-		CWorm* w = cServer->AddWorm(info);
+		CWorm* w = cServer->AddWorm(info, localConn);
 		if(w == NULL) {
 			warnings << "updateAddedWorms: cannot add worm " << info.sName << endl;
 			break;
 		}
 		w->setProfile(*newWormProf);
-		w->setLocal(true);
 		addedWorms.push_back(w->getID());
 		
-		w->setClient(localConn);
-
 		hints << "Worm added: " << w->getName();
 		hints << " (id " << w->getID() << ", team " << w->getTeam() << ")" << endl;
 

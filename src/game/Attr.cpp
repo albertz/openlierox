@@ -23,6 +23,30 @@
 #include "OLXCommand.h"
 #include "CClient.h"
 
+static CServerConnection* attrUpdateByClientScope = NULL;
+static bool attrUpdateByServerScope = false;
+
+AttrUpdateByClientScope::AttrUpdateByClientScope(CServerConnection *cl) {
+	assert(cl != NULL);
+	assert(attrUpdateByClientScope == NULL); // no nesting
+	assert(!attrUpdateByServerScope);
+	attrUpdateByClientScope = cl;
+}
+
+AttrUpdateByClientScope::~AttrUpdateByClientScope() {
+	attrUpdateByClientScope = NULL;
+}
+
+AttrUpdateByServerScope::AttrUpdateByServerScope() {
+	assert(!attrUpdateByServerScope); // no nesting
+	assert(attrUpdateByClientScope == NULL);
+	attrUpdateByServerScope = true;
+}
+
+AttrUpdateByServerScope::~AttrUpdateByServerScope() {
+	attrUpdateByServerScope = false;
+}
+
 typedef std::map<AttribRef, const AttrDesc*> AttrDescs;
 static StaticVar<AttrDescs> attrDescs;
 
@@ -30,23 +54,35 @@ std::string AttrDesc::description() const {
 	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
 }
 
-void AttrDesc::set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServer) const {
+void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
 	assert(isStatic); // not yet implemented otherwise... we would need another dynamic function
-	if(!authorizedByServer && !authorizedToWrite(base)) return; // silently for now...
+	if(!authorizedToWrite(base)) return; // silently for now...
 	pushObjAttrUpdate(*base, this);
 	getValueScriptPtr(base).fromScriptVar(v);
 }
 
 bool AttrDesc::authorizedToWrite(BaseObject* base) const {
 	assert(base != NULL);
-	if(game.isServer() && getAttrExt(base).S2CupdateNeeded) return true;
-	if(authorizedToWriteExtra && !authorizedToWriteExtra(base, this)) return false;
 	if(game.state <= Game::S_Inactive) return true;
-	if(game.isServer()) return true;
-	if(cClient->getServerVersion() < OLXBetaVersion(0,59,10)) return true; // old protocol, we just manage it manually
-	if(!serverside) return base->weOwnThis();
+	if(attrUpdateByServerScope || attrUpdateByClientScope) {
+		if(game.isServer()) {
+			assert(attrUpdateByClientScope);
+			if(serverside) return false;
+			return attrUpdateByClientScope == base->ownerClient();
+		}
+		else { // client
+			assert(attrUpdateByServerScope);
+			return true; // we just allow any updates from the server
+		}
+	}
+	if(game.isServer() && getAttrExt(base).S2CupdateNeeded) return true;
+	if(game.isClient() && cClient->getServerVersion() < OLXBetaVersion(0,59,10)) return true; // old protocol, we just manage it manually
 	if(this == Game::state_Type::attrDesc()) return true; // small exception
-	if(base->thisRef.objId == ObjId(-1)) return true; // not registered objects can always be written
+	if(serverside) return game.isServer();
+	if(!serverside) {
+		if(game.isServer() && serverCanUpdate) return true;
+		return base->weOwnThis();
+	}
 	return false;
 }
 

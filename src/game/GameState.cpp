@@ -234,7 +234,7 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 						continue;
 					}
 				}
-				attrDesc->set(o, v, true);
+				attrDesc->set(o, v);
 			}
 		}
 

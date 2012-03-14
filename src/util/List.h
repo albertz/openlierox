@@ -64,6 +64,9 @@ private:
 	ImplType list;
 
 public:
+	List() {}
+	List(size_t s) { resize(s); }
+
 	virtual CustomVar* copy() const { return new List(*this); }
 
 	virtual void copyFrom(const CustomVar& o) {

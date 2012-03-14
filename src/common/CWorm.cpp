@@ -201,7 +201,6 @@ CWorm::CWorm() :
 	bLocal = false;
 	m_type = PRF_HUMAN;
 	cOwner = NULL;
-	bSpectating = false;
 
 	iFaceDirectionSide = DIR_RIGHT;
 	fAngle = 0;
@@ -220,10 +219,6 @@ CWorm::CWorm() :
 
 	cNinjaRope.Clear();
 	fLastAirJumpTime = 0;
-
-	bWeaponsReady = false;
-	weaponSlots.write().resize(5);
-	iCurrentWeapon = 0;
 
 	bGotTarget = false;
 
@@ -251,12 +246,6 @@ CWorm::CWorm() :
 	gusSkinVisble = true;
 
 	fLastSimulationTime = tLX->currentTime;
-
-
-	if(m_inputHandler) {
-		m_inputHandler->deleteThis();
-		m_inputHandler = NULL;
-	}
 
 	cDamageReport.clear();
 

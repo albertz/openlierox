@@ -41,8 +41,8 @@ protected:
 	// Gusanos comment:
 	// IMPORTANT: The pos and spd vectors should be used as read only. ( Because of netplay needs )
 	// To change their values use the setters provided.
-	ATTR(CGameObject, CVec, vPos, 2, {serverside = false; authorizedToWriteExtra = canUpdateAttribs;})
-	ATTR(CGameObject, CVec, vVelocity, 3, {serverside = false; authorizedToWriteExtra = canUpdateAttribs;})
+	ATTR(CGameObject, CVec, vPos, 2, {serverside = false; serverCanUpdate = false;})
+	ATTR(CGameObject, CVec, vVelocity, 3, {serverside = false; serverCanUpdate = false;})
 
 	ATTR(CGameObject, float, health, 4, {serverside = false; defaultValue = 100.0f;})
 

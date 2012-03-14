@@ -190,7 +190,7 @@ Result CustomVar::fromBytestream(CBytestream *bs, bool expectDiffToDefault) {
 
 		ScriptVar_t var;
 		bs->readVar(var);
-		attrDesc->set(this, var, true);
+		attrDesc->set(this, var);
 	}
 
 	return r;

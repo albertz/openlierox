@@ -645,9 +645,11 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				network.olxParseUpdate(NetConnID_server(), *bs);
 				break;
 
-			case S2C_GAMEATTRUPDATE:
+			case S2C_GAMEATTRUPDATE: {
+				AttrUpdateByServerScope updateScope;
 				GameStateUpdates::handleFromBs(bs, NULL);
 				break;
+			}
 
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
@@ -1213,7 +1215,7 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	bool newWorm = false;
 	CWorm* w = game.wormById(id, false);
 	if (w == NULL)  {
-		w = game.createNewWorm(id, false, new profile_t(), Version());
+		w = game.createNewWorm(id, false, NULL, Version());
 		newWorm = true;
 	}
 	

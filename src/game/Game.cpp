@@ -1138,12 +1138,12 @@ CWorm* Game::findWormByName(const std::string& name) {
 CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>& profile, const Version& clientVersion) {
 	assert(wormById(wormId, false) == NULL);
 	assert(wormId >= 0);
+
 	CWorm* w = new CWorm();
 	w->setLocal(local);
+	if(local && game.isServer()) w->setClient(cServer->localClientConnection());
 	w->setID(wormId);
 	w->fLastSimulationTime = GetPhysicsTime(); 
-	w->iTotalWins = w->iTotalLosses = w->iTotalKills = w->iTotalDeaths = w->iTotalSuicides = 0;
-	w->setClient(NULL); // Local worms won't get CServerConnection owner
 	if(profile.get()) {
 		w->setName(profile->sName);
 		w->setSkin(profile->cSkin);
@@ -1155,7 +1155,7 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 		}
 	}
 	w->setClientVersion(clientVersion);
-	w->setProfile(profile);
+	w->setProfile(profile.get() ? profile : new profile_t());
 	w->thisRef.objId = wormId;
 	m_worms[wormId] = w;
 	gameStateUpdates->pushObjCreation(w->thisRef);

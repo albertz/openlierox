@@ -1639,15 +1639,18 @@ bool GameServer::clientsConnected_less(const Version& ver) {
 
 
 
-CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {	
+CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo, CServerConnection* cl) {
+	assert(game.isServer());
+	assert(cl != NULL);
+
 	int wormId = game.getNewUniqueWormId();
 	if(wormId >= MAX_WORMS) return NULL;
 	
-	CWorm* w = game.createNewWorm(wormId, false, new profile_t(), Version());
+	CWorm* w = game.createNewWorm(wormId, cl == localClientConnection(), NULL, cl->getClientVersion());
+	w->setClient(cl);
 	wormInfo.applyTo(w);
 	w->setupLobby();
-	w->setDamage(0);
-	if( (game.isServer() && !game.isLocalGame()) ) // in local play, we use the team-nr from the WormJoinInfo
+	if( !game.isLocalGame() ) // in local play, we use the team-nr from the WormJoinInfo
 		w->setTeam(0);
 	else
 		w->setTeam(wormInfo.iTeam);
@@ -1658,10 +1661,6 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 	else {
 		w->setLives(WRM_OUT);
 	}
-	w->setKills(0);
-	w->setDeaths(0);
-	w->setTeamkills(0);
-	w->bWeaponsReady = false;
 		
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->NewWorm_Signal(w);

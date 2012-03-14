@@ -20,6 +20,7 @@
 #include "util/BaseObject.h"
 
 class CBytestream;
+class CServerConnection;
 
 struct AttrExt {
 	bool updated;
@@ -42,12 +43,12 @@ struct AttrDesc {
 	ScriptVar_t defaultValue;
 
 	bool serverside;
+	bool serverCanUpdate;
 	boost::function<void(BaseObject* base, const AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
-	boost::function<bool(const BaseObject* base, const AttrDesc* attrDesc)> authorizedToWriteExtra;
 	
 	AttrDesc()
 	: objTypeId(0), attrType(SVT_INVALID), isStatic(true), attrMemOffset(0), attrExtMemOffset(0), attrId(0),
-	  serverside(true) {}
+	  serverside(true), serverCanUpdate(true) {}
 	std::string description() const;
 
 	const void* getValuePtr(const BaseObject* base) const {
@@ -70,7 +71,7 @@ struct AttrDesc {
 		else
 			return dynGetValue(base, this);
 	}
-	void set(BaseObject* base, const ScriptVar_t& v, bool authorizedByServer = false) const;
+	void set(BaseObject* base, const ScriptVar_t& v) const;
 
 	bool authorizedToWrite(BaseObject* base) const;
 	bool shouldUpdate(BaseObject* base) const;
@@ -132,6 +133,18 @@ struct AttrUpdateInfo {
 
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc);
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
+
+
+// Use these if you want to have certain attribs writeable.
+// It changes the behavior of AttrDesc::authorizedToWrite.
+struct AttrUpdateByClientScope {
+	AttrUpdateByClientScope(CServerConnection* cl);
+	~AttrUpdateByClientScope();
+};
+struct AttrUpdateByServerScope {
+	AttrUpdateByServerScope();
+	~AttrUpdateByServerScope();
+};
 
 
 struct CmdLineIntf;

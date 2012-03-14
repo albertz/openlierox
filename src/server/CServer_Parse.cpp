@@ -180,9 +180,11 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			network.olxParseUpdate(NetConnID_conn(cl), *bs);
 			break;
 		
-		case C2S_GAMEATTRUPDATE:
+		case C2S_GAMEATTRUPDATE: {
+			AttrUpdateByClientScope updateScope(cl);
 			GameStateUpdates::handleFromBs(bs, cl);
 			break;
+		}
 
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
@@ -1535,13 +1537,12 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	for (size_t i = 0; i < newWorms.size(); ++i) {
 		if(ids[i] >= 0) continue; // this worm is already associated
 		
-		CWorm* w = AddWorm(newWorms[i]);
+		AttrUpdateByClientScope updateScope(newcl);
+		CWorm* w = AddWorm(newWorms[i], newcl);
 		if(w == NULL) {
 			warnings << "Server:Connect: cannot add " << i << "th worm for " << newcl->debugName(false) << endl;
 			break;
 		}		
-		w->setClient(newcl);
-		if(newcl->isLocalClient()) w->setLocal(true);
 		
 		ids[i] = w->getID();
 		newJoinedWorms.insert(w);
