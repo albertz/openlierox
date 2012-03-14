@@ -476,11 +476,7 @@ public:
 	}
 
 	void simulateWormWeapon(TimeDiff dt, CWorm* worm) {
-		// Weird
-		if (worm->getCurrentWeapon() < 0 || worm->getCurrentWeapon() >= 5) {
-			warnings("WARNING: SimulateWeapon: iCurrentWeapon is bad\n");
-			return;
-		}
+		if(worm->tWeapons.size() == 0) return;
 
 		wpnslot_t *Slot = worm->writeCurWeapon();
 
