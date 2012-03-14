@@ -23,6 +23,7 @@
 #include "olx-types.h"
 #include "InternDataClass.h"
 #include "Event.h"
+#include "util/Result.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
@@ -60,12 +61,12 @@ bool	IsNetAddrValid(const NetworkAddr& addr);
 bool	IsNetAddrAvailable(const NetworkAddr& addr);
 bool	SetNetAddrValid(NetworkAddr& addr, bool valid);
 void	ResetNetAddr(NetworkAddr& addr);
-bool	StringToNetAddr(const std::string& string, NetworkAddr& addr, std::string* errorStr = NULL);
+Result	StringToNetAddr(const std::string& string, NetworkAddr& addr, std::string* errorStr = NULL);
 NetworkAddr StringToNetAddr(const std::string& string);
-bool	NetAddrToString(const NetworkAddr& addr, std::string& string);
+Result	NetAddrToString(const NetworkAddr& addr, std::string& string);
 std::string NetAddrToString(const NetworkAddr& addr);
 unsigned short GetNetAddrPort(const NetworkAddr& addr);
-bool	SetNetAddrPort(NetworkAddr& addr, unsigned short port, std::string* errorStr = NULL);
+Result	SetNetAddrPort(NetworkAddr& addr, unsigned short port, std::string* errorStr = NULL);
 bool	AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2);
 bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr);
 void	AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime = TimeDiff(600.0f));
@@ -133,17 +134,17 @@ public:
 	Port remotePort() const;
 	NetworkAddr localAddress() const;
 	NetworkAddr remoteAddress() const;
-	bool setRemoteAddress(const NetworkAddr& addr);
+	Result setRemoteAddress(const NetworkAddr& addr);
 	void reapplyRemoteAddress();
 	
-	bool OpenReliable(Port port);
-	bool OpenUnreliable(Port port);
-	bool OpenBroadcast(Port port);
+	Result OpenReliable(Port port);
+	Result OpenUnreliable(Port port);
+	Result OpenBroadcast(Port port);
 	void Close();
 	void Clear() { if(isOpen()) Close(); }
 	
-	bool Connect(const NetworkAddr& addr);
-	bool Listen();
+	Result Connect(const NetworkAddr& addr);
+	Result Listen();
 	
 	bool isReady() const;
 	int Write(const void* buffer, int nbytes);
