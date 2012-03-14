@@ -94,7 +94,7 @@ Feature(73, "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.f, OLXBetaVersi
 Feature(74, "RopeAddParentSpeed", "Rope add parent speed", "worm speed is added to rope speed when you shoot the rope", false, false, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, false, false),
 Feature(75, "RopeGravity", "Rope gravity", "rope gravity when shooting", 100.0f, 100.0f, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 200.0f, false, false),
 Feature(76, "RopeFallingGravity", "Rope falling gravity", "rope gravity after rope has get its max length and when it is falling", 150.0f, 150.0f, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 200.0f, false, false),
-Feature(77, "RopeCanAttachWorm", "Rope can attach worm", "when false, you cannot attach worms with your rope", false, false, OLXBetaVersion(0,59,10), GIG_Advanced, ALT_VeryAdvanced, false, false),
+Feature(77, "RopeCanAttachWorm", "Rope can attach worm", "when false, you cannot attach worms with your rope", true, true, OLXBetaVersion(0,59,10), GIG_Advanced, ALT_VeryAdvanced, false, false),
 	
 	Feature(80, "GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.",
 			1.0f, 	1.0f,			OLXBetaVersion(7), 	GIG_Advanced, ALT_Advanced,		0.1f, 	10.0f ),
