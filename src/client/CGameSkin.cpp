@@ -237,11 +237,14 @@ struct SkinAction_Colorize : Skin_Action {
 
 
 void CGameSkin::Load_Execute(bool& breakSignal) {
-	bmpSurface = LoadGameImage("skins/" + sFileName.get(), true);
+	bmpSurface = NULL;
+	if(!sFileName.get().empty())
+		bmpSurface = LoadGameImage("skins/" + sFileName.get(), true);
 	if(breakSignal) return;
 
 	if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
-		warnings << "CGameSkin::Change: couldn't find skin " << sFileName.get() << endl;
+		if(!sFileName.get().empty())
+			warnings << "CGameSkin::Change: couldn't find skin " << sFileName.get() << endl;
 		bmpSurface = LoadGameImage("skins/default.png", true);
 	}
 	
