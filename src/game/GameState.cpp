@@ -335,7 +335,11 @@ void GameState::updateToCurrent() {
 		assert(it != objs.end());
 		ObjectState& s = it->second;
 		assert(s.obj == it->first);
-		s.attribs[u->attr].value = r.get();
+		ScriptVar_t& value = s.attribs[u->attr].value;
+		value = r.get();
+		if(value.type == SVT_CustomWeakRefToStatic)
+			// Do a real copy.
+			value = ScriptVar_t(*value.customVar());
 	}
 }
 
