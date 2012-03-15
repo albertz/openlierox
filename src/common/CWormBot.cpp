@@ -2623,15 +2623,6 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
 			return i;
 
-
-
-    // No suitable weapon found
-	/*for (i=0;i<5;i++)
-		if (!tWeapons[i].Reloading)
-		{
-			return i;
-		}*/
-
 	// If everything fails, try some random weapons
 	for (size_t i=0; i<m_worm->tWeapons.size(); i++) {
 		int num = GetRandomInt(m_worm->tWeapons.size()-1);
@@ -2644,7 +2635,6 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].weapon())
 			return i;
 
-//	printf("simply everything failed, no luck with that\n");
     return -1;
 }
 
