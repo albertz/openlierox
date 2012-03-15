@@ -810,14 +810,10 @@ void CWorm::GetRandomWeapons()
 			}
 
 		}  // while
-		if(n >= 0 && n < game.gameScript()->GetNumWeapons()) {
+		if(n >= 0 && n < game.gameScript()->GetNumWeapons())
 			weaponSlots.write()[i].WeaponId = n;
-			weaponSlots.write()[i].Enabled = true;
-		}
-		else {
+		else
 			weaponSlots.write()[i].WeaponId = -1;
-			weaponSlots.write()[i].Enabled = false;
-		}
 	}
 
 }
@@ -861,7 +857,6 @@ void CWorm::CloneWeaponsFrom(CWorm* w) {
 	weaponSlots.write().resize( w->weaponSlots.get().size() );
 	for(size_t i = 0; i < w->weaponSlots.get().size(); ++i) {
 		weaponSlots.write()[i].WeaponId = w->getWeapon(i)->WeaponId;
-		weaponSlots.write()[i].Enabled = w->getWeapon(i)->Enabled;
 		
 		weaponSlots.write()[i].Charge = 1;
 		weaponSlots.write()[i].Reloading = false;
@@ -1390,7 +1385,6 @@ bool CWorm::GiveBonus(CBonus *b)
 			writeCurWeapon()->WeaponId = b->getWeapon();
 			writeCurWeapon()->Charge = 1;
 			writeCurWeapon()->Reloading = false;
-			writeCurWeapon()->Enabled = true;
 		}
 		else {
 			warnings << "selected bonus has invalid weapon " << b->getWeapon() << endl;

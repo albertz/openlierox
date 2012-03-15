@@ -1063,7 +1063,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
 
 			if (WeaponBar)  {
-				if(Slot->Reloading || !Slot->Enabled)  {
+				if(Slot->Reloading)  {
 					WeaponBar->SetForeColor(Color(128,64,64));  // In case it's not loaded properly
 					WeaponBar->SetCurrentForeState(1);  // Loading state
 					WeaponBar->SetCurrentBgState(1);

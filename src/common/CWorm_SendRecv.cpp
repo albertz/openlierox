@@ -530,16 +530,10 @@ void CWorm::writeWeapons(CBytestream *bs)
 	// LX, this is not so problematic.
 	static const uint OldLXNumWpnSlots = 5;
 	for(ushort i=0; i<OldLXNumWpnSlots; i++) {
-		if(i < tWeapons.size() && tWeapons[i].Enabled) {
-			if(tWeapons[i].weapon())
-				bs->writeByte(tWeapons[i].weapon()->ID);
-			else {
-				bs->writeByte(255);
-				errors << "tWeapons[" << i << "].Weapon not set" << endl;
-			}
-		} else { // not enabled weapon
+		if(tWeapons[i].weapon())
+			bs->writeByte(tWeapons[i].weapon()->ID);
+		else
 			bs->writeByte(255);
-		}
 	}
 }
 
@@ -559,28 +553,23 @@ void CWorm::readWeapons(CBytestream *bs)
 
 		wpnslot_t& slot = weaponSlots.write()[i];
 		slot.WeaponId = -1;
-		slot.Enabled = false;
 
 		if(game.gameScript()) {
 			if(id >= 0 && id < game.gameScript()->GetNumWeapons()) {
 				slot.WeaponId = id;
-				slot.Enabled = true;
 				//notes << tWeapons[i].Weapon->Name;
 			}
 			else if(id == 255) { // special case to unset weapon
 				slot.WeaponId = -1;
-				slot.Enabled = false;
 				//notes << "UNSET";
 			}
 			else {
 				warnings << "Error when reading weapons (ID is over num weapons)" << endl;
 				slot.WeaponId = -1;
-				slot.Enabled = false;
 				//notes << id << "?";
 			}
 		} else {
 			errors << "readWeapons: cGameScript == NULL" << endl;
-			slot.Enabled = false;
 			//notes << id;
 		}
 	}
@@ -650,9 +639,6 @@ void CWorm::readStatUpdate(CBytestream *bs)
 		warnings << "CWorm::readStatUpdate: current weapon not in range, ignored." << endl;
 		return;
 	}
-
-	if(!tWeapons[cur].Enabled)
-		return;
 	
 	if(tWeapons[cur].weapon() == NULL) {
 		warnings << "readStatUpdate: Weapon " << int(cur) << " not set" << endl;

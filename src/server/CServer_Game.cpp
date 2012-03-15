@@ -375,10 +375,6 @@ void GameServer::WormShoot(CWorm *w)
 	if(Slot->LastFire>0)
 		return;
 
-	// Don't shoot with disabld weapons
-	if (!Slot->Enabled)
-		return;
-
 	if(!Slot->weapon()) {
 		warnings << "WormShoot: trying to shoot with an unitialized weapon!" << endl;
 		return;
@@ -401,7 +397,6 @@ void GameServer::WormShoot(CWorm *w)
 			Slot->Charge = 0;
 			
 			if(gameSettings[FT_DisableWpnsWhenEmpty]) {
-				Slot->Enabled = false;
 				Slot->WeaponId = -1;
 				SendWeapons(NULL, w);
 			} else
@@ -457,7 +452,6 @@ void GameServer::WormShoot(CWorm *w)
 		Slot->Charge = 0;
 		
 		if(gameSettings[FT_DisableWpnsWhenEmpty]) {
-			Slot->Enabled = false;
 			Slot->WeaponId = -1;
 			SendWeapons(NULL, w);
 		} else

@@ -759,15 +759,12 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	// Load previous settings from profile
 	for(size_t i=0;i<m_worm->tWeapons.size();i++) {
-		
 		m_worm->weaponSlots.write()[i].WeaponId = game.gameScript()->FindWeaponId( m_worm->tProfile->sWeaponSlots[i] );
 		
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
 		if( !m_worm->tWeapons[i].weapon() || !game.weaponRestrictions()->isEnabled( m_worm->tWeapons[i].weapon()->Name ) ) {
 			m_worm->weaponSlots.write()[i].WeaponId = game.gameScript()->FindWeaponId( game.weaponRestrictions()->findEnabledWeapon( game.gameScript()->GetWeaponList() ) );
         }
-
-		m_worm->weaponSlots.write()[i].Enabled = m_worm->tWeapons[i].weapon() != NULL;
 	}
 	
 	
@@ -872,7 +869,6 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 						break;
 				}
 			m_worm->weaponSlots.write()[i].WeaponId = id;
-			m_worm->weaponSlots.write()[i].Enabled = true;
 		}
 		
 		y += 18;

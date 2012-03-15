@@ -292,12 +292,6 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 			}
 			//notes << "Server:ParseImReady: ";
 			w->readWeapons(bs);
-			for (size_t j = 0; j < w->tWeapons.size(); j++) {
-				if(w->getWeapon(j)->weapon())
-					w->weaponSlots.write()[j].Enabled =
-						game.weaponRestrictions()->isEnabled(w->getWeapon(j)->weapon()->Name) ||
-						game.weaponRestrictions()->isBonus(w->getWeapon(j)->weapon()->Name);
-			}
 			
 		} else { // wrong id -> Skip to get the right position
 			warnings << "ParseImReady: got wrong worm-ID!" << endl;
@@ -329,7 +323,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 		CWorm* w = w_->get();
 
 		bool wasShootingBefore = w->tState.get().bShoot;
-		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->weapon() : NULL;
+		const weapon_t* oldWeapon = w->getCurWeapon() ? w->getCurWeapon()->weapon() : NULL;
 		w->readPacket(bs);
 
 		if(game.state == Game::S_Playing) {
@@ -845,14 +839,12 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 						const weapon_t* oldWeapon = wpn->weapon();
 						if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
 							wpn->WeaponId = b->getWeapon();
-							wpn->Enabled = true;
 							wpn->Charge = 1;
 							wpn->Reloading = false;
 						}
 						else {
 							notes << "worm " << w->getID() << " selected invalid bonus weapon" << endl;
 							wpn->WeaponId = -1;
-							wpn->Enabled = false;
 						}
 						
 						// handle worm shoot end if needed

@@ -99,7 +99,7 @@ void CClient::Simulation()
 		CWorm* w = _w->get();
 
 		bool wasShootingBefore = w->tState.get().bShoot;
-		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->weapon() : NULL;
+		const weapon_t* oldWeapon = w->getCurWeapon()->weapon();
 
 		// Simulate the worm. In case the worm is dead, it (the inputhandler) might do some thinking or
 		// request for respawn or so.
@@ -565,9 +565,6 @@ void CClient::PlayerShoot(CWorm *w)
 	if(Slot->LastFire>0)
 		return;
 
-	if(!Slot->Enabled)
-		return;
-	
 	if(!Slot->weapon()) {
 		errors << "PlayerShoot: Slot->Weapon not set. Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
 		return;
@@ -988,10 +985,6 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 		return;
 
 	if(Slot->LastFire>0)
-		return;
-
-	// Don't shoot with banned weapons
-	if (!Slot->Enabled)
 		return;
 
 	if(!Slot->weapon()) {
