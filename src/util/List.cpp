@@ -80,7 +80,7 @@ Result DynamicList::toBytestream(CBytestream* bs, const CustomVar* diffTo) const
 	if(diffToList) {
 		for(size_t i = 0; i < size(); ++i) {
 			ScriptVar_t value = getGeneric(i);
-			if(value != ScriptVar_t::FromType(type())) numChangesDefault++;
+			if(value != defaultValue()) numChangesDefault++;
 			ScriptVar_t otherVal(ScriptVar_t::FromType(type()));
 			if(i < diffToList->size()) otherVal = diffToList->getGeneric(i);
 			if(value != otherVal) numChangesOld++;
