@@ -222,6 +222,8 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 				::pushObjAttrUpdate(*o, attrDesc);
 				ScriptVar_t scriptVarRef(v->thisRef.obj);
 				bs->readVar(scriptVarRef);
+				assert(scriptVarRef.type == SVT_CustomWeakRefToStatic);
+				//notes << "game state update: <" << r.obj.description() << "> " << attrDesc->attrName << " to " << scriptVarRef.toString() << endl;
 			}
 			else {
 				ScriptVar_t v;
