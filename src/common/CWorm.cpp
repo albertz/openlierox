@@ -323,10 +323,12 @@ void CWorm::Prepare()
 	setShieldFactor(cClient->getGameLobby()[FT_WormShieldFactor]);
 	setCanAirJump(cClient->getGameLobby()[FT_InstantAirJump]);
 
-	iCurrentWeapon = 0;
-	weaponSlots.write().reset();
-	GetRandomWeapons();
-	// weapons should be loaded properly in initWeaponSelection
+	if(weOwnThis()) {
+		iCurrentWeapon = 0;
+		weaponSlots.write().reset();
+		GetRandomWeapons();
+		// weapons should be loaded properly in initWeaponSelection
+	}
 
 	if(m_inputHandler) {
 		warnings << "WARNING: worm " << getName() << " has already the following input handler set: "; warnings.flush();
@@ -442,8 +444,6 @@ void CWorm::Unprepare() {
 		luaDelete(m_weapons[i]);
 		m_weapons[i] = 0;
 	}
-
-	weaponSlots.write().reset();
 
 	NetWorm_Shutdown();
 	FreeGraphics();
@@ -769,8 +769,6 @@ void CWorm::GetRandomWeapons()
 	
 	if(game.gameScript() == NULL || game.gameScript()->GetNumWeapons() <= 0) {
 		errors << "CWorm::GetRandomWeapons: gamescript is not loaded" << endl;
-		for(size_t i = 0; i < tWeapons.size(); ++i)
-			weaponSlots.write()[i].WeaponId = -1; // not sure if needed but just to be sure
 		return;
 	}
 	
