@@ -221,6 +221,11 @@ void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
 		AttrUpdateInfo info;
 		info.attrDesc = attrDesc;
 		info.oldValue = attrDesc->get(&obj);
+		if(info.oldValue.type == SVT_CustomWeakRefToStatic)
+			// do a real copy
+			// NOTE: This can go away once we don't have SVT_CustomWeakRefToStatic anymore,
+			// i.e. ScriptVar_t can never be a ref and is always a copy.
+			info.oldValue = ScriptVar_t(*info.oldValue.customVar());
 		obj.attrUpdates.push_back(info);
 		ext.updated = true;
 	}
