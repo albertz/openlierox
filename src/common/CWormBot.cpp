@@ -3889,8 +3889,8 @@ find_one_visible_node:
 
             m_worm->fAngle -= BotAngleSpeed * tLX->fDeltaTime.seconds();
             // Clamp the angle
-			m_worm->fAngle = MIN((float)60,m_worm->fAngle.get());
-			m_worm->fAngle = MAX((float)-90,m_worm->fAngle.get());
+			m_worm->fAngle = MIN(cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f, m_worm->fAngle.get());
+			m_worm->fAngle = MAX(-90.f, m_worm->fAngle.get());
 
 			// Stucked too long?
 			if (fStuckTime >= 5.0f)  {
