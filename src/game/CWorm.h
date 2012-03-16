@@ -278,7 +278,7 @@ protected:
 	int			iLastCurWeapon;
 	
 	AbsTime		fSpawnTime;
-	bool		bLobbyReady; // Lobby Ready state
+	ATTR(CWorm, bool,	bLobbyReady, 45, {serverside = false;}) // Lobby Ready state
 
 	// Graphics
 	struct SkinDynDrawer; SkinDynDrawer* skinPreviewDrawerP;
