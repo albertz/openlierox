@@ -64,6 +64,14 @@ bool CustomVar::operator<(const CustomVar& v) const {
 	return true;
 }
 
+std::string CustomVar::toString() const {
+	return "<" + thisRef.description() + ">";
+}
+
+bool CustomVar::fromString(const std::string& str) {
+	return false;
+}
+
 void CustomVar::copyFrom(const CustomVar& v) {
 	assert( thisRef.classId != ClassId(-1) );
 	assert( v.thisRef.classId != ClassId(-1) );

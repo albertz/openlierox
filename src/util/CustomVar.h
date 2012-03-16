@@ -31,8 +31,8 @@ struct CustomVar : BaseObject {
 	virtual CustomVar* copy() const;
 	virtual bool operator==(const CustomVar&) const;
 	virtual bool operator<(const CustomVar&) const;
-	virtual std::string toString() const = 0;
-	virtual bool fromString(const std::string & str) = 0;
+	virtual std::string toString() const;
+	virtual bool fromString(const std::string & str);
 
 	virtual void copyFrom(const CustomVar&);
 	virtual void fromScriptVar(const ScriptVar_t& v);
