@@ -133,6 +133,9 @@ Result DynamicList::fromBytestream(CBytestream* bs, bool expectDiffToDefault) {
 			ScriptVar_t value;
 			bs->readVar(value);
 			writeGeneric(i, value);
+			/*if(value.isCustomType() && value.customVar()->thisRef.classId == LuaID<wpnslot_t>::value) {
+				notes << "list read: " << i << ":" << value.toString() << endl;
+			}*/
 		}
 		break;
 

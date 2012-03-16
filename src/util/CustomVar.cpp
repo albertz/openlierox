@@ -12,6 +12,7 @@
 #include "Debug.h"
 #include "game/Attr.h"
 #include "util/macros.h"
+#include "CServerConnection.h"
 
 void CustomVar::reset() {
 	assert( thisRef.classId != ClassId(-1) );
@@ -191,6 +192,10 @@ Result CustomVar::fromBytestream(CBytestream *bs, bool expectDiffToDefault) {
 		ScriptVar_t var;
 		bs->readVar(var);
 		attrDesc->set(this, var);
+
+		/*if(a.objTypeId == LuaID<wpnslot_t>::value) {
+			notes << "CustomVar::fromBytestream: " << a.description() << ": -> " << var.toString() << ", " << attrDesc->get(this) << ", " << attrDesc->authorizedToWrite(this) << ", " << (AttrUpdateByClientScope::currentScope() ? AttrUpdateByClientScope::currentScope()->debugName() : "NULL") << ", " << (this->ownerClient() ? this->ownerClient()->debugName() : "NULL") << ", " << (this->parentObject() ? this->parentObject()->thisRef.description() : "NULL") << endl;
+		}*/
 	}
 
 	return r;
