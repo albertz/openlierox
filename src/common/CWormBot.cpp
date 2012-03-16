@@ -1712,7 +1712,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 		goodAim = true;
 	
 	// Clamp the angle
-	m_worm->fAngle = CLAMP(m_worm->fAngle, -90.0f, cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f);
+	m_worm->fAngle = CLAMP(m_worm->fAngle.get(), -90.0f, cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f);
 
     return goodAim;
 }
@@ -1747,7 +1747,7 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
 
         // Change direction
 		if (bHaveTarget && (tLX->currentTime-fLastFace) > 1.0)  {
-			m_worm->iFaceDirectionSide = OppositeDir(m_worm->iFaceDirectionSide);
+			m_worm->iFaceDirectionSide = OppositeDir((DIR_TYPE)(int)m_worm->iFaceDirectionSide);
 			fLastFace = tLX->currentTime;
 		}
 
@@ -3481,7 +3481,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		AI_Jump();
 
 		if (tLX->currentTime-fLastFace >= 0.5f)  {
-			m_worm->iFaceDirectionSide = OppositeDir(m_worm->iFaceDirectionSide);
+			m_worm->iFaceDirectionSide = OppositeDir((DIR_TYPE)(int)m_worm->iFaceDirectionSide);
 			fLastFace = tLX->currentTime;
 		}
 		
@@ -3889,8 +3889,8 @@ find_one_visible_node:
 
             m_worm->fAngle -= BotAngleSpeed * tLX->fDeltaTime.seconds();
             // Clamp the angle
-	        m_worm->fAngle = MIN((float)60,m_worm->fAngle);
-	        m_worm->fAngle = MAX((float)-90,m_worm->fAngle);
+			m_worm->fAngle = MIN((float)60,m_worm->fAngle.get());
+			m_worm->fAngle = MAX((float)-90,m_worm->fAngle.get());
 
 			// Stucked too long?
 			if (fStuckTime >= 5.0f)  {

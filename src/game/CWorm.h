@@ -235,10 +235,10 @@ protected:
 	Version		cClientVersion;
 
 	AbsTime		fTimeofDeath;
-	DIR_TYPE	iFaceDirectionSide;
-	DIR_TYPE	iMoveDirectionSide;
+	ATTR(CWorm, int /*DIR_TYPE*/,	iFaceDirectionSide, 24, {serverside = false;})
+	ATTR(CWorm, int /*DIR_TYPE*/,	iMoveDirectionSide, 25, {serverside = false;})
 	bool		bGotTarget;
-	float		fAngle;
+	ATTR(CWorm, float,	fAngle, 26, {serverside = false;})
     float       fAngleSpeed;
     float		fMoveSpeedX;
 	
@@ -489,12 +489,12 @@ public:
 	float		getAngle()	const			{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }
 	void		resetAngleAndDir();
-	DIR_TYPE	getFaceDirectionSide() const		{ return iFaceDirectionSide; }
-	void		setFaceDirectionSide(DIR_TYPE d)	{ iFaceDirectionSide = d; }
+	DIR_TYPE	getFaceDirectionSide() const		{ return (DIR_TYPE)(int)iFaceDirectionSide; }
+	void		setFaceDirectionSide(DIR_TYPE d)	{ iFaceDirectionSide = (int)d; }
 	CVec		getFaceDirection() const {
 		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iFaceDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
 					sinf(getAngle() * ((float)PI/180)) ); }
-	DIR_TYPE	getMoveDirectionSide()				{ return iMoveDirectionSide; }
+	DIR_TYPE	getMoveDirectionSide()				{ return (DIR_TYPE)(int)iMoveDirectionSide; }
 	CVec		getMoveDirection() const {
 		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
 					sinf(getAngle() * ((float)PI/180)) ); }

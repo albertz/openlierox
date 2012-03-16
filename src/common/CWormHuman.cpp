@@ -175,7 +175,7 @@ void CWormHumanInputHandler::getInput() {
 		}
 
 		m_worm->fAngle += m_worm->fAngleSpeed * dt.seconds();
-		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f) != 0)
+		if(CLAMP_DIRECT(m_worm->fAngle.write(), -90.0f, cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f) != 0)
 			m_worm->fAngleSpeed = 0;
 
 	} // end angle section
@@ -509,7 +509,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 		}
 
 		fAngle += fAngleSpeed * dt.seconds();
-		if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
+		if(CLAMP_DIRECT(fAngle.write(), -90.0f, 60.0f) != 0)
 			fAngleSpeed = 0;
 
 	} // end angle section
