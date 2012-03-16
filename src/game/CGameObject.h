@@ -44,9 +44,8 @@ protected:
 	ATTR(CGameObject, CVec, vPos, 2, {serverside = false; serverCanUpdate = false;})
 	ATTR(CGameObject, CVec, vVelocity, 3, {serverside = false; serverCanUpdate = false;})
 
-	ATTR(CGameObject, float, health, 4, {serverside = false; defaultValue = 100.0f;})
-
 public:
+	ATTR(CGameObject, float, health, 4, {serverside = false; serverCanUpdate = false; defaultValue = 100.0f;})
 
 	CVec		getPos() const				{ return vPos; }
 	void		setPos(const CVec& v)		{ vPos = v; }
