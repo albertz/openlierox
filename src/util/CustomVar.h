@@ -23,7 +23,7 @@ class ScriptVar_t;
 
 // for custom variables types (not just string/bool/int/float)
 // This can be used in the scriptable vars system.
-struct CustomVar : BaseObject {
+struct CustomVar : virtual BaseObject {
 	typedef ::Ref<CustomVar> Ref;
 	virtual ~CustomVar() {}
 
