@@ -140,6 +140,7 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 struct AttrUpdateByClientScope {
 	AttrUpdateByClientScope(CServerConnection* cl);
 	~AttrUpdateByClientScope();
+	static CServerConnection* currentScope();
 };
 struct AttrUpdateByServerScope {
 	AttrUpdateByServerScope();
