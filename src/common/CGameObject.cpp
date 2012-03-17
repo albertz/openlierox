@@ -173,4 +173,4 @@ float convertAccel_GusToLX(float v) {
 }
 
 
-REGISTER_CLASS(CGameObject, ClassId(-1))
+REGISTER_CLASS(CGameObject, LuaID<CustomVar>::value)
