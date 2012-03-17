@@ -30,7 +30,7 @@ struct ALLEGRO_BITMAP;
 class CViewport;
 class CWormInputHandler;
 
-class CGameObject : public LuaObject, public CustomVar {
+class CGameObject : public CustomVar, public LuaObject {
 public:
 	CGameObject();
 	CGameObject(CWormInputHandler* owner, Vec pos_ = Vec(), Vec spd_ = Vec() );
@@ -155,7 +155,6 @@ public:
 	bool deleteMe;
 		
 protected:
-	//LuaReference luaReference; //Defined in LuaObject
 	CWormInputHandler* m_owner;
 	
 };

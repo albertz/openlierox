@@ -59,7 +59,7 @@ extern LuaCallbacks luaCallbacks;
 	lua.destroyReference(p->luaReference); \
 }*/
 
-struct LuaObject : virtual BaseObject
+struct LuaObject
 {
 	bool deleted;
 	LuaReference luaReference;
