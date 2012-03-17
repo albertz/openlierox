@@ -384,7 +384,7 @@ bool CBytestream::writeData(const std::string& value)
 }
 
 bool CBytestream::writeVar(const ScriptVar_t& var, const CustomVar* diffToOld) {
-	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
+	assert( var.type >= SVT_BOOL && var.type <= SVT_CustomWeakRefToStatic );
 	if(var.isCustomType()) {
 		assert(var.customVar() != NULL);
 		assert(var.customVar()->thisRef.classId != ClassId(-1));
