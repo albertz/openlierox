@@ -63,7 +63,7 @@ CWorm* CNinjaRope::owner() const {
 }
 
 
-bool CNinjaRope::isPlayerAttached() {
+bool CNinjaRope::isPlayerAttached() const {
 	if(PlayerAttached < 0) return false;
 	return game.wormById(PlayerAttached, false) != NULL;
 }

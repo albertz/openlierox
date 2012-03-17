@@ -89,7 +89,7 @@ public:
 	CVec&		hookVelocity()			{ return HookVelocity; }
 	vPos_Type&	hookPos()				{ return pos(); }
 	
-	bool		isPlayerAttached();
+	bool		isPlayerAttached() const;
 	CWorm*		getAttachedPlayer()	const;
 
 	virtual bool isInside(int x, int y) const;
