@@ -326,3 +326,5 @@ void CNinjaRope::read(CBytestream *bs, int owner)
 		}
 	}
 }
+
+REGISTER_CLASS(CNinjaRope, LuaID<CGameObject>::value)
