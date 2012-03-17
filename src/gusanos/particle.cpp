@@ -112,7 +112,6 @@ void Particle::operator delete(void* block)
 
 Particle::Particle(PartType *type, Vec pos_, Vec spd_, int dir, CWormInputHandler* owner, Angle angle)
 		: CGameObject(owner, pos_, spd_), 
-		/*m_dir(dir),*/
 		m_type(type),
 		m_health(type->health),
 		m_angle(angle),

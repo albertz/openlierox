@@ -59,7 +59,6 @@ public:
 	virtual void makeReference();
 	virtual void finalize();
 	
-	//int getDir() { return m_dir; }
 	int getDir() { return (flags & FaceRight) ? 1 : -1; }
 	
 	void setFlag(int flag) { flags |= flag; }
@@ -80,7 +79,6 @@ private:
 	void drawLine2Origin(CViewport* viewport, BlitterContext const& blitter);
 #endif
 	
-	//int m_dir;
 	std::vector< TimerEvent::State > timer; // This could cause a penalty
 	PartType* m_type;
 	float m_health;
@@ -95,7 +93,6 @@ private:
 #endif
 	Vec m_origin;
 	
-	//LuaReference luaReference;
 	Net_Node *m_node;
 	ParticleInterceptor* interceptor;
 	
