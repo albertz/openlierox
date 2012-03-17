@@ -57,8 +57,7 @@ private:
 	bool		Released;
 	bool		HookShooting;
 	bool		HookAttached;
-	bool		PlayerAttached;
-	CWorm		*Worm;
+	int			PlayerAttached;
 
 	float		MinLength;
 
@@ -90,10 +89,8 @@ public:
 	CVec&		hookVelocity()			{ return HookVelocity; }
 	vPos_Type&	hookPos()				{ return pos(); }
 	
-	bool		isPlayerAttached()		{ return PlayerAttached; }
-	CWorm*		getAttachedPlayer()	const	{ return Worm; }
-
-	void		changeRestLength(float);
+	bool		isPlayerAttached();
+	CWorm*		getAttachedPlayer()	const;
 
 	virtual bool isInside(int x, int y) const;
 	virtual Color renderColorAt(/* relative coordinates */ int x, int y) const;

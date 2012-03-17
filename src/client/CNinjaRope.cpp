@@ -63,6 +63,15 @@ CWorm* CNinjaRope::owner() const {
 }
 
 
+bool CNinjaRope::isPlayerAttached() {
+	if(PlayerAttached < 0) return false;
+	return game.wormById(PlayerAttached, false) != NULL;
+}
+
+CWorm* CNinjaRope::getAttachedPlayer() const {
+	return game.wormById(PlayerAttached, false);
+}
+
 ///////////////////
 // Clear the ninja rope vars
 void CNinjaRope::Clear()
@@ -70,8 +79,7 @@ void CNinjaRope::Clear()
 	Released = false;
 	HookShooting = false;
 	HookAttached = false;
-	PlayerAttached = false;
-	Worm = NULL;
+	PlayerAttached = -1;
 }
 
 
@@ -92,8 +100,7 @@ void CNinjaRope::Shoot(CVec dir)
 	Released = true;
 	HookShooting = true;
 	HookAttached = false;
-	PlayerAttached = false;
-	Worm = NULL;
+	PlayerAttached = -1;
 
 	this->pos() = owner()->pos();
 	HookDir = dir;
@@ -123,10 +130,12 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos) const
 	// HINT: the hooked worm position could change since the Simulate procedure was called,
 	// because the worms are being processed in a "random" order -> we simulate and then the hook worm
 	// is simulated -> we have a wrong position, that's why we are correcting it here:
-	if(HookAttached && PlayerAttached && Worm) {
-		hx = (int)Worm->getPos().x;
-		hy = (int)Worm->getPos().y;
-		// HINT: don't change HookPos directly here, this should only be done by the simulation-function
+	if(HookAttached && PlayerAttached >= 0) {
+		CWorm* w = game.wormById(PlayerAttached, false);
+		if(w) {
+			hx = (int)w->getPos().x;
+			hy = (int)w->getPos().y;
+		}
 	}
 
 	hx = (hx-wx)*2+l;
@@ -174,22 +183,20 @@ Color CNinjaRope::renderColorAt(/* relative coordinates */ int x, int y) const {
 // Unattaches rope from a worm
 void CNinjaRope::UnAttachPlayer()
 {
-	if (!Worm)
+	if (PlayerAttached < 0)
 		return;
 
 	HookVelocity.x = HookVelocity.y = 0;
 	HookShooting = false;
 	HookAttached = false;
-	PlayerAttached = false;
-	Worm = NULL;
+	PlayerAttached = -1;
 }
 
 void CNinjaRope::AttachToPlayer(CWorm *worm)
 {
 	HookShooting = false;
 	HookAttached = true;
-	PlayerAttached = true;
-	Worm = worm;
+	PlayerAttached = worm->getID();
 }
 
 
@@ -223,7 +230,7 @@ void CNinjaRope::write(CBytestream *bs) const
 	if(HookShooting)
 		type = ROP_SHOOTING;
 	else if(HookAttached) {
-		if(PlayerAttached)
+		if(PlayerAttached >= 0)
 			type = ROP_PLYHOOKED;
 		else
 			type = ROP_HOOKED;
@@ -260,7 +267,7 @@ void CNinjaRope::write(CBytestream *bs) const
 
 	// Write out the worm id the hook is stuck to
 	if(type == ROP_PLYHOOKED) {
-		bs->writeByte( Worm->getID() );
+		bs->writeByte( PlayerAttached );
 	}
 }
 
@@ -277,28 +284,26 @@ void CNinjaRope::read(CBytestream *bs, int owner)
 	
 	int type = bs->readByte();
 	Released = true;
-	Worm = NULL;
 
 	switch(type) {
 		case ROP_SHOOTING:
 			HookShooting = true;
 			HookAttached = false;
-			PlayerAttached = false;
+			PlayerAttached = -1;
 			break;
 		case ROP_HOOKED:
 			HookShooting = false;
 			HookAttached = true;
-			PlayerAttached = false;
+			PlayerAttached = -1;
 			break;
 		case ROP_FALLING:
 			HookShooting = false;
 			HookAttached = false;
-			PlayerAttached = false;
+			PlayerAttached = -1;
 			break;
 		case ROP_PLYHOOKED:
 			HookShooting = false;
 			HookAttached = true;
-			PlayerAttached = true;
 			break;
 	}
 
@@ -318,10 +323,11 @@ void CNinjaRope::read(CBytestream *bs, int owner)
 	if(type == ROP_PLYHOOKED) {
 		int id = bs->readByte();
 		if(id >= 0 && id < MAX_WORMS) {
-			Worm = game.wormById(id, false);
-			if(Worm) {
+			PlayerAttached = id;
+			CWorm* w = game.wormById(id, false);
+			if(w) {
 				// Set the hook pos on the worm
-				pos() = Worm->getPos();
+				pos() = w->getPos();
 			}
 		}
 	}
