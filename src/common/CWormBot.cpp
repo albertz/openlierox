@@ -1755,7 +1755,7 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
         aim = AI_SetAim(m_worm->vPos + CVec(GetRandomNum()*10, GetRandomNum()*10 + 10));
         if(aim) {
             const CVec dir = m_worm->getFaceDirection();
-			m_worm->cNinjaRope.write().Shoot(m_worm->vPos, dir);
+			m_worm->cNinjaRope.write().Shoot(dir);
         }
 
 		// Jump and move
@@ -3825,7 +3825,7 @@ find_one_visible_node:
 		const CVec dir = m_worm->getFaceDirection();
 
     	// the final shoot of the rope...
-		m_worm->cNinjaRope.write().Shoot(m_worm->vPos, dir);
+		m_worm->cNinjaRope.write().Shoot(dir);
 		fRopeHookFallingTime = 0;
 		fRopeAttachedTime = 0;
 
@@ -4238,8 +4238,11 @@ void CWormBotInputHandler::subThink() {
 	if ( !m_worm->isActive() )
 		baseActionStart(RESPAWN);
 
+	// update LX attribs. this can go away after some more merging
 	if(m_worm->cNinjaRope.get().active) {
-		m_worm->cNinjaRope.write().Shoot(m_worm->cNinjaRope.get().pos(), CVec());
+		CVec ninjaPosBackup = m_worm->cNinjaRope.get().pos();
+		m_worm->cNinjaRope.write().Shoot(CVec());
+		m_worm->cNinjaRope.write().pos() = ninjaPosBackup;
 		if(m_worm->cNinjaRope.get().attached)
 			m_worm->cNinjaRope.write().setAttached(m_worm->cNinjaRope.get().attached);
 	}

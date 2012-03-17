@@ -220,7 +220,7 @@ void CWormHumanInputHandler::getInput() {
 		}
 		else if(ms->FirstDown & SDL_BUTTON(2)) {
 			// TODO: this is bad. why isn't there a ws->iNinjaShoot ?
-			m_worm->cNinjaRope.write().Shoot(m_worm->vPos, ninjaShootDir);
+			m_worm->cNinjaRope.write().Shoot(ninjaShootDir);
 			PlaySoundSample(sfxGame.smpNinja);
 		}
 
@@ -385,7 +385,7 @@ void CWormHumanInputHandler::getInput() {
 		if(bRopeDownOnce) {
 			bRopeDownOnce = false;
 
-			m_worm->cNinjaRope.write().Shoot(m_worm->vPos, ninjaShootDir);
+			m_worm->cNinjaRope.write().Shoot(ninjaShootDir);
 
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
@@ -397,7 +397,7 @@ void CWormHumanInputHandler::getInput() {
 		// Seperate dedicated button for throwing the rope
 		if(cInpRope.isDownOnce()) {
 
-			m_worm->cNinjaRope.write().Shoot(m_worm->vPos, ninjaShootDir);
+			m_worm->cNinjaRope.write().Shoot(ninjaShootDir);
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
 		}
@@ -600,7 +600,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	// Newer style rope throwing
 	// Seperate dedicated button for throwing the rope
 	if( keys.keys[NewNet::K_ROPE] && keysChanged.keys[NewNet::K_ROPE] ) {
-		cNinjaRope.write().Shoot(vPos, getFaceDirection());
+		cNinjaRope.write().Shoot(getFaceDirection());
 		// Throw sound
 		if( NewNet::CanPlaySound(getID()) )
 			PlaySoundSample(sfxGame.smpNinja);

@@ -78,7 +78,7 @@ void CNinjaRope::Clear()
 
 ///////////////////
 // Shoot the rope
-void CNinjaRope::Shoot(CVec pos, CVec dir)
+void CNinjaRope::Shoot(CVec dir)
 {
 	Clear();
 
@@ -95,7 +95,7 @@ void CNinjaRope::Shoot(CVec pos, CVec dir)
 	PlayerAttached = false;
 	Worm = NULL;
 
-	this->pos() = pos;
+	this->pos() = owner()->pos();
 	HookDir = dir;
 	HookVelocity = dir * (float)cClient->getGameLobby()[FT_RopeSpeed];
 	
