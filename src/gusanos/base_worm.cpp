@@ -533,10 +533,6 @@ void CWorm::draw(CViewport* viewport)
 		return;
 	
 	if (getAlive() && isVisible(viewport) && gusSkinVisble) {
-		/*
-		bool flipped = false;
-		if ( m_dir < 0 ) flipped = true;*/
-
 		ALLEGRO_BITMAP* where = viewport->dest;
 		IVec rPos = viewport->convertCoords( IVec(renderPos) );
 
