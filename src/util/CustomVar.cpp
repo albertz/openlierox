@@ -227,7 +227,7 @@ CustomVar::Ref CustomVar::FromBytestream( CBytestream* bs ) {
 		return NULL;
 	}
 
-	CustomVar::Ref obj = (CustomVar*) classInfo->createInstance();
+	CustomVar::Ref obj = dynamic_cast<CustomVar*>(classInfo->createInstance());
 	if(!obj) {
 		errors << "CustomVar::FromBytestream: couldn't create instance of " << classInfo->name << endl;
 		return NULL;

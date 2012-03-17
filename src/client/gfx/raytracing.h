@@ -22,7 +22,7 @@ struct GamePixelInfo {
 	} type;
 	
 	struct ObjectInfo {
-		CGameObject* obj;
+		const CGameObject* obj;
 		int relX, relY;
 	};
 	

@@ -25,9 +25,16 @@
 #include "CClient.h"
 #include "game/Game.h"
 #include "Geometry.h"
+#include "gusanos/luaapi/classes.h"
 
 
 LuaReference CNinjaRope::metaTable;
+
+CNinjaRope::CNinjaRope()
+: m_sprite(NULL), m_animator(NULL) {
+	thisRef.classId = LuaID<CNinjaRope>::value;
+	Clear();
+}
 
 CNinjaRope::~CNinjaRope() {
 	// We must delete the object now out of the list because this destructor
@@ -43,22 +50,18 @@ CNinjaRope::~CNinjaRope() {
 	}
 }
 
-CNinjaRope& CNinjaRope::operator=(const CNinjaRope& n) {
-	assert(owner == n.owner);
-#define COPY(a) a = n.a
-	COPY(Released);
-	COPY(HookShooting);
-	COPY(HookAttached);
-	COPY(PlayerAttached);
-	COPY(Worm);
-	COPY(LastReleased);
-	COPY(LastHookShooting);
-	COPY(LastHookAttached);
-	COPY(LastPlayerAttached);
-	COPY(LastWorm);
-#undef COPY
-	return *this;
+BaseObject* CNinjaRope::parentObject() const {
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(&w->get()->cNinjaRope.get() == this)
+			return w->get();
+	}
+	return NULL;
 }
+
+CWorm* CNinjaRope::owner() const {
+	return dynamic_cast<CWorm*>(parentObject());
+}
+
 
 ///////////////////
 // Clear the ninja rope vars
@@ -69,27 +72,22 @@ void CNinjaRope::Clear()
 	HookAttached = false;
 	PlayerAttached = false;
 	Worm = NULL;
-
-	LastReleased = Released;
-	LastHookShooting = HookShooting;
-	LastHookAttached = HookAttached;
-	LastPlayerAttached = PlayerAttached;
-	LastWorm = NULL;
 }
 
 
 
 ///////////////////
 // Shoot the rope
-void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
+void CNinjaRope::Shoot(CVec pos, CVec dir)
 {
 	Clear();
 
-	if(!owner->canUseNinja()) return;
-	
-	if(this->owner != owner) {
-		errors << "CNinjaRope::Shoot: this->owner (" << this->owner->getID() << ") is different from new owner (" << owner->getID() << ")" << endl;
+	if(owner() == NULL) {
+		errors << "CNinjaRope::Shoot: owner unknown" << endl;
+		return;
 	}
+
+	if(!owner()->canUseNinja()) return;
 	
 	Released = true;
 	HookShooting = true;
@@ -102,14 +100,14 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 	HookVelocity = dir * (float)cClient->getGameLobby()[FT_RopeSpeed];
 	
 	if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
-		HookVelocity += owner->getVelocity();
+		HookVelocity += owner()->getVelocity();
 }
 
 
 
 ///////////////////
 // Draw the thing
-void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
+void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos) const
 {
 	if(!Released)
 		return;
@@ -156,16 +154,16 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 	// The clipping on the viewport is done in the line function
 }
 
-bool CNinjaRope::isInside(int x, int y) {
+bool CNinjaRope::isInside(int x, int y) const {
 	if(!Released) return false;
-	if(!owner) return false;
-	if(!owner->getAlive()) return false;
+	if(!owner()) return false;
+	if(!owner()->getAlive()) return false;
 	
-	Line l(owner->pos(), pos());
+	Line l(owner()->pos(), pos());
 	return l.distFromPoint2(VectorD2<int>(x, y)) < 2.0f;
 }
 
-Color CNinjaRope::renderColorAt(/* relative coordinates */ int x, int y) {
+Color CNinjaRope::renderColorAt(/* relative coordinates */ int x, int y) const {
 	x += (int)pos().get().x;
 	y += (int)pos().get().y;
 	if(isInside(x, y)) return Color(159,79,0);
@@ -197,16 +195,16 @@ void CNinjaRope::AttachToPlayer(CWorm *worm)
 
 ///////////////////
 // Return the pulling force
-CVec CNinjaRope::GetForce()
+CVec CNinjaRope::GetForce() const
 {
 	if(!HookAttached)
 		return CVec(0,0);
 
-	CVec dir = owner->pos() - pos();
+	CVec dir = owner()->pos() - pos();
 	dir = dir.Normalize();
 	
 	const float RestLength = (float)(int)cClient->getGameLobby()[FT_RopeRestLength];
-	if((owner->pos() - pos()).GetLength2() < RestLength*RestLength)
+	if((owner()->pos() - pos()).GetLength2() < RestLength*RestLength)
 		return CVec(0,0);
 	
 	dir *= (float)cClient->getGameLobby()[FT_RopeStrength] * -100;
@@ -215,35 +213,10 @@ CVec CNinjaRope::GetForce()
 }
 
 
-//////////////
-// Synchronizes the variables used for check below
-void CNinjaRope::updateCheckVariables()
-{
-	LastReleased = Released;
-	LastHookShooting = HookShooting;
-	LastHookAttached = HookAttached;
-	LastPlayerAttached = PlayerAttached;
-	LastWorm = Worm;
-	LastWrite = tLX->currentTime;
-}
-
-//////////////
-// Returns true if the write function needs to be called
-bool CNinjaRope::writeNeeded()
-{
-	if		((LastReleased != Released) ||
-			(LastHookShooting != HookShooting) ||
-			(LastHookAttached != HookAttached) ||
-			(LastPlayerAttached != PlayerAttached) ||
-			(LastWorm != Worm))
-				return true;
-
-	return pos() != OldHookPos;
-}
 
 ///////////////////
 // Write out the rope details to a bytestream
-void CNinjaRope::write(CBytestream *bs)
+void CNinjaRope::write(CBytestream *bs) const
 {
 	int type = ROP_NONE;
 
@@ -289,9 +262,6 @@ void CNinjaRope::write(CBytestream *bs)
 	if(type == ROP_PLYHOOKED) {
 		bs->writeByte( Worm->getID() );
 	}
-
-	// Update the "last" variables
-	updateCheckVariables();
 }
 
 
@@ -300,11 +270,11 @@ void CNinjaRope::write(CBytestream *bs)
 // Read rope details from a bytestream
 void CNinjaRope::read(CBytestream *bs, int owner)
 {
-	if(this->owner != game.wormById(owner, false)) {
-		errors << "CNinjaRope::read: owner (" << this->owner->getID() << ") differs from param " << owner << endl;
-	}
+	if(this->owner() == NULL)
+		errors << "CNinjaRope::read: owner unknown" << endl;
+	else if(this->owner() != game.wormById(owner, false))
+		errors << "CNinjaRope::read: owner (" << this->owner()->getID() << ") differs from param " << owner << endl;
 	
-	OldHookPos = pos();
 	int type = bs->readByte();
 	Released = true;
 	Worm = NULL;

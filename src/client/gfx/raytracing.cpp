@@ -20,10 +20,10 @@
 
 /* some hacky code for projectiles and other LX only objects */
 struct ObjectMap {
-	SafeVector<CGameObject*> objects;
+	SafeVector<const CGameObject*> objects;
 	AbsTime lastUpdate;
 	
-	void set(int x, int y, CGameObject* obj) {
+	void set(int x, int y, const CGameObject* obj) {
 		int width = game.gameMap()->GetWidth();
 		if(x >= 0 && x < width && y >= 0 && (unsigned int)y < game.gameMap()->GetHeight())
 			*objects[y * width + x] = obj;
@@ -59,7 +59,7 @@ struct ObjectMap {
 			update();		
 	}
 	
-	CGameObject* at(int x, int y) {
+	const CGameObject* at(int x, int y) {
 		const int width = game.gameMap()->GetWidth();
 		const int height = game.gameMap()->GetHeight();
 		if(x < 0 || x >= width || y < 0 || y >= height) return NULL;
@@ -112,7 +112,7 @@ static GamePixelInfo getGamePixelInfo_MapOnly(int x, int y) {
 	return info;
 }
 
-static GamePixelInfo infoForObject(CGameObject* object, int x, int y) {
+static GamePixelInfo infoForObject(const CGameObject* object, int x, int y) {
 	GamePixelInfo info;
 	info.type = GamePixelInfo::GPI_Object;
 	info.object.obj = &*object;
@@ -132,7 +132,7 @@ GamePixelInfo getGamePixelInfo(int x, int y) {
 	objectMap.updateIfNeccessary();
 	CVec p((float)x, (float)y);
 	
-	if(CGameObject* object = objectMap.at(x, y))
+	if(const CGameObject* object = objectMap.at(x, y))
 		return infoForObject(object, x, y);
 	
 	forrange_bool(object, game.objects.beginArea(x, y, x+1, y+1, /* layer */ 0)) {

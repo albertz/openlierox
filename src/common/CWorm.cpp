@@ -181,7 +181,7 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 };
 
 CWorm::CWorm() :
-	cNinjaRope(this), cSparkles(this),
+	cSparkles(this),
 	m_fireconeAnimator(NULL), m_animator(NULL)
 {
 	thisRef.classId = LuaID<CWorm>::value;
@@ -216,8 +216,6 @@ CWorm::CWorm() :
 	fLastAngle = -1;
 	iLastCharge = 255;
 	iLastCurWeapon = 255;
-
-	cNinjaRope.Clear();
 	fLastAirJumpTime = 0;
 
 	bGotTarget = false;
@@ -372,7 +370,7 @@ void CWorm::Prepare()
 			m_weaponCount++;
 		}
 
-	cNinjaRope.gusInit();
+	cNinjaRope.write().gusInit();
 	movingLeft = false;
 	movingRight = false;
 	jumping = false;
@@ -595,7 +593,7 @@ void CWorm::Spawn(CVec position) {
 	fLastInputTime = GetPhysicsTime();
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	posRecordings.clear(vPos);
-	cNinjaRope.Clear();
+	cNinjaRope.write().Clear();
 	
 
 	fFrame = 0;
@@ -941,7 +939,7 @@ static INLINE bool isWormVisible(CWorm* w, CViewport* v) {
 	return w->isVisible(v);
 }
 
-Color CWorm::renderColorAt(/* relative game coordinates */ int x, int y) {
+Color CWorm::renderColorAt(/* relative game coordinates */ int x, int y) const {
 	if(!bAlive)
 		return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
 		
@@ -977,7 +975,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	// Draw the ninja rope
 	// HINT: draw it before the clipping check because the rope might be visible even if the worm is not
 	if (isWormVisible(this, v) && bAlive)
-		cNinjaRope.Draw(bmpDest,v,vDrawPos);
+		cNinjaRope.get().Draw(bmpDest,v,vDrawPos);
 
 	// Are we inside the viewport?
 	if(x+l+10 < l || x-10 > v->GetVirtW()

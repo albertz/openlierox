@@ -46,7 +46,7 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	
 	m_node->beginReplicationSetup();
 	
-		static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH , Position, -1, 1000);
+		//static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH , Position, -1, 1000);
 		
 		//m_node->setInterceptID( static_cast<Net_InterceptID>(Position) );
 		
@@ -56,7 +56,7 @@ void CWorm::NetWorm_Init(bool isAuthority)
 		
 		//m_node->addReplicator(new VectorReplicator( &nrSetup, &cNinjaRope.getPosReference() ), true);
 		
-		m_node->addReplicationFloat ((Net_Float*)&cNinjaRope.getLengthReference(), 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
+		//m_node->addReplicationFloat ((Net_Float*)&cNinjaRope.getLengthReference(), 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
 		
 		static Net_ReplicatorSetup angleSetup( Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH );
 				
@@ -218,7 +218,7 @@ void CWorm::NetWorm_think()
 					case SYNC:
 					{
 						bAlive = data->getBool();
-						cNinjaRope.active = data->getBool();
+						cNinjaRope.write().active = data->getBool();
 						//currentWeapon = data->getInt(Encoding::bitsOf(gusGame.weaponList.size() - 1));
 						currentWeapon = Encoding::decode(*data, m_weapons.size());
 						CWorm::base_clearWeapons();
@@ -298,7 +298,7 @@ void CWorm::sendSyncMessage( Net_ConnID id )
 	BitStream *data = new BitStream;
 	addEvent(data, SYNC);
 	data->addBool(getAlive());
-	data->addBool(cNinjaRope.active);
+	data->addBool(cNinjaRope.get().active);
 	//data->addInt(currentWeapon, Encoding::bitsOf(gusGame.weaponList.size() - 1));
 	Encoding::encode(*data, currentWeapon, m_weapons.size());
 	

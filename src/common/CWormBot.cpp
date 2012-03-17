@@ -1078,15 +1078,15 @@ void CWormBotInputHandler::getInput() {
    			cNinjaRope.Release();*/
 
 		// Don't move in the direction of projectiles when shooting
-		if (m_worm->cNinjaRope.isAttached())  {
-			CVec force = m_worm->cNinjaRope.GetForce();
+		if (m_worm->cNinjaRope.get().isAttached())  {
+			CVec force = m_worm->cNinjaRope.get().GetForce();
 			float rope_angle = (float)atan(force.x / force.y);
 			if (force.x < 0 || force.y > 0)
 				rope_angle = -rope_angle;
 			rope_angle = RAD2DEG(rope_angle);
 
 			if (fabs(m_worm->fAngle - rope_angle) <= 50)
-				m_worm->cNinjaRope.Clear();
+				m_worm->cNinjaRope.write().Clear();
 		}
 		m_worm->tState.write().bMove = false;
 
@@ -1755,21 +1755,21 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
         aim = AI_SetAim(m_worm->vPos + CVec(GetRandomNum()*10, GetRandomNum()*10 + 10));
         if(aim) {
             const CVec dir = m_worm->getFaceDirection();
-            m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos,dir);
+			m_worm->cNinjaRope.write().Shoot(m_worm->vPos, dir);
         }
 
 		// Jump and move
 		else  {
 			AI_Jump();
 			ws->bMove = true;
-			m_worm->cNinjaRope.Clear();
+			m_worm->cNinjaRope.write().Clear();
 		}
 
         return;
     }
 
     // Release the ninja rope
-    m_worm->cNinjaRope.Clear();
+	m_worm->cNinjaRope.write().Clear();
 }
 
 float fLastDirChange = 99999;
@@ -2400,7 +2400,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 				// Let's try cannon
 				if (!m_worm->tWeapons[2].Reloading)
 				// Don't use cannon when we're on ninja rope, we will avoid suicides
-					if (!m_worm->cNinjaRope.isAttached())  {
+					if (!m_worm->cNinjaRope.get().isAttached())  {
 						m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 						return 2;
 					}
@@ -2425,7 +2425,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 				// Let's try cannon
 				if (!m_worm->tWeapons[2].Reloading)
 					// Don't use cannon when we're on ninja rope, we will avoid suicides
-					if (!m_worm->cNinjaRope.isReleased())  {
+					if (!m_worm->cNinjaRope.get().isReleased())  {
 						m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 						return 2;
 					}
@@ -2437,7 +2437,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 				// As for almost last, try doomsday
 				if (!m_worm->tWeapons[3].Reloading)
 					// Don't use doomsday when we're on ninja rope, we will avoid suicides
-					if (!m_worm->cNinjaRope.isAttached())  {
+					if (!m_worm->cNinjaRope.get().isAttached())  {
 						m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 						return 3;
 					}
@@ -2452,7 +2452,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 			// First try doomsday
 			if (!m_worm->tWeapons[3].Reloading)  {
 				// Don't use doomsday when we're on ninja rope, we will avoid suicides
-				if (!m_worm->cNinjaRope.isAttached())  {
+				if (!m_worm->cNinjaRope.get().isAttached())  {
 					m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
 					return 3;
 				}
@@ -2469,7 +2469,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 			// Cannon, the worst possible for this
 			if (!m_worm->tWeapons[2].Reloading)
 				// Don't use cannon when we're on ninja rope, we will avoid suicides
-				if (!m_worm->cNinjaRope.isReleased())  {
+				if (!m_worm->cNinjaRope.get().isReleased())  {
 					// Aim a bit up
 					// AI_SetAim(CVec(cTrgPos.x,cTrgPos.y+5.0f)); // don't do aiming here
 					m_worm->tState.write().bMove = false;  // Don't move, avoid suicides
@@ -3407,25 +3407,25 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	ws->bJump = false;
 
 	// If the rope hook is attached, increase the attached time
-	if (m_worm->cNinjaRope.isAttached())
+	if (m_worm->cNinjaRope.get().isAttached())
 		fRopeAttachedTime += tLX->fDeltaTime;
 	else
 		fRopeAttachedTime = 0;
 
 	// release the rope if we used it to long
 	if (fRopeAttachedTime > 5.0f) {
-		m_worm->cNinjaRope.Clear();
+		m_worm->cNinjaRope.write().Clear();
 		fRopeAttachedTime = 0;
 	}
 
-	if(m_worm->cNinjaRope.isShooting() && !m_worm->cNinjaRope.isAttached())
+	if(m_worm->cNinjaRope.get().isShooting() && !m_worm->cNinjaRope.get().isAttached())
 		fRopeHookFallingTime += tLX->fDeltaTime;
 	else
 		fRopeHookFallingTime = 0;
 
 	if (fRopeHookFallingTime >= 2.0f)  {
 		// Release & walk
-		m_worm->cNinjaRope.Clear();
+		m_worm->cNinjaRope.write().Clear();
 //        ws->bMove = true;
 		fRopeHookFallingTime = 0;
 	}
@@ -3442,8 +3442,8 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	// and move away!
 	if (canShoot && iAiGameType == GAM_MORTARS)  {
 		if (SIGN(m_worm->vVelocity.get().x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.get().x) && tLX->currentTime - fLastShoot >= 0.2f && tLX->currentTime - fLastShoot <= 1.0f)  {
-			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce().x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.get().x))
-				m_worm->cNinjaRope.Clear();
+			if (m_worm->cNinjaRope.get().isAttached() && SIGN(m_worm->cNinjaRope.get().GetForce().x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.get().x))
+				m_worm->cNinjaRope.write().Clear();
 
 			m_worm->iFaceDirectionSide = m_worm->vPos.get().x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
 			ws->bMove = true;
@@ -3521,7 +3521,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 		// Release any previous rope
 		if (fRopeAttachedTime >= 1.5f)
-			m_worm->cNinjaRope.Clear();
+			m_worm->cNinjaRope.write().Clear();
 
 		// Shoot the rope
 		fireNinja = true;
@@ -3563,7 +3563,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	if (canShoot && iAiGameType == GAM_MORTARS)  {
 		if (tLX->currentTime - fLastShoot <= 0.2f)  {
 			if (fRopeAttachedTime >= 0.1f)
-				m_worm->cNinjaRope.Clear();
+				m_worm->cNinjaRope.write().Clear();
 			return;
 		}
 	}
@@ -3634,8 +3634,8 @@ find_one_visible_node:
 
 
 	// release rope, if it forces us to the wrong direction
-	if(m_worm->cNinjaRope.isAttached() && (m_worm->cNinjaRope.GetForce().Normalize() + m_worm->vPos - nodePos).GetLength2() > (m_worm->vPos - nodePos).GetLength2()) {
-		m_worm->cNinjaRope.Clear();
+	if(m_worm->cNinjaRope.get().isAttached() && (m_worm->cNinjaRope.get().GetForce().Normalize() + m_worm->vPos - nodePos).GetLength2() > (m_worm->vPos - nodePos).GetLength2()) {
+		m_worm->cNinjaRope.write().Clear();
 		fRopeAttachedTime = 0;
 	}
 
@@ -3673,7 +3673,7 @@ find_one_visible_node:
 					if(NEW_psLastNode && (i>=3 && i<=5)) {
 						// Stop, if we are not so far away
 						if (fRopeAttachedTime >= 0.7f)
-							m_worm->cNinjaRope.Clear();
+							m_worm->cNinjaRope.write().Clear();
 						return;
 					}
 				}
@@ -3805,10 +3805,10 @@ find_one_visible_node:
           Or if it is, we make sure it has pulled us up and that it is attached
         */
         if(aim || !m_worm->bOnGround) {
-            if(!m_worm->cNinjaRope.isReleased())
+			if(!m_worm->cNinjaRope.get().isReleased())
             	fireNinja = true;
             else {
-                if(m_worm->cNinjaRope.isAttached()) {
+				if(m_worm->cNinjaRope.get().isAttached()) {
 					//float restlen_sq = cNinjaRope.getRestLength(); restlen_sq *= restlen_sq;
                     //if((vPos-cNinjaRope.getHookPos()).GetLength2() < restlen_sq && vVelocity.y<-10)
                     if(fRopeAttachedTime > 0.5f)
@@ -3825,7 +3825,7 @@ find_one_visible_node:
 		const CVec dir = m_worm->getFaceDirection();
 
     	// the final shoot of the rope...
-    	m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, dir);
+		m_worm->cNinjaRope.write().Shoot(m_worm->vPos, dir);
 		fRopeHookFallingTime = 0;
 		fRopeAttachedTime = 0;
 
@@ -3855,8 +3855,8 @@ find_one_visible_node:
 	// If we are using the rope to fly up, it can happen, that we will fly through the node and continue in a wrong direction
 	// To avoid this we check the velocity and if it is too high, we release the rope
 	// When on ground rope does not make much sense mainly, but there are rare cases where it should stay like it is
-	if (m_worm->cNinjaRope.isAttached() && !m_worm->bOnGround && (m_worm->cNinjaRope.getHookPos().y > m_worm->vPos.get().y) && (NEW_psCurrentNode->fY < m_worm->vPos.get().y)
-		&& fabs(m_worm->cNinjaRope.getHookPos().x - m_worm->vPos.get().x) <= 50 && m_worm->vVelocity.get().y <= 0)  {
+	if (m_worm->cNinjaRope.get().isAttached() && !m_worm->bOnGround && (m_worm->cNinjaRope.get().getHookPos().y > m_worm->vPos.get().y) && (NEW_psCurrentNode->fY < m_worm->vPos.get().y)
+		&& fabs(m_worm->cNinjaRope.get().getHookPos().x - m_worm->vPos.get().x) <= 50 && m_worm->vVelocity.get().y <= 0)  {
 		CVec force;
 
 		// Air drag (Mainly to dampen the ninja rope)
@@ -3867,7 +3867,7 @@ find_one_visible_node:
 		//float time2 = dist/vVelocity.GetLength();*/
 		float diff = m_worm->vVelocity.get().y - ((float)cClient->getGameLobby()[FT_WormGravity] * time);
 		if (diff < 0)
-			m_worm->cNinjaRope.Clear();
+			m_worm->cNinjaRope.write().Clear();
 	}
 
 
@@ -4238,14 +4238,14 @@ void CWormBotInputHandler::subThink() {
 	if ( !m_worm->isActive() )
 		baseActionStart(RESPAWN);
 
-	if(m_worm->cNinjaRope.active) {
-		m_worm->cNinjaRope.Shoot(m_worm, m_worm->cNinjaRope.pos(), CVec());
-		if(m_worm->cNinjaRope.attached)
-			m_worm->cNinjaRope.setAttached(m_worm->cNinjaRope.attached);			
+	if(m_worm->cNinjaRope.get().active) {
+		m_worm->cNinjaRope.write().Shoot(m_worm->cNinjaRope.get().pos(), CVec());
+		if(m_worm->cNinjaRope.get().attached)
+			m_worm->cNinjaRope.write().setAttached(m_worm->cNinjaRope.get().attached);
 	}
 	
-	bool oldNinja = m_worm->cNinjaRope.isReleased();
-	CVec oldNinjaPos = m_worm->cNinjaRope.getHookPos();
+	bool oldNinja = m_worm->cNinjaRope.get().isReleased();
+	CVec oldNinjaPos = m_worm->cNinjaRope.get().getHookPos();
 	worm_state_t oldS = m_worm->tState.get();
 	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
 
@@ -4253,8 +4253,8 @@ void CWormBotInputHandler::subThink() {
 	//m_worm->fAngle = 180.0f - (m_worm->aimAngle.toDeg() + 90.0f);
 	getInput();
 
-	bool newNinja = m_worm->cNinjaRope.isReleased();
-	CVec newNinjaPos = m_worm->cNinjaRope.getHookPos();
+	bool newNinja = m_worm->cNinjaRope.get().isReleased();
+	CVec newNinjaPos = m_worm->cNinjaRope.get().getHookPos();
 	const worm_state_t& newS = m_worm->tState.get();
 	DIR_TYPE newMoveDir = m_worm->getMoveDirectionSide();
 

@@ -24,12 +24,13 @@
 #include "Color.h"
 #include "util/WeakRef.h"
 #include "game/Attr.h"
+#include "util/CustomVar.h"
 
 struct ALLEGRO_BITMAP;
 class CViewport;
 class CWormInputHandler;
 
-class CGameObject : public LuaObject {
+class CGameObject : public LuaObject, public CustomVar {
 public:
 	CGameObject();
 	CGameObject(CWormInputHandler* owner, Vec pos_ = Vec(), Vec spd_ = Vec() );
@@ -50,6 +51,7 @@ public:
 	CVec		getPos() const				{ return vPos; }
 	void		setPos(const CVec& v)		{ vPos = v; }
 	vPos_Type&		pos()					{ return vPos; }
+	const vPos_Type&		pos()	const	{ return vPos; }
 
 	CVec		getVelocity() const			{ return vVelocity; }
 	void		setVelocity(const CVec& v)	{ vVelocity = v; }
@@ -60,10 +62,10 @@ public:
 	bool		injure(float damage); // returns true if object has died
 	
 
-	virtual bool isInside(int x, int y);
-	virtual IVec size() { return IVec(); }
+	virtual bool isInside(int x, int y) const;
+	virtual IVec size() const { return IVec(); }
 
-	virtual Color renderColorAt(/* relative coordinates */ int x, int y) { return Color(0,0,0,SDL_ALPHA_TRANSPARENT); }
+	virtual Color renderColorAt(/* relative coordinates */ int x, int y) const { return Color(0,0,0,SDL_ALPHA_TRANSPARENT); }
 	
 	
 	// -------------------------------------------------------------

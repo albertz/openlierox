@@ -59,13 +59,17 @@ extern LuaCallbacks luaCallbacks;
 	lua.destroyReference(p->luaReference); \
 }*/
 
-struct LuaObject : virtual BaseObject, DontCopyTag
+struct LuaObject : virtual BaseObject
 {
 	bool deleted;
 	LuaReference luaReference;
 
 	LuaObject() : deleted(false) {}
 	virtual ~LuaObject() {}
+
+	// copy semantics: each LuaObject instance has its own unique LuaReference. nothing is copied
+	LuaObject(const LuaObject&) : deleted(false) {}
+	LuaObject& operator=(const LuaObject&) { return *this; }
 
 	void pushLuaReference();	
 	LuaReference getLuaReference();	

@@ -47,25 +47,13 @@ class CBytestream;
 
 class CNinjaRope : public CGameObject {
 public:
-	// Constructor
-	CNinjaRope(CWorm* _owner)
-	: owner(_owner), m_sprite(NULL), m_animator(NULL) {
-		assert(owner != NULL);
-		Clear();
-
-		LastWrite = AbsTime();
-		LastPosUpdate = AbsTime();
-	}
+	CNinjaRope();
 	~CNinjaRope();
-	CNinjaRope& operator=(const CNinjaRope&);
 
-	virtual BaseObject* parentObject() const { return (BaseObject*)owner; }
+	virtual BaseObject* parentObject() const;
+	CWorm* owner() const;
 
 private:	
-	// Attributes
-	
-	CWorm* const owner;
-	
 	bool		Released;
 	bool		HookShooting;
 	bool		HookAttached;
@@ -75,36 +63,22 @@ private:
 	float		MinLength;
 
 	CVec		HookVelocity;
-
 	CVec		HookDir;
-	CVec		OldHookPos;
-
-	// Used for writeNeeded check
-	bool		LastReleased;
-	bool		LastHookShooting;
-	bool		LastHookAttached;
-	bool		LastPlayerAttached;
-	CWorm		*LastWorm;
-	AbsTime		LastWrite;
-	AbsTime		LastPosUpdate; // Used for velocity counting (client don't send velocity)
-	
 
 public:
 	// Methods
 	void		Clear();
 
-	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos);
-	void		Shoot(CWorm* owner, CVec pos, CVec dir);
+	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos) const;
+	void		Shoot(CVec pos, CVec dir);
 
-	CVec		GetForce();
+	CVec		GetForce() const;
     
-	bool		isReleased()		{ return Released; }
+	bool		isReleased() const	{ return Released; }
 	void		UnAttachPlayer();
 	void		AttachToPlayer(CWorm *worm);
 
-	void		updateCheckVariables();
-	bool		writeNeeded();
-	void		write(CBytestream *bs);
+	void		write(CBytestream *bs) const;
 	void		read(CBytestream *bs, int owner);
 
     CVec getHookPos() const       { return getPos(); }
@@ -113,18 +87,16 @@ public:
 	void	setShooting(bool s)			{ HookShooting = s; }
 	void	setAttached(bool a)			{ HookAttached = a; }
 
-	void		updateOldHookPos()		{ OldHookPos = getPos(); }
-
 	CVec&		hookVelocity()			{ return HookVelocity; }
 	vPos_Type&	hookPos()				{ return pos(); }
 	
 	bool		isPlayerAttached()		{ return PlayerAttached; }
-	CWorm*		getAttachedPlayer()		{ return Worm; }
+	CWorm*		getAttachedPlayer()	const	{ return Worm; }
 
 	void		changeRestLength(float);
 
-	virtual bool isInside(int x, int y);	
-	virtual Color renderColorAt(/* relative coordinates */ int x, int y);
+	virtual bool isInside(int x, int y) const;
+	virtual Color renderColorAt(/* relative coordinates */ int x, int y) const;
 	
 	
 	// ----------------------
@@ -153,7 +125,7 @@ public:
 			m_length = 0.f;
 	}
 	
-	int getColour();
+	int getColour() const;
 	float& getLengthReference()
 	{
 		return m_length;

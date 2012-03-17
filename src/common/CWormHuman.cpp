@@ -215,12 +215,12 @@ void CWormHumanInputHandler::getInput() {
 		ws->bShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
 		ws->bJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
 		if(ws->bJump) {
-			if(m_worm->cNinjaRope.isReleased())
-				m_worm->cNinjaRope.Clear();
+			if(m_worm->cNinjaRope.get().isReleased())
+				m_worm->cNinjaRope.write().Clear();
 		}
 		else if(ms->FirstDown & SDL_BUTTON(2)) {
 			// TODO: this is bad. why isn't there a ws->iNinjaShoot ?
-			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, ninjaShootDir);
+			m_worm->cNinjaRope.write().Shoot(m_worm->vPos, ninjaShootDir);
 			PlaySoundSample(sfxGame.smpNinja);
 		}
 
@@ -363,8 +363,8 @@ void CWormHumanInputHandler::getInput() {
 	if( !(oldskool && cSelWeapon.isDown()) )  {
 		ws->bJump |= jump;
 
-		if(jump && m_worm->cNinjaRope.isReleased())
-			m_worm->cNinjaRope.Clear();
+		if(jump && m_worm->cNinjaRope.get().isReleased())
+			m_worm->cNinjaRope.write().Clear();
 	}
 	
 	// Ninja Rope
@@ -385,7 +385,7 @@ void CWormHumanInputHandler::getInput() {
 		if(bRopeDownOnce) {
 			bRopeDownOnce = false;
 
-			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, ninjaShootDir);
+			m_worm->cNinjaRope.write().Shoot(m_worm->vPos, ninjaShootDir);
 
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
@@ -397,7 +397,7 @@ void CWormHumanInputHandler::getInput() {
 		// Seperate dedicated button for throwing the rope
 		if(cInpRope.isDownOnce()) {
 
-			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, ninjaShootDir);
+			m_worm->cNinjaRope.write().Shoot(m_worm->vPos, ninjaShootDir);
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
 		}
@@ -593,14 +593,14 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	if(jumpdownonce) {
 			ws->bJump = true;
 
-			if(cNinjaRope.isReleased())
-				cNinjaRope.Clear();
+			if(cNinjaRope.get().isReleased())
+				cNinjaRope.write().Clear();
 	}
 
 	// Newer style rope throwing
 	// Seperate dedicated button for throwing the rope
 	if( keys.keys[NewNet::K_ROPE] && keysChanged.keys[NewNet::K_ROPE] ) {
-		cNinjaRope.Shoot(this, vPos, getFaceDirection());
+		cNinjaRope.write().Shoot(vPos, getFaceDirection());
 		// Throw sound
 		if( NewNet::CanPlaySound(getID()) )
 			PlaySoundSample(sfxGame.smpNinja);

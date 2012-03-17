@@ -947,7 +947,7 @@ static void cleanupAfterDisconnect() {
 
 void Game::onPrepareWorm(CWorm* w) {
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
-	objects.insertImmediately(w->getNinjaRope(), 1, 1);
+	objects.insertImmediately((CGameObject*) w->getNinjaRope(), 1, 1);
 }
 
 void Game::onUnprepareWorm(CWorm* w) {

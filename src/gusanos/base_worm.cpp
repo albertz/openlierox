@@ -547,9 +547,9 @@ void CWorm::draw(CViewport* viewport)
 			int renderX = x;
 			int renderY = y;
 
-			if (cNinjaRope.active) {
-				IVec nrPos = viewport->convertCoords( IVec(Vec(cNinjaRope.pos())) );
-				line(where, x, y, nrPos.x, nrPos.y, cNinjaRope.getColour());
+			if (cNinjaRope.get().active) {
+				IVec nrPos = viewport->convertCoords( IVec(Vec(cNinjaRope.get().pos())) );
+				line(where, x, y, nrPos.x, nrPos.y, cNinjaRope.get().getColour());
 			}
 
 			if ( m_weapons[currentWeapon] )
@@ -700,7 +700,7 @@ void CWorm::base_die() {
 		cServer->killWorm(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1, 0);
 	}
 	
-	cNinjaRope.remove();
+	cNinjaRope.write().remove();
 	m_timeSinceDeath = 0;
 	if ( gusGame.deathObject ) {
 		gusGame.deathObject->newParticle( gusGame.deathObject, pos(), velocity(), m_dir, m_owner, Vec(velocity()).getAngle() );
@@ -749,7 +749,7 @@ void CWorm::addAimSpeed( AngleDiff speed )
 
 void CWorm::addRopeLength( float distance )
 {
-	cNinjaRope.addLength(distance);
+	cNinjaRope.write().addLength(distance);
 }
 
 #ifndef DEDICATED_ONLY
@@ -790,7 +790,7 @@ void CWorm::actionStart( Actions action )
 				Vec v(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed);
 				if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
 					v += velocity();
-				cNinjaRope.shoot(getWeaponPos(), v);
+				cNinjaRope.write().shoot(getWeaponPos(), v);
 			}
 			break;
 
@@ -828,7 +828,7 @@ void CWorm::actionStop( Actions action )
 			break;
 
 			case NINJAROPE:
-			cNinjaRope.remove();
+			cNinjaRope.write().remove();
 			break;
 
 			case CHANGEWEAPON:

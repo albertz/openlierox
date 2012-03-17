@@ -506,12 +506,10 @@ public:
 	}
 
 	void simulateNinjarope(float dt, CWorm* owner) {
-		CNinjaRope* rope = owner->getNinjaRope();
+		CNinjaRope* rope = &owner->cNinjaRope.write();
 		CVec playerpos = owner->getPos();
 
 		const bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
-
-		rope->updateOldHookPos();
 
 		if(!rope->isReleased())
 			return;

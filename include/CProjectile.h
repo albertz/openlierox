@@ -163,8 +163,8 @@ public:
 	// Methods
 
 
-	IVec	size() { return IVec(radius.x,radius.y); }
-	Color renderColorAt(/* relative coordinates */ int x, int y) { return iColour; }
+	IVec	size() const { return IVec(radius.x,radius.y); }
+	Color renderColorAt(/* relative coordinates */ int x, int y) const { return iColour; }
 	
 	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, AbsTime time, AbsTime ignoreWormCollBeforeTime);
 

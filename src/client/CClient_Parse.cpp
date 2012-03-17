@@ -1976,7 +1976,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		// Because of that, we unattach the rope here, just to be sure
 		for_each_iterator(CWorm*, w2, game.worms()) {
 			if(w2->get()->getNinjaRope()->getAttachedPlayer() == w)
-				w2->get()->getNinjaRope()->UnAttachPlayer();
+				w2->get()->cNinjaRope.write().UnAttachPlayer();
 		}
 
 		w->Kill(false);

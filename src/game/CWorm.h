@@ -250,11 +250,13 @@ protected:
 	
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
-	CNinjaRope	cNinjaRope;
+public:
+	ATTR(CWorm,	CNinjaRope,	cNinjaRope, 40, {serverside = false;})
+protected:
 	std::vector<bool>	bVisibleForWorm;
 	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
-	ATTR(CWorm, bool,	bTagIT, 40, {})
+	ATTR(CWorm, bool,	bTagIT, 41, {})
 	TimeDiff	fTagTime;
 
 	ATTR(CWorm, int,	iDirtCount, 42, {})
@@ -370,8 +372,8 @@ public:
     void        DrawShadow(SDL_Surface * bmpDest, CViewport *v);
 	void		UpdateDrawPos();
 
-	IVec size() { return IVec(4,4); }
-	Color renderColorAt(/* relative coordinates */ int x, int y);
+	IVec size() const { return IVec(4,4); }
+	Color renderColorAt(/* relative coordinates */ int x, int y) const;
 	
 	//
 	// Game
@@ -417,7 +419,7 @@ public:
 	// Variables
 	//
 
-	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
+	const CNinjaRope*	getNinjaRope()				{ return &cNinjaRope.get(); }
 
 	std::string getName()			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }

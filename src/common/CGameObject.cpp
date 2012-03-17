@@ -96,7 +96,7 @@ void CGameObject::removeRefsToPlayer(CWormInputHandler* player)
 		m_owner = NULL;
 }
 
-bool CGameObject::isInside(int x, int y) {
+bool CGameObject::isInside(int x, int y) const {
 	IVec s = size();
 	return abs((int)pos().get().x - x) + 1 <= s.x && abs((int)pos().get().y - y) + 1 <= s.y;
 }

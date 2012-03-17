@@ -303,7 +303,8 @@ void skin_load(const CGameSkin& skin) {
 
 void CGameSkin::onFilenameUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, ScriptVar_t /*oldValue*/) {
 	if(bDedicated) return;
-	CGameSkin* s = (CGameSkin*) base;
+	CGameSkin* s = dynamic_cast<CGameSkin*>(base);
+	assert(s != NULL);
 
 	Mutex::ScopedLock lock(s->thread->mutex);
 	s->loaded = false;
@@ -667,7 +668,8 @@ void CGameSkin::Colorize(Color col) {
 
 void CGameSkin::onColorUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, ScriptVar_t /*oldValue*/) {
 	if (bDedicated) return;
-	CGameSkin* s = (CGameSkin*) base;
+	CGameSkin* s = dynamic_cast<CGameSkin*>(base);
+	assert(s != NULL);
 
 	Mutex::ScopedLock lock(s->thread->mutex);
 	s->bColorized = true;

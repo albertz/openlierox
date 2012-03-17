@@ -77,7 +77,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 		bits |= 0x04;
 	if(tState.get().bJump)
 		bits |= 0x08;
-	if(cNinjaRope.isReleased())
+	if(cNinjaRope.get().isReleased())
 		bits |= 0x10;
 	if(tState.get().bShoot)
 		bits |= 0x20;
@@ -86,8 +86,8 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 	bs->writeByte( iCurrentWeapon );
 
 	// Write out the ninja rope details
-	if(cNinjaRope.isReleased())
-		cNinjaRope.write(bs);
+	if(cNinjaRope.get().isReleased())
+		cNinjaRope.write().write(bs);
 
 
 	// Velocity
@@ -115,7 +115,6 @@ void CWorm::updateCheckVariables()
 	fLastAngle = fAngle;
 	fLastUpdateWritten = tLX->currentTime;
 	iLastCurWeapon = iCurrentWeapon;
-	cNinjaRope.updateCheckVariables();
 	vLastUpdatedPos = vPos;
 }
 
@@ -153,7 +152,8 @@ bool CWorm::checkPacketNeeded()
 		return true;
 
 	// Rope
-	return cNinjaRope.writeNeeded();
+	// NOTE: not implemented anymore... should be done via GameState
+	return true;
 }
 
 // this is used to update the position on the client-side in CWorm::readPacketState
@@ -236,8 +236,8 @@ void CWorm::net_updatePos(const CVec& newpos) {
 				a.y -= SQR(preEstimatedVel.y) * SIGN(preEstimatedVel.y) * Drag;
 			}
 
-			if (cNinjaRope.isAttached())  {
-				a += cNinjaRope.GetForce();
+			if (cNinjaRope.get().isAttached())  {
+				a += cNinjaRope.get().GetForce();
 			}
 
 			// Gravity
@@ -319,9 +319,9 @@ void CWorm::readPacket(CBytestream *bs)
 	// Ninja rope
 	bool rope = (bits & 0x10) != 0;
 	if(rope)
-		cNinjaRope.read(bs, iID);
+		cNinjaRope.write().read(bs, iID);
 	else
-		cNinjaRope.Clear();
+		cNinjaRope.write().Clear();
 
 	// Velocity
 	const Version& versionOfSender = getClient()->getClientVersion();
@@ -451,9 +451,9 @@ void CWorm::readPacketState(CBytestream *bs)
 	// Ninja rope
 	bool rope = (bits & 0x10) != 0;
 	if(rope)
-		cNinjaRope.read(bs,iID);
+		cNinjaRope.write().read(bs,iID);
 	else
-		cNinjaRope.Clear();
+		cNinjaRope.write().Clear();
 
 	// Safety check
 	if( iCurrentWeapon < 0 || iCurrentWeapon > 4) {

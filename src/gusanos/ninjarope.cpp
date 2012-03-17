@@ -102,7 +102,7 @@ void CNinjaRope::think()
 		
 		// TODO: Try to attach to worms/objects
 				
-		Vec diff = pos() - owner->pos();
+		Vec diff = pos() - owner()->pos();
 		float curLen = (float)diff.length();
 		Vec force(diff * gusGame.options.ninja_rope_pullForce);
 		
@@ -131,7 +131,7 @@ void CNinjaRope::think()
 		{
 			if(curLen > m_length)
 			{
-				owner->addSpeed(force / curLen);
+				owner()->addSpeed(force / curLen);
 			}
 		}
 		else
@@ -161,7 +161,7 @@ void CNinjaRope::addAngleSpeed( AngleDiff speed )
 	m_angleSpeed += speed;
 }
 
-int CNinjaRope::getColour()
+int CNinjaRope::getColour() const
 {
 	if(gusGame.NRPartType)
 		return gusGame.NRPartType->colour;
@@ -193,7 +193,7 @@ void CNinjaRope::draw(CViewport *viewport)
 #endif
 
 void CNinjaRope::deleteThis() {
-	notes << "CNinjaRope:deleteThis: " << owner->getName() << endl;
+	notes << "CNinjaRope:deleteThis: " << owner()->getName() << endl;
 	
 	finalize();
 	
