@@ -2257,6 +2257,8 @@ void SyncServerAndClient() {
 	
 	//notes << "Syncing server and client ..." << endl;
 
+	cClient->Connecting();
+
 	{
 		// Read packets
 		CServerConnection *cl = cServer->getClients();
