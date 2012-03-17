@@ -238,7 +238,7 @@ protected:
 	ATTR(CWorm, int /*DIR_TYPE*/,	iFaceDirectionSide, 24, {serverside = false;})
 	ATTR(CWorm, int /*DIR_TYPE*/,	iMoveDirectionSide, 25, {serverside = false;})
 	bool		bGotTarget;
-	ATTR(CWorm, float,	fAngle, 26, {serverside = false;})
+	ATTR(CWorm, float,	fAngle, 26, {serverside = false; serverCanUpdate = false;})
     float       fAngleSpeed;
     float		fMoveSpeedX;
 	

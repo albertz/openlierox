@@ -57,7 +57,7 @@ private:
 	ATTR(CNinjaRope, bool,		Released, 1, {serverside = false;})
 	ATTR(CNinjaRope, bool,		HookShooting, 2, {serverside = false;})
 	ATTR(CNinjaRope, bool,		HookAttached, 3, {serverside = false;})
-	ATTR(CNinjaRope, int,		PlayerAttached, 4, {serverside = false;})
+	ATTR(CNinjaRope, int,		PlayerAttached, 4, { serverside = false; defaultValue = -1; })
 
 public:
 	// Methods
