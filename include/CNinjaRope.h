@@ -59,8 +59,6 @@ private:
 	ATTR(CNinjaRope, bool,		HookAttached, 3, {serverside = false;})
 	ATTR(CNinjaRope, int,		PlayerAttached, 4, {serverside = false;})
 
-	float		MinLength;
-
 public:
 	// Methods
 	void		Clear();
