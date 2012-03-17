@@ -262,8 +262,8 @@ USE_OPTS_FOR(std::string, Str);
 
 
 #define ATTR(parentType, type, name, id, attrDescSpecCode) \
-struct _ ## parentType ## _AttrDesc ## id : AttrDesc { \
-	_ ## parentType ## _AttrDesc ## id () { \
+struct _ ## name ## _AttrDesc ## id : AttrDesc { \
+	_ ## name ## _AttrDesc ## id () { \
 		objTypeId = LuaID<parentType>::value; \
 		attrType = GetType<type>::value; \
 		attrMemOffset = (intptr_t)__OLX_OFFSETOF(parentType, name); \
@@ -276,7 +276,7 @@ struct _ ## parentType ## _AttrDesc ## id : AttrDesc { \
 		registerAttrDesc(*this); \
 	} \
 }; \
-typedef AttrWithMaybeOpts<type, _ ## parentType ## _AttrDesc ## id>::Type name ## _Type; \
+typedef AttrWithMaybeOpts<type, _ ## name ## _AttrDesc ## id>::Type name ## _Type; \
 name ## _Type name;
 
 #endif
