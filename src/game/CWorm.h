@@ -254,7 +254,6 @@ public:
 	ATTR(CWorm,	CNinjaRope,	cNinjaRope, 40, {serverside = false;})
 protected:
 	std::vector<bool>	bVisibleForWorm;
-	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
 	ATTR(CWorm, bool,	bTagIT, 41, {})
 	TimeDiff	fTagTime;
@@ -385,8 +384,8 @@ public:
 	void		Kill(bool serverside);
 	bool		CheckBonusCollision(CBonus *b);
 	bool		GiveBonus(CBonus *b);
-	void		Hide(int forworm, bool immediate);
-	void		Show(int forworm, bool immediate);
+	void		Hide(int forworm);
+	void		Show(int forworm);
 
 
 	void		getInput();

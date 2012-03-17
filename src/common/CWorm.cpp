@@ -209,7 +209,6 @@ CWorm::CWorm() :
 	fFrame = 0;
 	bDrawMuzzle = false;
 	bVisibleForWorm.clear();
-	fVisibilityChangeTime = 0;
 
 	bOnGround = false;
 	fLastUpdateWritten = AbsTime();
@@ -302,10 +301,7 @@ void CWorm::Prepare()
 
 	tState = worm_state_t();
 	bVisibleForWorm.clear();
-	fVisibilityChangeTime = 0;
 
-	bVisibleForWorm.clear();
-	fVisibilityChangeTime = 0;
 	gusSkinVisble = true;
 	bCanRespawnNow = false;
 	bRespawnRequested = false;
@@ -431,7 +427,6 @@ void CWorm::Unprepare() {
 	resetAngleAndDir();
 
 	bVisibleForWorm.clear();
-	fVisibilityChangeTime = 0;
 	
 	if(m_inputHandler) {
 		m_inputHandler->deleteThis();
@@ -586,7 +581,6 @@ void CWorm::Spawn(CVec position) {
 	bSpawnedOnce = true;
 	bCanRespawnNow = false;
 	bRespawnRequested = false;
-	fVisibilityChangeTime = 0;
 	resetAngleAndDir();
 	fMoveSpeedX = 0;
 	iMoveDirectionSide = DIR_RIGHT;
@@ -1414,24 +1408,16 @@ bool CWorm::GiveBonus(CBonus *b)
 
 ///////////////////
 // Hide the worm, if immediate is set, no animation will be shown
-void CWorm::Hide(int forworm, bool immediate)
+void CWorm::Hide(int forworm)
 {
 	setVisibleForWorm(forworm, false);
-	if (!immediate)
-		fVisibilityChangeTime = tLX->currentTime;
-	else
-		fVisibilityChangeTime = 0;
 }
 
 //////////////////
 // Show the worm, if immediate is set, no animation will be shown
-void CWorm::Show(int forworm, bool immediate)
+void CWorm::Show(int forworm)
 {
 	setVisibleForWorm(forworm, true);
-	if (!immediate)
-		fVisibilityChangeTime = tLX->currentTime;
-	else
-		fVisibilityChangeTime = 0;
 }
 
 ///////////////////
@@ -1608,7 +1594,6 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	COPY( fFrame );
 	COPY( cNinjaRope );
 	COPY( bVisibleForWorm );
-	COPY( fVisibilityChangeTime );
 	COPY( fSpawnTime );
 	COPY( iCurrentWeapon );
 	COPY( fLastAirJumpTime );

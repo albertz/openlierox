@@ -2371,9 +2371,9 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 	
 	// Hide or show the worm
 	if (hide)
-		w->Hide(forworm, immediate);
+		w->Hide(forworm);
 	else
-		w->Show(forworm, immediate);
+		w->Show(forworm);
 }
 
 void CClientNetEngine::ParseFlagInfo(CBytestream* bs) {
