@@ -320,27 +320,26 @@ void CWorm::processMoveAndDig(void)
 
 	if(reacts[Up] <= 0)
 		acc *= gusGame.options.worm_airAccelerationFactor;
+
 	if(movingLeft && !movingRight) {
-		//TODO: Air acceleration
 		if(velocity().get().x > -gusGame.options.worm_maxSpeed) {
 			velocity().write().x -= acc;
 		}
 
-		if(m_dir > 0) {
+		if(iMoveDirectionSide == DIR_RIGHT) {
 			aimSpeed = 0;
-			m_dir = -1;
+			iMoveDirectionSide = DIR_LEFT;
 		}
 
 		animate = true;
 	} else if(movingRight && !movingLeft) {
-		//TODO: Air acceleration
 		if(velocity().get().x < gusGame.options.worm_maxSpeed) {
 			velocity().write().x += acc;
 		}
 
-		if(m_dir < 0) {
+		if(iMoveDirectionSide == DIR_LEFT) {
 			aimSpeed = 0;
-			m_dir = 1;
+			iMoveDirectionSide = DIR_RIGHT;
 		}
 
 		animate = true;
@@ -438,7 +437,7 @@ Vec CWorm::getRenderPos()
 
 Angle CWorm::getPointingAngle()
 {
-	return m_dir > 0 ? aimAngle : Angle(360.0) - aimAngle ;
+	return (iMoveDirectionSide == DIR_RIGHT) ? aimAngle : Angle(360.0) - aimAngle ;
 }
 
 int CWorm::getWeaponIndexOffset( int offset )
@@ -464,7 +463,8 @@ int CWorm::getWeaponIndexOffset( int offset )
 
 void CWorm::setDir(int d)
 {
-	m_dir = d;
+	if(d > 0) iMoveDirectionSide = DIR_RIGHT;
+	else if(d < 0) iMoveDirectionSide = DIR_LEFT;
 }
 
 bool CWorm::isCollidingWith( Vec const& point, float radius )
@@ -573,7 +573,7 @@ void CWorm::draw(CViewport* viewport)
 			if ( m_currentFirecone ) {
 				Vec distance = Vec(aimAngle, (double)m_fireconeDistance);
 				m_currentFirecone->getSprite(m_fireconeAnimator->getFrame(), getPointingAngle())->
-				draw(where, renderX+static_cast<int>(distance.x)*m_dir, renderY+static_cast<int>(distance.y));
+						draw(where, renderX + static_cast<int>(distance.x) * getDir(), renderY + static_cast<int>(distance.y));
 			}
 		}
 
@@ -614,7 +614,7 @@ void CWorm::respawn( const Vec& newPos)
 	aimAngle = Angle(90.0);
 	velocity() = CVec ( 0, 0 );
 	pos() = newPos;
-	m_dir = 1;
+	iMoveDirectionSide = DIR_RIGHT;
 #ifndef DEDICATED_ONLY
 
 	renderPos = pos();
@@ -660,7 +660,7 @@ void CWorm::dig()
 void CWorm::dig( const Vec& digPos, Angle angle )
 {
 	if( gusGame.digObject )
-		gusGame.digObject->newParticle( gusGame.digObject, digPos, Vec(angle), m_dir, m_owner, angle );
+		gusGame.digObject->newParticle( gusGame.digObject, digPos, Vec(angle), getDir(), m_owner, angle );
 }
 
 void CWorm::base_die() {
@@ -699,7 +699,7 @@ void CWorm::base_die() {
 	cNinjaRope.write().remove();
 	m_timeSinceDeath = 0;
 	if ( gusGame.deathObject ) {
-		gusGame.deathObject->newParticle( gusGame.deathObject, pos(), velocity(), m_dir, m_owner, Vec(velocity()).getAngle() );
+		gusGame.deathObject->newParticle( gusGame.deathObject, pos(), velocity(), getDir(), m_owner, Vec(velocity()).getAngle() );
 	}	
 }
 

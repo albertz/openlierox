@@ -336,7 +336,6 @@ void CWorm::Prepare()
 	skin = skinMask = NULL;
 	aimSpeed=(AngleDiff(0.0f)); aimAngle=(Angle(90.0f)); m_lastHurt=(0);
 	animate=(false); changing=(false);
-	m_dir=(1);
 	m_animator = m_fireconeAnimator = NULL;
 	m_currentFirecone = NULL;
 

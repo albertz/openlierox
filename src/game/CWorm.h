@@ -703,7 +703,7 @@ public:
 	void setDir(int d); // Only use this if you are going to sync it over netplay with an event
 	int getDir()
 	{
-		return m_dir;
+		return (iMoveDirectionSide == DIR_LEFT) ? -1 : 1;
 	}
 	bool isCollidingWith( const Vec& point, float radius );
 	bool isActive();
@@ -766,7 +766,6 @@ protected:
 	bool jumping;
 	bool animate;
 	bool changing; // This shouldnt be in the worm class ( its player stuff >:O )
-	int m_dir;
 	
 	
 	// ----------------------------------
