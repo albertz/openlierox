@@ -327,6 +327,8 @@ void GameState::reset() {
 	*this = GameState();
 }
 
+void realCopyVar(ScriptVar_t& var);
+
 void GameState::updateToCurrent() {
 	reset();
 	foreach(o, game.gameStateUpdates->objCreations) {
@@ -340,9 +342,7 @@ void GameState::updateToCurrent() {
 		assert(s.obj == it->first);
 		ScriptVar_t& value = s.attribs[u->attr].value;
 		value = r.get();
-		if(value.type == SVT_CustomWeakRefToStatic)
-			// Do a real copy.
-			value = ScriptVar_t(*value.customVar());
+		realCopyVar(value);
 	}
 }
 

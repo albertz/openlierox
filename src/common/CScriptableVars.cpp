@@ -295,3 +295,11 @@ std::ostream& operator<< (std::ostream& o, const ScriptVarPtr_t& svt)
 	o << svt.toString();
 	return o;
 }
+
+void realCopyVar(ScriptVar_t& var) {
+	if(var.type == SVT_CustomWeakRefToStatic)
+		// do a real copy
+		// NOTE: This can go away once we don't have SVT_CustomWeakRefToStatic anymore,
+		// i.e. ScriptVar_t can never be a ref and is always a copy.
+		var = ScriptVar_t(*var.customVar());
+}
