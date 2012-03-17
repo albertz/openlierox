@@ -65,7 +65,7 @@ void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
 	getValueScriptPtr(base).fromScriptVar(v);
 }
 
-bool AttrDesc::authorizedToWrite(BaseObject* base) const {
+bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
 	assert(base != NULL);
 	if(game.state <= Game::S_Inactive) return true;
 	if(!base->isRegistered()) return true;
@@ -80,7 +80,8 @@ bool AttrDesc::authorizedToWrite(BaseObject* base) const {
 			return true; // we just allow any updates from the server
 		}
 	}
-	if(game.isServer() && getAttrExt(base).S2CupdateNeeded) return true;
+	// About the const-cast: Too annoying to write in a clean way...
+	if(game.isServer() && getAttrExt((BaseObject*) base).S2CupdateNeeded) return true;
 	if(game.isClient() && cClient->getServerVersion() < OLXBetaVersion(0,59,10)) return true; // old protocol, we just manage it manually
 	if(this == Game::state_Type::attrDesc()) return true; // small exception
 	if(serverside) return game.isServer();
@@ -91,7 +92,7 @@ bool AttrDesc::authorizedToWrite(BaseObject* base) const {
 	return false;
 }
 
-bool AttrDesc::shouldUpdate(BaseObject* base) const {
+bool AttrDesc::shouldUpdate(const BaseObject* base) const {
 	if(!authorizedToWrite(base)) return false;
 	if(game.isClient() && serverside) return false;
 	return true;

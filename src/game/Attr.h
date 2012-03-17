@@ -73,8 +73,8 @@ struct AttrDesc {
 	}
 	void set(BaseObject* base, const ScriptVar_t& v) const;
 
-	bool authorizedToWrite(BaseObject* base) const;
-	bool shouldUpdate(BaseObject* base) const;
+	bool authorizedToWrite(const BaseObject* base) const;
+	bool shouldUpdate(const BaseObject* base) const;
 };
 
 struct AttribRef {
