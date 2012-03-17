@@ -117,8 +117,17 @@ Result CustomVar::toBytestream(CBytestream *bs, const CustomVar* diffTo) const {
 			if(diffTo && value != (*a)->get(diffTo)) numChangesOld++;
 		}
 	}
+	bool shouldUpdateAll = true;
+	foreach(a, attribs) {
+		if(isRegistered() && !(*a)->shouldUpdate(this)) {
+			shouldUpdateAll = false;
+			break;
+		}
+	}
+	if(!shouldUpdateAll && !diffTo)
+		errors << "CustomVar::toBytestream " << thisRef.description() << ": at least one attrib should not be updated but we have no diff to relate to" << endl;
 
-	if(diffTo && numChangesOld < numChangesDefault) {
+	if(diffTo && (!shouldUpdateAll || (numChangesOld < numChangesDefault))) {
 		bs->writeInt(CUSTOMVAR_STREAM_DiffToOld, 1);
 		foreach(a, attribs) {
 			ScriptVar_t value = (*a)->get(this);
