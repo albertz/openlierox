@@ -894,12 +894,11 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 	CVec dir;
 	GetVecsFromAngle(Angle,&dir,NULL);
 
-	int divisions = 3;			// How many pixels we go through each check (less = slower)
+	static const int divisions = 3;			// How many pixels we go through each check (less = slower)
+	bool stopbeam = false;
 
-	int stopbeam = false;
-
-	short i;
-	for(i=0; i<9999; i+=divisions) {
+	short i = 0;
+	for(; i<9999; i+=divisions) {
 		const Material& px = game.gameMap()->getMaterialWrapped( (int)pos.x, (int)pos.y );
 
 		if(!px.particle_pass)
