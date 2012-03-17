@@ -4253,7 +4253,6 @@ void CWormBotInputHandler::subThink() {
 	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
 
 	m_worm->fAngle = (float)m_worm->aimAngle.toDeg() - 90.0f;
-	//m_worm->fAngle = 180.0f - (m_worm->aimAngle.toDeg() + 90.0f);
 	getInput();
 
 	bool newNinja = m_worm->cNinjaRope.get().isReleased();
@@ -4284,25 +4283,6 @@ void CWormBotInputHandler::subThink() {
 	if(!oldS.bCarve && newS.bCarve) baseActionStart(DIG);
 	
 	m_worm->aimAngle = Angle(m_worm->fAngle + 90.0f);
-	//m_worm->aimAngle = Angle(90.0f - m_worm->fAngle);
-	
-	/*
-	const bool aimingUp = oldS.iAngle > newS.iAngle;
-	const bool aimingDown = oldS.iAngle < newS.iAngle;
-	
-	if (aimingUp && m_worm->aimSpeed > -m_options->aimMaxSpeed) {
-		m_worm->addAimSpeed(-m_options->aimAcceleration);
-	}
-	
-	// No "else if" since we want to support precision aiming
-	if (aimingDown && m_worm->aimSpeed < m_options->aimMaxSpeed) {
-		m_worm->addAimSpeed(m_options->aimAcceleration);
-	}
-
-	if(!aimingDown && !aimingUp)
-		// I placed this here since CWorm doesn't have access to aiming flags
-		m_worm->aimSpeed *= m_options->aimFriction;
-	*/
 
 	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
 	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
