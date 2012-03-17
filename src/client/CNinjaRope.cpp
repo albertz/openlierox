@@ -103,7 +103,6 @@ void CNinjaRope::Shoot(CVec dir)
 	PlayerAttached = -1;
 
 	pos() = owner()->pos();
-	HookDir = dir;
 	velocity() = dir * (float)cClient->getGameLobby()[FT_RopeSpeed];
 	
 	if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
@@ -248,21 +247,10 @@ void CNinjaRope::write(CBytestream *bs) const
 	bs->write2Int12( x, y );
 
 
-	// Calculate the heading angle that the hook is travelling
-	float heading = (float)( -atan2(HookDir.x,HookDir.y) * (180.0f/PI) );
-	heading+=90;
-	if(heading < 0)
-		heading+=360;
-	if(heading > 360)
-		heading-=360;
-	if(heading == 360)
-		heading=0;
-
 	// Write out the direction is shooting out
 	if(type == ROP_SHOOTING) {
-		// Convert angle to fixed 256
-		int a = (int)(256*heading/360)&255;
-		bs->writeByte( a );
+		// HookDir was removed as it is not really used
+		bs->writeByte( 0 );
 	}
 
 	// Write out the worm id the hook is stuck to
@@ -314,9 +302,8 @@ void CNinjaRope::read(CBytestream *bs, int owner)
 
 	// Angle
 	if(type == ROP_SHOOTING) {
-		int a = bs->readByte();
-		int angle = 360*a/256;
-		GetVecsFromAngle((float)angle, &HookDir, NULL);
+		// we don't use/need the angle
+		/* angle = */ bs->readByte();
 	}
 
 	// Worm id

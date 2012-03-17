@@ -61,8 +61,6 @@ private:
 
 	float		MinLength;
 
-	CVec		HookDir;
-
 public:
 	// Methods
 	void		Clear();
