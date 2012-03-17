@@ -35,22 +35,19 @@ public:
 
 	// get/set the current instance of the PhysicsEngine (for example PhysicsLX56)
 	static PhysicsEngine* Get();
-	static void Set(PhysicsEngine* engine);
 
 // ------------
-	virtual ~PhysicsEngine() {}
+	std::string name(); // get a name of the implementation
 
-	virtual std::string name() = 0; // get a name of the implementation
-
-	virtual void initGame() = 0; // init a new game
-	virtual void uninitGame() = 0; // gives just a hint to the engine that the game isn't runnign anymore
-	virtual bool isInitialised() = 0; // tells if the engine is inited
+	void initGame(); // init a new game
+	void uninitGame(); // gives just a hint to the engine that the game isn't runnign anymore
+	bool isInitialised(); // tells if the engine is inited
 
 	// TODO: later, we should have a class World and all objects and the map are included there
 	// in the end, I want to have one single simulate(CWorld* world);
-	virtual void simulateWorm(CWorm* worm, bool local) = 0;
-	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs) = 0;
-	virtual void simulateBonuses(CBonus* bonuses, size_t count) = 0;
+	void simulateWorm(CWorm* worm, bool local);
+	void simulateProjectiles(Iterator<CProjectile*>::Ref projs);
+	void simulateBonuses(CBonus* bonuses, size_t count);
 	
 	// skips simulation for one frame (but increments simulationtime)
 	void skipWorm(CWorm* worm);

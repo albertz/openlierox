@@ -160,7 +160,7 @@ class CWorm: public CGameObject {
 	friend struct WormJoinInfo;
 	friend class Client;
 	friend class Game;
-	friend class PhysicsLX56;
+	friend class PhysicsEngine;
 public:
 	CWorm();
 	~CWorm();
