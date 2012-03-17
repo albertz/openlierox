@@ -54,10 +54,10 @@ public:
 	CWorm* owner() const;
 
 private:	
-	ATTR(CNinjaRope, bool,		Released, 1, {})
-	ATTR(CNinjaRope, bool,		HookShooting, 2, {})
-	ATTR(CNinjaRope, bool,		HookAttached, 3, {})
-	ATTR(CNinjaRope, int,		PlayerAttached, 4, {})
+	ATTR(CNinjaRope, bool,		Released, 1, {serverside = false;})
+	ATTR(CNinjaRope, bool,		HookShooting, 2, {serverside = false;})
+	ATTR(CNinjaRope, bool,		HookAttached, 3, {serverside = false;})
+	ATTR(CNinjaRope, int,		PlayerAttached, 4, {serverside = false;})
 
 	float		MinLength;
 
