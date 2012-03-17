@@ -123,6 +123,7 @@ Result CustomVar::toBytestream(CBytestream *bs, const CustomVar* diffTo) const {
 		foreach(a, attribs) {
 			ScriptVar_t value = (*a)->get(this);
 			if(value == (*a)->get(diffTo)) continue;
+			if(isRegistered() && !(*a)->shouldUpdate(this)) continue;
 			bs->writeInt16((*a)->objTypeId);
 			bs->writeInt16((*a)->attrId);
 			bs->writeVar(value);
@@ -134,6 +135,7 @@ Result CustomVar::toBytestream(CBytestream *bs, const CustomVar* diffTo) const {
 		foreach(a, attribs) {
 			ScriptVar_t value = (*a)->get(this);
 			if(value == (*a)->defaultValue) continue;
+			if(isRegistered() && !(*a)->shouldUpdate(this)) continue;
 			bs->writeInt16((*a)->objTypeId);
 			bs->writeInt16((*a)->attrId);
 			bs->writeVar(value);
