@@ -212,10 +212,11 @@ std::vector<const AttrDesc*> getAttrDescs(ClassId classId, bool withSuperClasses
 	return vec;
 }
 
-static std::vector< WeakRef<BaseObject> > objUpdates;
+typedef std::vector< WeakRef<BaseObject> > ObjUpdates;
+static StaticVar<ObjUpdates> objUpdates;
 
 static void pushObjAttrUpdate(BaseObject& obj) {
-	objUpdates.push_back(obj.thisRef.obj);
+	objUpdates->push_back(obj.thisRef.obj);
 }
 
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
@@ -256,7 +257,7 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 }
 
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback) {
-	foreach(o, objUpdates) {
+	foreach(o, objUpdates.get()) {
 		BaseObject* oPt = o->get();
 		if(oPt == NULL) continue;
 
@@ -281,7 +282,7 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 		oPt->attrUpdates.clear();
 	}
 
-	objUpdates.clear();
+	objUpdates->clear();
 }
 
 
