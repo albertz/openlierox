@@ -102,12 +102,12 @@ void CNinjaRope::Shoot(CVec dir)
 	HookAttached = false;
 	PlayerAttached = -1;
 
-	this->pos() = owner()->pos();
+	pos() = owner()->pos();
 	HookDir = dir;
-	HookVelocity = dir * (float)cClient->getGameLobby()[FT_RopeSpeed];
+	velocity() = dir * (float)cClient->getGameLobby()[FT_RopeSpeed];
 	
 	if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
-		HookVelocity += owner()->getVelocity();
+		velocity() += owner()->getVelocity();
 }
 
 
@@ -186,7 +186,7 @@ void CNinjaRope::UnAttachPlayer()
 	if (PlayerAttached < 0)
 		return;
 
-	HookVelocity.x = HookVelocity.y = 0;
+	velocity() = CVec();
 	HookShooting = false;
 	HookAttached = false;
 	PlayerAttached = -1;

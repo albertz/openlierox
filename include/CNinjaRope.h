@@ -54,14 +54,13 @@ public:
 	CWorm* owner() const;
 
 private:	
-	bool		Released;
-	bool		HookShooting;
-	bool		HookAttached;
-	int			PlayerAttached;
+	ATTR(CNinjaRope, bool,		Released, 1, {})
+	ATTR(CNinjaRope, bool,		HookShooting, 2, {})
+	ATTR(CNinjaRope, bool,		HookAttached, 3, {})
+	ATTR(CNinjaRope, int,		PlayerAttached, 4, {})
 
 	float		MinLength;
 
-	CVec		HookVelocity;
 	CVec		HookDir;
 
 public:
@@ -86,7 +85,7 @@ public:
 	void	setShooting(bool s)			{ HookShooting = s; }
 	void	setAttached(bool a)			{ HookAttached = a; }
 
-	CVec&		hookVelocity()			{ return HookVelocity; }
+	vVelocity_Type&		hookVelocity()			{ return velocity(); }
 	vPos_Type&	hookPos()				{ return pos(); }
 	
 	bool		isPlayerAttached() const;
