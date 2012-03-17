@@ -60,6 +60,7 @@ struct BaseObject {
 
 	std::vector<AttrUpdateInfo> attrUpdates;
 	ObjRef thisRef;
+	bool isRegistered() const;
 };
 
 #endif

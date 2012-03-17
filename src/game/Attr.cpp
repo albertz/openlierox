@@ -68,7 +68,7 @@ void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
 bool AttrDesc::authorizedToWrite(BaseObject* base) const {
 	assert(base != NULL);
 	if(game.state <= Game::S_Inactive) return true;
-	if(base->parentObject() == NULL && base->thisRef.objId == ObjId(-1)) return true; // not registered and no parent
+	if(!base->isRegistered()) return true;
 	if(attrUpdateByServerScope || attrUpdateByClientScope) {
 		if(game.isServer()) {
 			assert(attrUpdateByClientScope);

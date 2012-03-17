@@ -90,3 +90,9 @@ CServerConnection* BaseObject::ownerClient() const {
 	assert(cServer->isServerRunning());
 	return cServer->localClientConnection();
 }
+
+bool BaseObject::isRegistered() const {
+	if(thisRef.objId != ObjId(-1)) return true;
+	if(parentObject()) return parentObject()->isRegistered();
+	return false;
+}
