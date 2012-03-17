@@ -46,6 +46,8 @@ public:
 	static const ScriptVarType_t typeId = GetType<T>::value;
 	typedef T value_type;
 	typedef ImplType list_impl_type;
+	typedef typename ImplType::reference ref_type;
+	typedef typename ImplType::const_reference constref_type;
 
 	virtual ScriptVar_t defaultValue() const { return ScriptVar_t(T()); }
 	virtual ScriptVarType_t type() const { return typeId; }
@@ -54,11 +56,11 @@ public:
 	virtual void writeGeneric(size_t i, const ScriptVar_t& v) { assert(i < size()); list[i] = v.castConst<T>(); }
 	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t(list[i]); }
 
-	T& write(size_t i) { assert(i < size()); return list[i]; }
-	const T& get(size_t i) const { assert(i < size()); return list[i]; }
+	ref_type write(size_t i) { assert(i < size()); return list[i]; }
+	constref_type get(size_t i) const { assert(i < size()); return list[i]; }
 
-	T& operator[](size_t i) { return write(i); }
-	const T& operator[](size_t i) const { return get(i); }
+	ref_type operator[](size_t i) { return write(i); }
+	constref_type operator[](size_t i) const { return get(i); }
 
 private:
 	ImplType list;
