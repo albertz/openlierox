@@ -142,20 +142,20 @@ int GameServer::StartServer()
 
 	// Open the socket
 	nPort = tLXOptions->iNetworkPort;
-	tSockets[0]->OpenUnreliable(tLXOptions->iNetworkPort);
+	Result openRes = tSockets[0]->OpenUnreliable(tLXOptions->iNetworkPort);
 	if(!tSockets[0]->isOpen()) {
-		hints << "Server: could not open socket on port " << tLXOptions->iNetworkPort << ", trying rebinding client socket" << endl;
+		hints << "Server: could not open socket on port " << tLXOptions->iNetworkPort << " (" << openRes.humanErrorMsg << "), trying rebinding client socket" << endl;
 		if( cClient->RebindSocket() ) {	// If client has taken that port, free it
-			tSockets[0]->OpenUnreliable(tLXOptions->iNetworkPort);
+			openRes = tSockets[0]->OpenUnreliable(tLXOptions->iNetworkPort);
 		}
 
 		if(!tSockets[0]->isOpen()) {
-			hints << "Server: client rebinding didn't work, trying random port" << endl;
-			tSockets[0]->OpenUnreliable(0);
+			hints << "Server: client rebinding didn't work (" << openRes.humanErrorMsg << "), trying random port" << endl;
+			openRes = tSockets[0]->OpenUnreliable(0);
 		}
 		
 		if(!tSockets[0]->isOpen()) {
-			errors << "Server: we cannot even open a random port!" << endl;
+			errors << "Server: we cannot even open a random port! " << openRes.humanErrorMsg << endl;
 			SetError("Server Error: Could not open UDP socket");
 			return false;
 		}

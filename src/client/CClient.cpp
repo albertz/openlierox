@@ -2139,10 +2139,9 @@ bool CClient::RebindSocket()
 {
 	if(!tSocket->isOpen())
 		return false;
-	NetworkAddr addr = tSocket->localAddress();
 	tSocket->Close();
-	if(!tSocket->OpenUnreliable(0)) {
-		SetError("Error: Could not open UDP socket!");
+	if(NegResult r = tSocket->OpenUnreliable(0)) {
+		errors << "CClient::RebindSocket: Could not open UDP socket! " << r.res.humanErrorMsg << endl;
 		return false;
 	}
 	return true;
