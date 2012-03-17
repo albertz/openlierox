@@ -208,7 +208,7 @@ CWorm::CWorm() :
 	fMoveSpeedX = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
-	bVisibleForWorm.clear();
+	bVisibleForWorm.write().resize(0);
 
 	bOnGround = false;
 	fLastUpdateWritten = AbsTime();
@@ -300,7 +300,7 @@ void CWorm::Prepare()
 	}
 
 	tState = worm_state_t();
-	bVisibleForWorm.clear();
+	bVisibleForWorm.write().resize(0);
 
 	gusSkinVisble = true;
 	bCanRespawnNow = false;
@@ -426,7 +426,7 @@ void CWorm::Unprepare() {
 
 	resetAngleAndDir();
 
-	bVisibleForWorm.clear();
+	bVisibleForWorm.write().resize(0);
 	
 	if(m_inputHandler) {
 		m_inputHandler->deleteThis();
@@ -901,21 +901,25 @@ void CWorm::UpdateDrawPos() {
 
 bool CWorm::isVisibleForWorm(int worm) const {
 	assert(worm >= 0);
-	if((size_t)worm >= bVisibleForWorm.size()) return true;
-	return bVisibleForWorm[worm];
+	if((size_t)worm >= bVisibleForWorm.get().size()) return true;
+	return bVisibleForWorm.get()[worm];
 }
 
 void CWorm::setVisibleForWorm(int worm, bool visibility) {
 	assert(worm >= 0);
-	if((size_t)worm >= bVisibleForWorm.size()) {
-		bVisibleForWorm.resize(worm + 1, true);
+	if((size_t)worm >= bVisibleForWorm.get().size()) {
+		size_t oldSize = bVisibleForWorm.get().size();
+		bVisibleForWorm.write().resize(worm + 1);
+		for(size_t i = oldSize; i < (size_t)worm; ++i)
+			bVisibleForWorm.write()[i] = true;
 	}
-	bVisibleForWorm[worm] = visibility;
+	bVisibleForWorm.write()[worm] = visibility;
 }
 
 bool CWorm::isVisibleForEverybody() const {
-	for(std::vector<bool>::const_iterator i = bVisibleForWorm.begin(); i != bVisibleForWorm.end(); ++i) {
-		if(!*i) return false;
+	for(size_t i = 0; i < bVisibleForWorm.get().size(); ++i) {
+		if(!bVisibleForWorm.get()[i])
+			return false;
 	}
 	return true;
 }

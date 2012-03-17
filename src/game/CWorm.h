@@ -253,12 +253,12 @@ protected:
 public:
 	ATTR(CWorm,	CNinjaRope,	cNinjaRope, 40, {serverside = false;})
 protected:
-	std::vector<bool>	bVisibleForWorm;
+	ATTR(CWorm, List<bool>, bVisibleForWorm, 41, {})
 
-	ATTR(CWorm, bool,	bTagIT, 41, {})
+	ATTR(CWorm, bool,	bTagIT, 42, {})
 	TimeDiff	fTagTime;
 
-	ATTR(CWorm, int,	iDirtCount, 42, {})
+	ATTR(CWorm, int,	iDirtCount, 43, {})
 
 	AbsTime		fLastBlood;
 
