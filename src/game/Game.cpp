@@ -793,10 +793,7 @@ void Game::frameInner()
 			cClient->SendPackets();
 
 		// Connecting process
-		if (cClient->bConnectingBehindNat)
-			cClient->ConnectingBehindNAT();
-		else
-			cClient->Connecting();
+		cClient->Connecting();
 
 		if(isServer() && cServer->isServerRunning()) {
 			cServer->CheckRegister();

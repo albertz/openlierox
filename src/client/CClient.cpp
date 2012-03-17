@@ -1483,6 +1483,11 @@ void CClient::Connecting(bool force)
 	if(iNetStatus != NET_CONNECTING)
 		return;
 
+	if (bConnectingBehindNat) {
+		ConnectingBehindNAT();
+		return;
+	}
+
 	// Try every three seconds
 	if(!force && ((tLX->currentTime - fConnectTime).seconds() < 3.0f))
 		return;
