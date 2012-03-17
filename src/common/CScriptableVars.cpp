@@ -169,7 +169,7 @@ ScriptVar_t ScriptVarPtr_t::asScriptVar() const {
 	case SVT_COLOR: return ScriptVar_t(*ptr.cl);
 	case SVT_VEC2: return ScriptVar_t(*ptr.vec2);
 	case SVT_CUSTOM: return ScriptVar_t(ptr.custom->get());
-	case SVT_CustomWeakRefToStatic: return ScriptVar_t(*ptr.customRef);
+	case SVT_CustomWeakRefToStatic: return ScriptVar_t(ptr.customRef->thisRef.obj);
 	case SVT_DYNAMIC: return ptr.dynVar->asScriptVar();
 	case SVT_CALLBACK: assert(false);
 	}
