@@ -327,7 +327,6 @@ void CWorm::processMoveAndDig(void)
 		}
 
 		if(iMoveDirectionSide == DIR_RIGHT) {
-			aimSpeed = 0;
 			iMoveDirectionSide = DIR_LEFT;
 		}
 
@@ -338,7 +337,6 @@ void CWorm::processMoveAndDig(void)
 		}
 
 		if(iMoveDirectionSide == DIR_LEFT) {
-			aimSpeed = 0;
 			iMoveDirectionSide = DIR_RIGHT;
 		}
 
@@ -378,16 +376,6 @@ void CWorm::think()
 		processJumpingAndNinjaropeControls();
 		processPhysics();
 		processMoveAndDig();
-
-		aimAngle += aimSpeed;
-		if(aimAngle < Angle(0.0)) {
-			aimAngle = Angle(0.0);
-			aimSpeed = 0;
-		}
-		if(aimAngle > Angle::almost(180.0)) {
-			aimAngle = Angle::almost(180.0);
-			aimSpeed = 0;
-		}
 
 		for ( size_t i = 0; i < m_weapons.size(); ++i ) {
 			if ( m_weapons[i] )
@@ -437,7 +425,7 @@ Vec CWorm::getRenderPos()
 
 Angle CWorm::getPointingAngle()
 {
-	return (iMoveDirectionSide == DIR_RIGHT) ? aimAngle : Angle(360.0) - aimAngle ;
+	return (iMoveDirectionSide == DIR_RIGHT) ? getAimAngle() : (Angle(360.0) - getAimAngle());
 }
 
 int CWorm::getWeaponIndexOffset( int offset )
@@ -571,9 +559,9 @@ void CWorm::draw(CViewport* viewport)
 				m_weapons[currentWeapon]->drawTop(where, renderX, renderY);
 
 			if ( m_currentFirecone ) {
-				Vec distance = Vec(aimAngle, (double)m_fireconeDistance);
+				Vec distance = Vec(getPointingAngle(), (double)m_fireconeDistance);
 				m_currentFirecone->getSprite(m_fireconeAnimator->getFrame(), getPointingAngle())->
-						draw(where, renderX + static_cast<int>(distance.x) * getDir(), renderY + static_cast<int>(distance.y));
+						draw(where, renderX + static_cast<int>(distance.x), renderY + static_cast<int>(distance.y));
 			}
 		}
 
@@ -611,7 +599,6 @@ void CWorm::respawn( const Vec& newPos)
 {
 	health = 100;
 	bAlive = true;
-	aimAngle = Angle(90.0);
 	velocity() = CVec ( 0, 0 );
 	pos() = newPos;
 	iMoveDirectionSide = DIR_RIGHT;
@@ -735,12 +722,6 @@ void CWorm::damage( float amount, CWormInputHandler* damager )
 		if ( health < 0 )
 			health = 0;
 	}
-}
-
-void CWorm::addAimSpeed( AngleDiff speed )
-{
-	if ( m_owner )
-		aimSpeed += speed;
 }
 
 void CWorm::addRopeLength( float distance )

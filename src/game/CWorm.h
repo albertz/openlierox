@@ -661,7 +661,6 @@ public:
 	virtual void think();
 	void actionStart( Actions action );
 	void actionStop( Actions action );
-	void addAimSpeed(AngleDiff speed);
 	void addRopeLength(float distance);
 	
 	Vec getWeaponPos();
@@ -713,9 +712,9 @@ public:
 	void showFirecone( SpriteSet* sprite, int frames, float distance );
 #endif
 		
-	AngleDiff aimSpeed; // Useless to add setters and getters for this
-	Angle aimAngle;
-	
+	void setAimAngle(Angle a) { fAngle = (float)a.toDeg() - 90.f; }
+	Angle getAimAngle() const { return Angle(fAngle + 90.f); }
+
 	void sendWeaponMessage( int index, BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
 	
 	virtual void makeReference();

@@ -4252,7 +4252,6 @@ void CWormBotInputHandler::subThink() {
 	worm_state_t oldS = m_worm->tState.get();
 	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
 
-	m_worm->fAngle = (float)m_worm->aimAngle.toDeg() - 90.0f;
 	getInput();
 
 	bool newNinja = m_worm->cNinjaRope.get().isReleased();
@@ -4282,8 +4281,6 @@ void CWormBotInputHandler::subThink() {
 	if(oldS.bCarve && !newS.bCarve) baseActionStop(DIG);
 	if(!oldS.bCarve && newS.bCarve) baseActionStart(DIG);
 	
-	m_worm->aimAngle = Angle(m_worm->fAngle + 90.0f);
-
 	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
 	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
 	if(oldNinja && newNinja && oldNinjaPos != newNinjaPos) {

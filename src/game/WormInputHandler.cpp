@@ -158,18 +158,6 @@ void CWormInputHandler::think()
 								BaseActions action = (BaseActions)data->getInt(8);
 #endif
 								
-								if ( ( action == FIRE ) && m_worm)
-								{
-									m_worm->aimAngle = Angle((int)data->getInt(Angle::prec));
-									if(m_worm->aimAngle > Angle(180.0)) {
-										m_worm->aimAngle = -m_worm->aimAngle;
-										m_worm->setDir(-1);
-									} else {
-										m_worm->setDir(1);
-									}
-									m_worm->aimAngle.clamp();
-								}
-								
 								baseActionStart(action);
 							}
 								break;
@@ -261,10 +249,8 @@ void CWormInputHandler::addActionStart(BitStream* data, CWormInputHandler::BaseA
 {
 	addEvent(data, CWormInputHandler::ACTION_START);
 #ifdef COMPACT_ACTIONS
-	
 	data->addInt(action, Encoding::bitsOf(CWormInputHandler::ACTION_COUNT - 1));
 #else
-	
 	data->addInt(static_cast<int>(action),8 );
 #endif
 }
@@ -272,11 +258,9 @@ void CWormInputHandler::addActionStart(BitStream* data, CWormInputHandler::BaseA
 void CWormInputHandler::addActionStop(BitStream* data, CWormInputHandler::BaseActions action)
 {
 	addEvent(data, CWormInputHandler::ACTION_STOP);
-#ifdef COMPACT_ACTIONS
-	
+#ifdef COMPACT_ACTIONS	
 	data->addInt(action, Encoding::bitsOf(CWormInputHandler::ACTION_COUNT - 1));
-#else
-	
+#else	
 	data->addInt(static_cast<int>(action),8 );
 #endif
 }
@@ -455,7 +439,6 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 				if ( m_node ) {
 					BitStream *data = new BitStream;
 					addActionStart(data, FIRE);
-					data->addInt(int(m_worm->getPointingAngle()), Angle::prec);
 					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
