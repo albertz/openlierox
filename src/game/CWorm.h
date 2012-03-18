@@ -663,7 +663,6 @@ public:
 	void actionStop( Actions action );
 	void addRopeLength(float distance);
 	
-	Vec getWeaponPos();
 #ifndef DEDICATED_ONLY
 	Vec getRenderPos();
 #endif

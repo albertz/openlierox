@@ -411,11 +411,6 @@ void CWorm::think()
 	NetWorm_think();
 }
 
-Vec CWorm::getWeaponPos()
-{
-	return pos();
-}
-
 #ifndef DEDICATED_ONLY
 Vec CWorm::getRenderPos()
 {
@@ -767,7 +762,7 @@ void CWorm::actionStart( Actions action )
 				Vec v(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed);
 				if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
 					v += velocity();
-				cNinjaRope.write().shoot(getWeaponPos(), v);
+				cNinjaRope.write().shoot(pos(), v);
 			}
 			break;
 
