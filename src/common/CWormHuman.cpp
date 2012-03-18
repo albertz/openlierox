@@ -941,8 +941,8 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 		} else {
 			int change = cDown.wasDown() - cUp.wasDown();
 			m_worm->iCurrentWeapon += change;
-			m_worm->iCurrentWeapon %= m_worm->tWeapons.size() + 2;
-			if(m_worm->iCurrentWeapon < 0) m_worm->iCurrentWeapon += m_worm->tWeapons.size() + 2;
+			m_worm->iCurrentWeapon %= (int)m_worm->tWeapons.size() + 2;
+			if(m_worm->iCurrentWeapon < 0) m_worm->iCurrentWeapon += (int)m_worm->tWeapons.size() + 2;
 		}
 	}
 }
