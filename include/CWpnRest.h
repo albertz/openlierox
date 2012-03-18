@@ -54,10 +54,21 @@ public:
 
 // Weapon Restrictions class
 class CWpnRest {
+public:
+	struct WeaponName {
+		std::string name;
+		WeaponName(const std::string& n) : name(n) {}
+		operator std::string() const { return name; }
+		const char* c_str() const { return name.c_str(); }
+		bool operator<(const WeaponName& o) const { return stringcasecmp(name,o.name) < 0; }
+		bool operator==(const WeaponName& o) const { return stringcasecmp(name,o.name) == 0; }
+		bool operator!=(const WeaponName& o) const { return stringcasecmp(name,o.name) != 0; }
+	};
+
+	typedef std::map<WeaponName, WpnRestrictionState> WeaponList;
+
 private:
     // Attributes
-
-	typedef std::map<std::string, WpnRestrictionState, stringcaseless> WeaponList;
 	WeaponList m_psWeaponList;
 	int			iCycleState;
 
