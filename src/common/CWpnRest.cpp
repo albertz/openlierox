@@ -58,6 +58,9 @@ struct findWeaponByName
 // Update the weapons list from a gamescript file
 void CWpnRest::updateList(const std::vector<std::string> & weaponList)
 {
+	if(weaponList.size() == 0)
+		warnings << "CWpnRest::updateList: no weapons" << endl;
+
 	// Go through the weapons in the gamescript
 	// If any weapon is not in our list, add it to the list
 
@@ -148,7 +151,7 @@ void CWpnRest::setWeaponState(const std::string &szName, WpnRestrictionState nSt
 void CWpnRest::addWeapon(const std::string& szName, int nState)
 {
     if(szName == "") return;
-	nState %= 3;
+	MOD(nState, 3);
 
 	m_psWeaponList[szName] = (WpnRestrictionState)nState;
 }
@@ -334,7 +337,7 @@ void CWpnRest::readList(CBytestream *psByteS)
     for( int i=0; i<nCount; i++ ) {
 		std::string szName = psByteS->readString();
 		int nState = psByteS->readByte();
-		nState %= 3;
+		MOD(nState, 3);
 
         // Try and find the weapon
 		WpnRestrictionState* psWpn = findWeapon(szName);
