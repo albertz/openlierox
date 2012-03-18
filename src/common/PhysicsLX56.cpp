@@ -575,8 +575,7 @@ static void simulateNinjarope(float dt, CWorm* owner) {
 			rope->hookPos().get().x <= 0 || rope->hookPos().get().y <= 0 ||
 			rope->hookPos().get().x >= game.gameMap()->GetWidth()-1 ||
 			rope->hookPos().get().y >= game.gameMap()->GetHeight()-1) {
-		rope->setShooting( false );
-		rope->setAttached( true );
+		rope->Attach();
 
 		// Make the hook stay at an edge
 		rope->hookPos().write().x = ( MAX((float)0, rope->hookPos().get().x) );
@@ -599,9 +598,7 @@ static void simulateNinjarope(float dt, CWorm* owner) {
 
 		const Material& px = game.gameMap()->getMaterial(wrappedHookPos.x, wrappedHookPos.y);
 		if(!px.particle_pass || outsideMap) {
-			rope->setShooting( false );
-			rope->setAttached( true );
-			rope->hookVelocity() = CVec(0,0);
+			rope->Attach();
 
 			if(px.destroyable && firsthit) {
 				Color col = game.gameMap()->getColorAt(wrappedHookPos.x, wrappedHookPos.y);
@@ -611,35 +608,7 @@ static void simulateNinjarope(float dt, CWorm* owner) {
 		}
 	}
 
-	// Check if the hook has hit another worm
-	if(cClient->getGameLobby()[FT_RopeCanAttachWorm] && !rope->isAttached() && !rope->isPlayerAttached()) {
-
-		for_each_iterator(CWorm*, w, game.aliveWorms()) {
-			if(w->get()->getID() == owner->getID())
-				continue;
-			if(!w->get()->isVisible(owner))
-				continue;
-
-			if( ( w->get()->getPos() - rope->hookPos() ).GetLength2() < 25 ) {
-				rope->AttachToPlayer(w->get());
-				break;
-			}
-		}
-	}
-
-	// Put the hook where the worm is
-	else if(rope->isAttached() && rope->isPlayerAttached()) {
-
-		// If the worm has been killed, or dropped, or became invisible in H&S - drop the hook
-		if(	!rope->getAttachedPlayer() ||
-			!rope->getAttachedPlayer()->getAlive() ||
-			!rope->getAttachedPlayer()->isVisible(owner) )
-		{
-			rope->UnAttachPlayer();
-		} else {
-			rope->hookPos() = rope->getAttachedPlayer()->getPos();
-		}
-	}
+	rope->checkForWormAttachment();
 }
 
 

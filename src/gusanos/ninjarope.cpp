@@ -68,34 +68,23 @@ void CNinjaRope::think()
 		pos() += velocity();
 		
 		VectorD2<long> ipos = VectorD2<long>(Vec(pos()));
-		
-		// TODO: Try to attach to worms/objects
-				
+						
 		Vec diff = pos() - owner()->pos();
 		float curLen = (float)diff.length();
 		Vec force(diff * gusGame.options.ninja_rope_pullForce);
-		
-		/*
-		if(<attached to object>)
-		{
-			//Apply force to object
-		}
-		else
-		*/
-		if(!game.gameMap()->getMaterial( ipos.x, ipos.y ).particle_pass)
-		{
-			if(!HookAttached)
+
+		checkForWormAttachment();
+
+		if(!isPlayerAttached()) {
+			if(!game.gameMap()->getMaterial( ipos.x, ipos.y ).particle_pass)
 			{
-				m_length = (float)(int)gusGame.options.ninja_rope_restLength;
-				HookAttached = true;
-				velocity() = CVec();
-				if ( gusGame.NRPartType->groundCollision  )
-					gusGame.NRPartType->groundCollision->run(this);
+				if(!HookAttached)
+					Attach();
 			}
+			else
+				HookAttached = false;
 		}
-		else
-			HookAttached = false;
-			
+
 		if(HookAttached)
 		{
 			if(curLen > m_length)

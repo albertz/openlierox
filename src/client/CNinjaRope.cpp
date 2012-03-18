@@ -204,10 +204,20 @@ void CNinjaRope::UnAttachPlayer()
 	PlayerAttached = -1;
 }
 
-void CNinjaRope::AttachToPlayer(CWorm *worm)
-{
+void CNinjaRope::Attach() {
 	HookShooting = false;
 	HookAttached = true;
+
+	m_length = (float)(int)gusGame.options.ninja_rope_restLength;
+	velocity() = CVec();
+
+	if(gusGame.NRPartType && gusGame.NRPartType->groundCollision)
+		gusGame.NRPartType->groundCollision->run(this);
+}
+
+void CNinjaRope::AttachToPlayer(CWorm *worm)
+{
+	Attach();
 	PlayerAttached = worm->getID();
 }
 
@@ -231,6 +241,40 @@ CVec CNinjaRope::GetForce() const
 	return dir;
 }
 
+
+void CNinjaRope::checkForWormAttachment() {
+	if(owner() == NULL) return;
+
+	// Check if the hook has hit another worm
+	if(cClient->getGameLobby()[FT_RopeCanAttachWorm] && !isAttached() && !isPlayerAttached()) {
+
+		for_each_iterator(CWorm*, w, game.aliveWorms()) {
+			if(w->get()->getID() == owner()->getID())
+				continue;
+			if(!w->get()->isVisible(owner()))
+				continue;
+
+			if( ( w->get()->getPos() - hookPos() ).GetLength2() < 25 ) {
+				AttachToPlayer(w->get());
+				break;
+			}
+		}
+	}
+
+	// Put the hook where the worm is
+	else if(isAttached() && isPlayerAttached()) {
+
+		// If the worm has been killed, or dropped, or became invisible in H&S - drop the hook
+		if(	!getAttachedPlayer() ||
+			!getAttachedPlayer()->getAlive() ||
+			!getAttachedPlayer()->isVisible(owner()) )
+		{
+			UnAttachPlayer();
+		} else {
+			hookPos() = getAttachedPlayer()->getPos();
+		}
+	}
+}
 
 
 ///////////////////

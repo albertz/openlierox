@@ -759,6 +759,8 @@ void CWorm::actionStart( Actions action )
 
 			case NINJAROPE:
 			if ( getAlive() ) {
+				CGameObject::ScopedLXCompatibleSpeed wormVelScope(*this);
+				CGameObject::ScopedLXCompatibleSpeed ninjaVelScope(cNinjaRope.write());
 				cNinjaRope.write().Shoot(getFaceDirection());
 			}
 			break;

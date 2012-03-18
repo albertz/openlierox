@@ -71,6 +71,7 @@ public:
 	bool		isReleased() const	{ return Released; }
 	void		UnAttachPlayer();
 	void		AttachToPlayer(CWorm *worm);
+	void		Attach();
 
 	void		write(CBytestream *bs) const;
 	void		read(CBytestream *bs, int owner);
@@ -86,6 +87,8 @@ public:
 	
 	bool		isPlayerAttached() const;
 	CWorm*		getAttachedPlayer()	const;
+
+	void checkForWormAttachment();
 
 	virtual bool isInside(int x, int y) const;
 	virtual Color renderColorAt(/* relative coordinates */ int x, int y) const;
