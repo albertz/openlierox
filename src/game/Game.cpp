@@ -757,9 +757,11 @@ void Game::frameInner()
 			{
 				// convert speed to lua if needed
 				std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
-				scopedSpeeds.reserve( game.worms()->size() );
-				for_each_iterator(CWorm*, w, game.worms())
-						scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
+				scopedSpeeds.reserve( game.worms()->size() * 2 );
+				for_each_iterator(CWorm*, w, game.worms()) {
+					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
+					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*(CNinjaRope*)w->get()->getNinjaRope()) );
+				}
 
 				gusLogicFrame();
 			}
