@@ -24,9 +24,6 @@ using namespace std;
 void CNinjaRope::gusInit()
 {
 	justCreated = false;
-	Released = false;
-	HookAttached = false;
-
 	m_length = 0;
 	m_angle = 0;
 	m_angleSpeed = 0;
@@ -50,38 +47,6 @@ void CNinjaRope::gusInit()
 		if(gusGame.isLoaded()) // if Gus is not loaded, we are not going to use it
 			errors << "NinjaRope::NinjaRope: particle type is NULL" << endl;
 	}
-}
-
-void CNinjaRope::shoot(Vec dir)
-{
-	if(gusGame.NRPartType == NULL) return;
-	if(owner() == NULL) return;
-
-	pos() = owner()->pos();
-	velocity() = dir * (double)gusGame.options.ninja_rope_shootSpeed;
-	if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
-		velocity() += owner()->velocity();
-
-	m_length = gusGame.options.ninja_rope_startDistance;
-	
-	justCreated = true;
-	Released = true;
-	HookAttached = false;
-	
-	m_angle = Vec(velocity()).getAngle();
-	m_angleSpeed = 0;
-	
-	foreach(t, timer)
-	{
-		t->reset();
-	}
-}
-
-void CNinjaRope::remove()
-{
-	Released = false;
-	justCreated = false;
-	HookAttached = false;
 }
 
 void CNinjaRope::think()

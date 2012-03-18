@@ -759,7 +759,7 @@ void CWorm::actionStart( Actions action )
 
 			case NINJAROPE:
 			if ( getAlive() ) {
-				cNinjaRope.write().shoot(getFaceDirection());
+				cNinjaRope.write().Shoot(getFaceDirection());
 			}
 			break;
 

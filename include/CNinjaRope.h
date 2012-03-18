@@ -99,9 +99,8 @@ public:
 	static LuaReference metaTable;
 
 	void gusInit();
-	void shoot(Vec _spd);
-	void remove();
-	
+	void remove() { Clear(); /* but dont delete */ }
+
 #ifndef DEDICATED_ONLY
 	void draw(CViewport *viewport);
 #endif

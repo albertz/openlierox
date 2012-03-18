@@ -26,6 +26,8 @@
 #include "game/Game.h"
 #include "Geometry.h"
 #include "gusanos/luaapi/classes.h"
+#include "CGameScript.h"
+#include "gusanos/gusgame.h"
 
 
 LuaReference CNinjaRope::metaTable;
@@ -80,6 +82,7 @@ void CNinjaRope::Clear()
 	HookShooting = false;
 	HookAttached = false;
 	PlayerAttached = -1;
+	justCreated = false;
 }
 
 
@@ -90,6 +93,7 @@ void CNinjaRope::Shoot(CVec dir)
 {
 	Clear();
 
+	if(game.gameScript()->gusEngineUsed() && gusGame.NRPartType == NULL) return;
 	if(owner() == NULL) {
 		errors << "CNinjaRope::Shoot: owner unknown" << endl;
 		return;
@@ -101,12 +105,21 @@ void CNinjaRope::Shoot(CVec dir)
 	HookShooting = true;
 	HookAttached = false;
 	PlayerAttached = -1;
+	justCreated = true;
 
 	pos() = owner()->pos();
 	velocity() = dir * (float)cClient->getGameLobby()[FT_RopeSpeed];
-	
 	if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
 		velocity() += owner()->getVelocity();
+
+	m_length = gusGame.options.ninja_rope_startDistance;
+	m_angle = Vec(velocity()).getAngle();
+	m_angleSpeed = 0;
+
+	foreach(t, timer)
+	{
+		t->reset();
+	}
 }
 
 

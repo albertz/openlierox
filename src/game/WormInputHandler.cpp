@@ -588,18 +588,15 @@ void CWormInputHandler::OlxInputToGusEvents()
 
 	if(m_worm == NULL) return;
 
-	bool oldNinja = m_worm->cNinjaRope.get().isReleased();
-	CVec oldNinjaPos = m_worm->cNinjaRope.get().getHookPos();
 	worm_state_t oldS = m_worm->tState.get();
 	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
 
 	{
-		CGameObject::ScopedLXCompatibleSpeed(m_worm->cNinjaRope.write());
+		CGameObject::ScopedLXCompatibleSpeed wormVelScope(*m_worm);
+		CGameObject::ScopedLXCompatibleSpeed ninjaVelScope(m_worm->cNinjaRope.write());
 		getInput();
 	}
 
-	bool newNinja = m_worm->cNinjaRope.get().isReleased();
-	CVec newNinjaPos = m_worm->cNinjaRope.get().getHookPos();
 	const worm_state_t& newS = m_worm->tState.get();
 	DIR_TYPE newMoveDir = m_worm->getMoveDirectionSide();
 
@@ -624,15 +621,6 @@ void CWormInputHandler::OlxInputToGusEvents()
 
 	if(oldS.bCarve && !newS.bCarve) baseActionStop(DIG);
 	if(!oldS.bCarve && newS.bCarve) baseActionStart(DIG);
-
-	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
-	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
-	if(oldNinja && newNinja && oldNinjaPos != newNinjaPos) {
-		// very hacky this check but actually should work
-		// it means that we have reshooted the rope
-		baseActionStop(NINJAROPE);
-		baseActionStart(NINJAROPE);
-	}
 }
 
 
