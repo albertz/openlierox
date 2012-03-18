@@ -19,7 +19,7 @@ Result Game::loadWeaponRestrictions() {
 		m_wpnRest->loadList(gameSettings[FT_WeaponRest], gameSettings[FT_Mod].as<ModInfo>()->path);
 	}
 
-	if(m_gameMod.get())
+	if(m_gameMod.get() && m_gameMod.get()->isLoaded())
 		m_wpnRest->updateList(m_gameMod->GetWeaponList());
 	else
 		errors << "Game::loadWeaponRestrictions: mod not loaded" << endl;
