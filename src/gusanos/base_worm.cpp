@@ -759,10 +759,7 @@ void CWorm::actionStart( Actions action )
 
 			case NINJAROPE:
 			if ( getAlive() ) {
-				Vec v(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed);
-				if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
-					v += velocity();
-				cNinjaRope.write().shoot(v);
+				cNinjaRope.write().shoot(getFaceDirection());
 			}
 			break;
 
