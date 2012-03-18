@@ -217,9 +217,6 @@ void CWorm::NetWorm_think()
 					break;
 					case SYNC:
 					{
-						bAlive = data->getBool();
-						cNinjaRope.write().active = data->getBool();
-						//currentWeapon = data->getInt(Encoding::bitsOf(gusGame.weaponList.size() - 1));
 						currentWeapon = Encoding::decode(*data, m_weapons.size());
 						CWorm::base_clearWeapons();
 						while ( data->getBool() )
@@ -297,9 +294,6 @@ void CWorm::sendSyncMessage( Net_ConnID id )
 {
 	BitStream *data = new BitStream;
 	addEvent(data, SYNC);
-	data->addBool(getAlive());
-	data->addBool(cNinjaRope.get().active);
-	//data->addInt(currentWeapon, Encoding::bitsOf(gusGame.weaponList.size() - 1));
 	Encoding::encode(*data, currentWeapon, m_weapons.size());
 	
 	for( size_t i = 0; i < m_weapons.size(); ++i )

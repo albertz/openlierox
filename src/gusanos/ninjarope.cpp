@@ -24,8 +24,8 @@ using namespace std;
 void CNinjaRope::gusInit()
 {
 	justCreated = false;
-	active = false;
-	attached = false;
+	Released = false;
+	HookAttached = false;
 
 	m_length = 0;
 	m_angle = 0;
@@ -65,8 +65,8 @@ void CNinjaRope::shoot(Vec dir)
 	m_length = gusGame.options.ninja_rope_startDistance;
 	
 	justCreated = true;
-	active = true;
-	attached = false;
+	Released = true;
+	HookAttached = false;
 	
 	m_angle = Vec(velocity()).getAngle();
 	m_angleSpeed = 0;
@@ -79,14 +79,14 @@ void CNinjaRope::shoot(Vec dir)
 
 void CNinjaRope::remove()
 {
-	active = false;
+	Released = false;
 	justCreated = false;
-	attached = false;
+	HookAttached = false;
 }
 
 void CNinjaRope::think()
 {
-	if (!active)
+	if (!Released)
 		return;
 	
 	if(gusGame.NRPartType == NULL)
@@ -119,19 +119,19 @@ void CNinjaRope::think()
 		*/
 		if(!game.gameMap()->getMaterial( ipos.x, ipos.y ).particle_pass)
 		{
-			if(!attached)
+			if(!HookAttached)
 			{
 				m_length = (float)(int)gusGame.options.ninja_rope_restLength;
-				attached = true;
+				HookAttached = true;
 				velocity() = CVec();
 				if ( gusGame.NRPartType->groundCollision  )
 					gusGame.NRPartType->groundCollision->run(this);
 			}
 		}
 		else
-			attached = false;
+			HookAttached = false;
 			
-		if(attached)
+		if(HookAttached)
 		{
 			if(curLen > m_length)
 			{
@@ -180,7 +180,7 @@ void CNinjaRope::draw(CViewport *viewport)
 	
 	ALLEGRO_BITMAP* where = viewport->dest;
 	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
-	if (active)
+	if (Released)
 	{
 		if (!m_sprite)
 			putpixel(where,rPos.x,rPos.y,gusGame.NRPartType->colour);

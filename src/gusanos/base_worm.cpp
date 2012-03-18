@@ -526,7 +526,7 @@ void CWorm::draw(CViewport* viewport)
 			int renderX = x;
 			int renderY = y;
 
-			if (cNinjaRope.get().active) {
+			if (cNinjaRope.get().isReleased()) {
 				IVec nrPos = viewport->convertCoords( IVec(Vec(cNinjaRope.get().pos())) );
 				line(where, x, y, nrPos.x, nrPos.y, cNinjaRope.get().getColour());
 			}

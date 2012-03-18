@@ -123,9 +123,6 @@ public:
 		return m_length;
 	}
 	
-	bool active;
-	bool attached;
-
 	void deleteThis();
 	
 private:

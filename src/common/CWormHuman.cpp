@@ -986,7 +986,7 @@ void CWormHumanInputHandler::subThink()
 	//		m_viewport->interpolateTo(m_worm->getRenderPos(), m_options->viewportFollowFactor);
 #endif
 
-		if(changing && m_worm->getNinjaRope()->active) {
+		if(changing && m_worm->getNinjaRope()->isReleased()) {
 			if(aimingUp) {
 				m_worm->addRopeLength(-tLXOptions->fRopeAdjustSpeed);
 			}
