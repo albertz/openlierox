@@ -17,6 +17,7 @@
 #include "util/log.h"
 #include "game/Game.h"
 #include "CGameScript.h"
+#include "gusanos/player_input.h"
 
 #include "gusanos/glua.h"
 #include "gusanos/lua/bindings-game.h"
@@ -125,7 +126,6 @@ void CWormInputHandler::think()
 	// for now, we ignore this totally if we use a lx-mod
 	if(game.gameScript()->gusEngineUsed()) {
 		// OLX input
-		//getInput();
 		OlxInputToGusEvents();
 		
 		subThink();
@@ -578,7 +578,76 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 
 void CWormInputHandler::OlxInputToGusEvents()
 {
-	
+	// Notes:
+	// getInput only works when the worm is alive.
+	// getInput is the actual old LX handling.
+	// eventStart/eventStop is the most basic event handling
+	// and there might be some Lua callbacks hooked on them (called by them).
+	// This will call player.actionStart/..Stop.
+	// And this will call player.basicActionStart/..Stop.
+
+	if(m_worm == NULL) return;
+
+	size_t i = 0;
+	for(; i < game.localPlayers.size(); ++i)
+		if(game.localPlayers[i] == this) break;
+
+	if(i >= game.localPlayers.size()) {
+		errors << "CWormInputHandler::OlxInputToGusEvents: local player unknown" << endl;
+		return;
+	}
+
+	// update LX attribs. this can go away after some more merging
+	if(m_worm->cNinjaRope.get().active) {
+		CVec ninjaPosBackup = m_worm->cNinjaRope.get().pos();
+		m_worm->cNinjaRope.write().Shoot(CVec());
+		m_worm->cNinjaRope.write().pos() = ninjaPosBackup;
+		if(m_worm->cNinjaRope.get().attached)
+			m_worm->cNinjaRope.write().setAttached(m_worm->cNinjaRope.get().attached);
+	}
+
+	bool oldNinja = m_worm->cNinjaRope.get().isReleased();
+	CVec oldNinjaPos = m_worm->cNinjaRope.get().getHookPos();
+	worm_state_t oldS = m_worm->tState.get();
+	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
+
+	getInput();
+
+	bool newNinja = m_worm->cNinjaRope.get().isReleased();
+	CVec newNinjaPos = m_worm->cNinjaRope.get().getHookPos();
+	const worm_state_t& newS = m_worm->tState.get();
+	DIR_TYPE newMoveDir = m_worm->getMoveDirectionSide();
+
+	if(oldS.bMove && newS.bMove) {
+		if(oldMoveDir == DIR_LEFT && newMoveDir == DIR_RIGHT) {
+			eventStop(i, CWormHumanInputHandler::LEFT);
+			eventStart(i, CWormHumanInputHandler::RIGHT);
+		}
+		if(oldMoveDir == DIR_RIGHT && newMoveDir == DIR_LEFT) {
+			eventStop(i, CWormHumanInputHandler::RIGHT);
+			eventStart(i, CWormHumanInputHandler::LEFT);
+		}
+	}
+	if(oldS.bMove && !newS.bMove) eventStop(i, (oldMoveDir == DIR_LEFT) ? CWormHumanInputHandler::LEFT : CWormHumanInputHandler::RIGHT);
+	if(!oldS.bMove && newS.bMove) eventStart(i, (newMoveDir == DIR_LEFT) ? CWormHumanInputHandler::LEFT : CWormHumanInputHandler::RIGHT);
+
+	if(oldS.bJump && !newS.bJump) eventStop(i, CWormHumanInputHandler::JUMP);
+	if(!oldS.bJump && newS.bJump) eventStart(i, CWormHumanInputHandler::JUMP);
+
+	if(oldS.bShoot && !newS.bShoot) eventStop(i, CWormHumanInputHandler::FIRE);
+	if(!oldS.bShoot && newS.bShoot) eventStart(i, CWormHumanInputHandler::FIRE);
+
+	if(oldS.bCarve && !newS.bCarve) baseActionStop(DIG);
+	if(!oldS.bCarve && newS.bCarve) baseActionStart(DIG);
+
+	if(oldNinja && !newNinja) eventStop(i, CWormHumanInputHandler::NINJAROPE);
+	if(!oldNinja && newNinja) eventStart(i, CWormHumanInputHandler::NINJAROPE);
+	if(oldNinja && newNinja && oldNinjaPos != newNinjaPos) {
+		// very hacky this check but actually should work
+		// it means that we have reshooted the rope
+		eventStop(i, CWormHumanInputHandler::NINJAROPE);
+		eventStart(i, CWormHumanInputHandler::NINJAROPE);
+	}
 }
 
 

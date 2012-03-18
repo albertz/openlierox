@@ -1174,7 +1174,16 @@ void CWormHumanInputHandler::actionStop ( Actions action )
 
 
 void CWormHumanInputHandler::OlxInputToGusEvents()
-{	
+{
+	// Note: This whole function should be removed later.
+	// See the comment on CWormInputHandler::OlxInputToGusEvents.
+
+	if(m_worm == NULL) return;
+	if(m_worm->getAlive()) {
+		CWormInputHandler::OlxInputToGusEvents();
+		return;
+	}
+
 	// change + jump -> ninja
 
 	size_t i = 0;

@@ -131,7 +131,7 @@ public:
 	static Net_ClassID  classID;
 
 protected:
-	virtual void OlxInputToGusEvents();	
+	virtual void OlxInputToGusEvents();
 	virtual ~CWormInputHandler();
 	
 private:

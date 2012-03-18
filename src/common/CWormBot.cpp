@@ -4238,58 +4238,6 @@ void CWormBotInputHandler::subThink() {
 	if ( !m_worm->isActive() )
 		baseActionStart(RESPAWN);
 
-	// update LX attribs. this can go away after some more merging
-	if(m_worm->cNinjaRope.get().active) {
-		CVec ninjaPosBackup = m_worm->cNinjaRope.get().pos();
-		m_worm->cNinjaRope.write().Shoot(CVec());
-		m_worm->cNinjaRope.write().pos() = ninjaPosBackup;
-		if(m_worm->cNinjaRope.get().attached)
-			m_worm->cNinjaRope.write().setAttached(m_worm->cNinjaRope.get().attached);
-	}
-	
-	bool oldNinja = m_worm->cNinjaRope.get().isReleased();
-	CVec oldNinjaPos = m_worm->cNinjaRope.get().getHookPos();
-	worm_state_t oldS = m_worm->tState.get();
-	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
-
-	getInput();
-
-	bool newNinja = m_worm->cNinjaRope.get().isReleased();
-	CVec newNinjaPos = m_worm->cNinjaRope.get().getHookPos();
-	const worm_state_t& newS = m_worm->tState.get();
-	DIR_TYPE newMoveDir = m_worm->getMoveDirectionSide();
-
-	if(oldS.bMove && newS.bMove) {
-		if(oldMoveDir == DIR_LEFT && newMoveDir == DIR_RIGHT) {
-			baseActionStop(LEFT);
-			baseActionStart(RIGHT);
-		}
-		if(oldMoveDir == DIR_RIGHT && newMoveDir == DIR_LEFT) {
-			baseActionStop(RIGHT);
-			baseActionStart(LEFT);
-		}
-	}
-	if(oldS.bMove && !newS.bMove) baseActionStop((oldMoveDir == DIR_LEFT) ? LEFT : RIGHT);
-	if(!oldS.bMove && newS.bMove) baseActionStart((newMoveDir == DIR_LEFT) ? LEFT : RIGHT);
-
-	if(oldS.bJump && !newS.bJump) baseActionStop(JUMP);
-	if(!oldS.bJump && newS.bJump) baseActionStart(JUMP);
-	
-	if(oldS.bShoot && !newS.bShoot) baseActionStop(FIRE);
-	if(!oldS.bShoot && newS.bShoot) baseActionStart(FIRE);
-	
-	if(oldS.bCarve && !newS.bCarve) baseActionStop(DIG);
-	if(!oldS.bCarve && newS.bCarve) baseActionStart(DIG);
-	
-	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
-	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
-	if(oldNinja && newNinja && oldNinjaPos != newNinjaPos) {
-		// very hacky this check but actually should work
-		// it means that we have reshooted the rope
-		baseActionStop(NINJAROPE);
-		baseActionStart(NINJAROPE);
-	}
-	
 	// stupid wpn change code from player_ai.cpp
 	if ( ( m_worm->getCurrentWeaponRef() && m_worm->getCurrentWeaponRef()->reloading && ( rand() % 8 == 0 ) ) || rand() % 15 == 0)
 	{
