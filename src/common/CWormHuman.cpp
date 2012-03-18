@@ -846,7 +846,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 		}
 		
 		// Changing weapon
-		if(m_worm->iCurrentWeapon == (int)i && !bChat_Typing) {
+		if(m_worm->iCurrentWeapon == (int)i && !bChat_Typing && game.gameScript()->GetNumWeapons() > 0) {
 			int change = cRight.wasDown() - cLeft.wasDown();
 			if(cSelWeapon.isDown()) change *= 6; // jump with multiple speed if selWeapon is pressed
 			int id = m_worm->tWeapons[i].weapon() ? m_worm->tWeapons[i].weapon()->ID : 0;
@@ -858,16 +858,15 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 					break;
 				if(m_worm->tWeapons[i].weapon() && id == m_worm->tWeapons[i].weapon()->ID) // back where we were before
 					break;
-			} else
-				if(change < 0) while(change) {
-					id--; MOD(id, game.gameScript()->GetNumWeapons());
-					if( game.weaponRestrictions()->isEnabled( game.gameScript()->GetWeapons()[id].Name ) )
-						change++;
-					if(!m_worm->tWeapons[i].weapon() && id == 0)
-						break;
-					if(m_worm->tWeapons[i].weapon() && id == m_worm->tWeapons[i].weapon()->ID) // back where we were before
-						break;
-				}
+			} else if(change < 0) while(change) {
+				id--; MOD(id, game.gameScript()->GetNumWeapons());
+				if( game.weaponRestrictions()->isEnabled( game.gameScript()->GetWeapons()[id].Name ) )
+					change++;
+				if(!m_worm->tWeapons[i].weapon() && id == 0)
+					break;
+				if(m_worm->tWeapons[i].weapon() && id == m_worm->tWeapons[i].weapon()->ID) // back where we were before
+					break;
+			}
 			m_worm->weaponSlots.write()[i].WeaponId = id;
 		}
 		
