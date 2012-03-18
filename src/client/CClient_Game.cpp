@@ -557,6 +557,7 @@ void CClient::SendCarve(CVec pos)
 void CClient::PlayerShoot(CWorm *w)
 {
 	if(w->tWeapons.size() == 0) return;
+	if(game.gameScript()->gusEngineUsed()) return; // right now, this only handles LX weapons
 	wpnslot_t *Slot = w->writeCurWeapon();
 
 	if(Slot->Reloading)

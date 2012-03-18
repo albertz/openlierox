@@ -360,6 +360,8 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 // Worm is shooting
 void GameServer::WormShoot(CWorm *w)
 {
+	if(game.gameScript()->gusEngineUsed()) return; // right now, this only handles LX weapons
+
 	// Don't shoot when the game is over
 	if (game.gameOver)
 		return;
