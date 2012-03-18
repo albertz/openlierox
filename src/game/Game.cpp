@@ -760,7 +760,7 @@ void Game::frameInner()
 				scopedSpeeds.reserve( game.worms()->size() * 2 );
 				for_each_iterator(CWorm*, w, game.worms()) {
 					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
-					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*(CNinjaRope*)w->get()->getNinjaRope()) );
+					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(w->get()->cNinjaRope.write()) );
 				}
 
 				gusLogicFrame();

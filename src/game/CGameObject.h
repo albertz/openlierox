@@ -137,13 +137,22 @@ public:
 	{
 		vVelocity += CVec(spd_.x, spd_.y);
 	}
-		
+
+	// The object stores LX-velocity but you want to have a scope where
+	// the velocity is Gusanos-like.
 	struct ScopedGusCompatibleSpeed : DontCopyTag {
 		CGameObject& obj;
 		ScopedGusCompatibleSpeed(CGameObject& o);
 		~ScopedGusCompatibleSpeed();
 	};
 	
+	// the reverse of the above
+	struct ScopedLXCompatibleSpeed : DontCopyTag {
+		CGameObject& obj;
+		ScopedLXCompatibleSpeed(CGameObject& o);
+		~ScopedLXCompatibleSpeed();
+	};
+
 	LuaReference luaData;
 	
 	CGameObject* nextS_;

@@ -593,7 +593,10 @@ void CWormInputHandler::OlxInputToGusEvents()
 	worm_state_t oldS = m_worm->tState.get();
 	DIR_TYPE oldMoveDir = m_worm->getMoveDirectionSide();
 
-	getInput();
+	{
+		CGameObject::ScopedLXCompatibleSpeed(m_worm->cNinjaRope.write());
+		getInput();
+	}
 
 	bool newNinja = m_worm->cNinjaRope.get().isReleased();
 	CVec newNinjaPos = m_worm->cNinjaRope.get().getHookPos();
