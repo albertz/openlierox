@@ -753,16 +753,18 @@ void CWorm::onWeaponsReadyUpdate(BaseObject *obj, const AttrDesc *attrDesc, Scri
 // Randomize the weapons
 void CWorm::GetRandomWeapons()
 {
+	if(game.gameScript() && game.gameScript()->gusEngineUsed()) return; // this is LX-only for now...
+
 	if(game.weaponRestrictions() == NULL) {
 		errors << "CWorm::GetRandomWeapons: cWeaponRest == NULL" << endl;
 		// no break here, the function will anyway work and ignore the restrictions
 	}
-	
+
 	if(game.gameScript() == NULL || game.gameScript()->GetNumWeapons() <= 0) {
 		errors << "CWorm::GetRandomWeapons: gamescript is not loaded" << endl;
 		return;
 	}
-	
+
 	for(size_t i=0; i<tWeapons.size(); i++) {
 		int num = MAX(1, GetRandomInt(game.gameScript()->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
