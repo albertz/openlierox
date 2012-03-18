@@ -145,14 +145,12 @@ void CGameObject::makeReference()
 // LX56PhysicsDT.seconds() default is 1/84 ~= 0.0119.
 
 CGameObject::ScopedGusCompatibleSpeed::ScopedGusCompatibleSpeed(CGameObject& o) : obj(o) {
-	if(dynamic_cast<CWorm*> (&obj) == NULL) return;
 	// we do this if we use the LX56 Physics simulation on worms
 	// Gusanos interprets the velocity in a different way, so we convert it while we are doing Gus stuff
 	obj.velocity() *= LX56PhysicsDT.seconds();
 }
 
 CGameObject::ScopedGusCompatibleSpeed::~ScopedGusCompatibleSpeed() {
-	if(dynamic_cast<CWorm*> (&obj) == NULL) return;
 	obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
 }
 
