@@ -99,7 +99,7 @@ public:
 	static LuaReference metaTable;
 
 	void gusInit();
-	void shoot(Vec _pos, Vec _spd);
+	void shoot(Vec _spd);
 	void remove();
 	
 #ifndef DEDICATED_ONLY

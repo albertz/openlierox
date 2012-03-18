@@ -52,11 +52,12 @@ void CNinjaRope::gusInit()
 	}
 }
 
-void CNinjaRope::shoot(Vec _pos, Vec _spd)
+void CNinjaRope::shoot(Vec _spd)
 {
 	if(gusGame.NRPartType == NULL) return;
-	
-	pos() = CVec(_pos);
+	if(owner() == NULL) return;
+
+	pos() = owner()->pos();
 	velocity() = CVec(_spd);
 	m_length = gusGame.options.ninja_rope_startDistance;
 	
