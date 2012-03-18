@@ -597,15 +597,6 @@ void CWormInputHandler::OlxInputToGusEvents()
 		return;
 	}
 
-	// update LX attribs. this can go away after some more merging
-	if(m_worm->cNinjaRope.get().active) {
-		CVec ninjaPosBackup = m_worm->cNinjaRope.get().pos();
-		m_worm->cNinjaRope.write().Shoot(CVec());
-		m_worm->cNinjaRope.write().pos() = ninjaPosBackup;
-		if(m_worm->cNinjaRope.get().attached)
-			m_worm->cNinjaRope.write().setAttached(m_worm->cNinjaRope.get().attached);
-	}
-
 	bool oldNinja = m_worm->cNinjaRope.get().isReleased();
 	CVec oldNinjaPos = m_worm->cNinjaRope.get().getHookPos();
 	worm_state_t oldS = m_worm->tState.get();
