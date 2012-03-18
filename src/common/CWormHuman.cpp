@@ -741,6 +741,9 @@ void CWormHumanInputHandler::stopInputSystem() {
 ///////////////////
 // Initialize the weapon selection screen
 void CWormHumanInputHandler::initWeaponSelection() {
+	if(!game.gameScript()->isLoaded())
+		errors << "CWormHumanInputHandler::initWeaponSelection: gamescript not loaded" << endl;
+
 	// the way we handle the inputs in wpn selection is different
 	stopInputSystem();
 	
