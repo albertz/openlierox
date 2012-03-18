@@ -588,15 +588,6 @@ void CWormInputHandler::OlxInputToGusEvents()
 
 	if(m_worm == NULL) return;
 
-	size_t i = 0;
-	for(; i < game.localPlayers.size(); ++i)
-		if(game.localPlayers[i] == this) break;
-
-	if(i >= game.localPlayers.size()) {
-		errors << "CWormInputHandler::OlxInputToGusEvents: local player unknown" << endl;
-		return;
-	}
-
 	bool oldNinja = m_worm->cNinjaRope.get().isReleased();
 	CVec oldNinjaPos = m_worm->cNinjaRope.get().getHookPos();
 	worm_state_t oldS = m_worm->tState.get();
@@ -611,33 +602,33 @@ void CWormInputHandler::OlxInputToGusEvents()
 
 	if(oldS.bMove && newS.bMove) {
 		if(oldMoveDir == DIR_LEFT && newMoveDir == DIR_RIGHT) {
-			eventStop(i, CWormHumanInputHandler::LEFT);
-			eventStart(i, CWormHumanInputHandler::RIGHT);
+			baseActionStop(LEFT);
+			baseActionStart(RIGHT);
 		}
 		if(oldMoveDir == DIR_RIGHT && newMoveDir == DIR_LEFT) {
-			eventStop(i, CWormHumanInputHandler::RIGHT);
-			eventStart(i, CWormHumanInputHandler::LEFT);
+			baseActionStop(RIGHT);
+			baseActionStart(LEFT);
 		}
 	}
-	if(oldS.bMove && !newS.bMove) eventStop(i, (oldMoveDir == DIR_LEFT) ? CWormHumanInputHandler::LEFT : CWormHumanInputHandler::RIGHT);
-	if(!oldS.bMove && newS.bMove) eventStart(i, (newMoveDir == DIR_LEFT) ? CWormHumanInputHandler::LEFT : CWormHumanInputHandler::RIGHT);
+	if(oldS.bMove && !newS.bMove) baseActionStop((oldMoveDir == DIR_LEFT) ? LEFT : RIGHT);
+	if(!oldS.bMove && newS.bMove) baseActionStart((newMoveDir == DIR_LEFT) ? LEFT : RIGHT);
 
-	if(oldS.bJump && !newS.bJump) eventStop(i, CWormHumanInputHandler::JUMP);
-	if(!oldS.bJump && newS.bJump) eventStart(i, CWormHumanInputHandler::JUMP);
+	if(oldS.bJump && !newS.bJump) baseActionStop(JUMP);
+	if(!oldS.bJump && newS.bJump) baseActionStart(JUMP);
 
-	if(oldS.bShoot && !newS.bShoot) eventStop(i, CWormHumanInputHandler::FIRE);
-	if(!oldS.bShoot && newS.bShoot) eventStart(i, CWormHumanInputHandler::FIRE);
+	if(oldS.bShoot && !newS.bShoot) baseActionStop(FIRE);
+	if(!oldS.bShoot && newS.bShoot) baseActionStart(FIRE);
 
 	if(oldS.bCarve && !newS.bCarve) baseActionStop(DIG);
 	if(!oldS.bCarve && newS.bCarve) baseActionStart(DIG);
 
-	if(oldNinja && !newNinja) eventStop(i, CWormHumanInputHandler::NINJAROPE);
-	if(!oldNinja && newNinja) eventStart(i, CWormHumanInputHandler::NINJAROPE);
+	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
+	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
 	if(oldNinja && newNinja && oldNinjaPos != newNinjaPos) {
 		// very hacky this check but actually should work
 		// it means that we have reshooted the rope
-		eventStop(i, CWormHumanInputHandler::NINJAROPE);
-		eventStart(i, CWormHumanInputHandler::NINJAROPE);
+		baseActionStop(NINJAROPE);
+		baseActionStart(NINJAROPE);
 	}
 }
 
