@@ -817,9 +817,9 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	/*if(!isReconnect)
 		PhysicsEngine::Get()->initGame();*/
 
-	game.weaponRestrictions()->Shutdown();
+	if(game.isClient())
+		game.weaponRestrictions()->Shutdown();
 	game.weaponRestrictions()->readList(bs);
-
 
 	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
 		client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
