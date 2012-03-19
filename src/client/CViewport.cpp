@@ -24,6 +24,34 @@
 #include "sound/sfx.h"
 
 
+CViewport& CViewport::operator=(const CViewport& o) {
+	shutdown();
+
+	bUsed = o.bUsed;
+
+	Left = o.Left;
+	Top = o.Top;
+	VirtWidth = o.VirtWidth;
+	VirtHeight = o.VirtHeight;
+	Width = o.Width;
+	Height = o.Height;
+	WorldX = o.WorldX;
+	WorldY = o.WorldY;
+
+	m_origTargetWorm = o.m_origTargetWorm;
+	pcTargetWorm = o.pcTargetWorm;
+	nType = o.nType;
+	bSmooth = o.bSmooth;
+	fTimer = o.fTimer;
+
+	if(bUsed) {
+		m_listener = new Listener();
+		sfx.registerListener(m_listener);
+	}
+
+	return *this;
+}
+
 
 ///////////////////
 // Setup the viewport

@@ -45,12 +45,10 @@ class CWormInputHandler;
 
 
 class CViewport {
-public:
-	// Constructor
-	CViewport() {
-
+private:
+	void _init() {
 		bUsed = false;
-        nID = 0;
+		nID = 0;
 		Left = Top = 0;
 		Width = 320;
 		Height = 280;
@@ -61,19 +59,22 @@ public:
 		bShaking = false;
 		iShakeAmount = 0;
 
-        m_origTargetWorm = pcTargetWorm = NULL;
-        nType = VW_FOLLOW;
-        fTimer = AbsTime();
+		m_origTargetWorm = pcTargetWorm = NULL;
+		nType = VW_FOLLOW;
+		fTimer = AbsTime();
 		bSmooth = false;
 		m_listener = NULL;
-		
+
 		gusInit();
 	}
 
-	~CViewport() {
-		gusReset();
-	}
+public:
+	CViewport() { _init(); }
+	~CViewport() { gusReset(); }
 	
+	CViewport(const CViewport& o) { _init(); operator=(o); }
+	CViewport& operator=(const CViewport& o);
+
 private:
 	// Attributes
 
