@@ -7,21 +7,9 @@
 #include <string>
 #include <list>
 
-/*
-class CGameObject;
-class CWormInputHandler;
-class CWorm;
-class CViewport;
-*/
-
 namespace LuaBindings
 {
 	void init();
-
-	//int print(lua_State* state);
-	
-	//std::string runLua(LuaReference ref, std::list<std::string> const& args);
-	
 }
 
 
