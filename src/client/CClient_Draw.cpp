@@ -916,11 +916,13 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	
 	{
 		float sizeFactor = cClient->getGameLobby()[FT_SizeFactor];
+		if(sizeFactor == 0.0f) sizeFactor = 1.0f; // bad value, avoid crashes ...
+		if(sizeFactor < 0.5f) sizeFactor = 0.5f; // Gusanos does not support this. and it's anyway *very* slow, so put this limit here...
+		if(sizeFactor > 5.f) sizeFactor = 5.f; // just put some sane max limit. the code would support much more but it doesn't really make sense
+
 		if(sizeFactor == 1.0f)
 			DrawViewport_Game(bmpDest, v);
-		else {
-			if(sizeFactor == 0.0f) return; // bad value, avoid crashes ...
-			
+		else {			
 			// I have to admit, a bit hacky, but it will work for sure and we can perhaps make it better later on.
 			// I would highly vote for not implementing this for each game object (worms, projectiles, and all others)
 			// seperated. This is too much work and it means much more testing.
