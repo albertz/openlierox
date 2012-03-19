@@ -48,6 +48,16 @@ Weapon* CWorm::getCurrentWeaponRef()
 	return m_weapons[currentWeapon];
 }
 
+std::vector<WeaponType*> CWorm::getWeaponTypes() const {
+	std::vector<WeaponType*> wpns;
+	wpns.reserve(m_weapons.size());
+	foreach(w, m_weapons) {
+		if(!*w) continue;
+		wpns.push_back((*w)->getType());
+	}
+	return wpns;
+}
+
 void CWorm::base_setWeapon( size_t index, WeaponType* type )
 {
 	if(index >= m_weapons.size())

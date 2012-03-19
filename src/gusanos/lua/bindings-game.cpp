@@ -19,6 +19,7 @@
 #include "CClientNetEngine.h"
 #include "game/SinglePlayer.h"
 #include "OLXCommand.h"
+#include "gusanos/weapon_type.h"
 
 #include <cmath>
 #include <iostream>
@@ -337,6 +338,20 @@ METHODC(CWormInputHandler, player_selectWeapons,  {
 	return 0;
 })
 
+
+//! version OLX 0.59b10
+
+/*! CWormHumanInputHandler:weaponTypes()
+
+	Returns an array of the selected weapon types.
+*/
+METHODC(CWormInputHandler, player_weaponTypes,  {
+	std::vector<WeaponType*> wpns(p->worm()->getWeaponTypes());
+	context.push(wpns);
+
+	return 1;
+})
+
 METHOD(CWormInputHandler, player_destroy, {
 	// player deletion is handled outside, thus delete only if safe
 	if(p->deleted)
@@ -459,6 +474,7 @@ void initGame()
 		("stats", l_player_stats)
 		("worm", l_player_worm)
 		("select_weapons", l_player_selectWeapons)
+		("weapon_types", l_player_weaponTypes)
 		("is_local", l_player_isLocal)
 	)
 	
