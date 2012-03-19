@@ -742,9 +742,7 @@ protected:
 #endif
 	
 	int m_timeSinceDeath; // Used for the min and max respawn time sv variables
-	
-	size_t currentWeapon;
-	
+		
 	std::vector<Weapon*> m_weapons;
 	
 	CWormInputHandler* m_lastHurt;

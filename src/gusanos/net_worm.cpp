@@ -217,7 +217,6 @@ void CWorm::NetWorm_think()
 					break;
 					case SYNC:
 					{
-						currentWeapon = Encoding::decode(*data, m_weapons.size());
 						CWorm::base_clearWeapons();
 						while ( data->getBool() )
 						{
@@ -294,7 +293,6 @@ void CWorm::sendSyncMessage( Net_ConnID id )
 {
 	BitStream *data = new BitStream;
 	addEvent(data, SYNC);
-	Encoding::encode(*data, currentWeapon, m_weapons.size());
 	
 	for( size_t i = 0; i < m_weapons.size(); ++i )
 	{

@@ -43,9 +43,9 @@ LuaReference CWorm::metaTable;
 
 Weapon* CWorm::getCurrentWeaponRef()
 {
-	if(currentWeapon >= m_weapons.size())
-		return NULL;
-	return m_weapons[currentWeapon];
+	if(iCurrentWeapon < 0) return NULL;
+	if((size_t)(int)iCurrentWeapon >= m_weapons.size()) return NULL;
+	return m_weapons[(size_t)(int)iCurrentWeapon];
 }
 
 std::vector<WeaponType*> CWorm::getWeaponTypes() const {
@@ -389,7 +389,7 @@ void CWorm::think()
 
 		for ( size_t i = 0; i < m_weapons.size(); ++i ) {
 			if ( m_weapons[i] )
-				m_weapons[i]->think( i == currentWeapon, i );
+				m_weapons[i]->think( (int)i == iCurrentWeapon, i );
 		}
 
 #ifndef DEDICATED_ONLY
@@ -441,16 +441,16 @@ int CWorm::getWeaponIndexOffset( int offset )
 		else if(offset > 0)
 			offset = 1;
 		else
-			return currentWeapon;
+			return iCurrentWeapon;
 
-		unsigned int i = currentWeapon;
+		int i = iCurrentWeapon;
 		do
 			i = (i + offset + m_weapons.size()) % m_weapons.size();
-		while(!m_weapons[i] && i != currentWeapon);
+		while(!m_weapons[i] && i != iCurrentWeapon);
 
 		return i;
 	} else {
-		return currentWeapon;
+		return iCurrentWeapon;
 	}
 }
 
@@ -541,8 +541,8 @@ void CWorm::draw(CViewport* viewport)
 				line(where, x, y, nrPos.x, nrPos.y, cNinjaRope.get().getColour());
 			}
 
-			if ( m_weapons[currentWeapon] )
-				m_weapons[currentWeapon]->drawBottom(where, renderX, renderY);
+			if ( getCurrentWeaponRef() )
+				getCurrentWeaponRef()->drawBottom(where, renderX, renderY);
 
 			Angle angle = getPointingAngle();
 			bool flipped = false;
@@ -560,8 +560,8 @@ void CWorm::draw(CViewport* viewport)
 			//skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getPointingAngle())->draw(where, renderX, renderY);			
 			cSkin.get().DrawHalf(where->surf.get(), where->sub_x + renderX - cSkin.get().getSkinWidth() / 4, where->sub_y + renderY - cSkin.get().getSkinHeight() / 4, f, false, flipped);
 
-			if ( m_weapons[currentWeapon] )
-				m_weapons[currentWeapon]->drawTop(where, renderX, renderY);
+			if ( getCurrentWeaponRef() )
+				getCurrentWeaponRef()->drawTop(where, renderX, renderY);
 
 			if ( m_currentFirecone ) {
 				Vec distance = Vec(getPointingAngle(), (double)m_fireconeDistance);
@@ -710,12 +710,12 @@ void CWorm::changeWeaponTo( unsigned int weapIndex )
 		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH | Net_REPRULE_AUTH_2_PROXY, data);		
 	}
 	
-	if ( m_weapons[currentWeapon] ) {
-		m_weapons[currentWeapon]->actionStop( Weapon::PRIMARY_TRIGGER );
-		m_weapons[currentWeapon]->actionStop( Weapon::SECONDARY_TRIGGER );
+	if ( getCurrentWeaponRef() ) {
+		getCurrentWeaponRef()->actionStop( Weapon::PRIMARY_TRIGGER );
+		getCurrentWeaponRef()->actionStop( Weapon::SECONDARY_TRIGGER );
 	}
 	if ( weapIndex < m_weapons.size() && m_weapons[weapIndex] )
-		currentWeapon = weapIndex;
+		iCurrentWeapon = weapIndex;
 }
 
 void CWorm::damage( float amount, CWormInputHandler* damager )
@@ -759,8 +759,8 @@ void CWorm::actionStart( Actions action )
 			break;
 
 			case FIRE:
-			if ( getAlive() && m_weapons[currentWeapon] )
-				m_weapons[currentWeapon]->actionStart( Weapon::PRIMARY_TRIGGER );
+			if ( getAlive() && getCurrentWeaponRef() )
+				getCurrentWeaponRef()->actionStart( Weapon::PRIMARY_TRIGGER );
 			break;
 
 			case JUMP:
@@ -800,8 +800,8 @@ void CWorm::actionStop( Actions action )
 			break;
 
 			case FIRE:
-			if ( getAlive() && m_weapons[currentWeapon] )
-				m_weapons[currentWeapon]->actionStop( Weapon::PRIMARY_TRIGGER );
+			if ( getAlive() && getCurrentWeaponRef() )
+				getCurrentWeaponRef()->actionStop( Weapon::PRIMARY_TRIGGER );
 			break;
 
 			case JUMP:

@@ -354,8 +354,6 @@ void CWorm::Prepare()
 
 	aimRecoilSpeed = 0;
 
-	currentWeapon = 0;
-
 	m_weapons.assign(gusGame.options.maxWeapons, 0 );
 
 	if(gusGame.weaponList.size() > 0)
