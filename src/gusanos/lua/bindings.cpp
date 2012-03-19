@@ -434,44 +434,52 @@ void init()
 	;
 
 	// Bindings table and metatable
-	lua_pushstring(context, "bindings");
-	lua_newtable(context); // Bindings table
-	
-	lua_newtable(context); // Bindings metatable
-	lua_pushstring(context, "__newindex");
-	lua_pushcfunction(context, l_bind);
-	lua_rawset(context, -3);
-	
-	lua_setmetatable(context, -2);
+	{
+		lua_pushstring(context, "bindings");
+		lua_newtable(context); // Bindings table
+		{
+			lua_newtable(context); // Bindings metatable
+			{
+				lua_pushstring(context, "__newindex");
+				lua_pushcfunction(context, l_bind);
+				lua_rawset(context, -3);
+			}
+			lua_setmetatable(context, -2);
+		}
+		lua_rawset(context, LUA_GLOBALSINDEX);
+	}
 
-	lua_rawset(context, LUA_GLOBALSINDEX);
-	
 	// Console table and metatable
-	lua_pushstring(context, "console");
-	lua_newtable(context); // Console table
-	
-	lua_newtable(context); // Console metatable
-	
-	lua_pushstring(context, "__newindex");
-	lua_pushcfunction(context, l_console_set);
-	lua_rawset(context, -3);
-	
-	lua_pushstring(context, "__index");
-	lua_pushcfunction(context, l_console_get);
-	lua_rawset(context, -3);
-	
-	lua_setmetatable(context, -2);
+	{
+		lua_pushstring(context, "console");
+		lua_newtable(context); // Console table
+		{
+			lua_newtable(context); // Console metatable
+			{
+				lua_pushstring(context, "__newindex");
+				lua_pushcfunction(context, l_console_set);
+				lua_rawset(context, -3);
+			}
+			{
+				lua_pushstring(context, "__index");
+				lua_pushcfunction(context, l_console_get);
+				lua_rawset(context, -3);
+			}
+			lua_setmetatable(context, -2);
+		}
+		lua_rawset(context, LUA_GLOBALSINDEX);
+	}
 
-	lua_rawset(context, LUA_GLOBALSINDEX);
-
-	lua_pushstring(context, "DEDICATED_ONLY");
+	{
+		lua_pushstring(context, "DEDICATED_ONLY");
 #ifdef DEDICATED_ONLY
-	lua_pushboolean(context, 1);
+		lua_pushboolean(context, 1);
 #else
-	lua_pushboolean(context, 0);
+		lua_pushboolean(context, 0);
 #endif
-	lua_rawset(context, LUA_GLOBALSINDEX);
-	
+		lua_rawset(context, LUA_GLOBALSINDEX);
+	}
+
 	SHADOW_TABLE("persistence", l_undump, l_dump);
 }
 
