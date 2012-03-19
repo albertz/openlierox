@@ -96,6 +96,8 @@ void CWorm::setWeapons( std::vector<WeaponType*> const& weaps )
 	if(weaps.size() > m_weapons.size())
 		return;
 
+	bWeaponsReady = true;
+
 	// Here is where the interception of the server can be done on the weapon selection
 	clearWeapons();
 	for ( size_t i = 0; i < weaps.size(); ++i ) {

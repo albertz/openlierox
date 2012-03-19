@@ -391,12 +391,6 @@ void CWorm::Prepare()
 		}		
 	}
 	
-	if(game.gameScript()->gusEngineUsed()) {
-		// we set this so that the OLX part sees that wpn selection is ready and it sends the ImReady packet
-		// Gusanos has own weapon handling, this isn't merge yet (not sure if it even would make sense to merge)
-		bWeaponsReady = true;		
-	}
-	
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
 	health = 0;
 	posRecordings.clear();
@@ -487,6 +481,8 @@ void CWorm::clearInput() {
 }
 
 void CWorm::initWeaponSelection() {
+	if(game.gameScript()->gusEngineUsed()) return; // Gus currently has it's own wpn selection
+
 	if(!bLocal) {
 		warnings << "CWorm::initWeaponSelection: called initWeaponSelection() on non-local worm " << getName() << endl;
 		return;
@@ -511,6 +507,8 @@ void CWorm::initWeaponSelection() {
 }
 
 void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
+	if(game.gameScript()->gusEngineUsed()) return; // Gus currently has it's own wpn selection
+
 	if(!bLocal) {
 		warnings << "CWorm::doWeaponSelectionFrame: called on non-local worm " << getName() << endl;
 		return;
