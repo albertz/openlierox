@@ -6,10 +6,6 @@
 namespace LuaBindings
 {
 	void initObjects();
-	
-	//extern LuaReference wormMetaTable;
-	//extern LuaReference baseObjectMetaTable;
-	//extern LuaReference particleMetaTable;
 }
 
 #endif //LUA_BINDINGS_OBJECTS_H
