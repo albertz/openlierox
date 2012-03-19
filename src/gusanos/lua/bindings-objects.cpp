@@ -615,82 +615,101 @@ void addBaseObjectFunctions(LuaContext& context)
 
 void initObjects()
 {
+	// The verbose commenting here is on purpose for readers not familiar with Lua.
+	// Read also this: http://www.lua.org/manual/5.1/manual.html#3.1
+
 	LuaContext& context = lua;
 	
 	// CGameObject method and metatable
-	lua_newtable(context); 
-	lua_pushstring(context, "__index");
-	
-	lua_newtable(context);
-	
-	addBaseObjectFunctions(context);
-	
-	lua_rawset(context, -3);
-	context.tableSetField(LuaID<CGameObject>::value);
-	CGameObject::metaTable = context.createReference();
-	
+	{
+		lua_newtable(context);
+		{
+			lua_pushstring(context, "__index");
+			lua_newtable(context);
+			{
+				addBaseObjectFunctions(context); // [0,0]
+			}
+
+			lua_rawset(context, -3); // does t[k] = v, where t=param(-3), k=-2, v=-1(top). this pops 2 elements from the stack
+		}
+
+		context.tableSetField(LuaID<CGameObject>::value); // does t[n] = v, where t=top(table), n=param(id value), v=True
+		CGameObject::metaTable = context.createReference(); // also pops one element
+	}
+
 	// Particle method and metatable
-	
-	lua_newtable(context);
-	context.tableFunctions()
-		("__gc", l_particle_destroy)
-	;
-	lua_pushstring(context, "__index");
-	
-	lua_newtable(context);
-	
-	addBaseObjectFunctions(context);
+	{
+		lua_newtable(context);
+		context.tableFunctions()
+				("__gc", l_particle_destroy)
+				;
 
-	context.tableFunctions()
-		("set_angle", l_particle_setAngle)
-		("set_replication", l_particle_set_replication)
-	;
-	
-	lua_rawset(context, -3);
-	context.tableSetField(LuaID<Particle>::value);
-	context.tableSetField(LuaID<CGameObject>::value);
-	Particle::metaTable = context.createReference();
-	
+		{
+			lua_pushstring(context, "__index");
+			lua_newtable(context);
+			{
+				addBaseObjectFunctions(context);
+
+				context.tableFunctions()
+						("set_angle", l_particle_setAngle)
+						("set_replication", l_particle_set_replication)
+						;
+			}
+			lua_rawset(context, -3);
+		}
+
+		context.tableSetField(LuaID<Particle>::value);
+		context.tableSetField(LuaID<CGameObject>::value);
+		Particle::metaTable = context.createReference();
+	}
+
 	// Worm method and metatable
-	
-	lua_newtable(context);
-	context.tableFunctions()
-		("__gc", l_worm_destroy)
-	;
-	lua_pushstring(context, "__index");
-	
-	lua_newtable(context);
-	
-	addBaseObjectFunctions(context); // CWorm inherits from CGameObject
+	{
+		lua_newtable(context);
+		context.tableFunctions()
+				("__gc", l_worm_destroy)
+				;
 
-	context.tableFunctions()
-#ifndef NO_DEPRECATED
-		("get_health", l_worm_getHealth_depr)
-#endif
-		("health", l_worm_getHealth)
-		("current_weapon", l_worm_current_weapon)
-		("is_changing", l_worm_isChanging)
-		("setSkinVisible", l_worm_setSkinVisible)
-	;
-	
-	lua_rawset(context, -3);
-	context.tableSetField(LuaID<CWorm>::value);
-	context.tableSetField(LuaID<CGameObject>::value);
-	CWorm::metaTable = context.createReference();
+		{
+			lua_pushstring(context, "__index");
+			lua_newtable(context);
+			{
+				addBaseObjectFunctions(context); // CWorm inherits from CGameObject
+
+				context.tableFunctions()
+		#ifndef NO_DEPRECATED
+						("get_health", l_worm_getHealth_depr)
+		#endif
+						("health", l_worm_getHealth)
+						("current_weapon", l_worm_current_weapon)
+						("is_changing", l_worm_isChanging)
+						("setSkinVisible", l_worm_setSkinVisible)
+						;
+			}
+			lua_rawset(context, -3);
+		}
+
+		context.tableSetField(LuaID<CWorm>::value);
+		context.tableSetField(LuaID<CGameObject>::value);
+		CWorm::metaTable = context.createReference();
+	}
 
 	// CNinjaRope
-	
-	lua_newtable(context);
-	context.tableFunctions()
-		("__gc", l_ninjarope_destroy)
-	;
-	lua_pushstring(context, "__index");
-	lua_newtable(context);
-	addBaseObjectFunctions(context);
-	lua_rawset(context, -3);
-	context.tableSetField(LuaID<CNinjaRope>::value);
-	context.tableSetField(LuaID<CGameObject>::value);
-	CNinjaRope::metaTable = context.createReference();
+	{
+		lua_newtable(context);
+		context.tableFunctions()
+				("__gc", l_ninjarope_destroy)
+				;
+		{
+			lua_pushstring(context, "__index");
+			lua_newtable(context);
+			addBaseObjectFunctions(context);
+			lua_rawset(context, -3);
+		}
+		context.tableSetField(LuaID<CNinjaRope>::value);
+		context.tableSetField(LuaID<CGameObject>::value);
+		CNinjaRope::metaTable = context.createReference();
+	}
 
 	// ----
 
