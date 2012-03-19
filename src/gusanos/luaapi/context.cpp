@@ -85,7 +85,6 @@ void LuaContext::log(std::ostream& str)
 }
 
 LuaContext::LuaContext() : m_State(NULL) {}
-LuaContext::LuaContext(LuaContext const& b) : m_State(b.m_State) {}
 LuaContext::LuaContext(lua_State* state_) : m_State(state_) {}
 
 namespace
@@ -816,5 +815,8 @@ void LuaContext::close()
 
 LuaContext::~LuaContext()
 {
-
+	// We might not always use the global instance but have a local one,
+	// probably via the LuaContext(lua_State*) constructor.
+	// In that case, it would almost certainly be wrong to close the m_State here.
+	// Thus, we don't do it. Thus, lua.close() must be called manually.
 }

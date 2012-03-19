@@ -23,7 +23,7 @@ using std::string;
 
 class BitStream;
 
-class LuaContext
+class LuaContext : DontCopyTag
 {
 public:
 	struct FunctionProxy
@@ -139,14 +139,10 @@ public:
 	bool logOnce(std::ostream& str);
 	void log(std::ostream& str);
 	
-	LuaContext();
-	
-	LuaContext(LuaContext const&);
-	
+	LuaContext();	
 	LuaContext(lua_State* state_);
 	
-	void init();
-	
+	void init();	
 	void reset();
 	
 	static const char * istreamChunkReader(lua_State *L, void *data, size_t *size);
