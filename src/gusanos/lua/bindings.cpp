@@ -1,5 +1,6 @@
 #include "bindings.h"
 #include "FindFile.h"
+#include "Debug.h"
 
 #ifndef DEDICATED_ONLY
 #include "../gui/lua/bindings-gui.h"
@@ -46,17 +47,17 @@ namespace LuaBindings
 
 int print(lua_State* L)
 {
-	cerr << "LUA: ";
+	notes << "LUA: ";
 	
 	int c = lua_gettop(L);
 	for(int i = 1; i <= c; ++i)
 	{
 		if(const char* s = lua_tostring(L, i))
 		{
-			cerr << s;
+			notes << s;
 		}
 	}
-	cerr << '\n';
+	notes << endl;
 	
 	return 0;
 }
