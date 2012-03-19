@@ -515,14 +515,14 @@ public:
 	
 	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 
-	const wpnslot_t	*getCurWeapon()			{
+	const wpnslot_t	*getCurWeapon()	const	{
 		if(tWeapons.size() == 0) {
 			static wpnslot_t dummy;
 			return &dummy; // it's a disabled wpn slot, thus a good fallback to return here
 		}
 		return &tWeapons[MIN(tWeapons.size()-1, (size_t)iCurrentWeapon)];
 	}
-	wpnslot_t	*writeCurWeapon()			{
+	wpnslot_t	*writeCurWeapon()	{
 		assert(tWeapons.size() > 0);
 		return &weaponSlots.write()[MIN(tWeapons.size()-1, (size_t)iCurrentWeapon)];
 	}
@@ -538,6 +538,9 @@ public:
 		}
 		return &tWeapons[id];
 	}
+
+	std::string getCurWeaponName() const;
+	int getWeaponSlotsCount() const;
 
 	void		setLobbyReady(bool _g)		{ bLobbyReady = _g; }
 	bool		getLobbyReady() const		{ return bLobbyReady; }

@@ -43,6 +43,7 @@
 #include "gusanos/sprite_set.h"
 #include "gusanos/animators.h"
 #include "gusanos/weapon.h"
+#include "gusanos/weapon_type.h"
 #include "game/ClassInfo.h"
 #include "gusanos/luaapi/classes.h"
 
@@ -1563,6 +1564,34 @@ const SmartPointer<profile_t>& CWorm::getProfile() const {
 
 void CWorm::setProfile(const SmartPointer<profile_t>& p) {
 	tProfile = p;
+}
+
+// Note that this function becomes obsolete once we merge wpnslot_t and Weapon.
+std::string CWorm::getCurWeaponName() const {
+	if(iCurrentWeapon < 0) return "";
+	if(iCurrentWeapon >= getWeaponSlotsCount()) return "";
+	if(!game.gameScript() || !game.gameScript()->gusEngineUsed()) {
+		const wpnslot_t* slot = getCurWeapon();
+		if(slot->weapon())
+			return slot->weapon()->Name;
+		return "";
+	}
+	else { // Gusanos
+		Weapon* slot = m_weapons[iCurrentWeapon];
+		if(!slot) return "";
+		if(slot->getType() == NULL) return "";
+		return slot->getType()->name;
+	}
+}
+
+// The only reason this returns `int` is that we avoid
+// problems with `MOD`-usage (as in `MOD(iCurrentWeapon, getWeaponSlotsCount())`).
+// Note that this function becomes obsolete once we merge wpnslot_t and Weapon.
+int CWorm::getWeaponSlotsCount() const {
+	if(!game.gameScript() || !game.gameScript()->gusEngineUsed())
+		return tWeapons.size();
+	else
+		return m_weapons.size();
 }
 
 

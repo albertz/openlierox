@@ -224,17 +224,17 @@ void CWormHumanInputHandler::getInput() {
 			PlaySoundSample(sfxGame.smpNinja);
 		}
 
-		if( ms->WheelScrollUp || ms->WheelScrollDown ) {
+		if( m_worm->getWeaponSlotsCount() > 0 && (ms->WheelScrollUp || ms->WheelScrollDown) ) {
 			m_worm->bForceWeapon_Name = true;
 			m_worm->fForceWeapon_Time = tLX->currentTime + 0.75f;
 			if( ms->WheelScrollUp )
 				m_worm->iCurrentWeapon ++;
 			else
 				m_worm->iCurrentWeapon --;
-			if(m_worm->iCurrentWeapon >= (int)m_worm->tWeapons.size())
+			if(m_worm->iCurrentWeapon >= m_worm->getWeaponSlotsCount())
 				m_worm->iCurrentWeapon = 0;
 			if(m_worm->iCurrentWeapon < 0)
-				m_worm->iCurrentWeapon = (int)m_worm->tWeapons.size() - 1;
+				m_worm->iCurrentWeapon = m_worm->getWeaponSlotsCount() - 1;
 		}
 	}
 
@@ -275,11 +275,11 @@ void CWormHumanInputHandler::getInput() {
 	}
 
 	
-	bool allocombo = cClient->getGameLobby()[FT_WeaponCombos];
+	const bool allowCombo = cClient->getGameLobby()[FT_WeaponCombos];
 	
 	ws->bShoot = cShoot.isDown();
 
-	if(!ws->bShoot || allocombo) {
+	if(m_worm->getWeaponSlotsCount() > 0 && (!ws->bShoot || allowCombo)) {
 		//
 		// Weapon changing
 		//
@@ -291,12 +291,12 @@ void CWormHumanInputHandler::getInput() {
 			// we don't want keyrepeats here, so only count the first down-event
 			int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
 			m_worm->iCurrentWeapon += change;
-			MOD(m_worm->iCurrentWeapon, m_worm->tWeapons.size());
+			MOD(m_worm->iCurrentWeapon, m_worm->getWeaponSlotsCount());
 
 			// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
 			if (cSelWeapon.isJoystick() && change == 0 && cSelWeapon.isDownOnce())  {
 				m_worm->iCurrentWeapon++;
-				MOD(m_worm->iCurrentWeapon, m_worm->tWeapons.size());
+				MOD(m_worm->iCurrentWeapon, m_worm->getWeaponSlotsCount());
 			}
 		}
 
@@ -306,6 +306,7 @@ void CWormHumanInputHandler::getInput() {
 			if( cWeapons[i].isDown() )
 			{
 				m_worm->iCurrentWeapon = i;
+				MOD(m_worm->iCurrentWeapon, m_worm->getWeaponSlotsCount());
 				// Let the weapon name show up for a short moment
 				m_worm->bForceWeapon_Name = true;
 				m_worm->fForceWeapon_Time = tLX->currentTime + 0.75f;
@@ -313,10 +314,6 @@ void CWormHumanInputHandler::getInput() {
 		}
 
 	}
-
-	// Safety: clamp the current weapon
-	m_worm->iCurrentWeapon = CLAMP((int)m_worm->iCurrentWeapon, 0, (int)m_worm->tWeapons.size()-1);
-
 
 
 	if(!cSelWeapon.isDown()) {
