@@ -2425,22 +2425,6 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 	if(!w) return;
 	
 	w->bWeaponsReady = false;
-	if(client->OwnsWorm(w->getID())) {
-		notes << "server sends us SelectWeapons for worm " << w->getID() << endl;
-		
-		if(game.gameScript()->gusEngineUsed()) {
-			if(CWormHumanInputHandler* player = dynamic_cast<CWormHumanInputHandler*> (w->inputHandler()))
-				// this will restart the weapon selection in most mods
-				game.onNewHumanPlayer_Lua(player);
-			else
-				//notes << "SelectWeapons in Gusanos for bots not supported yet" << endl;
-				game.onNewPlayer_Lua(w->inputHandler());
-		} else {	
-			client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
-			client->bReadySent = false;
-			w->initWeaponSelection();
-		}
-	}
 }
 
 void CClientNetEngineBeta9::ParsePlaySound(CBytestream* bs) {

@@ -740,8 +740,28 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 
 
 void CWorm::onWeaponsReadyUpdate(BaseObject *obj, const AttrDesc *attrDesc, ScriptVar_t old) {
+	CWorm* w = dynamic_cast<CWorm*>(obj);
+	assert(w != NULL);
+
 	if(game.isServer() && cServer)
 		cServer->RecheckGame();
+
+	// re-init weapon selection if needed
+	if(game.state >= Game::S_Preparing && w->getLocal() && !w->bWeaponsReady) {
+		if(game.gameScript()->gusEngineUsed()) {
+			if(CWormHumanInputHandler* player = dynamic_cast<CWormHumanInputHandler*> (w->inputHandler()))
+				// this will restart the weapon selection in most mods
+				game.onNewHumanPlayer_Lua(player);
+			else
+				//notes << "SelectWeapons in Gusanos for bots not supported yet" << endl;
+				game.onNewPlayer_Lua(w->inputHandler());
+		} else {
+			cClient->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
+			cClient->setReadySent(false);
+			w->initWeaponSelection();
+		}
+	}
+
 }
 
 ///////////////////
