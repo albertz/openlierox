@@ -1,14 +1,12 @@
 #include <cstdlib>
 #include "context.h"
+#include "Debug.h"
 
 extern "C"
 {
 	#include "lualib.h"
 }
 
-#include <iostream>
-using std::cerr;
-using std::endl;
 
 #include "gusanos/netstream.h"
 #include "util/Bitstream.h"
@@ -38,7 +36,7 @@ int LuaContext::errorReport(lua_State* L)
 	else
 		s += 2; // Skip until beginning of message
 	
-	char const* lastname;
+	char const* lastname = NULL;
 	
 	for(int i = 1; lua_getstack(context, i, &info); ++i)
 	{
@@ -47,9 +45,9 @@ int LuaContext::errorReport(lua_State* L)
 		char const* name = info.name ? info.name : "N/A";
 		
 		if(i == 1)
-			cerr << info.source << ":" << info.currentline << ": " << s << endl;
+			notes << info.source << ":" << info.currentline << ": " << s << endl;
 		else
-			cerr << info.source << ":" << info.currentline << ": " << lastname << " called from here" << endl;
+			notes << info.source << ":" << info.currentline << ": " << lastname << " called from here" << endl;
 		
 		lastname = name;
 	}
@@ -147,7 +145,7 @@ void LuaContext::load(std::string const& chunk, istream& stream)
 	
 	if(result)
 	{
-		cerr << "Lua error: " << lua_tostring(m_State, -1) << endl;
+		notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
 		pop(2);
 		return;
 	}
@@ -206,7 +204,7 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 	
 	if(result)
 	{
-		cerr << "Lua error: " << lua_tostring(m_State, -1) << endl;
+		notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
 		pop(2);
 		return 0;
 	}
@@ -219,7 +217,7 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 		case LUA_ERRMEM:
 		case LUA_ERRERR:
 		{
-			cerr << lua_tostring(m_State, -1) << endl;
+			notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
 			pop(2); // Pop error message and error function
 			return 0;
 		}
@@ -275,7 +273,7 @@ int LuaContext::evalExpression(std::string const& chunk, istream& stream)
 	
 	if(result)
 	{
-		cerr << "Lua error: " << lua_tostring(m_State, -1) << endl;
+		notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
 		pop(2);
 		return 0;
 	}
@@ -288,7 +286,7 @@ int LuaContext::evalExpression(std::string const& chunk, istream& stream)
 		case LUA_ERRMEM:
 		case LUA_ERRERR:
 		{
-			cerr << lua_tostring(m_State, -1) << endl;
+			notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
 			pop(2); // Pop error message and error function
 			return 0;
 		}
