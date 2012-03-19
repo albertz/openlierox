@@ -42,23 +42,6 @@ struct LuaCallbacks
 
 extern LuaCallbacks luaCallbacks;
 
-/*
-// This is GCC specific, because I can't find a way to do it in standard C++ :/
-#define LUA_NEW(t_, param_) \
-({ \
-	void* space = lua.pushObject(t_::metaTable(), sizeof(t_)); \
-	t_* p = new (space) t_ param_; \
-	p->luaReference = lua.createReference(); \
-	p; \
-})
-
-
-#define LUA_DELETE(t_, p_) { \
-	t_* p = (p_); \
-	p->~t_(); \
-	lua.destroyReference(p->luaReference); \
-}*/
-
 struct LuaObject
 {
 	bool deleted;
