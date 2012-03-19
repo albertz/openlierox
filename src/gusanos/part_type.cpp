@@ -555,11 +555,6 @@ bool PartType::load(std::string const& filename)
 }
 
 
-void PartType::makeReference()
-{
-	lua.pushFullReference(*this, metaTable);
-}
-
 void PartType::finalize()
 {
 	delete groundCollision; groundCollision = 0;

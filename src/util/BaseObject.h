@@ -14,6 +14,7 @@
 #include "CodeAttributes.h"
 #include "WeakRef.h"
 #include "game/ClassInfo.h"
+#include "gusanos/glua.h"
 
 typedef uint16_t ObjId;
 
@@ -46,7 +47,7 @@ struct ObjRef {
 
 struct AttrUpdateInfo;
 
-struct BaseObject {
+struct BaseObject : LuaObject {
 	typedef ::WeakRef<BaseObject> WeakRef;
 
 	BaseObject();

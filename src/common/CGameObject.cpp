@@ -101,44 +101,6 @@ bool CGameObject::isInside(int x, int y) const {
 	return abs((int)pos().get().x - x) + 1 <= s.x && abs((int)pos().get().y - y) + 1 <= s.y;
 }
 
-/*
- LuaReference CGameObject::getLuaReference()
- {
- if(luaReference)
- return luaReference;
- else
- {
- lua.pushFullReference(*this, metaTable);
- luaReference = lua.createReference();
- return luaReference;
- }
- }*/
-
-void CGameObject::makeReference()
-{
-	lua.pushFullReference(*this, metaTable);
-}
-
-/*
- void CGameObject::pushLuaReference()
- {
- lua.push(getLuaReference());
- }
- 
- void CGameObject::deleteThis()
- {
- finalize();
- 
- if(luaReference)
- {
- lua.destroyReference(luaReference);
- luaReference.reset();
- }
- else
- delete this;
- }
- */
-
 
 
 // -------

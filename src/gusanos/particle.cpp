@@ -529,23 +529,6 @@ void Particle::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules
 		m_node->sendEventDirect(mode, data, connID);
 }
 
-void Particle::makeReference()
-{
-	lua.pushFullReference(*this, metaTable);
-}
-
-/*
-LuaReference Particle::getLuaReference()
-{
-	if(luaReference)
-		return luaReference;
-	else
-	{
-		lua.pushFullReference(*this, metaTable);
-		luaReference = lua.createReference();
-		return luaReference;
-	}
-}*/
 
 void Particle::finalize()
 {

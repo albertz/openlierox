@@ -651,8 +651,8 @@ public:
 	};
 	
 	static LuaReference metaTable;
-	//static int const luaID = 2;
-		
+	virtual LuaReference getMetaTable() const { return metaTable; }
+
 	void draw(CViewport* viewport);
 	
 	void calculateReactionForce(VectorD2<long> origin, Direction dir);
@@ -718,7 +718,6 @@ public:
 
 	void sendWeaponMessage( int index, BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
 	
-	virtual void makeReference();
 	virtual void finalize();
 	
 	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID);

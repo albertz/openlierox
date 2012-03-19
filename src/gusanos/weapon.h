@@ -17,7 +17,7 @@ public:
 	friend class CWorm;
 	
 	static LuaReference metaTable;
-	//static int const luaID = 4;
+	virtual LuaReference getMetaTable() const { return metaTable; }
 
 	enum Actions
 	{
@@ -60,7 +60,6 @@ public:
 	int getReloadTime() { return reloadTime.asInt(); }
 	int getAmmo() { return ammo; }
 	
-	virtual void makeReference();
 	virtual void finalize();
 	
 	bool reloading;

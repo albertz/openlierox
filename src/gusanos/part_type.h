@@ -38,7 +38,8 @@ class PartType : public ResourceBase
 public:
 	
 	static LuaReference metaTable;
-		
+	virtual LuaReference getMetaTable() const { return metaTable; }
+
 	PartType();
 	~PartType();
 	
@@ -46,7 +47,6 @@ public:
 	bool isSimpleParticleType();
 	bool load(std::string const& filename);
 	
-	virtual void makeReference();
 	virtual void finalize();
 
 #ifndef DEDICATED_ONLY

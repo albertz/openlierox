@@ -303,11 +303,6 @@ void Weapon::useAmmo( int amount )
 		ammo = 0;
 }
 
-void Weapon::makeReference()
-{
-	lua.pushFullReference(*this, metaTable);
-}
-
 void Weapon::finalize()
 {
 	m_owner = 0;

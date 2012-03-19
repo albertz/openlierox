@@ -30,7 +30,7 @@ struct ALLEGRO_BITMAP;
 class CViewport;
 class CWormInputHandler;
 
-class CGameObject : public CustomVar, public LuaObject {
+class CGameObject : public CustomVar {
 public:
 	CGameObject();
 	CGameObject(CWormInputHandler* owner, Vec pos_ = Vec(), Vec spd_ = Vec() );
@@ -73,8 +73,8 @@ public:
 	
 public:
 	static LuaReference metaTable;
-	//static int const luaID = 1;
-	
+	virtual LuaReference getMetaTable() const { return metaTable; }
+
 	void gusInit( CWormInputHandler* owner = 0, Vec pos_ = Vec(), Vec spd_ = Vec() );
 	void gusShutdown();
 	
@@ -115,9 +115,7 @@ public:
 	
 	// Deletes the object
 	//void deleteThis();
-	
-	virtual void makeReference();
-	
+		
 #ifndef DEDICATED_ONLY
 	// Sets a destination alpha value and the time in logic frames it will take to reach that value
 	virtual void setAlphaFade( int frames, int dest )

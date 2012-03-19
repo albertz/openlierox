@@ -197,11 +197,6 @@ bool WeaponType::load(std::string const& filename)
 	return true;
 }
 
-void WeaponType::makeReference()
-{
-	lua.pushFullReference(*this, metaTable);
-}
-
 void WeaponType::finalize()
 {
 	delete primaryShoot;

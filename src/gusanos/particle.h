@@ -25,8 +25,8 @@ public:
 	friend class ParticleInterceptor;
 	
 	static LuaReference metaTable;
-	//static int const luaID = 3;
-	
+	virtual LuaReference getMetaTable() const { return metaTable; }
+
 	enum Flags
 	{
 		FaceRight = (1<<0),
@@ -51,12 +51,9 @@ public:
 #endif
 	void customEvent( size_t index );
 	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID);
-	//virtual LuaReference getLuaReference();
-	//virtual void pushLuaReference();
 	void damage(float amount, CWormInputHandler* damager );
 	void remove();
 	//virtual void deleteThis();
-	virtual void makeReference();
 	virtual void finalize();
 	
 	int getDir() { return (flags & FaceRight) ? 1 : -1; }

@@ -19,13 +19,13 @@ class WeaponType : public ResourceBase
 {
 public:
 	static LuaReference metaTable;
-	
+	virtual LuaReference getMetaTable() const { return metaTable; }
+
 	WeaponType();
 	~WeaponType();
 	
 	bool load(const std::string &filename);
 	
-	virtual void makeReference();
 	virtual void finalize();
 
 	int ammo;

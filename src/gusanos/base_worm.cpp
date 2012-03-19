@@ -831,11 +831,6 @@ void CWorm::actionStop( Actions action )
 	}
 }
 
-void CWorm::makeReference()
-{
-	lua.pushFullReference(*this, metaTable);
-}
-
 void CWorm::finalize()
 {
 	EACH_CALLBACK(i, wormRemoved) {

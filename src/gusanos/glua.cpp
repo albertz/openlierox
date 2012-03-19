@@ -61,9 +61,9 @@ void LuaObject::pushLuaReference()
 }
 
 // this function is overriden by each sub-object-type (e.g. CWorm, etc.)
-void LuaObject::makeReference()
+LuaReference LuaObject::getMetaTable() const
 {
-	lua_pushnil(lua);
+	return LuaReference();
 }
 
 LuaReference LuaObject::getLuaReference()
@@ -73,8 +73,12 @@ LuaReference LuaObject::getLuaReference()
 		return luaReference;
 	else
 	{
-		makeReference();
+		LuaReference metatable = getMetaTable();
+		if(!metatable) return LuaReference();
+
+		lua.pushFullReference(*this, metatable);
 		luaReference = lua.createReference();
+
 		return luaReference;
 	}
 }

@@ -5,7 +5,6 @@
 #include <vector>
 #include "luaapi/types.h"
 #include "CodeAttributes.h"
-#include "util/BaseObject.h"
 
 #define C_LocalPlayer_ActionCount 8
 
@@ -54,10 +53,10 @@ struct LuaObject
 	LuaObject(const LuaObject&) : deleted(false) {}
 	LuaObject& operator=(const LuaObject&) { return *this; }
 
-	void pushLuaReference();	
+	void pushLuaReference();
 	LuaReference getLuaReference();	
-	virtual void makeReference();
-	
+	virtual LuaReference getMetaTable() const;
+
 	virtual void finalize() {}
 	virtual void deleteThis();	
 };
