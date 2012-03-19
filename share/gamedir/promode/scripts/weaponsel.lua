@@ -258,7 +258,7 @@ function weaponsel.init()
 			player:data().weaponSelection.finished = 1
 			-- this immediate start was added for OLX:
 			if isTeamPlay() then
-				local hax = console["joinred"]
+				console.p0_team = 1
 				console.p1_team = 1
 			else
 				console.p0_team = 1
