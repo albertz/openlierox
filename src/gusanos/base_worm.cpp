@@ -435,7 +435,7 @@ Angle CWorm::getPointingAngle()
 
 int CWorm::getWeaponIndexOffset( int offset )
 {
-	if ( m_weaponCount > 0 ) {
+	if ( m_weapons.size() > 0 ) {
 		if(offset < 0)
 			offset = -1;
 		else if(offset > 0)
@@ -445,7 +445,7 @@ int CWorm::getWeaponIndexOffset( int offset )
 
 		unsigned int i = currentWeapon;
 		do
-			i = (i + offset + m_weaponCount) % m_weaponCount;
+			i = (i + offset + m_weapons.size()) % m_weapons.size();
 		while(!m_weapons[i] && i != currentWeapon);
 
 		return i;

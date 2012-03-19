@@ -746,7 +746,6 @@ protected:
 	size_t currentWeapon;
 	
 	std::vector<Weapon*> m_weapons;
-	int m_weaponCount;
 	
 	CWormInputHandler* m_lastHurt;
 	

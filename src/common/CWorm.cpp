@@ -357,12 +357,10 @@ void CWorm::Prepare()
 	currentWeapon = 0;
 
 	m_weapons.assign(gusGame.options.maxWeapons, 0 );
-	m_weaponCount = 0;
 
 	if(gusGame.weaponList.size() > 0)
 		for ( size_t i = 0; i < m_weapons.size(); ++i ) {
 			m_weapons[i] = new Weapon(gusGame.weaponList[rndInt(gusGame.weaponList.size())], this);
-			m_weaponCount++;
 		}
 
 	cNinjaRope.write().gusInit();
