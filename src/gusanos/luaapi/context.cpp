@@ -367,42 +367,53 @@ void LuaContext::function(char const* name, lua_CFunction func, int upvalues)
 	lua_setfield(m_State, LUA_GLOBALSINDEX, name);
 }
 
-void LuaContext::tableFunction(char const* name, lua_CFunction func)
+void LuaContext::tableFunction(char const* name, lua_CFunction func) // [0,0]
 {
 	lua_pushstring(m_State, name);
 	lua_pushcfunction(m_State, func);
 	lua_rawset(m_State, -3);
 }
 
-LuaReference LuaContext::createReference()
+static int getRegTable(lua_State* L, int index) { // [0,0]
+	lua_rawgeti(L, LUA_REGISTRYINDEX, index);
+	int ret = static_cast<int>(lua_tointeger(L, -1));
+	lua_settop(L, -2);
+	return ret;
+}
+
+static void setRegTable(lua_State* L, int index, int value) { // [0,0]
+	lua_pushinteger(L, static_cast<lua_Integer>(value));
+	lua_rawseti(L, LUA_REGISTRYINDEX, index);
+}
+
+LuaReference LuaContext::createReference() // [-1,0]
 {
-	int ref;
-	int t = LUA_REGISTRYINDEX;
-	lua_rawgeti(m_State, t, FREELIST_REF);
-	//ref = (int)lua_tonumber(m_State, -1);
-	ref = static_cast<int>(lua_tointeger(m_State, -1));
-	lua_settop(m_State, -2);
+	// FREELIST_REF is a single-linked list of free RegistryTable slots.
+	// It points to a free ref. If the value at the ref is non-zero, it again
+	// points to another free ref, etc.
+	// In destroyReference, we add entries to that list.
+
+	int ref = getRegTable(m_State, FREELIST_REF);
+
 	if(ref != 0)
 	{
-		lua_rawgeti(m_State, t, ref);
-		lua_rawseti(m_State, t, FREELIST_REF);
+		lua_rawgeti(m_State, LUA_REGISTRYINDEX, ref);
+		lua_rawseti(m_State, LUA_REGISTRYINDEX, FREELIST_REF);
+		// LuaRegistry[FREELIST_REF] = LuaRegistry[ref]
 	}
 	else
 	{
-		lua_rawgeti(m_State, t, ARRAY_SIZE);
-		//ref = (int)lua_tonumber(m_State, -1);
-		ref = static_cast<int>(lua_tointeger(m_State, -1));
-		//lua_pushnumber(m_State, ref + 1);
-		lua_pushinteger(m_State, static_cast<lua_Integer>(ref + 1));
-		lua_rawseti(m_State, t, ARRAY_SIZE);
-		lua_settop(m_State, -2);
+		// LuaRegistry[ARRAY_SIZE] is initialized with 3. (LuaContext::init)
+		ref = getRegTable(m_State, ARRAY_SIZE);
+		setRegTable(m_State, ARRAY_SIZE, ref + 1);
 	}
-	
-	lua_rawseti(m_State, t, ref);
+
+	lua_rawseti(m_State, LUA_REGISTRYINDEX, ref);
+	// LuaRegistry[ref] = StackTop
 	return LuaReference(ref);
 }
 
-void LuaContext::assignReference(LuaReference ref)
+void LuaContext::assignReference(LuaReference ref) // [-1,0]
 {
 	if (ref.idx > 2)
 	{
@@ -416,12 +427,9 @@ void LuaContext::destroyReference(LuaReference ref)
 {
 	if (ref.idx > 2)
 	{
-    	int t = LUA_REGISTRYINDEX;
-		lua_rawgeti(m_State, t, FREELIST_REF);
-		lua_rawseti(m_State, t, ref.idx);  /* t[ref] = t[FREELIST_REF] */
-		//lua_pushnumber(m_State, (lua_Number)ref.idx);
-		lua_pushinteger(m_State, static_cast<lua_Integer>(ref.idx));
-		lua_rawseti(m_State, t, FREELIST_REF);  /* t[FREELIST_REF] = ref */
+		lua_rawgeti(m_State, LUA_REGISTRYINDEX, FREELIST_REF);
+		lua_rawseti(m_State, LUA_REGISTRYINDEX, ref.idx);	/* t[ref] = t[FREELIST_REF] */
+		setRegTable(m_State, FREELIST_REF, ref.idx);	/* t[FREELIST_REF] = ref */
 	}
 }
 
