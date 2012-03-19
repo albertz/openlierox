@@ -144,7 +144,7 @@ int l_worm_getHealth_depr(lua_State* L)
 #endif
 
 METHODC(CWorm, worm_isChanging,  {
-	context.push(p->isChanging());
+	context.push(p->isChangingWpn());
 	return 1;
 })
 

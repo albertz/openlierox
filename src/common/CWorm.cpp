@@ -1208,10 +1208,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the weapon name
 	if(bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
-		bool drawWpnName = bForceWeapon_Name;
-		if(CWormHumanInputHandler* h = dynamic_cast<CWormHumanInputHandler*>(m_inputHandler))
-			drawWpnName |= h->getInputWeapon().isDown();
-		if(drawWpnName) {
+		if(isChangingWpn()) {
 			if(Slot->weapon())
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->weapon()->Name);
 

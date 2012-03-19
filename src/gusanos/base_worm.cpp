@@ -718,6 +718,14 @@ void CWorm::changeWeaponTo( unsigned int weapIndex )
 		iCurrentWeapon = weapIndex;
 }
 
+bool CWorm::isChangingWpn() {
+	if(changing) return true;
+	if(bForceWeapon_Name) return true;
+	if(CWormHumanInputHandler* h = dynamic_cast<CWormHumanInputHandler*>(m_inputHandler))
+		if(h->getInputWeapon().isDown()) return true;
+	return false;
+}
+
 void CWorm::damage( float amount, CWormInputHandler* damager )
 {
 	if( m_isAuthority || !m_node ) {

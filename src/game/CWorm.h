@@ -670,10 +670,7 @@ public:
 	Vec getRenderPos();
 #endif
 	
-	bool isChanging()
-	{
-		return changing;
-	}
+	bool isChangingWpn();
 	
 	virtual void damage( float amount, CWormInputHandler* damager );
 	
