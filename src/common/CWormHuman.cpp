@@ -1182,7 +1182,7 @@ void CWormHumanInputHandler::OlxInputToGusEvents()
 	// Note: We should use the following in all cases.
 	// Right now, it doesn't really work with Gus
 	// wpn selection and some other minor stuff.
-	if(m_worm->getAlive()) {
+	if(m_worm->getAlive() && m_worm->bWeaponsReady) {
 		CWormInputHandler::OlxInputToGusEvents();
 		return;
 	}

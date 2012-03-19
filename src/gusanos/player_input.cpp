@@ -33,6 +33,9 @@ std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std
 		
 		bool ignore = false;
 		
+		if(!player.worm()->bWeaponsReady)
+			ignore = true;
+
 		EACH_CALLBACK(i, localplayerEvent+action)
 		{
 			int n = (lua.call(*i, 1), player.getLuaReference(), true)();
@@ -48,7 +51,7 @@ std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std
 				ignore = true;
 			lua.pop(n);
 		}
-		
+
 		if(!ignore)
 			player.actionStart(action);
 	}
@@ -64,7 +67,10 @@ std::string eventStop(size_t index, CWormHumanInputHandler::Actions action, std:
 		CWormHumanInputHandler& player = *game.localPlayers[index];
 		
 		bool ignore = false;
-		
+
+		if(!player.worm()->bWeaponsReady)
+			ignore = true;
+
 		EACH_CALLBACK(i, localplayerEvent+action)
 		{
 			int n = (lua.call(*i, 1), player.getLuaReference(), false)();
