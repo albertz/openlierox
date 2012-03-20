@@ -85,7 +85,10 @@ void LuaContext::log(std::ostream& str)
 }
 
 LuaContext::LuaContext() : m_State(NULL) {}
-LuaContext::LuaContext(lua_State* state_) : m_State(state_) {}
+LuaContext::LuaContext(lua_State* state_) : m_State(state_) {
+	if(m_State == lua.m_State)
+		weakRef = lua.weakRef;
+}
 
 namespace
 {
@@ -105,6 +108,8 @@ void LuaContext::init()
 {
 	//m_State = lua_open();
 	m_State = lua_newstate(l_alloc, 0);
+	weakRef.set(m_State);
+
 	lua_pushinteger(m_State, 3);
 	lua_rawseti(m_State, LUA_REGISTRYINDEX, ARRAY_SIZE);
 	
@@ -116,8 +121,7 @@ void LuaContext::init()
 
 void LuaContext::reset()
 {
-	if(m_State)
-		lua_close(m_State);
+	close();
 	init();
 }
 
@@ -385,6 +389,9 @@ static void setRegTable(lua_State* L, int index, int value) { // [0,0]
 
 LuaReference LuaContext::createReference() // [-1,0]
 {
+	assert(m_State != NULL);
+	assert(weakRef);
+
 	// FREELIST_REF is a single-linked list of free RegistryTable slots.
 	// It points to a free ref. If the value at the ref is non-zero, it again
 	// points to another free ref, etc.
@@ -407,7 +414,7 @@ LuaReference LuaContext::createReference() // [-1,0]
 
 	lua_rawseti(m_State, LUA_REGISTRYINDEX, ref);
 	// LuaRegistry[ref] = StackTop
-	return LuaReference(ref);
+	return LuaReference(ref, weakRef);
 }
 
 void LuaContext::assignReference(LuaReference ref) // [-1,0]
@@ -811,6 +818,7 @@ void LuaContext::close()
 	if(m_State)
 		lua_close(m_State);
 	m_State = NULL;
+	weakRef.overwriteShared(NULL);
 }
 
 LuaContext::~LuaContext()
@@ -819,4 +827,9 @@ LuaContext::~LuaContext()
 	// probably via the LuaContext(lua_State*) constructor.
 	// In that case, it would almost certainly be wrong to close the m_State here.
 	// Thus, we don't do it. Thus, lua.close() must be called manually.
+}
+
+LuaReference::LuaReference(int idx_, const WeakRef<lua_State>& ref_) {
+	idx = idx_;
+	luaState = ref_;
 }

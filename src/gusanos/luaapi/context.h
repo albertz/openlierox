@@ -8,6 +8,7 @@ extern "C"
 
 #include "gusanos/luaapi/types.h"
 #include "CodeAttributes.h"
+#include "util/WeakRef.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -142,7 +143,7 @@ public:
 	LuaContext();	
 	LuaContext(lua_State* state_);
 	
-	void init();	
+	void init();
 	void reset();
 	
 	static const char * istreamChunkReader(lua_State *L, void *data, size_t *size);
@@ -474,6 +475,8 @@ public:
 	
 	~LuaContext();
 	
+	WeakRef<lua_State> weakRef;
+
 private:
 	lua_State *m_State;
 	//std::map<std::string, LuaReference> metaTables;

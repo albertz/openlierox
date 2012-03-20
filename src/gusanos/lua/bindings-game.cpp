@@ -34,7 +34,7 @@ using boost::lexical_cast;
 namespace LuaBindings
 {
 	
-LuaReference playerIterator(0);
+LuaReference playerIterator;
 LuaReference CWormInputHandlerMetaTable;
 
 LUA_CALLBACK(luaControl(LuaReference ref, size_t playerIdx, bool state, std::list<std::string> const& args))

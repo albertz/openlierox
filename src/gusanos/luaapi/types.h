@@ -6,30 +6,25 @@
 extern "C" {
 #include "lua.h"
 }
+#include "util/WeakRef.h"
 
 struct LuaReference
 {
-	LuaReference()
-	: idx(0)
-	{
+	LuaReference() : idx(0) {}
+	
+	explicit LuaReference(int idx_, const WeakRef<lua_State>& ref_);
+	
+	operator bool() {
+		return idx != 0 && luaState;
 	}
 	
-	explicit LuaReference(int idx_)
-	: idx(idx_)
-	{
-	}
-	
-	operator bool()
-	{
-		return idx != 0;
-	}
-	
-	void reset()
-	{
+	void reset() {
 		idx = 0;
+		luaState.set(NULL);
 	}
 	
 	int idx;
+	WeakRef<lua_State> luaState;
 };
 
 
