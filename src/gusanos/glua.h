@@ -39,6 +39,8 @@ struct LuaCallbacks
 	std::vector<LuaReference> callbacks[max];
 };
 
+class LuaContext;
+
 extern LuaCallbacks luaCallbacks;
 
 struct LuaObject
@@ -53,7 +55,7 @@ struct LuaObject
 	LuaObject(const LuaObject&) : deleted(false) {}
 	LuaObject& operator=(const LuaObject&) { return *this; }
 
-	void pushLuaReference();
+	void pushLuaReference(LuaContext& context);
 	LuaReference getLuaReference();	
 	virtual LuaReference getMetaTable() const;
 

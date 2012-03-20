@@ -32,39 +32,34 @@ using std::endl;
 using boost::lexical_cast;
 
 
-static void pushLuaError(LuaContext& context, const std::string& s) {
-	lua_pushstring(context, s.c_str());
-	lua_error(context);
-}
-
 static int l_baseObject_set(lua_State* L) {
 	LuaContext context(L);
 
 	CustomVar* obj = getObject<CustomVar>(context, 1);
 	if(!obj) {
-		pushLuaError(context, "baseobject:newindex(): called on invalid object. Did you use '.' instead of ':'?");
+		context.pushError("baseobject:newindex(): called on invalid object. Did you use '.' instead of ':'?");
 		return 0;
 	}
 
 	if(obj->thisRef.classId == ClassId(-1)) {
-		pushLuaError(context, "baseobject:newindex(): no classId assoziated");
+		context.pushError("baseobject:newindex(): no classId assoziated");
 		return 0;
 	}
 
 	char const* attribName = lua_tostring(context, 2);
 	if(!attribName) {
-		pushLuaError(context, "baseobject:newindex() " + obj->thisRef.description() + ": expected a string as second param");
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": expected a string as second param");
 		return 0;
 	}
 
 	const AttrDesc* attrDesc = findAttrDescByName(attribName, obj->thisRef.classId, true);
 	if(!attrDesc) {
-		pushLuaError(context, "baseobject:newindex() " + obj->thisRef.description() + ": no attrib '" + attribName + "'");
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": no attrib '" + attribName + "'");
 		return 0;
 	}
 
 	if(lua_isnil(L, 3)) {
-		pushLuaError(context, "baseobject:newindex() " + obj->thisRef.description() + ": " + attrDesc->description() + " cannot be set to nil");
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + attrDesc->description() + " cannot be set to nil");
 		return 0;
 	}
 
@@ -82,13 +77,13 @@ static int l_baseObject_get(lua_State* L) {
 
 	CustomVar* obj = getObject<CustomVar>(context, 1);
 	if(!obj) {
-		pushLuaError(context, "baseobject:index(): called on invalid object. Did you use '.' instead of ':'?");
+		context.pushError("baseobject:index(): called on invalid object. Did you use '.' instead of ':'?");
 		return 0;
 	}
 
 	char const* attribName = lua_tostring(context, 2);
 	if(!attribName) {
-		pushLuaError(context, "baseobject:index() " + obj->thisRef.description() + ": expected a string as second param");
+		context.pushError("baseobject:index() " + obj->thisRef.description() + ": expected a string as second param");
 		return 0;
 	}
 
@@ -105,13 +100,13 @@ static int l_baseObject_get(lua_State* L) {
 	}
 
 	if(obj->thisRef.classId == ClassId(-1)) {
-		pushLuaError(context, "baseobject:index(): no classId assoziated");
+		context.pushError("baseobject:index(): no classId assoziated");
 		return 0;
 	}
 
 	const AttrDesc* attrDesc = findAttrDescByName(attribName, obj->thisRef.classId, true);
 	if(!attrDesc) {
-		pushLuaError(context, "baseobject:index() " + obj->thisRef.description() + ": no attrib '" + attribName + "'");
+		context.pushError("baseobject:index() " + obj->thisRef.description() + ": no attrib '" + attribName + "'");
 		return 0;
 	}
 
@@ -132,7 +127,7 @@ static int l_baseObject_tostring(lua_State* L) {
 
 	CustomVar* obj = getObject<CustomVar>(context, 1);
 	if(!obj) {
-		pushLuaError(context, "baseobject:tostring(): called on invalid object. Did you use '.' instead of ':'?");
+		context.pushError("baseobject:tostring(): called on invalid object. Did you use '.' instead of ':'?");
 		return 0;
 	}
 
@@ -253,7 +248,7 @@ int shootFromObject(lua_State* L, CGameObject* object)
 	
 	if(last)
 	{
-		last->pushLuaReference();
+		last->pushLuaReference(context);
 		return 1;
 	}
 	
@@ -365,8 +360,7 @@ int l_worm_shoot(lua_State* L)
 METHODC(CWorm, worm_current_weapon,  {
 	if(Weapon* w = p->getCurrentWeaponRef())
 	{
-		//context.pushFullReference(*w, WeaponMetaTable);
-		w->pushLuaReference();
+		w->pushLuaReference(context);
 		return 1;
 	}
 	return 0;
@@ -605,7 +599,7 @@ METHODC(CGameObject, baseObject_getClosestWorm,  {
 	if(!minWorm)
 		return 0;
 		
-	minWorm->pushLuaReference();
+	minWorm->pushLuaReference(context);
 
 	return 1;
 })
@@ -728,8 +722,7 @@ METHODC(Weapon, weaponinst_ammo,  {
 	Returns the weapon type in the form of a WeaponType object.
 */
 METHODC(Weapon, weaponinst_type,  {
-	//context.pushFullReference(*p->getType(), WeaponTypeMetaTable);
-	p->getType()->pushLuaReference();
+	p->getType()->pushLuaReference(context);
 	return 1;
 })
 

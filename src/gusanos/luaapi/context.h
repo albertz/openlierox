@@ -248,7 +248,7 @@ public:
 	template<class T>
 	LuaContext& push(T* v)
 	{
-		v->pushLuaReference();
+		v->pushLuaReference(*this);
 		return *this;
 	}
 	
@@ -341,6 +341,11 @@ public:
 		return *this;
 	}
 	
+	void pushError(const std::string& msg) {
+		lua_pushstring(*this, msg.c_str());
+		lua_error(*this);
+	}
+
 	LuaContext& rawgeti(int table, int key)
 	{
 		lua_rawgeti(m_State, table, key);

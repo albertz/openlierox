@@ -86,6 +86,8 @@ int l_console_register_control(lua_State* L)
 
 
 
+//! version OLX 0.59 b9 (or so)
+
 static int l_olx_getVar(lua_State* L) {
 	LuaContext context(L);
 	
@@ -111,21 +113,25 @@ static int l_olx_getVar(lua_State* L) {
 	}
 	
 	switch(varptr->var.type) {
-		case SVT_BOOL:	lua_pushnumber(L, *varptr->var.ptr.b); break;
-		case SVT_INT32:	lua_pushnumber(L, *varptr->var.ptr.i); break;
-		case SVT_FLOAT:	lua_pushnumber(L, *varptr->var.ptr.f); break;
-		default:		lua_pushstring(L, varptr->var.toString().c_str());
+	case SVT_BOOL:		lua_pushnumber(L, *varptr->var.ptr.b); break;
+	case SVT_INT32:		lua_pushnumber(L, *varptr->var.ptr.i); break;
+	case SVT_UINT64:	lua_pushnumber(L, *varptr->var.ptr.i); break;
+	case SVT_FLOAT:		lua_pushnumber(L, *varptr->var.ptr.f); break;
+	default:			lua_pushstring(L, varptr->var.toString().c_str());
 	}
 
 	return 1;
 }
+
+//! version OLX 0.59 b9 (or so)
 
 static int l_olx_setLevelSucceeded(lua_State* L) {
 	singlePlayerGame.setLevelSucceeded();
 	return 0;
 }
 
-		
+//! version OLX 0.59 b9 (or so)
+
 static int l_olx_message(lua_State* L) {
 	std::string msg = lua_tostring(L,1);
 	notes << "Lua: OLX message: " << msg << endl;
@@ -241,7 +247,7 @@ METHODC(CWormInputHandler, player_team,  {
 METHODC(CWormInputHandler, player_worm,  {
 	if(CWorm* worm = p->getWorm())
 	{
-		worm->pushLuaReference();
+		worm->pushLuaReference(context);
 		return 1;
 	}
 	return 0;
@@ -361,6 +367,8 @@ METHOD(CWormInputHandler, player_destroy, {
 
 int l_game_getClosestWorm(lua_State* L)
 {
+	LuaContext context(L);
+
 	Vec from((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2));
 	
 	CWorm* minWorm = 0;
@@ -384,7 +392,7 @@ int l_game_getClosestWorm(lua_State* L)
 	if(!minWorm)
 		return 0;
 		
-	minWorm->pushLuaReference();
+	minWorm->pushLuaReference(context);
 	return 1;
 }
 
@@ -438,6 +446,62 @@ int l_map_isParticlePass(lua_State* L)
 	return 1;
 }
 
+
+static int l_worms_get(lua_State* L) {
+	LuaContext context(L);
+
+	if(lua_isnumber(L, 2)) {
+		// try worm index
+		int i = lua_tointeger(L, 2);
+		CWorm* w = game.wormById(i, false);
+		if(!w) {
+			context.pushError("worm ID " + itoa(i) + " is invalid");
+			return 0;
+		}
+		 w->pushLuaReference(context);
+		 return 1;
+	}
+
+	const char* _s = lua_tostring(L, 2); // attrib
+	if(_s == NULL) return 0;
+	std::string s = _s;
+
+	// check if "w[0-9]+"
+	if(s.size() >= 2 && s[0] == 'w') {
+		bool fail = false;
+		uint i = from_string<uint>(s.substr(1), fail);
+		if(!fail) {
+			CWorm* w = game.wormById(i, false);
+			if(!w) {
+				context.pushError("worm ID " + itoa(i) + " is invalid");
+				return 0;
+			}
+			w->pushLuaReference(context);
+			return 1;
+		}
+	}
+
+	context.pushError("doesn't understand '" + s + "'");
+	return 0;
+}
+
+static void initWormsWrapper(LuaContext& context) { // [0,1]
+	context.newtable(); // worms wrapper object
+
+	// metatable object
+	{
+		context.newtable();
+		{
+			lua_pushstring(context, "__index");
+			lua_pushcfunction(context, l_worms_get);
+			lua_rawset(context, -3);
+		}
+		lua_setmetatable(context, -2);
+	}
+
+	lua_setfield(context, LUA_GLOBALSINDEX, "game_worms");
+}
+
 void initGame()
 {
 	LuaContext& context = lua;
@@ -445,7 +509,9 @@ void initGame()
 	context.function("game_players", l_game_players);
 	lua_pushcfunction(context, l_game_playerIterator);
 	playerIterator = context.createReference();
-	
+
+	initWormsWrapper(context);
+
 	context.functions()
 		("game_local_player", l_game_localPlayer)
 		("game_local_player_name", l_game_localPlayerName)

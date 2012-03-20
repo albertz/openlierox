@@ -407,6 +407,8 @@ int l_load_script(lua_State* L)
 */
 int l_load_particle(lua_State* L)
 {
+	LuaContext context(L);
+
 	char const* s = lua_tostring(L, 1);
 	if(!s)
 		return 0;
@@ -415,10 +417,7 @@ int l_load_particle(lua_State* L)
 	if(!type)
 		return 0;
 	
-	LuaContext context(L);
-	
-	//context.pushFullReference(*type, PartTypeMetaTable);
-	type->pushLuaReference();
+	type->pushLuaReference(context);
 	return 1;
 }
 
@@ -428,14 +427,15 @@ int l_load_particle(lua_State* L)
 */
 int l_weapon_random(lua_State* L)
 {
+	LuaContext context(L);
+
 	if(gusGame.weaponList.size() == 0) {
 		errors << "Lua: l_weapon_random: no weapons available" << endl;
 		return 0;
 	}
-	LuaContext context(L);
+
 	WeaponType* p = gusGame.weaponList[rndInt(gusGame.weaponList.size())];
-	//context.pushFullReference(*p, WeaponTypeMetaTable);
-	p->pushLuaReference();
+	p->pushLuaReference(context);
 	return 1;
 }
 
@@ -454,10 +454,11 @@ int l_weapon_count(lua_State* L)
 	Returns the next weapon type after this one.
 */
 METHODC(WeaponType, weapon_next,  {
+	if(gusGame.weaponList.size() == 0) return 0;
 	size_t n = p->getIndex() + 1;
 	if(n >= gusGame.weaponList.size())
 		n = 0;
-	gusGame.weaponList[n]->pushLuaReference();
+	gusGame.weaponList[n]->pushLuaReference(context);
 	return 1;
 })
 
@@ -466,12 +467,13 @@ METHODC(WeaponType, weapon_next,  {
 	Returns the previous weapon type after this one.
 */
 METHODC(WeaponType, weapon_prev,  {
+	if(gusGame.weaponList.size() == 0) return 0;
 	size_t n = p->getIndex();
 	if(n == 0)
 		n = gusGame.weaponList.size() - 1;
 	else
 		--n;
-	gusGame.weaponList[n]->pushLuaReference();
+	gusGame.weaponList[n]->pushLuaReference(context);
 	return 1;
 })
 
@@ -536,7 +538,7 @@ METHODC(PartType, parttype_put,  {
 
 	if(last)
 	{
-		last->pushLuaReference();
+		last->pushLuaReference(context);
 		return 1;
 	}
 	

@@ -771,12 +771,12 @@ void RunScript::run( ActionParams const& params )
 	}
 	
 	if(params.object)
-		params.object->pushLuaReference();
+		params.object->pushLuaReference(lua);
 	else
 		lua_pushnil(lua);
 		
 	if(params.object2)
-		params.object2->pushLuaReference();
+		params.object2->pushLuaReference(lua);
 	else
 		lua_pushnil(lua);
 		

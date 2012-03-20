@@ -55,9 +55,9 @@ void LuaCallbacks::bind(std::string callback, LuaReference ref)
 	}
 }
 
-void LuaObject::pushLuaReference()
+void LuaObject::pushLuaReference(LuaContext& context)
 {
-	lua.push(getLuaReference());
+	context.push(getLuaReference());
 }
 
 // this function is overriden by each sub-object-type (e.g. CWorm, etc.)

@@ -475,6 +475,8 @@ void LuaContext::destroyReference(LuaReference ref)
 
 void LuaContext::pushReference(LuaReference ref)
 {
+	assert(ref);
+	assert(ref.luaState == weakRef);
 	lua_rawgeti(m_State, LUA_REGISTRYINDEX, ref.idx);
 }
 
