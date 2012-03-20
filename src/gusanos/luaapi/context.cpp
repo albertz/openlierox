@@ -10,6 +10,7 @@ extern "C"
 
 #include "gusanos/netstream.h"
 #include "util/Bitstream.h"
+#include "OLXCommand.h"
 #include <cmath>
 #include <map>
 #include <set>
@@ -198,7 +199,7 @@ const char * stringChunkReader(lua_State *L, void *data, size_t *size)
 	return ret;
 }
 
-int LuaContext::evalExpression(std::string const& chunk, std::string const& data)
+int LuaContext::evalExpression(std::string const& chunk, std::string const& data, CmdLineIntf& cli)
 {
 	StringData readData(&data, 0);
 	
@@ -207,7 +208,7 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 	
 	if(result)
 	{
-		notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
+		cli.writeMsg("Lua error: " + std::string(this->tostring(-1)));
 		pop(2);
 		return 0;
 	}
@@ -220,7 +221,7 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 		case LUA_ERRMEM:
 		case LUA_ERRERR:
 		{
-			notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
+			cli.writeMsg("Lua error: " + std::string(this->tostring(-1)));
 			pop(2); // Pop error message and error function
 			return 0;
 		}
@@ -811,6 +812,29 @@ void LuaContext::serializeT(std::ostream& s, int i, int indent)
 			s << "nil";
 		break;
 	}
+}
+
+std::string LuaContext::convert_tostring(int i) {
+	assert(i != 0);
+	int luaTop = lua_gettop(m_State);
+	if(i < 0) {
+		if(-i <= luaTop)
+			i = luaTop + i + 1; // make it absolute
+	}
+	else if(i > 0) {
+		assert(i <= luaTop);
+	}
+
+	lua_getfield(m_State, LUA_GLOBALSINDEX, "tostring");
+	lua_pushvalue(m_State, i);
+	lua_call(m_State, 1, 1);
+
+	const char* s = lua_tostring(m_State, -1);
+	std::string ret = "<NULL>";
+	if(s) ret = s;
+	pop();
+
+	return ret;
 }
 
 void LuaContext::close()

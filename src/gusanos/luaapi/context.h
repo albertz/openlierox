@@ -23,6 +23,7 @@ using std::endl;
 using std::string;
 
 class BitStream;
+struct CmdLineIntf;
 
 class LuaContext : DontCopyTag
 {
@@ -150,7 +151,7 @@ public:
 
 	void load(std::string const& chunk, istream& stream);
 	
-	int evalExpression(std::string const& chunk, std::string const& data);
+	int evalExpression(std::string const& chunk, std::string const& data, CmdLineIntf& cli);
 	int evalExpression(std::string const& chunk, istream& stream);
 	/*
 	void load(std::string const& chunk, istream& stream, string const& table);
@@ -348,11 +349,13 @@ public:
 		return *this;
 	}
 	
-	char const* tostring(int i)
+	const char* tostring(int i)
 	{
 		return lua_tostring(m_State, i);
 	}
 	
+	std::string convert_tostring(int i);
+
 	LuaContext& newtable()
 	{
 		lua_newtable(m_State);
