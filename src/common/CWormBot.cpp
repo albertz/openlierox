@@ -1632,14 +1632,12 @@ CVec CWormBotInputHandler::AI_GetTargetPos()
         default:
         	if(nAITargetType != AIT_WORM)
         		nAIState = AI_THINK;
-            if(nAITargetWormId) {
-				CWorm* w = game.wormById(nAITargetWormId, false);
-                if(!w || !w->getAlive() )
-                    nAIState = AI_THINK;
-				else
-					return w->getPos();
-			}
-            break;
+			CWorm* w = game.wormById(nAITargetWormId, false);
+			if(!w || !w->getAlive() )
+				nAIState = AI_THINK;
+			else
+				return w->getPos();
+		break;
 
     }
 
