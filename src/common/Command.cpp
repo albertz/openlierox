@@ -54,6 +54,7 @@
 #include "game/ServerList.h"
 #include "EventQueue.h"
 #include "client/ClientConnectionRequestInfo.h"
+#include "gusanos/luaapi/context.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -2436,6 +2437,14 @@ void Cmd_signal::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	}
 	
 	DedicatedControl::Get()->Custom_Signal( std::list<std::string>(params.begin(), params.end()) );
+}
+
+COMMAND(lua, "execute Lua command", "<cmd>", 1, 1);
+void Cmd_lua::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
+	int r = lua.evalExpression("<Cmd_lua inlined block>", params[0], *caller);
+	for(int i = r; i > 0; --i)
+		caller->pushReturnArg(lua.convert_tostring(-i));
+	lua.pop(r);
 }
 
 
