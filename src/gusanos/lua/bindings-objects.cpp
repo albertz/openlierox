@@ -141,6 +141,11 @@ static int l_baseObject_tostring(lua_State* L) {
 }
 
 static void initBaseObjMetaTable(LuaContext& context, int indexClosureNum) {
+	if(indexClosureNum > 0) {
+		lua_pushstring(context, "__index_table");
+		lua_pushvalue(context, -2);
+		lua_rawset(context, -3);
+	}
 	{
 		lua_pushcclosure(context, l_baseObject_get, indexClosureNum);
 		lua_pushstring(context, "__index");
