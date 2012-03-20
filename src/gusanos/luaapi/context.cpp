@@ -5,6 +5,7 @@
 extern "C"
 {
 	#include "lualib.h"
+	#include "lauxlib.h"
 }
 
 
@@ -200,10 +201,8 @@ const char * stringChunkReader(lua_State *L, void *data, size_t *size)
 	return ret;
 }
 
-int LuaContext::evalExpression(std::string const& chunk, std::string const& data, CmdLineIntf& cli)
+int LuaContext::evalExpression(std::string const& chunk, std::string const& data)
 {
-	LuaCustomPrintScope printScope(*this, printFuncFromCLI(cli));
-
 	StringData readData(&data, 0);
 	
 	lua_pushcfunction(m_State, errorReport);
@@ -211,7 +210,7 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 	
 	if(result)
 	{
-		cli.writeMsg("Lua error: " + std::string(this->tostring(-1)));
+		notes << "Lua error: " << this->tostring(-1) << endl;
 		pop(2);
 		return 0;
 	}
@@ -224,7 +223,7 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 		case LUA_ERRMEM:
 		case LUA_ERRERR:
 		{
-			cli.writeMsg("Lua error: " + std::string(this->tostring(-1)));
+			notes << "Lua error: " << this->tostring(-1) << endl;
 			pop(2); // Pop error message and error function
 			return 0;
 		}
@@ -232,6 +231,39 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 	}
 	
 	lua_remove(m_State, -2); // Remove error function
+	return 1;
+}
+
+
+int LuaContext::execCode(const std::string& data, CmdLineIntf &cli) {
+	LuaCustomPrintScope printScope(*this, printFuncFromCLI(cli));
+
+	lua_pushcfunction(m_State, errorReport);
+	int result = luaL_loadstring(m_State, data.c_str());
+
+	if(result) {
+		cli.writeMsg("Lua error: " + std::string(this->tostring(-1)));
+		pop(2);
+		return 0;
+	}
+
+	result = lua_pcall (m_State, 0, 1, -2);
+
+	switch(result) {
+	case LUA_ERRRUN:
+	case LUA_ERRMEM:
+	case LUA_ERRERR:
+		cli.writeMsg("Lua error: " + std::string(this->tostring(-1)));
+		pop(2); // Pop error message and error function
+		return 0;
+	}
+
+	lua_remove(m_State, -2); // Remove error function
+
+	if(lua_isnoneornil(m_State, -1)) {
+		pop();
+		return 0;
+	}
 	return 1;
 }
 

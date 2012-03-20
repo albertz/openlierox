@@ -2441,7 +2441,7 @@ void Cmd_signal::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 
 COMMAND(lua, "execute Lua command", "<cmd>", 1, 1);
 void Cmd_lua::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
-	int r = lua.evalExpression("<Cmd_lua inlined block>", params[0], *caller);
+	int r = lua.execCode(params[0], *caller);
 	for(int i = r; i > 0; --i)
 		caller->pushReturnArg(lua.convert_tostring(-i));
 	lua.pop(r);

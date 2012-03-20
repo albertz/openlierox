@@ -152,8 +152,11 @@ public:
 
 	void load(std::string const& chunk, istream& stream);
 	
-	int evalExpression(std::string const& chunk, std::string const& data, CmdLineIntf& cli);
+	int evalExpression(std::string const& chunk, std::string const& data);
 	int evalExpression(std::string const& chunk, istream& stream);
+
+	int execCode(const std::string& data, CmdLineIntf& cli);
+
 	/*
 	void load(std::string const& chunk, istream& stream, string const& table);
 	*/
