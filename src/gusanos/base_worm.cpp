@@ -362,7 +362,9 @@ void CWorm::processMoveAndDig(void)
 }
 
 void CWorm::think()
-{	
+{
+	if(!bPrepared) return;
+
 	if(!game.gameScript()->gusEngineUsed()) {
 		// we do that in any case, it may be that some map object was trying to kill us
 		if(getAlive()) {
@@ -523,6 +525,8 @@ void CWorm::removeRefsToPlayer(CWormInputHandler* player)
 
 void CWorm::draw(CViewport* viewport)
 {
+	if(!bPrepared) return;
+
 	if(!game.gameScript() || !game.gameScript()->gusEngineUsed())
 		// OLX will draw this worm
 		return;
