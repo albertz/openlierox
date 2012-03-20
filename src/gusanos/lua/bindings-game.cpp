@@ -393,11 +393,10 @@ int l_game_playerIterator(lua_State* L)
 	typedef long iter;
 
 	iter& i = *(iter *)lua_touserdata(L, 1);
-	std::vector<CWormInputHandler*>::iterator it = game.players.begin() + i;
-	if(it == game.players.end())
+	if(i < 0 || (size_t)i >= game.players.size())
 		lua_pushnil(L);
-	else
-	{
+	else {
+		std::vector<CWormInputHandler*>::iterator it = game.players.begin() + i;
 		(*it)->pushLuaReference();
 		++i;
 	}
