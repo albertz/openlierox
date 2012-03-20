@@ -563,9 +563,9 @@ static bool nlUpdateState(NLsocket socket)
 }
 
 
-static void nlPrepareClose(NLsocket socket) {
+static void _nlCustomClose(NLsocket socket) {
 	if(nlIsValidSocket(socket) != NL_TRUE) return;
-	
+
 	struct Unlocker {
 		NLsocket socket;
 		~Unlocker() {
@@ -573,28 +573,28 @@ static void nlPrepareClose(NLsocket socket) {
 		}
 		Unlocker(NLsocket s) : socket(s) {}
 	};
-	
+
 	if(nlLockSocket(socket, NL_BOTH) == NL_FALSE)
 	{
 		return;
 	}
-	
+
 	Unlocker unlocker(socket);
-	
+
 	// code copied&modified from sock_Close
 	// The advantage we have here is that we don't lock the whole socket array.
 	// nlClose is doing this, so if we would hang in nlClose, we block the
 	// *whole* HawkNL system (or at least actions like opening new sockets etc.)!
-	
+
 	nl_socket_t     *sock = nlSockets[socket];
-	struct ip_mreq  mreq;
-    
+
 	if(sock->type == NL_UDP_MULTICAST)
 	{
 		/* leave the multicast group */
+		struct ip_mreq  mreq;
 		mreq.imr_multiaddr.s_addr = ((struct sockaddr_in *)&sock->addressout)->sin_addr.s_addr;
 		mreq.imr_interface.s_addr = INADDR_ANY; //bindaddress;
-        
+
 		(void)setsockopt((SOCKET)sock->realsocket, IPPROTO_IP, IP_DROP_MEMBERSHIP,
 		 (char *)&mreq, (int)sizeof(mreq));
 	}
@@ -611,7 +611,7 @@ static void nlPrepareClose(NLsocket socket) {
 				SDL_Delay(50);
 			}
 		}
-		
+
 		// oh just fuck it
 		sock->sendlen = 0;
 	}
@@ -621,9 +621,27 @@ static void nlPrepareClose(NLsocket socket) {
 
 		(void)setsockopt((SOCKET)sock->realsocket, SOL_SOCKET, SO_LINGER, (const char *)&l, (int)sizeof(l));
 	}
+
 	(void)closesocket((SOCKET)sock->realsocket);
+
+	// nlClose() will try to close the socket again. If the filedesc was already
+	// taken elsewhere, it would close it again! To avoid that, set some invalid
+	// fd here.
+	sock->realsocket = -1;
 }
 
+struct CloseSocketWorker : Task {
+	NLsocket sock;
+	Result handle() {
+		ScopedReadLock lock(nlSystemUseChangeLock);
+		if(bNetworkInited) { // only do that if we have the network system still up
+			_nlCustomClose(sock);
+			if(nlClose(sock) == NL_TRUE) return true;
+			return GetLastErrorAndReset();
+		}
+		return "network not inited";
+	}
+};
 
 
 
@@ -892,21 +910,6 @@ void NetworkSocket::Close() {
 		return;
 	}
 	
-	struct CloseSocketWorker : Task {
-		NLsocket sock;
-		Result handle() {
-			nlSystemUseChangeLock.startReadAccess();
-			int ret = -1;
-			if(bNetworkInited) { // only do that if we have the network system still up
-				// this should already close the socket but not lock other parts in HawkNL
-				nlPrepareClose(sock);
-				// hopefully this does not block anymore
-				ret = (nlClose(sock) != NL_FALSE) ? 0 : -1;
-			}
-			nlSystemUseChangeLock.endReadAccess();
-						return ret == 0;
-		}
-	};
 	CloseSocketWorker* worker = new CloseSocketWorker();
 	worker->name = "close socket";
 	worker->sock = m_socket->sock;
