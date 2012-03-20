@@ -480,7 +480,14 @@ void CWorm::clearInput() {
 }
 
 void CWorm::initWeaponSelection() {
-	if(game.gameScript()->gusEngineUsed()) return; // Gus currently has it's own wpn selection
+	if(game.gameScript()->gusEngineUsed()) {
+		// Gus currently has it's own wpn selection.
+		// However, Gusanos (or its mods) don't really do wpn selection
+		// for bots. For now, just set us ready.
+		if(bLocal && getType() == PRF_COMPUTER)
+			this->bWeaponsReady = true;
+		return;
+	}
 
 	if(!bLocal) {
 		warnings << "CWorm::initWeaponSelection: called initWeaponSelection() on non-local worm " << getName() << endl;
