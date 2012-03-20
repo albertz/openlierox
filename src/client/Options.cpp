@@ -202,7 +202,8 @@ bool GameOptions::Init() {
 		( tLXOptions->fAimFriction, "Game.AimFriction", /* Gusanos promode default */ 0.0f, "Aim friction", "aim speed friction for worm", GIG_Other, ALT_VeryAdvanced, true, 0.0f, 1.0f )
 		( tLXOptions->bAimLikeLX56, "Game.AimLikeLX56", false, "Aim friction like LX56", "aim speed friction behaves like LX56", GIG_Other, ALT_OnlyViaConfig )
 		( tLXOptions->fRopeAdjustSpeed, "Game.RopeAdjustSpeed", /* Gusanos default */ 0.5f, "Rope adjust speed", "rope length adjust speed", GIG_Other, ALT_VeryAdvanced, true, 0.1f, 2.0f )
-	
+		( tLXOptions->bSetAFK, "Game.SetAFK", true, "set AFK status", "set AFK status on local human worms in game", GIG_Other, ALT_Dev )
+
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer
@@ -773,7 +774,10 @@ GameOptions::GameOptions() : customSettings("custom user settings") {
 	cfgFilename = DefaultCfgFilename;
 	
 	// TODO: don't hardcode the size here
-	sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes		
+	sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
+
+	// The only place where we call this constructor is in GameOptions::Init().
+	// We init all the other variables there.
 }
 
 bool Taunts::Init() {

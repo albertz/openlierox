@@ -156,7 +156,7 @@ bool bDedicated = true;
 
 void SetError(const std::string& text) { errors << "SetError: " << text << endl; }
 
-struct GameOptions;
+class GameOptions;
 GameOptions *tLXOptions = NULL;
 
 bool Con_IsInited() { return false; }

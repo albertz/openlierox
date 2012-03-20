@@ -205,9 +205,11 @@ class CGameMode;
 extern const std::string DefaultCfgFilename;
 
 // Options structure
-struct GameOptions {
+class GameOptions {
+private:
 	GameOptions();
 
+public:
 	static bool Init();
 	bool LoadFromDisc(const std::string& cfgfilename);
 	bool LoadFromDisc() { return LoadFromDisc(cfgFilename); }
@@ -295,6 +297,7 @@ struct GameOptions {
 	float	fAimFriction;
 	bool	bAimLikeLX56;
 	float	fRopeAdjustSpeed;
+	bool	bSetAFK;
 
     // Advanced
     int     nMaxFPS;
