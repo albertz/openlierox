@@ -124,7 +124,7 @@ struct ObjAttrRef {
 void registerAttrDesc(AttrDesc& attrDesc);
 void iterAttrDescs(ClassId classId, bool withSuperClasses, boost::function<void(const AttrDesc* attrDesc)> callback);
 std::vector<const AttrDesc*> getAttrDescs(ClassId classId, bool withSuperClasses);
-
+const AttrDesc* findAttrDescByName(const std::string& name, ClassId classId, bool withSuperClasses);
 
 struct AttrUpdateInfo {
 	const AttrDesc* attrDesc;

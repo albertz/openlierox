@@ -17,6 +17,7 @@
 #include "util/log.h"
 #include "game/CMap.h"
 #include "game/Game.h"
+#include "game/Attr.h"
 
 #include <cmath>
 #include <iostream>
@@ -590,7 +591,8 @@ METHOD(Weapon, weaponinst_destroy,  {
 	return 1;
 })
 
-void addBaseObjectFunctions(LuaContext& context)
+// StackTop should be the metatable.
+void addGameObjectFunctions(LuaContext& context)
 {
 	context.tableFunctions()
 		("remove", l_baseObject_remove)
@@ -611,6 +613,12 @@ void addBaseObjectFunctions(LuaContext& context)
 		("set_spd", l_baseObject_setSpd)
 		("damage", l_baseObject_damage)
 	;
+
+	{
+		// The metatable inherits from the BaseObject metatable.
+		context.pushReference(CustomVar::metaTable);
+		lua_setmetatable(context, -2);
+	}
 }
 
 void initObjects()
@@ -620,6 +628,8 @@ void initObjects()
 
 	LuaContext& context = lua;
 	
+	CustomVar::initMetaTable();
+
 	// CGameObject method and metatable
 	{
 		lua_newtable(context);
@@ -627,7 +637,7 @@ void initObjects()
 			lua_pushstring(context, "__index");
 			lua_newtable(context);
 			{
-				addBaseObjectFunctions(context); // [0,0]
+				addGameObjectFunctions(context); // [0,0]
 			}
 
 			lua_rawset(context, -3); // does t[k] = v, where t=param(-3), k=-2, v=-1(top). this pops 2 elements from the stack
@@ -648,7 +658,7 @@ void initObjects()
 			lua_pushstring(context, "__index");
 			lua_newtable(context);
 			{
-				addBaseObjectFunctions(context);
+				addGameObjectFunctions(context);
 
 				context.tableFunctions()
 						("set_angle", l_particle_setAngle)
@@ -674,7 +684,7 @@ void initObjects()
 			lua_pushstring(context, "__index");
 			lua_newtable(context);
 			{
-				addBaseObjectFunctions(context); // CWorm inherits from CGameObject
+				addGameObjectFunctions(context); // CWorm inherits from CGameObject
 
 				context.tableFunctions()
 		#ifndef NO_DEPRECATED
@@ -703,7 +713,7 @@ void initObjects()
 		{
 			lua_pushstring(context, "__index");
 			lua_newtable(context);
-			addBaseObjectFunctions(context);
+			addGameObjectFunctions(context);
 			lua_rawset(context, -3);
 		}
 		context.tableSetField(LuaID<CNinjaRope>::value);
@@ -728,3 +738,113 @@ void initObjects()
 }
 
 }
+
+static void pushLuaError(LuaContext& context, const std::string& s) {
+	lua_pushstring(context, s.c_str());
+	lua_error(context);
+}
+
+static CustomVar* getCustomVar(LuaContext& context, int index) {
+	CustomVar* obj = getObject<CustomVar>(context, index);
+	if(!obj) {
+		pushLuaError(context, "CustomVar method called on invalid object. Did you use '.' instead of ':'?");
+		return NULL;
+	}
+
+	if(obj->thisRef.classId == ClassId(-1)) {
+		pushLuaError(context, "CustomVar object has no classId assoziated");
+		return NULL;
+	}
+
+	return obj;
+}
+
+static const AttrDesc* getAttrDesc(LuaContext& context, CustomVar* obj, int index) {
+	assert(obj != NULL);
+	assert(obj->thisRef.classId != ClassId(-1));
+
+	char const* s = lua_tostring(context, index);
+	if(!s) return NULL;
+
+	const AttrDesc* attrDesc = findAttrDescByName(s, obj->thisRef.classId, true);
+	if(!attrDesc) {
+		pushLuaError(context, "CustomVar " + obj->thisRef.description() + " has no attrib '" + s + "'");
+		return NULL;
+	}
+
+	return attrDesc;
+}
+
+static int l_baseObject_set(lua_State* L) {
+	LuaContext context(L);
+
+	CustomVar* obj = getCustomVar(context, 1);
+	if(!obj) return 0;
+
+	const AttrDesc* attrDesc = getAttrDesc(context, obj, 2);
+	if(!attrDesc) return 0;
+
+	char const* v = lua_tostring(L, 3);
+	if(!v) return 0;
+
+	ScriptVar_t val(attrDesc->get(obj));
+	val.fromString(v);
+	attrDesc->set(obj, val);
+
+	return 0;
+}
+
+static int l_baseObject_get(lua_State* L) {
+	LuaContext context(L);
+
+	CustomVar* obj = getCustomVar(context, 1);
+	if(!obj) return 0;
+
+	const AttrDesc* attrDesc = getAttrDesc(context, obj, 2);
+	if(!attrDesc) return 0;
+
+	ScriptVar_t val(attrDesc->get(obj));
+	if(val.type == SVT_BOOL)
+		context.push((bool)val);
+	else if(val.isNumeric())
+		context.push(val.getNumber());
+	else if(val.isCustomType())
+		context.pushReference(val.customVar()->getLuaReference());
+	else
+		context.push(val.toString());
+	return 1;
+}
+
+static int l_baseObject_tostring(lua_State* L) {
+	LuaContext context(L);
+
+	CustomVar* obj = getCustomVar(context, 1);
+	if(!obj) return 0;
+
+	context.push(obj->toString());
+	return 1;
+}
+
+void CustomVar::initMetaTable() {
+	LuaContext& context = lua;
+
+	lua_newtable(context);
+	{
+		lua_pushstring(context, "__newindex");
+		lua_pushcfunction(context, l_baseObject_set);
+		lua_rawset(context, -3);
+	}
+	{
+		lua_pushstring(context, "__index");
+		lua_pushcfunction(context, l_baseObject_get);
+		lua_rawset(context, -3);
+	}
+	{
+		lua_pushstring(context, "__tostring");
+		lua_pushcfunction(context, l_baseObject_tostring);
+		lua_rawset(context, -3);
+	}
+	CustomVar::metaTable = context.createReference();
+}
+
+LuaReference CustomVar::metaTable;

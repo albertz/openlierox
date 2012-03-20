@@ -213,6 +213,16 @@ std::vector<const AttrDesc*> getAttrDescs(ClassId classId, bool withSuperClasses
 	return vec;
 }
 
+const AttrDesc* findAttrDescByName(const std::string& name, ClassId classId, bool withSuperClasses) {
+	std::vector<const AttrDesc*> attribs = getAttrDescs(classId, withSuperClasses);
+	foreach(a, attribs) {
+		if((*a)->attrName == name)
+			return *a;
+	}
+	return NULL;
+}
+
+
 typedef std::vector< WeakRef<BaseObject> > ObjUpdates;
 static StaticVar<ObjUpdates> objUpdates;
 
