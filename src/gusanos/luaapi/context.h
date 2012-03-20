@@ -17,6 +17,7 @@ extern "C"
 #include <utility>
 #include <map>
 #include <assert.h>
+#include <boost/function.hpp>
 using std::istream;
 using std::cerr;
 using std::endl;
@@ -523,5 +524,18 @@ struct AssertStack
 };
 
 #endif
+
+struct LuaCustomPrintScope : DontCopyTag {
+	typedef boost::function<int(lua_State*)> Func;
+
+	LuaContext& context;
+	Func printFunc;
+	LuaReference oldPrintFunc;
+
+	LuaCustomPrintScope(LuaContext& context_, Func printFunc_);
+	~LuaCustomPrintScope();
+};
+
+LuaCustomPrintScope::Func printFuncFromCLI(CmdLineIntf& cli);
 
 #endif //LUA_CONTEXT_H

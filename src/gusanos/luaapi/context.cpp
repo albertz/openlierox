@@ -14,6 +14,7 @@ extern "C"
 #include <cmath>
 #include <map>
 #include <set>
+#include <boost/bind.hpp>
 
 #define FREELIST_REF 1
 #define ARRAY_SIZE   2
@@ -201,6 +202,8 @@ const char * stringChunkReader(lua_State *L, void *data, size_t *size)
 
 int LuaContext::evalExpression(std::string const& chunk, std::string const& data, CmdLineIntf& cli)
 {
+	LuaCustomPrintScope printScope(*this, printFuncFromCLI(cli));
+
 	StringData readData(&data, 0);
 	
 	lua_pushcfunction(m_State, errorReport);
@@ -857,3 +860,55 @@ LuaReference::LuaReference(int idx_, const WeakRef<lua_State>& ref_) {
 	idx = idx_;
 	luaState = ref_;
 }
+
+static int luaPrintFromScope(lua_State* L) {
+	LuaCustomPrintScope& scope = **(LuaCustomPrintScope**)lua_touserdata(L, lua_upvalueindex(1));
+	return scope.printFunc(L);
+}
+
+LuaCustomPrintScope::LuaCustomPrintScope(LuaContext& context_, LuaCustomPrintScope::Func printFunc_)
+	: context(context_), printFunc(printFunc_) {
+	{
+		// save old print func
+		lua_getfield(context, LUA_GLOBALSINDEX, "print");
+		oldPrintFunc = context.createReference();
+	}
+	{
+		// push print-function-wrapper
+		void** p = (void**)lua_newuserdata_init(context, sizeof(void*));
+		*p = this;
+		lua_pushcclosure(context, luaPrintFromScope, 1);
+
+		// and replace print func
+		lua_setfield(context, LUA_GLOBALSINDEX, "print");
+	}
+}
+
+LuaCustomPrintScope::~LuaCustomPrintScope() {
+	// restore old print func
+	context.pushReference(oldPrintFunc);
+	context.destroyReference(oldPrintFunc);
+	lua_setfield(context, LUA_GLOBALSINDEX, "print");
+}
+
+static int luaPrintOnCLI(CmdLineIntf& cli, lua_State* L)
+{
+	std::stringstream str;
+	str << "Lua: ";
+
+	int c = lua_gettop(L);
+	for(int i = 1; i <= c; ++i)
+	{
+		if(const char* s = lua_tostring(L, i))
+			str << s;
+	}
+
+	cli.writeMsg(str.str());
+	return 0;
+}
+
+LuaCustomPrintScope::Func printFuncFromCLI(CmdLineIntf& cli) {
+	using namespace boost;
+	return boost::bind(luaPrintOnCLI, ref(cli), _1);
+}
+
