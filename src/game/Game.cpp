@@ -371,17 +371,6 @@ Result Game::prepareGameloop() {
 	}
 
 	if(gusGame.isEngineNeeded()) {
-		// Unprepare all worms first.
-		// Some init scripts (e.g. Promode) have trouble when there are players
-		// but their bindings.playerInit was not called.
-		// As the bindings.playerInit is firstly set here by the init scripts,
-		// there is no other way.
-		// The worms will get prepared later on again.
-		// TODO: do the preparation client/server independently somewhere else
-		// TODO: as well as the gus loading/init stuff
-		for_each_iterator(CWorm*, w, game.worms())
-			w->get()->Unprepare();
-
 		gusGame.runInitScripts();
 	}
 
