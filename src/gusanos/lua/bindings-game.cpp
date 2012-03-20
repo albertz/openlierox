@@ -485,6 +485,31 @@ static int l_worms_get(lua_State* L) {
 	return 0;
 }
 
+static int l_worms_iterator(lua_State* L) {
+	LuaContext context(L);
+
+	int lastWormId = -1;
+	CWorm* lastWorm = getObject<CWorm>(context, 2);
+	if(lastWorm) lastWormId = lastWorm->getID();
+
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(w->get()->getID() > lastWormId) {
+			w->get()->pushLuaReference(context);
+			return 1;
+		}
+	}
+
+	lua_pushnil(L);
+	return 1;
+}
+
+static int l_worms_getIterator(lua_State* L) {
+	lua_pushcfunction(L, l_worms_iterator);
+	lua_pushnil(L);
+	lua_pushnil(L);
+	return 3;
+}
+
 static void initWormsWrapper(LuaContext& context) { // [0,1]
 	context.newtable(); // worms wrapper object
 
@@ -494,6 +519,10 @@ static void initWormsWrapper(LuaContext& context) { // [0,1]
 		{
 			lua_pushstring(context, "__index");
 			lua_pushcfunction(context, l_worms_get);
+			lua_rawset(context, -3);
+
+			lua_pushstring(context, "__call");
+			lua_pushcfunction(context, l_worms_getIterator);
 			lua_rawset(context, -3);
 		}
 		lua_setmetatable(context, -2);
