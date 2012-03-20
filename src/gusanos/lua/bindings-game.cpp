@@ -396,7 +396,7 @@ int l_game_playerIterator(lua_State* L)
 	typedef long iter;
 	iter* iPt = (iter *)lua_touserdata(L, 1);
 	if(iPt == NULL) return 0; // bad usage of iterator
-	iter i = *iPt;
+	iter& i = *iPt;
 	if(i < 0 || (size_t)i >= game.players.size())
 		lua_pushnil(L);
 	else {
