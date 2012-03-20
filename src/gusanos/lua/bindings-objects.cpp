@@ -22,11 +22,149 @@
 #include <cmath>
 #include <iostream>
 #include "gusanos/allegro.h"
+extern "C" {
+#include "lauxlib.h"
+}
 using std::cerr;
 using std::endl;
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 using boost::lexical_cast;
+
+
+static void pushLuaError(LuaContext& context, const std::string& s) {
+	lua_pushstring(context, s.c_str());
+	lua_error(context);
+}
+
+static int l_baseObject_set(lua_State* L) {
+	LuaContext context(L);
+
+	CustomVar* obj = getObject<CustomVar>(context, 1);
+	if(!obj) {
+		pushLuaError(context, "baseobject:newindex(): called on invalid object. Did you use '.' instead of ':'?");
+		return 0;
+	}
+
+	if(obj->thisRef.classId == ClassId(-1)) {
+		pushLuaError(context, "baseobject:newindex(): no classId assoziated");
+		return 0;
+	}
+
+	char const* attribName = lua_tostring(context, 2);
+	if(!attribName) {
+		pushLuaError(context, "baseobject:newindex() " + obj->thisRef.description() + ": expected a string as second param");
+		return 0;
+	}
+
+	const AttrDesc* attrDesc = findAttrDescByName(attribName, obj->thisRef.classId, true);
+	if(!attrDesc) {
+		pushLuaError(context, "baseobject:newindex() " + obj->thisRef.description() + ": no attrib '" + attribName + "'");
+		return 0;
+	}
+
+	if(lua_isnil(L, 3)) {
+		pushLuaError(context, "baseobject:newindex() " + obj->thisRef.description() + ": " + attrDesc->description() + " cannot be set to nil");
+		return 0;
+	}
+
+	std::string v = context.convert_tostring(3);
+
+	ScriptVar_t val(attrDesc->get(obj));
+	val.fromString(v);
+	attrDesc->set(obj, val);
+
+	return 0;
+}
+
+static int l_baseObject_get(lua_State* L) {
+	LuaContext context(L);
+
+	CustomVar* obj = getObject<CustomVar>(context, 1);
+	if(!obj) {
+		pushLuaError(context, "baseobject:index(): called on invalid object. Did you use '.' instead of ':'?");
+		return 0;
+	}
+
+	char const* attribName = lua_tostring(context, 2);
+	if(!attribName) {
+		pushLuaError(context, "baseobject:index() " + obj->thisRef.description() + ": expected a string as second param");
+		return 0;
+	}
+
+	// if we are a C closure and have a table attached, check it
+	if(lua_istable(context, lua_upvalueindex(1))) {
+		lua_pushvalue(L, lua_upvalueindex(1));
+		lua_pushstring(L, attribName);
+		lua_rawget(L, -2);
+		if(!lua_isnil(L, -1)) {
+			lua_remove(L, -2); // table
+			return 1; // the value is at top now
+		}
+		context.pop(2);
+	}
+
+	if(obj->thisRef.classId == ClassId(-1)) {
+		pushLuaError(context, "baseobject:index(): no classId assoziated");
+		return 0;
+	}
+
+	const AttrDesc* attrDesc = findAttrDescByName(attribName, obj->thisRef.classId, true);
+	if(!attrDesc) {
+		pushLuaError(context, "baseobject:index() " + obj->thisRef.description() + ": no attrib '" + attribName + "'");
+		return 0;
+	}
+
+	ScriptVar_t val(attrDesc->get(obj));
+	if(val.type == SVT_BOOL)
+		context.push((bool)val);
+	else if(val.isNumeric())
+		context.push(val.getNumber());
+	else if(val.isCustomType())
+		context.pushReference(val.customVar()->getLuaReference());
+	else
+		context.push(val.toString());
+	return 1;
+}
+
+static int l_baseObject_tostring(lua_State* L) {
+	LuaContext context(L);
+
+	CustomVar* obj = getObject<CustomVar>(context, 1);
+	if(!obj) {
+		pushLuaError(context, "baseobject:tostring(): called on invalid object. Did you use '.' instead of ':'?");
+		return 0;
+	}
+
+	context.push(obj->toString());
+	return 1;
+}
+
+void CustomVar::initMetaTable() {
+	LuaContext& context = lua;
+
+	lua_newtable(context);
+	{
+		lua_pushstring(context, "__newindex");
+		lua_pushcfunction(context, l_baseObject_set);
+		lua_rawset(context, -3);
+	}
+	{
+		lua_pushstring(context, "__index");
+		lua_pushcfunction(context, l_baseObject_get);
+		lua_rawset(context, -3);
+	}
+	{
+		lua_pushstring(context, "__tostring");
+		lua_pushcfunction(context, l_baseObject_tostring);
+		lua_rawset(context, -3);
+	}
+	context.tableSetField(LuaID<CustomVar>::value);
+	CustomVar::metaTable = context.createReference();
+}
+
+LuaReference CustomVar::metaTable;
+
 
 namespace LuaBindings
 {
@@ -613,12 +751,6 @@ void addGameObjectFunctions(LuaContext& context)
 		("set_spd", l_baseObject_setSpd)
 		("damage", l_baseObject_damage)
 	;
-
-	{
-		// The metatable inherits from the BaseObject metatable.
-		context.pushReference(CustomVar::metaTable);
-		lua_setmetatable(context, -2);
-	}
 }
 
 void initObjects()
@@ -639,6 +771,7 @@ void initObjects()
 			{
 				addGameObjectFunctions(context); // [0,0]
 			}
+			lua_pushcclosure(context, l_baseObject_get, 1);
 
 			lua_rawset(context, -3); // does t[k] = v, where t=param(-3), k=-2, v=-1(top). this pops 2 elements from the stack
 		}
@@ -666,6 +799,7 @@ void initObjects()
 						("set_replication", l_particle_set_replication)
 						;
 			}
+			lua_pushcclosure(context, l_baseObject_get, 1);
 			lua_rawset(context, -3);
 		}
 
@@ -698,6 +832,7 @@ void initObjects()
 						("setSkinVisible", l_worm_setSkinVisible)
 						;
 			}
+			lua_pushcclosure(context, l_baseObject_get, 1);
 			lua_rawset(context, -3);
 		}
 
@@ -716,7 +851,10 @@ void initObjects()
 		{
 			lua_pushstring(context, "__index");
 			lua_newtable(context);
-			addGameObjectFunctions(context);
+			{
+				addGameObjectFunctions(context);
+			}
+			lua_pushcclosure(context, l_baseObject_get, 1);
 			lua_rawset(context, -3);
 		}
 		context.tableSetField(LuaID<CNinjaRope>::value);
@@ -742,114 +880,3 @@ void initObjects()
 }
 
 }
-
-static void pushLuaError(LuaContext& context, const std::string& s) {
-	lua_pushstring(context, s.c_str());
-	lua_error(context);
-}
-
-static CustomVar* getCustomVar(LuaContext& context, int index) {
-	CustomVar* obj = getObject<CustomVar>(context, index);
-	if(!obj) {
-		pushLuaError(context, "CustomVar method called on invalid object. Did you use '.' instead of ':'?");
-		return NULL;
-	}
-
-	if(obj->thisRef.classId == ClassId(-1)) {
-		pushLuaError(context, "CustomVar object has no classId assoziated");
-		return NULL;
-	}
-
-	return obj;
-}
-
-static const AttrDesc* getAttrDesc(LuaContext& context, CustomVar* obj, int index) {
-	assert(obj != NULL);
-	assert(obj->thisRef.classId != ClassId(-1));
-
-	char const* s = lua_tostring(context, index);
-	if(!s) return NULL;
-
-	const AttrDesc* attrDesc = findAttrDescByName(s, obj->thisRef.classId, true);
-	if(!attrDesc) {
-		pushLuaError(context, "CustomVar " + obj->thisRef.description() + " has no attrib '" + s + "'");
-		return NULL;
-	}
-
-	return attrDesc;
-}
-
-static int l_baseObject_set(lua_State* L) {
-	LuaContext context(L);
-
-	CustomVar* obj = getCustomVar(context, 1);
-	if(!obj) return 0;
-
-	const AttrDesc* attrDesc = getAttrDesc(context, obj, 2);
-	if(!attrDesc) return 0;
-
-	char const* v = lua_tostring(L, 3);
-	if(!v) return 0;
-
-	ScriptVar_t val(attrDesc->get(obj));
-	val.fromString(v);
-	attrDesc->set(obj, val);
-
-	return 0;
-}
-
-static int l_baseObject_get(lua_State* L) {
-	LuaContext context(L);
-
-	CustomVar* obj = getCustomVar(context, 1);
-	if(!obj) return 0;
-
-	const AttrDesc* attrDesc = getAttrDesc(context, obj, 2);
-	if(!attrDesc) return 0;
-
-	ScriptVar_t val(attrDesc->get(obj));
-	if(val.type == SVT_BOOL)
-		context.push((bool)val);
-	else if(val.isNumeric())
-		context.push(val.getNumber());
-	else if(val.isCustomType())
-		context.pushReference(val.customVar()->getLuaReference());
-	else
-		context.push(val.toString());
-	return 1;
-}
-
-static int l_baseObject_tostring(lua_State* L) {
-	LuaContext context(L);
-
-	CustomVar* obj = getCustomVar(context, 1);
-	if(!obj) return 0;
-
-	context.push(obj->toString());
-	return 1;
-}
-
-void CustomVar::initMetaTable() {
-	LuaContext& context = lua;
-
-	lua_newtable(context);
-	{
-		lua_pushstring(context, "__newindex");
-		lua_pushcfunction(context, l_baseObject_set);
-		lua_rawset(context, -3);
-	}
-	{
-		lua_pushstring(context, "__index");
-		lua_pushcfunction(context, l_baseObject_get);
-		lua_rawset(context, -3);
-	}
-	{
-		lua_pushstring(context, "__tostring");
-		lua_pushcfunction(context, l_baseObject_tostring);
-		lua_rawset(context, -3);
-	}
-	context.tableSetField(LuaID<CustomVar>::value);
-	CustomVar::metaTable = context.createReference();
-}
-
-LuaReference CustomVar::metaTable;
