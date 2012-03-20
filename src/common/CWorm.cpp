@@ -623,9 +623,6 @@ bool CWorm::ChangeGraphics(int generalgametype)
 
 	bool team = false;
 
-	// Destroy any previous graphics
-	FreeGraphics();
-
 	Color colour = cSkin.get().getDefaultColor();
 	// If we are in a team game, use the team colours
 	if(generalgametype == GMT_TEAMS) {
