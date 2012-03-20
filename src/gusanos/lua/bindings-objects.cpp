@@ -140,18 +140,16 @@ static int l_baseObject_tostring(lua_State* L) {
 	return 1;
 }
 
-void CustomVar::initMetaTable() {
-	LuaContext& context = lua;
-
-	lua_newtable(context);
+static void initBaseObjMetaTable(LuaContext& context, int indexClosureNum) {
 	{
-		lua_pushstring(context, "__newindex");
-		lua_pushcfunction(context, l_baseObject_set);
+		lua_pushcclosure(context, l_baseObject_get, indexClosureNum);
+		lua_pushstring(context, "__index");
+		lua_insert(context, -2); // swap last two values
 		lua_rawset(context, -3);
 	}
 	{
-		lua_pushstring(context, "__index");
-		lua_pushcfunction(context, l_baseObject_get);
+		lua_pushstring(context, "__newindex");
+		lua_pushcfunction(context, l_baseObject_set);
 		lua_rawset(context, -3);
 	}
 	{
@@ -160,6 +158,13 @@ void CustomVar::initMetaTable() {
 		lua_rawset(context, -3);
 	}
 	context.tableSetField(LuaID<CustomVar>::value);
+}
+
+void CustomVar::initMetaTable() {
+	LuaContext& context = lua;
+
+	lua_newtable(context);
+	initBaseObjMetaTable(context, 0);
 	CustomVar::metaTable = context.createReference();
 }
 
@@ -766,18 +771,14 @@ void initObjects()
 	{
 		lua_newtable(context);
 		{
-			lua_pushstring(context, "__index");
 			lua_newtable(context);
 			{
 				addGameObjectFunctions(context); // [0,0]
 			}
-			lua_pushcclosure(context, l_baseObject_get, 1);
-
-			lua_rawset(context, -3); // does t[k] = v, where t=param(-3), k=-2, v=-1(top). this pops 2 elements from the stack
+			initBaseObjMetaTable(context, 1); // [-1,0]
 		}
 
 		context.tableSetField(LuaID<CGameObject>::value); // does t[n] = v, where t=top(table), n=param(id value), v=True
-		context.tableSetField(LuaID<CustomVar>::value);
 		CGameObject::metaTable = context.createReference(); // also pops one element
 	}
 
@@ -789,7 +790,6 @@ void initObjects()
 				;
 
 		{
-			lua_pushstring(context, "__index");
 			lua_newtable(context);
 			{
 				addGameObjectFunctions(context);
@@ -799,13 +799,11 @@ void initObjects()
 						("set_replication", l_particle_set_replication)
 						;
 			}
-			lua_pushcclosure(context, l_baseObject_get, 1);
-			lua_rawset(context, -3);
+			initBaseObjMetaTable(context, 1);
 		}
 
 		context.tableSetField(LuaID<Particle>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
-		context.tableSetField(LuaID<CustomVar>::value);
 		Particle::metaTable = context.createReference();
 	}
 
@@ -817,7 +815,6 @@ void initObjects()
 				;
 
 		{
-			lua_pushstring(context, "__index");
 			lua_newtable(context);
 			{
 				addGameObjectFunctions(context); // CWorm inherits from CGameObject
@@ -832,13 +829,11 @@ void initObjects()
 						("setSkinVisible", l_worm_setSkinVisible)
 						;
 			}
-			lua_pushcclosure(context, l_baseObject_get, 1);
-			lua_rawset(context, -3);
+			initBaseObjMetaTable(context, 1);
 		}
 
 		context.tableSetField(LuaID<CWorm>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
-		context.tableSetField(LuaID<CustomVar>::value);
 		CWorm::metaTable = context.createReference();
 	}
 
@@ -849,17 +844,14 @@ void initObjects()
 				("__gc", l_ninjarope_destroy)
 				;
 		{
-			lua_pushstring(context, "__index");
 			lua_newtable(context);
 			{
 				addGameObjectFunctions(context);
 			}
-			lua_pushcclosure(context, l_baseObject_get, 1);
-			lua_rawset(context, -3);
+			initBaseObjMetaTable(context, 1);
 		}
 		context.tableSetField(LuaID<CNinjaRope>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
-		context.tableSetField(LuaID<CustomVar>::value);
 		CNinjaRope::metaTable = context.createReference();
 	}
 
