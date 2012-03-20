@@ -1714,12 +1714,12 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	}
 
 	if(cServer && cServer->isServerRunning() && game.state != Game::S_Lobby) {
-		if( varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] ) {
+		if( varptr->var.type == SVT_DYNAMIC && varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] ) {
 			caller->writeMsg("SetVar: You cannot change the map in game");
 			return;
 		}
 		
-		if( varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] ) {
+		if( varptr->var.type == SVT_DYNAMIC && varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] ) {
 			caller->writeMsg("SetVar: You cannot change the mod in game");
 			return;
 		}

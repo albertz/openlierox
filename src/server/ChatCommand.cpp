@@ -1069,10 +1069,10 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	}
 
 	if(game.state != Game::S_Lobby && params.size() == 2) {
-		if( varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] )
+		if( varptr->var.type == SVT_DYNAMIC && varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] )
 			return "You cannot change the map in game";
 
-		if( varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] )
+		if(varptr->var.type == SVT_DYNAMIC && varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] )
 			return "You cannot change the mod in game";
 
 		if( stringcaseequal(var, "GameOptions.GameInfo.GameType") )
