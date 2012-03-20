@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "luaapi/context.h"
+#include "OLXCommand.h"
 using std::string;
 using std::cerr;
 using std::endl;
@@ -86,8 +87,11 @@ LuaReference LazyScript::get()
 		if(type == FunctionName)
 			cached = Script::functionFromString(data);
 		else if(type == Code) {
-			lua.evalExpression("<inlined block>", data);
-			cached = lua.createReference();
+			int r = lua.evalExpression("<inlined block>", data, stdoutCLI());
+			if(r >= 1)
+				cached = lua.createReference();
+			if(r > 1)
+				lua.pop(r - 1);
 		}
 
 		data.clear();
