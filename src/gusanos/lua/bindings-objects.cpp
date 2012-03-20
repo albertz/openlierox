@@ -644,6 +644,7 @@ void initObjects()
 		}
 
 		context.tableSetField(LuaID<CGameObject>::value); // does t[n] = v, where t=top(table), n=param(id value), v=True
+		context.tableSetField(LuaID<CustomVar>::value);
 		CGameObject::metaTable = context.createReference(); // also pops one element
 	}
 
@@ -670,6 +671,7 @@ void initObjects()
 
 		context.tableSetField(LuaID<Particle>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
+		context.tableSetField(LuaID<CustomVar>::value);
 		Particle::metaTable = context.createReference();
 	}
 
@@ -701,6 +703,7 @@ void initObjects()
 
 		context.tableSetField(LuaID<CWorm>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
+		context.tableSetField(LuaID<CustomVar>::value);
 		CWorm::metaTable = context.createReference();
 	}
 
@@ -718,6 +721,7 @@ void initObjects()
 		}
 		context.tableSetField(LuaID<CNinjaRope>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
+		context.tableSetField(LuaID<CustomVar>::value);
 		CNinjaRope::metaTable = context.createReference();
 	}
 
@@ -844,6 +848,7 @@ void CustomVar::initMetaTable() {
 		lua_pushcfunction(context, l_baseObject_tostring);
 		lua_rawset(context, -3);
 	}
+	context.tableSetField(LuaID<CustomVar>::value);
 	CustomVar::metaTable = context.createReference();
 }
 
