@@ -388,11 +388,15 @@ int l_game_getClosestWorm(lua_State* L)
 	return 1;
 }
 
+// see l_game_players() for reference
 int l_game_playerIterator(lua_State* L)
 {
-	typedef long iter;
+	if(lua_gettop(L) < 1) return 0; // bad usage of iterator
 
-	iter& i = *(iter *)lua_touserdata(L, 1);
+	typedef long iter;
+	iter* iPt = (iter *)lua_touserdata(L, 1);
+	if(iPt == NULL) return 0; // bad usage of iterator
+	iter i = *iPt;
 	if(i < 0 || (size_t)i >= game.players.size())
 		lua_pushnil(L);
 	else {
