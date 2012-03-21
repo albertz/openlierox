@@ -15,6 +15,7 @@
 #include "WeakRef.h"
 #include "game/ClassInfo.h"
 #include "gusanos/glua.h"
+#include "gusanos/luaapi/types.h"
 
 typedef uint16_t ObjId;
 
@@ -59,9 +60,15 @@ struct BaseObject : LuaObject {
 	virtual bool weOwnThis() const;
 	virtual CServerConnection* ownerClient() const;
 
+	virtual std::string toString() const;
+
 	std::vector<AttrUpdateInfo> attrUpdates;
 	ObjRef thisRef;
 	bool isRegistered() const;
+
+	static LuaReference metaTable;
+	static void initMetaTable();
+	virtual LuaReference getMetaTable() const { return metaTable; }
 };
 
 #endif

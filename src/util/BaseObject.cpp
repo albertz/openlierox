@@ -96,3 +96,18 @@ bool BaseObject::isRegistered() const {
 	if(parentObject()) return parentObject()->isRegistered();
 	return false;
 }
+
+std::string BaseObject::toString() const {
+	return "<" + thisRef.description() + ">";
+}
+
+// We cannot use the REGISTER_CLASS macro because we cannot instantiate it.
+static bool registerClass_BaseObject() {
+	ClassInfo i;
+	i.id = LuaID<BaseObject>::value;
+	i.name = "BaseObject";
+	i.memSize = sizeof(BaseObject);
+	registerClass(i);
+	return true;
+}
+static bool registerClass_BaseObject_init = registerClass_BaseObject();

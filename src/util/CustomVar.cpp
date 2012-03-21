@@ -64,10 +64,6 @@ bool CustomVar::operator<(const CustomVar& v) const {
 	return true;
 }
 
-std::string CustomVar::toString() const {
-	return "<" + thisRef.description() + ">";
-}
-
 bool CustomVar::fromString(const std::string& str) {
 	return false;
 }

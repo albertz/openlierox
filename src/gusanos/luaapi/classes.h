@@ -23,6 +23,7 @@ template<> struct LuaClassInfo<id_> { \
 	} \
 }
 
+struct BaseObject;
 class CGameObject;
 class CWorm;
 class CNinjaRope;
@@ -63,6 +64,7 @@ class Check;
 class Label;
 }
 
+CLASSID(BaseObject, 0);
 CLASSID(CGameObject, 1);
 CLASSID(CWorm, 2);
 CLASSID(Particle, 3);

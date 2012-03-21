@@ -31,7 +31,6 @@ struct CustomVar : BaseObject {
 	virtual CustomVar* copy() const;
 	virtual bool operator==(const CustomVar&) const;
 	virtual bool operator<(const CustomVar&) const;
-	virtual std::string toString() const;
 	virtual bool fromString(const std::string & str);
 
 	virtual void copyFrom(const CustomVar&);
@@ -42,10 +41,6 @@ struct CustomVar : BaseObject {
 	Result ToBytestream( CBytestream* bs, const CustomVar* diffTo = NULL ) const; // includes type-signature
 	static Ref FromBytestream( CBytestream* bs );
 	bool operator!=(const CustomVar& o) const { return !(*this == o); }
-
-	static LuaReference metaTable;
-	static void initMetaTable();
-	virtual LuaReference getMetaTable() const { return metaTable; }
 };
 
 struct NullCustomVar : CustomVar {

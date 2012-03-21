@@ -35,7 +35,7 @@ using boost::lexical_cast;
 static int l_baseObject_set(lua_State* L) {
 	LuaContext context(L);
 
-	CustomVar* obj = getObject<CustomVar>(context, 1);
+	BaseObject* obj = getObject<BaseObject>(context, 1);
 	if(!obj) {
 		context.pushError("baseobject:newindex(): called on invalid object. Did you use '.' instead of ':'?");
 		return 0;
@@ -75,7 +75,7 @@ static int l_baseObject_set(lua_State* L) {
 static int l_baseObject_get(lua_State* L) {
 	LuaContext context(L);
 
-	CustomVar* obj = getObject<CustomVar>(context, 1);
+	BaseObject* obj = getObject<BaseObject>(context, 1);
 	if(!obj) {
 		context.pushError("baseobject:index(): called on invalid object. Did you use '.' instead of ':'?");
 		return 0;
@@ -125,7 +125,7 @@ static int l_baseObject_get(lua_State* L) {
 static int l_baseObject_tostring(lua_State* L) {
 	LuaContext context(L);
 
-	CustomVar* obj = getObject<CustomVar>(context, 1);
+	BaseObject* obj = getObject<BaseObject>(context, 1);
 	if(!obj) {
 		context.pushError("baseobject:tostring(): called on invalid object. Did you use '.' instead of ':'?");
 		return 0;
@@ -157,18 +157,18 @@ static void initBaseObjMetaTable(LuaContext& context, int indexClosureNum) {
 		lua_pushcfunction(context, l_baseObject_tostring);
 		lua_rawset(context, -3);
 	}
-	context.tableSetField(LuaID<CustomVar>::value);
+	context.tableSetField(LuaID<BaseObject>::value);
 }
 
-void CustomVar::initMetaTable() {
+void BaseObject::initMetaTable() {
 	LuaContext& context = lua;
 
 	lua_newtable(context);
 	initBaseObjMetaTable(context, 0);
-	CustomVar::metaTable = context.createReference();
+	BaseObject::metaTable = context.createReference();
 }
 
-LuaReference CustomVar::metaTable;
+LuaReference BaseObject::metaTable;
 
 
 namespace LuaBindings
@@ -763,7 +763,7 @@ void initObjects()
 
 	LuaContext& context = lua;
 	
-	CustomVar::initMetaTable();
+	BaseObject::initMetaTable();
 
 	// CGameObject method and metatable
 	{
