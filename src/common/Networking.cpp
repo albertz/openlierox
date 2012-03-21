@@ -910,11 +910,17 @@ void NetworkSocket::Close() {
 		return;
 	}
 	
-	CloseSocketWorker* worker = new CloseSocketWorker();
-	worker->name = "close socket";
-	worker->sock = m_socket->sock;
-	taskManager->start(worker, TaskManager::QT_GlobalQueue);
-	
+	if(m_type != NST_TCP) {
+		nlClose(m_socket->sock);
+	}
+	else {
+		// Do it in a separate thread because it might block for a while.
+		CloseSocketWorker* worker = new CloseSocketWorker();
+		worker->name = "close socket";
+		worker->sock = m_socket->sock;
+		taskManager->start(worker, TaskManager::QT_GlobalQueue);
+	}
+
 	m_socket->sock = NL_INVALID;
 	m_type = NST_INVALID;
 	m_state = NSS_NONE;
