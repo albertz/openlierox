@@ -41,14 +41,14 @@ static int l_baseObject_set(lua_State* L) {
 		return 0;
 	}
 
-	char const* attribName = lua_tostring(context, 2);
-	if(!attribName) {
-		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": expected a string as second param");
+	ScriptVar_t key;
+	if(NegResult r = context.toScriptVar(2, key)) {
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": key invald: " + r.res.humanErrorMsg);
 		return 0;
 	}
 
 	ScriptVar_t val;
-	if(NegResult r = obj->getAttrib(attribName, val)) {
+	if(NegResult r = obj->getAttrib(key, val)) {
 		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + r.res.humanErrorMsg);
 		return 0;
 	}
@@ -64,7 +64,7 @@ static int l_baseObject_set(lua_State* L) {
 		return 0;
 	}
 
-	if(NegResult r = obj->setAttrib(attribName, val)) {
+	if(NegResult r = obj->setAttrib(key, val)) {
 		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + r.res.humanErrorMsg);
 		return 0;
 	}
@@ -81,16 +81,10 @@ static int l_baseObject_get(lua_State* L) {
 		return 0;
 	}
 
-	char const* attribName = lua_tostring(context, 2);
-	if(!attribName) {
-		context.pushError("baseobject:index() " + obj->thisRef.description() + ": expected a string as second param");
-		return 0;
-	}
-
 	// if we are a C closure and have a table attached, check it
 	if(lua_istable(context, lua_upvalueindex(1))) {
 		lua_pushvalue(L, lua_upvalueindex(1));
-		lua_pushstring(L, attribName);
+		lua_pushvalue(L, 2);
 		lua_rawget(L, -2);
 		if(!lua_isnil(L, -1)) {
 			lua_remove(L, -2); // table
@@ -99,8 +93,14 @@ static int l_baseObject_get(lua_State* L) {
 		context.pop(2);
 	}
 
+	ScriptVar_t key;
+	if(NegResult r = context.toScriptVar(2, key)) {
+		context.pushError("baseobject:index() " + obj->thisRef.description() + ": key invald: " + r.res.humanErrorMsg);
+		return 0;
+	}
+
 	ScriptVar_t val;
-	if(NegResult r = obj->getAttrib(attribName, val)) {
+	if(NegResult r = obj->getAttrib(key, val)) {
 		context.pushError("baseobject:index() " + obj->thisRef.description() + ": " + r.res.humanErrorMsg);
 		return 0;
 	}
