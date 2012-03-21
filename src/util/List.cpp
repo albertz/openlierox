@@ -168,4 +168,34 @@ Result DynamicList::fromBytestream(CBytestream* bs, bool expectDiffToDefault) {
 	return true;
 }
 
+Result DynamicList::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
+	if(!key.isNumeric())
+		return "only numeric List keys allowed";
+
+	if(key.toInt() < 0)
+		return "only positive List indexes allowed";
+
+	size_t i = key.toNumericType<size_t>();
+	if(i >= size())
+		return "index " + itoa(i) + " out of bounds";
+
+	value = getGeneric(i);
+	return true;
+}
+
+Result DynamicList::setAttrib(const ScriptVar_t& key, const ScriptVar_t& value) {
+	if(!key.isNumeric())
+		return "only numeric List keys allowed";
+
+	if(key.toInt() < 0)
+		return "only positive List indexes allowed";
+
+	size_t i = key.toNumericType<size_t>();
+	if(i >= size())
+		return "index " + itoa(i) + " out of bounds";
+
+	writeGeneric(i, value);
+	return true;
+}
+
 REGISTER_CLASS(DynamicList, LuaID<CustomVar>::value)

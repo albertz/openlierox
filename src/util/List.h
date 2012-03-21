@@ -38,6 +38,9 @@ public:
 	virtual bool fromString(const std::string & str);
 	virtual Result toBytestream(CBytestream* bs, const CustomVar* diffTo) const;
 	virtual Result fromBytestream(CBytestream* bs, bool expectDiffToDefault);
+
+	virtual Result getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const;
+	virtual Result setAttrib(const ScriptVar_t& key, const ScriptVar_t& value);
 };
 
 template<typename T, typename ImplType = std::vector<T> >
