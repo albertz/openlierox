@@ -101,6 +101,36 @@ std::string BaseObject::toString() const {
 	return "<" + thisRef.description() + ">";
 }
 
+Result BaseObject::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
+	if(key.type != SVT_STRING)
+		return "only string-typed keys accepted for BaseObject";
+
+	if(thisRef.classId == ClassId(-1))
+		return "no classId assoziated";
+
+	const AttrDesc* attrDesc = findAttrDescByName(key, thisRef.classId, true);
+	if(!attrDesc)
+		return "no attrib '" + std::string(key) + "'";
+
+	value = attrDesc->get(this);
+	return true;
+}
+
+Result BaseObject::setAttrib(const ScriptVar_t& key, const ScriptVar_t& value) {
+	if(key.type != SVT_STRING)
+		return "only string-typed keys accepted for BaseObject";
+
+	if(thisRef.classId == ClassId(-1))
+		return "no classId assoziated";
+
+	const AttrDesc* attrDesc = findAttrDescByName(key, thisRef.classId, true);
+	if(!attrDesc)
+		return "no attrib '" + std::string(key) + "'";
+
+	attrDesc->set(this, value);
+	return true;
+}
+
 // We cannot use the REGISTER_CLASS macro because we cannot instantiate it.
 static bool registerClass_BaseObject() {
 	ClassInfo i;

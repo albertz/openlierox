@@ -12,6 +12,7 @@
 #include <vector>
 #include <stdint.h>
 #include "CodeAttributes.h"
+#include "util/Result.h"
 #include "WeakRef.h"
 #include "game/ClassInfo.h"
 #include "gusanos/glua.h"
@@ -47,6 +48,7 @@ struct ObjRef {
 };
 
 struct AttrUpdateInfo;
+class ScriptVar_t;
 
 struct BaseObject : LuaObject {
 	typedef ::WeakRef<BaseObject> WeakRef;
@@ -61,6 +63,8 @@ struct BaseObject : LuaObject {
 	virtual CServerConnection* ownerClient() const;
 
 	virtual std::string toString() const;
+	virtual Result getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const;
+	virtual Result setAttrib(const ScriptVar_t& key, const ScriptVar_t& value);
 
 	std::vector<AttrUpdateInfo> attrUpdates;
 	ObjRef thisRef;

@@ -41,33 +41,29 @@ static int l_baseObject_set(lua_State* L) {
 		return 0;
 	}
 
-	if(obj->thisRef.classId == ClassId(-1)) {
-		context.pushError("baseobject:newindex(): no classId assoziated");
-		return 0;
-	}
-
 	char const* attribName = lua_tostring(context, 2);
 	if(!attribName) {
 		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": expected a string as second param");
 		return 0;
 	}
 
-	const AttrDesc* attrDesc = findAttrDescByName(attribName, obj->thisRef.classId, true);
-	if(!attrDesc) {
-		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": no attrib '" + attribName + "'");
+	ScriptVar_t val;
+	if(NegResult r = obj->getAttrib(attribName, val)) {
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + r.res.humanErrorMsg);
 		return 0;
 	}
 
 	if(lua_isnil(L, 3)) {
-		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + attrDesc->description() + " cannot be set to nil");
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + attribName + " cannot be set to nil");
 		return 0;
 	}
-
 	std::string v = context.convert_tostring(3);
-
-	ScriptVar_t val(attrDesc->get(obj));
 	val.fromString(v);
-	attrDesc->set(obj, val);
+
+	if(NegResult r = obj->setAttrib(attribName, val)) {
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + r.res.humanErrorMsg);
+		return 0;
+	}
 
 	return 0;
 }
@@ -99,18 +95,12 @@ static int l_baseObject_get(lua_State* L) {
 		context.pop(2);
 	}
 
-	if(obj->thisRef.classId == ClassId(-1)) {
-		context.pushError("baseobject:index(): no classId assoziated");
+	ScriptVar_t val;
+	if(NegResult r = obj->getAttrib(attribName, val)) {
+		context.pushError("baseobject:index() " + obj->thisRef.description() + ": " + r.res.humanErrorMsg);
 		return 0;
 	}
 
-	const AttrDesc* attrDesc = findAttrDescByName(attribName, obj->thisRef.classId, true);
-	if(!attrDesc) {
-		context.pushError("baseobject:index() " + obj->thisRef.description() + ": no attrib '" + attribName + "'");
-		return 0;
-	}
-
-	ScriptVar_t val(attrDesc->get(obj));
 	if(val.type == SVT_BOOL)
 		context.push((bool)val);
 	else if(val.isNumeric())
