@@ -30,6 +30,7 @@
 #include "CodeAttributes.h"
 #include "StaticAssert.h"
 #include "util/PODForClass.h"
+#include "util/Result.h"
 
 
 struct BaseObject;
@@ -312,55 +313,28 @@ public:
 	bool fromString( const std::string & str);
 	friend std::ostream& operator<< (std::ostream& o, const ScriptVar_t& svt);
 
-	bool toBool() const { return toInt() != 0; }
-	int toInt() const {
+	bool toBool() const { return toFloat() != 0.f; }
+	template<typename T> T toNumericType() const {
 		switch(type) {
 		case SVT_BOOL: return b ? 1 : 0;
-		case SVT_INT32: return i;
-		case SVT_UINT64: return (uint64_t)i;
-		case SVT_FLOAT: return (int)f;
-		case SVT_STRING: return from_string<int>(str.get());
-		case SVT_COLOR: return (int)col.get().getDefault();
-		case SVT_VEC2: return (int)vec2.get().x; // everything else doesn't make sense
-		case SVT_CUSTOM: return from_string<int>(toString());
-		case SVT_CustomWeakRefToStatic: return from_string<int>(toString());
+		case SVT_INT32: return (T)i;
+		case SVT_UINT64: return (T)i_uint64;
+		case SVT_FLOAT: return (T)f;
+		case SVT_STRING: return from_string<T>(str.get());
+		case SVT_COLOR: return (T)col.get().getDefault();
+		case SVT_VEC2: return (T)vec2.get().x; // everything else doesn't make sense
+		case SVT_CUSTOM: return from_string<T>(toString());
+		case SVT_CustomWeakRefToStatic: return from_string<T>(toString());
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
 		assert(false); return 0;
 	}
-	float toFloat() const {
-		switch(type) {
-		case SVT_BOOL: return b ? 1.0f : 0.0f;
-		case SVT_INT32: return (float)i;
-		case SVT_UINT64: return (float)i_uint64;
-		case SVT_FLOAT: return f;
-		case SVT_STRING: return from_string<float>(str.get());
-		case SVT_COLOR: return (float)col.get().getDefault();
-		case SVT_VEC2: return vec2.get().x; // everything else doesn't make sense
-		case SVT_CUSTOM: return from_string<float>(toString());
-		case SVT_CustomWeakRefToStatic: return from_string<float>(toString());
-		case SVT_CALLBACK:
-		case SVT_DYNAMIC: assert(false);
-		}
-		assert(false); return 0.0f;
-	}
-	Color toColor() const {
-		switch(type) {
-		case SVT_BOOL: return b ? Color(255,255,255) : Color();
-		case SVT_INT32: return Color::fromDefault((Uint32)i);
-		case SVT_UINT64: return Color::fromDefault((Uint32)i_uint64);
-		case SVT_FLOAT: return Color::fromDefault((Uint32)f);
-		case SVT_STRING: return StrToCol(str.get());
-		case SVT_COLOR: return col.get();
-		case SVT_VEC2: return Color::fromDefault((Uint32)toInt());
-		case SVT_CUSTOM: return StrToCol(toString());
-		case SVT_CustomWeakRefToStatic: return StrToCol(toString());
-		case SVT_CALLBACK:
-		case SVT_DYNAMIC: assert(false);
-		}
-		assert(false); return Color();
-	}
+	int toInt() const { return toNumericType<int>(); }
+	uint64_t toUint64() const { return toNumericType<uint64_t>(); }
+	float toFloat() const { return toNumericType<float>(); }
+	Color toColor() const;
+	CVec toVec2() const;
 
 	ScriptVar_t& operator=(const ScriptVar_t& v) {
 		this -> ~ScriptVar_t(); // uninit
@@ -372,33 +346,8 @@ public:
 	ScriptVar_t& operator=(const T& v) { fromScriptVar(ScriptVar_t(v)); return *this; }
 
 	// Note: the difference to op=(ScriptVar) is that we keep the same type here
-	void fromScriptVar(const ScriptVar_t& v) {
-		switch(type) {
-		case SVT_BOOL: assert(v.type == SVT_BOOL); b = v.b; break;
-		case SVT_INT32: assert(v.type == SVT_INT32); i = v.i; break;
-		case SVT_UINT64: assert(v.type == SVT_UINT64); i_uint64 = v.i_uint64; break;
-		case SVT_FLOAT: assert(v.isNumeric()); f = v.getNumber(); break;
-		case SVT_STRING: str.get() = v.toString(); break;
-		case SVT_COLOR: assert(v.type == SVT_COLOR); col.get() = v.col.get(); break;
-		case SVT_VEC2: assert(v.type == SVT_VEC2); vec2.get() = v.vec2.get(); break;
-		case SVT_CUSTOM:
-			assert(v.type == SVT_CUSTOM || v.type == SVT_CustomWeakRefToStatic);
-			assert(v.customVar() != NULL);
-			custom.get() = v.customVar()->copy();
-			break;
-		case SVT_CustomWeakRefToStatic: {
-			assert(v.type == SVT_CUSTOM || v.type == SVT_CustomWeakRefToStatic);
-			CustomVar* thisVar = customVar();
-			const CustomVar* otherVar = v.customVar();
-			assert(thisVar != NULL);
-			assert(otherVar != NULL);
-			thisVar->copyFrom(*otherVar);
-			break;
-		}
-		case SVT_CALLBACK:
-		case SVT_DYNAMIC: assert(false);
-		}
-	}
+	Result fromScriptVar(const ScriptVar_t& v, bool tryCast = false, bool assertSuccess = true);
+
 };
 
 

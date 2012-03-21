@@ -12,6 +12,8 @@ extern "C"
 #include "gusanos/netstream.h"
 #include "util/Bitstream.h"
 #include "OLXCommand.h"
+#include "CScriptableVars.h"
+#include "gusanos/luaapi/classes.h"
 #include <cmath>
 #include <map>
 #include <set>
@@ -132,7 +134,7 @@ const char * LuaContext::istreamChunkReader(lua_State *L, void *data, size_t *si
 {
 	static char buffer[1024];
 	
-	istream& stream = *(istream *)data;
+	std::istream& stream = *(std::istream *)data;
 	
 	stream.read(buffer, 1024);
 
@@ -144,7 +146,7 @@ const char * LuaContext::istreamChunkReader(lua_State *L, void *data, size_t *si
 		return 0;
 }
 
-void LuaContext::load(std::string const& chunk, istream& stream)
+void LuaContext::load(std::string const& chunk, std::istream& stream)
 {
 	lua_pushcfunction(m_State, errorReport);
 	int result = lua_load(m_State, istreamChunkReader, &stream, chunk.c_str());
@@ -267,7 +269,7 @@ int LuaContext::execCode(const std::string& data, CmdLineIntf &cli) {
 	return 1;
 }
 
-typedef std::pair<istream*, int> IStreamData;
+typedef std::pair<std::istream*, int> IStreamData;
 
 const char * istreamExprReader(lua_State *L, void *data, size_t *size)
 {
@@ -303,7 +305,7 @@ const char * istreamExprReader(lua_State *L, void *data, size_t *size)
 	return ret;
 }
 
-int LuaContext::evalExpression(std::string const& chunk, istream& stream)
+int LuaContext::evalExpression(std::string const& chunk, std::istream& stream)
 {
 	IStreamData readData(&stream, 0);
 	
@@ -873,6 +875,67 @@ std::string LuaContext::convert_tostring(int i) {
 
 	return ret;
 }
+
+LuaContext& LuaContext::pushScriptVar(const ScriptVar_t& var) {
+	switch(var.type) {
+	case SVT_BOOL: push(bool(var)); break;
+	case SVT_INT32: push(int(var)); break;
+	case SVT_UINT64: push(int(var)); break;
+	case SVT_FLOAT: push(float(var)); break;
+	case SVT_STRING: push(std::string(var)); break;
+	case SVT_CUSTOM:
+		// Note: no Lua reference because it would reference to
+		// a maybe temporary var reference.
+		push(var.toString());
+		break;
+	case SVT_CustomWeakRefToStatic:
+		// A static CustomVar should always we writeable, thus we
+		// can cast here.
+		pushReference(((CustomVar*)var.customVar())->getLuaReference());
+		break;
+	default:
+		push(var.toString());
+	}
+
+	return *this;
+}
+
+Result LuaContext::toScriptVar(int idx, ScriptVar_t& var) {
+	if(lua_isnoneornil(m_State, idx))
+		return "value is none or nil";
+
+	if(lua_isboolean(m_State, idx)) {
+		var = ScriptVar_t(tobool(idx));
+		return true;
+	}
+
+	if(lua_isnumber(m_State, idx)) {
+		lua_Number n = lua_tonumber(m_State, idx);
+		if(n == lua_Number(int32_t(n))) { // int32_t
+			var = ScriptVar_t(int32_t(n));
+			return true;
+		}
+
+		var = ScriptVar_t(float(n));
+		return true;
+	}
+
+	if(lua_isstring(m_State, idx)) {
+		var = ScriptVar_t(tostring(idx));
+		return true;
+	}
+
+	if(BaseObject* obj = getObject<BaseObject>(*this, idx)) {
+		CustomVar* customVar = dynamic_cast<CustomVar*>(obj);
+		if(!customVar)
+			return obj->thisRef.description() + " not supported";
+		var = ScriptVar_t(obj->thisRef.obj);
+		return true;
+	}
+
+	return getLuaTypename(idx) + " not supported";
+}
+
 
 void LuaContext::close()
 {

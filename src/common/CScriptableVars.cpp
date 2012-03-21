@@ -102,6 +102,91 @@ bool ScriptVar_t::fromString( const std::string & s )
 	return true;
 }
 
+
+Color ScriptVar_t::toColor() const {
+	switch(type) {
+	case SVT_BOOL: return b ? Color(255,255,255) : Color();
+	case SVT_INT32: return Color::fromDefault((Uint32)i);
+	case SVT_UINT64: return Color::fromDefault((Uint32)i_uint64);
+	case SVT_FLOAT: return Color::fromDefault((Uint32)f);
+	case SVT_STRING: return StrToCol(str.get());
+	case SVT_COLOR: return col.get();
+	case SVT_VEC2: return Color::fromDefault((Uint32)toInt());
+	case SVT_CUSTOM: return StrToCol(toString());
+	case SVT_CustomWeakRefToStatic: return StrToCol(toString());
+	case SVT_CALLBACK:
+	case SVT_DYNAMIC: assert(false);
+	}
+	assert(false); return Color();
+}
+
+CVec ScriptVar_t::toVec2() const {
+	switch(type) {
+	case SVT_BOOL: return b ? CVec(1, 0) : CVec();
+	case SVT_INT32: return CVec(i, 0);
+	case SVT_UINT64: return CVec(i_uint64, 0);
+	case SVT_FLOAT: return CVec(f, 0);
+	case SVT_STRING: return from_string<CVec>(str.get());
+	case SVT_COLOR: return CVec(col.get().getDefault(), 0);
+	case SVT_VEC2: return vec2.get();
+	case SVT_CUSTOM: return from_string<CVec>(toString());
+	case SVT_CustomWeakRefToStatic: return from_string<CVec>(toString());
+	case SVT_CALLBACK:
+	case SVT_DYNAMIC: assert(false);
+	}
+	assert(false); return CVec();
+}
+
+Result ScriptVar_t::fromScriptVar(const ScriptVar_t& v, bool tryCast, bool assertSuccess) {
+	Result r = true;
+#define check_type(cond) if(!(cond)) { r = "bad type"; break; }
+	if(!tryCast)
+		switch(type) {
+		case SVT_BOOL: check_type(v.type == SVT_BOOL); b = v.b; break;
+		case SVT_INT32: check_type(v.type == SVT_INT32); i = v.i; break;
+		case SVT_UINT64: check_type(v.type == SVT_UINT64); i_uint64 = v.i_uint64; break;
+		case SVT_FLOAT: check_type(v.isNumeric()); f = v.getNumber(); break;
+		case SVT_STRING: str.get() = v.toString(); break;
+		case SVT_COLOR: check_type(v.type == SVT_COLOR); col.get() = v.col.get(); break;
+		case SVT_VEC2: check_type(v.type == SVT_VEC2); vec2.get() = v.vec2.get(); break;
+		case SVT_CUSTOM:
+			check_type(v.isCustomType());
+			assert(v.customVar() != NULL);
+			custom.get() = v.customVar()->copy();
+			break;
+		case SVT_CustomWeakRefToStatic: {
+			assert(customVar() != NULL);
+			check_type(v.isCustomType());
+			assert(v.customVar() != NULL);
+			customVar()->copyFrom(*v.customVar());
+			break;
+		}
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
+		}
+	else
+		switch(type) {
+		case SVT_BOOL: b = v.toBool(); break;
+		case SVT_INT32: i = v.toInt(); break;
+		case SVT_UINT64: i_uint64 = v.toUint64(); break;
+		case SVT_FLOAT: f = v.toFloat(); break;
+		case SVT_STRING: str.get() = v.toString(); break;
+		case SVT_COLOR: col.get() = v.toColor(); break;
+		case SVT_VEC2: vec2.get() = v.toVec2(); break;
+		case SVT_CUSTOM:
+		case SVT_CustomWeakRefToStatic:
+			assert(customVar() != NULL);
+			customVar()->fromScriptVar(v);
+			break;
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
+		}
+#undef check_type
+	if(assertSuccess) assert(r);
+	return r;
+}
+
+
 std::string ScriptVarPtr_t::toString() const
 {
 	switch(type) {
@@ -154,7 +239,7 @@ bool ScriptVarPtr_t::fromString( const std::string & _str) const {
 		ptr.dynVar->fromScriptVar(var);
 		return true;
 	}
-	default: assert(false); return false;
+	case SVT_CALLBACK: assert(false); return false;
 	}
 	return true;
 }

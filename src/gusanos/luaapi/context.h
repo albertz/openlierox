@@ -9,6 +9,7 @@ extern "C"
 #include "gusanos/luaapi/types.h"
 #include "CodeAttributes.h"
 #include "util/WeakRef.h"
+#include "util/Result.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -18,13 +19,10 @@ extern "C"
 #include <map>
 #include <assert.h>
 #include <boost/function.hpp>
-using std::istream;
-using std::cerr;
-using std::endl;
-using std::string;
 
 class BitStream;
 struct CmdLineIntf;
+class ScriptVar_t;
 
 class LuaContext : DontCopyTag
 {
@@ -150,10 +148,10 @@ public:
 	
 	static const char * istreamChunkReader(lua_State *L, void *data, size_t *size);
 
-	void load(std::string const& chunk, istream& stream);
+	void load(std::string const& chunk, std::istream& stream);
 	
 	int evalExpression(std::string const& chunk, std::string const& data);
-	int evalExpression(std::string const& chunk, istream& stream);
+	int evalExpression(std::string const& chunk, std::istream& stream);
 
 	int execCode(const std::string& data, CmdLineIntf& cli);
 
@@ -314,6 +312,8 @@ public:
 		return *this;
 	}
 	
+	LuaContext& pushScriptVar(const ScriptVar_t& var);
+
 	void pushError(const std::string& msg) {
 		lua_pushstring(*this, msg.c_str());
 		lua_error(*this);
@@ -331,9 +331,13 @@ public:
 		return *this;
 	}
 	
+	int getLuaType(int idx) { return lua_type(m_State, idx); }
+	std::string getLuaTypename(int idx) { return lua_typename(m_State, getLuaType(idx)); }
+
 	const char* tostring(int i) { return lua_tostring(m_State, i); }
 	std::string convert_tostring(int i);
 	bool tobool(int i) { return lua_toboolean(m_State, i); }
+	Result toScriptVar(int idx, ScriptVar_t& var);
 
 	LuaContext& newtable()
 	{

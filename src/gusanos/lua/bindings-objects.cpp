@@ -53,12 +53,16 @@ static int l_baseObject_set(lua_State* L) {
 		return 0;
 	}
 
-	if(lua_isnil(L, 3)) {
-		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + attribName + " cannot be set to nil");
+	ScriptVar_t newVal;
+	if(NegResult r = context.toScriptVar(3, newVal)) {
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + r.res.humanErrorMsg);
 		return 0;
 	}
-	std::string v = context.convert_tostring(3);
-	val.fromString(v);
+
+	if(NegResult r = val.fromScriptVar(newVal, true, false)) {
+		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": error while casting: " + r.res.humanErrorMsg);
+		return 0;
+	}
 
 	if(NegResult r = obj->setAttrib(attribName, val)) {
 		context.pushError("baseobject:newindex() " + obj->thisRef.description() + ": " + r.res.humanErrorMsg);
@@ -101,14 +105,7 @@ static int l_baseObject_get(lua_State* L) {
 		return 0;
 	}
 
-	if(val.type == SVT_BOOL)
-		context.push((bool)val);
-	else if(val.isNumeric())
-		context.push(val.getNumber());
-	else if(val.isCustomType())
-		context.pushReference(val.customVar()->getLuaReference());
-	else
-		context.push(val.toString());
+	context.pushScriptVar(val);
 	return 1;
 }
 
