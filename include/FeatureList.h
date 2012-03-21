@@ -95,7 +95,7 @@ struct Feature {
 
 	Feature(uint32_t id_, const std::string& n, const std::string& hn, const std::string& desc, const CustomVar& unset, const CustomVar& def,
 			Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false)
-	: id(id_), name(n), humanReadableName(hn), description(desc), valueType(SVT_CUSTOM), unsetValue(Var(unset)), defaultValue(Var(def)),
+	: id(id_), name(n), humanReadableName(hn), description(desc), valueType(SVT_CUSTOM), unsetValue(Var(unset.getRefCopy())), defaultValue(Var(def.getRefCopy())),
 	minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 	getValueFct(GetValueFunction()) {}
 	

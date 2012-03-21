@@ -299,7 +299,7 @@ bool GameOptions::Init() {
 	}
 
 	// reset it because we need the CGameMode* ptr working and in some cases, it is not init correctly
-	featureArray[FT_GameMode].defaultValue = featureArray[FT_GameMode].unsetValue = ScriptVar_t(GameModeInfo());
+	featureArray[FT_GameMode].defaultValue = featureArray[FT_GameMode].unsetValue = ScriptVar_t(GameModeInfo().getRefCopy());
 	
 	notes << "Reading game options from " << GetFullFileName(tLXOptions->cfgFilename) << endl;
 	notes << "Will write game options to " << GetWriteFullFileName(tLXOptions->cfgFilename, true) << endl;

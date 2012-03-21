@@ -26,6 +26,7 @@ class ScriptVar_t;
 struct CustomVar : BaseObject {
 	typedef ::Ref<CustomVar> Ref;
 	virtual ~CustomVar() {}
+	Ref getRefCopy() const { return Ref(copy()); }
 
 	virtual void reset();
 	virtual CustomVar* copy() const;

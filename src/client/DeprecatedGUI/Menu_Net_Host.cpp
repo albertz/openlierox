@@ -1095,7 +1095,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					if(buf != "")
 						gameSettings.overwrite[FT_Lives] = from_string<int>(buf, fail);
 					if(buf == "" || fail)
-						gameSettings.overwrite[FT_Lives] = WRM_UNLIM;
+						gameSettings.overwrite[FT_Lives] = (int)WRM_UNLIM;
 
 					cServer->UpdateGameLobby();
 				}

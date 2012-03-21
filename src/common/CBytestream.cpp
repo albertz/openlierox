@@ -627,7 +627,7 @@ bool CBytestream::readVar(ScriptVar_t& var) {
 		else {
 			CustomVar::Ref custom = CustomVar::FromBytestream(this);
 			if(!custom) return false;
-			var = ScriptVar_t(custom.get());
+			var = custom;
 			return true;
 		}
 	}

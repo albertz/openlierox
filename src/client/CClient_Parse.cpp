@@ -780,10 +780,10 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// Other game details
 	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10)) {
 		client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readInt(1));
-		client->getGameLobby().overwrite[FT_Lives] = bs->readInt16();
-		client->getGameLobby().overwrite[FT_KillLimit] = bs->readInt16();
+		client->getGameLobby().overwrite[FT_Lives] = (int)bs->readInt16();
+		client->getGameLobby().overwrite[FT_KillLimit] = (int)bs->readInt16();
 		client->getGameLobby().overwrite[FT_TimeLimit] = (float)bs->readInt16();
-		client->getGameLobby().overwrite[FT_LoadingTime] = bs->readInt16();
+		client->getGameLobby().overwrite[FT_LoadingTime] = (int)bs->readInt16();
 		client->getGameLobby().overwrite[FT_Bonuses] = bs->readBool();
 		client->getGameLobby().overwrite[FT_ShowBonusName] = bs->readBool();
 	}
@@ -1874,8 +1874,8 @@ void CClientNetEngineBeta9NewNet::ParseUpdateWorms(CBytestream *bs)
 template<typename T>
 static bool onlyUpdateInLobby(CClient* client, FeatureIndex i, const T& update) {
 	if(client->getStatus() != NET_CONNECTED) {
-		if(client->getGameLobby()[i] != ScriptVar_t(update))
-			notes << "CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring update " << featureArray[i].name << " '" << client->getGameLobby()[i].toString() << "' -> '" << ScriptVar_t(update).toString() << "'" << endl;
+		if(client->getGameLobby()[i] != update)
+			notes << "CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring update " << featureArray[i].name << " '" << client->getGameLobby()[i].toString() << "' -> '" << ScriptVar_t::MaybeRef(update).toString() << "'" << endl;
 		return false;
 	}
 
@@ -1894,10 +1894,10 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	modInfo.path = bs->readString();
 	onlyUpdateInLobby(client, FT_Mod, modInfo);
 	client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readByte());
-	client->getGameLobby().overwrite[FT_Lives] = bs->readInt16();
-	client->getGameLobby().overwrite[FT_KillLimit] = bs->readInt16();
+	client->getGameLobby().overwrite[FT_Lives] = (int)bs->readInt16();
+	client->getGameLobby().overwrite[FT_KillLimit] = (int)bs->readInt16();
 	client->getGameLobby().overwrite[FT_TimeLimit] = -100.0f;
-	client->getGameLobby().overwrite[FT_LoadingTime] = bs->readInt16();
+	client->getGameLobby().overwrite[FT_LoadingTime] = (int)bs->readInt16();
     client->getGameLobby().overwrite[FT_Bonuses] = bs->readBool();
 
 	client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;

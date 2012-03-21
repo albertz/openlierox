@@ -202,7 +202,7 @@ public:
 	// Arsenal
 	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false; onUpdate = onWeaponsReadyUpdate; })
 	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
-	ATTR(CWorm, List<wpnslot_t>,	weaponSlots, 22, { serverside = false; defaultValue = List<wpnslot_t>(5); })
+	ATTR(CWorm, List<wpnslot_t>,	weaponSlots, 22, { serverside = false; defaultValue = List<wpnslot_t>(5).getRefCopy(); })
 
 	struct WeaponSlotWrapper {
 		const CWorm* parent() const { return (const CWorm*)__OLX_BASETHIS(CWorm, tWeapons); }

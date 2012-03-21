@@ -46,10 +46,10 @@ public:
 			if(game.isClient())
 				s.settings[i] = val;
 			else {
-				if(gameSettings[i] != ScriptVar_t(val))
+				if(gameSettings[i] != val)
 					errors << "EngineSettings: overwrite "
 					<< featureArray[i].name << " mismatch. old="
-					<< gameSettings[i].toString() << ", new=" << ScriptVar_t(val).toString() << endl;
+					<< gameSettings[i].toString() << ", new=" << ScriptVar_t::MaybeRef(val).toString() << endl;
 			}
 			return *this;
 		}

@@ -52,12 +52,12 @@ public:
 	typedef typename ImplType::reference ref_type;
 	typedef typename ImplType::const_reference constref_type;
 
-	virtual ScriptVar_t defaultValue() const { return ScriptVar_t(T()); }
+	virtual ScriptVar_t defaultValue() const { return ScriptVar_t(GetType<T>::defaultValue()); }
 	virtual ScriptVarType_t type() const { return typeId; }
 	virtual size_t size() const { return list.size(); }
 	virtual void resize(size_t s) { list.resize(s); }
 	virtual void writeGeneric(size_t i, const ScriptVar_t& v) { assert(i < size()); list[i] = v.castConst<T>(); }
-	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t(list[i]); }
+	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t::MaybeRef(list[i]); }
 
 	ref_type write(size_t i) { assert(i < size()); return list[i]; }
 	constref_type get(size_t i) const { assert(i < size()); return list[i]; }
@@ -87,13 +87,13 @@ public:
 	static const ScriptVarType_t typeId = GetType<T>::value;
 	typedef T value_type;
 
-	virtual ScriptVar_t defaultValue() const { return ScriptVar_t(T()); }
+	virtual ScriptVar_t defaultValue() const { return ScriptVar_t(GetType<T>::defaultValue()); }
 	virtual ScriptVarType_t type() const { return typeId; }
 	virtual size_t size() const { return Size; }
 	virtual bool canResize() const { return false; }
 	virtual void resize(size_t s) { assert(s == size()); /* we cannot resize a static array */ }
 	virtual void writeGeneric(size_t i, const ScriptVar_t& v) { assert(i < size()); list[i] = v.castConst<T>(); }
-	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t(list[i]); }
+	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t::MaybeRef(list[i]); }
 
 	T& write(size_t i) { assert(i < size()); return list[i]; }
 	const T& get(size_t i) const { assert(i < size()); return list[i]; }

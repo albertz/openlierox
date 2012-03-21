@@ -253,7 +253,7 @@ ScriptVar_t ScriptVarPtr_t::asScriptVar() const {
 	case SVT_STRING: return ScriptVar_t(*ptr.s);
 	case SVT_COLOR: return ScriptVar_t(*ptr.cl);
 	case SVT_VEC2: return ScriptVar_t(*ptr.vec2);
-	case SVT_CUSTOM: return ScriptVar_t(ptr.custom->get());
+	case SVT_CUSTOM: return ScriptVar_t(*ptr.custom);
 	case SVT_CustomWeakRefToStatic: return ScriptVar_t(ptr.customRef->thisRef.obj);
 	case SVT_DYNAMIC: return ptr.dynVar->asScriptVar();
 	case SVT_CALLBACK: assert(false);
@@ -386,5 +386,5 @@ void realCopyVar(ScriptVar_t& var) {
 		// do a real copy
 		// NOTE: This can go away once we don't have SVT_CustomWeakRefToStatic anymore,
 		// i.e. ScriptVar_t can never be a ref and is always a copy.
-		var = ScriptVar_t(*var.customVar());
+		var = ScriptVar_t(var.customVar()->getRefCopy());
 }

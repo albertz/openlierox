@@ -18,6 +18,7 @@
 #include <list>
 #include <cassert>
 #include <iostream>
+#include <boost/typeof/typeof.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
 #include "Color.h"
@@ -100,27 +101,52 @@ enum ScriptVarType_t
 
 static const ScriptVarType_t SVT_INVALID = ScriptVarType_t(-1);
 
+
 template<typename T> struct GetType;
 
-template<> struct GetType<bool> { typedef bool type; static const ScriptVarType_t value = SVT_BOOL; };
-template<> struct GetType<int32_t> { typedef int32_t type; static const ScriptVarType_t value = SVT_INT32; };
-template<> struct GetType<uint64_t> { typedef uint64_t type; static const ScriptVarType_t value = SVT_UINT64; };
-template<> struct GetType<float> { typedef float type; static const ScriptVarType_t value = SVT_FLOAT; };
-template<> struct GetType<std::string> { typedef std::string type; static const ScriptVarType_t value = SVT_STRING; };
-template<> struct GetType<Color> { typedef Color type; static const ScriptVarType_t value = SVT_COLOR; };
-template<> struct GetType<CVec> { typedef CVec type; static const ScriptVarType_t value = SVT_VEC2; };
-template<> struct GetType<CustomVar::Ref> { typedef CustomVar::Ref type; static const ScriptVarType_t value = SVT_CUSTOM; };
-template<> struct GetType<const char*> : GetType<std::string> {};
-
-template<bool> struct GetType_BaseCustomVar;
-template<> struct GetType_BaseCustomVar<true> {
-	struct Type {
-		typedef CustomVar::WeakRef type;
-		static const ScriptVarType_t value = SVT_CustomWeakRefToStatic;
-	};
+template<typename T> struct _GetTypeSimple {
+	typedef T type;
+	static type defaultValue() { return T(); }
+	static const type& constRef(const type& v) { return v; }
 };
 
-template<typename T> struct GetType : GetType_BaseCustomVar<boost::is_base_of<CustomVar,T>::value>::Type {};
+template<> struct GetType<bool> : _GetTypeSimple<bool> { static const ScriptVarType_t value = SVT_BOOL; };
+template<> struct GetType<int32_t> : _GetTypeSimple<int32_t> { static const ScriptVarType_t value = SVT_INT32; };
+template<> struct GetType<uint64_t> : _GetTypeSimple<uint64_t> { static const ScriptVarType_t value = SVT_UINT64; };
+template<> struct GetType<float> : _GetTypeSimple<float> { static const ScriptVarType_t value = SVT_FLOAT; };
+template<> struct GetType<std::string> : _GetTypeSimple<std::string> { static const ScriptVarType_t value = SVT_STRING; };
+template<> struct GetType<Color> : _GetTypeSimple<Color> { static const ScriptVarType_t value = SVT_COLOR; };
+template<> struct GetType<CVec> : _GetTypeSimple<CVec> { static const ScriptVarType_t value = SVT_VEC2; };
+template<> struct GetType<CustomVar::Ref> {
+	typedef CustomVar::Ref type;
+	static const ScriptVarType_t value = SVT_CUSTOM;
+	static type defaultValue() { return NullCustomVar().getRefCopy(); }
+	static const type& constRef(const type& v) { return v; }
+};
+
+
+template<typename T>
+struct CustomVarWeakRefType {
+	typedef CustomVar::WeakRef type;
+	static const ScriptVarType_t value = SVT_CustomWeakRefToStatic;
+	static CustomVar::Ref defaultValue() { return T().getRefCopy(); }
+	static CustomVar::WeakRef constRef(const T& v) { return v.thisRef.obj; }
+};
+
+struct StringType : GetType<std::string> {};
+
+template<typename T>
+struct _SelectType {
+	static CustomVarWeakRefType<T>* selectType(const CustomVar&) { return NULL; }
+
+	static StringType* selectType(const char*) { return NULL; }
+	static StringType* selectType(char[]) { return NULL; }
+
+	typedef BOOST_TYPEOF(*selectType(*(T*)NULL)) type;
+};
+
+template<typename T> struct GetType : _SelectType<T>::type {};
+
 
 
 template<typename T> T* PtrFromScriptVar(ScriptVar_t& v, T* dummy = NULL);
@@ -157,7 +183,6 @@ public:
 	ScriptVar_t( const char* v ): type(SVT_STRING) { str.init(v); }
 	ScriptVar_t( Color v ): type(SVT_COLOR) { col.init(v); }
 	ScriptVar_t( CVec v ): type(SVT_VEC2) { vec2.init(v); }
-	explicit ScriptVar_t( const CustomVar& c ): type(SVT_CUSTOM) { custom.init(c.copy()); }
 	ScriptVar_t( const CustomVar::Ref& c ): type(SVT_CUSTOM) { custom.init(c); }
 	ScriptVar_t( const CustomVar::WeakRef& c ): type(SVT_CustomWeakRefToStatic) { customRef.init(c); }
 
@@ -186,8 +211,8 @@ public:
 		case SVT_STRING: return ScriptVar_t("");
 		case SVT_COLOR: return ScriptVar_t(Color());
 		case SVT_VEC2: return ScriptVar_t(CVec());
-		case SVT_CUSTOM: return ScriptVar_t(NullCustomVar());
-		case SVT_CustomWeakRefToStatic: return ScriptVar_t(NullCustomVar());
+		case SVT_CUSTOM: return ScriptVar_t(NullCustomVar().getRefCopy());
+		case SVT_CustomWeakRefToStatic:
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
@@ -343,10 +368,29 @@ public:
 	}
 
 	template<typename T>
-	ScriptVar_t& operator=(const T& v) { fromScriptVar(ScriptVar_t(v)); return *this; }
+	ScriptVar_t& operator=(const T& v) {
+		fromScriptVar(MaybeRef(v));
+		return *this;
+	}
 
 	// Note: the difference to op=(ScriptVar) is that we keep the same type here
 	Result fromScriptVar(const ScriptVar_t& v, bool tryCast = false, bool assertSuccess = true);
+
+	// This is safe to use as long as `v` stays valid.
+	// In most cases, it is still a copy.
+	// But if it is a custom type, it will be a reference.
+	template<typename T>
+	static ScriptVar_t MaybeRef(const T& v) {
+		return ScriptVar_t(GetType<T>::constRef(v));
+	}
+	static ScriptVar_t MaybeRef(const ScriptVar_t& v) { return v; }
+
+	template<typename T>
+	bool operator==(const T& v) const { return *this == MaybeRef(v); }
+	template<typename T>
+	bool operator!=(const T& v) const { return *this != MaybeRef(v); }
+	template<typename T>
+	bool operator<(const T& v) const { return *this < MaybeRef(v); }
 
 };
 
