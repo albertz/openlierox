@@ -20,6 +20,7 @@
 #include <iostream>
 #include <boost/typeof/typeof.hpp>
 #include <boost/type_traits/is_base_of.hpp>
+#include <boost/type_traits.hpp>
 
 #include "Color.h"
 #include "StringUtils.h"
@@ -411,36 +412,17 @@ template<typename T> T* ScriptVar_t::ptr() {
 }
 
 
-template<typename T> T CastScriptVarConst(const ScriptVar_t& s);
-
-template<bool> struct CastScriptVar1;
-template<typename T> struct CastScriptVar1_IsSimpleType {
-	static const bool value = GetType<T>::value < SVT_CUSTOM;
-};
-template<> struct CastScriptVar1<true> {
-	template<typename T> static T castConst(const ScriptVar_t& s, const T* /*dummy*/) { return (T) s; }
-};
-
-template<bool> struct CastScriptVar2;
-template<typename T> struct CastScriptVar2_IsCustomVar {
-	static const bool value = boost::is_base_of<CustomVar,T>::value;
-};
-template<> struct CastScriptVar2<true> {
-	template<typename T> static T castConst(const ScriptVar_t& s, const T* /*dummy*/) {
-		const CustomVar* v = s.customVar();
-		const T* p = dynamic_cast<const T*>(v);
-		return *p;
-	}
-};
-
-template<> struct CastScriptVar1<false> {
-	template<typename T> static T castConst(const ScriptVar_t& s, const T* /*dummy*/) {
-		return CastScriptVar2<CastScriptVar2_IsCustomVar<T>::value>::castConst(s, (T*)NULL);
-	}
-};
-template<typename T> T CastScriptVarConst(const ScriptVar_t& s) {
-	return CastScriptVar1<CastScriptVar1_IsSimpleType<T>::value>::castConst(s, (T*)NULL);
+template<typename T>
+T _CastScriptVarConst(const ScriptVar_t& s, T*, typename boost::enable_if_c<(GetType<T>::value < SVT_CUSTOM), T>::type*) {
+	return (T) s;
 }
+
+template<typename T>
+T _CastScriptVarConst(const ScriptVar_t& s, T*, typename boost::enable_if_c<boost::is_base_of<CustomVar,T>::value, T>::type*) {
+	return *s.as<T>();
+}
+
+template<typename T> T CastScriptVarConst(const ScriptVar_t& s) { return _CastScriptVarConst(s, (T*)NULL, (T*)NULL); }
 
 
 struct _DynamicVar {
