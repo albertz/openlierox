@@ -271,7 +271,7 @@ struct _ ## name ## _AttrDesc ## id : AttrDesc { \
 		attrExtMemOffset = (intptr_t)__OLX_OFFSETOF(Dummy, ext); \
 		attrName = #name ; \
 		attrId = id; \
-		defaultValue = GetType<type>::defaultValue(); \
+		defaultValue = ScriptVar_t(GetType<type>::defaultValue()); \
 		attrDescSpecCode; \
 		registerAttrDesc(*this); \
 	} \
