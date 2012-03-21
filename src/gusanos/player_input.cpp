@@ -39,7 +39,7 @@ std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std
 		EACH_CALLBACK(i, localplayerEvent+action)
 		{
 			int n = (lua.call(*i, 1), player.getLuaReference(), true)();
-			if(n > 0 && lua.get<bool>(-1))
+			if(n > 0 && lua.tobool(-1))
 				ignore = true;
 			lua.pop(n);
 		}
@@ -47,7 +47,7 @@ std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std
 		EACH_CALLBACK(i, localplayerEventAny)
 		{
 			int n = (lua.call(*i, 1), player.getLuaReference(), static_cast<int>(action), true)();
-			if(n > 0 && lua.get<bool>(-1))
+			if(n > 0 && lua.tobool(-1))
 				ignore = true;
 			lua.pop(n);
 		}
@@ -74,7 +74,7 @@ std::string eventStop(size_t index, CWormHumanInputHandler::Actions action, std:
 		EACH_CALLBACK(i, localplayerEvent+action)
 		{
 			int n = (lua.call(*i, 1), player.getLuaReference(), false)();
-			if(n > 0 && lua.get<bool>(-1))
+			if(n > 0 && lua.tobool(-1))
 				ignore = true;
 			lua.pop(n);
 		}
@@ -82,7 +82,7 @@ std::string eventStop(size_t index, CWormHumanInputHandler::Actions action, std:
 		EACH_CALLBACK(i, localplayerEventAny)
 		{
 			int n = (lua.call(*i, 1), player.getLuaReference(), static_cast<int>(action), false)();
-			if(n > 0 && lua.get<bool>(-1))
+			if(n > 0 && lua.tobool(-1))
 				ignore = true;
 			lua.pop(n);
 		}

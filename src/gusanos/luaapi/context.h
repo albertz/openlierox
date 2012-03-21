@@ -287,34 +287,7 @@ public:
 		pushReference(metatable);
 		lua_setmetatable(m_State, -2);
 	}
-	
-	/*template<class T>
-	void pushFullReference(T& x)
-	{
-		T** i = (T **)lua_newuserdata_init (m_State, sizeof(T*));
-		*i = &x;
-	}*/
-	
-	/*template<class T>
-	void pushObject(T const& x)
-	{
-		T* i = (T *)lua_newuserdata_init (m_State, sizeof(T));
-		*i = x;
-	}*/
-	
-	/*
-	template<class T>
-	T* toObject(int idx)
-	{
-		if(!lua_setmetatable(m_State, idx))
-			lua_error(m_State, "Invalid argument");
-		push(T::metatable());
 		
-		T** p = lua_touserdata(m_State, idx);
-		if(!p) lua_error(m_State, "Invalid argument");
-		T* p2 = *p;
-	}*/
-	
 	void* pushObject(size_t count) // Pops a metatable from the stack
 	{
 		void* p = lua_newuserdata_init (m_State, count); // <metatable> <object>
@@ -358,12 +331,9 @@ public:
 		return *this;
 	}
 	
-	const char* tostring(int i)
-	{
-		return lua_tostring(m_State, i);
-	}
-	
+	const char* tostring(int i) { return lua_tostring(m_State, i); }
 	std::string convert_tostring(int i);
+	bool tobool(int i) { return lua_toboolean(m_State, i); }
 
 	LuaContext& newtable()
 	{
@@ -382,29 +352,6 @@ public:
 		return CallProxy(*this, ref, returns);
 	}
 	
-	template<class T>
-	INLINE T get(int idx)
-	{
-		return T();
-	}
-
-	/*
-	template<class T>
-	INLINE T* getObject(int idx)
-	{
-		void* p = lua_touserdata(m_State, idx);
-		if(!p)
-			return 0;
-		lua_getmetatable(m_State, idx);
-		push(T::metaTable);
-		bool b = lua_rawequal(m_State, -1, -2);
-		pop(2);
-		if(b)
-			return *static_cast<T**>(p);
-		return 0;
-	}
-	*/
-
 	template<class T>
 	void tableToVector(std::vector<T> const& v)
 	{
@@ -493,12 +440,6 @@ private:
 	lua_State *m_State;
 	//std::map<std::string, LuaReference> metaTables;
 };
-
-template<>
-INLINE bool LuaContext::get<bool>(int idx)
-{
-	return lua_toboolean(m_State, idx) != 0;
-}
 
 extern LuaContext lua;
 
