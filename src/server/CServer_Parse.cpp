@@ -1086,6 +1086,14 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 		}
 	}
 	
+	if(game.isLocalGame()) {
+		bs.writeInt(-1, 4);
+		bs.writeString("lx::badconnect");
+		bs.writeString("This game is local.");
+		bs.Send(tSocket);
+		return;
+	}
+
 	// If were in the game, deny challenges
 	if ( game.state != Game::S_Lobby && !serverAllowsConnectDuringGame() ) {
 		// TODO: move this out here
