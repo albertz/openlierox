@@ -31,6 +31,7 @@ public:
 	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return list[i]; }
 
 	virtual CustomVar* copy() const;
+	virtual bool shouldUpdateAll() const;
 	virtual void copyFrom(const CustomVar& o);
 	virtual bool operator==(const CustomVar& o) const;
 	virtual bool operator<(const CustomVar& o) const;

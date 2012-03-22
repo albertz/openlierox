@@ -34,6 +34,7 @@ struct CustomVar : BaseObject {
 	virtual bool operator<(const CustomVar&) const;
 	virtual bool fromString(const std::string & str);
 
+	virtual bool shouldUpdateAll() const;
 	virtual void copyFrom(const CustomVar&);
 	virtual void fromScriptVar(const ScriptVar_t& v);
 	virtual Result toBytestream( CBytestream* bs, const CustomVar* diffTo = NULL ) const;

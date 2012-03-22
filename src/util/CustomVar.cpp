@@ -68,6 +68,17 @@ bool CustomVar::fromString(const std::string& str) {
 	return false;
 }
 
+bool CustomVar::shouldUpdateAll() const {
+	if(!isRegistered()) return true;
+	std::vector<const AttrDesc*> attribs = getAttrDescs(thisRef.classId, true);
+	foreach(a, attribs) {
+		if(!(*a)->shouldUpdate(this)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void CustomVar::copyFrom(const CustomVar& v) {
 	assert( thisRef.classId != ClassId(-1) );
 	assert( v.thisRef.classId != ClassId(-1) );
@@ -113,13 +124,7 @@ Result CustomVar::toBytestream(CBytestream *bs, const CustomVar* diffTo) const {
 			if(diffTo && value != (*a)->get(diffTo)) numChangesOld++;
 		}
 	}
-	bool shouldUpdateAll = true;
-	foreach(a, attribs) {
-		if(isRegistered() && !(*a)->shouldUpdate(this)) {
-			shouldUpdateAll = false;
-			break;
-		}
-	}
+	bool shouldUpdateAll = this->shouldUpdateAll();
 	if(!shouldUpdateAll && !diffTo)
 		errors << "CustomVar::toBytestream " << thisRef.description() << ": at least one attrib should not be updated but we have no diff to relate to" << endl;
 

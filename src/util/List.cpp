@@ -25,6 +25,15 @@ void DynamicList::reset() {
 
 CustomVar* DynamicList::copy() const { return new DynamicList(*this); }
 
+bool DynamicList::shouldUpdateAll() const {
+	for(size_t i = 0; i < size(); ++i) {
+		ScriptVar_t v = getGeneric(i);
+		if(v.isCustomType() && !v.customVar()->shouldUpdateAll())
+			return false;
+	}
+	return true;
+}
+
 void DynamicList::copyFrom(const CustomVar& o) {
 	const DynamicList* ol = dynamic_cast<const DynamicList*>(&o);
 	assert(ol != NULL);
@@ -86,8 +95,11 @@ Result DynamicList::toBytestream(CBytestream* bs, const CustomVar* diffTo) const
 			if(value != otherVal) numChangesOld++;
 		}
 	}
+	bool shouldUpdateAll = this->shouldUpdateAll();
+	if(!shouldUpdateAll && !diffToList)
+		errors << "DynamicList::toBytestream " << thisRef.description() << ": at least one item should not be updated but we have no diff to relate to" << endl;
 
-	if(diffToList && numChangesOld < numChangesDefault) {
+	if(diffToList && (!shouldUpdateAll || numChangesOld < numChangesDefault)) {
 		bs->writeInt(CUSTOMVAR_STREAM_DiffToOld, 1);
 		for(size_t i = 0; i < size(); ++i) {
 			ScriptVar_t value = getGeneric(i);
