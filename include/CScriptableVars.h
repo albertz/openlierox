@@ -242,8 +242,8 @@ public:
 
 	template <typename T> T castConst() const { return CastScriptVarConst<T>(*this); }
 
-	template<typename T> T* as() { assert(type == SVT_CUSTOM); return dynamic_cast<T*> (&custom.get().get()); }
-	template<typename T> const T* as() const { assert(type == SVT_CUSTOM); return dynamic_cast<const T*> (&custom.get().get()); }
+	template<typename T> T* as() { assert(isCustomType()); return dynamic_cast<T*> (customVar()); }
+	template<typename T> const T* as() const { assert(isCustomType()); return dynamic_cast<const T*> (customVar()); }
 
 	template<typename T> T* ptr();
 
