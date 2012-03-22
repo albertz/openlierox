@@ -1153,18 +1153,15 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	int				p, player = -1;
 	CServerConnection	*newcl = NULL;
 
-	//hints << "Got Connect packet" << endl;
 
 	// Connection details
 	int		ProtocolVersion;
-	//int		Port = LX_PORT;
 	int		ChallId;
 	int		iNetSpeed = 0;
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
 	if ( !serverAllowsConnectDuringGame() && game.state != Game::S_Lobby )  {
-//	if (game.state == Game::S_Playing) {
 		notes << "GameServer::ParseConnect: In game, ignoring." << endl;
 		return;
 	}
@@ -1227,7 +1224,6 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		return;
 	}
 
-	//Port = pack->ReadShort();
 	ChallId = bs->readInt(4);
 	iNetSpeed = bs->readInt(1);
 
