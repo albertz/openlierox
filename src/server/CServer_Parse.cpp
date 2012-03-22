@@ -1086,7 +1086,7 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 		}
 	}
 	
-	if(game.isLocalGame()) {
+	if(game.isLocalGame() && bLocalClientConnected) {
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
 		bs.writeString("This game is local.");
