@@ -51,6 +51,8 @@ void CNinjaRope::gusInit()
 
 void CNinjaRope::think()
 {
+	if(!game.gameScript()->gusEngineUsed()) return;
+
 	if (!Released)
 		return;
 	
