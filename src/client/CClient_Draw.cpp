@@ -384,6 +384,13 @@ bool CClient::InitializeBar(int number)  {
 
 }
 
+static std::map<std::string,std::string> hudDebugInfo;
+
+void CClient::setHudDebugInfo(const std::string& key, const std::string& value) {
+	hudDebugInfo[key] = value;
+}
+
+
 //////////////////
 // Draw a box
 void CClient::DrawBox(SDL_Surface * dst, int x, int y, int w)
@@ -665,6 +672,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if( sSpectatorViewportMsg != "" && !game.gameOver )
 		tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
 
+	int dbgtxtHudY = 20;
+	const int dbgtxtLineHeight = tLX->cOutlineFont.GetHeight();
 	if(tLXOptions->bShowNetRates) {
 		// Upload and download rates
 		float up = 0;
@@ -682,19 +691,25 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			up = cServer->GetUpload() / 1024.0f;
 		}
 
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
+		tLX->cOutlineFont.Draw(bmpDest, 550, dbgtxtHudY, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s"); dbgtxtHudY += dbgtxtLineHeight;
+		tLX->cOutlineFont.Draw(bmpDest, 550, dbgtxtHudY, tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s"); dbgtxtHudY += dbgtxtLineHeight;
 	}
 
 	if(tLXOptions->bShowProjectileUsage) {
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 2 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Projs: " + itoa(cProjectiles.size()));
+		tLX->cOutlineFont.Draw(bmpDest, 550, dbgtxtHudY, tLX->clWhite, "Projs: " + itoa(cProjectiles.size())); dbgtxtHudY += dbgtxtLineHeight;
 
 		// Gusanos
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 3 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Objects: " + cast<std::string>(game.objects.size()));
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 4 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Players: " + cast<std::string>(game.players.size()));
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 5 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Lua Mem: " + cast<std::string>(lua_gc(lua, LUA_GCCOUNT, 0)));
+		tLX->cOutlineFont.Draw(bmpDest, 550, dbgtxtHudY, tLX->clWhite, "Objects: " + cast<std::string>(game.objects.size())); dbgtxtHudY += dbgtxtLineHeight;
+		tLX->cOutlineFont.Draw(bmpDest, 550, dbgtxtHudY, tLX->clWhite, "Players: " + cast<std::string>(game.players.size())); dbgtxtHudY += dbgtxtLineHeight;
+		tLX->cOutlineFont.Draw(bmpDest, 550, dbgtxtHudY, tLX->clWhite, "Lua Mem: " + cast<std::string>(lua_gc(lua, LUA_GCCOUNT, 0))); dbgtxtHudY += dbgtxtLineHeight;
 	}
 	
+	foreach(i, hudDebugInfo) {
+		tLX->cOutlineFont.Draw(bmpDest, 550, dbgtxtHudY, tLX->clWhite, i->first + ": " + i->second);
+		dbgtxtHudY += dbgtxtLineHeight;
+	}
+	hudDebugInfo.clear();
+
 	// Go through and draw the first two worms select menus
 	if (game.state >= Game::S_Preparing && !bWaitingForMod) {
 		short i = 0;

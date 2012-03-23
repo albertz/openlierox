@@ -553,7 +553,10 @@ bool GameServer::SendUpdate()
 	return true;
 }
 
+
 void GameServer::SendGameStateUpdates() {
+	static Rate<100, 1000> gameUpdateCounter;
+
 	const int last = lastClientSendData;
 	for (int i = 0; i < MAX_CLIENTS; i++)  {
 		CServerConnection* cl = &cClients[ (i + last + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
@@ -579,6 +582,9 @@ void GameServer::SendGameStateUpdates() {
 		cl->gameState->updateToCurrent();
 
 		lastClientSendData = cl - cServer->getClients();
+
+		gameUpdateCounter.addData(GetTime(), 1);
+		CClient::setHudDebugInfo("Update FPS", ftoa(gameUpdateCounter.getRate(), 3));
 	}
 }
 
