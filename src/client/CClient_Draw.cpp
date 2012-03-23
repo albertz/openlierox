@@ -676,7 +676,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			down = cClient->getChannel()->getIncomingRate() / 1024.0f;
 			up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
 		}
-		else if( !game.isLocalGame() )
+		else
 		{
 			down = cServer->GetDownload() / 1024.0f;
 			up = cServer->GetUpload() / 1024.0f;
