@@ -644,7 +644,7 @@ public:
 	void		addDebugStr(const std::string& str) { if(strDebug != "") strDebug += "\n" + str; else strDebug = str; }
 	void		resetDebugStr() { strDebug = ""; }
 
-	static void		setHudDebugInfo(const std::string& key, const std::string& value);
+	static void		addHudDebugInfo(const std::string& txt);
 };
 
 extern	CClient			*cClient;
