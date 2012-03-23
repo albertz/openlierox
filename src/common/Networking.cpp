@@ -647,7 +647,7 @@ struct CloseSocketWorker : Task {
 
 
 struct NetworkSocket::EventHandler {
-	struct SharedData {
+	struct SharedData : DontCopyTag {
 		Mutex mutex;
 		bool quitSignal;
 		NetworkSocket* sock;
