@@ -374,8 +374,8 @@ static float maxRateForClient(CServerConnection* cl) {
 	// Modem, ISDN, LAN, local
 	// (Bytes per second)
 	const float	Rates[4] = {2500, 7500, 10000, 50000};
-	
-	return Rates[cl->getNetSpeed()];
+
+	return Rates[speed];
 }
 
 ///////////////////
@@ -555,7 +555,8 @@ bool GameServer::SendUpdate()
 
 
 void GameServer::SendGameStateUpdates() {
-	static Rate<100, 1000> gameUpdateCounter;
+	static Rate<100, 1000> counter;
+	static Rate<100, 1000> bandwidthHitCounter;
 
 	const int last = lastClientSendData;
 	for (int i = 0; i < MAX_CLIENTS; i++)  {
@@ -564,8 +565,10 @@ void GameServer::SendGameStateUpdates() {
 			continue;
 		if(!cl->isConnected())
 			continue;
-		if(!checkBandwidth(cl))
+		if(!checkBandwidth(cl)) {
+			if(cl == firstNonlocalClientConnection()) bandwidthHitCounter.addData(GetTime(), 1);
 			continue;
+		}
 
 		GameState& state = *cl->gameState;
 		GameStateUpdates updates;
@@ -582,9 +585,16 @@ void GameServer::SendGameStateUpdates() {
 		cl->gameState->updateToCurrent();
 
 		lastClientSendData = cl - cServer->getClients();
+		if(cl == firstNonlocalClientConnection()) counter.addData(GetTime(), 1);
+	}
 
-		gameUpdateCounter.addData(GetTime(), 1);
-		CClient::setHudDebugInfo("Update FPS", ftoa(gameUpdateCounter.getRate(), 3));
+	if(firstNonlocalClientConnection()) {
+		CClient::addHudDebugInfo(
+					"Client cur/max rate: "
+					+ ftoa(firstNonlocalClientConnection()->getChannel()->getOutgoingRate()/1024.f, 1) + " / "
+					+ ftoa(maxRateForClient(firstNonlocalClientConnection())/1024.f, 1));
+		CClient::addHudDebugInfo("Update FPS: " + ftoa(counter.getRate()));
+		CClient::addHudDebugInfo("BandwdthHit FPS: " + ftoa(bandwidthHitCounter.getRate()));
 	}
 }
 

@@ -261,6 +261,7 @@ public:
 	CHttp *getHttp()  { return &tHttp; }
 	CServerConnection* getClients() { return cClients; }
 	CServerConnection* localClientConnection();
+	CServerConnection* firstNonlocalClientConnection();
 	bool		isServerRunning() const { return cClients; }
 	int		getNumBots() const;
 	int		getLastBot() const;

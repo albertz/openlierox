@@ -1300,6 +1300,18 @@ CServerConnection* GameServer::localClientConnection() {
 	return NULL;
 }
 
+CServerConnection* GameServer::firstNonlocalClientConnection() {
+	assert(isServerRunning());
+	for( int i=0; i<MAX_CLIENTS; i++ ) {
+		CServerConnection* cl = &getClients()[i];
+		if(!cl->isUsed()) continue;
+		if(!cl->isConnected()) continue;
+		if(cl->isLocalClient()) continue;
+		return cl;
+	}
+	return NULL;
+}
+
 
 
 ///////////////////
