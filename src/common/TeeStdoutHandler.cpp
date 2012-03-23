@@ -137,6 +137,11 @@ void teeStdoutInit() {
 		notes << "teeStdout: save multithreaded fallback" << endl;
 
 		teeOlxOutputFile = (char*) malloc(MAXFILENAMESIZE);
+		if(!teeOlxOutputFile) {
+			errors << "teeStdout: not enough mem" << endl;
+			return;
+		}
+		*teeOlxOutputFile = 0;
 
 		if(pipe(pipe_to_handler) != 0) { // error creating pipe
 			errors << "teeStdout: cannot create pipe: " << strerror(errno) << endl;
@@ -172,7 +177,8 @@ void teeStdoutInit() {
 		errors << "teeStdout: cannot mmap: " << strerror(errno) << endl;
 		return;
 	}
-	
+	*teeOlxOutputFile = 0;
+
 	if(pipe(pipe_to_handler) != 0) { // error creating pipe
 		errors << "teeStdout: cannot create pipe: " << strerror(errno) << endl;		
 		return;
