@@ -823,7 +823,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10))
 		client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
-	client->bServerChoosesWeapons = false;
+	game.bServerChoosesWeapons = false;
 
 	if(!isReconnect) {
 		// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
@@ -929,7 +929,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 	if(game.isClient() && client->getServerVersion() < OLXBetaVersion(0,59,10)) {
 		// >=Beta7 is sending this
 		client->getGameLobby().overwrite[FT_GameSpeed] = bs->readFloat();
-		client->bServerChoosesWeapons = bs->readBool();
+		game.bServerChoosesWeapons = bs->readBool();
 	}
 	else
 		bs->Skip(5);

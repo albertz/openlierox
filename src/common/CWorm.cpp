@@ -859,7 +859,9 @@ bool CWorm::isLocalHostWorm() {
 
 
 bool CWorm::shouldDoOwnWeaponSelection() {
-	return !cClient->serverChoosesWeapons() || (this->isFirstLocalHostWorm() && gameSettings[FT_SameWeaponsAsHostWorm]);
+	if(!game.bServerChoosesWeapons) return true;
+	if(this->isFirstLocalHostWorm() && gameSettings[FT_SameWeaponsAsHostWorm]) return true;
+	return false;
 }
 
 void CWorm::CloneWeaponsFrom(CWorm* w) {

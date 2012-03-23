@@ -100,7 +100,7 @@ void CClientNetEngine::SendGameReady()
 	CBytestream bs;
 	bs.writeByte(C2S_IMREADY);
 	
-	if(client->serverChoosesWeapons()) {
+	if(game.bServerChoosesWeapons) {
 		bs.writeByte(0);
 	} else {		
 		// Send my worm's weapon details

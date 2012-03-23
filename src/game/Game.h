@@ -110,6 +110,8 @@ public:
 	bool hasHighSimulationDelay();
 	bool hasSeriousHighSimulationDelay();
 
+	ATTR(Game, bool, bServerChoosesWeapons, 5, {}) // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
+
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::vector<CWormInputHandler*> players;
 	

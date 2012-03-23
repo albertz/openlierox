@@ -481,6 +481,9 @@ Result Game::prepareGameloop() {
 		notes << "preparing game mode " << game.gameMode()->Name() << endl;
 		game.gameMode()->PrepareGame();
 
+		// update variable if not done yet
+		cServer->serverChoosesWeapons();
+
 		// update about all other vars
 		cServer->UpdateGameLobby();
 		gameSettings.pushUpdateHintAll(); // because of mod specific settings and what not ...

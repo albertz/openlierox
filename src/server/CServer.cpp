@@ -313,9 +313,10 @@ bool GameServer::serverChoosesWeapons() {
 	// - bForceRandomWeapons
 	// - bSameWeaponsAsHostWorm
 	// If we make this controllable via mods later on, there are other cases where we have to enable bServerChoosesWeapons.
-	return
+	game.bServerChoosesWeapons =
 		gameSettings[FT_ForceRandomWeapons] ||
 		(gameSettings[FT_SameWeaponsAsHostWorm] && game.localWorms()->size() > 0); // only makes sense if we have at least one worm	
+	return game.bServerChoosesWeapons;
 }
 
 

@@ -242,7 +242,6 @@ private:
 	EngineSettings tGameInfo;	// Also game lobby
 	FeatureCompatibleSettingList otherGameInfo;	
 
-	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
 	FlagInfo*	m_flagInfo;
 
 	// Ping below FPS
@@ -532,9 +531,7 @@ public:
 	
 	int			OwnsWorm(int id);
 	bool		canAddWorm(std::string* noReason = NULL);
-	
-	bool		serverChoosesWeapons()		{ return bServerChoosesWeapons; }
-	
+		
 	void		clearHumanWormInputs();
 	void		clearLocalWormInputs();
 
