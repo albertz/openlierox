@@ -1,0 +1,124 @@
+{
+   mac fun:GetPlatformWindowBoundsCommon
+   Memcheck:Cond
+   fun:GetPlatformWindowBoundsCommon
+#   fun:_Z19WindowToGlobalShapeP10WindowDataP9__HIShape
+#   fun:_ZN10WindowData9CopyShapeEtPPK9__HIShape
+#   fun:_ZN10WindowData9GetBoundsEtjP6CGRect
+#   fun:_ZN10WindowData9GetBoundsEtP4Rect
+#   fun:_ZN10WindowData9SetBoundsEtPK4RectS2_jPh
+#   fun:_ZL25UpdateMenuBarWindowBoundsh
+#   fun:_ZL7ShowBar21MenuBarAnimationStylehhh
+#   fun:_ZL21UpdateAggregateUIMode21MenuBarAnimationStylehh
+#   fun:-[NSApplication finishLaunching]
+#   fun:-[NSApplication run]
+#   fun:CustomApplicationMain
+}
+
+
+{
+   mac ShowHide
+   Memcheck:Cond
+   ...
+   fun:ShowHide
+   ...
+}
+
+{
+   mac fun:FindWindow
+   Memcheck:Cond
+   ...
+   fun:FindWindow
+   ...
+}
+
+
+{
+   mac _ZN10WindowData15GetGlobalBoundsEP6CGRect
+   Memcheck:Cond
+   fun:_ZN10WindowData15GetGlobalBoundsEP6CGRect
+}
+
+{
+   mac fun:HIWindowFlush
+   Memcheck:Cond
+   ...
+   fun:HIWindowFlush
+   ...
+}
+
+{
+   mac fun:ResetPlatformWindowShape
+   Memcheck:Cond
+   ...
+   fun:ResetPlatformWindowShape
+   ...
+}
+
+
+{
+   mac _ZN10WindowData22MarkLastDrawResolutionEv
+   Memcheck:Cond
+   ...
+   fun:_ZN10WindowData22MarkLastDrawResolutionEv
+   ...
+}
+
+
+
+{
+   mac Cond _HIThemeCUIDraw or CUIDraw
+   Memcheck:Cond
+   ...
+   fun:CUIDraw
+   ...
+}
+
+{
+   mac Value8 _HIThemeCUIDraw or CUIDraw
+   Memcheck:Value8
+   ...
+   fun:CUIDraw
+   ...
+}
+
+{
+   mac Value8 fun:CGContextDrawImage
+   Memcheck:Value8
+   ...
+   fun:CGContextDrawImage
+   ...
+}
+
+{
+   mac Cond fun:CGContextDrawTiledImage
+   Memcheck:Cond
+   ...
+   fun:CGContextDrawTiledImage
+   ...
+}
+
+{
+   mac 8 fun:CGContextDrawTiledImage
+   Memcheck:Value8
+   ...
+   fun:CGContextDrawTiledImage
+   ...
+}
+
+{
+   mac Value8 fun:ripl_BltImage
+   Memcheck:Value8
+   ...
+   fun:ripl_BltImage
+   ...
+}
+
+{
+   mac setvideomode
+   Memcheck:Cond
+   ...
+   fun:SDL_SetVideoMode
+   ...
+}
+
