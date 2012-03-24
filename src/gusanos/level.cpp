@@ -412,24 +412,6 @@ bool CMap::getPredefinedSpawnLocation(CWorm* worm, CVec* v) {
 	return false;
 }
 
-Vec CMap::getSpawnLocation(CWormInputHandler* player)
-{
-	if(player->worm()) {
-		CVec pos;
-		if(getPredefinedSpawnLocation(player->worm(), &pos)) return pos;
-	}
-	
-	Vec pos;
-	int tries = 1000;
-	do {
-		pos = Vec((float)rnd() * material->w, (float)rnd()*material->h);
-	} while ( --tries >= 0 && !getMaterial( static_cast<int>(pos.x), static_cast<int>(pos.y) ).worm_pass );
-
-	if(tries < 0)
-		errors << "CMap::getSpawnLocation: couldn't find any spawn location" << endl;
-	return pos;
-}
-
 void CMap::loaderSucceeded()
 {
 	m_water.clear();

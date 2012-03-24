@@ -145,25 +145,6 @@ void CWorm::NetWorm_think()
 #endif
 				switch ( event )
 				{
-					case PosCorrection:
-					{
-						/*
-						pos.x = data->getFloat(32);
-						pos.y = data->getFloat(32);
-						spd.x = data->getFloat(32);
-						spd.y = data->getFloat(32);*/
-						pos() = CVec(game.gameMap()->vectorEncoding.decode<Vec>(*data));
-						velocity() = CVec(game.gameMap()->vectorEncoding.decode<Vec>(*data));
-					}
-					break;
-					case Respawn:
-					{
-						Vec newpos = game.gameMap()->vectorEncoding.decode<Vec>(*data);
-						//newpos.x = data->getFloat(32);
-						//newpos.y = data->getFloat(32);
-						CWorm::respawn( newpos );
-					}
-					break;
 					case Dig:
 					{
 						Vec digPos = game.gameMap()->vectorEncoding.decode<Vec>(*data);
@@ -271,20 +252,6 @@ void CWorm::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, B
 		m_node->sendEvent(mode, rules, data);
 	else
 		m_node->sendEventDirect(mode, data, connID);
-}
-
-void CWorm::correctOwnerPosition()
-{
-	BitStream *data = new BitStream;
-	addEvent(data, PosCorrection);
-	/*
-	data->addFloat(pos.x,32); // Maybe this packet is too heavy...
-	data->addFloat(pos.y,32);
-	data->addFloat(spd.x,32);
-	data->addFloat(spd.y,32);*/
-	game.gameMap()->vectorEncoding.encode<Vec>(*data, pos()); // ...nah ;o
-	game.gameMap()->vectorEncoding.encode<Vec>(*data, velocity());
-	m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_OWNER, data);
 }
 
 

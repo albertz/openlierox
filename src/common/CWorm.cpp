@@ -572,11 +572,12 @@ void CWorm::Spawn(CVec position) {
 	if (bSpectating)
 		return;
 
-	if(game.gameScript() && game.gameScript()->gusEngineUsed())
-		// Gusanos will use its own spawning fct
-		return;
-
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
+	velocity() = CVec ( 0, 0 );
+#ifndef DEDICATED_ONLY
+	renderPos = pos();
+#endif
+
 	health = 100.0f;
 	bSpawnedOnce = true;
 	bCanRespawnNow = false;
@@ -601,6 +602,12 @@ void CWorm::Spawn(CVec position) {
 		weaponSlots.write()[n].Charge = 1;
 		weaponSlots.write()[n].Reloading = false;
 		weaponSlots.write()[n].LastFire = 0;
+	}
+
+	m_lastHurt = NULL;
+	for ( size_t i = 0; i < m_weapons.size(); ++i ) {
+		if ( m_weapons[i] )
+			m_weapons[i]->reset();
 	}
 
 	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = GetPhysicsTime();

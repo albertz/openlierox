@@ -676,7 +676,6 @@ public:
 	
 	// This are virtual so that NetWorm can know about them and tell others over the network.
 	virtual void respawn();
-	void respawn(const Vec& newPos);
 	
 	virtual void dig();
 	void dig(const Vec& digPos, Angle angle);
@@ -773,8 +772,6 @@ public:
 	
 	enum NetEvents
 	{
-		PosCorrection = 0,
-		Respawn,
 		Dig,
 		Die,
 		ChangeWeapon,
@@ -800,7 +797,6 @@ public:
 	void NetWorm_Shutdown();
 	
 	void NetWorm_think();
-	void correctOwnerPosition();
 	
 	void sendSyncMessage( Net_ConnID id );
 	

@@ -595,47 +595,11 @@ void CWorm::draw(CViewport* viewport)
 
 void CWorm::respawn()
 {
-	if(m_isAuthority || !m_node) {
-		// Check if its already allowed to respawn
-		if ( m_timeSinceDeath > gusGame.options.minRespawnTime ) {
-			Vec pos = game.gameMap()->getSpawnLocation( m_owner );
-			
-			if(game.gameMode()->Spawn(this, CVec(pos)))
-				respawn( pos );
-		}
-	}
+	// Check if its already allowed to respawn
+	if(bCanRespawnNow)
+		bRespawnRequested = true;
 }
 
-void CWorm::respawn( const Vec& newPos)
-{
-	health = 100;
-	bAlive = true;
-	velocity() = CVec ( 0, 0 );
-	pos() = newPos;
-	iMoveDirectionSide = DIR_RIGHT;
-#ifndef DEDICATED_ONLY
-
-	renderPos = pos();
-#endif
-
-	m_lastHurt = NULL;
-	for ( size_t i = 0; i < m_weapons.size(); ++i ) {
-		if ( m_weapons[i] )
-			m_weapons[i]->reset();
-	}
-
-	// NetWorm code
-	if ( m_isAuthority && m_node && getAlive() )
-	{
-		BitStream *data = new BitStream;
-		addEvent(data, Respawn);
-		/*
-		 data->addFloat(pos.x,32);
-		 data->addFloat(pos.y,32);*/
-		game.gameMap()->vectorEncoding.encode<Vec>(*data, pos());
-		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-	}	
-}
 
 void CWorm::dig()
 {

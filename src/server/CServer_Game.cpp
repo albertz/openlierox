@@ -40,10 +40,6 @@ void GameServer::SpawnWorm(CWorm *Worm, const std::string& reason, CVec * _pos, 
 	if (game.gameOver || Worm->isSpectating())
 		return;
 
-	if(game.gameScript()->gusEngineUsed())
-		// NOTE: only for now
-		return;
-	
 	CVec pos;
 
 	//notes << "spawn worm " << Worm->getID() << ":" << Worm->getName() << ": " << reason << endl;
