@@ -911,6 +911,12 @@ void Game::cleanupAfterGameloopEnd() {
 
 		cServer->gotoLobby();
 	}
+
+	if(game.state == Game::S_Lobby && game.isClient()) {
+		DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_NETWORK;
+		DeprecatedGUI::bSkipStart = true;
+		DeprecatedGUI::Menu_Net_JoinGotoLobby();
+	}
 }
 
 static void cleanupAfterDisconnect() {
