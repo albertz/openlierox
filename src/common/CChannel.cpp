@@ -1229,16 +1229,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		}
 	}
 
-	if( unreliableData->GetLength() == 0 &&
-		LastReliablePacketSent == LastAddedToOut &&
-		tLX->currentTime - fLastSent < DataPacketTimeout )
-	{
-		// No unreliable data to send, and we've just sent the same packet -
-		// send it again after some timeout, don't flood net.
-		return;
-	}
-	
-	if( unreliableData->GetLength() == 0 && packetData.GetLength() == 0 && 
+	if( unreliableData->GetLength() == 0 && packetData.GetLength() == 0 &&
 		LastReliableIn == LastReliableIn_SentWithLastPacket &&
 		tLX->currentTime - fLastSent < KeepAlivePacketTimeout )
 	{
@@ -1246,7 +1237,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		// but always send first packet with acknowledges, or other side will flood
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
-		
+
 		cOutgoingRate.addData( 0 );
 		return;
 	}
