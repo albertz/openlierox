@@ -473,10 +473,10 @@ bool GameServer::SendUpdate()
 				// check our server bandwidth
 				static Rate<100,5000> blockRate; // only for debug output
 				static Rate<100,5000> blockRateAbs; // only for debug output
-				blockRateAbs.addData(tLX->currentTime, 1);
+				blockRateAbs.addData(1);
 				if(!checkUploadBandwidth(GetUpload() /* + uploadAmount */)) {
 					// we have gone over our own bandwidth for non-local clients				
-					blockRate.addData(tLX->currentTime, 1);
+					blockRate.addData(1);
 					static AbsTime lastMessageTime = tLX->currentTime;
 					if(tLX->currentTime - lastMessageTime > 30.0) {
 						notes << "we got over the max upload bandwidth" << endl;
@@ -603,7 +603,7 @@ void GameServer::SendGameStateUpdates() {
 		if(!cl->isConnected())
 			continue;
 		if(!checkBandwidth(cl)) {
-			if(cl == firstNonlocalClientConnection()) bandwidthHitCounter.addData(GetTime(), 1);
+			if(cl == firstNonlocalClientConnection()) bandwidthHitCounter.addData(1);
 			continue;
 		}
 
@@ -622,7 +622,7 @@ void GameServer::SendGameStateUpdates() {
 		cl->gameState->updateToCurrent();
 
 		lastClientSendData = cl - cServer->getClients();
-		if(cl == firstNonlocalClientConnection()) counter.addData(GetTime(), 1);
+		if(cl == firstNonlocalClientConnection()) counter.addData(1);
 	}
 
 	if(firstNonlocalClientConnection()) {

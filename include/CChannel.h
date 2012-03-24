@@ -21,6 +21,7 @@
 #include "CBytestream.h"
 #include "olx-types.h"
 #include "Networking.h"
+#include "Timer.h"
 
 template< int AMOUNT, int TIMERANGEMS, typename _Amount = size_t >
 class Rate {
@@ -35,14 +36,16 @@ public:
 
 	TimeDiff timeRange() { return TimeDiff(TIMERANGEMS); }
 
-	void addData(const AbsTime& curtime, _Amount amount) {
+	void addData(_Amount amount) {
+		AbsTime curtime = GetTime();
+
 		// calc diff of oldindex to newindex
 		size_t dindex = 0;
 		if(curIndex >= 0) {
 			dindex = (int) ( (float)AMOUNT * ((curtime - curIndexTime) / timeRange()) );
-			if(dindex >= AMOUNT) { // our data is too old, just clear it
+			if(dindex >= AMOUNT)
+				// our data is too old, just clear it
 				clear();
-			}
 		}
 		if(curIndex == -1) {
 			curIndex = 0;
@@ -51,18 +54,19 @@ public:
 		}
 
 		// reset the buckets in between
-		for(size_t i = 0; i < dindex; i++) {
+		for(size_t i = 0; i < dindex; i++)
 			buckets[ (curIndex + i + 1) % AMOUNT ] = 0;
-		}
 
 		// do updates
-		curIndex += dindex; curIndex %= AMOUNT; curIndexTime += TimeDiff((float)dindex * timeRange().seconds() / (float)AMOUNT);
+		curIndex += dindex; curIndex %= AMOUNT;
+		curIndexTime += TimeDiff((float)dindex * timeRange().seconds() / (float)AMOUNT);
 
 		// add data
 		buckets[curIndex] += amount;
 	}
 
 	float getRate() {
+		addData(0); // update time
 		_Amount sum = 0;
 		for(int i = 0; i < AMOUNT; i++)
 			sum += buckets[i];
@@ -70,8 +74,7 @@ public:
 	}
 	
 	float getRate(int timerange) {
-		if(curIndex == -1)
-			return 0;
+		addData(0); // update time
 
 		if(timerange >= TIMERANGEMS)
 			return getRate(); // we cannot get a smaller range

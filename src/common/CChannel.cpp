@@ -108,7 +108,7 @@ void CChannel::UpdateTransmitStatistics( int sentDataSize )
 	fLastSent = tLX->currentTime;
 
 	// Calculate the bytes per second
-	cOutgoingRate.addData( tLX->currentTime, sentDataSize );
+	cOutgoingRate.addData( sentDataSize );
 }
 
 void CChannel::UpdateReceiveStatistics( int receivedDataSize )
@@ -121,7 +121,7 @@ void CChannel::UpdateReceiveStatistics( int receivedDataSize )
 	// so skipped packet header, I think it's not that important, check this Albert and remove this TODO
 	iIncomingBytes += receivedDataSize;
 	iCurrentIncomingBytes += receivedDataSize;
-	cIncomingRate.addData( tLX->currentTime, receivedDataSize );
+	cIncomingRate.addData( receivedDataSize );
 }
 
 void CChannel::LimitReliableStreamBandwidth( float BandwidthLimit, float MaxPacketRate, float BandwidthCounterMaxValue )
@@ -784,7 +784,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
 
-		cOutgoingRate.addData( tLX->currentTime, 0 );
+		cOutgoingRate.addData( 0 );
 		return;
 	}
 
@@ -1343,7 +1343,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
 		
-		cOutgoingRate.addData( tLX->currentTime, 0 );
+		cOutgoingRate.addData( 0 );
 		return;
 	}
 
