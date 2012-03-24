@@ -3021,8 +3021,8 @@ CVec CMap::FindSpot()
 	
 	size_t tries = 1000;
 	do {
-		pos.x = (float)rnd() * Width;
-		pos.y = (float)rnd() * Height;
+		pos.x = (double)rnd() * Width;
+		pos.y = (double)rnd() * Height;
 		tries--;
 	} while ( tries > 0 && !IsGoodSpawnPoint(flags, pos) );
 	
