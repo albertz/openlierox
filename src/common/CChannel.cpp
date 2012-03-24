@@ -84,17 +84,6 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 	// The messages are joined in Transmit() in one bigger packet, until it will hit bandwidth limit
 }
 
-size_t CChannel::currentReliableOutSize() {
-	size_t s = 0;
-	for(std::list<CBytestream>::iterator i = Messages.begin(); i != Messages.end(); ++i)
-		s += i->GetLength();
-	return s;
-}
-
-size_t CChannel::maxPossibleAdditionalReliableOutPackages() {
-	return size_t(-1);
-}
-
 void CChannel::UpdateTransmitStatistics( int sentDataSize )
 {
 	// Update statistics
@@ -1290,16 +1279,6 @@ void CChannel3::AddReliablePacketToSend(CBytestream& bs) // The same as in CChan
 	// The messages are joined in Transmit() in one bigger packet, until it will hit bandwidth limit
 }
 
-size_t CChannel3::currentReliableOutSize() {
-	size_t s = 0;
-	for(std::list<CBytestream>::iterator i = Messages.begin(); i != Messages.end(); ++i)
-		s += i->GetLength() + 4;
-	return s;
-}
-
-size_t CChannel3::maxPossibleAdditionalReliableOutPackages() {
-	return MAX(MaxNonAcknowledgedPackets - (int)ReliableOut.size(), 0);
-}
 
 
 

@@ -165,10 +165,7 @@ public:
 	float 			getIncomingRate()		{ return cIncomingRate.getRate(); }
 	float 			getOutgoingRate()		{ return cOutgoingRate.getRate(); }
 	float 			getOutgoingRate(float timeRange)		{ return cOutgoingRate.getRate((int)(timeRange * 1000.0f)); }
-	
-	virtual size_t	currentReliableOutSize();
-	virtual size_t	maxPossibleAdditionalReliableOutPackages();
-	
+		
 	SmartPointer<NetworkSocket>	getSocket()			{ return Socket; }
 	
 	virtual void	recheckSeqs() {} // Implemented only in CChannel_056b, not required for others
@@ -351,8 +348,6 @@ public:
 
 	bool		getBufferEmpty()	{ return ReliableOut.empty(); };
 	bool		getBufferFull()		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
-	size_t	currentReliableOutSize();
-	size_t	maxPossibleAdditionalReliableOutPackages();
 
 	void		AddReliablePacketToSend(CBytestream& bs); // The same as in CChannel but without error msg
 
