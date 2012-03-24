@@ -340,40 +340,37 @@ then CChannel will act like old CChannel_056b, when only one packet is allowed
 to be flying through network at any time.
 */
 
-enum { 
-
 // SEQUENCE_WRAPAROUND is where sequence wraps to zero - sequence range is from 0 to SEQUENCE_WRAPAROUND-1.
 // All sequences (or packet indexes) used are wrapping around at this number
 // We cannot allow four leadinf 0xFF bytes in reliable packet, so SEQUENCE_WRAPAROUND
 // is slightly less than 0x7FFF.
-	SEQUENCE_WRAPAROUND = 32766,
+static const int SEQUENCE_WRAPAROUND = 32766;
 
 // SEQUENCE_SAFE_DIST is the max distance between two sequences when packets will get ignored as erroneous ones.
-	SEQUENCE_SAFE_DIST = 100,
+static const int SEQUENCE_SAFE_DIST = 100;
 
 // MAX_NON_ACKNOWLEDGED_PACKETS is max amount of packets that can be flying through the net at the same time.
-	MAX_NON_ACKNOWLEDGED_PACKETS = 3,	// 1 is minimum - it behaves like old CChannel then.
+static const int MAX_NON_ACKNOWLEDGED_PACKETS = 3;	// 1 is minimum - it behaves like old CChannel then.
 
 // SEQUENCE_HIGHEST_BIT is highest bit in a 2-byte int, for convenience.
-	SEQUENCE_HIGHEST_BIT = 0x8000
-};
+static const int SEQUENCE_HIGHEST_BIT = 0x8000;
 
 // How much to wait before sending another empty keep-alive packet, sec.
-const float KEEP_ALIVE_PACKET_TIMEOUT = 1.0f;
+static const float KEEP_ALIVE_PACKET_TIMEOUT = 1.0f;
 
 // How much to wait before sending data packet again, sec - 
 // if packets rarely get lost over net it will decrease bandwidth dramatically, for little lag tradeoff.
 // Set to 0 to flood net with packets instantly as in CChannel_056b.
 // If any new data available to send, or unreliable data present, packet is sent anyway.
 // This is only inital value, it will get changed with time according to ping.
-const float DATA_PACKET_TIMEOUT = 0.2f;
+static const float DATA_PACKET_TIMEOUT = 0.2f;
 
 // DataPacketTimeout = ping / DATA_PACKET_TIMEOUT_PING_COEFF, 
 // the bigger that value is, the more often channel will re-send data delayed in network.
-const float DATA_PACKET_TIMEOUT_PING_COEFF = 1.5f;
+static const float DATA_PACKET_TIMEOUT_PING_COEFF = 1.5f;
 
 #ifdef DEBUG
-const float DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY = 0.0f; // Self-explanatory
+static const float DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY = 0.0f; // Self-explanatory
 #endif
 
 // Do not check "if( sequence1 < sequence2 )", use this function instead, it will handle wraparound issues.
