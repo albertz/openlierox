@@ -1247,7 +1247,10 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			std::string msg;
 			Color col(0,0,0,100);
 			if(!worm->bWeaponsReady && worm->getLocal()) {
-				msg = "Waiting for weapon selection ...";
+				if(worm->shouldDoOwnWeaponSelection())
+					msg = "Waiting for weapon selection ...";
+				else
+					msg = "Waiting for host worm weapon selection ...";
 			} else if(!worm->bWeaponsReady && !worm->getLocal()) {
 				msg = "Waiting for weapon selection of remote player ...";
 			} else if(game.state == Game::S_Preparing) {
