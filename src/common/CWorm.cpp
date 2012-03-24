@@ -982,6 +982,8 @@ Color CWorm::renderColorAt(/* relative game coordinates */ int x, int y) const {
 	return cSkin.get().renderColorAt(x*2 + cSkin.get().getSkinWidth()/2, y*2 + cSkin.get().getSkinHeight()/2, f, iFaceDirectionSide == DIR_LEFT);
 }
 
+extern bool hackLXWormDrawInGusanos;
+
 ///////////////////
 // Draw the worm
 void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
@@ -1137,23 +1139,25 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	// Draw the crosshair
 	//
-	CVec forw;
-	GetVecsFromAngle((float)a, &forw, NULL);
-	forw *= tLXOptions->fCrosshairDistance;
+	if(!hackLXWormDrawInGusanos) {
+		CVec forw;
+		GetVecsFromAngle((float)a, &forw, NULL);
+		forw *= tLXOptions->fCrosshairDistance;
 
-	VectorD2<int> cp = p;
-	cp.x += (int)forw.x;
-	cp.y += (int)forw.y;
+		VectorD2<int> cp = p;
+		cp.x += (int)forw.x;
+		cp.y += (int)forw.y;
 
-	// Show a green crosshair if we have a target
-	x = 0;
-	if (bGotTarget) {
-		x = 6;
-		bGotTarget = false;
+		// Show a green crosshair if we have a target
+		x = 0;
+		if (bGotTarget) {
+			x = 6;
+			bGotTarget = false;
+		}
+
+		if(bLocal && isWormVisible(this, v))
+			DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cp.x - 2, cp.y - 2, 6, 6);
 	}
-
-	if(bLocal && isWormVisible(this, v))
-		DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cp.x - 2, cp.y - 2, 6, 6);
 
 	//
 	// Draw the worm
@@ -1163,6 +1167,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Find the right pic
 	int f = ((int)fFrame*7);
+	if(hackLXWormDrawInGusanos) f = (m_animator->getFrame() % 3) * 7;
 	int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 	f += ang;
 
@@ -1237,7 +1242,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	const wpnslot_t *Slot = getCurWeapon();
 
 	// Draw the weapon name
-	if(bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
+	if(!hackLXWormDrawInGusanos && bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
 		if(isChangingWpn()) {
 			if(Slot->weapon())
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->weapon()->Name);
@@ -1248,7 +1253,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	}
 
 	// Draw the worm's name
-	if (isWormVisible(this, v))  {
+	if (!hackLXWormDrawInGusanos && isWormVisible(this, v))  {
 		std::string WormName = sName;
 		if( sAFKMessage.get() != "" )
 			WormName += " " + sAFKMessage.get();
@@ -1274,6 +1279,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Copied from ::Draw
 		// TODO: a separate function for this
 		int f = ((int)fFrame*7);
+		if(hackLXWormDrawInGusanos) f = (m_animator->getFrame() % 3) * 7;
 		int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 		f += ang;
 
