@@ -48,6 +48,7 @@
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
 #include "GameState.h"
+#include "DeprecatedGUI/CBrowser.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -491,6 +492,71 @@ Result Game::prepareGameloop() {
 
 	if( GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Playing: " + cClient->getServerName());
+
+	{
+		// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
+		cClient->InitializeIngameScore(true);
+
+		// Copy the chat text from lobby to ingame chatbox
+		if( game.isServer() && !game.isLocalGame() )
+			cClient->sChat_Text = DeprecatedGUI::Menu_Net_HostLobbyGetText();
+		else if( game.isClient() )
+			cClient->sChat_Text = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
+
+		if (!cClient->sChat_Text.empty())  {
+			cClient->bChat_Typing = true;
+			cClient->bChat_CursorVisible = true;
+			cClient->iChat_Pos = cClient->sChat_Text.size();
+		}
+
+		if(!bDedicated) {
+			// TODO: move that out, that does not belong here
+			// Load the chat
+			DeprecatedGUI::CBrowser *lv = cClient->cChatList;
+			if (lv)  {
+				lv->setBorderSize(0);
+				lv->InitializeChatBox();
+				lines_iterator it = cClient->cChatbox.At((int)cClient->cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
+				//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+
+				for (; it != cClient->cChatbox.End(); it++)  {
+
+					// Add only chat text (PM and Team PM messages too)
+					if (it->iTextType == TXT_CHAT || it->iTextType == TXT_PRIVATE || it->iTextType == TXT_TEAMPM ) {
+						lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
+					}
+				}
+			}
+		}
+
+		// Start the game logging
+		cClient->StartLogging(game.worms()->size());
+
+		if(!bDedicated)
+		{
+			if( ! ( game.gameScript() && game.gameScript()->gusEngineUsed() ) )
+			{
+				cClient->cChatList->Setup(0,	cClient->tInterfaceSettings.ChatBoxX,
+											cClient->tInterfaceSettings.ChatBoxY,
+											cClient->tInterfaceSettings.ChatBoxW,
+											cClient->tInterfaceSettings.ChatBoxH);
+				cClient->cChatList->showScrollbar(true);
+			}
+			else // Expand chatbox for Gus, looks better
+			{
+				cClient->cChatList->Setup(0,	5,
+											cClient->tInterfaceSettings.ChatBoxY,
+											cClient->tInterfaceSettings.ChatBoxW + cClient->tInterfaceSettings.ChatBoxX - 5,
+											cClient->tInterfaceSettings.ChatBoxH);
+				cClient->cChatList->showScrollbar(false);
+			}
+		}
+
+		cClient->UpdateScoreboard();
+		cClient->bShouldRepaintInfo = true;
+
+		DeprecatedGUI::bJoin_Update = true;
+	}
 
 	ProcessEvents();
 	notes << "GameLoopStart. MaxFPS is " << tLXOptions->nMaxFPS << endl;
