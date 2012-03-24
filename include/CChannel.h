@@ -127,24 +127,7 @@ protected:
 
 	// Packets
 	std::list<CBytestream>	Messages;					// List of reliable messages to be sent
-	
-	// Bandwidth limiter - for reliable stream only, it won't count unreliable data - you should limit it outside of CChannel
-	// Each time Transmit() it increases BandwidthCounter for (CurTime - LastUpdate) * BandwidthLimit
-	// If the next reliable packet is smaller than BandwidthCounter it will send it and decrease BandwidthCounter
-	// Also if bandwidth limit is hit it will accumulate and send bigger packets, controlled by MaxPacketRate var.
-	// And if it is not hit, CChannel will act as usual - send as much data as possible, right when data to send is available
-	// TODO: Albert you may wish to put here your advanced bandwidth calculating class
-	// Also I love long long names for variables
-	float			ReliableStreamBandwidthLimit; // In bytes/sec
-	float			ReliableStreamMaxPacketRate; // In packets/sec
-	float			ReliableStreamBandwidthCounter; // In bytes
-	float			ReliableStreamBandwidthCounterMaxValue; // In bytes, to prevent ReliableDataBandwidthCounter to accumulate gigabyte of bandwidth and send it in single Transmit()
-	AbsTime			ReliableStreamLastSentTime;
-	AbsTime			ReliableStreamBandwidthCounterLastUpdate;
-	
-	void			UpdateReliableStreamBandwidthCounter(); // Should be called in the beginning of each Transmit()
-	
-	
+			
 public:
 	
 	CChannel() { Clear(); }
@@ -182,10 +165,6 @@ public:
 	float 			getIncomingRate()		{ return cIncomingRate.getRate(); }
 	float 			getOutgoingRate()		{ return cOutgoingRate.getRate(); }
 	float 			getOutgoingRate(float timeRange)		{ return cOutgoingRate.getRate((int)(timeRange * 1000.0f)); }
-
-	bool			ReliableStreamBandwidthLimitHit(); // Should we wait and accumulate packets instead of sending many small packets immediately
-	bool			CheckReliableStreamBandwidthLimit( float dataSizeToSend, bool doUpdate = true ); // Returns true if data is allowed to send, and decreases counter value if doUpdate
-	float			MaxDataPossibleToSendInstantly();
 	
 	virtual size_t	currentReliableOutSize();
 	virtual size_t	maxPossibleAdditionalReliableOutPackages();
@@ -194,7 +173,6 @@ public:
 	
 	virtual void	recheckSeqs() {} // Implemented only in CChannel_056b, not required for others
 
-	void			LimitReliableStreamBandwidth( float BandwidthLimit, float MaxPacketRate = 5.0f, float BandwidthCounterMaxValue = 512.0f );
 };
 
 // CChannel for LX 0.56b implementation - LOSES PACKETS, and that cannot be fixed.

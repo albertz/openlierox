@@ -576,8 +576,8 @@ bool GameServer::SendUpdate()
 			// TODO: that doesn't update uploadAmount (but it also doesnt in CClient, to be fair :P)
 			cl->getNetEngine()->SendReportDamage();
 
-			if(network.getNetControl() && !cl->getChannel()->ReliableStreamBandwidthLimitHit()) {
-				const size_t maxBytes = (size_t) cl->getChannel()->MaxDataPossibleToSendInstantly();
+			if(network.getNetControl()) {
+				const size_t maxBytes = (size_t)-1; // TODO ?
 				if(maxBytes > 0)
 					network.getNetControl()->olxSendNodeUpdates(NetConnID_conn(cl), maxBytes);
 			}

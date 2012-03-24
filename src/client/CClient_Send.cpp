@@ -85,8 +85,8 @@ void CClientNetEngine::SendWormDetails()
 	
 	// handle Gusanos updates
 	// only for join-mode because otherwise, we would handle it in CServer
-	if(game.isClient() && network.getNetControl() && !client->getChannel()->ReliableStreamBandwidthLimitHit()) {
-		const size_t maxBytes = (size_t) client->getChannel()->MaxDataPossibleToSendInstantly();
+	if(game.isClient() && network.getNetControl()) {
+		const size_t maxBytes = size_t(-1); // TODO ?
 		if(maxBytes > 0 && network.getNetControl()->olxSendNodeUpdates(NetConnID_server(), maxBytes))
 			client->fLastUpdateSent = tLX->currentTime;
 	}

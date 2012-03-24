@@ -1720,12 +1720,6 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	{
 		if(cClients[c].getStatus() != NET_CONNECTED) 
 			continue;
-		// TODO: finetune this coefficients
-		if( cClients[c].isLocalClient() )
-			cClients[c].getChannel()->LimitReliableStreamBandwidth( -1.0f ); // No limit
-		else
-			cClients[c].getChannel()->LimitReliableStreamBandwidth( getMaxUploadBandwidth() / clientsAmount * 0.5f, 
-																4.0f + cClients[c].getNetSpeed() );
 	}
 }
 
