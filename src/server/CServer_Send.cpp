@@ -370,12 +370,49 @@ void GameServer::SendWormsOut(const std::list<byte>& ids)
 	}
 }
 
-static float maxRateForClient(CServerConnection* cl) {
+static float rateForClient(CServerConnection* cl, bool upscaledMax) {
 	// Modem, ISDN, LAN, local
 	// (Bytes per second)
 	const float	Rates[4] = {2500, 7500, 10000, 50000};
+	const float	UpscaledRates[4] = {2500, 7500, 100000, 1000000};
 
+	int speed = cl->getNetSpeed();
+	if(speed < 0) speed = 0;
+	if(speed >= 4) speed = 2;
+
+	if(upscaledMax) return UpscaledRates[speed];
 	return Rates[speed];
+}
+
+static float rateSumForClients(bool upscaled) {
+	float sum = 0;
+	for(int i = 0; i < MAX_CLIENTS; ++i) {
+		CServerConnection* cl = &cServer->getClients()[i];
+		if(!cl->isUsed()) continue;
+		if(!cl->isConnected()) continue;
+		if(cl->isLocalClient()) continue;
+		sum += rateForClient(cl, upscaled);
+	}
+	return sum;
+}
+
+static float maxRateForClient(CServerConnection* cl) {
+	float maxUploadSum = cServer->getMaxUploadBandwidth();
+	bool upscaled = false;
+	while(true) {
+		float sum = rateSumForClients(upscaled);
+		if(sum >= maxUploadSum) {
+			float rate = rateForClient(cl, upscaled);
+			rate *= maxUploadSum / sum; // scale down so that the sum fits
+			return rate;
+		}
+
+		if(!upscaled)
+			upscaled = true;
+		else
+			return rateForClient(cl, upscaled);
+	}
+	return 0.f;
 }
 
 ///////////////////
