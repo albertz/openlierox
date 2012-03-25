@@ -26,6 +26,7 @@
 
 #include "script.h"
 #include "glua.h"
+#include "LuaCallbacks.h"
 #include "luaapi/context.h"
 #include "util/log.h"
 #include "game/Game.h"
@@ -98,11 +99,7 @@ void gusLogicFrame() {
 
 	spriteList.think();
 
-	EACH_CALLBACK(i, afterUpdate)
-	{
-		(lua.call(*i))();
-	}
-
+	LUACALLBACK(afterUpdate).call()();
 }
 
 void gusQuit() {

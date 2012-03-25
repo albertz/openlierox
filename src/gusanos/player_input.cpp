@@ -5,13 +5,15 @@
 #include "CWormHuman.h"
 #include "gconsole.h"
 #include "glua.h"
+#include "LuaCallbacks.h"
 #include "luaapi/context.h"
 #include "util/text.h"
 #include "util/log.h"
 #include "util/stringbuild.h"
 #include "game/Game.h"
 #include "CClientNetEngine.h"
-#include <boost/bind.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 
 #include <string>
 #include <list>
@@ -23,78 +25,50 @@ static_assert( C_LocalPlayer_ActionCount == CWormHumanInputHandler::ACTION_COUNT
 
 using namespace std;
 
-std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std::list<std::string> const&)
-{
+std::string _event(size_t index, CWormHumanInputHandler::Actions action, bool start) {
+	using namespace boost::lambda;
+
 	assert((int)action >= 0 && (int)action < CWormHumanInputHandler::ACTION_COUNT);
-	
+
 	if ( index < game.localPlayers.size() )
 	{
 		CWormHumanInputHandler& player = *game.localPlayers[index];
-		
+
 		bool ignore = false;
-		
+
 		if(!player.worm()->bWeaponsReady)
 			ignore = true;
 
-		EACH_CALLBACK(i, localplayerEvent+action)
-		{
-			int n = (lua.call(*i, 1), player.getLuaReference(), true)();
-			if(n > 0 && lua.tobool(-1))
-				ignore = true;
-			lua.pop(n);
-		}
-		
-		EACH_CALLBACK(i, localplayerEventAny)
-		{
-			int n = (lua.call(*i, 1), player.getLuaReference(), static_cast<int>(action), true)();
-			if(n > 0 && lua.tobool(-1))
-				ignore = true;
-			lua.pop(n);
-		}
+		LuaCallbackProxy::PostHandler f =
+				(var(ignore) |= (_2 > 0 && bind(&LuaContext::tobool, _1, -1)));
 
-		if(!ignore)
-			player.actionStart(action);
+		LUACALLBACK(localplayerEvent+action).call(1, f)(player.getLuaReference())(start)();
+		LUACALLBACK(localplayerEventAny).call(1, f)(player.getLuaReference())((int)action)(start)();
+
+		if(!ignore) {
+			if(start)
+				player.actionStart(action);
+			else
+				player.actionStop(action);
+		}
 	}
 	return "";
+}
+
+std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std::list<std::string> const&)
+{
+	return _event(index, action, true);
 }
 
 std::string eventStop(size_t index, CWormHumanInputHandler::Actions action, std::list<std::string> const&)
 {
-	assert((int)action >= 0 && (int)action < CWormHumanInputHandler::ACTION_COUNT);
-
-	if ( index < game.localPlayers.size() )
-	{
-		CWormHumanInputHandler& player = *game.localPlayers[index];
-		
-		bool ignore = false;
-
-		if(!player.worm()->bWeaponsReady)
-			ignore = true;
-
-		EACH_CALLBACK(i, localplayerEvent+action)
-		{
-			int n = (lua.call(*i, 1), player.getLuaReference(), false)();
-			if(n > 0 && lua.tobool(-1))
-				ignore = true;
-			lua.pop(n);
-		}
-		
-		EACH_CALLBACK(i, localplayerEventAny)
-		{
-			int n = (lua.call(*i, 1), player.getLuaReference(), static_cast<int>(action), false)();
-			if(n > 0 && lua.tobool(-1))
-				ignore = true;
-			lua.pop(n);
-		}
-		
-		if(!ignore)
-			player.actionStop(action);
-	}
-	return "";
+	return _event(index, action, false);
 }
 
 void registerPlayerInput()
 {
+	using namespace boost::lambda;
+
 	for ( size_t i = 0; i < GusGame::MAX_LOCAL_PLAYERS; ++i)
 	{
 		static char const* actionNames[] =
@@ -106,8 +80,8 @@ void registerPlayerInput()
 		for(int action = CWormHumanInputHandler::LEFT; action < CWormHumanInputHandler::ACTION_COUNT; ++action)
 		{
 			console.registerCommands()
-				((S_("+P") << i << actionNames[action]), boost::bind(eventStart, i, (CWormHumanInputHandler::Actions)action, _1))
-				((S_("-P") << i << actionNames[action]), boost::bind(eventStop, i, (CWormHumanInputHandler::Actions)action, _1))
+				((S_("+P") << i << actionNames[action]), bind(eventStart, i, (CWormHumanInputHandler::Actions)action, _1))
+				((S_("-P") << i << actionNames[action]), bind(eventStop, i, (CWormHumanInputHandler::Actions)action, _1))
 			;
 		}
 	}

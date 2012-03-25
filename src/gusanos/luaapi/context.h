@@ -24,7 +24,7 @@ class BitStream;
 struct CmdLineIntf;
 class ScriptVar_t;
 
-class LuaContext : DontCopyTag
+class LuaContext
 {
 public:
 	struct FunctionProxy
@@ -162,25 +162,25 @@ public:
 	
 	LuaContext& push(lua_CFunction v)
 	{
-		lua_pushcfunction(m_State, v);
+		lua_pushcfunction(*this, v);
 		return *this;
 	}
 	
 	LuaContext& push(lua_Number v)
 	{
-		lua_pushnumber(m_State, v);
+		lua_pushnumber(*this, v);
 		return *this;
 	}
 		
 	LuaContext& push(float v)
 	{
-		lua_pushnumber(m_State, static_cast<lua_Number>(v));
+		lua_pushnumber(*this, static_cast<lua_Number>(v));
 		return *this;
 	}
 	
 	LuaContext& push(char const* v)
 	{
-		lua_pushstring(m_State, v);
+		lua_pushstring(*this, v);
 		return *this;
 	}
 	
@@ -192,7 +192,7 @@ public:
 	
 	LuaContext& push(std::pair<char const*, char const*> v)
 	{
-		lua_pushlstring(m_State, v.first, v.second - v.first);
+		lua_pushlstring(*this, v.first, v.second - v.first);
 		return *this;
 	}
 	
@@ -205,41 +205,41 @@ public:
 	template<class T>
 	LuaContext& push(FullReference<T> const& v)
 	{
-		T** i = (T **)lua_newuserdata_init (m_State, sizeof(T *));
+		T** i = (T **)lua_newuserdata_init (*this, sizeof(T *));
 		*i = &v.x;
 		pushReference(v.metatable);
 		
-		lua_setmetatable(m_State, -2);
+		lua_setmetatable(*this, -2);
 		return *this;
 	}
 	
 	LuaContext& push(bool v)
 	{
-		lua_pushboolean(m_State, v);
+		lua_pushboolean(*this, v);
 		return *this;
 	}
 	
 	LuaContext& push(int v)
 	{
-		lua_pushinteger(m_State, static_cast<lua_Integer>(v));
+		lua_pushinteger(*this, static_cast<lua_Integer>(v));
 		return *this;
 	}
 	
 	LuaContext& push(long v)
 	{
-		lua_pushinteger(m_State, static_cast<lua_Integer>(v));
+		lua_pushinteger(*this, static_cast<lua_Integer>(v));
 		return *this;
 	}
 	
 	LuaContext& push(unsigned int v)
 	{
-		lua_pushinteger(m_State, static_cast<lua_Integer>(v));
+		lua_pushinteger(*this, static_cast<lua_Integer>(v));
 		return *this;
 	}
 	
 	LuaContext& push(unsigned long v)
 	{
-		lua_pushinteger(m_State, static_cast<lua_Integer>(v));
+		lua_pushinteger(*this, static_cast<lua_Integer>(v));
 		return *this;
 	}
 			
@@ -253,11 +253,11 @@ public:
 	template<class T>
 	LuaContext& push(std::vector<T> const& v)
 	{
-		lua_newtable(m_State);
+		lua_newtable(*this);
 		for(size_t n = 0; n < v.size(); ++n)
 		{
 			push(v[n]);
-			lua_rawseti(m_State, -2, n + 1);
+			lua_rawseti(*this, -2, n + 1);
 		}
 		return *this;
 	}
@@ -271,44 +271,44 @@ public:
 	template<class T>
 	void pushFullReference(T& x, LuaReference metatable)
 	{
-		T** i = (T **)lua_newuserdata_init (m_State, sizeof(T *));
+		T** i = (T **)lua_newuserdata_init (*this, sizeof(T *));
 		*i = &x;
 		pushReference(metatable);
 		
-		lua_setmetatable(m_State, -2);
+		lua_setmetatable(*this, -2);
 	}
 	
 	template<class T>
 	void pushLightReference(T* x, LuaReference metatable)
 	{
-		lua_pushlightuserdata (m_State, x);
+		lua_pushlightuserdata (*this, x);
 		pushReference(metatable);
-		lua_setmetatable(m_State, -2);
+		lua_setmetatable(*this, -2);
 	}
 		
 	void* pushObject(size_t count) // Pops a metatable from the stack
 	{
-		void* p = lua_newuserdata_init (m_State, count); // <metatable> <object>
+		void* p = lua_newuserdata_init (*this, count); // <metatable> <object>
 
-		lua_insert(m_State, -2); // <object> <metatable>
-		lua_setmetatable(m_State, -2);
+		lua_insert(*this, -2); // <object> <metatable>
+		lua_setmetatable(*this, -2);
 		
 		return p;
 	}
 	
 	void* pushObject(LuaReference metatable, size_t count)
 	{
-		void* p = lua_newuserdata_init (m_State, count);
+		void* p = lua_newuserdata_init (*this, count);
 		
 		pushReference(metatable);
-		lua_setmetatable(m_State, -2);
+		lua_setmetatable(*this, -2);
 		
 		return p;
 	}
 	
 	LuaContext& pushvalue(int i)
 	{
-		lua_pushvalue(m_State, i);
+		lua_pushvalue(*this, i);
 		return *this;
 	}
 	
@@ -321,33 +321,33 @@ public:
 
 	LuaContext& rawgeti(int table, int key)
 	{
-		lua_rawgeti(m_State, table, key);
+		lua_rawgeti(*this, table, key);
 		return *this;
 	}
 	
 	LuaContext& rawseti(int table, int key)
 	{
-		lua_rawseti(m_State, table, key);
+		lua_rawseti(*this, table, key);
 		return *this;
 	}
 	
-	int getLuaType(int idx) { return lua_type(m_State, idx); }
-	std::string getLuaTypename(int idx) { return lua_typename(m_State, getLuaType(idx)); }
+	int getLuaType(int idx) { return lua_type(*this, idx); }
+	std::string getLuaTypename(int idx) { return lua_typename(*this, getLuaType(idx)); }
 
-	const char* tostring(int i) { return lua_tostring(m_State, i); }
+	const char* tostring(int i) { return lua_tostring(*this, i); }
 	std::string convert_tostring(int i);
-	bool tobool(int i) { return lua_toboolean(m_State, i); }
+	bool tobool(int i) { return lua_toboolean(*this, i); }
 	Result toScriptVar(int idx, ScriptVar_t& var);
 
 	LuaContext& newtable()
 	{
-		lua_newtable(m_State);
+		lua_newtable(*this);
 		return *this;
 	}
 	
 	LuaContext& pop(int c = 1)
 	{
-		lua_settop(m_State, (-1)-c);
+		lua_settop(*this, (-1)-c);
 		return *this;
 	}
 	
@@ -362,14 +362,14 @@ public:
 		v.clear();
 		for(size_t n = 1; ; ++n)
 		{
-			lua_rawgeti(m_State, -1, n + 1);
-			if(lua_isnil(m_State, -1))
+			lua_rawgeti(*this, -1, n + 1);
+			if(lua_isnil(*this, -1))
 			{
-				lua_settop(m_State, -3); // Pop nil and table
+				lua_settop(*this, -3); // Pop nil and table
 				return;
 			}
 			//TODO: v.push_back(get<T>(-1));
-			lua_settop(m_State, -2); // Pop value
+			lua_settop(*this, -2); // Pop value
 		}
 	}
 	
@@ -379,8 +379,8 @@ public:
 	
 	void tableSetField(int id)
 	{
-		lua_pushboolean(m_State, true);
-		lua_rawseti(m_State, -2, id);
+		lua_pushboolean(*this, true);
+		lua_rawseti(*this, -2, id);
 	}
 	
 	FunctionProxy functions()
@@ -415,34 +415,28 @@ public:
 	
 	void regObject(char const* name)
 	{
-		lua_setfield(m_State, LUA_REGISTRYINDEX, name);
+		lua_setfield(*this, LUA_REGISTRYINDEX, name);
 	}
 	
 	void regObjectKeep(char const* name)
 	{
-		lua_pushvalue(m_State, -1);
+		lua_pushvalue(*this, -1);
 		regObject(name);
 	}
 	
 	void pushRegObject(char const* name)
 	{
-		lua_getfield(m_State, LUA_REGISTRYINDEX, name);
+		lua_getfield(*this, LUA_REGISTRYINDEX, name);
 	}
 	
-	operator lua_State*() const
-	{
-		return m_State;
-	}
-	
+	operator lua_State*() const { return weakRef.get(); }
+	operator bool() const { return weakRef; }
+
 	void close();
 	
 	~LuaContext();
 	
 	WeakRef<lua_State> weakRef;
-
-private:
-	lua_State *m_State;
-	//std::map<std::string, LuaReference> metaTables;
 };
 
 extern LuaContext lua;

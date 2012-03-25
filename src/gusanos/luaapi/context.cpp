@@ -67,8 +67,8 @@ bool LuaContext::logOnce(std::ostream& str)
 	static MapT linesWarned;
 	
 	lua_Debug info;
-	if(!lua_getstack(m_State, 1, &info)) return false;
-	lua_getinfo (m_State, "Snl", &info);
+	if(!lua_getstack(*this, 1, &info)) return false;
+	lua_getinfo(*this, "Snl", &info);
 	
 	MapT::iterator i = linesWarned.find(info.source);
 	if(i == linesWarned.end() || (i->second.find(info.currentline) == i->second.end()))
@@ -83,16 +83,19 @@ bool LuaContext::logOnce(std::ostream& str)
 void LuaContext::log(std::ostream& str)
 {
 	lua_Debug info;
-	if(!lua_getstack(m_State, 1, &info)) return;
-	lua_getinfo (m_State, "Snl", &info);
+	if(!lua_getstack(*this, 1, &info)) return;
+	lua_getinfo(*this, "Snl", &info);
 	
 	str << info.source << ":" << info.currentline << ": ";
 }
 
-LuaContext::LuaContext() : m_State(NULL) {}
-LuaContext::LuaContext(lua_State* state_) : m_State(state_) {
-	if(m_State == lua.m_State)
+LuaContext::LuaContext() {}
+LuaContext::LuaContext(lua_State* L) {
+	if(L == lua.weakRef.get()) {
 		weakRef = lua.weakRef;
+	}
+	else
+		assert(false);
 }
 
 namespace
@@ -111,17 +114,15 @@ namespace
 
 void LuaContext::init()
 {
-	//m_State = lua_open();
-	m_State = lua_newstate(l_alloc, 0);
-	weakRef.set(m_State);
+	weakRef.set(lua_newstate(l_alloc, 0));
 
-	lua_pushinteger(m_State, 3);
-	lua_rawseti(m_State, LUA_REGISTRYINDEX, ARRAY_SIZE);
+	lua_pushinteger(*this, 3);
+	lua_rawseti(*this, LUA_REGISTRYINDEX, ARRAY_SIZE);
 	
-	luaopen_base(m_State);
-	luaopen_table(m_State);
-	luaopen_string(m_State);
-	luaopen_math(m_State);
+	luaopen_base(*this);
+	luaopen_table(*this);
+	luaopen_string(*this);
+	luaopen_math(*this);
 }
 
 void LuaContext::reset()
@@ -148,17 +149,17 @@ const char * LuaContext::istreamChunkReader(lua_State *L, void *data, size_t *si
 
 void LuaContext::load(std::string const& chunk, std::istream& stream)
 {
-	lua_pushcfunction(m_State, errorReport);
-	int result = lua_load(m_State, istreamChunkReader, &stream, chunk.c_str());
+	lua_pushcfunction(*this, errorReport);
+	int result = lua_load(*this, istreamChunkReader, &stream, chunk.c_str());
 	
 	if(result)
 	{
-		notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
+		notes << "Lua error: " << lua_tostring(*this, -1) << endl;
 		pop(2);
 		return;
 	}
 	
-	result = lua_pcall (m_State, 0, 0, -2);
+	result = lua_pcall (*this, 0, 0, -2);
 	
 	switch(result)
 	{
@@ -207,8 +208,8 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 {
 	StringData readData(&data, 0);
 	
-	lua_pushcfunction(m_State, errorReport);
-	int result = lua_load(m_State, stringChunkReader, &readData, chunk.c_str());
+	lua_pushcfunction(*this, errorReport);
+	int result = lua_load(*this, stringChunkReader, &readData, chunk.c_str());
 	
 	if(result)
 	{
@@ -217,7 +218,7 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 		return 0;
 	}
 	
-	result = lua_pcall (m_State, 0, 1, -2);
+	result = lua_pcall (*this, 0, 1, -2);
 	
 	switch(result)
 	{
@@ -232,7 +233,7 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 		break;
 	}
 	
-	lua_remove(m_State, -2); // Remove error function
+	lua_remove(*this, -2); // Remove error function
 	return 1;
 }
 
@@ -240,8 +241,8 @@ int LuaContext::evalExpression(std::string const& chunk, std::string const& data
 int LuaContext::execCode(const std::string& data, CmdLineIntf &cli) {
 	LuaCustomPrintScope printScope(*this, printFuncFromCLI(cli));
 
-	lua_pushcfunction(m_State, errorReport);
-	int result = luaL_loadstring(m_State, data.c_str());
+	lua_pushcfunction(*this, errorReport);
+	int result = luaL_loadstring(*this, data.c_str());
 
 	if(result) {
 		cli.writeMsg("Lua error: " + std::string(this->tostring(-1)));
@@ -249,7 +250,7 @@ int LuaContext::execCode(const std::string& data, CmdLineIntf &cli) {
 		return 0;
 	}
 
-	result = lua_pcall (m_State, 0, 1, -2);
+	result = lua_pcall (*this, 0, 1, -2);
 
 	switch(result) {
 	case LUA_ERRRUN:
@@ -260,9 +261,9 @@ int LuaContext::execCode(const std::string& data, CmdLineIntf &cli) {
 		return 0;
 	}
 
-	lua_remove(m_State, -2); // Remove error function
+	lua_remove(*this, -2); // Remove error function
 
-	if(lua_isnoneornil(m_State, -1)) {
+	if(lua_isnoneornil(*this, -1)) {
 		pop();
 		return 0;
 	}
@@ -309,17 +310,17 @@ int LuaContext::evalExpression(std::string const& chunk, std::istream& stream)
 {
 	IStreamData readData(&stream, 0);
 	
-	lua_pushcfunction(m_State, errorReport);
-	int result = lua_load(m_State, istreamExprReader, &readData, chunk.c_str());
+	lua_pushcfunction(*this, errorReport);
+	int result = lua_load(*this, istreamExprReader, &readData, chunk.c_str());
 	
 	if(result)
 	{
-		notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
+		notes << "Lua error: " << lua_tostring(*this, -1) << endl;
 		pop(2);
 		return 0;
 	}
 	
-	result = lua_pcall (m_State, 0, 1, -2);
+	result = lua_pcall (*this, 0, 1, -2);
 	
 	switch(result)
 	{
@@ -327,14 +328,14 @@ int LuaContext::evalExpression(std::string const& chunk, std::istream& stream)
 		case LUA_ERRMEM:
 		case LUA_ERRERR:
 		{
-			notes << "Lua error: " << lua_tostring(m_State, -1) << endl;
+			notes << "Lua error: " << lua_tostring(*this, -1) << endl;
 			pop(2); // Pop error message and error function
 			return 0;
 		}
 		break;
 	}
 	
-	lua_remove(m_State, -2); // Remove error function
+	lua_remove(*this, -2); // Remove error function
 	return 1;
 }
 
@@ -373,7 +374,7 @@ void LuaContext::load(std::string const& chunk, istream& stream, string const& t
 
 int LuaContext::call(int params, int returns, int errfunc)
 {
-	int result = lua_pcall (m_State, params, returns, errfunc);
+	int result = lua_pcall (*this, params, returns, errfunc);
 		
 	switch(result)
 	{
@@ -402,15 +403,15 @@ int LuaContext::callReference(LuaReference ref)
 
 void LuaContext::function(char const* name, lua_CFunction func, int upvalues)
 {
-	lua_pushcclosure(m_State, func, upvalues);
-	lua_setfield(m_State, LUA_GLOBALSINDEX, name);
+	lua_pushcclosure(*this, func, upvalues);
+	lua_setfield(*this, LUA_GLOBALSINDEX, name);
 }
 
 void LuaContext::tableFunction(char const* name, lua_CFunction func) // [0,0]
 {
-	lua_pushstring(m_State, name);
-	lua_pushcfunction(m_State, func);
-	lua_rawset(m_State, -3);
+	lua_pushstring(*this, name);
+	lua_pushcfunction(*this, func);
+	lua_rawset(*this, -3);
 }
 
 static int getRegTable(lua_State* L, int index) { // [0,0]
@@ -427,7 +428,6 @@ static void setRegTable(lua_State* L, int index, int value) { // [0,0]
 
 LuaReference LuaContext::createReference() // [-1,0]
 {
-	assert(m_State != NULL);
 	assert(weakRef);
 
 	// FREELIST_REF is a single-linked list of free RegistryTable slots.
@@ -435,22 +435,22 @@ LuaReference LuaContext::createReference() // [-1,0]
 	// points to another free ref, etc.
 	// In destroyReference, we add entries to that list.
 
-	int ref = getRegTable(m_State, FREELIST_REF);
+	int ref = getRegTable(*this, FREELIST_REF);
 
 	if(ref != 0)
 	{
-		lua_rawgeti(m_State, LUA_REGISTRYINDEX, ref);
-		lua_rawseti(m_State, LUA_REGISTRYINDEX, FREELIST_REF);
+		lua_rawgeti(*this, LUA_REGISTRYINDEX, ref);
+		lua_rawseti(*this, LUA_REGISTRYINDEX, FREELIST_REF);
 		// LuaRegistry[FREELIST_REF] = LuaRegistry[ref]
 	}
 	else
 	{
 		// LuaRegistry[ARRAY_SIZE] is initialized with 3. (LuaContext::init)
-		ref = getRegTable(m_State, ARRAY_SIZE);
-		setRegTable(m_State, ARRAY_SIZE, ref + 1);
+		ref = getRegTable(*this, ARRAY_SIZE);
+		setRegTable(*this, ARRAY_SIZE, ref + 1);
 	}
 
-	lua_rawseti(m_State, LUA_REGISTRYINDEX, ref);
+	lua_rawseti(*this, LUA_REGISTRYINDEX, ref);
 	// LuaRegistry[ref] = StackTop
 	return LuaReference(ref, weakRef);
 }
@@ -459,7 +459,7 @@ void LuaContext::assignReference(LuaReference ref) // [-1,0]
 {
 	if (ref.idx > 2)
 	{
-		lua_rawseti(m_State, LUA_REGISTRYINDEX, ref.idx);
+		lua_rawseti(*this, LUA_REGISTRYINDEX, ref.idx);
 	}
 	else
 		pop(1); // Ignore it
@@ -469,9 +469,9 @@ void LuaContext::destroyReference(LuaReference ref)
 {
 	if (ref.idx > 2)
 	{
-		lua_rawgeti(m_State, LUA_REGISTRYINDEX, FREELIST_REF);
-		lua_rawseti(m_State, LUA_REGISTRYINDEX, ref.idx);	/* t[ref] = t[FREELIST_REF] */
-		setRegTable(m_State, FREELIST_REF, ref.idx);	/* t[FREELIST_REF] = ref */
+		lua_rawgeti(*this, LUA_REGISTRYINDEX, FREELIST_REF);
+		lua_rawseti(*this, LUA_REGISTRYINDEX, ref.idx);	/* t[ref] = t[FREELIST_REF] */
+		setRegTable(*this, FREELIST_REF, ref.idx);	/* t[FREELIST_REF] = ref */
 	}
 }
 
@@ -479,7 +479,7 @@ void LuaContext::pushReference(LuaReference ref)
 {
 	assert(ref);
 	assert(ref.luaState == weakRef);
-	lua_rawgeti(m_State, LUA_REGISTRYINDEX, ref.idx);
+	lua_rawgeti(*this, LUA_REGISTRYINDEX, ref.idx);
 }
 
 namespace LuaType
@@ -500,7 +500,7 @@ enum type
 
 void LuaContext::serialize(BitStream& s, int i)
 {
-	switch(lua_type(m_State, i))
+	switch(lua_type(*this, i))
 	{
 		case LUA_TNIL:
 			s.addInt(LuaType::Nil, 4);
@@ -508,7 +508,7 @@ void LuaContext::serialize(BitStream& s, int i)
 		
 		case LUA_TNUMBER:
 		{
-			lua_Number n = lua_tonumber(m_State, i);
+			lua_Number n = lua_tonumber(*this, i);
 			lua_Integer i = static_cast<lua_Integer>(n);
 			if(std::fabs(i - n) < 0.00001)
 			{
@@ -525,7 +525,7 @@ void LuaContext::serialize(BitStream& s, int i)
 		
 		case LUA_TBOOLEAN:
 		{
-			int n = lua_toboolean(m_State, i);
+			int n = lua_toboolean(*this, i);
 			s.addInt(n ? LuaType::BooleanTrue : LuaType::BooleanFalse, 4);
 		}
 		break;
@@ -533,7 +533,7 @@ void LuaContext::serialize(BitStream& s, int i)
 		case LUA_TSTRING:
 		{
 			s.addInt(LuaType::String, 4);
-			char const* n = lua_tostring(m_State, i);
+			char const* n = lua_tostring(*this, i);
 			s.addString(n);
 		}
 		break;
@@ -544,8 +544,8 @@ void LuaContext::serialize(BitStream& s, int i)
 			size_t idx = 1;
 			for(;; ++idx)
 			{
-				lua_rawgeti(m_State, i, idx);
-				if(lua_isnil(m_State, -1))
+				lua_rawgeti(*this, i, idx);
+				if(lua_isnil(*this, -1))
 				{
 					pop(1);
 					break;
@@ -556,11 +556,11 @@ void LuaContext::serialize(BitStream& s, int i)
 			}
 			s.addInt(LuaType::End, 4);
 			
-			lua_pushnil(m_State);
+			lua_pushnil(*this);
 			int tab = i < 0 ? i - 1 : i;
-			while(lua_next(m_State, tab) != 0)
+			while(lua_next(*this, tab) != 0)
 			{
-				if(!lua_isnumber(m_State, -2) || lua_tointeger(m_State, -2) >= (int)idx)
+				if(!lua_isnumber(*this, -2) || lua_tointeger(*this, -2) >= (int)idx)
 				{
 					serialize(s, -2);
 					serialize(s, -1);
@@ -583,7 +583,7 @@ bool LuaContext::deserialize(BitStream& s)
 	switch(t)
 	{
 		case LuaType::Nil:
-			lua_pushnil(m_State);
+			lua_pushnil(*this);
 		break;
 		
 		case LuaType::Number:
@@ -614,11 +614,11 @@ bool LuaContext::deserialize(BitStream& s)
 		
 		case LuaType::Table:
 		{
-			lua_newtable(m_State);
+			lua_newtable(*this);
 			
 			for(int idx = 1; deserialize(s); ++idx)
 			{
-				lua_rawseti(m_State, -2, idx);
+				lua_rawseti(*this, -2, idx);
 			}
 			
 			while(deserialize(s))
@@ -630,7 +630,7 @@ bool LuaContext::deserialize(BitStream& s)
 					return true; // Return what we have of the table
 				}
 				
-				lua_rawset(m_State, -3);
+				lua_rawset(*this, -3);
 			}
 		}
 		break;
@@ -647,7 +647,7 @@ bool LuaContext::deserialize(BitStream& s)
 
 void LuaContext::serialize(std::ostream& s, int i)
 {
-	switch(lua_type(m_State, i))
+	switch(lua_type(*this, i))
 	{
 		case LUA_TNIL:
 			s.put(LuaType::Nil);
@@ -655,7 +655,7 @@ void LuaContext::serialize(std::ostream& s, int i)
 		
 		case LUA_TNUMBER:
 		{
-			lua_Number n = lua_tonumber(m_State, i);
+			lua_Number n = lua_tonumber(*this, i);
 			s.put(LuaType::Number);
 			s.write((char *)&n, sizeof(double));
 		}
@@ -663,7 +663,7 @@ void LuaContext::serialize(std::ostream& s, int i)
 		
 		case LUA_TBOOLEAN:
 		{
-			int n = lua_toboolean(m_State, i);
+			int n = lua_toboolean(*this, i);
 			s.put(n ? LuaType::BooleanTrue : LuaType::BooleanFalse);
 		}
 		break;
@@ -672,7 +672,7 @@ void LuaContext::serialize(std::ostream& s, int i)
 		{
 			s.put(LuaType::String);
 			size_t len;
-			char const* n = lua_tolstring(m_State, i, &len);
+			char const* n = lua_tolstring(*this, i, &len);
 			s.put((len >> 24) & 0xFF);
 			s.put((len >> 16) & 0xFF);
 			s.put((len >> 8) & 0xFF);
@@ -684,9 +684,9 @@ void LuaContext::serialize(std::ostream& s, int i)
 		case LUA_TTABLE:
 		{
 			s.put(LuaType::Table);
-			lua_pushnil(m_State);
+			lua_pushnil(*this);
 			int tab = i < 0 ? i - 1 : i;
-			while(lua_next(m_State, tab) != 0)
+			while(lua_next(*this, tab) != 0)
 			{
 				serialize(s, -2);
 				serialize(s, -1);
@@ -708,7 +708,7 @@ void LuaContext::deserialize(std::istream& s)
 	switch(t)
 	{
 		case LuaType::Nil:
-			lua_pushnil(m_State);
+			lua_pushnil(*this);
 		break;
 		
 		case LuaType::Number:
@@ -738,7 +738,7 @@ void LuaContext::deserialize(std::istream& s)
 			try
 			{
 				s.read(str, len);
-				lua_pushlstring(m_State, str, len);				
+				lua_pushlstring(*this, str, len);
 			}
 			catch(...)
 			{
@@ -751,12 +751,12 @@ void LuaContext::deserialize(std::istream& s)
 		
 		case LuaType::Table:
 		{
-			lua_newtable(m_State);
+			lua_newtable(*this);
 			while(s && s.peek() != LuaType::End)
 			{
 				deserialize(s);
 				deserialize(s);
-				lua_rawset(m_State, -3);
+				lua_rawset(*this, -3);
 			}
 			s.get(); // Skip end
 		}
@@ -766,7 +766,7 @@ void LuaContext::deserialize(std::istream& s)
 
 void LuaContext::serializeT(std::ostream& s, int i, int indent)
 {
-	switch(lua_type(m_State, i))
+	switch(lua_type(*this, i))
 	{
 		case LUA_TNIL:
 			s << "nil";
@@ -774,21 +774,21 @@ void LuaContext::serializeT(std::ostream& s, int i, int indent)
 		
 		case LUA_TNUMBER:
 		{
-			lua_Number n = lua_tonumber(m_State, i);
+			lua_Number n = lua_tonumber(*this, i);
 			s << n;
 		}
 		break;
 		
 		case LUA_TBOOLEAN:
 		{
-			int n = lua_toboolean(m_State, i);
+			int n = lua_toboolean(*this, i);
 			s << (n ? "true" : "false");
 		}
 		break;
 		
 		case LUA_TSTRING:
 		{
-			char const* n = lua_tostring(m_State, i);
+			char const* n = lua_tostring(*this, i);
 			s << '"';
 			
 			for(char const* p = n; *p; ++p)
@@ -810,8 +810,8 @@ void LuaContext::serializeT(std::ostream& s, int i, int indent)
 			size_t idx = 1;
 			for(;; ++idx)
 			{
-				lua_rawgeti(m_State, i, idx);
-				if(lua_isnil(m_State, -1))
+				lua_rawgeti(*this, i, idx);
+				if(lua_isnil(*this, -1))
 				{
 					pop(1);
 					break;
@@ -824,11 +824,11 @@ void LuaContext::serializeT(std::ostream& s, int i, int indent)
 				pop(1);
 			}
 			
-			lua_pushnil(m_State);
+			lua_pushnil(*this);
 			int tab = i < 0 ? i - 1 : i;
-			while(lua_next(m_State, tab) != 0)
+			while(lua_next(*this, tab) != 0)
 			{
-				if(!lua_isnumber(m_State, -2) || lua_tointeger(m_State, -2) >= (int)idx)
+				if(!lua_isnumber(*this, -2) || lua_tointeger(*this, -2) >= (int)idx)
 				{
 					for(int j = 0; j < indent; ++j)
 						s.put('\t');
@@ -855,7 +855,7 @@ void LuaContext::serializeT(std::ostream& s, int i, int indent)
 
 std::string LuaContext::convert_tostring(int i) {
 	assert(i != 0);
-	int luaTop = lua_gettop(m_State);
+	int luaTop = lua_gettop(*this);
 	if(i < 0) {
 		if(-i <= luaTop)
 			i = luaTop + i + 1; // make it absolute
@@ -864,11 +864,11 @@ std::string LuaContext::convert_tostring(int i) {
 		assert(i <= luaTop);
 	}
 
-	lua_getfield(m_State, LUA_GLOBALSINDEX, "tostring");
-	lua_pushvalue(m_State, i);
-	lua_call(m_State, 1, 1);
+	lua_getfield(*this, LUA_GLOBALSINDEX, "tostring");
+	lua_pushvalue(*this, i);
+	lua_call(*this, 1, 1);
 
-	const char* s = lua_tostring(m_State, -1);
+	const char* s = lua_tostring(*this, -1);
 	std::string ret = "<NULL>";
 	if(s) ret = s;
 	pop();
@@ -901,16 +901,16 @@ LuaContext& LuaContext::pushScriptVar(const ScriptVar_t& var) {
 }
 
 Result LuaContext::toScriptVar(int idx, ScriptVar_t& var) {
-	if(lua_isnoneornil(m_State, idx))
+	if(lua_isnoneornil(*this, idx))
 		return "value is none or nil";
 
-	if(lua_isboolean(m_State, idx)) {
+	if(lua_isboolean(*this, idx)) {
 		var = ScriptVar_t(tobool(idx));
 		return true;
 	}
 
-	if(lua_isnumber(m_State, idx)) {
-		lua_Number n = lua_tonumber(m_State, idx);
+	if(lua_isnumber(*this, idx)) {
+		lua_Number n = lua_tonumber(*this, idx);
 		if(n == lua_Number(int32_t(n))) { // int32_t
 			var = ScriptVar_t(int32_t(n));
 			return true;
@@ -920,7 +920,7 @@ Result LuaContext::toScriptVar(int idx, ScriptVar_t& var) {
 		return true;
 	}
 
-	if(lua_isstring(m_State, idx)) {
+	if(lua_isstring(*this, idx)) {
 		var = ScriptVar_t(tostring(idx));
 		return true;
 	}
@@ -939,9 +939,8 @@ Result LuaContext::toScriptVar(int idx, ScriptVar_t& var) {
 
 void LuaContext::close()
 {
-	if(m_State)
-		lua_close(m_State);
-	m_State = NULL;
+	if(weakRef)
+		lua_close(*this);
 	weakRef.overwriteShared(NULL);
 }
 

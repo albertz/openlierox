@@ -4,6 +4,7 @@
 #include "client.h"
 #include "gusgame.h"
 #include "glua.h"
+#include "LuaCallbacks.h"
 #include "gconsole.h"
 #include "net_worm.h"
 #include "game/WormInputHandler.h"
@@ -37,9 +38,7 @@ namespace
 
 	void setLuaState(Network::State s)
 	{
-		EACH_CALLBACK(i, networkStateChange) {
-			(lua.call(*i), s)();
-		}
+		LUACALLBACK(networkStateChange).call()(s)();
 	}
 
 	void setState(Network::State s)

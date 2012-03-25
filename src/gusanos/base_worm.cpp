@@ -25,6 +25,7 @@
 #include "CGameMode.h"
 
 #include "glua.h"
+#include "LuaCallbacks.h"
 #include "luaapi/context.h"
 #include "lua/bindings-objects.h"
 #include "game/Game.h"
@@ -645,9 +646,7 @@ void CWorm::base_die() {
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);			
 		}
 		
-		EACH_CALLBACK(i, wormDeath) {
-			(lua.call(*i), getLuaReference())();
-		}
+		LUACALLBACK(wormDeath).call()(getLuaReference())();
 	}
 	
 	bAlive = false;
@@ -804,9 +803,7 @@ void CWorm::actionStop( Actions action )
 
 void CWorm::finalize()
 {
-	EACH_CALLBACK(i, wormRemoved) {
-		(lua.call(*i), getLuaReference())();
-	}
+	LUACALLBACK(wormRemoved).call()(getLuaReference())();
 
 	for ( size_t i = 0; i < m_weapons.size(); ++i) {
 		luaDelete(m_weapons[i]);

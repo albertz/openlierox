@@ -12,6 +12,7 @@
 #include "bindings-gfx.h"
 #include "bindings-game.h"
 
+#include "gusanos/LuaCallbacks.h"
 #include "../luaapi/types.h"
 #include "../luaapi/macros.h"
 
@@ -65,11 +66,6 @@ int print(lua_State* L)
 /*! bindings.afterUpdate()
 
 	This is called after every logic cycle is complete.
-*/
-
-/*@ bindings.atGameStart() // Not sure if this will be kept
-
-	This is called at the beginning of a game.
 */
 
 /*! bindings.afterRender()
@@ -165,7 +161,7 @@ int l_bind(lua_State* L)
 		
 	lua_pushvalue(L, 3);
 	LuaReference ref = lua.createReference();
-	luaCallbacks.bind(s, ref);
+	luaCallbacks.bind(L, s, ref);
 
 	return 0;
 }

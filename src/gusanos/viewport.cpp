@@ -10,6 +10,7 @@
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
 #include "glua.h"
+#include "LuaCallbacks.h"
 #include "lua/bindings-gfx.h"
 #include "blitters/blitters.h"
 #include "culling.h"
@@ -179,28 +180,24 @@ void CViewport::gusRender()
 		// Note that we only process worms in the Lua callbacks which have a player set.
 		// Most Lua code depends on this assumption so it would break otherwise.
 		
-		EACH_CALLBACK(i, wormRender) {
-			for(vector<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
-				CWorm* worm = (*playerIter)->getWorm();
-				if( worm && worm->isActive() && worm->inputHandler() ) {
-					IVec renderPos( worm->getRenderPos() );
-					int x = renderPos.x - offX;
-					int y = renderPos.y - offY;
-					LuaReference ownerRef;
+		for(vector<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
+			CWorm* worm = (*playerIter)->getWorm();
+			if( worm && worm->isActive() && worm->inputHandler() ) {
+				IVec renderPos( worm->getRenderPos() );
+				int x = renderPos.x - offX;
+				int y = renderPos.y - offY;
+				LuaReference ownerRef;
 
-					if ( player )
-						ownerRef = player->getLuaReference();
+				if ( player )
+					ownerRef = player->getLuaReference();
 
-					(lua.call(*i), (lua_Number)x, (lua_Number)y, worm->getLuaReference(), luaReference, ownerRef)();
-				}
+				LUACALLBACK(wormRender).call()((lua_Number)x)((lua_Number)y)(worm->getLuaReference())(luaReference)(ownerRef)();
 			}
 		}
 
 		// draw viewport specific stuff only for human worms
 		if(pcTargetWorm && dynamic_cast<CWormHumanInputHandler*>(pcTargetWorm->inputHandler()) != NULL) {
-			EACH_CALLBACK(i, viewportRender) {
-				(lua.call(*i), luaReference, pcTargetWorm->getLuaReference())();
-			}
+			LUACALLBACK(viewportRender).call()(luaReference)(pcTargetWorm->getLuaReference())();
 		}
 	}
 }

@@ -20,6 +20,7 @@
 #include "gusanos/player_input.h"
 
 #include "gusanos/glua.h"
+#include "gusanos/LuaCallbacks.h"
 #include "gusanos/lua/bindings-game.h"
 #include "gusanos/gusgame.h"
 
@@ -79,9 +80,7 @@ void CWormInputHandler::deleteThis()
 {
 	notes << "CWormInputHandler:deleteThis: " << (m_worm ? m_worm->getName() : "NOWORM") << endl;
 
-	EACH_CALLBACK(i, playerRemoved) {
-		(lua.call(*i), getLuaReference())();
-	}
+	LUACALLBACK(playerRemoved).call()(getLuaReference())();
 	
 	game.onRemovePlayer(this);
 
@@ -208,9 +207,7 @@ void CWormInputHandler::think()
 				case eNet_EventInit: {
 					sendSyncMessage( conn_id );
 					
-					EACH_CALLBACK(i, playerNetworkInit) {
-						(lua.call(*i), getLuaReference(), conn_id)();
-					}
+					LUACALLBACK(playerNetworkInit).call()(getLuaReference())(conn_id)();
 				}
 					break;
 				case eNet_EventRemoved: {
@@ -224,9 +221,7 @@ void CWormInputHandler::think()
 		}
 	}
 		
-	EACH_CALLBACK(i, playerUpdate) {
-		(lua.call(*i), getLuaReference())();
-	}
+	LUACALLBACK(playerUpdate).call()(getLuaReference())();
 }
 
 void CWormInputHandler::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID)

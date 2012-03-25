@@ -49,6 +49,7 @@
 #include "CServerNetEngine.h"
 #include "GameState.h"
 #include "DeprecatedGUI/CBrowser.h"
+#include "gusanos/LuaCallbacks.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -1037,10 +1038,7 @@ void Game::onNewPlayer(CWormInputHandler* player) {
 
 void Game::onNewPlayer_Lua(CWormInputHandler* p) {
 	if(game.gameScript()->gusEngineUsed()) {
-		EACH_CALLBACK(i, playerInit)
-		{
-			(lua.call(*i), p->getLuaReference())();
-		}	
+		LUACALLBACK(playerInit).call()(p->getLuaReference())();
 	}
 }
 
@@ -1066,10 +1064,7 @@ void Game::onNewHumanPlayer(CWormHumanInputHandler* player) {
 
 void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 	if(game.gameScript()->gusEngineUsed()) {
-		EACH_CALLBACK(i, localplayerInit)
-		{
-			(lua.call(*i), player->getLuaReference())();
-		}
+		LUACALLBACK(localplayerInit).call()(player->getLuaReference())();
 	}
 }
 

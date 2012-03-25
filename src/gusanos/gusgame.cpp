@@ -36,6 +36,7 @@
 #include "loaders/liero.h"
 #include "loaders/losp.h"
 #include "glua.h"
+#include "LuaCallbacks.h"
 #include "lua/bindings.h"
 #include "Debug.h"
 #include "FindFile.h"
@@ -363,10 +364,7 @@ void GusGame::think()
 			case eNet_EventInit:
 			{
 				// Call this first since level effects will hog the message queue
-				EACH_CALLBACK(i, gameNetworkInit)
-				{
-					(lua.call(*i), conn_id)();
-				}
+				LUACALLBACK(gameNetworkInit).call()(conn_id)();
 				
 				list<LevelEffectEvent>::iterator iter = appliedLevelEffects.begin();
 				for( ; iter != appliedLevelEffects.end() ; ++iter )
@@ -557,7 +555,7 @@ void GusGame::unload()
 
 	network.clear();
 	lua.reset();
-	luaCallbacks = LuaCallbacks(); // Reset callbacks
+	luaCallbacks.cleanup(); // remove invalidated callbacks
 	LuaBindings::init();
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();

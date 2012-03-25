@@ -14,7 +14,7 @@ struct LuaReference
 	
 	explicit LuaReference(int idx_, const WeakRef<lua_State>& ref_);
 	
-	operator bool() {
+	operator bool() const {
 		return idx != 0 && luaState;
 	}
 	
