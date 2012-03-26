@@ -436,6 +436,9 @@ public:
 	}
 	operator bool() const { return weakRef; }
 
+	bool operator==(const LuaContext& other) const { return weakRef == other.weakRef; }
+	bool operator!=(const LuaContext& other) const { return !(*this == other); }
+
 	void close();
 	
 	~LuaContext();
