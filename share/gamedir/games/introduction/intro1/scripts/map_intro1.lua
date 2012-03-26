@@ -1,5 +1,5 @@
 function getKey(k)
-	return getVar("GameOptions.Ply1Controls." .. k)
+	return settings.GameOptions.Ply1Controls[k]
 end
 
 function map_intro1.init()
