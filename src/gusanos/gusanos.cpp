@@ -27,6 +27,7 @@
 #include "script.h"
 #include "LuaCallbacks.h"
 #include "luaapi/context.h"
+#include "lua/bindings.h"
 #include "util/log.h"
 #include "game/Game.h"
 #include <memory>
@@ -44,6 +45,9 @@ bool gusInitBase() {
 	if(!gusGame.init())
 		return false;
 	
+	luaGlobal.init();
+	LuaBindings::init(luaGlobal);
+
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
@@ -114,6 +118,7 @@ void gusQuit() {
 #endif
 	gfx.shutDown();
 	luaIngame.close();
+	luaGlobal.close();
 
 	allegro_exit();
 }
