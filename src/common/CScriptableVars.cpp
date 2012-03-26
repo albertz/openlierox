@@ -13,6 +13,10 @@
 #include "StringUtils.h"
 #include "StaticAssert.h"
 #include "CVec.h"
+#include "CServerConnection.h" // ClientRights
+#include "game/Game.h"
+#include "game/Settings.h"
+#include "Options.h"
 
 #include <sstream>
 
@@ -388,3 +392,33 @@ void realCopyVar(ScriptVar_t& var) {
 		// i.e. ScriptVar_t can never be a ref and is always a copy.
 		var = ScriptVar_t(var.customVar()->getRefCopy());
 }
+
+Result RegisteredVar::allowedToAccess(bool forWrite, const ClientRights& rights) {
+	if(forWrite && !rights.SetVar)
+		return "No access to set variables";
+
+	if( var.type == SVT_CALLBACK )
+		// If we want support for that, I would suggest a seperated command like "call ...".
+		return "callbacks are not allowed";
+
+	if(game.isServer() && game.state > Game::S_Lobby) {
+		if( forWrite && var.type == SVT_DYNAMIC && var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] )
+			return "You cannot change the map in game";
+
+		if( forWrite && var.type == SVT_DYNAMIC && var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] )
+			return "You cannot change the mod in game";
+
+		if( forWrite && var.type == SVT_DYNAMIC && var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_GameMode] )
+			return "You cannot change the gametype in game.";
+	}
+
+	if( var.ptr.s == &tLXOptions->sServerPassword ) {
+		if(!forWrite)
+			return "password not allowed to read";
+		if(!rights.Dedicated)
+			return "dedicated-access needed to change password";
+	}
+
+	return true;
+}
+

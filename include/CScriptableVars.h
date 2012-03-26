@@ -564,6 +564,7 @@ template<typename T> T* getPointer(ScriptVarPtr_t& varPtr) {
 }
 
 
+struct ClientRights;
 
 struct RegisteredVar {
 	ScriptVarPtr_t var;
@@ -616,7 +617,7 @@ struct RegisteredVar {
 		advancedLevel = ALT_Basic;
 	}
 
-
+	Result allowedToAccess(bool forWrite, const ClientRights& rights);
 };
 
 
@@ -650,8 +651,7 @@ public:
 	static bool haveSomethingWith(const std::string& start) {
 		CScriptableVars::const_iterator it = CScriptableVars::lower_bound(start);
 		if(it == end()) return false;
-		return strCaseStartsWith(it->first, start);
-				
+		return strCaseStartsWith(it->first, start);			
 	}
 	
 	static std::string DumpVars();	// For debug output

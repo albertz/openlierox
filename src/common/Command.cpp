@@ -1707,29 +1707,12 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		return;
 	}
 
-	if( varptr->var.type == SVT_CALLBACK ) {
-		caller->writeMsg("SetVar: callbacks are not allowed");
-		// If we want support for that, I would suggest a seperated command like "call ...".
+	ClientRights rights; rights.Everything();
+	if(NegResult r = varptr->allowedToAccess(true, rights)) {
+		caller->writeMsg("SetVar: " + r.res.humanErrorMsg);
 		return;
 	}
 
-	if(cServer && cServer->isServerRunning() && game.state != Game::S_Lobby) {
-		if( varptr->var.type == SVT_DYNAMIC && varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] ) {
-			caller->writeMsg("SetVar: You cannot change the map in game");
-			return;
-		}
-		
-		if( varptr->var.type == SVT_DYNAMIC && varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] ) {
-			caller->writeMsg("SetVar: You cannot change the mod in game");
-			return;
-		}
-		
-		if( stringcaseequal(var, "GameOptions.GameInfo.GameType") ) {
-			caller->writeMsg("SetVar: You cannot change the gametype in game.");
-			return;
-		}
-	}
-	
 	CScriptableVars::SetVarByString(varptr->var, value);
 	//notes << "DedicatedControl: SetVar " << var << " = " << value << endl;
 
@@ -1745,16 +1728,10 @@ void Cmd_getVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		caller->writeMsg("GetVar: no var with name " + var);
 		return;
 	}
-	
-	if( varptr->var.type == SVT_CALLBACK ) {
-		caller->writeMsg("GetVar: callbacks are not allowed");
-		// If we want supoort for that, I would suggest a seperated command like "call ...".
-		return;
-	}
-	
-	if( varptr->var.ptr.s == &tLXOptions->sServerPassword ) {
-		caller->writeMsg("GetVar: this variable is restricted");
-		// If you want to check if a worm is authorized, use another function for that.
+
+	ClientRights rights; rights.Everything();
+	if(NegResult r = varptr->allowedToAccess(false, rights)) {
+		caller->writeMsg("GetVar: " + r.res.humanErrorMsg);
 		return;
 	}
 	

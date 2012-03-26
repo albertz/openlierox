@@ -19,6 +19,7 @@
 #include "game/SinglePlayer.h"
 #include "OLXCommand.h"
 #include "gusanos/weapon_type.h"
+#include "CServerConnection.h" // ClientRights
 
 #include <cmath>
 #include <iostream>
@@ -509,7 +510,7 @@ static int l_worms_getIterator(lua_State* L) {
 	return 3;
 }
 
-static void initWormsWrapper(LuaContext& context) { // [0,1]
+static void initWormsWrapper(LuaContext& context) { // [0,0]
 	context.newtable(); // worms wrapper object
 
 	// metatable object
@@ -526,8 +527,130 @@ static void initWormsWrapper(LuaContext& context) { // [0,1]
 		}
 		lua_setmetatable(context, -2);
 	}
+}
 
-	lua_setfield(context, LUA_GLOBALSINDEX, "game_worms");
+static int l_game_get(lua_State* L) {
+
+	return 0;
+}
+
+static void initGameWrapper(LuaContext& context) {
+	context.newtable(); // game wrapper object
+
+	{
+		context.newtable(); // meta
+		{
+			lua_pushstring(context, "__index");
+			lua_pushcfunction(context, l_game_get);
+			lua_rawset(context, -3);
+		}
+		lua_setmetatable(context, -2);
+
+		{
+			lua_pushstring(context, "worms");
+			initWormsWrapper(context);
+			lua_rawset(context, -3);
+		}
+	}
+}
+
+static void initSettingsWrapper(LuaContext& context, const std::string& snamespace);
+
+static int l_settings_get(lua_State* L) {
+	LuaContext context(L);
+
+	const char* snamespace = lua_tostring(context, lua_upvalueindex(1));
+	if(!snamespace) snamespace = "";
+
+	const char* varname = lua_tostring(context, 1);
+	if(!varname) {
+		context.pushError("bad arguments");
+		return 0;
+	}
+
+	std::string fullVarName = std::string(snamespace) + varname;
+
+	if(CScriptableVars::haveSomethingWith(fullVarName + ".")) {
+		initSettingsWrapper(context, fullVarName + ".");
+		return 1;
+	}
+
+	RegisteredVar* var = CScriptableVars::GetVar(fullVarName);
+	if(!var) {
+		context.pushError("no var named " + fullVarName);
+		return 0;
+	}
+
+	ClientRights rights; rights.Everything();
+	if(NegResult r = var->allowedToAccess(false, rights)) {
+		context.pushError("no read access: " + r.res.humanErrorMsg);
+		return 0;
+	}
+
+	context.pushScriptVar(var->var.asScriptVar());
+	return 1;
+}
+
+static int l_settings_set(lua_State* L) {
+	LuaContext context(L);
+
+	const char* snamespace = lua_tostring(context, lua_upvalueindex(1));
+	if(!snamespace) snamespace = "";
+
+	const char* varname = lua_tostring(context, 1);
+	if(!varname) {
+		context.pushError("bad arguments");
+		return 0;
+	}
+
+	std::string fullVarName = std::string(snamespace) + varname;
+
+	RegisteredVar* var = CScriptableVars::GetVar(fullVarName);
+	if(!var) {
+		context.pushError("no var named " + fullVarName);
+		return 0;
+	}
+
+	ClientRights rights; rights.Everything();
+	if(NegResult r = var->allowedToAccess(true, rights)) {
+		context.pushError("no write access: " + r.res.humanErrorMsg);
+		return 0;
+	}
+
+	ScriptVar_t newValue;
+	if(NegResult r = context.toScriptVar(2, newValue)) {
+		context.pushError("value error: " + r.res.humanErrorMsg);
+		return 0;
+	}
+
+	ScriptVar_t value = var->var.asScriptVar();
+	if(NegResult r = value.fromScriptVar(newValue, true, false)) {
+		context.pushError("value conversion error: " + r.res.humanErrorMsg);
+		return 0;
+	}
+
+	var->var.fromScriptVar(value);
+	return 0;
+}
+
+static void initSettingsWrapper(LuaContext& context, const std::string& snamespace) {
+	context.newtable(); // settings wrapper object
+
+	{
+		context.newtable(); // meta
+		{
+			context.push("__index");
+			context.push(snamespace);
+			lua_pushcclosure(context, l_settings_get, 1);
+			lua_rawset(context, -3);
+
+			context.push("__newindex");
+			context.push(snamespace);
+			lua_pushcclosure(context, l_settings_set, 1);
+			lua_rawset(context, -3);
+		}
+		lua_setmetatable(context, -2);
+	}
 }
 
 void initGame(LuaContext& context)
@@ -536,7 +659,14 @@ void initGame(LuaContext& context)
 	lua_pushcfunction(context, l_game_playerIterator);
 	playerIterator.create(context);
 
-	initWormsWrapper(context);
+	{
+		initGameWrapper(context);
+		lua_setfield(context, LUA_GLOBALSINDEX, "game");
+	}
+	{
+		initSettingsWrapper(context, "");
+		lua_setfield(context, LUA_GLOBALSINDEX, "settings");
+	}
 
 	context.functions()
 		("game_local_player", l_game_localPlayer)

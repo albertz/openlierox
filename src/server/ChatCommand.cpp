@@ -1053,34 +1053,18 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->SetVar)
 		return "You do not have sufficient privileges to set a variable";
+	if(!w->getClient()) return "Invalid worm with no client";
 
 	std::string var = params[0];
 	TrimSpaces( var );
 	RegisteredVar* varptr = CScriptableVars::GetVar(var);
 	if( varptr == NULL )
 		return "No variable with name " + var;
-	if(varptr->var.type == SVT_CALLBACK)
-		return "Callbacks are not allowed";
+
+	bool forWrite = params.size() > 1;
+	if(NegResult r = varptr->allowedToAccess(forWrite, *cl->getRights()))
+		return r.res.humanErrorMsg;
 	
-	if( varptr->var.ptr.s == &tLXOptions->sServerPassword ) {
-		if(params.size() == 1) return "The password cannot be shown";
-		if(!cl->getRights()->Dedicated)
-			return "You can only set the password with Dedicated priviliges";
-	}
-
-	if(game.state != Game::S_Lobby && params.size() == 2) {
-		if( varptr->var.type == SVT_DYNAMIC && varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Map] )
-			return "You cannot change the map in game";
-
-		if(varptr->var.type == SVT_DYNAMIC && varptr->var.ptr.dynVar->getAttrDesc() == &Settings::getAttrDescs().attrDescs[FT_Mod] )
-			return "You cannot change the mod in game";
-
-		if( stringcaseequal(var, "GameOptions.GameInfo.GameType") )
-			return "You cannot change the gametype in game";
-	}
-	
-	if(!w->getClient()) return "Invalid worm with no client";
-
 	if(params.size() == 1) {
 		w->getClient()->getNetEngine()->SendText(var + " = " + varptr->var.toString(), TXT_PRIVATE);
 		return "";
