@@ -474,7 +474,7 @@ static int l_worms_getIterator(lua_State* L) {
 	return 3;
 }
 
-static void initWormsWrapper(LuaContext& context) { // [0,0]
+static void initWormsWrapper(LuaContext& context) { // [0,1]
 	context.newtable(); // worms wrapper object
 
 	// metatable object
@@ -493,6 +493,101 @@ static void initWormsWrapper(LuaContext& context) { // [0,0]
 	}
 }
 
+static int l_gameSettings_get(lua_State* L) {
+	LuaContext context(L);
+	const char* name = lua_tostring(context, 2);
+	if(!name) {
+		context.pushError("bad arguments");
+		return 0;
+	}
+
+	Feature* f = featureByName(name);
+	if(!f) {
+		context.pushError("no game setting '" + std::string(name) + "'");
+		return 0;
+	}
+
+	if(game.state < Game::S_Lobby) {
+		context.pushError("game-settings only available in game");
+		return 0;
+	}
+
+	context.pushScriptVar(cClient->getGameLobby()[f]);
+	return 1;
+}
+
+static int l_gameSettings_set(lua_State* L) {
+	LuaContext context(L);
+	const char* name = lua_tostring(context, 2);
+	if(!name) {
+		context.pushError("bad arguments");
+		return 0;
+	}
+
+	Feature* f = featureByName(name);
+	if(!f) {
+		context.pushError("no game setting '" + std::string(name) + "'");
+		return 0;
+	}
+
+	if(game.state < Game::S_Lobby) {
+		context.pushError("game-settings only available in game");
+		return 0;
+	}
+
+	if(game.isClient()) {
+		context.pushError("game-settings are only writeable as server");
+		return 0;
+	}
+
+	ScriptVar_t newValue;
+	if(NegResult r = context.toScriptVar(3, newValue)) {
+		context.pushError("value error: " + r.res.humanErrorMsg);
+		return 0;
+	}
+
+	ScriptVar_t value = gameSettings[f];
+	if(NegResult r = value.fromScriptVar(newValue, true, false)) {
+		context.pushError("value conversion error: " + r.res.humanErrorMsg);
+		return 0;
+	}
+
+	/*
+	  // hm, it might make sense to silently ignore this.
+	  // there is no simple exception handling in Lua.
+	if(!gameSettings.isRelevant(modSettings, f)) {
+		FeatureSettingsLayer* relevantLayer = gameSettings.layerFor(featureArrayIndex(f));
+		if(relevantLayer)
+			context.pushError("cannot make effective setting change, effective layer is: " + relevantLayer->debug_name);
+		else
+			context.pushError("cannot make effective setting change, " + modSettings.debug_name + " layer is not registered in this mode");
+		return 0;
+	}
+	*/
+
+	modSettings.set(featureArrayIndex(f)).fromScriptVar(value);
+	return 0;
+}
+
+static void initGameSettingsWrapper(LuaContext& context) { // [0,1]
+	context.newtable(); // settings wrapper object
+
+	// metatable object
+	{
+		context.newtable();
+		{
+			lua_pushstring(context, "__index");
+			lua_pushcfunction(context, l_gameSettings_get);
+			lua_rawset(context, -3);
+
+			lua_pushstring(context, "__newindex");
+			lua_pushcfunction(context, l_gameSettings_set);
+			lua_rawset(context, -3);
+		}
+		lua_setmetatable(context, -2);
+	}
+}
+
 static void initGameWrapper(LuaContext& context) {
 	// game object
 	BaseObject** p = (BaseObject **)lua_newuserdata_init(context, sizeof(void*));
@@ -503,8 +598,12 @@ static void initGameWrapper(LuaContext& context) {
 		{
 			context.newtable(); // meta exteded index table
 			{
-				lua_pushstring(context, "worms");
+				context.push("worms");
 				initWormsWrapper(context);
+				lua_rawset(context, -3);
+
+				context.push("settings");
+				initGameSettingsWrapper(context);
 				lua_rawset(context, -3);
 			}
 			initBaseObjMetaTable(context, 1);
@@ -556,7 +655,7 @@ static int l_settings_set(lua_State* L) {
 	LuaContext context(L);
 
 	if(context != luaGlobal) {
-		context.pushError("settings are not writeable from within game scripts. use gameSettings instead for game-related settings.");
+		context.pushError("settings are not writeable from within game scripts. use game.settings instead for game-related settings.");
 		return 0;
 	}
 
