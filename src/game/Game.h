@@ -97,7 +97,7 @@ public:
 	static const uint64_t FixedFrameTime = 1000 / FixedFPS;
 
 	ATTR(Game, uint64_t, serverFrame, 2, {}) // always 100FPS
-	ATTR(Game, bool, gameOver, 3, {})
+	ATTR(Game, bool, gameOver, 3, { onUpdate = Game::onGameOverUpdate; })
 	ATTR(Game, uint64_t, gameOverFrame, 4, {})
 
 	TimeDiff serverTime() { return TimeDiff(serverFrame * 10); }
@@ -159,6 +159,7 @@ public:
 
 private:
 	static void onStateUpdate(BaseObject*,const AttrDesc*,ScriptVar_t);
+	static void onGameOverUpdate(BaseObject*,const AttrDesc*,ScriptVar_t);
 	void reset();
 	void frameInner();
 	void prepareMenu();

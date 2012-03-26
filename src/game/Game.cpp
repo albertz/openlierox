@@ -86,6 +86,7 @@ void Game::startServer(bool localGame) {
 	m_isServer = true;
 	m_isLocalGame = localGame;
 	state = S_Lobby;
+	LUACALLBACK(serverStart).call()();
 }
 
 void Game::startClient() {
@@ -129,6 +130,12 @@ void Game::gotoLobby(const std::string &reason) {
 }
 
 void Game::stop() {
+	if(game.state >= Game::S_Lobby) {
+		if(game.isServer())
+			LUACALLBACK(serverStop).call()();
+		else
+			LUACALLBACK(serverLeft).call()();
+	}
 	m_isServer = false;
 	m_isLocalGame = false;
 	state = S_Inactive;
@@ -253,6 +260,23 @@ void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t 
 		stateUpdate_leaveNetState();
 	if(game.state == Game::S_Connecting && game.isClient())
 		stateUpdate_connectingMenu();
+
+	if((int)oldValue <= Game::S_Connecting && game.state >= Game::S_Lobby && game.isClient())
+		LUACALLBACK(serverJoined).call()();
+	if((int)oldValue <= Game::S_Lobby && game.state >= Game::S_Preparing)
+		LUACALLBACK(gamePrepare).call()();
+	if((int)oldValue <= Game::S_Preparing && game.state >= Game::S_Playing)
+		LUACALLBACK(gameBegin).call()();
+	if(game.state == Game::S_Lobby)
+		LUACALLBACK(gotoLobby).call()();
+}
+
+void Game::onGameOverUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t oldValue) {
+	assert(oPt == &game);
+	assert(attrDesc == game.gameOver.attrDesc());
+
+	if(game.gameOver)
+		LUACALLBACK(gameOver).call()();
 }
 
 void Game::prepareMenu() {
