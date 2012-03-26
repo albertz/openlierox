@@ -92,43 +92,6 @@ int l_console_register_control(lua_State* L)
 
 //! version OLX 0.59 b9 (or so)
 
-static int l_olx_getVar(lua_State* L) {
-	LuaContext context(L);
-	
-	// mostly copied from Cmd_getVar
-	
-	std::string var = lua_tostring(L,1);
-	RegisteredVar* varptr = CScriptableVars::GetVar(var);
-	if( varptr == NULL ) {
-		LUA_ELOG("GetVar: no var with name " + var);
-		return 0;
-	}
-	
-	if( varptr->var.type == SVT_CALLBACK ) {
-		LUA_ELOG("GetVar: callbacks are not allowed");
-		// If we want supoort for that, I would suggest a seperated command like "call ...".
-		return 0;
-	}
-	
-	if( varptr->var.ptr.s == &tLXOptions->sServerPassword ) {
-		LUA_ELOG("GetVar: this variable is restricted");
-		// If you want to check if a worm is authorized, use another function for that.
-		return 0;
-	}
-	
-	switch(varptr->var.type) {
-	case SVT_BOOL:		lua_pushnumber(L, *varptr->var.ptr.b); break;
-	case SVT_INT32:		lua_pushnumber(L, *varptr->var.ptr.i); break;
-	case SVT_UINT64:	lua_pushnumber(L, *varptr->var.ptr.i); break;
-	case SVT_FLOAT:		lua_pushnumber(L, *varptr->var.ptr.f); break;
-	default:			lua_pushstring(L, varptr->var.toString().c_str());
-	}
-
-	return 1;
-}
-
-//! version OLX 0.59 b9 (or so)
-
 static int l_olx_setLevelSucceeded(lua_State* L) {
 	singlePlayerGame.setLevelSucceeded();
 	return 0;
@@ -678,7 +641,6 @@ void initGame(LuaContext& context)
 	// It might be that we use Lua also for other stuff later but that should be a separate
 	// Lua context then.
 	// Here we have some restricted subset.
-		("getVar", l_olx_getVar) // This is e.g. used in SinglePlayer to print some message about the key setup.
 		("setLevelSucceeded", l_olx_setLevelSucceeded)
 		("message", l_olx_message)
 	;
