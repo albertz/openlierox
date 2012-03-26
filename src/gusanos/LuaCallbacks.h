@@ -82,7 +82,6 @@ struct LuaCallbacks
 {
 	enum Type
 	{
-		startup,
 		exit,
 		serverStart,
 		serverStop,
