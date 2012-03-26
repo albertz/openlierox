@@ -555,6 +555,11 @@ static int l_settings_get(lua_State* L) {
 static int l_settings_set(lua_State* L) {
 	LuaContext context(L);
 
+	if(context != luaGlobal) {
+		context.pushError("settings are not writeable from within game scripts. use gameSettings instead for game-related settings.");
+		return 0;
+	}
+
 	const char* snamespace = lua_tostring(context, lua_upvalueindex(1));
 	if(!snamespace) snamespace = "";
 
