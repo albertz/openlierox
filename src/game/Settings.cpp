@@ -99,6 +99,18 @@ bool FeatureSettingsLayer::loadFromConfig(const std::string& cfgfile, bool reset
 	return true;
 }
 
+bool Settings::isRelevant(FeatureSettingsLayer* layer, FeatureIndex i) const {
+	for(Layers::const_reverse_iterator it = layers.rbegin(); it != layers.rend(); ++it) {
+		if(layer == *it) return true;
+		if((*it)->isSet[i]) return false;
+	}
+	return false; // layer not registered at all
+}
+
+bool Settings::isRelevant(FeatureSettingsLayer* layer, Feature* f) const {
+	return isRelevant(layer, featureArrayIndex(f));
+}
+
 void Settings::dumpAllLayers() const {
 	notes << "Settings (" << layers.size() << " layers) {" << endl;
 	size_t num = 1;

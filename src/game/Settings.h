@@ -80,6 +80,9 @@ struct Settings : BaseObject {
 		return NULL;
 	}
 
+	bool isRelevant(FeatureSettingsLayer* layer, FeatureIndex i) const;
+	bool isRelevant(FeatureSettingsLayer* layer, Feature* f) const;
+
 	const ScriptVar_t& operator[](FeatureIndex i) const {
 		if(FeatureSettingsLayer* s = layerFor(i))
 			return (*s)[i];
