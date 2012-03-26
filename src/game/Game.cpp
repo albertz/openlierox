@@ -63,10 +63,12 @@ static bool DbgSimulateSlow = false;
 static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
 ( DbgSimulateSlow, "SimulateSlow" );
 
-
+bool gameWasPrepared = false;
+ScriptVar_t preparedMap;
+ScriptVar_t preparedMod;
+ScriptVar_t preparedMode;
 
 Game::Game() {
-	wasPrepared = false;
 	menuFrame = 0;
 	thisRef.classId = LuaID<Game>::value;
 	thisRef.objId = 1;
@@ -187,22 +189,27 @@ void Game::onSettingsUpdate(BaseObject* settingsObj, const AttrDesc* attrDesc, S
 	FeatureIndex featureIndex = Settings::getAttrDescs().getIndex(attrDesc);
 	ScriptVar_t curValue = attrDesc->get(settingsObj);
 
+	bool needReinit = false;
 	switch(featureIndex) {
 	case FT_Map:
 		if(cClient)
 			cClient->bHaveMap = infoForLevel(curValue.as<LevelInfo>()->path).valid;
+		if(gameWasPrepared && curValue != preparedMap) needReinit = true;
 		break;
 	case FT_Mod:
 		if(cClient)
 			cClient->bHaveMod = infoForMod(curValue.as<ModInfo>()->path).valid;
+		if(gameWasPrepared && curValue != preparedMod) needReinit = true;
+		break;
+	case FT_GameMode:
+		if(gameWasPrepared && curValue != preparedMode) needReinit = true;
 		break;
 	default: break; // nop
 	}
 
-	if(featureIndex == FT_Map || featureIndex == FT_Mod || featureIndex == FT_GameMode) {
-		if(game.wasPrepared)
-			// We need a re-init. This will do it.
-			game.cleanupAfterGameloopEnd();
+	if(needReinit) {
+		notes << featureArray[featureIndex].name << " changed -> reinit" << endl;
+		game.cleanupAfterGameloopEnd(); // We need a re-init. This will do it.
 	}
 
 	// whenever we need that...
@@ -376,9 +383,11 @@ Result Game::prepareGameloop() {
 
 	if(NegResult r = game.loadMod())
 		return "Error while loading mod: " + r.res.humanErrorMsg;
+	preparedMod = cClient->getGameLobby()[FT_Mod];
 
 	if(NegResult r = game.loadMap())
 		return "Error while loading map: " + r.res.humanErrorMsg;
+	preparedMap = cClient->getGameLobby()[FT_Map];
 
 	game.gameMap()->SetMinimapDimensions(cClient->tInterfaceSettings.MiniMapW, cClient->tInterfaceSettings.MiniMapH);
 	cClient->bMapGrabbed = true;
@@ -445,6 +454,7 @@ Result Game::prepareGameloop() {
 			return "starting game in local game failed for reason: " + errMsg;
 		}
 	}
+	preparedMode = cClient->getGameLobby()[FT_GameMode];
 
 	while(cClient->getStatus() == NET_CONNECTING) {
 		notes << "client not connected yet - waiting" << endl;
@@ -592,7 +602,7 @@ Result Game::prepareGameloop() {
 	CrashHandler::recoverAfterCrash = tLXOptions->bRecoverAfterCrash && GetGameVersion().releasetype == Version::RT_NORMAL;
 	
 	simulationTime = oldtime = GetTime();
-	wasPrepared = true;
+	gameWasPrepared = true;
 	return true;
 }
 
@@ -688,7 +698,7 @@ void Game::frameInner()
 	if(game.state == Game::S_Lobby && game.isLocalGame())
 		game.startGame();
 
-	if(!wasPrepared && game.state >= Game::S_Preparing) {
+	if(!gameWasPrepared && game.state >= Game::S_Preparing) {
 		Result r = prepareGameloop();
 		if(!r) {
 			warnings << "prepageGameloop failed: " << r.humanErrorMsg << endl;
@@ -696,7 +706,7 @@ void Game::frameInner()
 				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + r.humanErrorMsg);
 			game.state = Game::S_Lobby;
 		}
-		else if(!wasPrepared) {
+		else if(!gameWasPrepared) {
 			errors << "prepageGameloop: no error but not prepared" << endl;
 			return;
 		}
@@ -745,7 +755,7 @@ void Game::frameInner()
 		}
 	}
 
-	if(state >= Game::S_Preparing && wasPrepared && !cClient->bWaitingForMod) {
+	if(state >= Game::S_Preparing && gameWasPrepared && !cClient->bWaitingForMod) {
 		bool update = false;
 		bool updateLocal = false;
 
@@ -804,7 +814,7 @@ void Game::frameInner()
 			cClient->SetupGameInputs();
 	}
 
-	if(!state.ext.updated && state >= Game::S_Preparing && wasPrepared) {
+	if(!state.ext.updated && state >= Game::S_Preparing && gameWasPrepared) {
 		// We have a separate fixed 100FPS for game simulation.
 		// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
 		// we have to set it accordingly.
@@ -894,7 +904,7 @@ void Game::frameInner()
 
 
 void Game::cleanupAfterGameloopEnd() {
-	wasPrepared = false;
+	gameWasPrepared = false;
 	CrashHandler::recoverAfterCrash = false;
 
 	cClient->ShutdownLog();

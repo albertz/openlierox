@@ -169,7 +169,6 @@ private:
 	bool m_isServer;
 	bool m_isLocalGame;
 
-	bool wasPrepared;
 	AbsTime menuStartTime;
 	uint64_t menuFrame;
 	AbsTime oldtime;
