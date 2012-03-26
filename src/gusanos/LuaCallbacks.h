@@ -85,6 +85,8 @@ struct LuaCallbacks
 		exit,
 		serverStart,
 		serverStop,
+		serverJoined,
+		serverLeft,
 		gamePrepare,
 		gameBegin,
 		gameOver,

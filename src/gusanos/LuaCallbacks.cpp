@@ -79,6 +79,8 @@ void LuaCallbacks::bind(const LuaContext& ctx, std::string callback, LuaReferenc
 	CB(exit);
 	CB(serverStart);
 	CB(serverStop);
+	CB(serverJoined);
+	CB(serverLeft);
 	CB(gamePrepare);
 	CB(gameBegin);
 	CB(gameOver);
