@@ -14,6 +14,9 @@ extern "C"
 #include "OLXCommand.h"
 #include "CScriptableVars.h"
 #include "gusanos/luaapi/classes.h"
+#include "gusanos/lua/bindings.h"
+#include "gusanos/LuaCallbacks.h"
+#include "FindFile.h"
 #include <cmath>
 #include <map>
 #include <set>
@@ -1054,5 +1057,30 @@ void LuaReference::invalidate() {
 		context.assignReference(i->second);
 	}
 	idxs->clear();
+}
+
+
+
+static void luaGlobalScript(const std::string& path) {
+	std::ifstream f;
+	OpenGameFileR(f, path, std::ios::binary | std::ios::in);
+	if(!f) {
+		notes << "luaGlobalScript: " << path << " not found" << endl;
+		return;
+	}
+
+	luaGlobal.load(path, f);
+}
+
+void initLuaGlobal() {
+	luaGlobal.init();
+	LuaBindings::init(luaGlobal);
+
+	luaGlobalScript("startup.lua");
+}
+
+void quitLuaGlobal() {
+	LUACALLBACK(exit).call()();
+	luaGlobal.close();
 }
 

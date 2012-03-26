@@ -446,6 +446,9 @@ public:
 extern LuaContext luaIngame;
 extern LuaContext luaGlobal;
 
+void initLuaGlobal();
+void quitLuaGlobal();
+
 #ifndef NDEBUG
 
 struct AssertStack

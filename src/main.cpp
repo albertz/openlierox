@@ -295,6 +295,8 @@ startpoint:
 		startFunctionData = NULL;
 	}
 
+	initLuaGlobal();
+
 	for(std::list<std::string>::iterator i = startupCommands.begin(); i != startupCommands.end(); ++i) {
 		// execute as if it would have been entered in ingame console
 		notes << "startup command: " << *i << endl;
@@ -304,6 +306,8 @@ startpoint:
 
 	doMainLoop();
 	
+	quitLuaGlobal();
+
 	if(!bRestartGameAfterQuit)
 		CrashHandler::restartAfterCrash = false;
 	
