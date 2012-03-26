@@ -2,7 +2,7 @@ function getKey(k)
 	return settings.GameOptions.Ply1Controls[k]
 end
 
-function map_intro1.init()
+function bindings.gamePrepare()
 
 	message("Welcome to OpenLieroX\n"
 		.. "Go to the right top of this level!\n\n"

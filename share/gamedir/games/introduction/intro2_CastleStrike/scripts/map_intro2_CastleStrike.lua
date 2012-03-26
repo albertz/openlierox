@@ -2,7 +2,7 @@ function getKey(k)
 	return settings.GameOptions.Ply1Controls[k]
 end
 
-function map_intro2_CastleStrike.init()
+function bindings.gamePrepare()
 
 	message("Kill that bot 10 times, and avoid his shots.\n\n"
 		.. "An essential skill to do this is 'comboing': "
