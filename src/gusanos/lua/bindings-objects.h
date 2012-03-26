@@ -10,4 +10,6 @@ namespace LuaBindings
 	void initObjects(LuaContext& ctx);
 }
 
+void initBaseObjMetaTable(LuaContext& context, int indexClosureNum);
+
 #endif //LUA_BINDINGS_OBJECTS_H

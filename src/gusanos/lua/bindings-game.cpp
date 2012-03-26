@@ -1,4 +1,5 @@
 #include "bindings-game.h"
+#include "bindings-objects.h"
 #include "bindings.h"
 
 #include "../luaapi/types.h"
@@ -529,28 +530,25 @@ static void initWormsWrapper(LuaContext& context) { // [0,0]
 	}
 }
 
-static int l_game_get(lua_State* L) {
-
-	return 0;
-}
-
 static void initGameWrapper(LuaContext& context) {
-	context.newtable(); // game wrapper object
+	// game object
+	BaseObject** p = (BaseObject **)lua_newuserdata_init(context, sizeof(void*));
+	*p = &game;
 
 	{
 		context.newtable(); // meta
 		{
-			lua_pushstring(context, "__index");
-			lua_pushcfunction(context, l_game_get);
-			lua_rawset(context, -3);
+			context.newtable(); // meta exteded index table
+			{
+				lua_pushstring(context, "worms");
+				initWormsWrapper(context);
+				lua_rawset(context, -3);
+			}
+			initBaseObjMetaTable(context, 1);
 		}
-		lua_setmetatable(context, -2);
+		context.tableSetField(LuaID<CGameObject>::value);
 
-		{
-			lua_pushstring(context, "worms");
-			initWormsWrapper(context);
-			lua_rawset(context, -3);
-		}
+		lua_setmetatable(context, -2);
 	}
 }
 
@@ -562,7 +560,7 @@ static int l_settings_get(lua_State* L) {
 	const char* snamespace = lua_tostring(context, lua_upvalueindex(1));
 	if(!snamespace) snamespace = "";
 
-	const char* varname = lua_tostring(context, 1);
+	const char* varname = lua_tostring(context, 2);
 	if(!varname) {
 		context.pushError("bad arguments");
 		return 0;
@@ -597,7 +595,7 @@ static int l_settings_set(lua_State* L) {
 	const char* snamespace = lua_tostring(context, lua_upvalueindex(1));
 	if(!snamespace) snamespace = "";
 
-	const char* varname = lua_tostring(context, 1);
+	const char* varname = lua_tostring(context, 2);
 	if(!varname) {
 		context.pushError("bad arguments");
 		return 0;
@@ -618,7 +616,7 @@ static int l_settings_set(lua_State* L) {
 	}
 
 	ScriptVar_t newValue;
-	if(NegResult r = context.toScriptVar(2, newValue)) {
+	if(NegResult r = context.toScriptVar(3, newValue)) {
 		context.pushError("value error: " + r.res.humanErrorMsg);
 		return 0;
 	}
