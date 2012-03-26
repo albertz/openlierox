@@ -1139,7 +1139,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	// Draw the crosshair
 	//
-	if(!hackLXWormDrawInGusanos) {
+	if(!game.gameScript()->gusEngineUsed() || !hackLXWormDrawInGusanos) {
 		CVec forw;
 		GetVecsFromAngle((float)a, &forw, NULL);
 		forw *= tLXOptions->fCrosshairDistance;
@@ -1242,7 +1242,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	const wpnslot_t *Slot = getCurWeapon();
 
 	// Draw the weapon name
-	if(!hackLXWormDrawInGusanos && bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
+	if((!game.gameScript()->gusEngineUsed() || !hackLXWormDrawInGusanos) && bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
 		if(isChangingWpn()) {
 			if(Slot->weapon())
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->weapon()->Name);
@@ -1253,7 +1253,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	}
 
 	// Draw the worm's name
-	if (!hackLXWormDrawInGusanos && isWormVisible(this, v))  {
+	if ((!game.gameScript()->gusEngineUsed() || !hackLXWormDrawInGusanos) && isWormVisible(this, v))  {
 		std::string WormName = sName;
 		if( sAFKMessage.get() != "" )
 			WormName += " " + sAFKMessage.get();
