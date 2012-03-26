@@ -13,7 +13,6 @@
 #include "../weapon.h"
 #include "../weapon_type.h"
 #include "../gusgame.h"
-#include "../glua.h"
 #include "util/log.h"
 #include "game/CMap.h"
 #include "game/Game.h"
@@ -147,12 +146,10 @@ static void initBaseObjMetaTable(LuaContext& context, int indexClosureNum) {
 	context.tableSetField(LuaID<BaseObject>::value);
 }
 
-void BaseObject::initMetaTable() {
-	LuaContext& context = lua;
-
+void BaseObject::initMetaTable(LuaContext& context) {
 	lua_newtable(context);
 	initBaseObjMetaTable(context, 0);
-	BaseObject::metaTable = context.createReference();
+	BaseObject::metaTable.create(context);
 }
 
 LuaReference BaseObject::metaTable;
@@ -365,21 +362,6 @@ LBINOP(CWorm, worm_eq,  (
 	return 1;
 ))*/
 
-METHOD(CWorm, worm_destroy, {
-	// worm deletion is handled outside, thus delete only if safe
-	if(p->deleted) {
-	   notes << "Lua: worm delete of " << p->getID() << ":" << p->getName() << endl;
-	   delete p;
-	}
-	return 0;
-})
-
-METHOD(CNinjaRope, ninjarope_destroy, {
-	// ninjarope deletion is handled outside, always owned by worm atm
-	(void)p; // avoid warning of unused var
-	return 0;
-})
-
 
 /*! Object:angle()
 
@@ -491,15 +473,15 @@ METHODC(CGameObject, baseObject_push,  {
 */
 
 METHODC(CGameObject, baseObject_data,  {
-	if(p->luaData)
+	if(p->luaData.isSet(context))
 	{
-		lua.pushReference(p->luaData);
+		context.push(p->luaData);
 	}
 	else
 	{
 		lua_newtable(context);
 		context.pushvalue(-1);
-		p->luaData = lua.createReference();
+		p->luaData.create(context);
 	}
 	
 	return 1;
@@ -514,7 +496,7 @@ METHODC(CGameObject, baseObject_data,  {
 METHODC(CGameObject, baseObject_getPlayer, {
 	if(p->getOwner() == NULL || p->getOwner()->getWorm() == NULL)
 		return 0;
-	lua.pushReference(p->getOwner()->getLuaReference());
+	context.push(p->getOwner()->getLuaReference());
 	return 1;
 })
 
@@ -668,13 +650,6 @@ METHODC(Particle, particle_set_replication,  {
 	return 0;
 })
 
-//! version any
-
-METHOD(Particle, particle_destroy,  {
-	delete p;
-	return 0;
-})
-
 /*! Weapon:is_reloading()
 
 	Returns true if this weapon is reloading.
@@ -713,12 +688,6 @@ METHODC(Weapon, weaponinst_type,  {
 	return 1;
 })
 
-METHOD(Weapon, weaponinst_destroy,  {
-	assert(!p->luaReference);
-	delete p;
-	return 1;
-})
-
 // StackTop should be the metatable.
 void addGameObjectFunctions(LuaContext& context)
 {
@@ -743,14 +712,12 @@ void addGameObjectFunctions(LuaContext& context)
 	;
 }
 
-void initObjects()
+void initObjects(LuaContext& context)
 {
 	// The verbose commenting here is on purpose for readers not familiar with Lua.
 	// Read also this: http://www.lua.org/manual/5.1/manual.html#3.1
 
-	LuaContext& context = lua;
-	
-	BaseObject::initMetaTable();
+	BaseObject::initMetaTable(context);
 
 	// CGameObject method and metatable
 	{
@@ -764,16 +731,12 @@ void initObjects()
 		}
 
 		context.tableSetField(LuaID<CGameObject>::value); // does t[n] = v, where t=top(table), n=param(id value), v=True
-		CGameObject::metaTable = context.createReference(); // also pops one element
+		CGameObject::metaTable.create(context); // also pops one element
 	}
 
 	// Particle method and metatable
 	{
 		lua_newtable(context);
-		context.tableFunctions()
-				("__gc", l_particle_destroy)
-				;
-
 		{
 			lua_newtable(context);
 			{
@@ -789,16 +752,12 @@ void initObjects()
 
 		context.tableSetField(LuaID<Particle>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
-		Particle::metaTable = context.createReference();
+		Particle::metaTable.create(context);
 	}
 
 	// Worm method and metatable
 	{
 		lua_newtable(context);
-		context.tableFunctions()
-				("__gc", l_worm_destroy)
-				;
-
 		{
 			lua_newtable(context);
 			{
@@ -819,15 +778,12 @@ void initObjects()
 
 		context.tableSetField(LuaID<CWorm>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
-		CWorm::metaTable = context.createReference();
+		CWorm::metaTable.create(context);
 	}
 
 	// CNinjaRope
 	{
 		lua_newtable(context);
-		context.tableFunctions()
-				("__gc", l_ninjarope_destroy)
-				;
 		{
 			lua_newtable(context);
 			{
@@ -837,14 +793,12 @@ void initObjects()
 		}
 		context.tableSetField(LuaID<CNinjaRope>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
-		CNinjaRope::metaTable = context.createReference();
+		CNinjaRope::metaTable.create(context);
 	}
 
 	// ----
 
-	CLASSM_(Weapon,  
-		("__gc", l_weaponinst_destroy)
-	,
+	CLASS_(Weapon,
 		("is_reloading", l_weaponinst_reloading)
 		("reload_time", l_weaponinst_reload_time)
 		("ammo", l_weaponinst_ammo)

@@ -411,7 +411,7 @@ void List::applyFormatting(Context::GSSpropertyMap const& f)
 
 void List::sortLua(LuaReference comparer)
 {
-	LuaLT criteria(lua, comparer);
+	LuaLT criteria(luaIngame, comparer);
 	m_RootNode.children.sort(criteria);
 	
 	m_basePos = 0;

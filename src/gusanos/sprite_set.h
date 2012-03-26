@@ -5,8 +5,8 @@
 #include "util/angle.h"
 #include "util/GusCache.h"
 #include "util/rect.h"
-#include "glua.h"
 #include "gusanos/allegro.h"
+#include "util/BaseObject.h"
 #include <string>
 #include <vector>
 #include <utility>
@@ -16,7 +16,7 @@ class Sprite;
 
 struct BlitterContext;
 
-class SpriteSet : public LuaObject
+class SpriteSet : public BaseObject
 {
 public:
 		

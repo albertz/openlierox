@@ -3,7 +3,6 @@
 
 #include "gusanos/resource_list.h"
 #include "CVec.h"
-#include "gusanos/glua.h"
 #include "sound_sample.h"
 #include <AL/al.h>
 

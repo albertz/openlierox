@@ -157,12 +157,6 @@ void CNinjaRope::deleteThis() {
 	
 	finalize();
 	
-	if(luaReference)
-	{
-		lua.destroyReference(luaReference);
-		luaReference.reset();
-	}
-	
 	// dont delete the object itself because we store it in CClient.cWorms atm
 	// also dont set deleted=true because we may reuse this object
 }

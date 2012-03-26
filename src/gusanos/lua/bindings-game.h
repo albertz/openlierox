@@ -6,10 +6,9 @@
 
 namespace LuaBindings
 {
-	void initGame();
+	void initGame(LuaContext& context);
 	
 	extern LuaReference playerIterator;
-	extern LuaReference CWormInputHandlerMetaTable;
 }
 
 #endif //LUA_BINDINGS_GAME_H

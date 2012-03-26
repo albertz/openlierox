@@ -3,9 +3,11 @@
 
 #include "../luaapi/types.h"
 
+class LuaContext;
+
 namespace LuaBindings
 {
-	void initObjects();
+	void initObjects(LuaContext& ctx);
 }
 
 #endif //LUA_BINDINGS_OBJECTS_H

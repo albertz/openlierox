@@ -30,7 +30,6 @@
 #include "gusanos/gusgame.h"
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
-#include "gusanos/glua.h"
 #include "gusanos/luaapi/context.h"
 #include "sound/sfx.h"
 #include "OLXConsole.h"

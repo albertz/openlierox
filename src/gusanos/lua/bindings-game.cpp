@@ -5,7 +5,6 @@
 #include "../luaapi/macros.h"
 #include "../luaapi/classes.h"
 
-#include "../glua.h"
 #include "../gconsole.h"
 #include "../gusgame.h"
 #include "game/WormInputHandler.h"
@@ -37,11 +36,11 @@ namespace LuaBindings
 LuaReference playerIterator;
 LuaReference CWormInputHandlerMetaTable;
 
-LUA_CALLBACK(luaControl(LuaReference ref, size_t playerIdx, bool state, std::list<std::string> const& args))
+LUA_CALLBACK(luaControl(LuaContext context, LuaReference ref, size_t playerIdx, bool state, std::list<std::string> const& args))
 	if(playerIdx >= game.localPlayers.size())
 		LUA_ABORT();
-	game.localPlayers[playerIdx]->pushLuaReference();
-	lua.push(state);
+	game.localPlayers[playerIdx]->pushLuaReference(context);
+	context.push(state);
 	params += 2;
 END_LUA_CALLBACK()
 
@@ -69,16 +68,19 @@ END_LUA_CALLBACK()
 
 int l_console_register_control(lua_State* L)
 {
+	LuaContext context(L);
+
 	char const* name = lua_tostring(L, 1);
 	if(!name) return 0;
 	lua_pushvalue(L, 2);
-	LuaReference ref = lua.createReference();
+	LuaReference ref;
+	ref.create(context);
 	
 	for(size_t i = 0; i < GusGame::MAX_LOCAL_PLAYERS; ++i)
 	{
 		console.registerCommands()
-			((S_("+P") << i << '_' << name), boost::bind(LuaBindings::luaControl, ref, i, true, _1), true)
-			((S_("-P") << i << '_' << name), boost::bind(LuaBindings::luaControl, ref, i, false, _1), true);
+			((S_("+P") << i << '_' << name), boost::bind(LuaBindings::luaControl, context, ref, i, true, _1), true)
+			((S_("-P") << i << '_' << name), boost::bind(LuaBindings::luaControl, context, ref, i, false, _1), true);
 	}
 	
 	return 0;
@@ -157,11 +159,12 @@ static int l_olx_message(lua_State* L) {
 */
 int l_game_players(lua_State* L)
 {
-	lua.pushReference(LuaBindings::playerIterator);
+	LuaContext context(L);
+	context.push(LuaBindings::playerIterator);
 	typedef long iter;
-	iter& i = *(iter *)lua_newuserdata_init (L, sizeof(iter));
+	iter& i = *(iter *)lua_newuserdata_init (context, sizeof(iter));
 	i = 0;
-	lua_pushnil(L);
+	lua_pushnil(context);
 	
 	return 3;
 }
@@ -173,10 +176,11 @@ int l_game_players(lua_State* L)
 */
 int l_game_localPlayer(lua_State* L)
 {
-	size_t i = (size_t)lua_tointeger(L, 1);
+	LuaContext context(L);
+	size_t i = (size_t)lua_tointeger(context, 1);
 	if(i < game.localPlayers.size())
 	{
-		game.localPlayers[i]->pushLuaReference();
+		game.localPlayers[i]->pushLuaReference(context);
 		return 1;
 	}
 	else
@@ -185,10 +189,11 @@ int l_game_localPlayer(lua_State* L)
 
 int l_game_localPlayerName(lua_State* L)
 {
-	size_t i = (int)lua_tointeger(L, 1);
+	LuaContext context(L);
+	size_t i = (int)lua_tointeger(context, 1);
 	if(i < game.localPlayers.size())
 	{
-		lua.push(game.localPlayers[i]->name());
+		context.push(game.localPlayers[i]->name());
 		return 1;
 	}
 	else
@@ -271,14 +276,14 @@ METHODC(CWormInputHandler, player_isLocal,  {
 	Returns a lua table associated with this player.
 */
 METHODC(CWormInputHandler, player_data,  {
-	if(p->luaData)
-		context.pushReference(p->luaData);
+	if(p->luaData.isSet(context))
+		context.push(p->luaData);
 	else
 	{
 		context
 			.newtable()
 			.pushvalue(-1);
-		p->luaData = context.createReference();
+		p->luaData.create(context);
 	}
 	
 	return 1;
@@ -289,14 +294,14 @@ METHODC(CWormInputHandler, player_data,  {
 	Returns a lua table associated with the stats of this player.
 */
 METHODC(CWormInputHandler, player_stats,  {
-	if(p->stats->luaData)
-		context.pushReference(p->stats->luaData);
+	if(p->stats->luaData.isSet(context))
+		context.push(p->stats->luaData);
 	else
 	{
 		context
 			.newtable()
 			.pushvalue(-1);
-		p->stats->luaData = context.createReference();
+		p->stats->luaData.create(context);
 	}
 	
 	return 1;
@@ -358,13 +363,6 @@ METHODC(CWormInputHandler, player_weaponTypes,  {
 	return 1;
 })
 
-METHOD(CWormInputHandler, player_destroy, {
-	// player deletion is handled outside, thus delete only if safe
-	if(p->deleted)
-	   delete p;
-	return 0;
-})
-
 int l_game_getClosestWorm(lua_State* L)
 {
 	LuaContext context(L);
@@ -399,17 +397,18 @@ int l_game_getClosestWorm(lua_State* L)
 // see l_game_players() for reference
 int l_game_playerIterator(lua_State* L)
 {
-	if(lua_gettop(L) < 1) return 0; // bad usage of iterator
+	LuaContext context(L);
+	if(lua_gettop(context) < 1) return 0; // bad usage of iterator
 
 	typedef long iter;
-	iter* iPt = (iter *)lua_touserdata(L, 1);
+	iter* iPt = (iter *)lua_touserdata(context, 1);
 	if(iPt == NULL) return 0; // bad usage of iterator
 	iter& i = *iPt;
 	if(i < 0 || (size_t)i >= game.players.size())
-		lua_pushnil(L);
+		lua_pushnil(context);
 	else {
 		std::vector<CWormInputHandler*>::iterator it = game.players.begin() + i;
-		(*it)->pushLuaReference();
+		(*it)->pushLuaReference(context);
 		++i;
 	}
 	
@@ -531,13 +530,11 @@ static void initWormsWrapper(LuaContext& context) { // [0,1]
 	lua_setfield(context, LUA_GLOBALSINDEX, "game_worms");
 }
 
-void initGame()
-{
-	LuaContext& context = lua;
-	
+void initGame(LuaContext& context)
+{	
 	context.function("game_players", l_game_players);
 	lua_pushcfunction(context, l_game_playerIterator);
-	playerIterator = context.createReference();
+	playerIterator.create(context);
 
 	initWormsWrapper(context);
 
@@ -560,9 +557,7 @@ void initGame()
 	
 	// CWormHumanInputHandler method and metatable
 	
-	CLASSM(CWormInputHandler,  
-		("__gc", l_player_destroy)
-	,
+	CLASS_(CWormInputHandler,
 		("kills", l_player_kills)
 		("deaths", l_player_deaths)
 		("name", l_player_name)

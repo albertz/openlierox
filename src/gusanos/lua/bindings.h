@@ -9,36 +9,35 @@
 
 namespace LuaBindings
 {
-	void init();
+	void init(LuaContext& ctx);
 }
 
 
 #define LUA_ABORT() \
-do { lua.pop(2 + params); return ""; } while(0)
+do { context.pop(2 + params); return ""; } while(0)
 
 #define LUA_CALLBACK(sign_) \
 std::string sign_ { \
-AssertStack as(lua); \
-lua.push(LuaContext::errorReport); \
-lua.pushReference(ref); \
-if(lua_isnil(lua, -1)) { \
-	lua.pop(2); \
+AssertStack as(context); \
+context.push(LuaContext::errorReport); \
+context.push(ref); \
+if(lua_isnil(context, -1)) { \
+	context.pop(2); \
 	return ""; } \
 int params = 0;
 
 #define END_LUA_CALLBACK() \
-int r = lua.call(params, 1, -params-2); \
+int r = context.call(params, 1, -params-2); \
 if(r < 0) { \
-	lua_pushnil(lua); \
-	lua.assignReference(ref); \
-	lua.pop(1); \
+	ref.invalidate(); \
+	context.pop(1); \
 	return ""; } \
-lua_remove(lua, -1-1); \
-if(char const* s = lua_tostring(lua, -1)) { \
+lua_remove(context, -1-1); \
+if(char const* s = lua_tostring(context, -1)) { \
 	std::string ret(s); \
-	lua.pop(1); \
+	context.pop(1); \
 	return ret; } \
-lua.pop(1); \
+context.pop(1); \
 return ""; }
 
 #endif //LUA_BINDINGS_H

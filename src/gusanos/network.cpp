@@ -3,7 +3,6 @@
 #include "server.h"
 #include "client.h"
 #include "gusgame.h"
-#include "glua.h"
 #include "LuaCallbacks.h"
 #include "gconsole.h"
 #include "net_worm.h"
@@ -137,21 +136,19 @@ Network network;
 void LuaEventDef::call(BitStream* s)
 {
 	BitStream* n = s->Duplicate();
-	(lua.call(callb), luaReference, lua.fullReference(*n, LuaBindings::BitStreamMetaTable))();
+	(luaIngame.call(callb), luaReference, luaIngame.fullReference(*n, LuaBindings::BitStreamMetaTable))();
 }
 
-void LuaEventDef::call(LuaReference obj, BitStream* s)
+void LuaEventDef::call(LuaReferenceLazy obj, BitStream* s)
 {
 	BitStream* n = s->Duplicate();
-	(lua.call(callb), luaReference, obj, lua.fullReference(*n, LuaBindings::BitStreamMetaTable))();
+	(luaIngame.call(callb), luaReference, obj, luaIngame.fullReference(*n, LuaBindings::BitStreamMetaTable))();
 }
 
 LuaEventDef::~LuaEventDef()
 {
-	lua.destroyReference(luaReference);
-	luaReference.reset();
-	lua.destroyReference(callb);
-	callb.reset();
+	luaReference.destroy();
+	callb.destroy();
 }
 
 Network::Network()

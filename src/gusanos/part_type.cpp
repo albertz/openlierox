@@ -179,7 +179,7 @@ void PartType::touch()
 	if(!distortion && !distortionGen.empty())
 	{
 		LuaReference f = distortionGen.get();
-		if(f)
+		if(f.isSet(luaIngame))
 		{
 			DistortionMap* d = new DistortionMap;
 			int width = distortionSize.x;
@@ -193,11 +193,11 @@ void PartType::touch()
 			for(int y = 0; y < height; ++y)
 			for(int x = 0; x < width; ++x)
 			{
-				int n = (lua.call(f, 2), x - hwidth, y - hheight, width, height)();
+				int n = (luaIngame.call(f, 2), x - hwidth, y - hheight, width, height)();
 				if(n == 2)
 				{
-					d->map[y * width + x] = Vec((float)lua_tonumber(lua, -2), (float)lua_tonumber(lua, -1));
-					lua.pop(n);
+					d->map[y * width + x] = Vec((float)lua_tonumber(luaIngame, -2), (float)lua_tonumber(luaIngame, -1));
+					luaIngame.pop(n);
 				}
 				else
 					warnings << "PartType::touch with dissortion, expected 2 but got " << n << endl;
@@ -210,7 +210,7 @@ void PartType::touch()
 	if(!lightHax && !lightGen.empty())
 	{
 		LuaReference f = lightGen.get();
-		if(f)
+		if(f.isSet(luaIngame))
 		{
 			int width = lightSize.x;
 			int height = lightSize.y;
@@ -223,14 +223,14 @@ void PartType::touch()
 			for ( int y = 0; y < height; ++y )
 			for ( int x = 0; x < width; ++x )
 			{
-				int n = (lua.call(f, 1), x - hwidth, y - hheight, width, height)();
+				int n = (luaIngame.call(f, 1), x - hwidth, y - hheight, width, height)();
 				if(n == 1)
 				{
-					int v = lua_tointeger(lua, -1);
+					int v = lua_tointeger(luaIngame, -1);
 					if(v < 0) v = 0;
 					else if(v > 255) v = 255;
 					putpixel_solid(l, x, y, v);
-					lua.pop(1);
+					luaIngame.pop(1);
 				}
 				else
 					assert(false);

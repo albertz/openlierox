@@ -95,7 +95,7 @@ public:
 			return *this;
 		}
 		
-		int operator()() const
+		int operator()()
 		{
 			if(lua_isnil(m_context, -m_params-1))
 			{
@@ -108,9 +108,7 @@ public:
 			if(r < 0)
 			{
 				m_context.pop(1); // Pop error function
-				//m_context.destroyReference(m_ref);
-				lua_pushnil(m_context);
-				m_context.assignReference(m_ref);
+				m_ref.invalidate();
 				return 0;
 			}
 			lua_remove(m_context, -m_returns-1);
@@ -198,16 +196,21 @@ public:
 	
 	LuaContext& push(LuaReference v)
 	{
-		pushReference(v);
+		v.push(*this);
 		return *this;
 	}
 	
+	LuaContext& push(LuaReferenceLazy r) {
+		push(r.get(*this));
+		return *this;
+	}
+
 	template<class T>
 	LuaContext& push(FullReference<T> const& v)
 	{
 		T** i = (T **)lua_newuserdata_init (*this, sizeof(T *));
 		*i = &v.x;
-		pushReference(v.metatable);
+		push(v.metatable);
 		
 		lua_setmetatable(*this, -2);
 		return *this;
@@ -273,7 +276,7 @@ public:
 	{
 		T** i = (T **)lua_newuserdata_init (*this, sizeof(T *));
 		*i = &x;
-		pushReference(metatable);
+		push(metatable);
 		
 		lua_setmetatable(*this, -2);
 	}
@@ -282,7 +285,7 @@ public:
 	void pushLightReference(T* x, LuaReference metatable)
 	{
 		lua_pushlightuserdata (*this, x);
-		pushReference(metatable);
+		push(metatable);
 		lua_setmetatable(*this, -2);
 	}
 		
@@ -300,7 +303,7 @@ public:
 	{
 		void* p = lua_newuserdata_init (*this, count);
 		
-		pushReference(metatable);
+		push(metatable);
 		lua_setmetatable(*this, -2);
 		
 		return p;
@@ -398,13 +401,11 @@ public:
 		return TableItemProxy(*this);
 	}
 	
-	LuaReference createReference();
+	LuaReference::Idx createReference(); // [-1,0]
 	
-	void assignReference(LuaReference ref);
-	
-	void destroyReference(LuaReference ref);
-	
-	void pushReference(LuaReference ref);
+	void assignReference(LuaReference::Idx ref); // [-1,0]
+	void destroyReference(LuaReference::Idx ref); // [0,0]
+	void pushReference(LuaReference::Idx ref); // [0,1]
 	
 	void serialize(std::ostream& s, int i);
 	void deserialize(std::istream& s);
@@ -429,7 +430,10 @@ public:
 		lua_getfield(*this, LUA_REGISTRYINDEX, name);
 	}
 	
-	operator lua_State*() const { return weakRef.get(); }
+	operator lua_State*() const {
+		assert(weakRef.get());
+		return weakRef.get();
+	}
 	operator bool() const { return weakRef; }
 
 	void close();
@@ -439,7 +443,8 @@ public:
 	WeakRef<lua_State> weakRef;
 };
 
-extern LuaContext lua;
+extern LuaContext luaIngame;
+extern LuaContext luaGlobal;
 
 #ifndef NDEBUG
 

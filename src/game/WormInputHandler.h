@@ -13,9 +13,8 @@
 #include <SDL.h>
 #include <string>
 
+#include "util/BaseObject.h"
 #include "gusanos/netstream.h"
-
-//#include "vec.h"
 #include "gusanos/luaapi/types.h"
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
@@ -46,10 +45,8 @@ struct LuaEventDef;
 class CWorm;
 class CViewport;
 struct lua_State;
-namespace LuaBindings { int l_player_destroy(lua_State*); }
 
-class CWormInputHandler {
-	friend int LuaBindings::l_player_destroy(lua_State*);
+class CWormInputHandler : public BaseObject {
 protected:
 	CWorm* m_worm;
 public:
@@ -123,9 +120,7 @@ public:
 		int kills;
 		LuaReference luaData;
 	};
-	
-	//static LuaReference metaTable();
-	
+		
 	// ClassID is Used by zoidcom to identify the class over the network,
 	// do not confuse with the node ID which identifies instances of the class.
 	static Net_ClassID  classID;
@@ -165,8 +160,8 @@ public:
 	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID);
 	CWorm* getWorm() { return m_worm; }
 	
-	LuaReference getLuaReference();
-	void pushLuaReference();
+	static LuaReference metaTable;
+	virtual LuaReference getMetaTable() const { return metaTable; }
 	virtual void deleteThis();
 	
 	shared_ptr<Stats> stats;
@@ -182,7 +177,6 @@ public:
 	
 	void selectWeapons( std::vector< WeaponType* > const& weaps );
 	
-	LuaReference luaReference;
 	Net_Node* getNode() { return m_node; }
 	
 protected:
@@ -193,10 +187,7 @@ protected:
 	bool m_isAuthority;
 	Net_Node *m_node;
 	BasePlayerInterceptor* m_interceptor;
-	
-	bool deleted; //TEMP
-	
-	
+		
 };
 
 

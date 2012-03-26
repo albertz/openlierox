@@ -18,7 +18,7 @@ struct LuaCallbackRef {
 	LuaContext context;
 	LuaReference ref;
 	LuaCallbackRef(const LuaContext& ctx_, const LuaReference& ref_) : context(ctx_), ref(ref_) {}
-	operator bool() const { return context && ref; }
+	operator bool() const { return context && ref.isSet(context); }
 };
 typedef std::vector<LuaCallbackRef> LuaCallbackList;
 

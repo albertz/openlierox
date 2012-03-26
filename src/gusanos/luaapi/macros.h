@@ -61,19 +61,8 @@
 		body_ ; \
 	lua_rawset(context, -3); \
 	context.tableSetField(LuaID<name_>::value); \
-	name_##MetaTable = context.createReference(); }
+	name_##MetaTable.create(context); }
 	
-/*
-#define CLASSID(name_, id_, body_) { \
-	lua_newtable(context); \
-	lua_pushstring(context, "__index"); \
-	lua_newtable(context); \
-	context.tableFunctions() \
-		body_ ; \
-	context.tableSetField(id_); \
-	lua_rawset(context, -3); \
-	name_##MetaTable = context.createReference(); }
-	*/
 #define CLASS_(name_, body_) { \
 	lua_newtable(context); \
 	lua_pushstring(context, "__index"); \
@@ -82,7 +71,7 @@
 		body_ ; \
 	lua_rawset(context, -3); \
 	context.tableSetField(LuaID<name_>::value); \
-	name_::metaTable = context.createReference(); }
+	name_::metaTable.create(context); }
 	
 #define CLASSM(name_, meta_, body_) { \
 	lua_newtable(context); \
@@ -94,7 +83,7 @@
 		body_ ; \
 	lua_rawset(context, -3); \
 	context.tableSetField(LuaID<name_>::value); \
-	name_##MetaTable = context.createReference(); }
+	name_##MetaTable.create(context); }
 	
 #define CLASSM_(name_, meta_, body_) { \
 	lua_newtable(context); \
@@ -106,7 +95,7 @@
 		body_ ; \
 	lua_rawset(context, -3); \
 	context.tableSetField(LuaID<name_>::value); \
-	name_::metaTable = context.createReference(); }
+	name_::metaTable.create(context); }
 
 #define ENUM(name_, body_) { \
 	lua_pushstring(context, #name_); \

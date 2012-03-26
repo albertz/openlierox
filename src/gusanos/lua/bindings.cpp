@@ -17,10 +17,7 @@
 #include "../luaapi/macros.h"
 
 #include "../gusgame.h"
-//#include "../vec.h"
-//#include "../gfx.h"
 #include "../network.h"
-#include "../glua.h"
 #include "util/log.h"
 
 #include "../gconsole.h"
@@ -155,12 +152,14 @@ int print(lua_State* L)
 
 int l_bind(lua_State* L)
 {
+	LuaContext context(L);
 	char const* s = lua_tostring(L, 2);
 	if(!s)
 		return 0;
 		
 	lua_pushvalue(L, 3);
-	LuaReference ref = lua.createReference();
+	LuaReference ref;
+	ref.create(context);
 	luaCallbacks.bind(L, s, ref);
 
 	return 0;
@@ -196,12 +195,12 @@ int l_console_get(lua_State* L)
 }
 
 
-LUA_CALLBACK(luaConsoleCommand(LuaReference ref, std::list<std::string> const& args))
+LUA_CALLBACK(luaConsoleCommand(LuaContext context, LuaReference ref, std::list<std::string> const& args))
 	for(std::list<std::string>::const_iterator i = args.begin();
 		i != args.end();
 		++i)
 	{
-		lua_pushstring(lua, i->c_str());
+		lua_pushstring(context, i->c_str());
 		++params;
 	}
 END_LUA_CALLBACK()
@@ -215,13 +214,15 @@ END_LUA_CALLBACK()
 */
 int l_console_register_command(lua_State* L)
 {
+	LuaContext context(L);
 	char const* name = lua_tostring(L, 1);
 	if(!name) return 0;
 	lua_pushvalue(L, 2);
-	LuaReference ref = lua.createReference();
+	LuaReference ref;
+	ref.create(context);
 	
 	console.registerCommands()
-			(name, boost::bind(LuaBindings::luaConsoleCommand, ref, _1), true);
+			(name, boost::bind(LuaBindings::luaConsoleCommand, context, ref, _1), true);
 
 	return 0;
 }
@@ -404,19 +405,17 @@ std::string runLua(LuaReference ref, std::list<std::string> const& args)
 	IMPL_OLD_LUAFUNC(l_console_action_for_key);
 	IMPL_OLD_LUAFUNC(l_key_name);
 	
-void init()
-{
-	LuaContext& context = lua;
-	
-	initMath();
+void init(LuaContext& context)
+{	
+	initMath(context);
 #ifndef DEDICATED_ONLY
 	initGUI(OmfgGUI::menu, context);
 #endif
 	initNetwork(context);
-	initObjects();
-	initResources();
-	initGfx();
-	initGame();
+	initObjects(context);
+	initResources(context);
+	initGfx(context);
+	initGame(context);
 
 	context.functions()
 		("print", print)

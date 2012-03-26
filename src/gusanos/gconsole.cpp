@@ -6,7 +6,6 @@
 #endif
 #include "script.h"
 #include "gusgame.h"
-#include "glua.h"
 #include "util/math_func.h"
 
 #include "network.h" //TEMP

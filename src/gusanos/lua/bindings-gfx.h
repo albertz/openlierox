@@ -10,10 +10,9 @@
 
 namespace LuaBindings
 {
-	void initGfx();
+	void initGfx(LuaContext& context);
 
 #ifndef DEDICATED_ONLY
-	extern LuaReference CViewportMetaTable;
 	extern LuaReference ALLEGRO_BITMAPMetaTable;
 	extern BlitterContext blitter;
 #endif

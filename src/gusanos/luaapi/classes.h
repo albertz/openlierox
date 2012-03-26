@@ -23,7 +23,7 @@ template<> struct LuaClassInfo<id_> { \
 	} \
 }
 
-struct BaseObject;
+class BaseObject;
 class CGameObject;
 class CWorm;
 class CNinjaRope;

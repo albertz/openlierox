@@ -25,7 +25,6 @@
 
 
 #include "script.h"
-#include "glua.h"
 #include "LuaCallbacks.h"
 #include "luaapi/context.h"
 #include "util/log.h"
@@ -114,7 +113,7 @@ void gusQuit() {
 	sfx.shutDown();
 #endif
 	gfx.shutDown();
-	lua.close();
+	luaIngame.close();
 
 	allegro_exit();
 }

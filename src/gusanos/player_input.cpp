@@ -4,7 +4,6 @@
 #include "gusgame.h"
 #include "CWormHuman.h"
 #include "gconsole.h"
-#include "glua.h"
 #include "LuaCallbacks.h"
 #include "luaapi/context.h"
 #include "util/text.h"

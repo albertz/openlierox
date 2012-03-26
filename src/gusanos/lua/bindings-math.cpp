@@ -4,7 +4,6 @@
 #include "../luaapi/types.h"
 #include "../luaapi/macros.h"
 
-#include "../glua.h"
 #include "CVec.h"
 #include "util/angle.h"
 #include "util/math_func.h"
@@ -229,10 +228,8 @@ int l_angle_vector(lua_State* L)
 	return 2;
 }
 
-void initMath()
+void initMath(LuaContext& context)
 {
-	LuaContext& context = lua;
-	
 	context.functions()
 		("sqrt", l_sqrt)
 		("abs", l_abs)

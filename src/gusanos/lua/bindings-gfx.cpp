@@ -4,7 +4,6 @@
 #include "../luaapi/macros.h"
 #include "../luaapi/classes.h"
 
-#include "../glua.h"
 #include "util/log.h"
 
 #ifndef DEDICATED_ONLY
@@ -25,7 +24,6 @@ namespace LuaBindings
 {
 	
 #ifndef DEDICATED_ONLY
-LuaReference CViewportMetaTable;
 LuaReference ALLEGRO_BITMAPMetaTable;
 BlitterContext blitter;
 #endif
@@ -329,10 +327,8 @@ METHOD(ALLEGRO_BITMAP, bitmap_h,  {
 #endif
 
 
-void initGfx()
+void initGfx(LuaContext& context)
 {
-	LuaContext& context = lua;
-
 	context.functions()
 #ifndef NO_DEPRECATED
 		("gfx_draw_box", l_gfx_draw_box_depr)
@@ -355,14 +351,14 @@ void initGfx()
 #ifndef DEDICATED_ONLY
 	// CViewport method and metatable
 #ifndef NO_DEPRECATED
-	CLASS(CViewport,  
+	CLASS_(CViewport,
 		("get_bitmap", l_viewport_getBitmap_depr)
 		("bitmap", l_viewport_getBitmap)
 		("game_bitmap", l_viewport_getGameBitmap)
 		("from_map", l_viewport_fromMap)
 	)
 #else
-	CLASS(CViewport,  
+	CLASS_(CViewport,
 		("bitmap", l_viewport_getBitmap)
 		("game_bitmap", l_viewport_getGameBitmap)
 		("from_map", l_viewport_fromMap)

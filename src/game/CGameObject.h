@@ -20,7 +20,6 @@
 #include "Utils.h"
 #include "CVec.h"
 #include "gusanos/luaapi/types.h"
-#include "gusanos/glua.h"
 #include "Color.h"
 #include "util/WeakRef.h"
 #include "game/Attr.h"

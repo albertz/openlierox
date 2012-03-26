@@ -287,7 +287,8 @@ int l_network_game_event(lua_State* L)
 	char const* name = lua_tostring(context, 1);
 	if(!name) return 0;
 	lua_pushvalue(context, 2);
-	LuaReference ref = context.createReference();
+	LuaReference ref;
+	ref.create(context);
 	LuaEventDef* event = lua_new_m_keep(LuaEventDef, (name, ref), context, LuaGameEventMetaTable);
 	event = network.addLuaEvent(Network::LuaEventGroup::GusGame, name, event);
 
@@ -313,7 +314,8 @@ int l_network_player_event(lua_State* L)
 	char const* name = lua_tostring(context, 1);
 	if(!name) return 0;
 	lua_pushvalue(context, 2);
-	LuaReference ref = context.createReference();
+	LuaReference ref;
+	ref.create(context);
 	LuaEventDef* event = lua_new_m_keep(LuaEventDef, (name, ref), context, LuaPlayerEventMetaTable);
 	event = network.addLuaEvent(Network::LuaEventGroup::CWormHumanInputHandler, name, event);
 
@@ -339,7 +341,8 @@ int l_network_worm_event(lua_State* L)
 	char const* name = lua_tostring(context, 1);
 	if(!name) return 0;
 	lua_pushvalue(context, 2);
-	LuaReference ref = context.createReference();
+	LuaReference ref;
+	ref.create(context);
 	LuaEventDef* event = lua_new_m_keep(LuaEventDef, (name, ref), context, LuaWormEventMetaTable);
 	event = network.addLuaEvent(Network::LuaEventGroup::Worm, name, event);
 
@@ -367,7 +370,8 @@ int l_network_particle_event(lua_State* L)
 	char const* name = lua_tostring(context, 1);
 	if(!name) return 0;
 	lua_pushvalue(context, 2);
-	LuaReference ref = context.createReference();
+	LuaReference ref;
+	ref.create(context);
 	LuaEventDef* event = lua_new_m_keep(LuaEventDef, (name, ref), context, LuaParticleEventMetaTable);
 	event = network.addLuaEvent(Network::LuaEventGroup::Particle, name, event);
 

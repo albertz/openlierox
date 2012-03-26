@@ -35,7 +35,6 @@
 #include "loaders/vermes.h"
 #include "loaders/liero.h"
 #include "loaders/losp.h"
-#include "glua.h"
 #include "LuaCallbacks.h"
 #include "lua/bindings.h"
 #include "Debug.h"
@@ -227,8 +226,8 @@ bool GusGame::init()
 	
 	scriptLocator.registerLoader(&LuaLoader::instance);
 	
-	lua.init();
-	LuaBindings::init();
+	luaIngame.init();
+	LuaBindings::init(luaIngame);
 
 	m_modPath = "Gusanos";
 	if(!setMod("Gusanos")) {
@@ -488,7 +487,7 @@ void GusGame::runInitScripts()
 		{
 			notes << "running " << modScript->table << ".init" << endl;
 			LuaReference ref = modScript->createFunctionRef("init");
-			(lua.call(ref))();
+			(luaIngame.call(ref))();
 		}
 	}
 	
@@ -504,7 +503,7 @@ void GusGame::runInitScripts()
 		{
 			notes << "running " << levelScript->table << ".init" << endl;
 			LuaReference ref = levelScript->createFunctionRef("init");
-			(lua.call(ref))();
+			(luaIngame.call(ref))();
 		}
 	}
 	
@@ -554,9 +553,9 @@ void GusGame::unload()
 	scriptLocator.clear();
 
 	network.clear();
-	lua.reset();
+	luaIngame.reset();
 	luaCallbacks.cleanup(); // remove invalidated callbacks
-	LuaBindings::init();
+	LuaBindings::init(luaIngame);
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif

@@ -22,7 +22,8 @@ extern "C"
 #define FREELIST_REF 1
 #define ARRAY_SIZE   2
 
-LuaContext lua;
+LuaContext luaIngame;
+LuaContext luaGlobal;
 
 int LuaContext::errorReport(lua_State* L)
 {
@@ -91,9 +92,10 @@ void LuaContext::log(std::ostream& str)
 
 LuaContext::LuaContext() {}
 LuaContext::LuaContext(lua_State* L) {
-	if(L == lua.weakRef.get()) {
-		weakRef = lua.weakRef;
-	}
+	if(L == luaIngame.weakRef.get())
+		weakRef = luaIngame.weakRef;
+	else if(L == luaGlobal.weakRef.get())
+		weakRef = luaGlobal.weakRef;
 	else
 		assert(false);
 }
@@ -426,7 +428,7 @@ static void setRegTable(lua_State* L, int index, int value) { // [0,0]
 	lua_rawseti(L, LUA_REGISTRYINDEX, index);
 }
 
-LuaReference LuaContext::createReference() // [-1,0]
+LuaReference::Idx LuaContext::createReference() // [-1,0]
 {
 	assert(weakRef);
 
@@ -452,34 +454,33 @@ LuaReference LuaContext::createReference() // [-1,0]
 
 	lua_rawseti(*this, LUA_REGISTRYINDEX, ref);
 	// LuaRegistry[ref] = StackTop
-	return LuaReference(ref, weakRef);
+	return ref;
 }
 
-void LuaContext::assignReference(LuaReference ref) // [-1,0]
+void LuaContext::assignReference(LuaReference::Idx ref) // [-1,0]
 {
-	if (ref.idx > 2)
+	if (ref > 2)
 	{
-		lua_rawseti(*this, LUA_REGISTRYINDEX, ref.idx);
+		lua_rawseti(*this, LUA_REGISTRYINDEX, ref);
 	}
 	else
 		pop(1); // Ignore it
 }
 
-void LuaContext::destroyReference(LuaReference ref)
+void LuaContext::destroyReference(LuaReference::Idx ref)
 {
-	if (ref.idx > 2)
+	if (ref > 2)
 	{
 		lua_rawgeti(*this, LUA_REGISTRYINDEX, FREELIST_REF);
-		lua_rawseti(*this, LUA_REGISTRYINDEX, ref.idx);	/* t[ref] = t[FREELIST_REF] */
-		setRegTable(*this, FREELIST_REF, ref.idx);	/* t[FREELIST_REF] = ref */
+		lua_rawseti(*this, LUA_REGISTRYINDEX, ref);	/* t[ref] = t[FREELIST_REF] */
+		setRegTable(*this, FREELIST_REF, ref);	/* t[FREELIST_REF] = ref */
 	}
 }
 
-void LuaContext::pushReference(LuaReference ref)
+void LuaContext::pushReference(LuaReference::Idx ref)
 {
 	assert(ref);
-	assert(ref.luaState == weakRef);
-	lua_rawgeti(*this, LUA_REGISTRYINDEX, ref.idx);
+	lua_rawgeti(*this, LUA_REGISTRYINDEX, ref);
 }
 
 namespace LuaType
@@ -891,7 +892,7 @@ LuaContext& LuaContext::pushScriptVar(const ScriptVar_t& var) {
 	case SVT_CustomWeakRefToStatic:
 		// A static CustomVar should always we writeable, thus we
 		// can cast here.
-		pushReference(((CustomVar*)var.customVar())->getLuaReference());
+		push(((CustomVar*)var.customVar())->getLuaReference());
 		break;
 	default:
 		push(var.toString());
@@ -952,11 +953,6 @@ LuaContext::~LuaContext()
 	// Thus, we don't do it. Thus, lua.close() must be called manually.
 }
 
-LuaReference::LuaReference(int idx_, const WeakRef<lua_State>& ref_) {
-	idx = idx_;
-	luaState = ref_;
-}
-
 static int luaPrintFromScope(lua_State* L) {
 	LuaCustomPrintScope& scope = **(LuaCustomPrintScope**)lua_touserdata(L, lua_upvalueindex(1));
 	return scope.printFunc(L);
@@ -967,7 +963,7 @@ LuaCustomPrintScope::LuaCustomPrintScope(LuaContext& context_, LuaCustomPrintSco
 	{
 		// save old print func
 		lua_getfield(context, LUA_GLOBALSINDEX, "print");
-		oldPrintFunc = context.createReference();
+		oldPrintFunc.create(context);
 	}
 	{
 		// push print-function-wrapper
@@ -982,8 +978,8 @@ LuaCustomPrintScope::LuaCustomPrintScope(LuaContext& context_, LuaCustomPrintSco
 
 LuaCustomPrintScope::~LuaCustomPrintScope() {
 	// restore old print func
-	context.pushReference(oldPrintFunc);
-	context.destroyReference(oldPrintFunc);
+	context.push(oldPrintFunc);
+	oldPrintFunc.destroy();
 	lua_setfield(context, LUA_GLOBALSINDEX, "print");
 }
 
@@ -1006,5 +1002,57 @@ static int luaPrintOnCLI(CmdLineIntf& cli, lua_State* L)
 LuaCustomPrintScope::Func printFuncFromCLI(CmdLineIntf& cli) {
 	using namespace boost;
 	return boost::bind(luaPrintOnCLI, ref(cli), _1);
+}
+
+void LuaReference::cleanup() {
+	assert(idxs.get());
+	for(IdxMap::iterator i = idxs->begin(); i != idxs->end();) {
+		IdxMap::iterator next = i; ++next;
+		if(!i->first)
+			idxs->erase(i);
+		i = next;
+	}
+}
+
+void LuaReference::create(LuaContext& ctx) {
+	assert(idxs.get());
+	assert(idxs->count(ctx.weakRef) == 0); // not yet created for this Lua context
+	Idx idx = ctx.createReference();
+	idxs->insert(std::make_pair(ctx.weakRef, idx));
+	cleanup();
+}
+
+void LuaReference::push(LuaContext& ctx) const {
+	assert(idxs.get());
+	IdxMap::iterator i = idxs->find(ctx.weakRef);
+	assert(i != idxs->end());
+	ctx.pushReference(i->second);
+}
+
+bool LuaReference::isSet(const LuaContext& ctx) const {
+	assert(idxs.get());
+	assert(ctx);
+	IdxMap::iterator i = idxs->find(ctx.weakRef);
+	return i != idxs->end();
+}
+
+void LuaReference::destroy() {
+	for(IdxMap::iterator i = idxs->begin(); i != idxs->end(); ++i) {
+		if(!i->first) continue;
+		LuaContext context(i->first.get());
+		context.destroyReference(i->second);
+	}
+	idxs->clear();
+}
+
+void LuaReference::invalidate() {
+	assert(idxs.get());
+	for(IdxMap::iterator i = idxs->begin(); i != idxs->end(); ++i) {
+		if(!i->first) continue;
+		LuaContext context(i->first.get());
+		lua_pushnil(context);
+		context.assignReference(i->second);
+	}
+	idxs->clear();
 }
 

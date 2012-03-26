@@ -6,16 +6,16 @@
 #endif //DEDICATED_ONLY
 
 #include <string>
+#include "util/BaseObject.h"
 #include "gusanos/resource_list.h"
 #include "CVec.h"
-#include "gusanos/glua.h"
 #include "SmartPointer.h"
 
 class CGameObject;
 class SfxDriver;
 class SoundSample;
 
-class Sound : public LuaObject
+class Sound : public BaseObject
 {
 	
 	public:

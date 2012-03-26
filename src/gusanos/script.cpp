@@ -14,15 +14,15 @@ bool Script::pushFunction(std::string const& name)
 	if(!lua)
 		return false;
 
-	lua_pushstring(*lua, table.c_str());
-	lua_rawget(*lua, LUA_GLOBALSINDEX);
-	if(lua_isnil(*lua, -1)) {
+	lua_pushstring(lua, table.c_str());
+	lua_rawget(lua, LUA_GLOBALSINDEX);
+	if(lua_isnil(lua, -1)) {
 		cerr << "Table " << table << " not found!" << endl;
 		return false;
 	}
-	lua_pushstring(*lua, name.c_str());
-	lua_rawget(*lua, -2);
-	lua_replace(*lua, -2);
+	lua_pushstring(lua, name.c_str());
+	lua_rawget(lua, -2);
+	lua_replace(lua, -2);
 
 	return true;
 }
@@ -40,7 +40,8 @@ LuaReference Script::createFunctionRef(std::string const& name)
 	if(!pushFunction(name))
 		return LuaReference();
 
-	LuaReference ref = lua->createReference();
+	LuaReference ref;
+	ref.create(lua);
 	cachedReferences[name] = ref; // Cache reference
 	return ref;
 }
@@ -83,15 +84,16 @@ LazyScript::LazyScript(std::string const& data)
 
 LuaReference LazyScript::get()
 {
-	if(!cached && !data.empty()) {
+	LuaContext& context = luaIngame;
+	if(!cached.isSet(context) && !data.empty()) {
 		if(type == FunctionName)
 			cached = Script::functionFromString(data);
 		else if(type == Code) {
-			int r = lua.evalExpression("<inlined block>", data);
+			int r = context.evalExpression("<inlined block>", data);
 			if(r >= 1)
-				cached = lua.createReference();
+				cached.create(context);
 			if(r > 1)
-				lua.pop(r - 1);
+				context.pop(r - 1);
 		}
 
 		data.clear();
@@ -102,10 +104,7 @@ LuaReference LazyScript::get()
 
 void LazyScript::free_()
 {
-	if(cached) {
-		lua.destroyReference(cached);
-		cached.reset();
-	}
+	cached.destroy();
 }
 
 LazyScript::~LazyScript()
@@ -115,10 +114,7 @@ LazyScript::~LazyScript()
 
 void LazyScript::makeNil()
 {
-	if(!cached)
-		return;
-	lua_pushnil(lua);
-	lua.assignReference(cached);
+	cached.invalidate();
 }
 
 LazyScript& LazyScript::operator=(std::string const& data)
@@ -130,5 +126,5 @@ LazyScript& LazyScript::operator=(std::string const& data)
 
 bool LazyScript::empty()
 {
-	return !cached && data.empty();
+	return !cached.isSet(luaIngame) && data.empty();
 }

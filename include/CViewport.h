@@ -26,7 +26,7 @@
 
 #include "CVec.h"
 #include "gusanos/luaapi/types.h"
-
+#include "util/BaseObject.h"
 
 // Viewport types
 // !!! Don't change the order !!!
@@ -44,7 +44,7 @@ struct ALLEGRO_BITMAP;
 class CWormInputHandler;
 
 
-class CViewport {
+class CViewport : BaseObject {
 private:
 	void _init() {
 		bUsed = false;
@@ -220,14 +220,15 @@ public:
 	}
 	
 	ALLEGRO_BITMAP* getBitmap() { return dest; }
-	
-	LuaReference luaReference;
-	
+		
 	ALLEGRO_BITMAP* dest;
 	ALLEGRO_BITMAP* hud;
 	ALLEGRO_BITMAP* fadeBuffer;
-	
-private:	
+
+	static LuaReference metaTable;
+	virtual LuaReference getMetaTable() const { return metaTable; }
+
+private:
 	Listener* m_listener;
 };
 

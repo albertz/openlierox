@@ -13,7 +13,6 @@
 #include "blitters/blitters.h"
 #include "CViewport.h"
 #endif
-#include "glua.h"
 #include "luaapi/context.h"
 #include "lua/bindings-objects.h"
 #include "detect_event.h"
@@ -279,8 +278,8 @@ void Particle::think()
 
 					case eNet_EventInit: {
 						LuaReference r = m_type->networkInit.get();
-						if(r)
-							(lua.call(r), getLuaReference(), conn_id)();
+						if(r.isSet(luaIngame))
+							(luaIngame.call(r), getLuaReference(), conn_id)();
 					}
 					break;
 

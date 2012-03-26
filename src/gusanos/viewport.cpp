@@ -9,7 +9,6 @@
 #include "game/CWorm.h"
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
-#include "glua.h"
 #include "LuaCallbacks.h"
 #include "lua/bindings-gfx.h"
 #include "blitters/blitters.h"
@@ -24,6 +23,8 @@
 
 #include <iostream>
 
+LuaReference CViewport::metaTable;
+
 using namespace std;
 
 void CViewport::gusInit()
@@ -35,7 +36,6 @@ void CViewport::gusInit()
 
 void CViewport::gusReset()
 {
-	if(luaReference) lua.destroyReference(luaReference); luaReference = LuaReference();
 	destroy_bitmap(dest); dest = 0;
 	destroy_bitmap(hud); hud = 0;
 	destroy_bitmap(fadeBuffer); fadeBuffer = 0;
@@ -89,7 +89,6 @@ void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, i
 		return;
 	}
 	
-	if(luaReference) lua.destroyReference(luaReference);
 	destroy_bitmap(dest);
 	destroy_bitmap(hud);
 	if ( x < 0 )
@@ -119,11 +118,7 @@ void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, i
 				int iv = int(v);
 				putpixel_solid(testLight, x, y, iv);
 			}
-	}
-
-		
-	lua.pushFullReference(*this, LuaBindings::CViewportMetaTable);
-	luaReference = lua.createReference();
+	}		
 }
 
 void CViewport::drawLight(IVec const& v)
@@ -186,18 +181,18 @@ void CViewport::gusRender()
 				IVec renderPos( worm->getRenderPos() );
 				int x = renderPos.x - offX;
 				int y = renderPos.y - offY;
-				LuaReference ownerRef;
+				LuaReferenceLazy ownerRef;
 
 				if ( player )
 					ownerRef = player->getLuaReference();
 
-				LUACALLBACK(wormRender).call()((lua_Number)x)((lua_Number)y)(worm->getLuaReference())(luaReference)(ownerRef)();
+				LUACALLBACK(wormRender).call()((lua_Number)x)((lua_Number)y)(worm->getLuaReference())(getLuaReference())(ownerRef)();
 			}
 		}
 
 		// draw viewport specific stuff only for human worms
 		if(pcTargetWorm && dynamic_cast<CWormHumanInputHandler*>(pcTargetWorm->inputHandler()) != NULL) {
-			LUACALLBACK(viewportRender).call()(luaReference)(pcTargetWorm->getLuaReference())();
+			LUACALLBACK(viewportRender).call()(getLuaReference())(pcTargetWorm->getLuaReference())();
 		}
 	}
 }

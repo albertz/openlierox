@@ -3,14 +3,14 @@
 
 #include "netstream.h"
 #include "timer_event.h"
-#include "glua.h"
+#include "util/BaseObject.h"
 #include "util/FixedPointNumber.h"
 
 struct ALLEGRO_BITMAP;
 class CWorm;
 class WeaponType;
 
-class Weapon : public LuaObject
+class Weapon : public BaseObject
 {
 public:
 	

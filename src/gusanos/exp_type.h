@@ -2,7 +2,7 @@
 #define EXP_TYPE_H
 
 #include "resource_list.h"
-#include "glua.h"
+#include "util/BaseObject.h"
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "blitters/context.h"
@@ -19,7 +19,7 @@ struct GameEvent;
 struct DetectEvent;
 class Sprite;
 
-class ExpType : public LuaObject
+class ExpType : public BaseObject
 {
 public:
 	

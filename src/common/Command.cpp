@@ -2328,8 +2328,6 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 			for_each_iterator(CWorm*, w_, game.worms()) {
 				CWorm& w = *w_->get();
 				std::string name = itoa(w.getID()) + ":" + w.getName();
-				if(gusGame.isEngineNeeded() && !w.luaReference)
-					warnings << "worm " << name << " has no Lua reference" << endl;
 
 				if(w.getLocal() && w.inputHandler() == NULL)
 					warnings << "local worm " << name << " does not have input handler set" << endl;
@@ -2441,10 +2439,10 @@ void Cmd_signal::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 
 COMMAND(lua, "execute Lua command", "<cmd>", 1, 1);
 void Cmd_lua::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
-	int r = lua.execCode(params[0], *caller);
+	int r = luaGlobal.execCode(params[0], *caller);
 	for(int i = r; i > 0; --i)
-		caller->pushReturnArg(lua.convert_tostring(-i));
-	lua.pop(r);
+		caller->pushReturnArg(luaGlobal.convert_tostring(-i));
+	luaGlobal.pop(r);
 }
 
 

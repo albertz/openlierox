@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 #include <string>
 
-struct BaseObject;
+class BaseObject;
 
 typedef uint16_t ClassId;
 

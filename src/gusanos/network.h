@@ -20,7 +20,7 @@ struct LuaEventDef
 	
 	void call(BitStream*);
 	
-	void call(LuaReference, BitStream*);
+	void call(LuaReferenceLazy, BitStream*);
 	
 	void* operator new(size_t count);
 	

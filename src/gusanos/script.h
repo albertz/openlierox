@@ -3,6 +3,7 @@
 
 #include "resource_locator.h"
 #include "luaapi/types.h"
+#include "luaapi/context.h"
 
 #include <string>
 #include <map>
@@ -12,19 +13,14 @@ class LuaContext;
 
 class Script
 {
-public:
-	Script()
-	: lua(0)
-	{
-	}
-	
+public:	
 	bool pushFunction(std::string const& name);
 	
 	LuaReference createFunctionRef(std::string const& name);
 	
 	static LuaReference functionFromString(std::string const& name);
 
-	LuaContext* lua;
+	LuaContext lua;
 	std::string table;
 	
 private:

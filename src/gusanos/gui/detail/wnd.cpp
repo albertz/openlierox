@@ -23,8 +23,7 @@ Wnd::~Wnd()
 	if(m_context)
 	{
 		//Remove references in context
-		
-		lua.destroyReference(luaReference);
+		luaReference.destroy();
 		m_context->deregisterWindow(this);
 	}
 	else
@@ -643,13 +642,13 @@ void Wnd::doSetActivation(bool active)
 
 bool Wnd::doAction()
 {
-	if(m_callbacks[OnAction])
+	if(m_callbacks[OnAction].isSet(luaIngame))
 	{
-		int r = (lua.call(m_callbacks[OnAction], 1), luaReference)();
+		int r = (luaIngame.call(m_callbacks[OnAction], 1), luaReference)();
 		if(r == 1)
 		{
-			bool v = lua_toboolean(lua, -1) != 0;
-			lua.pop(1);
+			bool v = lua_toboolean(luaIngame, -1) != 0;
+			luaIngame.pop(1);
 			return v;
 		}
 	}
@@ -663,7 +662,7 @@ void Wnd::setText(std::string const& aStr)
 
 void Wnd::pushReference()
 {
-	lua.push(luaReference);
+	luaIngame.push(luaReference);
 }
 
 void Wnd::notifyHide()
@@ -768,7 +767,7 @@ bool Wnd::registerCallback(std::string const& name, LuaReference callb)
 		i = OnKeyDown;
 	else if(name == "onActivate")
 		i = OnActivate;
-	if(i != LuaCallbacksMax && !m_callbacks[i])
+	if(i != LuaCallbacksMax && !m_callbacks[i].isSet(luaIngame))
 	{
 		m_callbacks[i] = callb;
 		return true;

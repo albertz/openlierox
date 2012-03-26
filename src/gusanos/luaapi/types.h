@@ -2,29 +2,41 @@
 #define LUA_TYPES_H
 
 #include <cstring> //size_t
+#include <boost/shared_ptr.hpp>
+#include <map>
 #include "CodeAttributes.h"
 extern "C" {
 #include "lua.h"
 }
 #include "util/WeakRef.h"
 
-struct LuaReference
+class LuaContext;
+class BaseObject;
+
+class LuaReference
 {
-	LuaReference() : idx(0) {}
-	
-	explicit LuaReference(int idx_, const WeakRef<lua_State>& ref_);
-	
-	operator bool() const {
-		return idx != 0 && luaState;
-	}
-	
-	void reset() {
-		idx = 0;
-		luaState.set(NULL);
-	}
-	
-	int idx;
-	WeakRef<lua_State> luaState;
+public:
+	typedef int Idx;
+private:
+	typedef std::map<WeakRef<lua_State>, Idx> IdxMap;
+	boost::shared_ptr<IdxMap> idxs;
+	void cleanup();
+
+public:
+	LuaReference() { idxs.reset(new IdxMap); }
+
+	void create(LuaContext& ctx); // [-1,0]
+	void push(LuaContext& ctx) const; // [0,1]
+	bool isSet(const LuaContext& ctx) const;
+
+	void destroy();
+	void invalidate();
+};
+
+struct LuaReferenceLazy {
+	WeakRef<BaseObject> obj;
+	LuaReference ref;
+	LuaReference get(LuaContext& ctx);
 };
 
 
@@ -42,14 +54,14 @@ INLINE void* __lua_alloc_meta(_Lua& lua_, Meta& metaTable) {
 
 template<typename T, typename _Lua>
 INLINE T* __lua_new_finalize(T* p, _Lua& lua_) {
-	p->luaReference = lua_.createReference();
+	p->luaReference.create(lua_);
 	return p;
 }
 
 template<typename T, typename _Lua>
 INLINE T* __lua_new_finalize_keep(T* p, _Lua& lua_) {
 	lua_pushvalue(lua_, -1);
-	p->luaReference = lua_.createReference();
+	p->luaReference.create(lua_);
 	return p;
 }
 

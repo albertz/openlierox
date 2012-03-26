@@ -22,8 +22,7 @@ int LuaCallbackProxy::_exec(LuaCallbackRef& c, int nparams) {
 	if(r < 0)
 	{
 		c.context.pop(1); // Pop error function
-		lua_pushnil(c.context);
-		c.context.assignReference(c.ref); // invalidate reference
+		c.ref.invalidate();
 		return 0;
 	}
 

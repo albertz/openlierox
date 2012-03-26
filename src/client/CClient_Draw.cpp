@@ -700,7 +700,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Gusanos
 		dbgtxtHudLines.push_back("Objects: " + cast<std::string>(game.objects.size()));
 		dbgtxtHudLines.push_back("Players: " + cast<std::string>(game.players.size()));
-		dbgtxtHudLines.push_back("Lua Mem: " + cast<std::string>(lua_gc(lua, LUA_GCCOUNT, 0)));
+		dbgtxtHudLines.push_back("Lua Mem: " + cast<std::string>(lua_gc(luaIngame, LUA_GCCOUNT, 0)));
 	}
 	
 	foreach(i, hudDebugInfo)

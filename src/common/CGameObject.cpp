@@ -15,7 +15,6 @@
 #include "CVec.h"
 #include "util/angle.h"
 #include "game/WormInputHandler.h"
-#include "gusanos/glua.h"
 #include "gusanos/luaapi/context.h"
 #include "gusanos/lua/bindings-objects.h"
 
@@ -56,8 +55,7 @@ void CGameObject::gusInit( CWormInputHandler* owner, Vec pos_, Vec spd_ )
 
 void CGameObject::gusShutdown()
 {
-	if(luaData)
-		lua.destroyReference(luaData);
+	luaData.destroy();
 }
 
 Vec CGameObject::getRenderPos()

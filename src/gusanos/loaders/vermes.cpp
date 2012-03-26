@@ -1,7 +1,6 @@
 #include "vermes.h"
 #include "../gfx.h"
 #include "../blitters/types.h"
-#include "../glua.h"
 #include "../luaapi/context.h"
 #include "../events.h"
 #ifndef DEDICATED_ONLY
@@ -427,24 +426,26 @@ bool LuaLoader::load(Script* script, std::string const& path)
 	OpenGameFileR(f, path, std::ios::binary | std::ios::in);
 	if(!f)
 		return false;
-		
+
+	LuaContext& ctx = luaIngame;
+
 	// Create the table to store the functions in	
 	std::string name = GetBaseFilenameWithoutExt(path);
-	lua_pushstring(lua, name.c_str());
-	lua_rawget(lua, LUA_GLOBALSINDEX);
-	if(lua_isnil(lua, -1))
+	lua_pushstring(ctx, name.c_str());
+	lua_rawget(ctx, LUA_GLOBALSINDEX);
+	if(lua_isnil(ctx, -1))
 	{
 		// The table does not exist, create it
 		
-		lua_pushstring(lua, name.c_str());
-		lua_newtable(lua);
-		lua_rawset(lua, LUA_GLOBALSINDEX);
+		lua_pushstring(ctx, name.c_str());
+		lua_newtable(ctx);
+		lua_rawset(ctx, LUA_GLOBALSINDEX);
 	}
-	lua_settop(lua, -2); // Pop table or nil
+	lua_settop(ctx, -2); // Pop table or nil
 	
-	lua.load(path, f);
+	ctx.load(path, f);
 	
-	script->lua = &lua;
+	script->lua = ctx;
 	script->table = name;
 	
 	return true;

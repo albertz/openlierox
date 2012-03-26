@@ -66,7 +66,7 @@ int l_gui_wnd(lua_State* L)
 		}
 	}
 	
-	OmfgGUI::Wnd* n = lua_new_keep(T, (0, attribs), lua);
+	OmfgGUI::Wnd* n = lua_new_keep(T, (0, attribs), luaIngame);
 	
 	if(lua_istable(context, 2))
 	{
@@ -399,7 +399,9 @@ LMETHODC(OmfgGUI::Wnd, gui_wnd_bind,  {
 	char const* cb = lua_tostring(context, 2);
 	if(!cb) return 0;
 	lua_pushvalue(context, 3);
-	context.push(p->registerCallback(cb, context.createReference()));
+	LuaReference ref;
+	ref.create(context);
+	context.push(p->registerCallback(cb, ref));
 	return 1;
 })
 
@@ -533,9 +535,10 @@ LMETHODC(OmfgGUI::List, gui_list_sort,  {
 	else if(lua_isfunction(context, 2))
 	{
 		context.pushvalue(2);
-		LuaReference ref = context.createReference();
+		LuaReference ref;
+		ref.create(context);
 		p->sortLua(ref);
-		context.destroyReference(ref);
+		ref.destroy();
 	}
 
 	return 0;
@@ -595,15 +598,15 @@ LMETHODC(OmfgGUI::ListNode, gui_list_node_is_selected,  {
 	Returns a table associated with this node.
 */
 LMETHODC(OmfgGUI::ListNode, gui_list_node_data,  {
-	if(p->luaData)
+	if(p->luaData.isSet(context))
 	{
-		context.pushReference(p->luaData);
+		context.push(p->luaData);
 	}
 	else
 	{
 		lua_newtable(context);
 		lua_pushvalue(context, -1);
-		p->luaData = context.createReference();
+		p->luaData.create(context);
 	}
 	
 	return 1;
@@ -713,10 +716,10 @@ void initGUI(OmfgGUI::Context& gui, LuaContext& context)
 	context.pushvalue(-1);
 	context.pushvalue(-1);
 	context.pushvalue(-1);
-	OmfgGUI::Wnd::metaTable = context.createReference();
-	OmfgGUI::Button::metaTable = context.createReference();
-	OmfgGUI::Group::metaTable = context.createReference();
-	OmfgGUI::Label::metaTable = context.createReference();
+	OmfgGUI::Wnd::metaTable.create(context);
+	OmfgGUI::Button::metaTable.create(context);
+	OmfgGUI::Group::metaTable.create(context);
+	OmfgGUI::Label::metaTable.create(context);
 	
 	// GUI Check method and metatable
 	
@@ -731,7 +734,7 @@ void initGUI(OmfgGUI::Context& gui, LuaContext& context)
 	lua_rawset(context, -3);
 	context.tableSetField(LuaID<OmfgGUI::Wnd>::value);
 	context.tableSetField(LuaID<OmfgGUI::Check>::value);
-	OmfgGUI::Check::metaTable = context.createReference();
+	OmfgGUI::Check::metaTable.create(context);
 	
 	// GUI Edit method and metatable
 	
@@ -746,7 +749,7 @@ void initGUI(OmfgGUI::Context& gui, LuaContext& context)
 	lua_rawset(context, -3);
 	context.tableSetField(LuaID<OmfgGUI::Wnd>::value);
 	context.tableSetField(LuaID<OmfgGUI::Edit>::value);
-	OmfgGUI::Edit::metaTable = context.createReference();
+	OmfgGUI::Edit::metaTable.create(context);
 	
 	// GUI List method and metatable
 	
@@ -761,7 +764,7 @@ void initGUI(OmfgGUI::Context& gui, LuaContext& context)
 	lua_rawset(context, -3);
 	context.tableSetField(LuaID<OmfgGUI::Wnd>::value);
 	context.tableSetField(LuaID<OmfgGUI::List>::value);
-	OmfgGUI::List::metaTable = context.createReference();
+	OmfgGUI::List::metaTable.create(context);
 	
 	// GUI List node method and metatable
 	
@@ -777,11 +780,11 @@ void initGUI(OmfgGUI::Context& gui, LuaContext& context)
 	
 	lua_rawset(context, -3);
 	context.tableSetField(LuaID<OmfgGUI::ListNode>::value);
-	OmfgGUI::ListNode::metaTable = context.createReference();
+	OmfgGUI::ListNode::metaTable.create(context);
 	
 	context.push(l_gui_listIterator);
 	//context.regObject("gui_listIterator");
-	listIterator = context.createReference();
+	listIterator.create(context);
 #endif
 }
 

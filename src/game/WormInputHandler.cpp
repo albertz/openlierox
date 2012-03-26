@@ -19,7 +19,6 @@
 #include "CGameScript.h"
 #include "gusanos/player_input.h"
 
-#include "gusanos/glua.h"
 #include "gusanos/LuaCallbacks.h"
 #include "gusanos/lua/bindings-game.h"
 #include "gusanos/gusgame.h"
@@ -36,11 +35,11 @@
 using namespace std;
 
 Net_ClassID CWormInputHandler::classID = INVALID_CLASS_ID;
+LuaReference CWormInputHandler::metaTable;
 
 CWormInputHandler::Stats::~Stats()
 {
-	if(luaData)
-		lua.destroyReference(luaData);
+	luaData.destroy();
 }
 
 void CWormInputHandler::gusInit(CWorm* worm)
@@ -55,23 +54,6 @@ void CWormInputHandler::gusInit(CWorm* worm)
 	deleted=(false);
 	
 	worm->m_owner = this;
-}
-
-LuaReference CWormInputHandler::getLuaReference()
-{
-	assert(!deleted);
-	if(luaReference)
-		return luaReference;
-	else {
-		lua.pushFullReference(*this, LuaBindings::CWormInputHandlerMetaTable);
-		luaReference = lua.createReference();
-		return luaReference;
-	}
-}
-
-void CWormInputHandler::pushLuaReference()
-{
-	lua.push(getLuaReference());
 }
 
 CWormInputHandler::~CWormInputHandler() {}
@@ -98,13 +80,8 @@ void CWormInputHandler::deleteThis()
 	
 	delete m_node; m_node = 0;
 	delete m_interceptor; m_interceptor = 0;
-		
-	if(luaReference) {
-		lua.destroyReference(luaReference);
-		luaReference.reset();
-	} else {
-		delete this;
-	}
+
+	BaseObject::deleteThis();
 }
 
 void CWormInputHandler::addEvent(BitStream* data, CWormInputHandler::NetEvents event)

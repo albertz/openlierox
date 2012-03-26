@@ -33,11 +33,11 @@ std::string ObjRef::description() const {
 	return r;
 }
 
-BaseObject::BaseObject() {
+BaseObject::BaseObject() : deleted(false) {
 	thisRef.obj.set(this);
 }
 
-BaseObject::BaseObject(const BaseObject& o) {
+BaseObject::BaseObject(const BaseObject& o) : deleted(false) {
 	thisRef.obj.set(this);
 	(*this) = o;
 }

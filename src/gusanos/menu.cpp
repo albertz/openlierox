@@ -10,7 +10,6 @@
 #include "luaapi/context.h"
 #include "gui/omfggui_windows.h"
 #include "gconsole.h"
-#include "glua.h"
 #include <boost/bind.hpp>
 #include <iostream>
 #include <list>
@@ -175,7 +174,7 @@ void GContext::init()
 
 LuaContext& GContext::luaContext()
 {
-	return lua;
+	return luaIngame;
 }
 
 void GContext::clear()
@@ -195,7 +194,7 @@ void GContext::clear()
 	
 	std::map<std::string, std::string> attributes;
 	attributes["id"] = "root";
-	Wnd* root = lua_new(Wnd, (0, attributes), lua);
+	Wnd* root = lua_new(Wnd, (0, attributes), luaIngame);
 	setRoot(root);
 }
 

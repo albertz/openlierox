@@ -14,7 +14,6 @@
 #endif
 #include "../part_type.h"
 #include "../weapon_type.h"
-#include "../glua.h"
 #include "game/CMap.h"
 #include "sound/sfx.h"
 
@@ -504,11 +503,6 @@ METHODC(WeaponType, weapon_ammo,  {
 	return 1;
 })
 
-METHOD(WeaponType, weapon_destroy,  {
-	delete p;
-	return 0;
-})
-
 /*
 BINOP(WeaponType, weapon_eq,  {
 	context.push(a == b);
@@ -545,15 +539,8 @@ METHODC(PartType, parttype_put,  {
 	return 0;
 })
 
-METHOD(PartType, parttype_destroy,  {
-	delete p;
-	return 0;
-})
-
-void initResources()
+void initResources(LuaContext& context)
 {
-	LuaContext& context = lua;
-	
 	AssertStack as(context);
 		
 	context.functions()
@@ -567,15 +554,11 @@ void initResources()
 		("map_is_loaded", l_map_is_loaded)
 	;
 	
-	CLASSM_(PartType,  
-		("__gc", l_parttype_destroy)
-	,
+	CLASS_(PartType,
 		("put", l_parttype_put)
 	)
 	
-	CLASSM_(WeaponType,  
-		("__gc", l_weapon_destroy)
-	,
+	CLASS_(WeaponType,
 		("next", l_weapon_next)
 		("prev", l_weapon_prev)
 		("name", l_weapon_name)

@@ -3,13 +3,13 @@
 
 #include "../luaapi/types.h"
 
+class LuaContext;
+
 namespace LuaBindings
 {
-	void initResources();
+	void initResources(LuaContext& context);
 	
 	extern LuaReference FontMetaTable;
-	//extern LuaReference PartTypeMetaTable;
-	//extern LuaReference WeaponTypeMetaTable;
 	extern LuaReference SpriteSetMetaTable;
 }
 

@@ -1,47 +1,45 @@
-#include "glua.h"
+#include "util/BaseObject.h"
 #include "CWormHuman.h"
 #include "luaapi/context.h"
 
 
-void LuaObject::pushLuaReference(LuaContext& context)
+void BaseObject::pushLuaReference(LuaContext& context)
 {
-	context.push(getLuaReference());
+	context.push(getLuaReference().get(context));
 }
 
-// this function is overriden by each sub-object-type (e.g. CWorm, etc.)
-LuaReference LuaObject::getMetaTable() const
-{
-	return LuaReference();
-}
-
-LuaReference LuaObject::getLuaReference()
+LuaReferenceLazy BaseObject::getLuaReference()
 {
 	assert(!deleted);
-	if(luaReference)
-		return luaReference;
+	LuaReferenceLazy r;
+	r.obj = thisRef.obj;
+	assert(r.obj);
+	r.ref = luaReference;
+	return r;
+}
+
+LuaReference LuaReferenceLazy::get(LuaContext& ctx) {
+	if(!obj) return LuaReference();
+	if(ref.isSet(ctx))
+		return ref;
 	else
 	{
-		LuaReference metatable = getMetaTable();
-		if(!metatable) return LuaReference();
+		LuaReference metatable = obj.get()->getMetaTable();
+		assert(metatable.isSet(ctx));
 
-		lua.pushFullReference(*this, metatable);
-		luaReference = lua.createReference();
+		ctx.pushFullReference(*obj.get(), metatable);
+		ref.create(ctx);
 
-		return luaReference;
+		return ref;
 	}
 }
 
-void LuaObject::deleteThis()
+void BaseObject::deleteThis()
 {
 	finalize();
 
 	deleted = true;
 	
-	if(luaReference)
-	{
-		lua.destroyReference(luaReference);
-		luaReference.reset();
-	}
-	else
-		delete this;
+	luaReference.destroy();
+	delete this;
 }

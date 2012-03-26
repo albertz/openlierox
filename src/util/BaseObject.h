@@ -15,13 +15,12 @@
 #include "util/Result.h"
 #include "WeakRef.h"
 #include "game/ClassInfo.h"
-#include "gusanos/glua.h"
 #include "gusanos/luaapi/types.h"
 
 typedef uint16_t ObjId;
 
 struct AttrDesc;
-struct BaseObject;
+class BaseObject;
 class CBytestream;
 class CServerConnection;
 
@@ -50,7 +49,8 @@ struct ObjRef {
 struct AttrUpdateInfo;
 class ScriptVar_t;
 
-struct BaseObject : LuaObject {
+class BaseObject {
+public:
 	typedef ::WeakRef<BaseObject> WeakRef;
 
 	BaseObject();
@@ -71,8 +71,26 @@ struct BaseObject : LuaObject {
 	bool isRegistered() const;
 
 	static LuaReference metaTable;
-	static void initMetaTable();
+	static void initMetaTable(LuaContext& ctx);
 	virtual LuaReference getMetaTable() const { return metaTable; }
+
+	void pushLuaReference(LuaContext& context);
+	LuaReferenceLazy getLuaReference();
+
+	bool deleted;
+
+	virtual void finalize() {}
+	virtual void deleteThis();
+
+private:
+	LuaReference luaReference;
 };
+
+template<class T>
+INLINE void luaDelete(T* p)
+{
+	if(p)
+		p->deleteThis();
+}
 
 #endif

@@ -35,7 +35,7 @@
 #include "util/Result.h"
 
 
-struct BaseObject;
+class BaseObject;
 struct AttrDesc;
 
 

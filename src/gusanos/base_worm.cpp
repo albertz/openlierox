@@ -24,7 +24,6 @@
 #include "CGameScript.h"
 #include "CGameMode.h"
 
-#include "glua.h"
 #include "LuaCallbacks.h"
 #include "luaapi/context.h"
 #include "lua/bindings-objects.h"
