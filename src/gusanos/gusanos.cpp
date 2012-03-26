@@ -41,12 +41,34 @@
 using namespace std;
 
 
+static void luaGlobalScript(const std::string& path) {
+	std::ifstream f;
+	OpenGameFileR(f, path, std::ios::binary | std::ios::in);
+	if(!f) {
+		notes << "luaGlobalScript: " << path << " not found" << endl;
+		return;
+	}
+
+	luaGlobal.load(path, f);
+}
+
+static void initLuaGlobal() {
+	luaGlobal.init();
+	LuaBindings::init(luaGlobal);
+
+	luaGlobalScript("startup.lua");
+}
+
+static void quitLuaGlobal() {
+	LUACALLBACK(exit).call()();
+	luaGlobal.close();
+}
+
 bool gusInitBase() {
 	if(!gusGame.init())
 		return false;
 	
-	luaGlobal.init();
-	LuaBindings::init(luaGlobal);
+	initLuaGlobal();
 
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
@@ -118,7 +140,7 @@ void gusQuit() {
 #endif
 	gfx.shutDown();
 	luaIngame.close();
-	luaGlobal.close();
+	quitLuaGlobal();
 
 	allegro_exit();
 }

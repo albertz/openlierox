@@ -87,7 +87,7 @@ struct LuaCallbacks
 		serverStop,
 		gamePrepare,
 		gameBegin,
-		gameEnd,
+		gameOver,
 		gotoLobby,
 		afterRender,
 		afterUpdate,

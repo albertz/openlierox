@@ -76,11 +76,18 @@ void LuaCallbacks::bind(const LuaContext& ctx, std::string callback, LuaReferenc
 	CB(gameEnded);
 	CB(networkStateChange);
 	CB(gameError);
+	CB(exit);
+	CB(serverStart);
+	CB(serverStop);
+	CB(gamePrepare);
+	CB(gameBegin);
+	CB(gameOver);
+	CB(gotoLobby);
 
 	if(idx != -1)
-	{
 		callbacks[idx].push_back(LuaCallbackRef(ctx, ref));
-	}
+	else
+		warnings << "LuaCallbacks::bind: '" << callback << "' unknown" << endl;
 }
 
 void LuaCallbacks::cleanup() {
