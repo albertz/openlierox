@@ -772,9 +772,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		} else {
 			if(game.gameMode() == &singlePlayerGame && singlePlayerGame.levelSucceeded) {
 				std::string s = "Congratulations, you have done it!";
-				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clWhite, s);
-				tLX->cOutlineFont.DrawCentre(bmpDest, 321, 201, tLX->clBlack, s);
-				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, Color(100,255,100), s);
+				tLX->cFont.DrawCentre(bmpDest, 321, 201, tLX->clBlack, s);
+				tLX->cFont.DrawCentre(bmpDest, 320, 200, Color(100,255,100), s);
 			} else
 				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
 		}
