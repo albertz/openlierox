@@ -342,10 +342,6 @@ int CClient::Initialize()
 		return false;
 	}
 
-	// Initialize the drawing
-	if(!InitializeDrawing())
-		return false;
-
 	if(bDedicated)
 		cChatList = NULL;
 	else {
@@ -354,10 +350,6 @@ int CClient::Initialize()
 		if (!cChatList)
 			return false;
 		cChatList->InitializeChatBox();
-		cChatList->Setup(0,	tInterfaceSettings.ChatBoxX,
-							tInterfaceSettings.ChatBoxY,
-							tInterfaceSettings.ChatBoxW,
-							tInterfaceSettings.ChatBoxH);
 	}
 	// Clear the network channel
 	//cNetChan.Clear();

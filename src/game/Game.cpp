@@ -528,6 +528,9 @@ Result Game::prepareGameloop() {
 		GetGlobalIRC()->setAwayMessage("Playing: " + cClient->getServerName());
 
 	{
+		// Initialize the drawing
+		cClient->InitializeDrawing();
+
 		// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
 		cClient->InitializeIngameScore(true);
 
