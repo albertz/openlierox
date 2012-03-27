@@ -215,7 +215,7 @@ bool SinglePlayerGame::startGame() {
 		extraCmds = explode(extraCmdStr, ";");
 		foreach(c, extraCmds) {
 			notes << "SinglePlayerGame: exec: " << *c << endl;
-			Execute( CmdLineIntf::Command(&stdoutCLI(), *c) );
+			game.prepareCallbacks.connect(boost::bind(Execute, &stdoutCLI(), *c));
 		}
 	}
 	

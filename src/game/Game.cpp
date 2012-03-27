@@ -595,6 +595,9 @@ Result Game::prepareGameloop() {
 		DeprecatedGUI::bJoin_Update = true;
 	}
 
+	prepareCallbacks();
+	prepareCallbacks.disconnect_all_slots();
+
 	ProcessEvents();
 	notes << "GameLoopStart. MaxFPS is " << tLXOptions->nMaxFPS << endl;
 
@@ -707,6 +710,7 @@ void Game::frameInner()
 			warnings << "prepageGameloop failed: " << r.humanErrorMsg << endl;
 			if(!bDedicated)
 				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + r.humanErrorMsg);
+			prepareCallbacks.disconnect_all_slots();
 			game.state = Game::S_Lobby;
 		}
 		else if(!gameWasPrepared) {
