@@ -1351,13 +1351,13 @@ void CWorm::Kill(bool serverside)
 int CWorm::getScore() const
 {
 	int score = getKills();
-	if( (float)gameSettings[FT_DeathDecreasesScore] > 0.0f )
-		score -= (int)( getDeaths() * (float)gameSettings[FT_DeathDecreasesScore] + 0.01f ); // + 0.01f to counter possible inprecise truncation
-	if( gameSettings[FT_SuicideDecreasesScore] )
+	if( (float)cClient->getGameLobby()[FT_DeathDecreasesScore] > 0.0f )
+		score -= (int)( getDeaths() * (float)cClient->getGameLobby()[FT_DeathDecreasesScore] + 0.01f ); // + 0.01f to counter possible inprecise truncation
+	if( cClient->getGameLobby()[FT_SuicideDecreasesScore] )
 		score -= getSuicides();
-	if( gameSettings[FT_TeamkillDecreasesScore] )
+	if( cClient->getGameLobby()[FT_TeamkillDecreasesScore] )
 		score -= getTeamkills();
-	if( gameSettings[FT_CountTeamkills] )
+	if( cClient->getGameLobby()[FT_CountTeamkills] )
 		score += getTeamkills();
 
 	return score; // May be negative

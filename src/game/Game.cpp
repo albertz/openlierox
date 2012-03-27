@@ -493,9 +493,7 @@ Result Game::prepareGameloop() {
 		cClient->permanentText = "";
 
 	cClient->flagInfo()->reset();
-	for(int i = 0; i < MAX_TEAMS; ++i) {
-		cClient->iTeamScores[i] = 0;
-	}
+	game.teamScores.write().resize(0);
 
 	cClient->projPosMap.clear();
 	cClient->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
@@ -590,7 +588,6 @@ Result Game::prepareGameloop() {
 			}
 		}
 
-		cClient->UpdateScoreboard();
 		cClient->bShouldRepaintInfo = true;
 
 		DeprecatedGUI::bJoin_Update = true;
@@ -815,7 +812,6 @@ void Game::frameInner()
 			update = true;
 		}
 
-		if(update) cClient->UpdateScoreboard();
 		if(updateLocal)
 			// The worms are first prepared here in this function and thus the input handlers where not set before.
 			// We have to set the control keys now.
@@ -1332,6 +1328,14 @@ int32_t Game::getRandomEnabledWpn() {
 
 	if(enabledWpns.empty()) return -1;
 	return randomChoiceFrom(enabledWpns);
+}
+
+int& Game::writeTeamScore(int team) {
+	if(team < 0) team = 0;
+	team %= MAX_TEAMS;
+	if((size_t)team >= teamScores.get().size())
+		teamScores.write().resize(team + 1);
+	return teamScores.write().write(team);
 }
 
 

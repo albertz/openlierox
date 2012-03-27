@@ -91,10 +91,7 @@ void CClient::Clear()
 	reconnectingAmount = 0;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
-	iScorePlayers = 0;
 	cBonuses = NULL;
-	bUpdateScore = true;
-	fLastScoreUpdate = AbsTime();
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
@@ -167,8 +164,6 @@ void CClient::MinorClear()
 	bReadySent = false;
 	bGameMenu = false;
     bViewportMgr = false;
-	bUpdateScore = true;
-	fLastScoreUpdate = AbsTime();
 	bCurrentSettings = false;
 	bWaitingForMap = false;
 	bWaitingForMod = false;
@@ -206,10 +201,7 @@ void CClient::MinorClear()
 	sSpectatorViewportMsg = "";
 	
 	if(m_flagInfo)
-		m_flagInfo->reset();
-	
-	for(int i = 0; i < MAX_TEAMS; ++i)
-		iTeamScores[i] = 0;
+		m_flagInfo->reset();	
 }
 
 /*
@@ -240,8 +232,6 @@ CClient::CClient() {
 	cDownloadBar = NULL;
 	bMapGrabbed = false;
 	cChatList = NULL;
-	bUpdateScore = true;
-	fLastScoreUpdate = AbsTime();
 	bShouldRepaintInfo = true;
 	bCurrentSettings = false;
 	tMapDlCallback = NULL;
@@ -1824,8 +1814,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				// also resetup viewports
 				cClient->SetupViewports();
 			}
-
-			cClient->UpdateScoreboard();
 		}
 	}
 
@@ -2268,4 +2256,10 @@ void CClient::SetSocketWithEvents(bool v) {
 }
 
 bool CClient::canSimulate() const { return game.state >= Game::S_Preparing && game.isMapReady(); }
+
+int	CClient::getTeamScore(int team) {
+	if(team < 0) return 0;
+	if((size_t)team >= game.teamScores.get().size()) return 0;
+	return game.teamScores.get().get(team);
+}
 

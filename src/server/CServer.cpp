@@ -1784,7 +1784,6 @@ void GameServer::kickWorm(int wormID, const std::string& sReason, bool showReaso
 
 				// Now that a player has left, re-check the game status
 				RecheckGame();
-				cClient->UpdateScoreboard();
 			
 				if(isHumanWorm && !bDedicated) {
 					// resetup these
@@ -1882,7 +1881,6 @@ void GameServer::banWorm(int wormID, const std::string& sReason, bool showReason
 				
 				// Now that a player has left, re-check the game status
 				RecheckGame();
-				cClient->UpdateScoreboard();
 			}
 
 			DeprecatedGUI::bHost_Update = true;

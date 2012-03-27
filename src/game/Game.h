@@ -23,6 +23,7 @@
 #include "util/BaseObject.h"
 #include "Attr.h"
 #include "util/Result.h"
+#include "util/List.h"
 
 class CWormHumanInputHandler;
 class CWormInputHandler;
@@ -111,6 +112,12 @@ public:
 	bool hasSeriousHighSimulationDelay();
 
 	ATTR(Game, bool, bServerChoosesWeapons, 5, {}) // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
+
+	ATTR(Game, List<int>, teamScores, 6, {})
+	int& writeTeamScore(int team);
+
+	ATTR(Game, int, iMatchWinner, 7, {})
+	ATTR(Game, int, iMatchWinnerTeam, 8, {})
 
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::vector<CWormInputHandler*> players;

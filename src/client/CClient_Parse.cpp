@@ -996,8 +996,6 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 
 	// Re-initialize the ingame scoreboard
 	client->InitializeIngameScore(false);
-	client->bUpdateScore = true;
-
 
 	// let our worms know that the game starts know
 	for_each_iterator(CWorm*, w, game.localWorms())
@@ -1091,8 +1089,6 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 		SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
 	}
 	
-	client->UpdateScoreboard();
-	//if (client->cRemoteWorms[id].getLocal()) // We may spectate and watch other worm, so redraw always
 	client->bShouldRepaintInfo = true;
 
 	for(int i = 0; i < NUM_VIEWPORTS; ++i) {
@@ -1168,7 +1164,6 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
         warnings << "CClientNetEngine::ParseWormInfo(): ChangeGraphics() failed" << endl;
 	}
 
-	client->UpdateScoreboard();
 	if (w->getLocal())
 		client->bShouldRepaintInfo = true;
 
@@ -1219,7 +1214,6 @@ void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
 	//notes << "Client:ParseWormWeaponInfo: ";
 	w->readWeapons(bs);
 
-	client->UpdateScoreboard();
 	if (w->getLocal())
 		client->bShouldRepaintInfo = true;
 }
@@ -1402,8 +1396,6 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 			client->iLastKiller = w->getID();
 	}
 
-	client->UpdateScoreboard();
-
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 }
@@ -1428,16 +1420,13 @@ void CClientNetEngineBeta9::ParseTeamScoreUpdate(CBytestream *bs) {
 		if(i == MAX_TEAMS) warnings << "ParseTeamScoreUpdate: cannot handle teamscores for other than the first " << (int)MAX_TEAMS << " teams" << endl;
 		int score = bs->readInt16();
 		if(i < MAX_TEAMS) {
-			if(score > client->iTeamScores[i]) someTeamScored = true;
-			client->iTeamScores[i] = score;
+			if(score > cClient->getTeamScore(i)) someTeamScored = true;
+			game.writeTeamScore(i) = score;
 		}
 	}
 	
 	if(someTeamScored && client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_CTF))
 		PlaySoundSample(sfxGame.smpTeamScore.get());
-	
-	// reorder the list
-	client->UpdateScoreboard();
 }
 
 
@@ -1446,20 +1435,20 @@ void CClientNetEngineBeta9::ParseTeamScoreUpdate(CBytestream *bs) {
 void CClientNetEngine::ParseGameOver(CBytestream *bs)
 {
 	if(client->getServerVersion() < OLXBetaVersion(0,58,1)) {
-		client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
-		client->iMatchWinnerTeam = -1;
+		game.iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
+		game.iMatchWinnerTeam = -1;
 
 		// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
 		if (client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
 
 			if ((int)client->getGameLobby()[FT_KillLimit] != -1)  {
-				CWorm* w = game.wormById(client->iMatchWinner, false);
+				CWorm* w = game.wormById(game.iMatchWinner, false);
 				if(w)
-					client->iMatchWinnerTeam = w->getTeam();
+					game.iMatchWinnerTeam = w->getTeam();
 			} else if ((int)client->getGameLobby()[FT_Lives] != -2)  {
 				for_each_iterator(CWorm*, w, game.worms()) {
 					if (w->get()->getLives() >= 0)  {
-						client->iMatchWinnerTeam = w->get()->getTeam();
+						game.iMatchWinnerTeam = w->get()->getTeam();
 						break;
 					}
 				}
@@ -1473,16 +1462,16 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 			for_each_iterator(CWorm*, w, game.worms()) {
 				if (w->get()->getTagTime() > max)  {
 					max = w->get()->getTagTime();
-					client->iMatchWinner = w->get()->getID();
+					game.iMatchWinner = w->get()->getID();
 				}
 			}
 		}
 	}
 	else { // server >=beta9
-		client->iMatchWinner = bs->readByte();
+		game.iMatchWinner = bs->readByte();
 
 		if(client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
-			client->iMatchWinnerTeam = bs->readByte();
+			game.iMatchWinnerTeam = bs->readByte();
 			int teamCount = bs->readByte();
 			for(int i = 0; i < teamCount; ++i) {
 				if(bs->isPosAtEnd()) {
@@ -1492,31 +1481,30 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 				
 				if(i == MAX_TEAMS) warnings << "ParseGameOver: cannot handle teamscores for other than the first " << (int)MAX_TEAMS << " teams" << endl;
 				int score = bs->readInt16();
-				if(i < MAX_TEAMS) client->iTeamScores[i] = score;
+				if(i < MAX_TEAMS) game.writeTeamScore(i) = score;
 			}
 		} else
-			client->iMatchWinnerTeam = -1;
+			game.iMatchWinnerTeam = -1;
 	}
 		
 	// Game over
 	hints << "Client: the game is over";
-	if(client->iMatchWinner >= 0 && client->iMatchWinner < MAX_WORMS) {
-		hints << ", the winner is worm " << game.wormName(client->iMatchWinner);
+	if(game.iMatchWinner >= 0 && game.iMatchWinner < MAX_WORMS) {
+		hints << ", the winner is worm " << game.wormName(game.iMatchWinner);
 	}
-	if(client->iMatchWinnerTeam >= 0) {
-		hints << ", the winning team is team " << client->iMatchWinnerTeam;
+	if(game.iMatchWinnerTeam >= 0) {
+		hints << ", the winning team is team " << game.iMatchWinnerTeam;
 	}
 	hints << endl;
 	game.gameOver = true;
 	game.gameOverFrame = game.serverFrame;
 
 	if (client->tGameLog)
-		client->tGameLog->iWinner = client->iMatchWinner;
+		client->tGameLog->iWinner = game.iMatchWinner;
 
     // Clear the projectiles
     client->cProjectiles.clear();
 
-	client->UpdateScoreboard();
 	client->bShouldRepaintInfo = true;
 
 	// if we are away (perhaps waiting because we were out), notify us
@@ -1649,8 +1637,6 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 		//notes << "Client:ParseCLReady: ";
 		w->readWeapons(bs);
 	}
-
-	client->bUpdateScore = true; // Change the ingame scoreboard
 }
 
 
@@ -1738,8 +1724,6 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
-
-	client->UpdateScoreboard();
 }
 
 
@@ -2268,11 +2252,9 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 		}
 	}
 
-	client->UpdateScoreboard();
-
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
-};
+}
 
 void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 {

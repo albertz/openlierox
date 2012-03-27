@@ -1147,7 +1147,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	DrawBox( bmpDest, *KillsX, *KillsY, *KillsW );
 	std::string teamScoreTxt = "Scores: ";
 	if(worm && worm->getTeam() >= 0 && worm->getTeam() < 4)
-		teamScoreTxt += itoa(iTeamScores[worm->getTeam()]);
+		teamScoreTxt += itoa(cClient->getTeamScore(worm->getTeam()));
 	if(getGeneralGameType() == GMT_TEAMS)
 		tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, teamScoreTxt);		
 	else
@@ -1157,12 +1157,12 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	if(showTeamEnemyScores) {
 		int x = tInterfaceSettings.Kills2X;
 		int y = tInterfaceSettings.Kills2Y;
-		for(int i = 0; i < 4; ++i) {
-			if(i != worm->getTeam() && (cClient->getTeamWormCount(i) > 0 || iTeamScores[i] != 0)) {
+		for(int i = 0; i < MAX_TEAMS; ++i) {
+			if(i != worm->getTeam() && (cClient->getTeamWormCount(i) > 0 || cClient->getTeamScore(i) != 0)) {
 				DrawImage( bmpDest, DeprecatedGUI::gfxGame.bmpTeamColours[i], x, y );			
 				x += DeprecatedGUI::gfxGame.bmpTeamColours[i].get()->w + 5;
 				
-				std::string enemyScoreTxt = itoa(iTeamScores[i]);
+				std::string enemyScoreTxt = itoa(cClient->getTeamScore(i));
 				tLX->cFont.Draw(bmpDest, x, y, tLX->clTeamColors[i], enemyScoreTxt);
 				x += MAX(30, tLX->cFont.GetWidth(enemyScoreTxt) + 5);
 			}
@@ -1441,7 +1441,6 @@ void CClient::InitializeGameMenu()
 
 	// Shutdown any previous instances
 	cGameMenuLayout.Shutdown();
-	bUpdateScore = true;
 
 	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 190, 360, 80, 20);
 	cGameMenuLayout.getWidget(gm_Options)->setEnabled(!game.gameOver); // Hide on game over
@@ -1473,32 +1472,33 @@ void CClient::InitializeGameMenu()
 	if (game.gameOver)  {
 		if (getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
+			assert(sizeof(teamnames)/sizeof(teamnames[0]) == MAX_TEAMS);
 			std::string teamName = "noone";
-			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < MAX_TEAMS)
-				teamName = teamnames[iMatchWinnerTeam];
-			else if(iMatchWinnerTeam >= MAX_TEAMS)
-				teamName = "team " + itoa(iMatchWinnerTeam);
+			if(game.iMatchWinnerTeam >= 0 && game.iMatchWinnerTeam < MAX_TEAMS)
+				teamName = teamnames[game.iMatchWinnerTeam];
+			else if(game.iMatchWinnerTeam >= MAX_TEAMS)
+				teamName = "team " + itoa(game.iMatchWinnerTeam);
 			
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(teamName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < MAX_TEAMS) {
-				SmartPointer<SDL_Surface> pic = DeprecatedGUI::gfxGame.bmpTeamColours[iMatchWinnerTeam];
+			if(game.iMatchWinnerTeam >= 0 && game.iMatchWinnerTeam < MAX_TEAMS) {
+				SmartPointer<SDL_Surface> pic = DeprecatedGUI::gfxGame.bmpTeamColours[game.iMatchWinnerTeam];
 				if (pic.get())
 					cGameMenuLayout.Add(new DeprecatedGUI::CImage(DynDrawFromSurface(pic)), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
 			}
 		} else {
 			std::string winnerName = "noone";
-			if(iMatchWinner >= 0 && iMatchWinner < MAX_WORMS) {
-				if(CWorm* w = game.wormById(iMatchWinner, false))
+			if(game.iMatchWinner >= 0 && game.iMatchWinner < MAX_WORMS) {
+				if(CWorm* w = game.wormById(game.iMatchWinner, false))
 					winnerName = w->getName();
 				else
 					winnerName = "unknown worm";
 			}
-			else if(iMatchWinner >= MAX_WORMS)
+			else if(game.iMatchWinner >= MAX_WORMS)
 				winnerName = "invalid winner";
 			
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(winnerName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			if(iMatchWinner >= 0 && iMatchWinner < MAX_WORMS) {
-				CWorm* w = game.wormById(iMatchWinner, false);
+			if(game.iMatchWinner >= 0 && game.iMatchWinner < MAX_WORMS) {
+				CWorm* w = game.wormById(game.iMatchWinner, false);
 				SmartPointer<DynDrawIntf> pic = w ? w->getPicimg() : NULL;
 				if (pic.get())
 					cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, WORM_SKIN_WIDTH, WORM_SKIN_HEIGHT);
@@ -1687,17 +1687,65 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	}
 }
 
+
+struct ScoreCompare {
+	bool operator()(int i, int j) const {
+		CWorm *w1 = game.wormById(i), *w2 = game.wormById(j);
+		if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode) return cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->CompareWormsScore(w1, w2) > 0;
+		return GameMode(GM_DEATHMATCH)->CompareWormsScore(w1, w2) > 0;
+	}
+};
+
 ///////////////////
 // Update the player list in game menu
+// see also CClient::UpdateIngameScore
 void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListview *Right)
 {
-	// No need to update
-	if (!bUpdateScore)
-		return;
+	// Clear the team scores
+	std::vector<int> iTeamList(MAX_TEAMS);
+	for(short i=0;i<MAX_TEAMS;i++) {
+		iTeamList[i]=i;
+		if(getServerVersion() < OLXBetaVersion(0,58,1))
+			game.writeTeamScore(i) = 0;
+	}
 
-	short i, n;
+	// Add the worms to the list
+	std::vector<int> iScoreboard;
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
 
-	bUpdateScore = false;
+		iScoreboard.push_back(w->getID());
+
+		// in other cases, we got the scores from the server
+		if(getServerVersion() < OLXBetaVersion(0,58,1)) {
+			// Add to the team score
+			if(getGeneralGameType() == GMT_TEAMS) {
+				int team = w->getTeam();
+				if (team < 0 || team >= MAX_TEAMS)  {  // prevents crashing sometimes
+					w->setTeam(0);
+					team = 0;
+				}
+				// Make the score at least zero to say we have
+				game.writeTeamScore(team) = MAX(0,game.writeTeamScore(team));
+
+				if(w->getLives() != WRM_OUT && w->getLives() != WRM_UNLIM)
+					game.writeTeamScore(team) += w->getLives();
+			}
+		}
+	}
+
+
+	// Sort the team lists
+	if(getGeneralGameType() == GMT_TEAMS) {
+		for(short i=0;i<MAX_TEAMS;i++) {
+			for(short j=0;j<MAX_TEAMS-i-1;j++) {
+				if(getTeamScore(iTeamList[j]) < getTeamScore(iTeamList[j+1]))
+					std::swap(iTeamList[j], iTeamList[j+1]);
+			}
+		}
+	}
+
+	std::sort(iScoreboard.begin(), iScoreboard.end(), ScoreCompare());
 
 	// Clear any previous info
 	Left->Clear();
@@ -1705,6 +1753,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 	// Teams
 	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
+	assert(sizeof(teamnames)/sizeof(teamnames[0]) == MAX_TEAMS);
 
 	// Normal scoreboard
 	switch(getGeneralGameType()) {
@@ -1712,17 +1761,14 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 		// Fill the left listview
 		DeprecatedGUI::CListview *lv = Left;
-		for(i=0; i < iScorePlayers; i++) {
+		for(size_t i=0; i < iScoreboard.size(); i++) {
 			// Left listview overflowed, fill the right one
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			CWorm *p = game.wormById(iScoreboard[i], false);
-			if(!p) {
-				cClient->UpdateScoreboard();
-				bUpdateScore = true;
+			if(!p)
 				return;
-			}
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1776,17 +1822,13 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 		// Draw the players
 		DeprecatedGUI::CListview *lv = Left;
-		for(i = 0; i < iScorePlayers; i++) {
+		for(size_t i = 0; i < iScoreboard.size(); i++) {
 			// If the left listview overflowed, use the right one
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			CWorm *p = game.wormById(iScoreboard[i], false);
-			if(!p) {
-				cClient->UpdateScoreboard();
-				bUpdateScore = true;
-				return;
-			}
+			if(!p) return;
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1830,17 +1872,13 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 		// Draw the players
 		DeprecatedGUI::CListview *lv = Left;
-		for(i = 0; i < iScorePlayers; i++) {
+		for(size_t i = 0; i < iScoreboard.size(); i++) {
 			// If the left listview overflowed, use the right one
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			CWorm *p = game.wormById(iScoreboard[i], false);
-			if(!p) {
-				cClient->UpdateScoreboard();
-				bUpdateScore = true;
-				return;
-			}
+			if(!p) return;
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1900,7 +1938,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 		// Go through each team
 		DeprecatedGUI::CListview *lv = Left;
 
-		for(n = 0; n < MAX_TEAMS; n++) {
+		for(short n = 0; n < MAX_TEAMS; n++) {
 			int team = iTeamList[n];
 			int score = getTeamScore(team);
 
@@ -1926,17 +1964,13 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", (DynDrawIntf*)NULL, NULL);
 
 			// Draw the players
-			for(i = 0; i < iScorePlayers; i++) {
+			for(size_t i = 0; i < iScoreboard.size(); i++) {
 				// If the left listview overflowed, fill the right one
 				if (lv->getItemCount() >= 16)
 					lv = Right;
 
 				CWorm* p = game.wormById(iScoreboard[i], false);
-				if(!p) {
-					cClient->UpdateScoreboard();
-					bUpdateScore = true;
-					return;
-				}
+				if(!p) return;
 
 				if(p->getTeam() != team)
 					continue;
@@ -2586,6 +2620,7 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 
 ////////////////////
 // Update the scoreboard
+// see also CClient::UpdateScore
 void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListview *Right, bool WaitForPlayers)
 {
 	DeprecatedGUI::CListview *lv = Left;
@@ -2595,17 +2630,19 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 	Left->Clear();
 	Right->Clear();
 
+	std::vector<int> iScoreboard;
+	for_each_iterator(CWorm*, w, game.worms()) {
+		iScoreboard.push_back(w->get()->getID());
+	}
+	std::sort(iScoreboard.begin(), iScoreboard.end(), ScoreCompare());
+
 	// Fill the listviews
-    for(int i=0; i < iScorePlayers; i++) {
+	for(size_t i=0; i < iScoreboard.size(); i++) {
 		if (i >= 16)  // Left listview overflowed, fill in the right one
 			lv = Right;
 
 		CWorm *p = game.wormById(iScoreboard[i], false);
-		if(!p) {
-			UpdateScoreboard();
-			bUpdateScore = false;
-			return;
-		}
+		if(!p) return;
 
 		// Get colour
 		if (tLXOptions->bColorizeNicks && getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)
@@ -2659,9 +2696,6 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), (DynDrawIntf*)NULL, NULL);
 		}
     }
-
-	bUpdateScore = false;
-	fLastScoreUpdate = tLX->currentTime;
 }
 
 #define WAIT_COL_W 180
@@ -2759,7 +2793,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
 	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0, 0,
 				tLXOptions->bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg.get()->w, bmpIngameScoreBg.get()->h);
 
-	if (bUpdateScore || tLX->currentTime - fLastScoreUpdate >= 2.0f)
+	//if (bUpdateScore || tLX->currentTime - fLastScoreUpdate >= 2.0f)
 		UpdateIngameScore(((DeprecatedGUI::CListview *)cScoreLayout.getWidget(sb_Left)), ((DeprecatedGUI::CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
 
 	// Hide the second list if there are no players

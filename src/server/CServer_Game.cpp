@@ -503,6 +503,10 @@ void GameServer::RecheckGame()
 	if(!game.gameOver && game.state == Game::S_Playing)
 		if(game.gameMode()->CheckGameOver())
 			GameOver();
+
+	for(int t = 0; t < game.gameMode()->GameTeams(); ++t) {
+		game.writeTeamScore(t) = game.gameMode()->TeamScores(t);
+	}
 }
 
 

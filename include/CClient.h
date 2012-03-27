@@ -249,11 +249,6 @@ private:
 	AbsTime		fMyPingRefreshed;
 	int			iMyPing;
 	
-	int			iScoreboard[MAX_WORMS];
-	int			iScorePlayers;
-	int			iTeamScores[MAX_TEAMS];
-	int			iTeamList[MAX_TEAMS];
-
 	// Interface
 	interface_sett tInterfaceSettings;
 	DeprecatedGUI::CBar		*cHealthBar1;
@@ -269,10 +264,6 @@ private:
 	bool		bCurrentSettings;
 
     CWeather    cWeather;
-
-	// Game menu && score
-	bool		bUpdateScore;
-	AbsTime		fLastScoreUpdate;
 
 	// Ingame scoreboard
 	SmartPointer<SDL_Surface> bmpIngameScoreBg;
@@ -363,8 +354,6 @@ private:
 	bool		bReadySent;
 
 	bool		bGameMenu;
-	int			iMatchWinner;
-	int			iMatchWinnerTeam;
 
 	bool		bLobbyReady;
 	bool		bHaveMap;
@@ -445,7 +434,6 @@ public:
     void        disableProjectile(CProjectile *prj);
 	void		Explosion(AbsTime time, CVec pos, float damage, int shake, int owner);
 	void		InjureWorm(CWorm *w, float damage, int owner);
-	void		UpdateScoreboard();
 	void		LaserSight(CWorm *w, float Angle, bool highlightCrosshair = true);
 
 	void		processChatter();
@@ -560,7 +548,7 @@ public:
     void        setZombieTime(const AbsTime& z)      { fZombieTime = z; }
     AbsTime       getZombieTime()         { return fZombieTime; }
 
-	int			getTeamScore(int team)		{ if(team >= 0 && team < MAX_TEAMS) return iTeamScores[team]; else return 0; }
+	int			getTeamScore(int team);
 
 	bool		isTyping()				{ return bChat_Typing; }
 	void		setChatPos(size_t v)		{ iChat_Pos = v; }
