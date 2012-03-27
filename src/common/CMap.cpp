@@ -699,8 +699,8 @@ void CMap::SetMinimapDimensions(uint _w, uint _h)
 	if(bDedicated) return;
 
 	// check if values make sense
-	if(_w >= 320 || _h >= 240) {
-		errors << "CMap::SetMinimapDimensions: dimension " << _w << "x" << _h << " too big" << endl;
+	if(_w >= 320 || _h >= 240 || _w <= 0 || _h <= 0) {
+		errors << "CMap::SetMinimapDimensions: dimension " << _w << "x" << _h << " bad" << endl;
 		// default values from Menu_HostShowMinimap
 		_w = 128; _h = 96;
 	}
