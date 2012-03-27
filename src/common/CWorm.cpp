@@ -1365,21 +1365,21 @@ int CWorm::getScore() const
 
 void CWorm::addDeath()
 {
-	if( !gameSettings[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !cClient->getGameLobby()[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iDeaths++;
 }
 
 void CWorm::addSuicide()
 {
-	if( !gameSettings[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !cClient->getGameLobby()[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iSuicides++;
 }
 
 void CWorm::addTeamkill()
 {
-	if( !gameSettings[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !cClient->getGameLobby()[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iTeamkills++;
 }

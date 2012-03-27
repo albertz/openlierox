@@ -470,18 +470,10 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 			if(someOwnWorm || NewNet::Active() ||
 				(game.isServer() && tLXOptions->bServerSideHealth) ) {
 
-				w->Kill(false);
-				if( !NewNet::Active() )
-	        	    w->clearInput();
+				if(game.isServer()) {
+					cServer->killWorm(w->getID(), owner);
 
-				cNetEngine->SendDeath(w->getID(), owner); // Let the server know that i am dead
-        	    
-				if( game.isServer() && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
-        	    	cServer->killWorm(w->getID(), owner);
-
-        	   	if( NewNet::Active() )
-        	   	{
-        	   		// TODO: merge this part of code with cClient::ParseWormDown()?
+					// TODO: merge this part of code with cClient::ParseWormDown()?
 					// Make a death sound
 					int s = GetRandomInt(2);
 					if( NewNet::CanPlaySound(w->getID()) )
@@ -499,7 +491,14 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 						SpawnEntity(ENT_BLOOD,0,w->getPos(),GetRandomVec()*sp,Color(200,0,0),NULL);
 						SpawnEntity(ENT_BLOOD,0,w->getPos(),GetRandomVec()*sp,Color(128,0,0),NULL);
 					}
-        	   	}
+				}
+				else { // game.isClient()
+					w->Kill(false);
+					if( !NewNet::Active() )
+						w->clearInput();
+
+					cNetEngine->SendDeath(w->getID(), owner); // Let the server know that i am dead
+				}
 			}
 		}
 	}
