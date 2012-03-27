@@ -231,7 +231,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iFavouritesSortColumn, "Widgets.FavouritesSortColumn", 4 )
 		( tLXOptions->iAdvancedLevelLimit, "Widgets.AdvancedLevelLimit", 0 )
 		( tLXOptions->bShowModifiedGameSettingsOnly, "Widgets.ShowModifiedGameSettingsOnly", false )
-		( tLXOptions->iLocalPlayGame, "Widgets.LocalPlayGame", 0 )
+		( tLXOptions->sLocalPlayGame, "Widgets.LocalPlayGame", "introduction" )
 		( tLXOptions->sSvrListSettingsFilterCfg, "Widgets.SvrListSettingsFilterCfg", "" )
 		;
 

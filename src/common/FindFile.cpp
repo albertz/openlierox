@@ -1091,17 +1091,19 @@ SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose)  {
 
 struct FileIter : Iterator<std::string> {
 	typedef std::set<std::string> List;
-	List files;
+	boost::shared_ptr<List> files;
 	List::iterator it;
 	
+	FileIter() : files(new List) {}
+
 	bool operator() (const std::string& path) {
-		files.insert( GetBaseFilename(path) );
+		files->insert( GetBaseFilename(path) );
 		return true;
 	}
 		
 	Iterator<std::string>* copy() const { return new FileIter(*this); }
-	bool isValid() { return it != files.end(); }
-	void reset() { it = files.begin(); }
+	bool isValid() { return it != files->end(); }
+	void reset() { it = files->begin(); }
 	void next() { ++it; }
 	bool operator==(const Iterator<std::string>& _oth) const {
 		if( const FileIter* oth = dynamic_cast<const FileIter*> (&_oth) )

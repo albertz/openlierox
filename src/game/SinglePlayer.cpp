@@ -30,8 +30,8 @@ SinglePlayerGame singlePlayerGame;
 
 
 static bool gameLevelExists(const std::string& game, int levelNr) {
-	std::string level;
-	if(!ReadString("games/games.cfg", game, "Level" + itoa(levelNr), level, "") || Trimmed(level) == "")
+	std::string dir;
+	if(!ReadString("games/" + game + "/game.cfg", "Level" + itoa(levelNr), "Dir", dir, "") || Trimmed(dir) == "")
 		return false;
 	else
 		return true;
@@ -90,10 +90,10 @@ bool SinglePlayerGame::setLevel(int levelNr) {
 	}
 	
 	std::string level, mod, img;
-	ReadString("games/games.cfg", currentGame, "Level" + itoa(currentLevel), level, ""); TrimSpaces(level);
-	ReadString("games/games.cfg", currentGame, "Mod" + itoa(currentLevel), mod, "Classic"); TrimSpaces(mod);
-	ReadString("games/games.cfg", currentGame, "Image" + itoa(currentLevel), img, ""); TrimSpaces(img);
-	ReadString("games/games.cfg", currentGame, "Desc" + itoa(currentLevel), description, ""); TrimSpaces(description);
+	ReadString("games/" + currentGame + "/game.cfg", "Level" + itoa(currentLevel), "Dir", level, ""); TrimSpaces(level);
+	ReadString("games/" + currentGame + "/game.cfg", "Level" + itoa(currentLevel), "Mod", mod, "Classic"); TrimSpaces(mod);
+	ReadString("games/" + currentGame + "/game.cfg", "Level" + itoa(currentLevel), "Image", img, ""); TrimSpaces(img);
+	ReadString("games/" + currentGame + "/game.cfg", "Level" + itoa(currentLevel), "Desc", description, ""); TrimSpaces(description);
 	
 	level = "../games/" + currentGame + "/" + level; // it's relative to levels
 	levelInfo = infoForLevel(level);
@@ -201,7 +201,7 @@ bool SinglePlayerGame::startGame() {
 	
 	{
 		std::string extraConfig;
-		ReadString("games/games.cfg", currentGame, "Config" + itoa(currentLevel), extraConfig, ""); TrimSpaces(extraConfig);
+		ReadString("games/" + currentGame + "/game.cfg", "Level" + itoa(currentLevel), "Config", extraConfig, ""); TrimSpaces(extraConfig);
 		if(extraConfig != "") {
 			notes << "SinglePlayerGame: config: " << extraConfig << endl;
 			singlePlayerSettings->loadFromConfig("games/" + currentGame + "/" + extraConfig, false);
@@ -211,7 +211,7 @@ bool SinglePlayerGame::startGame() {
 	{
 		std::string extraCmdStr;
 		std::vector<std::string> extraCmds;
-		ReadString("games/games.cfg", currentGame, "Exec" + itoa(currentLevel), extraCmdStr, ""); TrimSpaces(extraCmdStr);
+		ReadString("games/" + currentGame + "/game.cfg", "Level" + itoa(currentLevel), "Exec", extraCmdStr, ""); TrimSpaces(extraCmdStr);
 		extraCmds = explode(extraCmdStr, ";");
 		foreach(c, extraCmds) {
 			notes << "SinglePlayerGame: exec: " << *c << endl;

@@ -333,7 +333,7 @@ public:
 	int		iFavouritesSortColumn;
 	int		iAdvancedLevelLimit;
 	bool	bShowModifiedGameSettingsOnly;
-	int		iLocalPlayGame;
+	std::string	sLocalPlayGame;
 	std::string sSvrListSettingsFilterCfg;
 	
 	// Last used custom game details

@@ -51,6 +51,7 @@
 #include "game/SettingsPreset.h"
 #include "client/ClientConnectionRequestInfo.h"
 #include "game/CWorm.h"
+#include "ConfigHandler.h"
 
 
 namespace DeprecatedGUI {
@@ -155,20 +156,20 @@ static void Menu_Local_InitCustomLevel() {
 		
 }
 	
-static int selectedGameIndex() {
+static std::string selectedGameIndex() {
 	CCombobox* cb = (CCombobox *)cLocalMenu.getWidget(ml_Game);
 	if(cb == NULL) {
 		errors << "Local menu: selectedGameIndex: game combobox not found" << endl;
-		return -1;
+		return "";
 	}
 	
 	GuiListItem::Pt item = cb->getSelectedItem();
 	if(item.get() == NULL) {
 		errors << "Local menu: selectedGameIndex: game combobox has not selected anything" << endl;
-		return -1;		
+		return "";
 	}
 	
-	return from_string<int>(item->index());
+	return item->index();
 }
 
 static std::string selectedGameName() {
@@ -187,31 +188,27 @@ static std::string selectedGameName() {
 	return item->caption();
 }
 	
-static void newGameListEntry(const std::string& game, int index) {
-	((CCombobox *)cLocalMenu.getWidget(ml_Game)) ->addItem(-1, itoa(index), game);
+static void newGameListEntry(const std::string& game, const std::string& sindex) {
+	((CCombobox *)cLocalMenu.getWidget(ml_Game)) ->addItem(-1, sindex, game);
 }
 	
-static void setCurGameComboIndex(int index) {
-	((CCombobox *)cLocalMenu.getWidget(ml_Game)) ->setCurSIndexItem(itoa(index));
+static void setCurGameComboIndex(const std::string& sindex) {
+	((CCombobox *)cLocalMenu.getWidget(ml_Game)) ->setCurSIndexItem(sindex);
 }
 	
 static void fillGameList() {
-	newGameListEntry("- Custom level/mod -", -1);
+	newGameListEntry("- Custom level/mod -", "");
 	
-	struct Ini : public IniReader {
-		int index;
-		Ini() : IniReader("games/games.cfg"), index(0) {}
-		bool OnNewSection (const std::string& section) {
-			newGameListEntry(section, index);
-			index++;
-			return true;
+	for_each_iterator(std::string, f, FileListIter("games", false, FM_DIR)) {
+		std::string name;
+		if(ReadString("games/" + f->get() + "/game.cfg", "General", "Name", name, "")) {
+			if(name != "")
+				newGameListEntry(name, f->get());
 		}
-	} ini;
-	
-	if(!ini.Parse())
-		warnings << "error while parsing games.cfg" << endl;
-	
-	setCurGameComboIndex(tLXOptions->iLocalPlayGame);
+	}
+
+	setCurGameComboIndex(tLXOptions->sLocalPlayGame);
+	tLXOptions->sLocalPlayGame = selectedGameIndex(); // in case that the game does not exist anymore
 }	
 	
 static bool deleteWidgets(int index) {
@@ -290,17 +287,17 @@ static void initCurrentGameMenu() {
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
 
-	if(tLXOptions->iLocalPlayGame < 0)
+	if(tLXOptions->sLocalPlayGame == "")
 		Menu_Local_InitCustomLevel();
 	else
 		Menu_Local_InitGameMenu();
 }
 	
 static void handleGameSwitch() {
-	int newGame = selectedGameIndex();
-	if(newGame != tLXOptions->iLocalPlayGame) {
+	std::string newGame = selectedGameIndex();
+	if(newGame != tLXOptions->sLocalPlayGame) {
 		uninitCurrentGameMenu();
-		tLXOptions->iLocalPlayGame = newGame;
+		tLXOptions->sLocalPlayGame = newGame;
 		initCurrentGameMenu();
 	}
 }
@@ -398,7 +395,7 @@ void Menu_LocalFrame()
 
 	// Reload the list if user switches back to the game
 	// Do not reload when a dialog is open
-	if (tLXOptions->iLocalPlayGame < 0 && tLXOptions->bAutoFileCacheRefresh && bActivated)  {
+	if (tLXOptions->sLocalPlayGame == "" && tLXOptions->bAutoFileCacheRefresh && bActivated)  {
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 		const GuiListItem::Pt it = cbMod->getItem(cbMod->getSelectedIndex());
@@ -423,7 +420,7 @@ void Menu_LocalFrame()
 
 
     // Was the mouse clicked on the map section
-    if( (tLXOptions->iLocalPlayGame < 0) && (Mouse->Up & SDL_BUTTON(1)) ) {
+	if( (tLXOptions->sLocalPlayGame == "") && (Mouse->Up & SDL_BUTTON(1)) ) {
     	// TODO: hardcoded sizes here
         if( MouseInRect(136,132,128,96) )
 	    	// TODO: why are we redrawing the minimap here?
@@ -859,7 +856,7 @@ static bool Menu_LocalStartGame_CustomGame() {
 void Menu_LocalStartGame()
 {
 	bool ok = false;
-	if(tLXOptions->iLocalPlayGame < 0)
+	if(tLXOptions->sLocalPlayGame == "")
 		ok = Menu_LocalStartGame_CustomGame();
 	else
 		ok = singlePlayerGame.startGame();
