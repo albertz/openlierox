@@ -583,7 +583,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	
 	if(permanentText != "") {
 		int y = tInterfaceSettings.LocalChatY;
-		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, tLX->clWhite, permanentText); // Shadow white
 		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, permanentText); // Shadow black
 		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, Color(200,200,255), permanentText);
 	}
