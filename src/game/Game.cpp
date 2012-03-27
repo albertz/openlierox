@@ -389,7 +389,6 @@ Result Game::prepareGameloop() {
 		return "Error while loading map: " + r.res.humanErrorMsg;
 	preparedMap = cClient->getGameLobby()[FT_Map];
 
-	game.gameMap()->SetMinimapDimensions(cClient->tInterfaceSettings.MiniMapW, cClient->tInterfaceSettings.MiniMapH);
 	cClient->bMapGrabbed = true;
 
 	// always also load Gusanos engine
@@ -530,6 +529,8 @@ Result Game::prepareGameloop() {
 	{
 		// Initialize the drawing
 		cClient->InitializeDrawing();
+
+		game.gameMap()->SetMinimapDimensions(cClient->tInterfaceSettings.MiniMapW, cClient->tInterfaceSettings.MiniMapH);
 
 		// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
 		cClient->InitializeIngameScore(true);
