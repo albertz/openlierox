@@ -1098,9 +1098,7 @@ void Game::onNewHumanPlayer(CWormHumanInputHandler* player) {
 }
 
 void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
-	if(game.gameScript()->gusEngineUsed()) {
-		LUACALLBACK(localplayerInit).call()(player->getLuaReference())();
-	}
+	LUACALLBACK(localplayerInit).call()(player->getLuaReference())();
 }
 
 
