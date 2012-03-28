@@ -1713,9 +1713,9 @@ Result CWorm::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
 	Result r = CGameObject::getAttrib(key, value);
 	if(r) return true;
 
-	if(key == "isLocal") { value = bLocal; return true; }
-	if(key == "isHuman") { value = (getType() == PRF_HUMAN); return true; }
-	if(key == "isBot") { value = (getType() == PRF_COMPUTER); return true; }
+	if(key == "isLocal") { value = ScriptVar_t(bLocal); return true; }
+	if(key == "isHuman") { value = ScriptVar_t(getType() == PRF_HUMAN); return true; }
+	if(key == "isBot") { value = ScriptVar_t(getType() == PRF_COMPUTER); return true; }
 
 	return r;
 }
@@ -1726,9 +1726,9 @@ Result wpnslot_t::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
 
 	if(key == "weaponName") {
 		if(const weapon_t* w = weapon())
-			value = w->Name;
+			value = ScriptVar_t(w->Name);
 		else
-			value = "";
+			value = ScriptVar_t("");
 		return true;
 	}
 
@@ -1756,10 +1756,10 @@ Result worm_state_t::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const
 	Result r = CustomVar::getAttrib(key, value);
 	if(r) return r;
 
-	if(key == "shoot") { value = bShoot; return true; }
-	if(key == "carve") { value = bCarve; return true; }
-	if(key == "move") { value = bMove; return true; }
-	if(key == "jump") { value = bJump; return true; }
+	if(key == "shoot") { value = ScriptVar_t(bShoot); return true; }
+	if(key == "carve") { value = ScriptVar_t(bCarve); return true; }
+	if(key == "move") { value = ScriptVar_t(bMove); return true; }
+	if(key == "jump") { value = ScriptVar_t(bJump); return true; }
 
 	return r;
 }
