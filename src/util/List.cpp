@@ -181,6 +181,11 @@ Result DynamicList::fromBytestream(CBytestream* bs, bool expectDiffToDefault) {
 }
 
 Result DynamicList::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
+	if(key == "size") {
+		value = ScriptVar_t((int)size());
+		return true;
+	}
+
 	if(!key.isNumeric())
 		return "only numeric List keys allowed";
 
@@ -196,6 +201,13 @@ Result DynamicList::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const 
 }
 
 Result DynamicList::setAttrib(const ScriptVar_t& key, const ScriptVar_t& value) {
+	if(key == "size") {
+		if(!canResize())
+			return "List cannot be resized";
+		resize(value.toNumericType<size_t>());
+		return true;
+	}
+
 	if(!key.isNumeric())
 		return "only numeric List keys allowed";
 
