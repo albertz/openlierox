@@ -313,10 +313,8 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 	if(!game.gameMode()->Shoot(w))
 		return;
 	
-	if(!wpn) {
-		warnings << "WormShootEnd: trying to shoot with an unitialized weapon!" << endl;
+	if(!wpn)
 		return;
-	}
 	
 	if(!wpn->FinalProj.isSet())
 		return;
@@ -374,10 +372,8 @@ void GameServer::WormShoot(CWorm *w)
 	if(Slot->LastFire>0)
 		return;
 
-	if(!Slot->weapon()) {
-		warnings << "WormShoot: trying to shoot with an unitialized weapon!" << endl;
+	if(!Slot->weapon())
 		return;
-	}
 
 	// Safe the ROF time (Rate of Fire). That's the pause time after each shot.
 	// In simulateWormWeapon, we decrease this by deltatime and

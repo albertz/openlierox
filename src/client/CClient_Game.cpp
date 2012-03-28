@@ -910,10 +910,8 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 	if(Slot->LastFire>0)
 		return;
 
-	if(!Slot->weapon()) {
-		errors << "WARNING: trying to shoot with an unitialized weapon!" << endl;
+	if(!Slot->weapon())
 		return;
-	}
 
 	Slot->LastFire = Slot->weapon()->ROF;
 
