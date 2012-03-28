@@ -1080,10 +1080,29 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	// The following is only drawn for viewports with a worm target
 	if( v->getType() <= VW_CYCLE ) {
 
+		{
+			// for now, until we have a better/cleaner solution, "fix" up the positions
+			HealthBar = cHealthBar1;
+			WeaponBar = cWeaponBar1;
+			*HealthLabelX = *WeaponLabelX = v->GetLeft() + 5;
+			HealthBar->SetX(*HealthLabelX);
+			WeaponBar->SetX(*HealthLabelX);
+			HealthBar->SetLabelX(*HealthLabelX + HealthBar->GetWidth() + 3);
+			WeaponBar->SetLabelX(*HealthLabelX + HealthBar->GetWidth() + 3);
+			//*HealthLabelY = v->GetTop() + v->GetVirtH() - 5 - tLX->cFont.GetHeight()*2 - HealthBar->GetHeight();
+			//HealthBar->SetLabelY(*HealthLabelY);
+			*WeaponLabelY = v->GetTop() + v->GetVirtH() - 5 - tLX->cFont.GetHeight();
+			//WeaponBar->SetLabelY(*WeaponLabelY);
+			HealthBar->SetY(v->GetTop() + v->GetVirtH() - 5 - tLX->cFont.GetHeight() - HealthBar->GetHeight()*2 - 4);
+			WeaponBar->SetY(v->GetTop() + v->GetVirtH() - 5 - tLX->cFont.GetHeight() - HealthBar->GetHeight());
+			HealthBar->SetLabelY(HealthBar->GetY() - 1);
+			WeaponBar->SetLabelY(WeaponBar->GetY());
+		}
+
 	// Draw the details only when current settings is not displayed, and don't draw for Gus
 	if (!bCurrentSettings && !(game.gameScript() && game.gameScript()->gusEngineUsed()) ) {
 		// Health
-		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
+		//tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
 		if (HealthBar)  {
 			HealthBar->SetPosition((int)worm->getHealth());
 			HealthBar->Draw(bmpDest);
@@ -1094,7 +1113,6 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		if(Slot->weapon()) {
 			std::string weapon_name = Slot->weapon()->Name;
 			stripdot(weapon_name, 100);
-			weapon_name += ":";
 			tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
 
 			if (WeaponBar)  {
