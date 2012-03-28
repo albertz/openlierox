@@ -2115,15 +2115,17 @@ void CClient::DrawLocalChat(SDL_Surface * bmpDest)
 // Draw the remote chat
 void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 {
-	if (!cChatList)
+	DeprecatedGUI::CBrowser *lv = cChatList;
+	if (!lv)
 		return;
 
-	DeprecatedGUI::CBrowser *lv = cChatList;
+	int y = tInterfaceSettings.LocalChatY;
+	if(game.hudPermanentText != "") y += tLX->cFont.GetHeight(game.hudPermanentText) + tLX->cFont.GetHeight();
+
+	lv->Setup(lv->getID(), tInterfaceSettings.LocalChatX, y, lv->getWidth(), lv->getHeight());
 
 	// Get any new lines
 	line_t l;
-	//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
-
 	while(cChatbox.GetNewLine(l)) {
 		lv->AddChatBoxLine(l.strLine, l.iColour, l.iTextType);
 	}
@@ -2147,6 +2149,30 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 	if (lv->NeedsRepaint() || tLX->bVideoModeChanged || bGameMenu || 
 			(inbox && (Mouse->deltaX || Mouse->deltaY)))
 		bRepaintChatbox = true;
+
+	// Events
+	if (lv->InBox(Mouse->X, Mouse->Y))  {
+		SetGameCursor(CURSOR_ARROW);
+		lv->showScrollbar(true);
+		lv->setFocused(true);
+
+		lv->MouseOver(Mouse);
+
+		if (Mouse->WheelScrollDown)
+			lv->MouseWheelDown(Mouse);
+		else if (Mouse->WheelScrollUp)
+			lv->MouseWheelUp(Mouse);
+
+		if (Mouse->Down)
+			lv->MouseDown(Mouse,true);
+		else if (Mouse->Up)
+			lv->MouseUp(Mouse,false);
+
+	} else {
+		SetGameCursor(CURSOR_NONE);
+		lv->showScrollbar(false);
+		lv->setFocused(false);
+	}
 
 	// TODO: ... (Issue about double buffering; see comment about it in CClient::Draw)
 	/*
@@ -2176,29 +2202,10 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		bRepaintChatbox = false;
 	}
 	else */
-		lv->Draw(bmpDest); // Chatbox in Gus has transparent background
+	lv->Draw(bmpDest); // Chatbox in Gus has transparent background
 
-	lv->setFocused(true);
-	// Events
-	if (Mouse->WheelScrollDown)
-		lv->MouseWheelDown(Mouse);
-	else if (Mouse->WheelScrollUp)
-		lv->MouseWheelUp(Mouse);
-
-	if (lv->InBox(Mouse->X, Mouse->Y))  {
-		
-		SetGameCursor(CURSOR_ARROW);
-
-		// Draw the mouse
+	if(lv->getFocused())
 		DrawCursor(bmpDest);
-		lv->MouseOver(Mouse);
-		if (Mouse->Down)
-			lv->MouseDown(Mouse,true);
-		else if (Mouse->Up)
-			lv->MouseUp(Mouse,false);
-	} else {
-		SetGameCursor(CURSOR_NONE);
-	}
 }
 
 
