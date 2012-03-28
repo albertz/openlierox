@@ -342,10 +342,7 @@ int GameServer::PrepareGame(std::string* errMsg)
 	}	
 	
 	notes << "GameServer::PrepareGame(), mod: " << gameSettings[FT_Mod].as<ModInfo>()->name.get() << ", time: " << GetDateTimeText() << endl;
-	
-	// reset here because we may set it already when we load the map and we don't want to overwrite that later on
-	cClient->SetPermanentText("");
-	
+		
 	// do after loading of mod/map because this also checks map/mod compatibility
 	// but do it anyway as early as possible
 	checkVersionCompatibilities(true);

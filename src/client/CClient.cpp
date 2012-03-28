@@ -152,7 +152,6 @@ void CClient::Clear()
 	sSpectatorViewportMsg = "";
 	bWaitingForMap = false;
 	bWaitingForMod = false;
-	permanentText = "";
 }
 
 

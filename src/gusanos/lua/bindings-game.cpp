@@ -102,7 +102,7 @@ static int l_olx_setLevelSucceeded(lua_State* L) {
 static int l_olx_message(lua_State* L) {
 	std::string msg = lua_tostring(L,1);
 	notes << "Lua: OLX message: " << msg << endl;
-	cClient->SetPermanentText(msg);
+	game.hudPermanentText = msg;
 	return 0;
 }
 		

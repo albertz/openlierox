@@ -587,10 +587,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	else
 		DrawRemoteChat(bmpDest);
 	
-	if(permanentText != "") {
+	if(game.hudPermanentText != "") {
 		int y = tInterfaceSettings.LocalChatY;
-		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, permanentText); // Shadow black
-		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, Color(200,200,255), permanentText);
+		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, game.hudPermanentText); // Shadow black
+		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, Color(200,200,255), game.hudPermanentText);
 	}
 	
 	// FPS
@@ -2089,7 +2089,7 @@ void CClient::DrawLocalChat(SDL_Surface * bmpDest)
 		return;
 
 	int y = tInterfaceSettings.LocalChatY;
-	if(permanentText != "") y += tLX->cFont.GetHeight(permanentText) + tLX->cFont.GetHeight();
+	if(game.hudPermanentText != "") y += tLX->cFont.GetHeight(game.hudPermanentText) + tLX->cFont.GetHeight();
 	
 	lines_riterator it = cChatbox.RBegin();
 	if(it != cChatbox.REnd()) it++;

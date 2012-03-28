@@ -506,9 +506,7 @@ Result Game::prepareGameloop() {
 		
 	ClearEntities();
 
-	// in server mode, server would reset this
-	if(game.isClient())
-		cClient->permanentText = "";
+	game.hudPermanentText = "";
 
 	cClient->flagInfo()->reset();
 	game.teamScores.write().resize(0);

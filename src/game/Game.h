@@ -120,6 +120,8 @@ public:
 	ATTR(Game, int, iMatchWinner, 11, {})
 	ATTR(Game, int, iMatchWinnerTeam, 12, {})
 
+	ATTR(Game, std::string, hudPermanentText, 20, {}) // drawn always on top, only reset at gamestart
+
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::vector<CWormInputHandler*> players;
 	
