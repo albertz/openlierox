@@ -1243,8 +1243,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			float y = v->GetTop();
 			float w = v->GetVirtW();
 			float h = v->GetVirtH();
-			y += h * 0.7;
-			h *= 0.3;
+			y += h * 0.8;
+			h *= 0.2;
 			h -= 2;
 			x += 2;
 			w -= 4;
