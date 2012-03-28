@@ -1720,6 +1720,38 @@ Result CWorm::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
 	return r;
 }
 
+Result wpnslot_t::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
+	Result r = CustomVar::getAttrib(key, value);
+	if(r) return true;
+
+	if(key == "weaponName") {
+		if(const weapon_t* w = weapon())
+			value = w->Name;
+		else
+			value = "";
+		return true;
+	}
+
+	return r;
+}
+
+Result wpnslot_t::setAttrib(const ScriptVar_t& key, const ScriptVar_t& value) {
+	Result r = CustomVar::setAttrib(key, value);
+	if(r) return true;
+
+	if(key == "weaponName") {
+		const weapon_t* w = game.gameScript()->FindWeapon(value);
+		if(!w)
+			return "didn't find weapon '" + value.toString() + "'";
+		if(!game.weaponRestrictions()->isEnabled(value.toString()))
+			return "weapon '" + value.toString() + "' is not enabled";
+		WeaponId = w->ID;
+		return true;
+	}
+
+	return r;
+}
+
 REGISTER_CLASS(CWorm, LuaID<CGameObject>::value)
 REGISTER_CLASS(worm_state_t, LuaID<CustomVar>::value)
 REGISTER_CLASS(wpnslot_t, LuaID<CustomVar>::value)

@@ -104,6 +104,9 @@ struct wpnslot_t : CustomVar {
 	wpnslot_t();
 	void reset();
 
+	virtual Result getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const;
+	virtual Result setAttrib(const ScriptVar_t& key, const ScriptVar_t& value);
+
 	virtual BaseObject* parentObject() const;
 	virtual std::string toString() const;
 	virtual bool fromString(const std::string & str);
