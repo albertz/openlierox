@@ -2149,6 +2149,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		bRepaintChatbox = true;
 
 	// TODO: ... (Issue about double buffering; see comment about it in CClient::Draw)
+	/*
 	if( !(game.gameScript() && game.gameScript()->gusEngineUsed()) )
 	{	
 																		// or when user is moving the mouse over the chat
@@ -2174,7 +2175,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 
 		bRepaintChatbox = false;
 	}
-	else
+	else */
 		lv->Draw(bmpDest); // Chatbox in Gus has transparent background
 
 	lv->setFocused(true);
