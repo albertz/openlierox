@@ -111,6 +111,22 @@ void Game::startGame() {
 	serverFrame = 0;
 }
 
+void Game::restartGame() {
+	if(!isServer()) {
+		errors << "restartGame as client" << endl;
+		return;
+	}
+
+	if(state >= Game::S_Preparing) {
+		state = Game::S_Lobby;
+		game.cleanupAfterGameloopEnd(); // We need a re-init. This will do it.
+	}
+
+	state = Game::S_Preparing;
+	gameOver = false;
+	serverFrame = 0;
+}
+
 void Game::gotoLobby(const std::string &reason) {
 	if(!isServer()) {
 		errors << "gotoLobby as client" << endl;

@@ -1857,6 +1857,27 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	game.startGame();
 }
 
+COMMAND(restartGame, "restart game", "", 0, 0);
+void Cmd_restartGame::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(game.state == Game::S_Inactive) {
+		caller->pushReturnArg("game state is inactive, please start lobby first");
+		return;
+	}
+
+	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
+		caller->pushReturnArg("cannot start game as client");
+		return;
+	}
+
+	if(game.worms()->size() <= 1 && !gameSettings[FT_AllowEmptyGames]) {
+		caller->pushReturnArg("cannot start game, too few players");
+		return;
+	}
+
+	game.restartGame();
+}
+
+
 COMMAND_EXTRA(map, "set map", "filename", 1, 1, paramCompleters[0] = &autoCompleteForFileListCache<mapList>);
 void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(game.isClient() || !cServer || !cServer->isServerRunning()) {
