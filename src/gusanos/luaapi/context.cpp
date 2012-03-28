@@ -1076,7 +1076,10 @@ void initLuaGlobal() {
 	luaGlobal.init();
 	LuaBindings::init(luaGlobal);
 
-	luaGlobalScript("startup.lua");
+	for_each_iterator(std::string, s, FileListIter(".", false, -1, "startup*.lua")) {
+		notes << "running Lua startup script " << s->get() << endl;
+		luaGlobalScript(s->get());
+	}
 }
 
 void quitLuaGlobal() {
