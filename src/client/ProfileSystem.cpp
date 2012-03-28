@@ -259,6 +259,7 @@ static void LoadProfile(FILE *fp)
 	p->cSkin.Colorize(p->cSkin.getDefaultColor());
 	
 	// Weapons
+	p->sWeaponSlots.resize(5);
 	for(int i=0; i<5; i++)
 		p->sWeaponSlots[i] = freadfixedcstr(fp,64);
 
@@ -287,7 +288,7 @@ void SaveProfile(FILE *fp, const SmartPointer<profile_t>& p)
 
 	// Weapons		
 	for(int i=0; i<5; i++)
-		fwrite(p->sWeaponSlots[i],		64,	fp);
+		fwrite(p->getWeaponSlot(i),		64,	fp);
 }
 
 
@@ -346,6 +347,7 @@ int AddProfile(const std::string& name, const std::string& skin, const std::stri
 
 
 	// Default weapons
+	p->sWeaponSlots.resize(5);
 	p->sWeaponSlots[0] = "minigun";
 	p->sWeaponSlots[1] = "super shotgun";
 	p->sWeaponSlots[2] = "blaster";
@@ -436,3 +438,16 @@ SmartPointer<profile_t> profileFromWormJoinInfo(const WormJoinInfo& info) {
 	return p;
 }
 
+
+std::string profile_t::getWeaponSlot(int i) {
+	if(i < 0) return "";
+	if((size_t)i >= sWeaponSlots.size()) return "";
+	return sWeaponSlots[i];
+}
+
+std::string& profile_t::writeWeaponSlot(int i) {
+	static std::string dummy;
+	if(i < 0) return dummy;
+	if((size_t)i >= sWeaponSlots.size()) return dummy;
+	return sWeaponSlots[i];
+}

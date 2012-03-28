@@ -69,9 +69,12 @@ struct profile_t {
 	std::string		sUsername;
 	std::string		sPassword;
 	Uint8			R,G,B;
-	std::string		sWeaponSlots[5];
+	std::vector<std::string>	sWeaponSlots;
 	int				iTeam;
 	CGameSkin		cSkin;
+
+	std::string getWeaponSlot(int i);
+	std::string& writeWeaponSlot(int i);
 };
 
 

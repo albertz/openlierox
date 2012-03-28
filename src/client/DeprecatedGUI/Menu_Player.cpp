@@ -370,7 +370,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 					// Shutdown
 					Menu_PlayerShutdown();
-					//SaveProfiles();
+					SaveProfiles();
 
 					// Leave
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -409,7 +409,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 					// Shutdown
 					//Menu_PlayerShutdown();
-					//SaveProfiles();
+					SaveProfiles();
 
 					//Menu_MainInitialize();
 					Menu_Player_ViewPlayerInit();
@@ -525,7 +525,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 					// Shutdown
 					Menu_PlayerShutdown();
-					//SaveProfiles();
+					SaveProfiles();
 
 					// Leave
 					PlaySoundSample(sfxGeneral.smpClick);
