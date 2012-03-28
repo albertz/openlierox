@@ -1167,7 +1167,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Find the right pic
 	int f = ((int)fFrame*7);
-	if(hackLXWormDrawInGusanos) f = (m_animator->getFrame() % 3) * 7;
+	if(hackLXWormDrawInGusanos && game.gameScript()->gusEngineUsed()) f = (m_animator->getFrame() % 3) * 7;
 	int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 	f += ang;
 
@@ -1279,7 +1279,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Copied from ::Draw
 		// TODO: a separate function for this
 		int f = ((int)fFrame*7);
-		if(hackLXWormDrawInGusanos) f = (m_animator->getFrame() % 3) * 7;
+		if(hackLXWormDrawInGusanos && game.gameScript()->gusEngineUsed()) f = (m_animator->getFrame() % 3) * 7;
 		int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 		f += ang;
 
