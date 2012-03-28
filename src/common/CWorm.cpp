@@ -1752,6 +1752,30 @@ Result wpnslot_t::setAttrib(const ScriptVar_t& key, const ScriptVar_t& value) {
 	return r;
 }
 
+Result worm_state_t::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
+	Result r = CustomVar::getAttrib(key, value);
+	if(r) return r;
+
+	if(key == "shoot") { value = bShoot; return true; }
+	if(key == "carve") { value = bCarve; return true; }
+	if(key == "move") { value = bMove; return true; }
+	if(key == "jump") { value = bJump; return true; }
+
+	return r;
+}
+
+Result worm_state_t::setAttrib(const ScriptVar_t& key, const ScriptVar_t& value) {
+	Result r = CustomVar::setAttrib(key, value);
+	if(r) return r;
+
+	if(key == "shoot") { bShoot = value.toBool(); return true; }
+	if(key == "carve") { bCarve = value.toBool(); return true; }
+	if(key == "move") { bMove = value.toBool(); return true; }
+	if(key == "jump") { bJump = value.toBool(); return true; }
+
+	return r;
+}
+
 REGISTER_CLASS(CWorm, LuaID<CGameObject>::value)
 REGISTER_CLASS(worm_state_t, LuaID<CustomVar>::value)
 REGISTER_CLASS(wpnslot_t, LuaID<CustomVar>::value)

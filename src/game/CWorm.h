@@ -128,6 +128,9 @@ struct worm_state_t : CustomVar {
 
 	virtual BaseObject* parentObject() const;
 
+	virtual Result getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const;
+	virtual Result setAttrib(const ScriptVar_t& key, const ScriptVar_t& value);
+
 	virtual CustomVar* copy() const;
 	virtual bool operator==(const CustomVar&) const;
 	virtual bool operator<(const CustomVar&) const;
