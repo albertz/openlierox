@@ -1040,6 +1040,12 @@ void Cmd_script::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	DedicatedControl::Get()->ChangeScript(script, args);
 }
 
+COMMAND(reinitLua, "reinits the global Lua context. also reloads Lua startup scripts", "", 0, 0);
+void Cmd_reinitLua::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	quitLuaGlobal();
+	initLuaGlobal();
+}
+
 COMMAND(addHuman, "add human player to game", "[profile]", 0, 1);
 void Cmd_addHuman::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
