@@ -712,6 +712,55 @@ void addGameObjectFunctions(LuaContext& context)
 	;
 }
 
+static int l_list_iterator(lua_State* L) {
+	LuaContext context(L);
+	if(!lua_istable(L, 1)) {
+		context.pushError("list iterator: bad arguments");
+		return 0;
+	}
+
+	lua_getfield(L, 1, "i");
+	int i = lua_tonumber(L, -1);
+	context.pop();
+	if(i < 0) {
+		context.pushError("list iterator: index negative");
+		return 0;
+	}
+
+	lua_getfield(L, 1, "list");
+	DynamicList* l = getObject<DynamicList>(context, -1);
+	context.pop();
+	if(!l) {
+		context.pushError("list iterator: list invalid");
+		return 0;
+	}
+
+	if((size_t)i >= l->size()) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_pushinteger(L, i + 1);
+	lua_setfield(L, 1, "i");
+
+	context.pushScriptVar(l->getGeneric((size_t)i));
+	return 1;
+}
+
+static int l_list_getIterator(lua_State* L) {
+	lua_pushcfunction(L, l_list_iterator);
+	lua_newtable(L); // state
+	{
+		lua_pushnumber(L, 0);
+		lua_setfield(L, -2, "i");
+
+		lua_pushvalue(L, 1); // the list
+		lua_setfield(L, -2, "list");
+	}
+	lua_pushnil(L);
+	return 3;
+}
+
 void initObjects(LuaContext& context)
 {
 	// The verbose commenting here is on purpose for readers not familiar with Lua.
@@ -794,6 +843,20 @@ void initObjects(LuaContext& context)
 		context.tableSetField(LuaID<CNinjaRope>::value);
 		context.tableSetField(LuaID<CGameObject>::value);
 		CNinjaRope::metaTable.create(context);
+	}
+
+	// DynamicList
+	{
+		context.newtable();
+		{
+			initBaseObjMetaTable(context, 0);
+
+			context.push("__call");
+			lua_pushcfunction(context, l_list_getIterator);
+			lua_rawset(context, -3);
+		}
+		context.tableSetField(LuaID<DynamicList>::value);
+		DynamicList::metaTable.create(context);
 	}
 
 	// ----

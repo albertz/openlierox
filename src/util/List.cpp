@@ -222,4 +222,6 @@ Result DynamicList::setAttrib(const ScriptVar_t& key, const ScriptVar_t& value) 
 	return true;
 }
 
+LuaReference DynamicList::metaTable;
+
 REGISTER_CLASS(DynamicList, LuaID<CustomVar>::value)
