@@ -288,8 +288,18 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	
 	// Get the id's
 	for(ushort i=0; i < client->connectInfo->worms.size(); i++) {
-		int id = bs->readInt(1);
-		if(game.isServer()) continue; // we already initialized them server-side
+		int id = bs->readInt(1);		
+		if(game.isServer()) {
+			// we already initialized them server-side
+			CWorm* w = game.wormById(id, false);
+			if(!w) { // very messed up
+				errors << "ParseConnected: didn't found local worm " << id << endl;
+				game.state = Game::S_Inactive;
+				return;
+			}
+			w->setProfile(client->connectInfo->worms[i]);
+			continue; // nothing more to do
+		}
 		if (id < 0 || id >= MAX_WORMS) {
 			warnings << "ParseConnected: parsed invalid id " << id << endl;
 			notes << "Something is screwed up -> reconnecting" << endl;
