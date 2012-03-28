@@ -1709,6 +1709,17 @@ CServerConnection* CWorm::ownerClient() const {
 	return getClient();
 }
 
+Result CWorm::getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const {
+	Result r = CGameObject::getAttrib(key, value);
+	if(r) return true;
+
+	if(key == "isLocal") { value = bLocal; return true; }
+	if(key == "isHuman") { value = (getType() == PRF_HUMAN); return true; }
+	if(key == "isBot") { value = (getType() == PRF_COMPUTER); return true; }
+
+	return r;
+}
+
 REGISTER_CLASS(CWorm, LuaID<CGameObject>::value)
 REGISTER_CLASS(worm_state_t, LuaID<CustomVar>::value)
 REGISTER_CLASS(wpnslot_t, LuaID<CustomVar>::value)

@@ -168,6 +168,8 @@ public:
 	virtual bool weOwnThis() const;
 	virtual CServerConnection* ownerClient() const;
 
+	virtual Result getAttrib(const ScriptVar_t& key, ScriptVar_t& value) const;
+
 private:
 	// disallow these!
 	CWorm(const CWorm&);
@@ -462,7 +464,7 @@ public:
 	void		setID(int i)				{ iID = i; }
 	int			getID()	const			{ return iID; }
 
-	WormType*	getType()				{ return m_type; }
+	WormType*	getType()	const		{ return m_type; }
     void        setType(WormType* t)        { m_type = t; }
 
 	const SmartPointer<profile_t>& getProfile() const;
