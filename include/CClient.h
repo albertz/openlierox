@@ -278,7 +278,6 @@ private:
 
 	CChatBox	cChatbox;		// Our chatbox
 	DeprecatedGUI::CBrowser	*cChatList;		// Ingame chatlist
-	bool		bRepaintChatbox;
 
 	// Send chat
 	bool		bChat_Typing;
@@ -523,7 +522,6 @@ public:
 	int			getTeamWormCount(int t) const;
 
     CChatBox    *getChatbox()           { return &cChatbox; }
-	void		setRepaintChatbox(bool _r)  { bRepaintChatbox = true; }
 
 	EngineSettings& getGameLobby()		{ return tGameInfo; }
 

@@ -1645,7 +1645,6 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 		case gm_Resume:
 			if (ev->iEventMsg == DeprecatedGUI::BTN_CLICKED)  {
 				bGameMenu = false;
-				bRepaintChatbox = true;
 				bShouldRepaintInfo = true;
 				SetGameCursor(CURSOR_NONE);
 			}
@@ -1703,7 +1702,6 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 				GotoLocalMenu();
 			} else if (!game.gameOver)  {
 				bGameMenu = false;
-				bRepaintChatbox = true;
 				bShouldRepaintInfo = true;
 				SetGameCursor(CURSOR_NONE);
 			}
@@ -2140,16 +2138,6 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 	*/
 	mouse_t *Mouse = GetMouse();
 
-	// Small hack: count the mouse height so we avoid "freezing"
-	// the mouse image when the user moves cursor away
-	int inbox = MouseInRect(lv->getX(),lv->getY() - GetCursorWidth(CURSOR_ARROW), lv->getWidth() + GetCursorWidth(CURSOR_ARROW), lv->getHeight()+GetCursorHeight(CURSOR_ARROW)) ||
-				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14 + GetCursorWidth(CURSOR_ARROW), tInterfaceSettings.ChatboxScrollbarH);
-
-	// Repainting when new messages/scrolling,
-	if (lv->NeedsRepaint() || tLX->bVideoModeChanged || bGameMenu || 
-			(inbox && (Mouse->deltaX || Mouse->deltaY)))
-		bRepaintChatbox = true;
-
 	// Events
 	if (lv->InBox(Mouse->X, Mouse->Y))  {
 		SetGameCursor(CURSOR_ARROW);
@@ -2198,8 +2186,6 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		else
 			DrawRectFill(bmpDest,165,382,541,480,tLX->clGameBackground);
 		lv->Draw(bmpDest);
-
-		bRepaintChatbox = false;
 	}
 	else */
 	lv->Draw(bmpDest); // Chatbox in Gus has transparent background

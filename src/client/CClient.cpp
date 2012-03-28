@@ -266,7 +266,6 @@ CClient::CClient() {
 	//fProjSimulateTime = 0;
 		
 	bMuted = false;
-	bRepaintChatbox = true;
 		
 	fLastFileRequest = tLX->currentTime;
 	
