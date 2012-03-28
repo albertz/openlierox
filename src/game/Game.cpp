@@ -288,8 +288,10 @@ void Game::onStateUpdate(BaseObject* oPt, const AttrDesc* attrDesc, ScriptVar_t 
 		LUACALLBACK(serverJoined).call()();
 	if((int)oldValue <= Game::S_Lobby && game.state >= Game::S_Preparing)
 		LUACALLBACK(gamePrepare).call()();
-	if((int)oldValue <= Game::S_Preparing && game.state >= Game::S_Playing)
+	if((int)oldValue <= Game::S_Preparing && game.state >= Game::S_Playing) {
 		LUACALLBACK(gameBegin).call()();
+		cClient->InitializeIngameScore(); // reinit to be sure
+	}
 	if(game.state == Game::S_Lobby)
 		LUACALLBACK(gotoLobby).call()();
 }
@@ -547,7 +549,7 @@ Result Game::prepareGameloop() {
 		game.gameMap()->SetMinimapDimensions(cClient->tInterfaceSettings.MiniMapW, cClient->tInterfaceSettings.MiniMapH);
 
 		// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
-		cClient->InitializeIngameScore(true);
+		cClient->InitializeIngameScore();
 
 		// Copy the chat text from lobby to ingame chatbox
 		if( game.isServer() && !game.isLocalGame() )

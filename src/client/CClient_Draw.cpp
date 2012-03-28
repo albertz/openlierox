@@ -100,7 +100,7 @@ bool CClient::InitializeDrawing()
 
 		FillSurface(bmpIngameScoreBg.get(), tLX->clScoreBackground);
 	}
-	InitializeIngameScore(true);
+	InitializeIngameScore();
 
 	// Local and network have different layouts and sections in the config file
 	std::string section = "";
@@ -245,7 +245,7 @@ bool CClient::InitializeDrawing()
 	cDownloadBar->SetForeColor(Color(0, 0, 200));
 
 	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
-	InitializeIngameScore(true);
+	InitializeIngameScore();
 
 
 	return true;
@@ -2594,7 +2594,7 @@ enum  {
 	sb_Right,
 };
 
-void CClient::InitializeIngameScore(bool WaitForPlayers)
+void CClient::InitializeIngameScore()
 {
 	// Clear and initialize
 	cScoreLayout.Shutdown();
@@ -2624,7 +2624,7 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 	Right->AddColumn("", 30, tLX->clHeading);
 	Left->AddColumn("Player", (game.isServer() && !game.isLocalGame()) ? 110 : 140, tLX->clHeading);  // Player
 	Right->AddColumn("Player", (game.isServer() && !game.isLocalGame()) ? 110 : 140, tLX->clHeading);
-	if (WaitForPlayers)  {
+	if (game.state <= Game::S_Preparing)  {
 		Left->AddColumn("", 120, tLX->clHeading);
 		Right->AddColumn("", 120, tLX->clHeading);
 	} else {

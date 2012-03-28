@@ -461,7 +461,7 @@ public:
 	void		DrawBonuses(SDL_Surface * bmpDest, CViewport *v);
 	void		UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListview *Right);
 	void		UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListview *Right, bool WaitForPlayers);
-	void		InitializeIngameScore(bool WaitForPlayers);
+	void		InitializeIngameScore();
 	void		DrawTime(SDL_Surface * bmpDest, int x, int y, float t);
 	void		DrawReadyOverlay(SDL_Surface * bmpDest);
 	void		DrawText(SDL_Surface * bmpDest, bool centre, int x, int y, Color fgcol, const std::string& buf);

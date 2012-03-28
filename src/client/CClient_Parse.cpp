@@ -995,7 +995,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	game.serverFrame = 0;
 
 	// Re-initialize the ingame scoreboard
-	client->InitializeIngameScore(false);
+	client->InitializeIngameScore();
 
 	// let our worms know that the game starts know
 	for_each_iterator(CWorm*, w, game.localWorms())
