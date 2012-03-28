@@ -2186,8 +2186,8 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 
 void CMap::UpdateMiniMapTransparent()
 {
-	if( !( game.gameScript() && game.gameScript()->gusEngineUsed() ) )
-		return;
+	//if( !( game.gameScript() && game.gameScript()->gusEngineUsed() ) )
+	//	return;
 	if( bmpMiniMapTransparent.get() == NULL || 
 		bmpMiniMapTransparent.get()->w != bmpMiniMap.get()->w || 
 		bmpMiniMapTransparent.get()->h != bmpMiniMap.get()->h )
@@ -2277,10 +2277,10 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt)
 		UpdateMiniMap();
 
 	// Draw the minimap
-	if( game.gameScript() && game.gameScript()->gusEngineUsed() )
+	//if( game.gameScript() && game.gameScript()->gusEngineUsed() )
 		DrawImage(bmpDest, bmpMiniMapTransparent, x, y);
-	else
-		DrawImage(bmpDest, bmpMiniMap, x, y);
+	//else
+	//	DrawImage(bmpDest, bmpMiniMap, x, y);
 
 	SetPerSurfaceAlpha(bmpMiniMap.get(), 255);
 

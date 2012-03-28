@@ -463,14 +463,16 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		return;
 	}
 
+	// bgImage is the bottom background image used in old LX
 	// Local and network use different background images
-	SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
-	if (game.isLocalGame())
-		bgImage = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
+	//SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
+	//if (game.isLocalGame())
+	//	bgImage = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
 
 	// TODO: allow more viewports
 	// Draw the borders
 
+	/*
 	if( !(game.gameScript() && game.gameScript()->gusEngineUsed()) )
 	{
 		// Fill the viewport area with black, only if map will be smaller than viewport
@@ -504,9 +506,11 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// if 2 viewports, draw special
 	if(cViewports[1].getUsed())
-		DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
+		DrawRectFill(bmpDest,640/2-2,0,640/2+2, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
+	*/
 
 	// Top bar (do not draw for Gusanos)
+	/*
 	if (tLXOptions->bTopBarVisible && !bGameMenu && 
 		(bShouldRepaintInfo || tLX->bVideoModeChanged) && 
 		!(game.gameScript() && game.gameScript()->gusEngineUsed()) )  {
@@ -516,6 +520,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		else
 			DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
 	}
+	*/
 
 	// DEBUG: draw the AI paths
 #ifdef _AI_DEBUG
@@ -546,10 +551,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		int MiniMapX = tInterfaceSettings.MiniMapX;
 		int MiniMapY = tInterfaceSettings.MiniMapY;
-		if(game.gameScript() && game.gameScript()->gusEngineUsed()) {
+		//if(game.gameScript() && game.gameScript()->gusEngineUsed()) {
 			MiniMapX = 640 - tInterfaceSettings.MiniMapW;
 			MiniMapY = 480 - tInterfaceSettings.MiniMapH;
-		}
+		//}
 
 		// Mini-Map
 		if (game.gameMap() != NULL && (bool)getGameLobby()[FT_MiniMap])  {
@@ -589,7 +594,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	
 	// FPS
 	if(tLXOptions->bShowFPS) {
-		if (tLXOptions->bTopBarVisible)  {
+		if (false /*tLXOptions->bTopBarVisible*/)  {
 			DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
 			tLX->cFont.Draw( // Draw the text
 						bmpDest,
@@ -620,7 +625,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// Ping on the top right
 	if(tLXOptions->bShowPing && game.isClient())  {
 
-		if (tLXOptions->bTopBarVisible)  {
+		if (false /*tLXOptions->bTopBarVisible*/)  {
 			// Draw the box around it
 			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
 
@@ -642,7 +647,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	}
 
 	// Draw time left
-	if((float)tGameInfo[FT_TimeLimit] > 0 && tLXOptions->bTopBarVisible)
+	if((float)tGameInfo[FT_TimeLimit] > 0 /*&& tLXOptions->bTopBarVisible*/)
 	{
 		// time left in minutes
 		float fTimeLeft = (float)tGameInfo[FT_TimeLimit] - (game.serverTime().seconds()/60.0f);
@@ -663,7 +668,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		char cstr_buf[16]; //max number of digits ever needed + ":" is 13
 		sprintf(cstr_buf,"%.2i:%.2i",iTLMinutes,iTLSeconds);
 	
-		DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
+		//DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
 		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpClock, tInterfaceSettings.TimeLeftX+1,  tInterfaceSettings.TimeLeftY+1);
 		tLX->cFont.Draw(bmpDest,tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
 	}

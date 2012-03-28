@@ -1613,7 +1613,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 
 	int h = bottombar.get() ? (480 - bottombar.get()->h - top) : (382 - top); // Height of the viewports
 
-	if( game.gameScript() && game.gameScript()->gusEngineUsed() )
+	//if( game.gameScript() && game.gameScript()->gusEngineUsed() )
 	{
 		top = 0; // Topbar is transparent
 		h = 480;
