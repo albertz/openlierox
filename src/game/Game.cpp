@@ -1049,6 +1049,7 @@ static void cleanupAfterDisconnect() {
 void Game::onPrepareWorm(CWorm* w) {
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
 	objects.insertImmediately((CGameObject*) w->getNinjaRope(), 1, 1);
+	LUACALLBACK(wormPrepare).call()(w->getLuaReference())();
 }
 
 void Game::onUnprepareWorm(CWorm* w) {

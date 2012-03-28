@@ -85,6 +85,7 @@ void LuaCallbacks::bind(const LuaContext& ctx, std::string callback, LuaReferenc
 	CB(gameBegin);
 	CB(gameOver);
 	CB(gotoLobby);
+	CB(wormPrepare);
 
 	if(idx != -1)
 		callbacks[idx].push_back(LuaCallbackRef(ctx, ref));

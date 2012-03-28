@@ -95,6 +95,7 @@ struct LuaCallbacks
 		afterUpdate,
 		wormRender,
 		viewportRender,
+		wormPrepare,
 		wormDeath,
 		wormRemoved,
 		playerUpdate,
