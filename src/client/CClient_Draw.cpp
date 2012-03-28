@@ -508,6 +508,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if(cViewports[1].getUsed())
 		DrawRectFill(bmpDest,640/2-2,0,640/2+2, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 	*/
+	DrawRectFill(bmpDest, 640/2-2, 0, 640/2+2, 480, tLX->clViewportSplit);
 
 	// Top bar (do not draw for Gusanos)
 	/*
