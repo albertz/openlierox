@@ -1074,9 +1074,7 @@ void Game::onNewPlayer(CWormInputHandler* player) {
 }
 
 void Game::onNewPlayer_Lua(CWormInputHandler* p) {
-	if(game.gameScript()->gusEngineUsed()) {
-		LUACALLBACK(playerInit).call()(p->getLuaReference())();
-	}
+	LUACALLBACK(playerInit).call()(p->getLuaReference())();
 }
 
 void Game::onRemovePlayer(CWormInputHandler* p) {
