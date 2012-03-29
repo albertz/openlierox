@@ -612,7 +612,7 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	const bool src_hasalpha = bmpSrc->format->Amask != 0;
 	const bool dst_hasalpha = bmpDest->format->Amask != 0;
 	const bool src_persurfacealpha = alphablend && (bmpSrc->format->alpha != 255);
-	const bool colorkeycheck = bmpSrc->flags & SDL_SRCCOLORKEY;
+	const bool colorkeycheck = (bmpSrc->flags & SDL_SRCCOLORKEY) != 0;
 	const bool sameformat = PixelFormatEqual(bmpSrc->format, bmpDest->format);
 	
 #define ____DO_OP(_sbpp, _dbpp, _salpha, _dalpha, _spersurfalpha, _colkeycheck, _sameformat) \
