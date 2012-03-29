@@ -821,7 +821,7 @@ static int l_system_get(lua_State* L) {
 	std::string s = s_;
 
 	if(s == "time") {
-		lua_pushinteger(L, GetTime().milliseconds());
+		lua_pushinteger(L, (lua_Integer)GetTime().milliseconds());
 		return 1;
 	}
 
