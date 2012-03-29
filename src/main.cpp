@@ -68,6 +68,10 @@
 #include <sys/stat.h>
 #endif
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 #include <libxml/parser.h>
 
 #ifdef __MINGW32_VERSION
