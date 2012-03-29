@@ -49,6 +49,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_debug</TargetName>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Albert Zeyer\Programmierung\openlierox\libs\hawknl\include;C:\Users\Albert Zeyer\Programmierung\gd-2.0.33-1-lib\include;C:\Users\Albert Zeyer\Programmierung\zlib-1.2.3-lib\include;C:\Users\Albert Zeyer\Programmierung\libcurl-7.19.3-win32-ssl-msvc\include;C:\Users\Albert Zeyer\Programmierung\libxml2-2.7.8.win32\include;C:\Users\Albert Zeyer\Programmierung\SDL_image-1.2.12\include;C:\Users\Albert Zeyer\Programmierung\freealut-1.1.0-bin\include;C:\Users\Albert Zeyer\Programmierung\libogg-1.3.0\libogg-1.3.0\include;C:\Users\Albert Zeyer\Programmierung\libvorbis-1.3.2\libvorbis-1.3.2\include;C:\Users\Albert Zeyer\Programmierung\openal-soft-1.14-bin\include;C:\Users\Albert Zeyer\Programmierung\SDL-1.2.15\include;C:\Program Files %28x86%29\boost\boost_1_47;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
@@ -262,7 +263,6 @@
     <ClInclude Include="..\..\src\util\stringbuild.h" />
     <ClInclude Include="..\..\src\util\text.h" />
     <ClInclude Include="..\..\src\util\trace.h" />
-    <ClInclude Include="..\..\src\util\vec.h" />
     <ClInclude Include="..\..\include\CBanList.h" />
     <ClInclude Include="..\..\include\CBonus.h" />
     <ClInclude Include="..\..\include\CChatBox.h" />
@@ -413,7 +413,6 @@
     <ClInclude Include="..\..\src\gusanos\part_type.h" />
     <ClInclude Include="..\..\src\gusanos\particle.h" />
     <ClInclude Include="..\..\src\gusanos\player_input.h" />
-    <ClInclude Include="..\..\src\gusanos\player_options.h" />
     <ClInclude Include="..\..\src\gusanos\posspd_replicator.h" />
     <ClInclude Include="..\..\src\gusanos\proxy_player.h" />
     <ClInclude Include="..\..\src\gusanos\resource_base.h" />
@@ -430,7 +429,6 @@
     <ClInclude Include="..\..\src\gusanos\vector_replicator.h" />
     <ClInclude Include="..\..\src\gusanos\weapon.h" />
     <ClInclude Include="..\..\src\gusanos\weapon_type.h" />
-    <ClInclude Include="..\..\src\gusanos\worm.h" />
     <ClInclude Include="..\..\src\gusanos\blitters\blitters.h" />
     <ClInclude Include="..\..\src\gusanos\blitters\colors.h" />
     <ClInclude Include="..\..\src\gusanos\blitters\context.h" />
@@ -461,7 +459,6 @@
     <ClInclude Include="..\..\src\gusanos\gui\detail\xml.h" />
     <ClInclude Include="..\..\src\gusanos\gui\lua\bindings-gui.h" />
     <ClInclude Include="..\..\src\gusanos\loaders\liero.h" />
-    <ClInclude Include="..\..\src\gusanos\loaders\LieroXLevelLoader.h" />
     <ClInclude Include="..\..\src\gusanos\loaders\losp.h" />
     <ClInclude Include="..\..\src\gusanos\loaders\vermes.h" />
     <ClInclude Include="..\..\src\gusanos\lua\bindings-game.h" />
@@ -644,7 +641,6 @@
     <ClCompile Include="..\..\src\util\log.cpp" />
     <ClCompile Include="..\..\src\util\math_func.cpp" />
     <ClCompile Include="..\..\src\util\text.cpp" />
-    <ClCompile Include="..\..\src\util\vec.cpp" />
     <ClCompile Include="..\..\src\server\CBanList.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -796,7 +792,6 @@
     <ClCompile Include="..\..\src\common\MapLoader.cpp" />
     <ClCompile Include="..\..\src\game\Mod.cpp" />
     <ClCompile Include="..\..\src\common\Physics.cpp" />
-    <ClCompile Include="..\..\src\common\PhysicsDummy.cpp" />
     <ClCompile Include="..\..\src\common\PhysicsLX56.cpp" />
     <ClCompile Include="..\..\src\common\PhysicsLX56_Projectiles.cpp" />
     <ClCompile Include="..\..\src\client\ProfileSystem.cpp">
@@ -1163,7 +1158,6 @@
     <ClCompile Include="..\..\src\gusanos\part_type.cpp" />
     <ClCompile Include="..\..\src\gusanos\particle.cpp" />
     <ClCompile Include="..\..\src\gusanos\player_input.cpp" />
-    <ClCompile Include="..\..\src\gusanos\player_options.cpp" />
     <ClCompile Include="..\..\src\gusanos\posspd_replicator.cpp" />
     <ClCompile Include="..\..\src\gusanos\proxy_player.cpp" />
     <ClCompile Include="..\..\src\gusanos\resource_base.cpp" />
@@ -1181,7 +1175,6 @@
     <ClCompile Include="..\..\src\gusanos\viewport.cpp" />
     <ClCompile Include="..\..\src\gusanos\weapon.cpp" />
     <ClCompile Include="..\..\src\gusanos\weapon_type.cpp" />
-    <ClCompile Include="..\..\src\gusanos\worm.cpp" />
     <ClCompile Include="..\..\src\gusanos\blitters\add.cpp" />
     <ClCompile Include="..\..\src\gusanos\blitters\add_simd.cpp" />
     <ClCompile Include="..\..\src\gusanos\blitters\blend.cpp" />
@@ -1224,7 +1217,6 @@
     <ClCompile Include="..\..\src\gusanos\gui\detail\xml.cpp" />
     <ClCompile Include="..\..\src\gusanos\gui\lua\bindings-gui.cpp" />
     <ClCompile Include="..\..\src\gusanos\loaders\liero.cpp" />
-    <ClCompile Include="..\..\src\gusanos\loaders\LieroXLevelLoader.cpp" />
     <ClCompile Include="..\..\src\gusanos\loaders\losp.cpp" />
     <ClCompile Include="..\..\src\gusanos\loaders\vermes.cpp" />
     <ClCompile Include="..\..\src\gusanos\lua\bindings-game.cpp" />
