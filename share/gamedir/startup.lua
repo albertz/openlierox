@@ -1,5 +1,16 @@
 print("Hello from Lua")
 
+do
+	local t = 0
+	local f
+	function f()
+		print("timer demo ", t)
+		t = t + 1
+		if t <= 5 then setTimeout(f, 1000) end
+	end
+	f()
+end
+
 function bindings.exit()
 	print("Good Bye from Lua")
 end
