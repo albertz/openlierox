@@ -32,7 +32,7 @@ class CChannel;
 class CWorm;
 class GameServer;
 class CServerNetEngine;
-class GameState;
+struct GameState;
 
 
 // Client rights on a server
