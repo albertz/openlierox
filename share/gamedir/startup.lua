@@ -1,10 +1,10 @@
-print("Hello from Lua")
+print("Hello from Lua, ", system.version)
 
 do
 	local t = 0
 	local f
 	function f()
-		print("timer demo ", t)
+		print("timer demo ", t, ", cur time: ", system.time)
 		t = t + 1
 		if t <= 5 then setTimeout(f, 1000) end
 	end
