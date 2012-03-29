@@ -438,7 +438,7 @@ Iterator<std::string>::Ref FileListIter(
 	const std::string& namefilter = "*");
 
 
-class Command;
+struct Command;
 struct AutocompleteRequest;
 
 class FileListCacheIntf {
