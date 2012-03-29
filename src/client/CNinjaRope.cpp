@@ -112,7 +112,7 @@ void CNinjaRope::Shoot(CVec dir)
 	if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
 		velocity() += owner()->getVelocity();
 
-	m_length = gusGame.options.ninja_rope_startDistance;
+	m_length = (float)(int)gusGame.options.ninja_rope_startDistance;
 	m_angle = Vec(velocity()).getAngle();
 	m_angleSpeed = 0;
 
