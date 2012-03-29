@@ -67,10 +67,10 @@ uint8_t worm_state_t::asInt() const {
 }
 
 void worm_state_t::fromInt(uint8_t i) {
-	bShoot = i & 1;
-	bCarve = i & 2;
-	bMove = i & 4;
-	bJump = i & 8;
+	bShoot = (i & 1) != 0;
+	bCarve = (i & 2) != 0;
+	bMove = (i & 4) != 0;
+	bJump = (i & 8) != 0;
 }
 
 BaseObject* worm_state_t::parentObject() const {
@@ -204,9 +204,9 @@ CWorm::CWorm() :
 	cOwner = NULL;
 
 	iFaceDirectionSide = DIR_RIGHT;
-	fAngle = 0;
-	fAngleSpeed = 0;
-	fMoveSpeedX = 0;
+	fAngle = 0.f;
+	fAngleSpeed = 0.f;
+	fMoveSpeedX = 0.f;
 	fFrame = 0;
 	bDrawMuzzle = false;
 	bVisibleForWorm.write().resize(0);
@@ -406,7 +406,7 @@ void CWorm::Unprepare() {
 	}
 
 	bAlive = false;
-	health = 0;
+	health = 0.f;
 	bWeaponsReady = false;
 	setLobbyReady( false );
 	
@@ -599,9 +599,9 @@ void CWorm::Spawn(CVec position) {
 
 	// Reset the weapons
 	for(ushort n = 0; n < tWeapons.size(); n++) {
-		weaponSlots.write()[n].Charge = 1;
+		weaponSlots.write()[n].Charge = 1.f;
 		weaponSlots.write()[n].Reloading = false;
-		weaponSlots.write()[n].LastFire = 0;
+		weaponSlots.write()[n].LastFire = 0.f;
 	}
 
 	m_lastHurt = NULL;
