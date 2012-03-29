@@ -1408,7 +1408,7 @@ bool CWorm::GiveBonus(CBonus *b)
 		// Replace our current weapon
 		if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
 			writeCurWeapon()->WeaponId = b->getWeapon();
-			writeCurWeapon()->Charge = 1;
+			writeCurWeapon()->Charge = 1.f;
 			writeCurWeapon()->Reloading = false;
 		}
 		else {
