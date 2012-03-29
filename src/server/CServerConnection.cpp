@@ -120,7 +120,7 @@ int CServerConnection::getConnectionArrayIndex() {
 
 ///////////////////
 // Return true if we own the worm
-int CServerConnection::OwnsWorm(int id)
+bool CServerConnection::OwnsWorm(int id)
 {
 	CWorm* w = game.wormById(id, false);
 	if(!w) return false;
