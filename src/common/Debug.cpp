@@ -181,7 +181,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 	if (!tLXOptions || !tLX)
 		return buffer;
 	char tmp[32];
-	__try  {
+	try  {
 		// Game type
 		strncat(buffer, "iGameType = ", bufsize);
 		if(game.isLocalGame())
@@ -284,7 +284,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		}
 
 		buffer[bufsize - 1] = '\0';
-	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	} catch (...) {
 		return buffer;
 	}
 	return buffer;
