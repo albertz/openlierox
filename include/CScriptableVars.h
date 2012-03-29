@@ -342,7 +342,7 @@ public:
 	bool toBool() const { return toFloat() != 0.f; }
 	template<typename T> T toNumericType() const {
 		switch(type) {
-		case SVT_BOOL: return b ? 1 : 0;
+		case SVT_BOOL: return b ? (T)1 : (T)0;
 		case SVT_INT32: return (T)i;
 		case SVT_UINT64: return (T)i_uint64;
 		case SVT_FLOAT: return (T)f;
