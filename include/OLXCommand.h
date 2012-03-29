@@ -89,6 +89,21 @@ struct CmdLineIntf {
 };
 
 
+struct CommandDesc {
+	std::string name;
+	std::string desc;
+	std::string usage;
+	unsigned int minParams, maxParams;
+
+	CommandDesc() : minParams(0), maxParams(0) {}
+	virtual ~CommandDesc() {}
+
+	virtual void exec(CmdLineIntf* caller, const std::vector<std::string>& params) = 0;
+};
+
+CommandDesc* GetCommandDesc(const std::string& cmdname);
+
+
 // Pushs a command into the command queue. This will not do any parsing nor executing.
 // All that is done when you call HandlePendingCommands().
 void Execute(const CmdLineIntf::Command& cmd);

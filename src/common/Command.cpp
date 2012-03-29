@@ -287,18 +287,11 @@ static CWorm* CheckWorm(CmdLineIntf* caller, int id, const std::string& request)
 
 
 
-class Command;
+struct Command;
 typedef bool (*AutoCompleteFct) (Command*, AutocompleteRequest&);
 
 
-class Command {
-public:
-	virtual ~Command() {}
-	
-	std::string name;
-	std::string desc;
-	std::string usage;
-	unsigned int minParams, maxParams;
+struct Command : CommandDesc {
 	std::map<unsigned int, AutoCompleteFct> paramCompleters;
 	bool hidden;
 
@@ -323,6 +316,8 @@ public:
 		return usageStr() + " - " + desc;
 	}
 	
+	virtual void exec(CmdLineIntf* caller, const std::vector<std::string>& params) = 0;
+
 	void exec(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> ps = ParseParams(params);
 		
@@ -368,9 +363,6 @@ public:
 		}
 		return CheckWorm(caller, id, name);
 	}
-	
-protected:
-	virtual void exec(CmdLineIntf* caller, const std::vector<std::string>& params) = 0;
 	
 };
 
@@ -514,11 +506,15 @@ bool autoCompleteForFileListCache(Command*, AutocompleteRequest& request) {
 
 ///////////////////
 // Find a command with the same name
-Command *Cmd_GetCommand(const std::string& strName)
+static Command *Cmd_GetCommand(const std::string& strName)
 {
 	CommandMap::iterator it = commands.find(strName);
 	if(it != commands.end()) return it->second;
 	return NULL;
+}
+
+CommandDesc* GetCommandDesc(const std::string& cmdname) {
+	return Cmd_GetCommand(cmdname);
 }
 
 static void registerCommand(const std::string& name, Command* cmd) {
@@ -544,16 +540,14 @@ static void registerCommand(Command* cmd) {
 #endif
 
 #define COMMAND_EXTRA(_name, _desc, _us, _minp, _maxp, extras) \
-	class Cmd_##_name : public Command { \
-	public: \
+	struct Cmd_##_name : public Command { \
 		Cmd_##_name() { \
 			name = TOSTRING(_name); desc = _desc; usage = _us; minParams = _minp; maxParams = _maxp; \
 			hidden = false; \
 			{ extras; } \
 			registerCommand(this); \
 		} \
-	protected: \
-		void exec(CmdLineIntf* caller, const std::vector<std::string>& params); \
+		virtual void exec(CmdLineIntf* caller, const std::vector<std::string>& params); \
 	} \
 	__cmd_##_name;
 
