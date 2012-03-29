@@ -43,6 +43,7 @@ public:
 
 #define itoa _itoa
 
+#include <Windows.h>
 #include <DbgHelp.h>
 #include <ShlObj.h>
 #include "FindFile.h" // for IsFileAvailable and mkdir
