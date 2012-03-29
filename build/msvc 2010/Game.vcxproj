@@ -235,6 +235,7 @@
     <ClInclude Include="..\..\include\XMLutils.h" />
     <ClInclude Include="..\..\src\cfg\client.h" />
     <ClInclude Include="..\..\src\client\gfx\raytracing.h" />
+    <ClInclude Include="..\..\src\client\StdinCLISupport.h" />
     <ClInclude Include="..\..\src\game\Attr.h" />
     <ClInclude Include="..\..\src\game\CGameObject.h" />
     <ClInclude Include="..\..\src\game\ClassInfo.h" />
@@ -252,6 +253,7 @@
     <ClInclude Include="..\..\src\gusanos\luaapi\context.h" />
     <ClInclude Include="..\..\src\gusanos\luaapi\macros.h" />
     <ClInclude Include="..\..\src\gusanos\luaapi\types.h" />
+    <ClInclude Include="..\..\src\gusanos\LuaCallbacks.h" />
     <ClInclude Include="..\..\src\MainLoop.h" />
     <ClInclude Include="..\..\src\sound\sfx.h" />
     <ClInclude Include="..\..\src\sound\sfxdriver.h" />
@@ -511,6 +513,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\..\src\client\gfx\raytracing.cpp" />
+    <ClCompile Include="..\..\src\client\StdinCLISupport.cpp" />
     <ClCompile Include="..\..\src\common\CBytestream.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -655,6 +658,7 @@
     <ClCompile Include="..\..\src\gusanos\luaapi\context.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/context_lua.obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\LuaCallbacks.cpp" />
     <ClCompile Include="..\..\src\MainLoop.cpp" />
     <ClCompile Include="..\..\src\sound\sfx.cpp" />
     <ClCompile Include="..\..\src\sound\sfxdriver.cpp" />
