@@ -22,6 +22,7 @@
 #include "gusanos/weapon_type.h"
 #include "CServerConnection.h" // ClientRights
 #include "OLXCommand.h"
+#include "Timer.h"
 
 #include <cmath>
 #include <iostream>
@@ -809,6 +810,59 @@ static void initCommandsWrapper(LuaContext& context) {
 	}
 }
 
+struct Data_lua_setTimeout {
+	LuaReference ref;
+	LuaContext context;
+};
+
+static void lua_setTimeout_callback(Timer::EventData ev) {
+	Data_lua_setTimeout* data = (Data_lua_setTimeout*)ev.userData;
+
+	if(data->context) {
+		// error func
+		lua_pushcfunction(data->context, LuaContext::errorReport);
+		// callback func
+		data->ref.push(data->context);
+
+		int result = lua_pcall(data->context, 0, 0, -2);
+
+		switch(result) {
+		case LUA_ERRRUN:
+		case LUA_ERRMEM:
+		case LUA_ERRERR:
+			warnings << "Lua setTimeout exec error: " + std::string(data->context.tostring(-1)) << endl;
+			data->context.pop(1); // pop error message
+		}
+
+		data->context.pop(1); // pop error func
+	}
+
+	data->ref.destroy();
+	delete data;
+}
+
+static int l_setTimeout(lua_State* L) {
+	LuaContext context(L);
+	if(!lua_isnumber(L, 2)) {
+		context.pushError("bad arguments");
+		return 0;
+	}
+	int msec = lua_tointeger(L, 2);
+	if(msec < 0) {
+		context.pushError("bad arguments. time must be >= 0");
+		return 0;
+	}
+
+	Data_lua_setTimeout* data = new Data_lua_setTimeout;
+	lua_pushvalue(L, 1);
+	data->ref.create(context);
+	data->context = context;
+
+	Timer("Lua timer", lua_setTimeout_callback, data, msec, true).startHeadless();
+
+	return 0;
+}
+
 void initGame(LuaContext& context)
 {	
 	context.function("game_players", l_game_players);
@@ -827,6 +881,8 @@ void initGame(LuaContext& context)
 		initCommandsWrapper(context);
 		lua_setfield(context, LUA_GLOBALSINDEX, "commands");
 	}
+
+	context.function("setTimeout", l_setTimeout);
 
 	context.functions()
 		("game_local_player", l_game_localPlayer)
