@@ -491,12 +491,12 @@ static void simulateWormWeapon(TimeDiff dt, CWorm* worm) {
 
 	if(Slot->Reloading) {
 		if((int)cClient->getGameLobby()[FT_LoadingTime] == 0)
-			Slot->Charge = 1;
+			Slot->Charge = 1.f;
 		else
 			Slot->Charge += fabs((float)dt.seconds()) * (Slot->weapon()->Recharge * (1.0f/((int)cClient->getGameLobby()[FT_LoadingTime] * 0.01f)));
 
-		if(Slot->Charge >= 1) {
-			Slot->Charge = 1;
+		if(Slot->Charge >= 1.f) {
+			Slot->Charge = 1.f;
 			Slot->Reloading = false;
 		}
 	}
@@ -541,7 +541,7 @@ static void simulateNinjarope(float dt, CWorm* owner) {
 		const float length2 = (playerpos - rope->hookPos()) . GetLength2();
 
 		// Check if it's too long
-		const float ropeMaxLength = (int)cClient->getGameLobby()[FT_RopeMaxLength];
+		const float ropeMaxLength = (float)(int)cClient->getGameLobby()[FT_RopeMaxLength];
 		if(length2 > ropeMaxLength * ropeMaxLength) {
 			rope->hookVelocity() = CVec(0,0);
 			rope->setShooting( false );
@@ -552,7 +552,7 @@ static void simulateNinjarope(float dt, CWorm* owner) {
 
 		// Going towards the player
 		const float length2 = (playerpos - rope->hookPos()) . GetLength2();
-		const float ropeRestLength = (int)cClient->getGameLobby()[FT_RopeRestLength];
+		const float ropeRestLength = (float)(int)cClient->getGameLobby()[FT_RopeRestLength];
 		if(length2 > ropeRestLength * ropeRestLength) {
 
 			// Pull the hook back towards the player
