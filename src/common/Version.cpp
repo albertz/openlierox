@@ -7,11 +7,13 @@
  code under LGPL
  */
 
+#ifndef ONLY_MACRODEF
 #include "Version.h"
 #include "LieroX.h"
 #include "Debug.h"
 #include "AuxLib.h"
 #include "CodeAttributes.h"
+#endif
 
 
 #include "Version_generated.h"
