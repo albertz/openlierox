@@ -49,7 +49,8 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_debug</TargetName>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Albert Zeyer\Programmierung\openlierox\libs\hawknl\include;C:\Users\Albert Zeyer\Programmierung\gd-2.0.33-1-lib\include;C:\Users\Albert Zeyer\Programmierung\zlib-1.2.3-lib\include;C:\Users\Albert Zeyer\Programmierung\libcurl-7.19.3-win32-ssl-msvc\include;C:\Users\Albert Zeyer\Programmierung\libxml2-2.7.8.win32\include;C:\Users\Albert Zeyer\Programmierung\SDL_image-1.2.12\include;C:\Users\Albert Zeyer\Programmierung\freealut-1.1.0-bin\include;C:\Users\Albert Zeyer\Programmierung\libogg-1.3.0\libogg-1.3.0\include;C:\Users\Albert Zeyer\Programmierung\libvorbis-1.3.2\libvorbis-1.3.2\include;C:\Users\Albert Zeyer\Programmierung\openal-soft-1.14-bin\include;C:\Users\Albert Zeyer\Programmierung\SDL-1.2.15\include;C:\Program Files %28x86%29\boost\boost_1_47;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Albert Zeyer\Programmierung\SDL_image-1.2.12\lib\x86;C:\Users\Albert Zeyer\Programmierung\openlierox\libs\hawknl\include;C:\Users\Albert Zeyer\Programmierung\gd-2.0.33-1-lib\include;C:\Users\Albert Zeyer\Programmierung\zlib-1.2.3-lib\include;C:\Users\Albert Zeyer\Programmierung\libcurl-7.19.3-win32-ssl-msvc\include;C:\Users\Albert Zeyer\Programmierung\libxml2-2.7.8.win32\include;C:\Users\Albert Zeyer\Programmierung\SDL_image-1.2.12\include;C:\Users\Albert Zeyer\Programmierung\freealut-1.1.0-bin\include;C:\Users\Albert Zeyer\Programmierung\libogg-1.3.0\libogg-1.3.0\include;C:\Users\Albert Zeyer\Programmierung\libvorbis-1.3.2\libvorbis-1.3.2\include;C:\Users\Albert Zeyer\Programmierung\openal-soft-1.14-bin\include;C:\Users\Albert Zeyer\Programmierung\SDL-1.2.15\include;C:\Program Files %28x86%29\boost\boost_1_47;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Program Files %28x86%29\boost\boost_1_47\lib;C:\Users\Albert Zeyer\Programmierung\SDL_image-1.2.12\lib\x86;C:\Users\Albert Zeyer\Programmierung\SDL-1.2.15\lib\x86;C:\Users\Albert Zeyer\Programmierung\libogg-1.3.0\libogg-1.3.0\win32\VS2010\Win32\Debug;C:\Users\Albert Zeyer\Programmierung\libcurl-7.19.3-win32-ssl-msvc\lib\Debug;C:\Users\Albert Zeyer\Programmierung\zlib-1.2.3-lib\lib;C:\Users\Albert Zeyer\Programmierung\libvorbis-1.3.2\libvorbis-1.3.2\win32\VS2010\Win32\Debug;C:\Users\Albert Zeyer\Programmierung\freealut-1.1.0-bin\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
@@ -93,7 +94,7 @@
       <AdditionalIncludeDirectories>../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;wininet.lib;$(ProjectDir)\..\msvc\libs\NLstatic.lib;$(ProjectDir)\..\msvc\libs\libzip.lib;$(ProjectDir)\..\msvc\libs\zlib.lib;$(ProjectDir)\..\msvc\libs\curllib.lib;$(ProjectDir)\$(Configuration)\BreakPad.lib;$(VSInstallDir)\DIA SDK\lib\diaguids.lib;alut.lib;libvorbis_static.lib;libvorbisfile_static.lib;libogg_static.lib;SDLmain.lib;SDL.lib;SDL_image.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;wininet.lib;$(ProjectDir)\..\msvc\libs\libzip.lib;$(ProjectDir)\..\msvc\libs\NLstatic.lib;zlib.lib;curllib.lib;$(ProjectDir)\$(Configuration)\BreakPad.lib;$(VSInstallDir)\DIA SDK\lib\diaguids.lib;alut.lib;libvorbis.lib;libvorbisfile.lib;libogg.lib;SDLmain.lib;SDL.lib;SDL_image.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../bin/OpenLieroX_debug.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBC;msvcrt.lib;LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -234,7 +235,14 @@
     <ClInclude Include="..\..\include\XMLutils.h" />
     <ClInclude Include="..\..\src\cfg\client.h" />
     <ClInclude Include="..\..\src\client\gfx\raytracing.h" />
+    <ClInclude Include="..\..\src\game\Attr.h" />
+    <ClInclude Include="..\..\src\game\CGameObject.h" />
+    <ClInclude Include="..\..\src\game\ClassInfo.h" />
+    <ClInclude Include="..\..\src\game\CMap.h" />
+    <ClInclude Include="..\..\src\game\CWorm.h" />
+    <ClInclude Include="..\..\src\game\EngineSettings.h" />
     <ClInclude Include="..\..\src\game\GameMode.h" />
+    <ClInclude Include="..\..\src\game\GameState.h" />
     <ClInclude Include="..\..\src\game\ServerList.h" />
     <ClInclude Include="..\..\src\game\Settings.h" />
     <ClInclude Include="..\..\src\game\SettingsPreset.h" />
@@ -244,6 +252,7 @@
     <ClInclude Include="..\..\src\gusanos\luaapi\context.h" />
     <ClInclude Include="..\..\src\gusanos\luaapi\macros.h" />
     <ClInclude Include="..\..\src\gusanos\luaapi\types.h" />
+    <ClInclude Include="..\..\src\MainLoop.h" />
     <ClInclude Include="..\..\src\sound\sfx.h" />
     <ClInclude Include="..\..\src\sound\sfxdriver.h" />
     <ClInclude Include="..\..\src\sound\sfxdriver_openal.h" />
@@ -251,16 +260,26 @@
     <ClInclude Include="..\..\src\sound\sound_sample.h" />
     <ClInclude Include="..\..\src\sound\sound_sample_openal.h" />
     <ClInclude Include="..\..\src\util\angle.h" />
+    <ClInclude Include="..\..\src\util\BaseObject.h" />
     <ClInclude Include="..\..\src\util\bitarray.h" />
     <ClInclude Include="..\..\src\util\Bitstream.h" />
     <ClInclude Include="..\..\src\util\common.h" />
     <ClInclude Include="..\..\src\util\compare.h" />
+    <ClInclude Include="..\..\src\util\CustomVar.h" />
+    <ClInclude Include="..\..\src\util\FixedPointNumber.h" />
     <ClInclude Include="..\..\src\util\GusCache.h" />
+    <ClInclude Include="..\..\src\util\IPrintOutFct.h" />
+    <ClInclude Include="..\..\src\util\List.h" />
     <ClInclude Include="..\..\src\util\log.h" />
     <ClInclude Include="..\..\src\util\macros.h" />
     <ClInclude Include="..\..\src\util\math_func.h" />
+    <ClInclude Include="..\..\src\util\PODForClass.h" />
+    <ClInclude Include="..\..\src\util\Random.h" />
     <ClInclude Include="..\..\src\util\rect.h" />
+    <ClInclude Include="..\..\src\util\Result.h" />
+    <ClInclude Include="..\..\src\util\StaticVar.h" />
     <ClInclude Include="..\..\src\util\stringbuild.h" />
+    <ClInclude Include="..\..\src\util\StringConv.h" />
     <ClInclude Include="..\..\src\util\text.h" />
     <ClInclude Include="..\..\src\util\trace.h" />
     <ClInclude Include="..\..\include\CBanList.h" />
@@ -321,6 +340,8 @@
     <ClInclude Include="..\..\include\DeprecatedGUI\CWidgetList.h" />
     <ClInclude Include="..\..\include\DeprecatedGUI\Graphics.h" />
     <ClInclude Include="..\..\include\DeprecatedGUI\Menu.h" />
+    <ClInclude Include="..\..\src\util\VecTimeRecorder.h" />
+    <ClInclude Include="..\..\src\util\WeakRef.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\..\include\con_cmd.h" />
     <ClInclude Include="..\..\include\Console.h" />
@@ -619,7 +640,13 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\..\src\common\XMLutils.cpp" />
+    <ClCompile Include="..\..\src\game\Attr.cpp" />
+    <ClCompile Include="..\..\src\game\ClassInfo.cpp" />
     <ClCompile Include="..\..\src\game\GameMode.cpp" />
+    <ClCompile Include="..\..\src\game\GameState.cpp" />
+    <ClCompile Include="..\..\src\game\Game_loadMap.cpp" />
+    <ClCompile Include="..\..\src\game\Game_loadMod.cpp" />
+    <ClCompile Include="..\..\src\game\Game_loadWeaponRestrictions.cpp" />
     <ClCompile Include="..\..\src\game\ServerList.cpp" />
     <ClCompile Include="..\..\src\game\Settings.cpp" />
     <ClCompile Include="..\..\src\game\SettingsPreset.cpp" />
@@ -628,6 +655,7 @@
     <ClCompile Include="..\..\src\gusanos\luaapi\context.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/context_lua.obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\..\src\MainLoop.cpp" />
     <ClCompile Include="..\..\src\sound\sfx.cpp" />
     <ClCompile Include="..\..\src\sound\sfxdriver.cpp" />
     <ClCompile Include="..\..\src\sound\sfxdriver_openal.cpp" />
@@ -637,9 +665,13 @@
     </ClCompile>
     <ClCompile Include="..\..\src\sound\sound_sample_openal.cpp" />
     <ClCompile Include="..\..\src\util\angle.cpp" />
+    <ClCompile Include="..\..\src\util\BaseObject.cpp" />
     <ClCompile Include="..\..\src\util\Bitstream.cpp" />
+    <ClCompile Include="..\..\src\util\CustomVar.cpp" />
+    <ClCompile Include="..\..\src\util\List.cpp" />
     <ClCompile Include="..\..\src\util\log.cpp" />
     <ClCompile Include="..\..\src\util\math_func.cpp" />
+    <ClCompile Include="..\..\src\util\StringConv.cpp" />
     <ClCompile Include="..\..\src\util\text.cpp" />
     <ClCompile Include="..\..\src\server\CBanList.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -1232,6 +1264,7 @@
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
     </ClCompile>
     <ClCompile Include="..\..\src\gusanos\omfgscript\omfg_script.cpp" />
+    <ClCompile Include="..\..\src\util\VecTimeRecorder.cpp" />
     <ClCompile Include="..\msvc\openal_initializer_finalizer.cpp" />
   </ItemGroup>
   <ItemGroup>

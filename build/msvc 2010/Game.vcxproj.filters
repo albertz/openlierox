@@ -935,6 +935,66 @@
     <ClInclude Include="..\..\src\client\gfx\raytracing.h">
       <Filter>Game files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\util\BaseObject.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\CustomVar.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\FixedPointNumber.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\IPrintOutFct.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\List.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\PODForClass.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\Random.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\Result.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\StaticVar.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\StringConv.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\VecTimeRecorder.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\WeakRef.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\MainLoop.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Attr.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\CGameObject.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\ClassInfo.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\CMap.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\CWorm.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\EngineSettings.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\GameState.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\breakpad\BreakPad.cpp">
@@ -1812,6 +1872,42 @@
     </ClCompile>
     <ClCompile Include="..\..\src\common\SmartPointer.cpp">
       <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\BaseObject.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\CustomVar.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\List.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\StringConv.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\VecTimeRecorder.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\MainLoop.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Attr.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\ClassInfo.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Game_loadMap.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Game_loadMod.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Game_loadWeaponRestrictions.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\GameState.cpp">
+      <Filter>Game files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
