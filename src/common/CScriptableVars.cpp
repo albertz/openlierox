@@ -127,11 +127,11 @@ Color ScriptVar_t::toColor() const {
 CVec ScriptVar_t::toVec2() const {
 	switch(type) {
 	case SVT_BOOL: return b ? CVec(1, 0) : CVec();
-	case SVT_INT32: return CVec(i, 0);
-	case SVT_UINT64: return CVec(i_uint64, 0);
+	case SVT_INT32: return CVec((float)i, 0);
+	case SVT_UINT64: return CVec((float)i_uint64, 0);
 	case SVT_FLOAT: return CVec(f, 0);
 	case SVT_STRING: return from_string<CVec>(str.get());
-	case SVT_COLOR: return CVec(col.get().getDefault(), 0);
+	case SVT_COLOR: return CVec((float)col.get().getDefault(), 0);
 	case SVT_VEC2: return vec2.get();
 	case SVT_CUSTOM: return from_string<CVec>(toString());
 	case SVT_CustomWeakRefToStatic: return from_string<CVec>(toString());
