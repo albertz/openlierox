@@ -27,6 +27,9 @@
 
 #include "gusanos/allegro.h"
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
 
 
 // Keyboard, Mouse, & Event
