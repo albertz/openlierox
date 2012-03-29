@@ -21,6 +21,7 @@
 #include "OLXCommand.h"
 #include "gusanos/weapon_type.h"
 #include "CServerConnection.h" // ClientRights
+#include "OLXCommand.h"
 
 #include <cmath>
 #include <iostream>
@@ -718,6 +719,96 @@ static void initSettingsWrapper(LuaContext& context, const std::string& snamespa
 	}
 }
 
+static int l_commands_exec(lua_State* L) {
+	LuaContext context(L);
+
+	if(context != luaGlobal) {
+		context.pushError("OLX command execution only allowed from global Lua");
+		return 0;
+	}
+
+	const char* cmdname = lua_tostring(context, lua_upvalueindex(1));
+	if(!cmdname) {
+		context.pushError("bad closure value");
+		return 0;
+	}
+
+	CommandDesc* cmd = GetCommandDesc(cmdname);
+	if(!cmd) {
+		context.pushError("bad closure value. no command named '" + std::string(cmdname) + "'");
+		return 0;
+	}
+
+	unsigned int nargs = lua_gettop(L);
+	if(nargs < cmd->minParams) {
+		context.pushError("too less args (" + itoa(nargs) + ") given, " + itoa(cmd->minParams) + " needed");
+		return 0;
+	}
+	if(nargs > cmd->maxParams) {
+		context.pushError("too much args (" + itoa(nargs) + ") given, " + itoa(cmd->maxParams) + " maximum");
+		return 0;
+	}
+
+	std::vector<std::string> args(nargs);
+	for(unsigned int i = 0; i < nargs; ++i)
+		args[i] = context.convert_tostring(i + 1);
+
+	struct LuaContextCLI : CmdLineIntf {
+		LuaContext& context;
+		int nreturns;
+		LuaContextCLI(LuaContext& c_) : context(c_), nreturns(0) {}
+
+		virtual void pushReturnArg(const std::string& str) {
+			context.push(str);
+			nreturns++;
+		}
+		virtual void finalizeReturn() {}
+
+		virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
+			lua_getfield(context, LUA_GLOBALSINDEX, "print");
+			context.push(msg);
+			lua_call(context, 1, 0);
+		}
+	};
+	LuaContextCLI cli(context);
+
+	cmd->exec(&cli, args);
+	return cli.nreturns;
+}
+
+static int l_commands_get(lua_State* L) {
+	LuaContext context(L);
+
+	const char* cmdname = lua_tostring(context, 2);
+	if(!cmdname) {
+		context.pushError("bad arguments");
+		return 0;
+	}
+
+	CommandDesc* cmd = GetCommandDesc(cmdname);
+	if(!cmd) {
+		context.pushError("no command named '" + std::string(cmdname) + "'");
+		return 0;
+	}
+
+	lua_pushstring(context, cmdname);
+	lua_pushcclosure(context, l_commands_exec, 1);
+	return 1;
+}
+
+static void initCommandsWrapper(LuaContext& context) {
+	context.newtable();
+	{
+		context.newtable(); // meta
+		{
+			context.push("__index");
+			lua_pushcfunction(context, l_commands_get);
+			lua_rawset(context, -3);
+		}
+		lua_setmetatable(context, -2);
+	}
+}
+
 void initGame(LuaContext& context)
 {	
 	context.function("game_players", l_game_players);
@@ -731,6 +822,10 @@ void initGame(LuaContext& context)
 	{
 		initSettingsWrapper(context, "");
 		lua_setfield(context, LUA_GLOBALSINDEX, "settings");
+	}
+	{
+		initCommandsWrapper(context);
+		lua_setfield(context, LUA_GLOBALSINDEX, "commands");
 	}
 
 	context.functions()
