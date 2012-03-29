@@ -137,7 +137,7 @@ struct GridObjectList
 	
 	struct const_iterator
 	{
-		friend struct List;
+		friend struct GridObjectList;
 		
 		const_iterator()
 		: ptr(0)
