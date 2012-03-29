@@ -33,17 +33,17 @@ GameStateUpdates::operator bool() const {
 
 void GameStateUpdates::writeToBs(CBytestream* bs, const GameState& oldState) const {
 	bs->writeInt16((uint16_t)objCreations.size());
-	foreach(o, objCreations) {
+	const_foreach(o, objCreations) {
 		o->writeToBs(bs);
 	}
 
 	bs->writeInt16((uint16_t)objDeletions.size());
-	foreach(o, objDeletions) {
+	const_foreach(o, objDeletions) {
 		o->writeToBs(bs);
 	}
 
 	bs->writeInt((uint32_t)objs.size(), 4);
-	foreach(a, objs) {
+	const_foreach(a, objs) {
 		const ObjAttrRef& attr = *a;
 		ScriptVar_t curValue = a->get();
 		attr.writeToBs(bs);
