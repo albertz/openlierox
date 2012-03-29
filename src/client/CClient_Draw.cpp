@@ -1258,12 +1258,12 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		if(worm && !worm->getAlive() && worm->getLives() != WRM_OUT) {
 			SDL_Rect rect = v->getRect();
 			ScopedSurfaceClip clip(bmpDest, rect);
-			float x = v->GetLeft();
-			float y = v->GetTop();
-			float w = v->GetVirtW();
-			float h = v->GetVirtH();
-			y += h * 0.8;
-			h *= 0.2;
+			float x = (float)v->GetLeft();
+			float y = (float)v->GetTop();
+			float w = (float)v->GetVirtW();
+			float h = (float)v->GetVirtH();
+			y += h * 0.8f;
+			h *= 0.2f;
 			h -= 2;
 			x += 2;
 			w -= 4;
@@ -1291,8 +1291,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 				col = Color(50,0,0,100);
 				msg = "Waiting for respawn ...";
 			}
-			DrawRectFill(bmpDest, x, y, x + w, y + h, col);
-			tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel, msg);
+			DrawRectFill(bmpDest, (int)x, (int)y, int(x + w), int(y + h), col);
+			tLX->cFont.DrawCentre(bmpDest, int(x + w*0.5f), int(y + h*0.5f), tLX->clNormalLabel, msg);
 		}
 	}
 }
