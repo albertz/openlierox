@@ -719,9 +719,6 @@
     <ClInclude Include="..\..\src\gusanos\loaders\liero.h">
       <Filter>Gusanos\loaders</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\loaders\LieroXLevelLoader.h">
-      <Filter>Gusanos\loaders</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\gusanos\loaders\losp.h">
       <Filter>Gusanos\loaders</Filter>
     </ClInclude>
@@ -809,9 +806,6 @@
     <ClInclude Include="..\..\src\gusanos\player_input.h">
       <Filter>Gusanos</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\player_options.h">
-      <Filter>Gusanos</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\gusanos\posspd_replicator.h">
       <Filter>Gusanos</Filter>
     </ClInclude>
@@ -858,9 +852,6 @@
       <Filter>Gusanos</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\gusanos\weapon_type.h">
-      <Filter>Gusanos</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\worm.h">
       <Filter>Gusanos</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\sound\sfx.h">
@@ -918,9 +909,6 @@
       <Filter>System Files\GusanosUtil</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\trace.h">
-      <Filter>System Files\GusanosUtil</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\util\vec.h">
       <Filter>System Files\GusanosUtil</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -1378,9 +1366,6 @@
     <ClCompile Include="..\..\src\common\Physics.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\common\PhysicsDummy.cpp">
-      <Filter>Game files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\common\PhysicsLX56.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
@@ -1594,9 +1579,6 @@
     <ClCompile Include="..\..\src\gusanos\loaders\liero.cpp">
       <Filter>Gusanos\loaders</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\loaders\LieroXLevelLoader.cpp">
-      <Filter>Gusanos\loaders</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gusanos\loaders\losp.cpp">
       <Filter>Gusanos\loaders</Filter>
     </ClCompile>
@@ -1669,9 +1651,6 @@
     <ClCompile Include="..\..\src\gusanos\player_input.cpp">
       <Filter>Gusanos</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\player_options.cpp">
-      <Filter>Gusanos</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gusanos\posspd_replicator.cpp">
       <Filter>Gusanos</Filter>
     </ClCompile>
@@ -1721,9 +1700,6 @@
       <Filter>Gusanos</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gusanos\weapon_type.cpp">
-      <Filter>Gusanos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\worm.cpp">
       <Filter>Gusanos</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\main.cpp">
@@ -1805,9 +1781,6 @@
       <Filter>System Files\GusanosUtil</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\util\text.cpp">
-      <Filter>System Files\GusanosUtil</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\util\vec.cpp">
       <Filter>System Files\GusanosUtil</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\game\Sounds.cpp">
