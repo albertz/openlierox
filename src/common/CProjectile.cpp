@@ -58,7 +58,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fRotation = (float)_rot;
 	radius.x = tProjInfo->Width / 2;
 	radius.y = tProjInfo->Height / 2;
-	health = 100;
+	health = 100.f;
 	
 	fLastTrailProj = AbsTime();
 	iRandom = _random;
