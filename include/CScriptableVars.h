@@ -143,7 +143,7 @@ struct _SelectType {
 	static StringType* selectType(const char*) { return NULL; }
 	static StringType* selectType(char[]) { return NULL; }
 
-	typedef BOOST_TYPEOF(*selectType(*(T*)NULL)) type;
+	typedef typename BOOST_TYPEOF(*selectType(*(T*)NULL)) type;
 };
 
 template<typename T> struct GetType : _SelectType<T>::type {};
@@ -413,7 +413,7 @@ template<typename T> T* ScriptVar_t::ptr() {
 
 
 template<typename T>
-T _CastScriptVarConst(const ScriptVar_t& s, T*, typename boost::enable_if_c<(GetType<T>::value < SVT_CUSTOM), T>::type*) {
+T _CastScriptVarConst(const ScriptVar_t& s, T*, typename boost::enable_if_c<(GetType<T>::value <= SVT_CUSTOM-1), T>::type*) {
 	return (T) s;
 }
 
