@@ -559,8 +559,8 @@ void CWorm::setupLobby()
 
 
 void CWorm::resetAngleAndDir() {
-	fAngle = 0;
-	fAngleSpeed = 0;
+	fAngle = 0.f;
+	fAngleSpeed = 0.f;
 	iFaceDirectionSide = DIR_RIGHT;
 }
 
@@ -876,9 +876,9 @@ void CWorm::CloneWeaponsFrom(CWorm* w) {
 	for(size_t i = 0; i < w->weaponSlots.get().size(); ++i) {
 		weaponSlots.write()[i].WeaponId = w->getWeapon(i)->WeaponId;
 		
-		weaponSlots.write()[i].Charge = 1;
+		weaponSlots.write()[i].Charge = 1.f;
 		weaponSlots.write()[i].Reloading = false;
-		weaponSlots.write()[i].LastFire = 0;
+		weaponSlots.write()[i].LastFire = 0.f;
 	}
 }
 
