@@ -1050,7 +1050,7 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 {
 	for( size_t i = 0; i < Worm->tWeapons.size(); i++ )
 	{
-		Worm->weaponSlots.write()[i].Charge=0;
+		Worm->weaponSlots.write()[i].Charge=0.f;
 		Worm->weaponSlots.write()[i].Reloading=1;
 	}
 
