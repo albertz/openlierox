@@ -810,6 +810,43 @@ static void initCommandsWrapper(LuaContext& context) {
 	}
 }
 
+static int l_system_get(lua_State* L) {
+	LuaContext context(L);
+
+	const char* s_ = lua_tostring(L, 2);
+	if(!s_) {
+		context.pushError("bad arguments");
+		return 0;
+	}
+	std::string s = s_;
+
+	if(s == "time") {
+		lua_pushinteger(L, GetTime().milliseconds());
+		return 1;
+	}
+
+	if(s == "version") {
+		lua_pushstring(L, GetFullGameName());
+		return 1;
+	}
+
+	context.pushError("system attrib '" + s + "' unknown");
+	return 0;
+}
+
+static void initSystemWrapper(LuaContext& context) {
+	context.newtable();
+	{
+		context.newtable(); // meta
+		{
+			context.push("__index");
+			lua_pushcfunction(context, l_system_get);
+			lua_rawset(context, -3);
+		}
+		lua_setmetatable(context, -2);
+	}
+}
+
 struct Data_lua_setTimeout {
 	LuaReference ref;
 	LuaContext context;
@@ -880,6 +917,10 @@ void initGame(LuaContext& context)
 	{
 		initCommandsWrapper(context);
 		lua_setfield(context, LUA_GLOBALSINDEX, "commands");
+	}
+	{
+		initSystemWrapper(context);
+		lua_setfield(context, LUA_GLOBALSINDEX, "system");
 	}
 
 	context.function("setTimeout", l_setTimeout);
