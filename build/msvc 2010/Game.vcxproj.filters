@@ -1001,6 +1001,9 @@
     <ClInclude Include="..\..\src\gusanos\LuaCallbacks.h">
       <Filter>Gusanos\lua</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\client\ClientConnectionRequestInfo.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\breakpad\BreakPad.cpp">
@@ -1920,6 +1923,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\gusanos\LuaCallbacks.cpp">
       <Filter>Gusanos\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CLabel.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\ClientConnectionRequestInfo.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\PixelFunctors.cpp">
+      <Filter>System Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

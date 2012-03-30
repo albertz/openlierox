@@ -234,6 +234,7 @@
     <ClInclude Include="..\..\include\win32memleakdebug.h" />
     <ClInclude Include="..\..\include\XMLutils.h" />
     <ClInclude Include="..\..\src\cfg\client.h" />
+    <ClInclude Include="..\..\src\client\ClientConnectionRequestInfo.h" />
     <ClInclude Include="..\..\src\client\gfx\raytracing.h" />
     <ClInclude Include="..\..\src\client\StdinCLISupport.h" />
     <ClInclude Include="..\..\src\game\Attr.h" />
@@ -512,7 +513,10 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="..\..\src\client\ClientConnectionRequestInfo.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CLabel.cpp" />
     <ClCompile Include="..\..\src\client\gfx\raytracing.cpp" />
+    <ClCompile Include="..\..\src\client\PixelFunctors.cpp" />
     <ClCompile Include="..\..\src\client\StdinCLISupport.cpp" />
     <ClCompile Include="..\..\src\common\CBytestream.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -654,7 +658,9 @@
     <ClCompile Include="..\..\src\game\Settings.cpp" />
     <ClCompile Include="..\..\src\game\SettingsPreset.cpp" />
     <ClCompile Include="..\..\src\game\Sounds.cpp" />
-    <ClCompile Include="..\..\src\gui\List.cpp" />
+    <ClCompile Include="..\..\src\gui\List.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/guilist</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\src\gusanos\luaapi\context.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/context_lua.obj</ObjectFileName>
     </ClCompile>
