@@ -1938,16 +1938,10 @@
     <Library Include="..\msvc\libs\dbghelp.lib">
       <Filter>Libraries</Filter>
     </Library>
-    <Library Include="..\msvc\libs\libxml2.lib">
-      <Filter>Libraries</Filter>
-    </Library>
     <Library Include="..\msvc\libs\pthreadVCE.lib">
       <Filter>Libraries</Filter>
     </Library>
     <Library Include="..\msvc\libs\sdlgfx.lib">
-      <Filter>Libraries</Filter>
-    </Library>
-    <Library Include="..\msvc\libs\zlib.lib">
       <Filter>Libraries</Filter>
     </Library>
   </ItemGroup>
