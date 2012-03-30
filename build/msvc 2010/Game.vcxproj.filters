@@ -1932,9 +1932,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\msvc\libs\bgd.lib">
-      <Filter>Libraries</Filter>
-    </Library>
     <Library Include="..\msvc\libs\dbghelp.lib">
       <Filter>Libraries</Filter>
     </Library>
@@ -1942,6 +1939,9 @@
       <Filter>Libraries</Filter>
     </Library>
     <Library Include="..\msvc\libs\sdlgfx.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\bgd.lib">
       <Filter>Libraries</Filter>
     </Library>
   </ItemGroup>
