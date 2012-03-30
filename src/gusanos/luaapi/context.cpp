@@ -943,9 +943,10 @@ Result LuaContext::toScriptVar(int idx, ScriptVar_t& var) {
 
 void LuaContext::close()
 {
-	if(weakRef)
+	if(weakRef) {
 		lua_close(*this);
-	weakRef.overwriteShared(NULL);
+		weakRef.overwriteShared(NULL);
+	}
 }
 
 LuaContext::~LuaContext()
