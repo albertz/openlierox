@@ -206,9 +206,8 @@ static void _addAttrDesc(std::vector<const AttrDesc*>& vec, const AttrDesc* attr
 }
 
 std::vector<const AttrDesc*> getAttrDescs(ClassId classId, bool withSuperClasses) {
-	using namespace boost;
 	std::vector<const AttrDesc*> vec;
-	function<void(const AttrDesc* attrDesc)> callback = bind(_addAttrDesc, ref(vec), _1);
+	boost::function<void(const AttrDesc* attrDesc)> callback = boost::bind(_addAttrDesc, boost::ref(vec), _1);
 	iterAttrDescs(classId, withSuperClasses, callback);
 	return vec;
 }
