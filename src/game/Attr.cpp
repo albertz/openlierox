@@ -22,6 +22,7 @@
 #include "CBytestream.h"
 #include "OLXCommand.h"
 #include "CClient.h"
+#include "Mutex.h"
 
 static CServerConnection* attrUpdateByClientScope = NULL;
 static bool attrUpdateByServerScope = false;
@@ -224,8 +225,10 @@ const AttrDesc* findAttrDescByName(const std::string& name, ClassId classId, boo
 
 typedef std::vector< WeakRef<BaseObject> > ObjUpdates;
 static StaticVar<ObjUpdates> objUpdates;
+static StaticVar<Mutex> objUpdatesMutex;
 
 static void pushObjAttrUpdate(BaseObject& obj) {
+	Mutex::ScopedLock lock(objUpdatesMutex.get());
 	objUpdates->push_back(obj.thisRef.obj);
 }
 
@@ -266,6 +269,8 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 }
 
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback) {
+	Mutex::ScopedLock lock(objUpdatesMutex.get());
+
 	foreach(o, objUpdates.get()) {
 		BaseObject* oPt = o->get();
 		if(oPt == NULL) continue;
