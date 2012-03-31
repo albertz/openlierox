@@ -2669,15 +2669,21 @@ SmartPointer<SDL_Surface> GDImage2SDLSurface(gdImagePtr src, bool withalpha, boo
 }
 
 SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool withalpha, bool keep8bit) {
-	FILE* f = OpenGameFile(_filename, "r");
-	if(f == NULL) return NULL;
-	
+	/* WARNING: Don't use gd-functions which take a FILE* argument on Windows!
+	 * The DLL doesn't work anymore with recent MSVC versions.
+	 * See here: http://stackoverflow.com/questions/9945648/crash-when-calling-gd-function
+	 * Or: http://www.gamedev.net/topic/479025-libgd-problem/
+	*/
+
+	std::string fileContent = GetFileContents(_filename);
+	if(fileContent.empty()) return NULL;
+
 	std::string ext = GetFileExtensionWithDot(_filename);
 	stringlwr(ext);
 	gdImagePtr src = NULL;
+
 	if(ext == ".bmp") {
-		SDL_Surface* s = SDL_LoadBMP_RW(SDL_RWFromFP(f, false), false);
-		fclose(f);
+		SDL_Surface* s = SDL_LoadBMP_RW(SDL_RWFromConstMem(&fileContent[0], fileContent.size()), true);
 		if(s == NULL) {
 			errors << "LoadGameImage: cannot load bmp: " << _filename << endl;
 			return NULL;
@@ -2685,17 +2691,15 @@ SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool
 		return s;
 	}
 	else if(ext == ".jpg" || ext == ".jpeg")
-		src = gdImageCreateFromJpeg(f);
+		src = gdImageCreateFromJpegPtr(fileContent.size(), &fileContent[0]);
 	else if(ext == ".png")
-		src = gdImageCreateFromPng(f);
+		src = gdImageCreateFromPngPtr(fileContent.size(), &fileContent[0]);
 	else if(ext == ".gif")
-		src = gdImageCreateFromGif(f);
+		src = gdImageCreateFromGifPtr(fileContent.size(), &fileContent[0]);
 	else {
 		errors << "LoadGameImage: file extension unknown: " << _filename << endl;
-		fclose(f);
 		return NULL;
 	}
-	fclose(f);
 	
 	if(src == NULL) {
 		errors << "LoadGameImage: cannot load: " << _filename << endl;
