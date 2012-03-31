@@ -53,7 +53,9 @@ static bool LoadOGG(const char *fileName, vector<char> &buffer, ALenum &format, 
     OggVorbis_File oggFile;
 	
     // Try opening the given file
-    if (ov_open(f, &oggFile, NULL, 0) != 0)
+	// Note: Use ov_open_callbacks instead of ov_open to avoid problems
+	// on Windows when linked to different libc versions.
+    if (ov_open_callbacks(f, &oggFile, NULL, 0, OV_CALLBACKS_DEFAULT) != 0)
 	{
         errors << "Error opening " << fileName << " for decoding..." << endl;
         return false;
