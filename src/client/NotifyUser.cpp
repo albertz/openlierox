@@ -107,10 +107,10 @@ void NotifyUserOnEvent()
 
 	struct SetDemandsAttentionAction: public Action
 	{
-		int handle()
+		Result handle()
 		{
 			x11_SetDemandsAttention(true);
-			return 0;
+			return true;
 		} 
 	};
 	doActionInMainThread( new SetDemandsAttentionAction );
@@ -131,10 +131,10 @@ void ClearUserNotify() {
 #elif defined(X11)
 	struct ClearDemandsAttentionAction: public Action
 	{
-		int handle()
+		Result handle()
 		{
 			x11_SetDemandsAttention(false);
-			return 0;
+			return true;
 		} 
 	};
 	doActionInMainThread( new ClearDemandsAttentionAction );
