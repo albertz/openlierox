@@ -7,6 +7,7 @@
 
 #include <boost/function.hpp>
 #include <string>
+#include <stdint.h>
 
 class BaseObject;
 
