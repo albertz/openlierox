@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
+#include <stdint.h>
 #include "util/log.h"
 #include <boost/crc.hpp>
 #include <boost/shared_ptr.hpp>
