@@ -373,12 +373,12 @@ std::string copy_from_clipboard()
 
 	struct CopyFromClipboardAction: public Action
 	{
-		int handle()
+		Result handle()
 		{
 			Mutex::ScopedLock lock( clipboardMainthreadMutex );
 			clipboardMainthreadCopyFromString = copy_from_clipboard_internal();
 			clipboardMainthreadCond.signal();
-			return 0;
+			return true;
 		} 
 	};
 	doActionInMainThread( new CopyFromClipboardAction );
