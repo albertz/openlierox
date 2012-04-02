@@ -352,8 +352,8 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 	int d = game.gameMap()->CarveHole((int)damage,pos, getGameLobby()[FT_InfiniteMap]);
 
     // Increment the dirt count
-	if(owner >= 0 && owner < MAX_WORMS)
-		game.wormById(owner)->incrementDirtCount( d );
+	if(CWorm* ownerW = game.wormById(owner, false))
+		ownerW->incrementDirtCount( d );
 
 	// If this is within a viewport, shake the viewport
 	for(int i=0; i<NUM_VIEWPORTS; i++) {
