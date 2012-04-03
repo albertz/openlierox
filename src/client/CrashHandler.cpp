@@ -175,6 +175,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 // TODO: why is execinfo needed here? at least on MacOSX, it's not needed here
 //#include <execinfo.h>
 /* get REG_EIP / REG_RIP from ucontext.h */
+#define _XOPEN_SOURCE
 #include <ucontext.h>
 #endif
 
@@ -379,13 +380,9 @@ public:
 		
         if(!recoverAfterCrash)
         {
+			printf("no recovering, aborting now\n");
 			fflush(stdout);
 			abort();
-#ifdef DEBUG
-//        	raise(SIGQUIT);
-#else
-//			exit(-1);
-#endif
 			return;
         }
 		setSignalHandlers(); // reset handler
