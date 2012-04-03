@@ -20,6 +20,7 @@
 #include "Debug.h"
 #include "ConversationLogger.h"
 #include "FindFile.h"
+#include "StdinCLISupport.h"
 
 #include "../breakpad/BreakPad.h"
 
@@ -381,8 +382,12 @@ public:
         if(!recoverAfterCrash)
         {
 			printf("no recovering, aborting now\n");
+			// In case the StdinCLI support was setup, we must quit it before exit,
+			// otherwise its possible that we would never see the stdout data.
+			quitStdinCLISupport();
 			fflush(stdout);
-			abort();
+			// Now force quit us.
+			_exit(255);
 			return;
         }
 		setSignalHandlers(); // reset handler
