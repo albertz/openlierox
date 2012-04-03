@@ -34,25 +34,29 @@
    along with this program; if not, write to the Free Software
    Foundation, 51 Franklin Street, Suite 500, Boston, MA 02110-1335, USA.  */
 
-#define fatal(a, b) exit(1)
-#define bfd_fatal(a) exit(1)
-#define bfd_nonfatal(a) exit(1)
-#define list_matching_formats(a) exit(1)
+#ifdef HASBFD
+
+#include "util/Result.h"
 
 /* 2 characters for each byte, plus 1 each for 0, x, and NULL */
 #define PTRSTR_LEN (sizeof(void *) * 2 + 3)
-#define true 1
-#define false 0
 
 #define _GNU_SOURCE
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <execinfo.h>
+#ifdef __APPLE__
+#include <bfd.h>
+#include <dlfcn.h>
+#else
 #include <bfd.h>
 #include <libiberty.h>
 #include <dlfcn.h>
 #include <link.h>
+#endif
+
+
 #if 0
 
 void (*dbfd_init)(void);
@@ -85,26 +89,26 @@ static asymbol **syms;		/* Symbol table.  */
 /* 150 isn't special; it's just an arbitrary non-ASCII char value.  */
 #define OPTION_DEMANGLER	(150)
 
-static void slurp_symtab(bfd * abfd);
+static Result slurp_symtab(bfd * abfd);
 static void find_address_in_section(bfd *abfd, asection *section, void *data);
 
 /* Read in the symbol table.  */
 
-static void slurp_symtab(bfd * abfd)
+static Result slurp_symtab(bfd * abfd)
 {
-	long symcount;
-	unsigned int size;
-
 	if ((bfd_get_file_flags(abfd) & HAS_SYMS) == 0)
-		return;
+		return true;
 
-	symcount = bfd_read_minisymbols(abfd, false, (PTR) & syms, &size);
+	unsigned int size = 0;
+	long symcount = bfd_read_minisymbols(abfd, false, (void**) &syms, &size);
 	if (symcount == 0)
 		symcount = bfd_read_minisymbols(abfd, true /* dynamic */ ,
-						(PTR) & syms, &size);
+						(void**) &syms, &size);
 
 	if (symcount < 0)
-		bfd_fatal(bfd_get_filename(abfd));
+		return false; //bfd_get_filename(abfd));
+
+	return true;
 }
 
 /* These global variables are used to pass information between
@@ -192,16 +196,16 @@ static char** translate_addresses_buf(bfd * abfd, bfd_vma *addr, int naddr)
 	int naddr_orig = naddr;
 	char b;
 	int total  = 0;
-	enum { Count, Print } state;
+	enum State { Count, Print } state;
 	char *buf = &b;
 	int len = 0;
 	char **ret_buf = NULL;
 	/* iterate over the formating twice.
 	 * the first time we count how much space we need
 	 * the second time we do the actual printing */
-	for (state=Count; state<=Print; state++) {
+	for (state=Count; state<=Print; state = State(int(state) + 1)) {
 	if (state == Print) {
-		ret_buf = malloc(total + sizeof(char*)*naddr);
+		ret_buf = (char**)malloc(total + sizeof(char*)*naddr);
 		buf = (char*)(ret_buf + naddr);
 		len = total;
 	}
@@ -245,28 +249,27 @@ static char** translate_addresses_buf(bfd * abfd, bfd_vma *addr, int naddr)
 }
 /* Process a file.  */
 
-static char **process_file(const char *file_name, bfd_vma *addr, int naddr)
+static Result process_file(const char *file_name, bfd_vma *addr, int naddr, char**& ret_buf)
 {
 	bfd *abfd;
 	char **matching;
-	char **ret_buf;
 
 	abfd = bfd_openr(file_name, NULL);
 
 	if (abfd == NULL)
-		bfd_fatal(file_name);
+		return "no abfd";
 
 	if (bfd_check_format(abfd, bfd_archive))
-		fatal("%s: can not get addresses from archive", file_name);
+		return "can not get addresses from archive";
 
 	if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
-		bfd_nonfatal(bfd_get_filename(abfd));
+		//bfd_nonfatal(bfd_get_filename(abfd));
 		if (bfd_get_error() ==
 		    bfd_error_file_ambiguously_recognized) {
-			list_matching_formats(matching);
+			//list_matching_formats(matching);
 			free(matching);
 		}
-		xexit(1);
+		return "format does not match";
 	}
 
 	slurp_symtab(abfd);
@@ -277,7 +280,7 @@ static char **process_file(const char *file_name, bfd_vma *addr, int naddr)
 	syms = NULL;
 
 	bfd_close(abfd);
-	return ret_buf;
+	return true;
 }
 
 #define MAX_DEPTH 16
@@ -289,10 +292,11 @@ struct file_match {
 	void *hdr;
 };
 
+#ifndef __APPLE__
 static int find_matching_file(struct dl_phdr_info *info,
 		size_t size, void *data)
 {
-	struct file_match *match = data;
+	struct file_match *match = (struct file_match*) data;
 	/* This code is modeled from Gfind_proc_info-lsb.c:callback() from libunwind */
 	long n;
 	const ElfW(Phdr) *phdr;
@@ -310,6 +314,7 @@ static int find_matching_file(struct dl_phdr_info *info,
 	}
 	return 0;
 }
+#endif
 
 char **backtrace_symbols(void *const *buffer, int size)
 {
@@ -318,30 +323,38 @@ char **backtrace_symbols(void *const *buffer, int size)
 	/* discard calling function */
 	int total = 0;
 
-	char ***locations;
 	char **final;
 	char *f_strings;
 
-	locations = malloc(sizeof(char**) * (stack_depth+1));
+	char*** locations = (char***)malloc(sizeof(char**) * (stack_depth+1));
 
 	bfd_init();
 	for(x=stack_depth, y=0; x>=0; x--, y++){
-		struct file_match match = { .address = buffer[x] };
 		char **ret_buf;
-		bfd_vma addr;
+		bfd_vma addr = (bfd_vma)buffer[x];
+		Result r = true;
+#ifndef __APPLE__
+		struct file_match match;
+		match.address = buffer[x];
 		dl_iterate_phdr(find_matching_file, &match);
 		addr = buffer[x] - match.base;
 		if (match.file && strlen(match.file))
-			ret_buf = process_file(match.file, &addr, 1);
+			r = process_file(match.file, &addr, 1, ret_buf);
 		else
-			ret_buf = process_file("/proc/self/exe", &addr, 1);
-		locations[x] = ret_buf;
-		total += strlen(ret_buf[0]) + 1;
+#endif
+			r = process_file("/proc/self/exe", &addr, 1, ret_buf);
+		if(r)
+			locations[x] = ret_buf;
+		else {
+			locations[x] = (char**)malloc(sizeof(char*));
+			locations[x][0] = (char*)"<error>";
+		}
+		total += strlen(locations[x][0]) + 1;
 	}
 
 	/* allocate the array of char* we are going to return and extra space for
 	 * all of the strings */
-	final = malloc(total + (stack_depth + 1) * sizeof(char*));
+	final = (char**)malloc(total + (stack_depth + 1) * sizeof(char*));
 	/* get a pointer to the extra space */
 	f_strings = (char*)(final + stack_depth + 1);
 
@@ -365,13 +378,22 @@ backtrace_symbols_fd(void *const *buffer, int size, int fd)
         char **strings;
 
         strings = backtrace_symbols(buffer, size);
-        if (strings == NULL) {
-		perror("backtrace_symbols");
-		exit(EXIT_FAILURE);
-        }
+		if (strings == NULL) return;
 
         for (j = 0; j < size; j++)
 		printf("%s\n", strings[j]);
 
         free(strings);
 }
+
+// Not sure on this. Linking failed on Mac.
+// Found it here: http://www.mail-archive.com/uclinux-dev@uclinux.org/msg02347.html
+#ifndef HAVE_LIBINTL_DGETTEXT
+extern "C"
+const char *libintl_dgettext (const char *domain, const char *msg)
+{
+  return msg;
+}
+#endif /* !HAVE_LIBINTL_DGETTEXT */
+
+#endif // HASBFD
