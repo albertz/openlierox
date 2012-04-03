@@ -37,6 +37,7 @@
 #ifdef HASBFD
 
 #include "util/Result.h"
+#include "FindFile.h" // GetBinaryFilename
 
 /* 2 characters for each byte, plus 1 each for 0, x, and NULL */
 #define PTRSTR_LEN (sizeof(void *) * 2 + 3)
@@ -86,8 +87,6 @@ static void load_funcs(void)
 
 static asymbol **syms;		/* Symbol table.  */
 
-/* 150 isn't special; it's just an arbitrary non-ASCII char value.  */
-#define OPTION_DEMANGLER	(150)
 
 static Result slurp_symtab(bfd * abfd);
 static void find_address_in_section(bfd *abfd, asection *section, void *data);
@@ -146,50 +145,7 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data __a
 				      &filename, &functionname, &line);
 }
 
-/* Read hexadecimal addresses from stdin, translate into
-   file_name:line_number and optionally function name.  */
-#if 0
-static void translate_addresses(bfd * abfd, char (*addr)[PTRSTR_LEN], int naddr)
-{
-	while (naddr) {
-		pc = bfd_scan_vma(addr[naddr-1], NULL, 16);
 
-		found = false;
-		bfd_map_over_sections(abfd, find_address_in_section,
-		(PTR) NULL);
-
-		if (!found) {
-			printf("[%s] \?\?() \?\?:0\n",addr[naddr-1]);
-		} else {
-			const char *name;
-
-			name = functionname;
-			if (name == NULL || *name == '\0')
-				name = "??";
-			if (filename != NULL) {
-				char *h;
-
-				h = strrchr(filename, '/');
-				if (h != NULL)
-					filename = h + 1;
-			}
-
-			printf("\t%s:%u\t", filename ? filename : "??",
-			       line);
-
-			printf("%s()\n", name);
-
-		}
-
-		/* fflush() is essential for using this command as a server
-		   child process that reads addresses from a pipe and responds
-		   with line number information, processing one address at a
-		   time.  */
-		fflush(stdout);
-		naddr--;
-	}
-}
-#endif
 
 static char** translate_addresses_buf(bfd * abfd, bfd_vma *addr, int naddr)
 {
@@ -215,8 +171,7 @@ static char** translate_addresses_buf(bfd * abfd, bfd_vma *addr, int naddr)
 		pc = addr[naddr-1];
 
 		found = false;
-		bfd_map_over_sections(abfd, find_address_in_section,
-		(PTR) NULL);
+		bfd_map_over_sections(abfd, find_address_in_section, (PTR) NULL);
 
 		if (!found) {
 			total += snprintf(buf, len, "[0x%llx] \?\?() \?\?:0",(long long unsigned int) addr[naddr-1]) + 1;
@@ -342,7 +297,7 @@ char **backtrace_symbols(void *const *buffer, int size)
 			r = process_file(match.file, &addr, 1, ret_buf);
 		else
 #endif
-			r = process_file("/proc/self/exe", &addr, 1, ret_buf);
+			r = process_file(GetBinaryFilename(), &addr, 1, ret_buf);
 		if(r)
 			locations[x] = ret_buf;
 		else {
