@@ -302,7 +302,7 @@ ENDIF(G15)
 
 IF(HASBFD)
 	ADD_DEFINITIONS("-DHASBFD")
-	SET(LIBS ${LIBS} bfd)
+	SET(LIBS ${LIBS} bfd opcodes iberty)
 ENDIF(HASBFD)
 
 
