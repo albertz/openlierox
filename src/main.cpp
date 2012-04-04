@@ -298,9 +298,8 @@ startpoint:
 	initLuaGlobal();
 
 	for(std::list<std::string>::iterator i = startupCommands.begin(); i != startupCommands.end(); ++i) {
-		// execute as if it would have been entered in ingame console
 		notes << "startup command: " << *i << endl;
-		Con_Execute(*i);
+		Execute(&stdoutCLI(), *i);
 	}
 	startupCommands.clear(); // don't execute them again
 
