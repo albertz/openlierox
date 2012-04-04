@@ -588,6 +588,23 @@ void Cmd_coreDump::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	doActionInMainThread(new Dumper());
 }
 
+COMMAND_EXTRA(debugDumpCallstack, "dump callstack", "", 0, 0, hidden = true);
+void Cmd_debugDumpCallstack::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
+	struct MyPrinter : PrintOutFct {
+		CmdLineIntf* caller;
+		virtual void print(const std::string& msg) const {
+			if(msg.empty()) return;
+			if(msg[msg.size()-1] == '\n')
+				caller->writeMsg(msg.substr(0, msg.size()-1));
+			else
+				caller->writeMsg(msg);
+		}
+	};
+	MyPrinter p;
+	p.caller = caller;
+	DumpCallstack(p);
+}
+
 
 COMMAND(suicide, "suicide first local human worm", "[#kills]", 0, 1);
 void Cmd_suicide::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
