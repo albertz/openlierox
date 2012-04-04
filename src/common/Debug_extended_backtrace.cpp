@@ -159,7 +159,7 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data __a
 
 
 
-static std::string translate_addresses_buf(bfd * abfd, bfd_vma addr)
+static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::string& buf)
 {
 	std::ostringstream ret;
 
@@ -169,11 +169,8 @@ static std::string translate_addresses_buf(bfd * abfd, bfd_vma addr)
 	bfd_map_over_sections(abfd, find_address_in_section, (PTR) NULL);
 
 	if (!found) {
-		ret.setf( std::ios::hex, std::ios::basefield );
-		ret.setf( std::ios::showbase );
-		ret << "[" << (long long unsigned int) addr << "] ";
-		if(sectionFound) ret << "<function not found>";
-		else ret << "<section not found>";
+		if(sectionFound) return "function not found";
+		else return "section not found";
 
 	} else {
 		if (filename != NULL) {
@@ -194,7 +191,8 @@ static std::string translate_addresses_buf(bfd * abfd, bfd_vma addr)
 			ret << functionname << "()";
 	}
 
-	return ret.str();
+	buf = ret.str();
+	return true;
 }
 /* Process a file.  */
 
@@ -206,10 +204,10 @@ static Result process_file(const std::string& file_name, bfd_vma addr, std::stri
 	abfd = bfd_openr(file_name.c_str(), NULL);
 
 	if (abfd == NULL)
-		return "can't open " + file_name;
+		return "can't open file";
 
 	if (bfd_check_format(abfd, bfd_archive))
-		return "invalid format: " + file_name;
+		return "invalid format";
 
 	if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
 		//bfd_nonfatal(bfd_get_filename(abfd));
@@ -218,13 +216,14 @@ static Result process_file(const std::string& file_name, bfd_vma addr, std::stri
 			//list_matching_formats(matching);
 			free(matching);
 		}
-		return "format does not match: " + file_name;
+		return "format does not match";
 	}
 
 	if(NegResult r = slurp_symtab(abfd))
 		return "slurp_symtab: " + r.res.humanErrorMsg;
 
-	ret_buf = translate_addresses_buf(abfd, addr);
+	if(NegResult r = translate_addresses_buf(abfd, addr, ret_buf))
+		return r.res;
 
 	free (syms);
 	syms = NULL;
