@@ -339,14 +339,6 @@ char **backtrace_symbols(void *const *buffer, int size)
 		else
 			r = process_file(GetBinaryFilename(), addr, locations[x]);
 #else
-		/*Dl_info info;
-		if(dladdr(xaddr, &info)) {
-			//notes << "addr " << xaddr << ": " << info.dli_fname << "," << info.dli_sname << endl;
-			//notes << info.dli_fname << ": " << info.dli_fbase << endl;
-			addr = bfd_vma((char*)xaddr - (char*)info.dli_fbase);
-			r = process_file(info.dli_fname, addr, locations[x]);
-		}
-		else r = "dladdr failed";*/
 		intptr_t offset;
 		uintptr_t vmaddr;
 		std::string image_name;
@@ -355,10 +347,16 @@ char **backtrace_symbols(void *const *buffer, int size)
 			addr = bfd_vma((char*)xaddr - vmaddr);
 			r = process_file(image_name, addr, locations[x]);
 		}
-		else r = "ptr " + hex((intptr_t)xaddr) + " not found";
+		else r = "image not found";
 #endif
-		if(!r)
-			locations[x] = "<" + r.humanErrorMsg + ">";
+		if(!r) {
+			locations[x] = "[0x" + hex((uintptr_t)xaddr) + "] <" + r.humanErrorMsg + ">";
+
+			// we might be able to use dladdr as fallback
+			Dl_info info;
+			if(dladdr(xaddr, &info))
+				locations[x] += " " + GetBaseFilename(info.dli_fname) + ":" + info.dli_sname;
+		}
 		total += locations[x].size() + 1;
 	}
 
