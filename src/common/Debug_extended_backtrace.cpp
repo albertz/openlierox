@@ -117,7 +117,7 @@ static bfd_vma pc;
 static const char *filename;
 static const char *functionname;
 static unsigned int line;
-static int found;
+static Result found(true);
 
 /* Look for an address in a section.  This is called via
    bfd_map_over_sections.  */
@@ -130,18 +130,24 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data __a
 	if (found)
 		return;
 
-	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
+	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0) {
+		found = "not SEC_ALLOC";
 		return;
+	}
 
 	vma = bfd_get_section_vma(abfd, section);
-	if (pc < vma)
+	if (pc < vma) {
+		found = "pc < vma";
 		return;
+	}
 
 	size = bfd_section_size(abfd, section);
-	if (pc >= vma + size)
+	if (pc >= vma + size) {
+		found = "pc >= vma + size";
 		return;
+	}
 
-	found = bfd_find_nearest_line(abfd, section, syms, pc - vma,
+	found = bfd_find_nearest_line(abfd, section, syms, pc/* - vma*/,
 				      &filename, &functionname, &line);
 }
 
@@ -174,7 +180,7 @@ static char** translate_addresses_buf(bfd * abfd, bfd_vma *addr, int naddr)
 		bfd_map_over_sections(abfd, find_address_in_section, (PTR) NULL);
 
 		if (!found) {
-			total += snprintf(buf, len, "[0x%llx] \?\?() \?\?:0",(long long unsigned int) addr[naddr-1]) + 1;
+			total += snprintf(buf, len, "[0x%llx] <%s>", (long long unsigned int) addr[naddr-1], found.humanErrorMsg.c_str()) + 1;
 		} else {
 			const char *name;
 
