@@ -144,8 +144,6 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data __a
 	bfd_vma vma = bfd_get_section_vma(abfd, section);
 	bfd_size_type size = bfd_section_size(abfd, section);
 
-	//std::cout << "section: " << vma << " - " << (vma + size) << ", searched for " << pc << std::endl;
-
 	if (pc < vma)
 		return;
 
