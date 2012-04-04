@@ -300,10 +300,6 @@ ptr_is_in_exe(const void *ptr, intptr_t& offset, uintptr_t& vmaddr, std::string&
 
 			j++;
 			cmd = (struct load_command*)((char*)cmd + cmd->cmdsize);
-
-			//if(cmd >= cmd_end || cmd->cmdsize == 0)
-				// this is a strange case but it seems happening
-			//	break;
 		}
 	}
 
@@ -343,7 +339,7 @@ char **backtrace_symbols(void *const *buffer, int size)
 		std::string image_name;
 		if(ptr_is_in_exe(xaddr, offset, vmaddr, image_name)) {
 			//notes << "addr " << xaddr << ": " << image_name << ", " << vmaddr << ", " << offset << endl;
-			addr = bfd_vma((char*)xaddr - vmaddr);
+			addr = bfd_vma((uintptr_t)xaddr - vmaddr - offset);
 			r = process_file(image_name, addr, locations[x]);
 		}
 		else r = "image not found";
