@@ -132,20 +132,20 @@ static bool sectionFound = false;
 
 static void find_address_in_section(bfd *abfd, asection *section, void *data __attribute__ ((__unused__)) )
 {
-	bfd_vma vma;
-	bfd_size_type size;
-
 	if (found)
 		return;
 
 	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
 		return;
 
-	vma = bfd_get_section_vma(abfd, section);
+	bfd_vma vma = bfd_get_section_vma(abfd, section);
+	bfd_size_type size = bfd_section_size(abfd, section);
+
+	//std::cout << "section: " << vma << " - " << (vma + size) << ", searched for " << pc << std::endl;
+
 	if (pc < vma)
 		return;
 
-	size = bfd_section_size(abfd, section);
 	if (pc >= vma + size)
 		return;
 
@@ -277,7 +277,6 @@ char **backtrace_symbols(void *const *buffer, int size)
 
 	bfd_init();
 	for(x=stack_depth, y=0; x>=0; x--, y++){
-		std::string ret_buf;
 		const void* xaddr = buffer[x];
 		bfd_vma addr = (bfd_vma)xaddr;
 		Result r = true;
@@ -287,13 +286,11 @@ char **backtrace_symbols(void *const *buffer, int size)
 		dl_iterate_phdr(find_matching_file, &match);
 		addr = buffer[x] - match.base;
 		if (match.file && strlen(match.file))
-			r = process_file(match.file, addr, ret_buf);
+			r = process_file(match.file, addr, locations[x]);
 		else
 #endif
-			r = process_file(GetBinaryFilename(), addr, ret_buf);
-		if(r)
-			locations[x] = ret_buf;
-		else
+			r = process_file(GetBinaryFilename(), addr, locations[x]);
+		if(!r)
 			locations[x] = "<" + r.humanErrorMsg + ">";
 		total += locations[x].size() + 1;
 	}
