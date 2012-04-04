@@ -341,7 +341,8 @@ char **backtrace_symbols(void *const *buffer, int size)
 		if(ptr_is_in_exe(xaddr, header, offset, vmaddr, image_name)) {
 			//notes << "addr " << xaddr << ": " << image_name << ", " << vmaddr << ", " << offset << endl;
 			//addr = bfd_vma((uintptr_t)xaddr - vmaddr - offset);
-			addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)header);
+			//addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)header);
+			addr = bfd_vma((uintptr_t)xaddr - offset);
 			r = process_file(image_name, addr, locations[x]);
 		}
 		else r = "image not found";
