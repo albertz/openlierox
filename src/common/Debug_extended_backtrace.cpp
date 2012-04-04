@@ -266,7 +266,7 @@ static int find_matching_file(struct dl_phdr_info *info,
 }
 #else
 static bool
-ptr_is_in_exe(const void *ptr, intptr_t& offset, struct segment_command*& seg, std::string& image_name)
+ptr_is_in_exe(const void *ptr, intptr_t& offset, uintptr_t& vmaddr, std::string& image_name)
 {
 	uint32_t i, count = _dyld_image_count();
 
@@ -276,23 +276,35 @@ ptr_is_in_exe(const void *ptr, intptr_t& offset, struct segment_command*& seg, s
 		//notes << i << "," << offset << ": " << _dyld_get_image_name(i) << endl;
 
 		uint32_t j = 0;
-		seg = (struct segment_command*)((char *)header + sizeof(struct mach_header));
-		struct segment_command* cmd_end = seg + header->sizeofcmds;
+		struct load_command* cmd = (struct load_command*)((char *)header + sizeof(struct mach_header));
+		if(header->magic == MH_MAGIC_64)
+			cmd = (struct load_command*)((char *)header + sizeof(struct mach_header_64));
+		//struct load_command* cmd_end = cmd + header->sizeofcmds;
 
 		while (j < header->ncmds) {
-			if (seg->cmd == LC_SEGMENT) {
+			if (cmd->cmd == LC_SEGMENT) {
+				struct segment_command* seg = (struct segment_command*)cmd;
 				if (((intptr_t)ptr >= (seg->vmaddr + offset)) && ((intptr_t)ptr < (seg->vmaddr + offset + seg->vmsize))) {
+					vmaddr = seg->vmaddr;
+					image_name = _dyld_get_image_name(i);
+					return true;
+				}
+			}
+			if (cmd->cmd == LC_SEGMENT_64) {
+				struct segment_command_64* seg = (struct segment_command_64*)cmd;
+				if (((uintptr_t)ptr >= (seg->vmaddr + offset)) && ((uintptr_t)ptr < (seg->vmaddr + offset + seg->vmsize))) {
+					vmaddr = seg->vmaddr;
 					image_name = _dyld_get_image_name(i);
 					return true;
 				}
 			}
 
 			j++;
-			seg = (struct segment_command*)((char*)seg + seg->cmdsize);
+			cmd = (struct load_command*)((char*)cmd + cmd->cmdsize);
 
-			if(seg >= cmd_end || seg->cmdsize == 0)
+			//if(cmd >= cmd_end || cmd->cmdsize == 0)
 				// this is a strange case but it seems happening
-				break;
+			//	break;
 		}
 	}
 
@@ -336,11 +348,11 @@ char **backtrace_symbols(void *const *buffer, int size)
 		}
 		else r = "dladdr failed";*/
 		intptr_t offset;
-		struct segment_command *seg;
+		uintptr_t vmaddr;
 		std::string image_name;
-		if(ptr_is_in_exe(xaddr, offset, seg, image_name)) {
-			notes << "addr " << xaddr << ": " << image_name << ", " << seg->vmaddr << ", " << offset << endl;
-			addr = bfd_vma((char*)xaddr - seg->vmaddr);
+		if(ptr_is_in_exe(xaddr, offset, vmaddr, image_name)) {
+			//notes << "addr " << xaddr << ": " << image_name << ", " << vmaddr << ", " << offset << endl;
+			addr = bfd_vma((char*)xaddr - vmaddr);
 			r = process_file(image_name, addr, locations[x]);
 		}
 		else r = "ptr " + hex((intptr_t)xaddr) + " not found";
