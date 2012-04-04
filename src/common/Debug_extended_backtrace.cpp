@@ -42,6 +42,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+//#include <cxxabi.h>
 #include "Debug.h"
 #include "util/StringConv.h"
 
@@ -124,6 +125,17 @@ static Result slurp_symtab(bfd * abfd)
 	return true;
 }
 
+
+static std::string handleFuncName(const std::string& funcName) {
+	//int status = 0;
+	//abi::__cxa_demangle(funcCame, 0, 0, &status);
+	char* s = bfd_demangle(NULL, funcName.c_str(), 0);
+	if(!s) return funcName;
+	std::string ret(s);
+	free(s);
+	return ret;
+}
+
 /* These global variables are used to pass information between
    translate_addresses and find_address_in_section.  */
 
@@ -190,7 +202,14 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::string& buf
 		if (functionname == NULL || *functionname == '\0')
 			ret << "<unknown function>";
 		else
-			ret << functionname << "()";
+			ret << handleFuncName(functionname) << "()";
+
+		/*
+	  si.found = bfd_find_inliner_info(bfd_data->abfd,
+									   &si.filename,
+									   &si.functionname,
+									   &si.line);
+	*/
 	}
 
 	buf = ret.str();
@@ -346,7 +365,7 @@ std::vector<std::string> trans_sym(const void* xaddr) {
 		// we might be able to use dladdr as fallback
 		Dl_info info;
 		if(dladdr(xaddr, &info))
-			ret += " " + GetBaseFilename(info.dli_fname) + ":" + info.dli_sname;
+			ret += " " + GetBaseFilename(info.dli_fname) + ": " + handleFuncName(info.dli_sname) + "()";
 	}
 
 	std::vector<std::string> retVec;
