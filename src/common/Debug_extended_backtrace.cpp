@@ -42,6 +42,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include "Debug.h"
 
 /* 2 characters for each byte, plus 1 each for 0, x, and NULL */
 #define PTRSTR_LEN (sizeof(void *) * 2 + 3)
@@ -195,18 +196,18 @@ static std::string translate_addresses_buf(bfd * abfd, bfd_vma addr)
 }
 /* Process a file.  */
 
-static Result process_file(const char *file_name, bfd_vma addr, std::string& ret_buf)
+static Result process_file(const std::string& file_name, bfd_vma addr, std::string& ret_buf)
 {
 	bfd *abfd;
 	char **matching;
 
-	abfd = bfd_openr(file_name, NULL);
+	abfd = bfd_openr(file_name.c_str(), NULL);
 
 	if (abfd == NULL)
-		return "no abfd";
+		return "can't open " + file_name;
 
 	if (bfd_check_format(abfd, bfd_archive))
-		return "can not get addresses from archive";
+		return "invalid format: " + file_name;
 
 	if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
 		//bfd_nonfatal(bfd_get_filename(abfd));
@@ -215,7 +216,7 @@ static Result process_file(const char *file_name, bfd_vma addr, std::string& ret
 			//list_matching_formats(matching);
 			free(matching);
 		}
-		return "format does not match";
+		return "format does not match: " + file_name;
 	}
 
 	if(NegResult r = slurp_symtab(abfd))
@@ -284,12 +285,21 @@ char **backtrace_symbols(void *const *buffer, int size)
 		struct file_match match;
 		match.address = buffer[x];
 		dl_iterate_phdr(find_matching_file, &match);
-		addr = buffer[x] - match.base;
+		addr = xaddr - match.base;
 		if (match.file && strlen(match.file))
 			r = process_file(match.file, addr, locations[x]);
 		else
-#endif
 			r = process_file(GetBinaryFilename(), addr, locations[x]);
+#else
+		Dl_info info;
+		if(dladdr(xaddr, &info)) {
+			//notes << "addr " << xaddr << ": " << info.dli_fname << "," << info.dli_sname << endl;
+			//notes << info.dli_fname << ": " << info.dli_fbase << endl;
+			addr = bfd_vma((char*)xaddr - (char*)info.dli_fbase);
+			r = process_file(info.dli_fname, addr, locations[x]);
+		}
+		else r = "dladdr failed";
+#endif
 		if(!r)
 			locations[x] = "<" + r.humanErrorMsg + ">";
 		total += locations[x].size() + 1;
