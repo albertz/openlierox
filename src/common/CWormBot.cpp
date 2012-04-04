@@ -3262,7 +3262,7 @@ CVec CWormBotInputHandler::AI_GetBestRopeSpot(CVec trg)
 		// we are too close
 		return trg;
 
-	const float ropeMaxLength = (int)cClient->getGameLobby()[FT_RopeMaxLength];
+	const float ropeMaxLength = (float)(int)cClient->getGameLobby()[FT_RopeMaxLength];
 	dir *= ropeMaxLength / dir.GetLength();
 	dir = CVec(-dir.y, dir.x); // rotate reverse-clockwise by 90 deg
 

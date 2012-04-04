@@ -51,7 +51,7 @@ Weapon* CWorm::getCurrentWeaponRef()
 std::vector<WeaponType*> CWorm::getWeaponTypes() const {
 	std::vector<WeaponType*> wpns;
 	wpns.reserve(m_weapons.size());
-	foreach(w, m_weapons) {
+	const_foreach(w, m_weapons) {
 		if(!*w) continue;
 		wpns.push_back((*w)->getType());
 	}
@@ -703,8 +703,8 @@ void CWorm::damage( float amount, CWormInputHandler* damager )
 		// TODO: maybe we could implement an armor system? ;O
 		m_lastHurt = damager;
 		health -= amount;
-		if ( health < 0 )
-			health = 0;
+		if ( health < 0.f )
+			health = 0.f;
 	}
 }
 

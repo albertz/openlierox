@@ -22,8 +22,6 @@
 
 static_assert( C_LocalPlayer_ActionCount == CWormHumanInputHandler::ACTION_COUNT, actioncount_mismatch );
 
-using namespace std;
-
 std::string _event(size_t index, CWormHumanInputHandler::Actions action, bool start) {
 	using namespace boost::lambda;
 
@@ -79,8 +77,8 @@ void registerPlayerInput()
 		for(int action = CWormHumanInputHandler::LEFT; action < CWormHumanInputHandler::ACTION_COUNT; ++action)
 		{
 			console.registerCommands()
-				((S_("+P") << i << actionNames[action]), bind(eventStart, i, (CWormHumanInputHandler::Actions)action, _1))
-				((S_("-P") << i << actionNames[action]), bind(eventStop, i, (CWormHumanInputHandler::Actions)action, _1))
+				((S_("+P") << i << actionNames[action]), boost::lambda::bind(&eventStart, i, (CWormHumanInputHandler::Actions)action, _1))
+				((S_("-P") << i << actionNames[action]), boost::lambda::bind(&eventStop, i, (CWormHumanInputHandler::Actions)action, _1))
 			;
 		}
 	}
@@ -88,7 +86,7 @@ void registerPlayerInput()
 		("SAY", say);
 }
 
-string say( const list<string> &args )
+std::string say( const std::list<std::string> &args )
 {
 	
 	if ( !args.empty() )

@@ -154,7 +154,7 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 		if (cClient)  {
 			strncat(buffer, "Game state:\n", bufsize);
 			if (cClient->getStatus() == NET_CONNECTED)  {
-				if (cClient->getGameReady())
+				if (game.state == Game::S_Preparing)
 					strncat(buffer, "In game, selecting weapons.", bufsize);
 				else
 					strncat(buffer, "In lobby.", bufsize);
@@ -181,24 +181,15 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 	if (!tLXOptions || !tLX)
 		return buffer;
 	char tmp[32];
-	__try  {
+	try  {
 		// Game type
 		strncat(buffer, "iGameType = ", bufsize);
-		switch (tLX->iGameType)  {
-		case GME_LOCAL:
+		if(game.isLocalGame())
 			strncat(buffer, "GME_LOCAL", bufsize);
-			break;
-		case GME_HOST:
+		if(game.isServer())
 			strncat(buffer, "GME_HOST", bufsize);
-			break;
-		case GME_JOIN:
+		if(game.isClient())
 			strncat(buffer, "GME_JOIN", bufsize);
-			break;
-		default:
-			itoa(tLX->iGameType, tmp, 10);
-			fix_markend(tmp);
-			strncat(buffer, "UNKNOWN ", bufsize); strncat(buffer, tmp, bufsize);
-		}
 		strncat(buffer, "\n", bufsize);
 
 		// Game mode
@@ -211,26 +202,26 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 
 		// Mod name
 		strncat(buffer, "sModName = ", bufsize);
-		if (gameSettings[FT_Mod].as<ModInfo>()->name.size())
-			strncat(buffer, gameSettings[FT_Mod].as<ModInfo>()->name.c_str(), bufsize);
+		if (gameSettings[FT_Mod].as<ModInfo>()->name.get().size())
+			strncat(buffer, gameSettings[FT_Mod].as<ModInfo>()->name.get().c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Map file
 		strncat(buffer, "sMapFile = ", bufsize);
-		if (gameSettings[FT_Map].as<LevelInfo>()->path.size())
-			strncat(buffer, gameSettings[FT_Map].as<LevelInfo>()->path.c_str(), bufsize);
+		if (gameSettings[FT_Map].as<LevelInfo>()->path.get().size())
+			strncat(buffer, gameSettings[FT_Map].as<LevelInfo>()->path.get().c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Map name
 		strncat(buffer, "sMapName = ", bufsize);
-		if (gameSettings[FT_Map].as<LevelInfo>()->name.size())
-			strncat(buffer, gameSettings[FT_Map].as<LevelInfo>()->name.c_str(), bufsize);
+		if (gameSettings[FT_Map].as<LevelInfo>()->name.get().size())
+			strncat(buffer, gameSettings[FT_Map].as<LevelInfo>()->name.get().c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Mod dir
 		strncat(buffer, "sModDir = ", bufsize);
-		if (gameSettings[FT_Mod].as<ModInfo>()->path.size())
-			strncat(buffer, gameSettings[FT_Mod].as<ModInfo>()->path.c_str(), bufsize);
+		if (gameSettings[FT_Mod].as<ModInfo>()->path.get().size())
+			strncat(buffer, gameSettings[FT_Mod].as<ModInfo>()->path.get().c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Loading time
@@ -285,7 +276,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 
 		// Number of players
 		if (cServer)  {
-			itoa(cServer->getNumPlayers(), tmp, 10);
+			itoa(game.worms()->size(), tmp, 10);
 			fix_markend(tmp);
 			strncat(buffer, "iNumPlayers = ", bufsize);
 			strncat(buffer, tmp, bufsize);
@@ -293,7 +284,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		}
 
 		buffer[bufsize - 1] = '\0';
-	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	} catch (...) {
 		return buffer;
 	}
 	return buffer;

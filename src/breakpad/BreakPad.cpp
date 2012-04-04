@@ -223,9 +223,14 @@ BreakPad::BreakPad( const std::string& path )
 									PATHFORGPB(path), 
 									0, 
 									LaunchUploader, 
-									this, 
+									this,
+#ifdef WIN32
+									HANDLER_ALL
+#else
 									true,
-									NULL)
+									NULL
+#endif
+									)
 {
 #ifndef WIN32
 	if(sigsetjmp(restartLongjumpPoint, true)) {

@@ -748,8 +748,8 @@ NetworkSocket::EventHandler::EventHandler(NetworkSocket* sock) {
 				
 				if(ret > 0) {
 					switch(pollType) {
-						case NL_READ_STATUS: if(!pushNewDataEvent()) return -1; break;
-						case NL_ERROR_STATUS: if(!pushErrorEvent()) return -1; break;
+						case NL_READ_STATUS: if(!pushNewDataEvent()) return false; break;
+						case NL_ERROR_STATUS: if(!pushErrorEvent()) return false; break;
 					}
 				}
 				

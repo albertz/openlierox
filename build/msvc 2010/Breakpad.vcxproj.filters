@@ -99,6 +99,21 @@
     <ClCompile Include="..\..\libs\breakpad\src\common\module.cc">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\source_line_resolver_base.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\fast_source_line_resolver.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\cfi_frame_info.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\exploitability.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\exploitability_win.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libs\breakpad\src\common\convert_UTF.h">
@@ -122,5 +137,8 @@
     <ClInclude Include="..\..\libs\breakpad\src\common\windows\string_utils-inl.h">
       <Filter>common</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

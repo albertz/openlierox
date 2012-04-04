@@ -262,7 +262,7 @@ public:
 	CServerConnection* getClients() { return cClients; }
 	CServerConnection* localClientConnection();
 	CServerConnection* firstNonlocalClientConnection();
-	bool		isServerRunning() const { return cClients; }
+	bool		isServerRunning() const { return cClients != NULL; }
 	int		getNumBots() const;
 	int		getLastBot() const;
 	int		getFirstEmptyTeam() const; // -1 if there is no empty team; only possible teams by gamemode

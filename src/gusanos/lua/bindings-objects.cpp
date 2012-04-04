@@ -720,7 +720,7 @@ static int l_list_iterator(lua_State* L) {
 	}
 
 	lua_getfield(L, 1, "i");
-	int i = lua_tonumber(L, -1);
+	int i = (int)lua_tonumber(L, -1);
 	context.pop();
 	if(i < 0) {
 		context.pushError("list iterator: index negative");

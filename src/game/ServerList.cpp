@@ -1181,7 +1181,7 @@ Result UdpUpdater::SvrList_UpdaterFunc()
 		
 		AbsTime start = GetTime();
 		while (GetTime() - start <= 5.0f) {
-			if(breakSignal) return -1;
+			if(breakSignal) return "break";
 			SDL_Delay(40);
 			if(IsNetAddrValid(addr)) 
 				break;
@@ -1214,7 +1214,7 @@ Result UdpUpdater::SvrList_UpdaterFunc()
 		bool firstPacket = true;
 		while( true ) {
 			while (GetTime() <= timeoutTime)  {
-				if(breakSignal) return -1;
+				if(breakSignal) return "break";
 				
 				SDL_Delay(40); // TODO: do it event based
 				

@@ -577,9 +577,9 @@ void CWorm::readWeapons(CBytestream *bs)
 
 	// Reset the weapons
 	for(size_t i=0; i<tWeapons.size(); i++) {
-		weaponSlots.write()[i].Charge = 1;
+		weaponSlots.write()[i].Charge = 1.f;
 		weaponSlots.write()[i].Reloading = false;
-		weaponSlots.write()[i].LastFire = 0;
+		weaponSlots.write()[i].LastFire = 0.f;
 	}
 		
 	bWeaponsReady = true;

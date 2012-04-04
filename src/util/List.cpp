@@ -7,6 +7,7 @@
 #include "util/List.h"
 #include "gusanos/luaapi/classes.h"
 #include "CBytestream.h"
+#include "Debug.h"
 
 DynamicList::DynamicList() {
 	typeId = SVT_BOOL;

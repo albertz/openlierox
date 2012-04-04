@@ -839,7 +839,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 						const weapon_t* oldWeapon = wpn->weapon();
 						if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
 							wpn->WeaponId = b->getWeapon();
-							wpn->Charge = 1;
+							wpn->Charge = 1.f;
 							wpn->Reloading = false;
 						}
 						else {

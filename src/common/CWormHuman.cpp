@@ -769,9 +769,9 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	
 	for(size_t n=0;n<m_worm->tWeapons.size();n++) {
-		m_worm->weaponSlots.write()[n].Charge = 1;
+		m_worm->weaponSlots.write()[n].Charge = 1.f;
 		m_worm->weaponSlots.write()[n].Reloading = false;
-		m_worm->weaponSlots.write()[n].LastFire = 0;
+		m_worm->weaponSlots.write()[n].LastFire = 0.f;
 	}
 	
 	// Skip the dialog if there's only one weapon available

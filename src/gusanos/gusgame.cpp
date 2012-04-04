@@ -133,14 +133,14 @@ void Options::registerInConsole()
 {
 	console.registerVariables()
 		(ninja_rope_shootSpeed.gusVar("SV_NINJAROPE_SHOOT_SPEED", 2))
-		(ninja_rope_pullForce.gusVar("SV_NINJAROPE_PULL_FORCE", 0.031))
-		(ninja_rope_restLength.gusVar("SV_NINJAROPE_REST_LENGTH", 450.f / 16.f - 1.0f))
+		(ninja_rope_pullForce.gusVar("SV_NINJAROPE_PULL_FORCE", 0.031f))
+		(ninja_rope_restLength.gusVar("SV_NINJAROPE_REST_LENGTH", int(450.f / 16.f - 1.0f)))
 	// Note: ninja_rope_startDistance now maps to FT_RopeMaxLength. This is
 	// because it mostly determines how long the rope can get after shooting when in air.
 	// The old Gus ninja_rope_maxLength was removed here because it meant again
 	// somewhat something different (which might just be because the implementation
 	// might just have been buggy) and was not really used.
-		(ninja_rope_startDistance.gusVar("SV_NINJAROPE_START_DISTANCE", 4000.0f / 16.f - 1.f))
+		(ninja_rope_startDistance.gusVar("SV_NINJAROPE_START_DISTANCE", int(4000.0f / 16.f - 1.f)))
 		(worm_maxSpeed.gusVar("SV_WORM_MAX_SPEED", 0.45f))
 		(worm_acceleration.gusVar("SV_WORM_ACCELERATION", 0.03f))
 		(worm_airAccelerationFactor.gusVar("SV_WORM_AIR_ACCELERATION_FACTOR", 1.f))
@@ -626,7 +626,7 @@ void GusGame::refreshResources(std::string const& levelPath)
 void GusGame::_prepareLoad(const std::string& path) {	
 	unload();
 
-	foreach( i, console.getItems() )
+	const_foreach( i, console.getItems() )
 		if(Variable* v = dynamic_cast<Variable*>(i->second))
 			// reset variable to Gusanos default
 			v->reset();	

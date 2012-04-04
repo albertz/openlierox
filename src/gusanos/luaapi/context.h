@@ -339,7 +339,7 @@ public:
 
 	const char* tostring(int i) { return lua_tostring(*this, i); }
 	std::string convert_tostring(int i);
-	bool tobool(int i) { return lua_toboolean(*this, i); }
+	bool tobool(int i) { return lua_toboolean(*this, i) != 0; }
 	Result toScriptVar(int idx, ScriptVar_t& var);
 
 	LuaContext& newtable()

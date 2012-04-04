@@ -32,7 +32,7 @@ class CChannel;
 class CWorm;
 class GameServer;
 class CServerNetEngine;
-class GameState;
+struct GameState;
 
 
 // Client rights on a server
@@ -137,7 +137,7 @@ public:
 	
 	CBytestream	*getUnreliable()			{ return &bsUnreliable; }
 
-	int			OwnsWorm(int id);
+	bool		OwnsWorm(int id);
 
 	bool		getGameReady();
 	void		setGameReady(bool _g);

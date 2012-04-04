@@ -43,7 +43,7 @@ class WeaponType;
 class Font;
 class Sound;
 class SpriteSet;
-class Settings;
+struct Settings;
 class Game;
 struct CustomVar;
 struct LevelInfo;

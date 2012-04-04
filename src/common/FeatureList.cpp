@@ -18,6 +18,7 @@
 #include "game/GameMode.h"
 #include "Consts.h"
 #include "StaticAssert.h"
+#include "Debug.h"
 
 
 // WARNING: Keep this always synchronised with FeatureIndex!

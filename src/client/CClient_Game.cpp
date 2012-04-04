@@ -631,8 +631,8 @@ void CClient::ShootSpecial(CWorm *w)
 
 	// Drain the Weapon charge
 	Slot->Charge -= Slot->weapon()->Drain / 100;
-	if(Slot->Charge < 0) {
-		Slot->Charge = 0;
+	if(Slot->Charge < 0.f) {
+		Slot->Charge = 0.f;
 		Slot->Reloading = true;
 	}
 }
@@ -973,8 +973,8 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 	// Drain the Weapon charge
 	Slot->Charge -= Slot->weapon()->Drain / 100;
-	if(Slot->Charge <= 0) {
-		Slot->Charge = 0;
+	if(Slot->Charge <= 0.f) {
+		Slot->Charge = 0.f;
 		Slot->Reloading = true;
 	}
 
