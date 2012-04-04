@@ -100,7 +100,7 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data);
 static Result slurp_symtab(bfd * abfd)
 {
 	if ((bfd_get_file_flags(abfd) & HAS_SYMS) == 0)
-		return true;
+		return "file has no symtab";
 
 	unsigned int size = 0;
 	long symcount = bfd_read_minisymbols(abfd, false, (void**) &syms, &size);
@@ -109,7 +109,10 @@ static Result slurp_symtab(bfd * abfd)
 						(void**) &syms, &size);
 
 	if (symcount < 0)
-		return false; //bfd_get_filename(abfd));
+		return "error getting minisymbols";
+
+	if (symcount == 0)
+		return "no minisymbols found";
 
 	return true;
 }
@@ -215,7 +218,8 @@ static Result process_file(const char *file_name, bfd_vma addr, std::string& ret
 		return "format does not match";
 	}
 
-	slurp_symtab(abfd);
+	if(NegResult r = slurp_symtab(abfd))
+		return "slurp_symtab: " + r.res.humanErrorMsg;
 
 	ret_buf = translate_addresses_buf(abfd, addr);
 
@@ -274,7 +278,8 @@ char **backtrace_symbols(void *const *buffer, int size)
 	bfd_init();
 	for(x=stack_depth, y=0; x>=0; x--, y++){
 		std::string ret_buf;
-		bfd_vma addr = (bfd_vma)buffer[x];
+		const void* xaddr = buffer[x];
+		bfd_vma addr = (bfd_vma)xaddr;
 		Result r = true;
 #ifndef __APPLE__
 		struct file_match match;
