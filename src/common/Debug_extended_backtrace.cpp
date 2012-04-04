@@ -48,7 +48,10 @@
 /* 2 characters for each byte, plus 1 each for 0, x, and NULL */
 #define PTRSTR_LEN (sizeof(void *) * 2 + 3)
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +62,7 @@
 #include <mach-o/dyld.h>
 #else
 #include <bfd.h>
+#define HAVE_DECL_BASENAME 1
 #include <libiberty.h>
 #include <dlfcn.h>
 #include <link.h>
@@ -172,7 +176,7 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::string& buf
 
 	} else {
 		if (filename != NULL) {
-			char *h = strrchr(filename, '/');
+			const char *h = strrchr(filename, '/');
 			if (h != NULL)
 				filename = h + 1;
 
@@ -252,10 +256,10 @@ static int find_matching_file(struct dl_phdr_info *info,
 	for (n = info->dlpi_phnum; --n >= 0; phdr++) {
 		if (phdr->p_type == PT_LOAD) {
 			ElfW(Addr) vaddr = phdr->p_vaddr + load_base;
-			if (match->address >= vaddr && match->address < vaddr + phdr->p_memsz) {
+			if ((uintptr_t)match->address >= vaddr && (uintptr_t)match->address < vaddr + phdr->p_memsz) {
 				/* we found a match */
 				match->file = info->dlpi_name;
-				match->base = info->dlpi_addr;
+				match->base = (void*)(uintptr_t)info->dlpi_addr;
 			}
 		}
 	}
@@ -326,7 +330,7 @@ char **backtrace_symbols(void *const *buffer, int size)
 		struct file_match match;
 		match.address = buffer[x];
 		dl_iterate_phdr(find_matching_file, &match);
-		addr = xaddr - match.base;
+		addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)match.base);
 		if (match.file && strlen(match.file))
 			r = process_file(match.file, addr, locations[x]);
 		else
