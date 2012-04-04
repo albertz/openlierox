@@ -294,7 +294,7 @@ char **backtrace_symbols(void *const *buffer, int size)
 		if(r)
 			locations[x] = ret_buf;
 		else
-			locations[x] = "<error>";
+			locations[x] = "<" + r.humanErrorMsg + ">";
 		total += locations[x].size() + 1;
 	}
 
