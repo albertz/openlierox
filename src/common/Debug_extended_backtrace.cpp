@@ -173,10 +173,8 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data __a
 
 
 
-static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::string& buf)
+static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::vector<std::string>& buf)
 {
-	std::ostringstream ret;
-
 	pc = addr;
 	sectionFound = false;
 	found = false;
@@ -186,13 +184,15 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::string& buf
 		if(sectionFound) return "function not found";
 		else return "section not found";
 
-	} else {
+	} else while(found) {
+		std::ostringstream ret;
+
 		if (filename != NULL) {
 			const char *h = strrchr(filename, '/');
 			if (h != NULL)
-				filename = h + 1;
-
-			ret << filename;
+				ret << (h + 1);
+			else
+				ret << filename;
 		}
 		else
 			ret << "<unknown file>";
@@ -204,20 +204,16 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::string& buf
 		else
 			ret << handleFuncName(functionname) << "()";
 
-		/*
-	  si.found = bfd_find_inliner_info(bfd_data->abfd,
-									   &si.filename,
-									   &si.functionname,
-									   &si.line);
-	*/
+		buf.push_back(ret.str());
+
+		found = bfd_find_inliner_info(abfd, &filename, &functionname, &line);
 	}
 
-	buf = ret.str();
 	return true;
 }
 /* Process a file.  */
 
-static Result process_file(const std::string& file_name, bfd_vma addr, std::string& ret_buf)
+static Result process_file(const std::string& file_name, bfd_vma addr, std::vector<std::string>& ret_buf)
 {
 	bfd *abfd;
 	char **matching;
@@ -329,7 +325,7 @@ ptr_is_in_exe(const void *ptr, const struct mach_header *& header, intptr_t& off
 #endif
 
 std::vector<std::string> trans_sym(const void* xaddr) {
-	std::string ret;
+	std::vector<std::string> ret;
 
 	bfd_vma addr = (bfd_vma)xaddr;
 	Result r = true;
@@ -360,17 +356,17 @@ std::vector<std::string> trans_sym(const void* xaddr) {
 #endif
 
 	if(!r) {
-		ret = "[0x" + hex((uintptr_t)xaddr) + "] <" + r.humanErrorMsg + ">";
+		std::string s = "[0x" + hex((uintptr_t)xaddr) + "] <" + r.humanErrorMsg + ">";
 
 		// we might be able to use dladdr as fallback
 		Dl_info info;
 		if(dladdr(xaddr, &info))
-			ret += " " + GetBaseFilename(info.dli_fname) + ": " + handleFuncName(info.dli_sname) + "()";
+			s += " " + GetBaseFilename(info.dli_fname) + ": " + handleFuncName(info.dli_sname) + "()";
+
+		ret.push_back(s);
 	}
 
-	std::vector<std::string> retVec;
-	retVec.push_back(ret);
-	return retVec;
+	return ret;
 }
 
 std::vector<std::string> backtrace_symbols_str(void *const *buffer, int size) {
