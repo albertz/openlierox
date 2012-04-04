@@ -12,6 +12,7 @@
 #include "CrashHandler.h"
 #include "OLXCommand.h"
 #include "client/StdinCLISupport.h"
+#include "util/macros.h"
 
 
 #include <time.h>
@@ -429,6 +430,31 @@ void OlxWriteCoreDump(const char*) {
 #include <stdio.h>
 #include <stdlib.h>
 
+#if HASBFD
+
+std::vector<std::string> backtrace_symbols_str(void *const *buffer, int size);
+
+void DumpCallstackPrintf(void* callpnt) {
+	void *callstack[128];
+	int framesC = backtrace(callstack, sizeof(callstack));
+	printf("backtrace() returned %d addresses\n", framesC);
+	if(callpnt != NULL && framesC > 3) callstack[3] = callpnt; // expected to be called from signal handler
+	std::vector<std::string> strs = backtrace_symbols_str(callstack, framesC);
+	foreach(s, strs)
+		printf("%s\n", s->c_str());
+}
+
+void DumpCallstack(const PrintOutFct& printer) {
+	void *callstack[128];
+	int framesC = backtrace(callstack, sizeof(callstack));
+	printer.print("DumpCallstack: " + itoa(framesC) + " addresses:");
+	std::vector<std::string> strs = backtrace_symbols_str(callstack, framesC);
+	foreach(s, strs)
+		printer.print(" " + *s + "\n");
+}
+
+#else
+
 void DumpCallstackPrintf(void* callpnt) {
 	void *callstack[128];
 	int framesC = backtrace(callstack, sizeof(callstack));
@@ -457,6 +483,8 @@ void DumpCallstack(const PrintOutFct& printer) {
 	}
 	free(strs);
 }
+
+#endif // HASBFD
 
 #elif defined(WIN32)
 

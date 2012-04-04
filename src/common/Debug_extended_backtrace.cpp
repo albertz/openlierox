@@ -309,6 +309,64 @@ ptr_is_in_exe(const void *ptr, const struct mach_header *& header, intptr_t& off
 }
 #endif
 
+std::vector<std::string> trans_sym(const void* xaddr) {
+	std::string ret;
+
+	bfd_vma addr = (bfd_vma)xaddr;
+	Result r = true;
+
+#ifndef __APPLE__
+	struct file_match match;
+	match.address = buffer[x];
+	dl_iterate_phdr(find_matching_file, &match);
+	addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)match.base);
+	if (match.file && strlen(match.file))
+		r = process_file(match.file, addr, ret);
+	else
+		r = process_file(GetBinaryFilename(), addr, ret);
+
+#else
+	const struct mach_header* header;
+	intptr_t offset;
+	uintptr_t vmaddr;
+	std::string image_name;
+	if(ptr_is_in_exe(xaddr, header, offset, vmaddr, image_name)) {
+		//notes << "addr " << xaddr << ": " << image_name << ", " << vmaddr << ", " << offset << endl;
+		//addr = bfd_vma((uintptr_t)xaddr - vmaddr - offset);
+		//addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)header);
+		addr = bfd_vma((uintptr_t)xaddr - offset);
+		r = process_file(image_name, addr, ret);
+	}
+	else r = "image not found";
+#endif
+
+	if(!r) {
+		ret = "[0x" + hex((uintptr_t)xaddr) + "] <" + r.humanErrorMsg + ">";
+
+		// we might be able to use dladdr as fallback
+		Dl_info info;
+		if(dladdr(xaddr, &info))
+			ret += " " + GetBaseFilename(info.dli_fname) + ":" + info.dli_sname;
+	}
+
+	std::vector<std::string> retVec;
+	retVec.push_back(ret);
+	return retVec;
+}
+
+std::vector<std::string> backtrace_symbols_str(void *const *buffer, int size) {
+	std::vector<std::string> ret;
+
+	bfd_init();
+	for(int x = 0; x < size; ++x) {
+		const void* xaddr = buffer[x];
+		std::vector<std::string> translated_sym = trans_sym(xaddr);
+		ret.insert(ret.end(), translated_sym.begin(), translated_sym.end());
+	}
+
+	return ret;
+}
+
 char **backtrace_symbols(void *const *buffer, int size)
 {
 	int stack_depth = size - 1;
@@ -324,39 +382,9 @@ char **backtrace_symbols(void *const *buffer, int size)
 	bfd_init();
 	for(x=stack_depth, y=0; x>=0; x--, y++){
 		const void* xaddr = buffer[x];
-		bfd_vma addr = (bfd_vma)xaddr;
-		Result r = true;
-#ifndef __APPLE__
-		struct file_match match;
-		match.address = buffer[x];
-		dl_iterate_phdr(find_matching_file, &match);
-		addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)match.base);
-		if (match.file && strlen(match.file))
-			r = process_file(match.file, addr, locations[x]);
-		else
-			r = process_file(GetBinaryFilename(), addr, locations[x]);
-#else
-		const struct mach_header* header;
-		intptr_t offset;
-		uintptr_t vmaddr;
-		std::string image_name;
-		if(ptr_is_in_exe(xaddr, header, offset, vmaddr, image_name)) {
-			//notes << "addr " << xaddr << ": " << image_name << ", " << vmaddr << ", " << offset << endl;
-			//addr = bfd_vma((uintptr_t)xaddr - vmaddr - offset);
-			//addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)header);
-			addr = bfd_vma((uintptr_t)xaddr - offset);
-			r = process_file(image_name, addr, locations[x]);
-		}
-		else r = "image not found";
-#endif
-		if(!r) {
-			locations[x] = "[0x" + hex((uintptr_t)xaddr) + "] <" + r.humanErrorMsg + ">";
-
-			// we might be able to use dladdr as fallback
-			Dl_info info;
-			if(dladdr(xaddr, &info))
-				locations[x] += " " + GetBaseFilename(info.dli_fname) + ":" + info.dli_sname;
-		}
+		std::vector<std::string> translated_sym = trans_sym(xaddr);
+		assert(translated_sym.size() >= 1);
+		locations[x] = translated_sym[0];
 		total += locations[x].size() + 1;
 	}
 
