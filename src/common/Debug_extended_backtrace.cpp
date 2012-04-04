@@ -38,6 +38,10 @@
 
 #include "util/Result.h"
 #include "FindFile.h" // GetBinaryFilename
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <string>
 
 /* 2 characters for each byte, plus 1 each for 0, x, and NULL */
 #define PTRSTR_LEN (sizeof(void *) * 2 + 3)
@@ -149,67 +153,46 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data __a
 
 
 
-static char** translate_addresses_buf(bfd * abfd, bfd_vma *addr, int naddr)
+static std::string translate_addresses_buf(bfd * abfd, bfd_vma addr)
 {
-	int naddr_orig = naddr;
-	char b;
-	int total  = 0;
-	enum State { Count, Print } state;
-	char *buf = &b;
-	int len = 0;
-	char **ret_buf = NULL;
-	/* iterate over the formating twice.
-	 * the first time we count how much space we need
-	 * the second time we do the actual printing */
-	for (state=Count; state<=Print; state = State(int(state) + 1)) {
-	if (state == Print) {
-		ret_buf = (char**)malloc(total + sizeof(char*)*naddr);
-		buf = (char*)(ret_buf + naddr);
-		len = total;
-	}
-	while (naddr) {
-		if (state == Print)
-			ret_buf[naddr-1] = buf;
-		pc = addr[naddr-1];
+	std::ostringstream ret;
 
-		sectionFound = false;
-		found = false;
-		bfd_map_over_sections(abfd, find_address_in_section, (PTR) NULL);
+	pc = addr;
+	sectionFound = false;
+	found = false;
+	bfd_map_over_sections(abfd, find_address_in_section, (PTR) NULL);
 
-		if (!found) {
-			std::string errMsg = "function not found";
-			if(!sectionFound) errMsg = "section not found";
-			total += snprintf(buf, len, "[0x%llx] <%s>", (long long unsigned int) addr[naddr-1], errMsg.c_str()) + 1;
-		} else {
-			const char *name;
+	if (!found) {
+		ret.setf( std::ios::hex, std::ios::basefield );
+		ret.setf( std::ios::showbase );
+		ret << "[" << (long long unsigned int) addr << "] ";
+		if(sectionFound) ret << "<function not found>";
+		else ret << "<section not found>";
 
-			name = functionname;
-			if (name == NULL || *name == '\0')
-				name = "??";
-			if (filename != NULL) {
-				char *h;
+	} else {
+		if (filename != NULL) {
+			char *h = strrchr(filename, '/');
+			if (h != NULL)
+				filename = h + 1;
 
-				h = strrchr(filename, '/');
-				if (h != NULL)
-					filename = h + 1;
-			}
-			total += snprintf(buf, len, "%s:%u\t%s()", filename ? filename : "??",
-			       line, name) + 1;
-
+			ret << filename;
 		}
-		if (state == Print) {
-			/* set buf just past the end of string */
-			buf = buf + total + 1;
-		}
-		naddr--;
+		else
+			ret << "<unknown file>";
+
+		ret << ":" << line << "\t";
+
+		if (functionname == NULL || *functionname == '\0')
+			ret << "<unknown function>";
+		else
+			ret << functionname << "()";
 	}
-	naddr = naddr_orig;
-	}
-	return ret_buf;
+
+	return ret.str();
 }
 /* Process a file.  */
 
-static Result process_file(const char *file_name, bfd_vma *addr, int naddr, char**& ret_buf)
+static Result process_file(const char *file_name, bfd_vma addr, std::string& ret_buf)
 {
 	bfd *abfd;
 	char **matching;
@@ -234,7 +217,7 @@ static Result process_file(const char *file_name, bfd_vma *addr, int naddr, char
 
 	slurp_symtab(abfd);
 
-	ret_buf = translate_addresses_buf(abfd, addr, naddr);
+	ret_buf = translate_addresses_buf(abfd, addr);
 
 	free (syms);
 	syms = NULL;
@@ -286,11 +269,11 @@ char **backtrace_symbols(void *const *buffer, int size)
 	char **final;
 	char *f_strings;
 
-	char*** locations = (char***)malloc(sizeof(char**) * (stack_depth+1));
+	std::vector<std::string> locations(stack_depth + 1);
 
 	bfd_init();
 	for(x=stack_depth, y=0; x>=0; x--, y++){
-		char **ret_buf;
+		std::string ret_buf;
 		bfd_vma addr = (bfd_vma)buffer[x];
 		Result r = true;
 #ifndef __APPLE__
@@ -299,17 +282,15 @@ char **backtrace_symbols(void *const *buffer, int size)
 		dl_iterate_phdr(find_matching_file, &match);
 		addr = buffer[x] - match.base;
 		if (match.file && strlen(match.file))
-			r = process_file(match.file, &addr, 1, ret_buf);
+			r = process_file(match.file, addr, ret_buf);
 		else
 #endif
-			r = process_file(GetBinaryFilename(), &addr, 1, ret_buf);
+			r = process_file(GetBinaryFilename(), addr, ret_buf);
 		if(r)
 			locations[x] = ret_buf;
-		else {
-			locations[x] = (char**)malloc(sizeof(char*));
-			locations[x][0] = (char*)"<error>";
-		}
-		total += strlen(locations[x][0]) + 1;
+		else
+			locations[x] = "<error>";
+		total += locations[x].size() + 1;
 	}
 
 	/* allocate the array of char* we are going to return and extra space for
@@ -320,13 +301,10 @@ char **backtrace_symbols(void *const *buffer, int size)
 
 	/* fill in all of strings and pointers */
 	for(x=stack_depth; x>=0; x--){
-		strcpy(f_strings, locations[x][0]);
-		free(locations[x]);
+		strcpy(f_strings, locations[x].c_str());
 		final[x] = f_strings;
 		f_strings += strlen(f_strings) + 1;
 	}
-
-	free(locations);
 
 	return final;
 }
