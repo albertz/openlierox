@@ -265,12 +265,12 @@ static int find_matching_file(struct dl_phdr_info *info,
 }
 #else
 static bool
-ptr_is_in_exe(const void *ptr, intptr_t& offset, uintptr_t& vmaddr, std::string& image_name)
+ptr_is_in_exe(const void *ptr, const struct mach_header *& header, intptr_t& offset, uintptr_t& vmaddr, std::string& image_name)
 {
 	uint32_t i, count = _dyld_image_count();
 
 	for (i = 0; i < count; i++) {
-		const struct mach_header *header = _dyld_get_image_header(i);
+		header = _dyld_get_image_header(i);
 		offset = _dyld_get_image_vmaddr_slide(i);
 		//notes << i << "," << offset << ": " << _dyld_get_image_name(i) << endl;
 
@@ -334,12 +334,14 @@ char **backtrace_symbols(void *const *buffer, int size)
 		else
 			r = process_file(GetBinaryFilename(), addr, locations[x]);
 #else
+		const struct mach_header* header;
 		intptr_t offset;
 		uintptr_t vmaddr;
 		std::string image_name;
-		if(ptr_is_in_exe(xaddr, offset, vmaddr, image_name)) {
+		if(ptr_is_in_exe(xaddr, header, offset, vmaddr, image_name)) {
 			//notes << "addr " << xaddr << ": " << image_name << ", " << vmaddr << ", " << offset << endl;
-			addr = bfd_vma((uintptr_t)xaddr - vmaddr - offset);
+			//addr = bfd_vma((uintptr_t)xaddr - vmaddr - offset);
+			addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)header);
 			r = process_file(image_name, addr, locations[x]);
 		}
 		else r = "image not found";
