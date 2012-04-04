@@ -143,7 +143,7 @@ struct _SelectType {
 	static StringType* selectType(const char*) { return NULL; }
 	static StringType* selectType(char[]) { return NULL; }
 
-	typedef typename BOOST_TYPEOF(*selectType(*(T*)NULL)) type;
+	typedef BOOST_TYPEOF(*selectType(*(T*)NULL)) type;
 };
 
 template<typename T> struct GetType : _SelectType<T>::type {};
