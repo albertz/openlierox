@@ -82,6 +82,12 @@
 // we have to create a basic class Game or something
 keyboard_t	*kb = NULL;
 
+
+static bool enableStdinCLI = true;
+
+static void ParseArguments_BeforeInit(int argc, char *argv[]);
+static void ParseArguments_AfterInit(int argc, char *argv[]);
+
 static std::list<std::string> startupCommands;
 
 
@@ -149,8 +155,12 @@ int main(int argc, char *argv[])
 {
 	if(DoCrashReport(argc, argv)) return 0;
 
+	ParseArguments_BeforeInit(argc, argv);
+
 	// do that before teeStdoutInit so it might fall back to a safer version
-	Result stdinCLIinitRes = initStdinCLISupport();
+	Result stdinCLIinitRes(true);
+	if(enableStdinCLI)
+		stdinCLIinitRes = initStdinCLISupport();
 	teeStdoutInit();
 	
 	mainThreadId = SDL_ThreadID();
@@ -213,7 +223,7 @@ startpoint:
 	// Parse the arguments
 	// do it after the loading of the options as this can
 	// overwrite the default options
-	ParseArguments(argc, argv);
+	ParseArguments_AfterInit(argc, argv);
 
 	// Start the G15 support, it's suitable that the display is showing while loading.
 #ifdef WITH_G15
@@ -354,15 +364,21 @@ startpoint:
 }
 
 
+static void ParseArguments_BeforeInit(int argc, char *argv[]) {
+	for(int i=1; i<argc; i++) {
+		char* a = argv[i];
+		if( stricmp(a, "-disablestdincli") == 0 ) {
+			enableStdinCLI = false;
+		}
+	}
+}
 
-///////////////////
-// Parse the arguments
-void ParseArguments(int argc, char *argv[])
+
+static void ParseArguments_AfterInit(int argc, char *argv[])
 {
     // Parameters passed to OpenLieroX overwrite the loaded options
-    char *a;
     for(int i=1; i<argc; i++) {
-        a = argv[i];
+		char* a = argv[i];
 
         // -opengl
         // Turns OpenGL on
