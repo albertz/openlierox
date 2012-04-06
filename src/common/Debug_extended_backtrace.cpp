@@ -180,7 +180,7 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data __a
 
 
 
-static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::vector<std::string>& buf)
+static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, const std::string& prefix, std::vector<std::string>& buf)
 {
 	pc = addr;
 	sectionFound = false;
@@ -193,7 +193,14 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::vector<std:
 
 	} else while(found) {
 		std::ostringstream ret;
+		ret << prefix;
 
+		if (functionname == NULL || *functionname == '\0')
+			ret << "<unknown function>";
+		else
+			ret << handleFuncName(functionname);
+
+		ret << " (";
 		if (filename != NULL) {
 			const char *h = strrchr(filename, '/');
 			if (h != NULL)
@@ -204,12 +211,7 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::vector<std:
 		else
 			ret << "<unknown file>";
 
-		ret << ":" << line << "\t";
-
-		if (functionname == NULL || *functionname == '\0')
-			ret << "<unknown function>";
-		else
-			ret << handleFuncName(functionname);
+		ret << ":" << line << ")";
 
 		buf.push_back(ret.str());
 
@@ -221,7 +223,7 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::vector<std:
 
 static bfd *abfd = NULL;
 
-static Result process_file(const std::string& file_name, bfd_vma addr, std::vector<std::string>& ret_buf)
+static Result process_file(const std::string& file_name, const std::string& prefix, bfd_vma addr, std::vector<std::string>& ret_buf)
 {
 	char **matching;
 
@@ -250,7 +252,7 @@ static Result process_file(const std::string& file_name, bfd_vma addr, std::vect
 	if(NegResult r = slurp_symtab(abfd))
 		return "slurp_symtab: " + r.res.humanErrorMsg;
 
-	if(NegResult r = translate_addresses_buf(abfd, addr, ret_buf))
+	if(NegResult r = translate_addresses_buf(abfd, addr, prefix, ret_buf))
 		return r.res;
 
 	return true;
@@ -334,6 +336,7 @@ ptr_is_in_exe(const void *ptr, const struct mach_header *& header, intptr_t& off
 std::vector<std::string> trans_sym(const void* xaddr) {
 	std::vector<std::string> ret;
 
+	std::string prefix = "[0x" + hex((uintptr_t)xaddr) + "] ";
 	bfd_vma addr = (bfd_vma)xaddr;
 	Result r = true;
 
@@ -353,24 +356,14 @@ std::vector<std::string> trans_sym(const void* xaddr) {
 	uintptr_t vmaddr;
 	std::string image_name;
 	if(ptr_is_in_exe(xaddr, header, offset, vmaddr, image_name)) {
-		//notes << "addr " << xaddr << ": " << image_name << ", " << vmaddr << ", " << offset << endl;
-		//addr = bfd_vma((uintptr_t)xaddr - vmaddr - offset);
-		//addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)header);
 		addr = bfd_vma((uintptr_t)xaddr - offset);
-		//addr = bfd_vma((uintptr_t)xaddr - vmaddr);
-		//addr = bfd_vma(xaddr);
-		r = process_file(image_name, addr, ret);
-		/*intptr_t x = -100;
-		while(!r && ++x < 100) {
-			addr = bfd_vma((uintptr_t)xaddr - offset + x);
-			r = process_file(image_name, addr, ret);
-		}*/
+		r = process_file(image_name, prefix, addr, ret);
 	}
 	else r = "image not found";
 #endif
 
 	if(!r) {
-		std::string s = "[0x" + hex((uintptr_t)xaddr) + "] <" + r.humanErrorMsg + ">";
+		std::string s = prefix + "<" + r.humanErrorMsg + ">";
 
 		// we might be able to use dladdr as fallback
 		Dl_info info;
