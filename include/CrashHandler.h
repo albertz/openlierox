@@ -18,7 +18,8 @@ public:
 	static CrashHandler* get();
 	static bool recoverAfterCrash;
 	static bool restartAfterCrash;
-	
+	static bool enableCrashHandler;
+
 	// you can temporarly disable it (and then enable it again)
 	virtual void disable() {}
 	virtual void enable() {}

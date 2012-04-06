@@ -370,6 +370,9 @@ static void ParseArguments_BeforeInit(int argc, char *argv[]) {
 		if( stricmp(a, "-disablestdincli") == 0 ) {
 			enableStdinCLI = false;
 		}
+		else if( stricmp(a, "-disablecrashhandler") == 0 ) {
+			CrashHandler::enableCrashHandler = false;
+		}
 	}
 }
 

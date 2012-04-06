@@ -545,7 +545,11 @@ void CrashHandler::init() {
 		return;
 	}
 
-	if(AmIBeingDebugged()) {
+	if(!enableCrashHandler) {
+		notes << "CrashHandler disabled .. ";
+		crashHandlerInstance = new DummyCrashHandler();
+	}
+	else if(AmIBeingDebugged()) {
 		notes << "Debugging .. ";
 		crashHandlerInstance = new DummyCrashHandler();
 	}
@@ -566,5 +570,6 @@ CrashHandler* CrashHandler::get() {
 	return crashHandlerInstance;
 }
 
+bool CrashHandler::enableCrashHandler = true;
 bool CrashHandler::recoverAfterCrash = false;
 bool CrashHandler::restartAfterCrash = false;
