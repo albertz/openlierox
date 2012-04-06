@@ -209,7 +209,7 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::vector<std:
 		if (functionname == NULL || *functionname == '\0')
 			ret << "<unknown function>";
 		else
-			ret << handleFuncName(functionname) << "()";
+			ret << handleFuncName(functionname);
 
 		buf.push_back(ret.str());
 
@@ -373,7 +373,7 @@ std::vector<std::string> trans_sym(const void* xaddr) {
 		// we might be able to use dladdr as fallback
 		Dl_info info;
 		if(dladdr(xaddr, &info))
-			s += " " + GetBaseFilename(info.dli_fname) + ": " + handleFuncName(info.dli_sname) + "()";
+			s += " " + GetBaseFilename(info.dli_fname) + ": " + handleFuncName(info.dli_sname);
 
 		ret.push_back(s);
 	}
