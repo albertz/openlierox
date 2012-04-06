@@ -363,12 +363,16 @@ std::vector<std::string> trans_sym(const void* xaddr) {
 #endif
 
 	if(!r) {
-		std::string s = prefix + "<" + r.humanErrorMsg + ">";
+		std::string s = prefix;
 
 		// we might be able to use dladdr as fallback
 		Dl_info info;
 		if(dladdr(xaddr, &info))
-			s += " " + GetBaseFilename(info.dli_fname) + ": " + handleFuncName(info.dli_sname);
+			s += handleFuncName(info.dli_sname) + " ((" + GetBaseFilename(info.dli_fname) + "))";
+		else
+			s += "<no dladdr info>";
+
+		s += " <dbg: " + r.humanErrorMsg + ">";
 
 		ret.push_back(s);
 	}
