@@ -218,14 +218,22 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, std::vector<std:
 
 	return true;
 }
-/* Process a file.  */
+
+static bfd *abfd = NULL;
 
 static Result process_file(const std::string& file_name, bfd_vma addr, std::vector<std::string>& ret_buf)
 {
-	bfd *abfd;
 	char **matching;
 
 	abfd = bfd_openr(file_name.c_str(), NULL);
+
+	struct DoCleanup {
+		DoCleanup(int) {} // dummy constructor to avoid "unused var" warning
+		~DoCleanup() {
+			free(syms); syms = NULL;
+			if(abfd) bfd_close(abfd); abfd = NULL;
+		}
+	} cleanupScope(0);
 
 	if (abfd == NULL)
 		return "can't open file";
@@ -234,12 +242,8 @@ static Result process_file(const std::string& file_name, bfd_vma addr, std::vect
 		return "invalid format";
 
 	if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
-		//bfd_nonfatal(bfd_get_filename(abfd));
-		if (bfd_get_error() ==
-		    bfd_error_file_ambiguously_recognized) {
-			//list_matching_formats(matching);
+		if (bfd_get_error() == bfd_error_file_ambiguously_recognized)
 			free(matching);
-		}
 		return "format does not match";
 	}
 
@@ -249,10 +253,6 @@ static Result process_file(const std::string& file_name, bfd_vma addr, std::vect
 	if(NegResult r = translate_addresses_buf(abfd, addr, ret_buf))
 		return r.res;
 
-	free (syms);
-	syms = NULL;
-
-	bfd_close(abfd);
 	return true;
 }
 
@@ -357,9 +357,11 @@ std::vector<std::string> trans_sym(const void* xaddr) {
 		//addr = bfd_vma((uintptr_t)xaddr - vmaddr - offset);
 		//addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)header);
 		addr = bfd_vma((uintptr_t)xaddr - offset);
+		//addr = bfd_vma((uintptr_t)xaddr - vmaddr);
+		//addr = bfd_vma(xaddr);
 		r = process_file(image_name, addr, ret);
-		/*intptr_t x = -1000;
-		while(!r && ++x < 10000) {
+		/*intptr_t x = -100;
+		while(!r && ++x < 100) {
 			addr = bfd_vma((uintptr_t)xaddr - offset + x);
 			r = process_file(image_name, addr, ret);
 		}*/
