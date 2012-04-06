@@ -42,7 +42,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-//#include <cxxabi.h>
+#include <cxxabi.h>
 #include "Debug.h"
 #include "util/StringConv.h"
 
@@ -134,9 +134,9 @@ static Result slurp_symtab(bfd * abfd)
 
 
 static std::string handleFuncName(const std::string& funcName) {
-	//int status = 0;
-	//abi::__cxa_demangle(funcCame, 0, 0, &status);
-	char* s = bfd_demangle(NULL, funcName.c_str(), 0);
+	int status = 0;
+	char* s = abi::__cxa_demangle(funcName.c_str(), 0, 0, &status);
+//	char* s = bfd_demangle(NULL, funcName.c_str(), 0);
 	if(!s) return funcName;
 	std::string ret(s);
 	free(s);
