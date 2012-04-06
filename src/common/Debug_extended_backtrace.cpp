@@ -454,6 +454,12 @@ const char *libintl_dgettext (const char *domain, const char *msg)
 {
   return msg;
 }
+
+// This is for the Apple-GDB version of bfd.
+extern "C"
+const char * dcgettext(const char * domainname, const char * msgid, int category) {
+	return msgid;
+}
 #endif /* !HAVE_LIBINTL_DGETTEXT */
 
 #endif // HASBFD
