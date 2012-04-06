@@ -1,5 +1,5 @@
 /*
- *  Debug_Callstack.cpp
+ *  Debug_DumpCallstack.cpp
  *  OpenLieroX
  *
  *  Created by Albert Zeyer on 06.04.12.
@@ -34,28 +34,26 @@ std::vector<std::string> backtrace_symbols_str(void *const *buffer, int size);
 
 void DumpCallstackPrintf(void* callpnt) {
 	void *callstack[128];
-	int framesC = backtrace(callstack, sizeof(callstack));
+	int framesC = GetCallstack(0, callstack, sizeof(callstack));
 	printf("backtrace() returned %d addresses\n", framesC);
 	if(callpnt != NULL && framesC > 3) callstack[3] = callpnt; // expected to be called from signal handler
 	std::vector<std::string> strs = backtrace_symbols_str(callstack, framesC);
 	foreach(s, strs)
-	printf("%s\n", s->c_str());
+		printf("%s\n", s->c_str());
 }
 
-void DumpCallstack(const PrintOutFct& printer) {
-	void *callstack[128];
-	int framesC = backtrace(callstack, sizeof(callstack));
-	printer.print("DumpCallstack: " + itoa(framesC) + " addresses:");
-	std::vector<std::string> strs = backtrace_symbols_str(callstack, framesC);
+void DumpCallstack(const PrintOutFct& printer, void*const* buffer, int size) {
+	printer.print("DumpCallstack: " + itoa(size) + " addresses:");
+	std::vector<std::string> strs = backtrace_symbols_str(buffer, size);
 	foreach(s, strs)
-	printer.print(" " + *s + "\n");
+		printer.print(" " + *s + "\n");
 }
 
 #else
 
 void DumpCallstackPrintf(void* callpnt) {
 	void *callstack[128];
-	int framesC = backtrace(callstack, sizeof(callstack));
+	int framesC = GetCallstack(0, callstack, sizeof(callstack));
 	printf("backtrace() returned %d addresses\n", framesC);
 	if(callpnt != NULL && framesC > 3) callstack[3] = callpnt; // expected to be called from signal handler
 	char** strs = backtrace_symbols(callstack, framesC);
@@ -68,12 +66,10 @@ void DumpCallstackPrintf(void* callpnt) {
 	free(strs);
 }
 
-void DumpCallstack(const PrintOutFct& printer) {
-	void *callstack[128];
-	int framesC = backtrace(callstack, sizeof(callstack));
-	printer.print("DumpCallstack: " + itoa(framesC) + " addresses:");
-	char** strs = backtrace_symbols(callstack, framesC);
-	for(int i = 0; i < framesC; ++i) {
+void DumpCallstack(const PrintOutFct& printer, void*const* buffer, int size) {
+	printer.print("DumpCallstack: " + itoa(size) + " addresses:");
+	char** strs = backtrace_symbols(buffer, size);
+	for(int i = 0; i < size; ++i) {
 		if(strs[i])
 			printer.print(std::string(" ") + strs[i] + "\n");
 		else
@@ -83,6 +79,12 @@ void DumpCallstack(const PrintOutFct& printer) {
 }
 
 #endif // HASBFD
+
+void DumpCallstack(const PrintOutFct& printer) {
+	void *callstack[128];
+	int framesC = GetCallstack(0, callstack, sizeof(callstack));
+	DumpCallstack(printer, callstack, framesC);
+}
 
 #elif defined(WIN32)
 
@@ -110,6 +112,10 @@ public:
 	}
 };
 
+void DumpCallstack(const PrintOutFct& printer, void*const* buffer, int size) {
+	printf("DumpCallstack for custom callstack not implemented\n");
+}
+
 void DumpCallstackPrintf(void* callpnt) 
 {
 	PrintStackWalker sw;
@@ -124,6 +130,10 @@ void DumpCallstack(const PrintOutFct& printer) {
 #else
 
 #warning No DumpCallstack implementation for this arch/sys
+
+void DumpCallstack(const PrintOutFct& printer, void*const* buffer, int size) {
+	printf("DumpCallstack not implemented\n");
+}
 
 void DumpCallstackPrintf(void* callpnt) {
 	printf("DumpCallstackPrintf not implemented\n");

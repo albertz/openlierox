@@ -20,14 +20,23 @@
 bool AmIBeingDebugged();
 void RaiseDebugger(); // if run in a debugger, it should raise it; if not, it should do nothing
 void OlxWriteCoreDump(const char* file_postfix = NULL);
-void DumpCallstackPrintf(void* callpnt = NULL);
 // }
 
 // Returns current sourcefile pos as string
 #define FILELINE1 (std::string(__FILE__) + ":" + itoa(__LINE__))
 #define FILELINE FILELINE1
 
+// Under Win, it's HANDLE (which is void*).
+// Otherwise, it's pthread_t, which is also a ptr-type.
+typedef uintptr_t ThreadId;
+
+// If threadId is 0, assumes the current thread.
+// Returns the amount of items written in the buffer-array.
+int GetCallstack(ThreadId threadId, void **buffer, int size);
+
+void DumpCallstack(const PrintOutFct& printer, void*const* buffer, int size);
 void DumpCallstack(const PrintOutFct& printer);
+void DumpCallstackPrintf(void* callpnt = NULL);
 
 struct SDL_mutex;
 
