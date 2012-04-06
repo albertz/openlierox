@@ -8,6 +8,14 @@
  */
 
 #include "Debug.h"
+#include "Mutex.h"
+#include "util/StaticVar.h"
+
+// When implementing iterating over threads on Mac, this might be useful:
+// http://llvm.org/viewvc/llvm-project/lldb/trunk/tools/darwin-threads/examine-threads.c?view=markup
+
+// For getting the callback, maybe libunwind can be useful: http://www.nongnu.org/libunwind/
+
 
 #ifndef HAVE_EXECINFO
 #	if defined(__linux__)
@@ -25,13 +33,73 @@
 #include <stdlib.h>
 #endif
 
+#ifdef HAVE_EXECINFO
+
+#include <signal.h>
+#include <pthread.h>
+
+static StaticVar<Mutex> callstackMutex;
+static ThreadId callingThread = 0;
+static ThreadId targetThread = 0;
+static void** threadCallstackBuffer = NULL;
+static int threadCallstackBufferSize = 0;
+static int threadCallstackCount = 0;
+
+#define CALLSTACK_SIG SIGUSR2
+
+void _callstack_signal_handler(int) {
+	ThreadId myThread = (ThreadId)pthread_self();
+	if(myThread != targetThread) return;
+	
+	threadCallstackCount = backtrace(threadCallstackBuffer, threadCallstackBufferSize);
+
+	// continue calling thread
+	pthread_kill((pthread_t)callingThread, CALLSTACK_SIG);	
+}
 
 int GetCallstack(ThreadId threadId, void **buffer, int size) {
-#ifdef HAVE_EXECINFO
 	if(threadId == 0)
 		return backtrace(buffer, size);
-#endif
 
-	// stub
+	Mutex::ScopedLock lock(callstackMutex.get());
+	callingThread = (ThreadId)pthread_self();
+	targetThread = threadId;
+	threadCallstackBuffer = buffer;
+	threadCallstackBufferSize = size;
+	
+	{
+		struct sigaction sa;
+		sigfillset(&sa.sa_mask);
+		sa.sa_flags = 0;
+		sa.sa_handler = _callstack_signal_handler;
+		sigaction(CALLSTACK_SIG, &sa, NULL);
+	}
+
+	// call _callstack_signal_handler in target thread
+	pthread_kill((pthread_t)threadId, CALLSTACK_SIG);
+
+	{
+		sigset_t mask;
+		sigemptyset(&mask);
+		sigaddset(&mask, CALLSTACK_SIG);
+
+		// wait for CALLSTACK_SIG on this thread
+		sigsuspend(&mask);
+	}
+	
+	threadCallstackBuffer = NULL;
+	threadCallstackBufferSize = 0;
+	return threadCallstackCount;
+}
+
+#else // !HAVE_EXECINFO
+
+// TODO: win32 implementation
+// This might be useful: http://stackwalker.codeplex.com/SourceControl/changeset/view/66907#604665
+// Esp, SuspendThread, ResumeThread, GetThreadContext, STACKFRAME64, ...
+
+int GetCallstack(ThreadId threadId, void **buffer, int size) {
 	return 0;
 }
+
+#endif
