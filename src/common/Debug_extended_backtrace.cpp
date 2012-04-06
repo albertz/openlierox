@@ -43,6 +43,7 @@
 #include <vector>
 #include <string>
 #include <cxxabi.h>
+#include <boost/shared_ptr.hpp>
 #include "Debug.h"
 #include "util/StringConv.h"
 
@@ -221,21 +222,35 @@ static Result translate_addresses_buf(bfd * abfd, bfd_vma addr, const std::strin
 	return true;
 }
 
-static bfd *abfd = NULL;
+struct BfdSession {
+	bfd* abfd;
+	asymbol** syms;
+	BfdSession() : abfd(NULL), syms(NULL) {}
+	~BfdSession() {
+		free(syms); syms = NULL;
+		if(abfd) bfd_close(abfd); abfd = NULL;
+	}
+};
+typedef std::map<std::string, boost::shared_ptr<BfdSession> > BfdSessionMap;
+static BfdSessionMap bfdSessions;
 
-static Result process_file(const std::string& file_name, const std::string& prefix, bfd_vma addr, std::vector<std::string>& ret_buf)
-{
-	char **matching;
+static bfd* abfd = NULL;
+
+/*static void cleanupBfdSessions() {
+	abfd = NULL;
+	syms = NULL;
+	bfdSessions.clear();
+}*/
+
+static Result get_bfd(const std::string& file_name) {
+	BfdSessionMap::mapped_type& s = bfdSessions[file_name];
+	if(s.get()) {
+		abfd = s->abfd;
+		syms = s->syms;
+		return true;
+	}
 
 	abfd = bfd_openr(file_name.c_str(), NULL);
-
-	struct DoCleanup {
-		DoCleanup(int) {} // dummy constructor to avoid "unused var" warning
-		~DoCleanup() {
-			free(syms); syms = NULL;
-			if(abfd) bfd_close(abfd); abfd = NULL;
-		}
-	} cleanupScope(0);
 
 	if (abfd == NULL)
 		return "can't open file";
@@ -243,6 +258,7 @@ static Result process_file(const std::string& file_name, const std::string& pref
 	if (bfd_check_format(abfd, bfd_archive))
 		return "invalid format";
 
+	char **matching;
 	if (!bfd_check_format_matches(abfd, bfd_object, &matching)) {
 		if (bfd_get_error() == bfd_error_file_ambiguously_recognized)
 			free(matching);
@@ -251,6 +267,17 @@ static Result process_file(const std::string& file_name, const std::string& pref
 
 	if(NegResult r = slurp_symtab(abfd))
 		return "slurp_symtab: " + r.res.humanErrorMsg;
+
+	s = BfdSessionMap::mapped_type(new BfdSession);
+	s->abfd = abfd;
+	s->syms = syms;
+	return true;
+}
+
+static Result process_file(const std::string& file_name, const std::string& prefix, bfd_vma addr, std::vector<std::string>& ret_buf)
+{
+	if(NegResult r = get_bfd(file_name))
+		return r.res;
 
 	if(NegResult r = translate_addresses_buf(abfd, addr, prefix, ret_buf))
 		return r.res;
