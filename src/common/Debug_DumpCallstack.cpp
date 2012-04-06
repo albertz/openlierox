@@ -150,7 +150,7 @@ void DumpAllThreadsCallstack(const PrintOutFct& printer) {
 	getAllThreads(threads);
 
 	foreach(t, threads) {
-		printer.print("thread " + hex(*t) + " \"" + getThreadName(*t) + "\":\n");
+		printer.print("thread 0x" + hex(*t) + " \"" + getThreadName(*t) + "\":\n");
 		void *callstack[128];
 		int framesC = GetCallstack(*t, callstack, sizeof(callstack));
 		DumpCallstack(printer, callstack, framesC);

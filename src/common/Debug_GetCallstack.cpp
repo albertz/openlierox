@@ -47,41 +47,46 @@ static int threadCallstackCount = 0;
 
 #define CALLSTACK_SIG SIGUSR2
 
-void _callstack_signal_handler(int) {
+static void _callstack_signal_handler(int) {	
 	ThreadId myThread = (ThreadId)pthread_self();
+	//notes << "_callstack_signal_handler, self: " << myThread << ", target: " << targetThread << ", caller: " << callingThread << endl;
 	if(myThread != targetThread) return;
 	
 	threadCallstackCount = backtrace(threadCallstackBuffer, threadCallstackBufferSize);
 
 	// continue calling thread
-	pthread_kill((pthread_t)callingThread, CALLSTACK_SIG);	
+	pthread_kill((pthread_t)callingThread, CALLSTACK_SIG);
+}
+
+static void _setup_callstack_signal_handler() {
+	struct sigaction sa;
+	sigfillset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sa.sa_handler = _callstack_signal_handler;
+	sigaction(CALLSTACK_SIG, &sa, NULL);	
 }
 
 int GetCallstack(ThreadId threadId, void **buffer, int size) {
-	if(threadId == 0)
+	if(threadId == 0 || threadId == (ThreadId)pthread_self())
 		return backtrace(buffer, size);
-
+	
 	Mutex::ScopedLock lock(callstackMutex.get());
 	callingThread = (ThreadId)pthread_self();
 	targetThread = threadId;
 	threadCallstackBuffer = buffer;
 	threadCallstackBufferSize = size;
 	
-	{
-		struct sigaction sa;
-		sigfillset(&sa.sa_mask);
-		sa.sa_flags = 0;
-		sa.sa_handler = _callstack_signal_handler;
-		sigaction(CALLSTACK_SIG, &sa, NULL);
-	}
+	_setup_callstack_signal_handler();
 
 	// call _callstack_signal_handler in target thread
-	pthread_kill((pthread_t)threadId, CALLSTACK_SIG);
+	if(pthread_kill((pthread_t)threadId, CALLSTACK_SIG) != 0)
+		// something failed ...
+		return 0;
 
 	{
 		sigset_t mask;
-		sigemptyset(&mask);
-		sigaddset(&mask, CALLSTACK_SIG);
+		sigfillset(&mask);
+		sigdelset(&mask, CALLSTACK_SIG);
 
 		// wait for CALLSTACK_SIG on this thread
 		sigsuspend(&mask);
