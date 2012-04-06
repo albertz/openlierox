@@ -225,17 +225,6 @@ static Result process_file(const std::string& file_name, bfd_vma addr, std::vect
 	bfd *abfd;
 	char **matching;
 
-	if(false) {
-		const char* arch = NULL;
-		const bfd_target* t = bfd_get_target_info(NULL, NULL, NULL, NULL, &arch);
-		if(!t) notes << "bfd no target" << endl;
-		else {
-			notes << "bfd target: " << t->name << endl;
-			if(arch) notes << "bfd target arch: " << arch << endl;
-			if(t->alternative_target) notes << "bfd has alt target" << endl;
-		}
-	}
-
 	abfd = bfd_openr(file_name.c_str(), NULL);
 
 	if (abfd == NULL)
@@ -252,11 +241,6 @@ static Result process_file(const std::string& file_name, bfd_vma addr, std::vect
 			free(matching);
 		}
 		return "format does not match";
-	}
-
-	if(false) {
-		const bfd_arch_info_type* info = bfd_get_arch_info(abfd);
-		notes << "bfd arch: " << info->arch_name << ", " << info->printable_name << endl;
 	}
 
 	if(NegResult r = slurp_symtab(abfd))
