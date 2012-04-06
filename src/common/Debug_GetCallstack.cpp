@@ -47,13 +47,28 @@ static int threadCallstackCount = 0;
 
 #define CALLSTACK_SIG SIGUSR2
 
-static void _callstack_signal_handler(int) {	
+void* GetPCFromUContext(void* ucontext);
+
+__attribute__((noinline))
+static void _callstack_signal_handler(int signr, siginfo_t *info, void *secret) {
 	ThreadId myThread = (ThreadId)pthread_self();
 	//notes << "_callstack_signal_handler, self: " << myThread << ", target: " << targetThread << ", caller: " << callingThread << endl;
 	if(myThread != targetThread) return;
 	
 	threadCallstackCount = backtrace(threadCallstackBuffer, threadCallstackBufferSize);
-
+	
+	// Search for the frame origin.
+	for(int i = 1; i < threadCallstackCount; ++i) {
+		if(threadCallstackBuffer[i] != NULL) continue;
+		
+		// Found it at stack[i]. Thus remove the first i.
+		const int IgnoreTopFramesNum = i;
+		threadCallstackCount -= IgnoreTopFramesNum;
+		memmove(threadCallstackBuffer, threadCallstackBuffer + IgnoreTopFramesNum, threadCallstackCount * sizeof(void*));
+		threadCallstackBuffer[0] = GetPCFromUContext(secret); // replace by real PC ptr
+		break;
+	}
+	
 	// continue calling thread
 	pthread_kill((pthread_t)callingThread, CALLSTACK_SIG);
 }
@@ -61,14 +76,22 @@ static void _callstack_signal_handler(int) {
 static void _setup_callstack_signal_handler() {
 	struct sigaction sa;
 	sigfillset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	sa.sa_handler = _callstack_signal_handler;
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = _callstack_signal_handler;
 	sigaction(CALLSTACK_SIG, &sa, NULL);	
 }
 
+__attribute__((noinline))
 int GetCallstack(ThreadId threadId, void **buffer, int size) {
-	if(threadId == 0 || threadId == (ThreadId)pthread_self())
-		return backtrace(buffer, size);
+	if(threadId == 0 || threadId == (ThreadId)pthread_self()) {
+		int count = backtrace(buffer, size);
+		static const int IgnoreTopFramesNum = 1; // remove this `GetCallstack` frame
+		if(count > IgnoreTopFramesNum) {
+			count -= IgnoreTopFramesNum;
+			memmove(buffer, buffer + IgnoreTopFramesNum, count * sizeof(void*));
+		}
+		return count;
+	}
 	
 	Mutex::ScopedLock lock(callstackMutex.get());
 	callingThread = (ThreadId)pthread_self();
