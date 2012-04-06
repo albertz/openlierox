@@ -119,6 +119,11 @@ static SDL_Event QuitEventThreadEvent() {
 	return ev;
 }
 
+struct CoutPrint : PrintOutFct {
+	void print(const std::string& str) const {
+		printf("%s", str.c_str());
+	}
+};
 
 void startMainLockDetector() {
 	if(!tLXOptions->bUseMainLockDetector) return;
@@ -158,6 +163,7 @@ void startMainLockDetector() {
 					if(tLX && game.state != Game::S_Quit && oldTime == tLX->currentTime) {
 						hints << "Still locked after 5 seconds. Current threads:" << endl;
 						threadPool->dumpState(stdoutCLI());
+						DumpAllThreadsCallstack(CoutPrint());
 						hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
 						hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
 					}
@@ -167,6 +173,7 @@ void startMainLockDetector() {
 					if(!wait(25*1000)) return true;
 					if(tLX && game.state != Game::S_Quit && oldTime == tLX->currentTime) {
 						warnings << "we still are locked after 30 seconds" << endl;
+						DumpAllThreadsCallstack(CoutPrint());
 						if(tLXOptions && tLXOptions->bFullscreen) {
 							notes << "we are in fullscreen, going to window mode now" << endl;
 							tLXOptions->bFullscreen = false;
@@ -180,6 +187,7 @@ void startMainLockDetector() {
 					if(!wait(25*1000)) return true;
 					if(tLX && game.state != Game::S_Quit && oldTime == tLX->currentTime) {
 						errors << "we still are locked after 60 seconds" << endl;
+						DumpAllThreadsCallstack(CoutPrint());
 						if(!AmIBeingDebugged()) {
 							errors << "aborting now" << endl;
 							abort();
