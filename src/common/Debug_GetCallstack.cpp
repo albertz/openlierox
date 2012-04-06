@@ -7,6 +7,40 @@
  *
  */
 
+/*
+ About the POSIX solution:
+ 
+ Initially, I wanted to implement something similar as suggested
+ here <http://stackoverflow.com/a/4778874/133374>, i.e. getting
+ somehow the top frame pointer of the thread and unwinding it
+ manually (the linked source is derived from Apples `backtrace`
+ implementation, thus might be Apple-specific, but the idea is
+ generic).
+ 
+ However, to have that safe (and the source above is not and
+ may even be broken anyway), you must suspend the thread while
+ you access its stack. I searched around for different ways to
+ suspend a thread and found:
+  - http://stackoverflow.com/questions/2208833/how-do-i-suspend-another-thread-not-the-current-one
+  - http://stackoverflow.com/questions/6367308/sigstop-and-sigcont-equivalent-in-threads
+  - http://stackoverflow.com/questions/2666059/nptl-sigcont-and-thread-scheduling
+ Basically, there is no really good way. The common hack, also
+ used by the Hotspot JAVA VM (<http://stackoverflow.com/a/2221906/133374>),
+ is to use signals and sending a custom signal to your thread via
+ `pthread_kill` (<http://pubs.opengroup.org/onlinepubs/7908799/xsh/pthread_kill.html>).
+ 
+ So, as I would need such signal-hack anyway, I can have it a bit
+ simpler and just use `backtrace` inside the called signal handler
+ which is executed in the target thread (as also suggested here:
+ <http://stackoverflow.com/a/6407683/133374>). This is basically
+ what this implementation is doing.
+ 
+ If you are also interested in printing the backtrace, see:
+ - backtrace_symbols_str() in Debug_extended_backtrace.cpp
+ - DumpCallstack() in Debug_DumpCallstack.cpp
+ */
+
+
 #include "Debug.h"
 #include "Mutex.h"
 #include "util/StaticVar.h"

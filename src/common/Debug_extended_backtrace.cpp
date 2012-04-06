@@ -1,17 +1,29 @@
 /*
-  A hacky replacement for backtrace_symbols in glibc
+ *  Debug_extended_backtrace.cpp
+ *  OpenLieroX
+ *
+ *  Created by Albert Zeyer on 03.04.12.
+ *  code under GPL
+ *
+ */
 
+/*
   backtrace_symbols in glibc looks up symbols using dladdr which is limited in
-  the symbols that it sees. libbacktracesymbols opens the executable and shared
+  the symbols that it sees. This code opens the executable and shared
   libraries using libbfd and will look up backtrace information using the symbol
   table and the dwarf line information.
 
-  It may make more sense for this program to use libelf instead of libbfd.
-  However, I have not investigated that yet.
+  Derived on the work by Jeff Muizelaar, 2007.
+  Which was derived from addr2line.c from GNU Binutils.
 
-  Derived from addr2line.c from GNU Binutils by Jeff Muizelaar
-
-  Copyright 2007 Jeff Muizelaar
+  About getting the backtrace, see GetCallstack which also works for other threads. (Debug_GetCallstack.cpp)
+  
+  This code is used by DumpCallstack() and DumpAllThreadsCallstack(). (Debug_DumpCallstack.cpp)
+ 
+  Note that on MacOSX for Mach-O + DWARF support, you need a recent
+  libbfd version from at least 2012. See <http://stackoverflow.com/questions/10044697>
+  for current a small limitation of libbfd on MacOSX. It basically
+  means that you need to call `dsymutil` to make libbfd working.
 */
 
 /* addr2line.c -- convert addresses to line number and function name
