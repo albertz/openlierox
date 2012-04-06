@@ -588,21 +588,31 @@ void Cmd_coreDump::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	doActionInMainThread(new Dumper());
 }
 
+struct CLIPrintOutFct : PrintOutFct {
+	CmdLineIntf* caller;
+	CLIPrintOutFct() : caller(NULL) {}
+	virtual void print(const std::string& msg) const {
+		if(!caller) return;
+		if(msg.empty()) return;
+		if(msg[msg.size()-1] == '\n')
+			caller->writeMsg(msg.substr(0, msg.size()-1));
+		else
+			caller->writeMsg(msg);
+	}
+};
+
 COMMAND_EXTRA(debugDumpCallstack, "dump callstack", "", 0, 0, hidden = true);
 void Cmd_debugDumpCallstack::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
-	struct MyPrinter : PrintOutFct {
-		CmdLineIntf* caller;
-		virtual void print(const std::string& msg) const {
-			if(msg.empty()) return;
-			if(msg[msg.size()-1] == '\n')
-				caller->writeMsg(msg.substr(0, msg.size()-1));
-			else
-				caller->writeMsg(msg);
-		}
-	};
-	MyPrinter p;
+	CLIPrintOutFct p;
 	p.caller = caller;
 	DumpCallstack(p);
+}
+
+COMMAND_EXTRA(debugDumpAllThreadsCallstack, "dump callstack of all threads", "", 0, 0, hidden = true);
+void Cmd_debugDumpAllThreadsCallstack::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
+	CLIPrintOutFct p;
+	p.caller = caller;
+	DumpAllThreadsCallstack(p);
 }
 
 

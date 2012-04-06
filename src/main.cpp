@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
 		stdinCLIinitRes = initStdinCLISupport();
 	teeStdoutInit();
 	
-	mainThreadId = SDL_ThreadID();
-	assert(mainThreadId != (uint32_t)-1);
+	mainThreadId = getCurrentThreadId();
+	assert(mainThreadId != (ThreadId)-1);
 	setCurThreadName("Main Thread");
 	setCurThreadPriority(0.5f);
 	

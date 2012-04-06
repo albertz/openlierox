@@ -144,3 +144,16 @@ void DumpCallstack(const PrintOutFct& printer) {
 }
 
 #endif
+
+void DumpAllThreadsCallstack(const PrintOutFct& printer) {
+	std::set<ThreadId> threads;
+	getAllThreads(threads);
+
+	foreach(t, threads) {
+		printer.print("thread " + hex(*t) + " \"" + getThreadName(*t) + "\":\n");
+		void *callstack[128];
+		int framesC = GetCallstack(*t, callstack, sizeof(callstack));
+		DumpCallstack(printer, callstack, framesC);
+		printer.print("\n");
+	}
+}

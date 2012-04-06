@@ -12,9 +12,14 @@
 
 #include <stdint.h>
 #include <set>
+#include <map>
 #include <string>
 #include <boost/function.hpp>
 #include "util/Result.h"
+
+// Under Win, it's HANDLE (which is void*).
+// Otherwise, it's pthread_t, which is also a ptr-type.
+typedef uintptr_t ThreadId;
 
 struct SDL_mutex;
 struct SDL_cond;
@@ -31,6 +36,7 @@ struct Action {
 struct ThreadPoolItem {
 	ThreadPool* pool;
 	SDL_Thread* thread;
+	ThreadId nativeThreadId;
 	std::string name;
 	bool working;
 	bool finished;
@@ -65,6 +71,7 @@ public:
 	bool wait(ThreadPoolItem* thread, int* status = NULL);
 	bool waitAll();
 	void dumpState(CmdLineIntf& cli) const;
+	void getAllWorkingThreads(std::map<ThreadId, std::string>& threads);
 };
 
 extern ThreadPool* threadPool;
@@ -72,10 +79,14 @@ extern ThreadPool* threadPool;
 void InitThreadPool(unsigned int size = 40);
 void UnInitThreadPool();
 
-extern uint32_t mainThreadId;
+extern ThreadId mainThreadId;
 bool isMainThread();
-extern uint32_t gameloopThreadId;
+extern ThreadId gameloopThreadId;
 bool isGameloopThread();
+ThreadId getCurrentThreadId();
+
+void getAllThreads(std::set<ThreadId>& ids);
+std::string getThreadName(ThreadId t);
 
 template<typename _T>
 struct _ThreadFuncWrapper {
