@@ -297,16 +297,15 @@ static Result process_file(const std::string& file_name, const std::string& pref
 	return true;
 }
 
-#define MAX_DEPTH 16
+#ifndef __APPLE__
 
 struct file_match {
 	const char *file;
-	void *address;
+	const void *address;
 	void *base;
 	void *hdr;
 };
 
-#ifndef __APPLE__
 static int find_matching_file(struct dl_phdr_info *info,
 		size_t size, void *data)
 {
@@ -381,13 +380,13 @@ std::vector<std::string> trans_sym(const void* xaddr) {
 
 #ifndef __APPLE__
 	struct file_match match;
-	match.address = buffer[x];
+	match.address = xaddr;
 	dl_iterate_phdr(find_matching_file, &match);
 	addr = bfd_vma((uintptr_t)xaddr - (uintptr_t)match.base);
 	if (match.file && strlen(match.file))
-		r = process_file(match.file, addr, ret);
+		r = process_file(match.file, prefix, addr, ret);
 	else
-		r = process_file(GetBinaryFilename(), addr, ret);
+		r = process_file(GetBinaryFilename(), prefix, addr, ret);
 
 #else
 	const struct mach_header* header;
