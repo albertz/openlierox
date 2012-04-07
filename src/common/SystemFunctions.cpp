@@ -132,7 +132,7 @@ void setCurThreadName(const std::string& name)
 }
 
 std::string getThreadName(ThreadId tid) {
-#ifdef HAVE_PTHREAD
+#ifdef HAVE_PTHREAD_NAME
 	char buf[128] = "\0";
 	if(pthread_getname_np((pthread_t) tid, buf, sizeof(buf)) == 0)
 		if(strlen(buf) > 0)
