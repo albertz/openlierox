@@ -20,7 +20,9 @@ void* GetPCFromUContext(void* ucontext) { return NULL; }
 
 #if defined(__linux__) || defined(__APPLE__)
 /* get REG_EIP / REG_RIP from ucontext.h */
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE
+#endif
 #include <ucontext.h>
 #endif
 
