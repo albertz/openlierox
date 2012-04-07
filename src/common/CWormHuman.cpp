@@ -963,15 +963,8 @@ void CWormHumanInputHandler::gusInit()
 	jumping=(false);
 	walkingLeft=(false);
 	walkingRight=(false);
-	m_viewport=(0);
 }
 
-#ifndef DEDICATED_ONLY
-void CWormHumanInputHandler::assignViewport(CViewport* viewport)
-{
-	m_viewport = viewport;
-}
-#endif
 
 void CWormHumanInputHandler::subThink()
 {
@@ -992,14 +985,6 @@ void CWormHumanInputHandler::subThink()
 	}
 }
 
-#ifndef DEDICATED_ONLY
-void CWormHumanInputHandler::render()
-{
-	if ( m_viewport ) {
-		m_viewport->gusRender();
-	}
-}
-#endif
 
 void CWormHumanInputHandler::actionStart ( Actions action )
 {

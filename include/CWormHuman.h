@@ -95,25 +95,16 @@ private:
 	
 public:
 	void subThink();
-#ifndef DEDICATED_ONLY
-	void render();
-	
-	void assignViewport(CViewport* CViewport);
-#endif
 	void actionStart( Actions action );
 	void actionStop( Actions action );
 	
-private:
-	
+private:	
 	bool aimingUp;
 	bool aimingDown;
 	bool changing;
 	bool jumping;
 	bool walkingLeft;
 	bool walkingRight;
-#ifndef DEDICATED_ONLY
-	CViewport* m_viewport;
-#endif
 };
 
 #endif  //  __CWORMHUMAN_H__
