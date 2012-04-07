@@ -269,7 +269,9 @@ int l_gfx_reset_blending(lua_State* L)
 	Returns the HUD bitmap of this viewport.
 */
 METHOD(CViewport, viewport_getBitmap,  {
-	context.pushFullReference(*p->hud, ALLEGRO_BITMAPMetaTable);
+// Note: There was a separate CViewport::hud before.
+// However, that was just the same reference as CViewport::dest.
+	context.pushFullReference(*p->dest, ALLEGRO_BITMAPMetaTable);
 	return 1;
 })
 

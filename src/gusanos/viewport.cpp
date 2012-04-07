@@ -30,14 +30,12 @@ using namespace std;
 void CViewport::gusInit()
 {
 	dest = 0;
-	hud = 0;
 	fadeBuffer = 0;
 }
 
 void CViewport::gusReset()
 {
 	destroy_bitmap(dest); dest = 0;
-	destroy_bitmap(hud); hud = 0;
 	destroy_bitmap(fadeBuffer); fadeBuffer = 0;
 }
 
@@ -90,7 +88,6 @@ void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, i
 	}
 	
 	destroy_bitmap(dest);
-	destroy_bitmap(hud);
 	if ( x < 0 )
 		x = 0;
 	if ( y < 0 )
@@ -100,7 +97,6 @@ void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, i
 	if ( y + height > where->h )
 		y = where->h - height;
 	dest = create_sub_bitmap(where,x,y,width,height);
-	hud = create_sub_bitmap(where,x,y,width,height);
 
 	destroy_bitmap(fadeBuffer);
 	fadeBuffer = create_bitmap_ex(8, width, height);

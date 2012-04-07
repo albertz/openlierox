@@ -222,7 +222,6 @@ public:
 	ALLEGRO_BITMAP* getBitmap() { return dest; }
 		
 	ALLEGRO_BITMAP* dest;
-	ALLEGRO_BITMAP* hud;
 	ALLEGRO_BITMAP* fadeBuffer;
 
 	static LuaReference metaTable;
