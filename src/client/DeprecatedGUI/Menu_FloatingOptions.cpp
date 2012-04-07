@@ -360,14 +360,6 @@ void Menu_FloatingOptionsOkClose()
 		EnableSystemMouseCursor(false);
 	}
 
-	// Process anti-aliasing switch
-	if (bChangedAntiAliasing)  {
-		// HINT: options are already updated here
-
-		if (game.gameMap())
-			game.gameMap()->UpdateDrawImage(0, 0, game.gameMap()->GetWidth(), game.gameMap()->GetHeight());
-	}
-
 	Menu_FloatingOptionsShutdown();	
 }
 

@@ -65,10 +65,12 @@ bool SpriteSet::load(std::string const& filename)
 {
 	//cerr << "Loading sprite set: " << filename.native_file_string() << endl;
 
-	ALLEGRO_BITMAP *tempBitmap = gfx.loadBitmap(filename.c_str(), true);
+	ALLEGRO_BITMAP *tempBitmap = gfx.loadBitmap(filename.c_str(), /*keepAlpha*/false, /*stretch2*/false);
 
-	if (!tempBitmap)
+	if (!tempBitmap) {
+		//warnings << "SpriteSet: failed to load " << filename << endl;
 		return false;
+	}
 
 	LocalSetColorConversion cc(0/*COLORCONV_NONE*/);
 	LocalSetColorDepth cd(bitmap_color_depth(tempBitmap));
@@ -94,8 +96,9 @@ bool SpriteSet::load(std::string const& filename)
 					if( gfx.compareRGB(getpixel(tempBitmap,x,0), makecol(255,0,0)) ) {
 						pivotX = x-lastX;
 					} else if(gfx.compareRGB(getpixel(tempBitmap,x,0), 0) || x == tempBitmap->w - 1 ) {
-						ALLEGRO_BITMAP* spriteFrame = create_bitmap(x-lastX+1, y-lastY+1);
-						blit(tempBitmap, spriteFrame, lastX, lastY, 0, 0, spriteFrame->w, spriteFrame->h);
+						// NOTE: We stretch2 here for doubleRes.
+						ALLEGRO_BITMAP* spriteFrame = create_bitmap((x-lastX+1)*2, (y-lastY+1)*2);
+						blit_stretch2(tempBitmap, spriteFrame, lastX, lastY, 0, 0, spriteFrame->w/2, spriteFrame->h/2);
 						//m_frames.back().push_back(new Sprite( spriteFrame, pivotX, pivotY ) );
 						m_frames.push_back(new Sprite( spriteFrame, pivotX, pivotY ) );
 						++frameCount;
@@ -116,6 +119,11 @@ bool SpriteSet::load(std::string const& filename)
 	}
 
 	destroy_bitmap(tempBitmap);
+
+	if(angleCount == 0) {
+		errors << "SpriteSet: " << filename << ": angleCount == 0" << endl;
+		return false;
+	}
 
 	m_angleFactor = (angleCount - 1) * 2;
 	m_halfAngleDivisonSize = (1 << 15) / angleCount / 2;

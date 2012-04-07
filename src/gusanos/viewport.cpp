@@ -79,30 +79,16 @@ struct TestCuller : public Culler<TestCuller>
 
 static ALLEGRO_BITMAP* testLight = 0;
 
-void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, int height)
+void CViewport::setDestination(int width, int height)
 {
-	if(width > where->w
-	   || height > where->h) {
-		errors << "CViewport::setDestination: " << width << "x" << height << " too big" << endl;
-		return;
-	}
-	
 	destroy_bitmap(dest);
-	if ( x < 0 )
-		x = 0;
-	if ( y < 0 )
-		y = 0;
-	if ( x + width > where->w )
-		x = where->w - width;
-	if ( y + height > where->h )
-		y = where->h - height;
-	dest = create_sub_bitmap(where,x,y,width,height);
+	dest = create_bitmap(width, height);
 
 	destroy_bitmap(fadeBuffer);
 	fadeBuffer = create_bitmap_ex(8, width, height);
 
 	if(!testLight) {
-		static int s = 500;
+		static const int s = 500;
 		destroy_bitmap(testLight);
 		testLight = create_bitmap_ex(8, s, s);
 
@@ -131,32 +117,28 @@ void CViewport::drawLight(IVec const& v)
 }
 
 
-void CViewport::gusRender()
+void CViewport::gusRender(SDL_Surface* bmpDest)
 {
 	{
-		int destx = Left/2;
-		int desty = Top/2;
-		int destw = Width;
-		int desth = Height;
+		int destw = Width*2;
+		int desth = Height*2;
 		bool needDestReset = false;
-		if(!dest)
+		if(!dest || !fadeBuffer || !testLight)
 			needDestReset = true;
-		else if(dest->sub_x != destx || dest->sub_y != desty || dest->w != destw || dest->h != desth )
-			needDestReset = true;
-		else if(dest->surf.get() != gfx.buffer->surf.get())
+		else if(dest->w != destw || dest->h != desth )
 			needDestReset = true;
 		
 		if(needDestReset)
-			setDestination(gfx.buffer, destx, desty, destw, desth);
+			setDestination(destw, desth);
 	}
-		
+
 	int offX = static_cast<int>(WorldX);
 	int offY = static_cast<int>(WorldY);
 
 	game.gameMap()->gusDraw(dest, offX, offY);
 
 	if ( game.isLevelDarkMode() && game.gameMap()->lightmap )
-		blit( game.gameMap()->lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
+		blit( game.gameMap()->lightmap, fadeBuffer, offX*2,offY*2, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 		iter->draw(this);
@@ -191,6 +173,8 @@ void CViewport::gusRender()
 			LUACALLBACK(viewportRender).call()(getLuaReference())(pcTargetWorm->getLuaReference())();
 		}
 	}
+
+	DrawImage(bmpDest, dest->surf, this->GetLeft()/2, this->GetTop()/2);
 }
 
 

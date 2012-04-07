@@ -107,7 +107,7 @@ SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {
 	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,amask);
 }
 
-SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename) {
+SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename, bool stretch2) {
 	std::string fullfilename = GetFullFileName(filename);	
 	SmartPointer<SDL_Surface> img = LoadGameImage_unaltered(filename, false, true);
 	if(img.get() == NULL)
@@ -116,7 +116,7 @@ SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename
 		return img;
 	
 	SmartPointer<SDL_Surface> converted = create_32bpp_sdlsurface__allegroformat(img->w, img->h);
-	CopySurface(converted.get(), img, 0, 0, 0, 0, img->w, img->h);
+	CopySurface(converted.get(), img.get(), 0, 0, 0, 0, img->w, img->h, stretch2);
 	
 	if(!converted.get()) {
 		errors << "Failed: Converting of bitmap " << filename << /*" to " << bpp <<*/ " bit" << endl;
@@ -126,8 +126,8 @@ SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename
 	return converted;
 }
 
-ALLEGRO_BITMAP *load_bitmap(const std::string& filename) {
-	return create_bitmap_from_sdl(load_bitmap__allegroformat(filename));
+ALLEGRO_BITMAP *load_bitmap(const std::string& filename, bool stretch2) {
+	return create_bitmap_from_sdl(load_bitmap__allegroformat(filename, stretch2));
 }
 
 ALLEGRO_BITMAP *create_bitmap_ex(int color_depth, int width, int height) {	
@@ -398,6 +398,12 @@ void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source
 	DrawImageAdv(dest->surf.get(), source->surf.get(), dstrect, srcrect);
 }
 
+void blit_stretch2(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int swidth, int sheight) {
+	sub_to_abs_coords(source, source_x, source_y);
+	sub_to_abs_coords(dest, dest_x, dest_y);
+	DrawImageStretch2(dest->surf.get(), source->surf, source_x, source_y, dest_x, dest_y, swidth, sheight);
+}
+
 void stretch_blit(ALLEGRO_BITMAP *s, ALLEGRO_BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {
 	sub_to_abs_coords(s, s_x, s_y);
 	sub_to_abs_coords(d, d_x, d_y);
@@ -407,6 +413,11 @@ void stretch_blit(ALLEGRO_BITMAP *s, ALLEGRO_BITMAP *d, int s_x, int s_y, int s_
 void masked_blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
 	SetColorKey(source->surf.get());
 	blit(source, dest, source_x, source_y, dest_x, dest_y, width, height);
+}
+
+void masked_blit_stretch2(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+	SetColorKey(source->surf.get());
+	blit_stretch2(source, dest, source_x, source_y, dest_x, dest_y, width, height);
 }
 
 void draw_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite, int x, int y) {

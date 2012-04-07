@@ -199,8 +199,8 @@ public:
 	void gusInit();
 	void gusReset();
 	
-	void setDestination(ALLEGRO_BITMAP* where, int x, int y, int w, int h);
-	void gusRender();
+	void setDestination(int w, int h);
+	void gusRender(SDL_Surface* bmpDest);
 		
 	void drawLight(IVec const& v); // TEMP
 	

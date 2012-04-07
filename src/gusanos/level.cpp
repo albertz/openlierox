@@ -268,7 +268,7 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 		if ( gusGame.options.showMapDebug ) {
 			foreach( s, m_config->spawnPoints ) {
 				int c = (s->team == 0 ? makecol( 255,0,0 ) : makecol( 0, 255, 0 ));
-				circle( where, (int)(s->pos.x - x), (int)(s->pos.y - y), 4, c );
+				circle( where, (int)(s->pos.x - x) * 2, (int)(s->pos.y - y) * 2, 8, c );
 			}
 		}
 	}
@@ -298,10 +298,10 @@ void CMap::specialDrawSprite( Sprite* sprite, ALLEGRO_BITMAP* where, const IVec&
 void CMap::culledDrawSprite( Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha )
 {
 	ALLEGRO_BITMAP* renderBitmap = sprite->m_bitmap;
-	IVec off = viewport->getPos();
-	IVec loff(pos - IVec(sprite->m_xPivot, sprite->m_yPivot));
+	IVec off = viewport->getPos() * 2;
+	IVec loff(pos*2 - IVec(sprite->m_xPivot, sprite->m_yPivot));
 
-	Rect r(0, 0, Width - 1, Height - 1);
+	Rect r(0, 0, Width*2 - 1, Height*2 - 1);
 	r &= Rect(renderBitmap) + loff;
 
 
@@ -312,13 +312,13 @@ void CMap::culledDrawSprite( Sprite* sprite, CViewport* viewport, const IVec& po
 		    viewport->dest,
 		    renderBitmap,
 		    alpha,
-		    off.x,
-		    off.y,
-		    loff.x,
-		    loff.y,
-		    r );
+			off.x,
+			off.y,
+			loff.x,
+			loff.y,
+			r );
 
-		addCuller.cullOmni(pos.x, pos.y);
+		addCuller.cullOmni(pos.x*2, pos.y*2);
 	}
 
 }
@@ -326,10 +326,10 @@ void CMap::culledDrawSprite( Sprite* sprite, CViewport* viewport, const IVec& po
 void CMap::culledDrawLight( Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha )
 {
 	ALLEGRO_BITMAP* renderBitmap = sprite->m_bitmap;
-	IVec off = viewport->getPos();
-	IVec loff(pos - IVec(sprite->m_xPivot, sprite->m_yPivot));
+	IVec off = viewport->getPos() * 2;
+	IVec loff(pos * 2 - IVec(sprite->m_xPivot, sprite->m_yPivot));
 
-	Rect r(0, 0, Width - 1, Height - 1);
+	Rect r(0, 0, Width*2 - 1, Height*2 - 1);
 	r &= Rect(renderBitmap) + loff;
 
 
@@ -346,7 +346,7 @@ void CMap::culledDrawLight( Sprite* sprite, CViewport* viewport, const IVec& pos
 		    loff.y,
 		    r );
 
-		addCuller.cullOmni(pos.x, pos.y);
+		addCuller.cullOmni(pos.x*2, pos.y*2);
 	}
 }
 
@@ -356,6 +356,7 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 {
 	bool returnValue = false;
 	if ( effect && effect->mask ) {
+		drawX *= 2; drawY *= 2;
 		Sprite* tmpMask = effect->mask->getSprite();
 		drawX -= tmpMask->m_xPivot;
 		drawY -= tmpMask->m_yPivot;
@@ -363,17 +364,17 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 		for( int y = 0; y < tmpMask->m_bitmap->h; ++y )
 			for( int x = 0; x < tmpMask->m_bitmap->w; ++x ) {
 				colour = getpixel( tmpMask->m_bitmap, x, y);
-				if( ( colour == 0 ) && getMaterial( drawX+x, drawY+y ).destroyable ) {
+				if( ( colour == 0 ) && getMaterialDoubleRes( drawX+x, drawY+y ).destroyable ) {
 					returnValue = true;
-					putMaterial( 1, drawX+x, drawY+y );
-					checkWBorders( drawX+x, drawY+y );
+					putMaterialDoubleRes( /*background*/1, drawX+x, drawY+y );
+					checkWBorders( (drawX+x)/2, (drawY+y)/2 );
 #ifndef DEDICATED_ONLY
 					putpixel(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
 #endif
 				}
 			}
 		
-		UpdateArea(drawX, drawY, tmpMask->m_bitmap->w, tmpMask->m_bitmap->h, true);
+		UpdateArea(drawX/2, drawY/2, tmpMask->m_bitmap->w/2 + 1, tmpMask->m_bitmap->h/2 + 1, true);
 	}
 	return returnValue;
 }
@@ -429,19 +430,20 @@ void CMap::loaderSucceeded()
 
 #ifndef DEDICATED_ONLY
 	if ( !lightmap ) {
+		// NOTE: doubleRes lightmap
 		LocalSetColorDepth cd(8);
-		lightmap = create_bitmap(material->w, material->h);
+		lightmap = create_bitmap(material->w*2, material->h*2);
 		clear_to_color(lightmap, 50);
 		for ( int x = 0; x < lightmap->w ; ++x )
 			for ( int y = 0; y < lightmap->h ; ++y ) {
-				if ( unsafeGetMaterial(x,y).blocks_light )
+				if ( unsafeGetMaterial(x/2,y/2).blocks_light )
 					putpixel( lightmap, x, y, 200 );
 			}
 	}
 
 	if(!background) {
-		background = create_bitmap(material->w, material->h);
-		blit(image, background, 0,0,0,0,material->w, material->h);
+		background = create_bitmap(image->w, image->h);
+		blit(image, background, 0,0,0,0,image->w, image->h);
 		gfx.setBlender(ALPHA,120);
 		rectfill( background, 0,0,background->w,background->h,0);
 		solid_mode();
@@ -465,7 +467,8 @@ void CMap::loaderSucceeded()
 	if(!m_config)
 		m_config = new LevelConfig(); // Default config
 	
-	bmpImage = image->surf;
+	bmpDrawImage = image->surf;
+	bmpBackImageHiRes = background->surf;
 }
 
 

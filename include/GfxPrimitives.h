@@ -381,7 +381,7 @@ INLINE void gfxFreeSurface(const SmartPointer<SDL_Surface> & surf)  {
 
 ///////////////
 // Copies one surface to another (not blitting, so the alpha values are kept!)
-void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h);
+void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h, bool stretch2 = false);
 INLINE void CopySurface(SDL_Surface * dst, const SmartPointer<SDL_Surface> & src, int sx, int sy, int dx, int dy, int w, int h){
 	CopySurface(dst, src.get(), sx, sy, dx, dy, w, h);
 }
@@ -472,6 +472,11 @@ INLINE void DrawImageStretchMirrorKey(SDL_Surface * bmpDest, const SmartPointer<
 SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc);
 INLINE SmartPointer<SDL_Surface> GetCopiedImage(const SmartPointer<SDL_Surface> & bmpSrc) {
 	return GetCopiedImage(bmpSrc.get());
+}
+
+SmartPointer<SDL_Surface> GetCopiedStretched2Image(SDL_Surface* bmpSrc);
+INLINE SmartPointer<SDL_Surface> GetCopiedStretched2Image(const SmartPointer<SDL_Surface> & bmpSrc) {
+	return GetCopiedStretched2Image(bmpSrc.get());
 }
 
 /////////////////
@@ -624,6 +629,13 @@ INLINE Uint32 GetPixel(SDL_Surface * bmpSrc, int x, int y) {
 			bmpSrc->format->BytesPerPixel);
 }
 
+INLINE void PutPixel2x2(SDL_Surface * bmpDest, int x, int y, Uint32 color) {
+	PutPixel(bmpDest, x, y, color);
+	PutPixel(bmpDest, x+1, y, color);
+	PutPixel(bmpDest, x, y+1, color);
+	PutPixel(bmpDest, x+1, y+1, color);
+}
+
 ////////////////
 // Copy pixel from one surface to another, both surfaces must have same format
 // WARNING: doesn't do clipping
@@ -649,6 +661,13 @@ INLINE void CopyPixel_SameFormat(
 	CopyPixel_SameFormat(dst, src, x, y, x, y);
 }
 
+
+INLINE void CopyPixel2x2_SameFormat(SDL_Surface * dst, SDL_Surface * src, int x, int y) {
+	CopyPixel_SameFormat(dst, src, x, y);
+	CopyPixel_SameFormat(dst, src, x, y+1);
+	CopyPixel_SameFormat(dst, src, x+1, y);
+	CopyPixel_SameFormat(dst, src, x+1, y+1);
+}
 
 ////////////////
 // Put pixel alpha blended with the background

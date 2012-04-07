@@ -176,7 +176,7 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 	
 	{
 		LocalSetColorDepth cd(8);
-		level->material = gfx.loadBitmap(materialPath.c_str());
+		level->material = gfx.loadBitmap(materialPath.c_str(), false, false);
 	}
 	
 	if (level->material)
@@ -216,8 +216,9 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 			if ( tempLightmap )
 			{
 				{
+					// NOTE: doubleRes lightmap
 					LocalSetColorDepth cd(8);
-					level->lightmap = create_bitmap(level->material->w, level->material->h);
+					level->lightmap = create_bitmap(level->material->w*2, level->material->h*2);
 				}
 				for ( int x = 0; x < level->lightmap->w ; ++x )
 				for ( int y = 0; y < level->lightmap->h ; ++y )
@@ -279,7 +280,7 @@ bool VermesFontLoader::load(Font* font, std::string const& path)
 		LocalSetColorDepth cd(8);
 		LocalSetColorConversion cc( /*COLORCONV_REDUCE_TO_256 | COLORCONV_KEEP_TRANS*/ 0);
 	
-		font->m_bitmap = load_bitmap(path);
+		font->m_bitmap = load_bitmap(path, true);
 		if(!font->m_bitmap)
 			return false;
 		

@@ -83,8 +83,9 @@ void Gfx::init()
 #ifndef DEDICATED_ONLY	
 	Init_2xSaI(32); // needed for SUPER2XSAI and SUPEREAGLE filters
 	
-	buffer = create_bitmap(640,480); // this is because we may need up to this size for the sizefactor
-	//buffer = create_bitmap(320,240);
+	// we don't use this buffer anymore in game. however, some code
+	// uses it and too lazy to cleanup...
+	buffer = create_bitmap(0,0);
 #endif
 
 	m_initialized = true; // Tell console commands it's safe to manipulate gfx
@@ -117,7 +118,7 @@ void Gfx::loadResources()
 #endif
 }
 
-ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
+ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha , bool stretch2)
 {
 	ALLEGRO_BITMAP* returnValue = NULL;
 	/*
@@ -134,7 +135,7 @@ ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 	
 	if ( gusExists( filename.c_str() ) )
 	{
-		returnValue = load_bitmap(filename);
+		returnValue = load_bitmap(filename, stretch2);
 	}
 	else
 	{
@@ -142,7 +143,7 @@ ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 		tmp += ".png";
 		if ( gusExists( tmp ) )
 		{
-			returnValue = load_bitmap( tmp );
+			returnValue = load_bitmap(tmp, stretch2);
 		}
 		else
 		{
@@ -150,7 +151,7 @@ ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 			tmp += ".bmp";
 			if ( gusExists( tmp ))
 			{
-				returnValue = load_bitmap( tmp );
+				returnValue = load_bitmap(tmp, stretch2);
 			}
 		}
 	}

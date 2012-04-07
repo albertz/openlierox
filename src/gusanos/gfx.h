@@ -54,7 +54,7 @@ public:
 		return ( getr(c1) == getr(c2) && getg(c1) == getg(c2) && getb(c1) == getb(c2) );
 	}
 	
-	ALLEGRO_BITMAP* loadBitmap(const std::string &filename, bool keepAlpha = false);
+	ALLEGRO_BITMAP* loadBitmap(const std::string &filename, bool keepAlpha = false, bool stretch2 = true);
 	bool saveBitmap(const std::string &filename, ALLEGRO_BITMAP* image);
 	
 	operator bool(); // Returns true if it's safe to use this object

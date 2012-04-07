@@ -148,7 +148,7 @@ DistortionMap* bitmapMap(const string &filename)
 	
 	DistortionMap* lens = new DistortionMap;
 	
-	ALLEGRO_BITMAP* heightMap = load_bitmap(filename);
+	ALLEGRO_BITMAP* heightMap = load_bitmap(filename, true);
 
 	if ( heightMap )
 	{

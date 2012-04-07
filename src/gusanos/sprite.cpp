@@ -38,11 +38,11 @@ Sprite::Sprite( ALLEGRO_BITMAP* bitmap, int xPivot, int yPivot)
 	if ( xPivot == -1 )
 		m_xPivot = m_bitmap->w / 2;
 	else
-		m_xPivot = xPivot;
+		m_xPivot = xPivot * 2;
 	if ( yPivot == -1 )
 		m_yPivot = m_bitmap->h / 2;
 	else
-		m_yPivot = yPivot;
+		m_yPivot = yPivot * 2;
 }
 
 INLINE int scaleColor(int a, int b, int bmax)
@@ -94,7 +94,7 @@ Sprite::Sprite(Sprite const& b, Sprite const& mask, int color)
 		putpixel_solid(m_bitmap, x, y, col);			
 }*/
 
-	int limit = 104;
+	static const int limit = 104;
 
 	for(int y = 0; y < m_bitmap->h; ++y)
 		for(int x = 0; x < m_bitmap->w; ++x) {
@@ -131,27 +131,7 @@ Sprite::Sprite(Sprite const& b, MirrorTag)
 Sprite::~Sprite()
 {
 	destroy_bitmap( m_bitmap );
-	//destroy_bitmap( m_mirror );
 }
-/*
-void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y, bool flipped, int alignment )
-{
-	int _x,_y;
-	
-	if ( alignment & ALIGN_LEFT ) _x = 0;
-	else if ( alignment & ALIGN_RIGHT ) _x = m_bitmap->w;
-	else _x = m_xPivot;
-	
-	if ( alignment & ALIGN_TOP ) _y = 0;
-	else if ( alignment & ALIGN_BOTTOM ) _y = m_bitmap->h;
-	else _y = m_yPivot;
-	
-	if ( flipped )
-		draw_sprite_h_flip(where, m_bitmap, x - ( m_bitmap->w - 1 ) + _x, y - _y);
-	else
-		draw_sprite( where, m_bitmap, x - _x, y - _y);
-}
-*/
 
 #ifndef DEDICATED_ONLY
 
@@ -173,9 +153,6 @@ void Sprite::drawCut(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& 
 	else
 		realY += m_yPivot;
 
-	//int x1 = left, y1 = top, w = m_bitmap->w - (left + right), h = m_bitmap->h - (top + bottom);
-	//cerr << m_xPivot << ", " << m_yPivot << endl;
-	//masked_blit(m_bitmap, where, x1, y1, realX, realY, w, h);
 	blender.drawSpriteCut(where, m_bitmap, realX, realY, left, top, right, bottom);
 
 }

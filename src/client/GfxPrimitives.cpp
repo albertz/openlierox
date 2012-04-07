@@ -475,7 +475,7 @@ INLINE void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy
 
 ///////////////////////
 // Copies area from one image to another (not blitting so the alpha values are kept!)
-void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h)
+void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h, bool stretch2)
 {
 	// Copying is a normal blit without colorkey and alpha
 	// If the surface has alpha or colorkey set, we have to remove them and then put them back
@@ -501,7 +501,10 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 	SDL_SetColorKey(src, 0, 0);
 
 	// Blit
-	DrawImageAdv(dst, src, sx, sy, dx, dy, w, h);
+	if(stretch2)
+		DrawImageStretch2(dst, src, sx, sy, dx, dy, w, h);
+	else
+		DrawImageAdv(dst, src, sx, sy, dx, dy, w, h);
 
 	// Return back alpha and colorkey
 	if (HasAlpha)
@@ -533,6 +536,36 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
 	}
 	
+	assert(PixelFormatEqual(bmpSrc->format, result->format));
+	assert(bmpSrc->flags == result->flags);
+
+	return result;
+}
+
+
+SmartPointer<SDL_Surface> GetCopiedStretched2Image(SDL_Surface* bmpSrc) {
+	assert(bmpSrc != NULL);
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
+															bmpSrc->flags,
+															bmpSrc->w*2, bmpSrc->h*2,
+															bmpSrc->format->BitsPerPixel,
+															bmpSrc->format->Rmask,
+															bmpSrc->format->Gmask,
+															bmpSrc->format->Bmask,
+															bmpSrc->format->Amask);
+	if (result.get() == NULL) return NULL;
+
+	// reset flags.
+	// SDL_CreateRGBSurface doesn't really set the flags as we request them. e.g., it usually always sets SDL_SRCALPHA.
+	result->flags = bmpSrc->flags;
+
+	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h, true);
+
+	if(bmpSrc->flags & SDL_SRCCOLORKEY) {
+		Color colorkey = Color(bmpSrc->format, bmpSrc->format->colorkey);
+		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
+	}
+
 	assert(PixelFormatEqual(bmpSrc->format, result->format));
 	assert(bmpSrc->flags == result->flags);
 

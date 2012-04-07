@@ -26,11 +26,11 @@
 #include "gusanos/loaders/vermes.h"
 
 
-static void lxflagsToGusflags(CMap* m) {	
-	m->image = create_bitmap_from_sdl(m->GetImage());
-	m->background = create_bitmap_from_sdl(m->GetBackImage());
+void CMap::lxflagsToGusflags() {
+	image = create_bitmap_from_sdl(bmpDrawImage);
+	background = create_bitmap_from_sdl(bmpBackImageHiRes);
 
-	m->loaderSucceeded();
+	loaderSucceeded();
 }
 
 static void setMinimapErrorGraphic(SmartPointer<SDL_Surface>& minimap) {
@@ -166,8 +166,8 @@ public:
 		}
 		
 		// Set the image
-		LOCK_OR_FAIL(m->bmpBackImage);
-		LOCK_OR_FAIL(m->bmpImage);
+		LOCK_OR_FAIL(m->bmpBackImageHiRes);
+		LOCK_OR_FAIL(m->bmpDrawImage);
 		m->lockFlags();
 		uint n=0;
 		for(long y=0;y<Height;y++) {
@@ -194,22 +194,22 @@ public:
 						p==104)
 					type = PX_ROCK;
 				
-				PutPixel(m->bmpImage.get(),x,y, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpImage->format));
+				PutPixel2x2(m->bmpDrawImage.get(),x*2,y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpDrawImage->format));
 				if(type == PX_EMPTY)
-					PutPixel(m->bmpBackImage.get(),x,y, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpBackImage->format));
+					PutPixel2x2(m->bmpBackImageHiRes.get(),x*2,y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpBackImageHiRes->format));
 				m->SetPixelFlag(x,y,type);
 				//}
 				n++;
 			}
 		}
 		m->unlockFlags();
-		UnlockSurface(m->bmpImage);
-		UnlockSurface(m->bmpBackImage);
+		UnlockSurface(m->bmpDrawImage);
+		UnlockSurface(m->bmpBackImageHiRes);
 		
 		delete[] palette;
 		delete[] bytearr;
 		
-		lxflagsToGusflags(m);
+		m->lxflagsToGusflags();
 		return true;
 	}
 	
@@ -301,33 +301,26 @@ class ML_LieroX : public MapLoad {
 		//
 		
 		// Lock surfaces
-		LOCK_OR_FAIL(m->bmpBackImage);
-		LOCK_OR_FAIL(m->bmpImage);
+		LOCK_OR_FAIL(m->bmpBackImageHiRes);
+		LOCK_OR_FAIL(m->bmpDrawImage);
 		
 		Uint64 p=0;
-		Uint8* curpixel = (Uint8*)m->bmpBackImage.get()->pixels;
-		Uint8* PixelRow = curpixel;
 		
-		Uint8 bpp = m->bmpImage.get()->format->BytesPerPixel;
 		// Load the back image
-		for (Sint64 y = 0; y < head.height; y++, PixelRow += m->bmpBackImage.get()->pitch)  {
-			curpixel = PixelRow;
-			for (Sint64 x = 0; x < head.width; x++, curpixel += bpp)  {
-				Uint32 curcolor = Pack(Color(pDest[p], pDest[p+1], pDest[p+2]), m->bmpBackImage->format);
+		for (Sint64 y = 0; y < head.height; y++)  {
+			for (Sint64 x = 0; x < head.width; x++)  {
+				Color curcolor = Color(pDest[p], pDest[p+1], pDest[p+2]);
 				p += 3;
-				PutPixelToAddr(curpixel, curcolor, bpp);
+				PutPixel2x2(m->bmpBackImageHiRes.get(), x*2, y*2, curcolor.get(m->bmpBackImageHiRes->format));
 			}
 		}
 		
 		// Load the front image
-		curpixel = (Uint8 *)m->bmpImage.get()->pixels;
-		PixelRow = curpixel;
-		for (Sint64 y = 0; y < head.height; y++, PixelRow += m->bmpImage.get()->pitch)  {
-			curpixel = PixelRow;
-			for (Sint64 x = 0;x < head.width; x++, curpixel += bpp)  {
-				Uint32 curcolor = Pack(Color(pDest[p], pDest[p+1], pDest[p+2]), m->bmpImage->format);
+		for (Sint64 y = 0; y < head.height; y++)  {
+			for (Sint64 x = 0;x < head.width; x++)  {
+				Color curcolor = Color(pDest[p], pDest[p+1], pDest[p+2]);
 				p += 3;
-				PutPixelToAddr(curpixel, curcolor, bpp);
+				PutPixel2x2(m->bmpDrawImage.get(), x*2, y*2, curcolor.get(m->bmpDrawImage->format));
 			}
 		}
 		
@@ -335,22 +328,15 @@ class ML_LieroX : public MapLoad {
 		// Load the pixel flags and calculate dirt count
 		Uint64 n=0;
 		m->nTotalDirtCount = 0;
-		
-		curpixel = (Uint8 *)m->bmpImage.get()->pixels;
-		PixelRow = curpixel;
-		Uint8 *backpixel = (Uint8 *)m->bmpBackImage.get()->pixels;
-		Uint8 *BackPixelRow = backpixel;
-		
+				
 		m->lockFlags();
 		
-		for(Sint64 y=0; y< head.height; y++, PixelRow+=m->bmpImage.get()->pitch, BackPixelRow+=m->bmpBackImage.get()->pitch) {
-			curpixel = PixelRow;
-			backpixel = BackPixelRow;
-			for(Sint64 x=0; x<head.width; x++, curpixel+=bpp, backpixel+=bpp) {
+		for(Sint64 y=0; y< head.height; y++) {
+			for(Sint64 x=0; x<head.width; x++) {
 				uchar lxflag = pDest[p++];
 				m->material->line[y][x] = Material::indexFromLxFlag(lxflag);
 				if(lxflag & PX_EMPTY)
-					memcpy(curpixel, backpixel, bpp);
+					CopyPixel2x2_SameFormat(m->bmpDrawImage.get(), m->bmpBackImageHiRes.get(), x*2, y*2);
 				if(lxflag & PX_DIRT)
 					m->nTotalDirtCount++;
 				n++;
@@ -359,8 +345,8 @@ class ML_LieroX : public MapLoad {
 		m->unlockFlags();
 		
 		// Unlock the surfaces
-		UnlockSurface(m->bmpBackImage);
-		UnlockSurface(m->bmpImage);
+		UnlockSurface(m->bmpBackImageHiRes);
+		UnlockSurface(m->bmpDrawImage);
 		
 		// Load the CTF gametype variables
 		if (ctf)  {
@@ -384,7 +370,7 @@ class ML_LieroX : public MapLoad {
 		// Try to load additional data (like hi-res images)
 		LoadAdditionalLevelData(m);
 		
-		lxflagsToGusflags(m);
+		m->lxflagsToGusflags();
 		return true;
 	}
 	
@@ -648,13 +634,16 @@ class ML_LieroX : public MapLoad {
 			return false;
 		}
 		
+		SmartPointer<SDL_Surface> bmpImage = gfxCreateSurface(Width, Height);
+		SmartPointer<SDL_Surface> bmpBackImage = gfxCreateSurface(Width, Height);
+
 		// Lock the surfaces
-		LOCK_OR_FAIL(m->bmpImage);
-		LOCK_OR_FAIL(m->bmpBackImage);
+		LOCK_OR_FAIL(bmpImage);
+		LOCK_OR_FAIL(bmpBackImage);
 		
 		// Dirt map
-		Uint8 *p1 = (Uint8 *)m->bmpImage.get()->pixels;
-		Uint8 *p2 = (Uint8 *)m->bmpBackImage.get()->pixels;
+		Uint8 *p1 = (Uint8 *)bmpImage.get()->pixels;
+		Uint8 *p2 = (Uint8 *)bmpBackImage.get()->pixels;
 		Uint8 *dstrow = p1;
 		Uint8 *srcrow = p2;
 		
@@ -678,8 +667,8 @@ class ML_LieroX : public MapLoad {
 		
 		for(size_t n = 0, i = 0, x = 0; i < size; i++, x += 8) {
 			if (x >= (size_t)Width)  {
-				srcrow += m->bmpBackImage.get()->pitch;
-				dstrow += m->bmpImage.get()->pitch;
+				srcrow += bmpBackImage.get()->pitch;
+				dstrow += bmpImage.get()->pitch;
 				p1 = dstrow;
 				p2 = srcrow;
 				x = 0;
@@ -689,13 +678,13 @@ class ML_LieroX : public MapLoad {
 			for(size_t j = 0; j < 8;
 				j++,
 				n++,
-				p1 += m->bmpImage.get()->format->BytesPerPixel,
-				p2 += m->bmpBackImage.get()->format->BytesPerPixel) {
+				p1 += bmpImage.get()->format->BytesPerPixel,
+				p2 += bmpBackImage.get()->format->BytesPerPixel) {
 				
 				if(bitmask[i] & mask[j])  {
 					m->unsafeSetPixelFlag(n % Width, n / Width, PX_EMPTY);
 					m->nTotalDirtCount--;
-					memcpy(p1, p2, m->bmpImage.get()->format->BytesPerPixel);
+					memcpy(p1, p2, bmpImage.get()->format->BytesPerPixel);
 				}
 			}
 		}
@@ -705,9 +694,14 @@ class ML_LieroX : public MapLoad {
 		delete[] bitmask;
 		
 		// Unlock the surfaces
-		UnlockSurface(m->bmpImage);
-		UnlockSurface(m->bmpBackImage);
+		UnlockSurface(bmpImage);
+		UnlockSurface(bmpBackImage);
 		
+		m->bmpDrawImage = GetCopiedStretched2Image(bmpImage);
+		bmpImage = NULL;
+		m->bmpBackImageHiRes = GetCopiedStretched2Image(bmpBackImage);
+		bmpBackImage = NULL;
+
 		// Objects
 		object_t o;
 		m->NumObjects = 0;
@@ -728,7 +722,7 @@ class ML_LieroX : public MapLoad {
 				m->PlaceMisc(o.Size, CVec((float)o.X, (float)o.Y));
 		}
 		
-		lxflagsToGusflags(m);
+		m->lxflagsToGusflags();
 		return true;
 	}
 };
@@ -1828,8 +1822,8 @@ private:
 			return false;
 		}
 		
-		LOCK_OR_FAIL(m->bmpBackImage);
-		LOCK_OR_FAIL(m->bmpImage);
+		LOCK_OR_FAIL(m->bmpBackImageHiRes);
+		LOCK_OR_FAIL(m->bmpDrawImage);
 		m->lockFlags();
 		for(Uint32 x = 0; x < map.xsize; x++)
 			for(Uint32 y = 0; y < map.ysize; y++) {
@@ -1849,14 +1843,14 @@ private:
 				Uint32 realx = x * TILE_W, realy = y * TILE_H;
 				if(!withKeenBorders) { realx -= 2*TILE_W; realy -= 2*TILE_H; }				
 				fillpixelflags(m->material->line, m->Width, realx, realy, Material::indexFromLxFlag(pixelflag));
-				sb_drawtile(m->bmpImage.get(), realx, realy, tile);
-				sb_drawtile(m->bmpBackImage.get(), realx, realy, backtile);
+				sb_drawtile(m->bmpDrawImage.get(), realx, realy, tile);
+				sb_drawtile(m->bmpBackImageHiRes.get(), realx, realy, backtile);
 			}
 		m->unlockFlags();
-		UnlockSurface(m->bmpImage);
-		UnlockSurface(m->bmpBackImage);
+		UnlockSurface(m->bmpDrawImage);
+		UnlockSurface(m->bmpBackImageHiRes);
 		
-		lxflagsToGusflags(m);
+		m->lxflagsToGusflags();
 		return true;
 	}
 
@@ -1913,7 +1907,7 @@ private:
 	{
 		for(Uint8 dy = 0; dy < TILE_H; dy++)
 			for(Uint8 dx = 0; dx < TILE_W; dx++) {
-				PutPixel(dest, x + dx, y + dy, getPaletteColor(tiledata[t][dy][dx]).get(dest->format));
+				PutPixel2x2(dest, (x + dx)*2, (y + dy)*2, getPaletteColor(tiledata[t][dy][dx]).get(dest->format));
 			}
 	}
 	
@@ -1950,13 +1944,13 @@ public:
 		if(minimap.get()) return minimap;
 		
 		// We use the allegro loader function because that assures that we don't have alpha - because alpha makes problem for the blitting functions.
-		SmartPointer<SDL_Surface> image = load_bitmap__allegroformat(filename + "/level.png");
+		SmartPointer<SDL_Surface> image = load_bitmap__allegroformat(filename + "/level.png", false);
 		if(!image.get()) {
 			setMinimapErrorGraphic(minimap);
 			return minimap;
 		}		
 		SetColorKey(image.get());
-		SmartPointer<SDL_Surface> paralax = load_bitmap__allegroformat(filename + "/paralax.png");
+		SmartPointer<SDL_Surface> paralax = load_bitmap__allegroformat(filename + "/paralax.png", false);
 		
 		SmartPointer<SDL_Surface>& bmpMiniMap = minimap;
 		const int x = 0, y = 0, w = image->w, h = image->h;

@@ -90,15 +90,12 @@ public:
 		Created = false;
 		FileName = "";
 
-		bmpImage = NULL;
 #ifdef _AI_DEBUG
 		bmpDebugImage = NULL;
 #endif
-		bmpBackImage = NULL;
 		bmpBackImageHiRes = NULL;
 		bmpMiniMap = NULL;
         bmpGreenMask = NULL;
-        bmpShadowMap = NULL;
 		
 		NumObjects = 0;
 		Objects = NULL;
@@ -135,14 +132,11 @@ private:
 
 	bool		Created;
 	
-	SmartPointer<SDL_Surface> bmpImage;
 	SmartPointer<SDL_Surface> bmpDrawImage;
-	SmartPointer<SDL_Surface> bmpBackImage;
 	SmartPointer<SDL_Surface> bmpBackImageHiRes;
 	SmartPointer<SDL_Surface> bmpMiniMap;
 	SmartPointer<SDL_Surface> bmpMiniMapTransparent; // Half-transparent minimap for Gusanos
     SmartPointer<SDL_Surface> bmpGreenMask;
-    SmartPointer<SDL_Surface> bmpShadowMap;
 #ifdef _AI_DEBUG
 	SmartPointer<SDL_Surface> bmpDebugImage;
 #endif
@@ -204,13 +198,11 @@ public:
 	bool		SaveImageFormat(FILE *fp);
 
 	void		Clear();
-	bool		isLoaded()	{ return material && (bmpImage.get() || gusIsLoaded()); }
+	bool		isLoaded()	{ return material && image; }
 	
 	std::string getName()			{ return Name; }
 	std::string getFilename()		{ return FileName; }
 	static std::string GetLevelName(const std::string& filename, bool abs_filename = false);
-
-	void		UpdateDrawImage(int x, int y, int w, int h);
 
 	void		Shutdown();
 
@@ -220,7 +212,6 @@ public:
 	void		TileMap();
     
     void        CalculateDirtCount();
-    void        CalculateShadowMap();
 
 	INLINE void	lockFlags(bool writeAccess = true) {
 		if(writeAccess)
@@ -313,8 +304,6 @@ public:
 	void	putColorTo(long x, long y, Color c);
 	void	putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int sw, int sh);
 	
-	SmartPointer<SDL_Surface> GetImage()			{ return bmpImage; }
-	SmartPointer<SDL_Surface> GetBackImage()		{ return bmpBackImage; }
 	SmartPointer<SDL_Surface> GetMiniMap()		{ return bmpMiniMap; }
 #ifdef _AI_DEBUG
 	// TODO: the debug image is also usefull for other debugging things, not for AI
@@ -329,7 +318,6 @@ public:
 	void		PlaceStone(int size, CVec pos);
 	void		PlaceMisc(int id, CVec pos);
     int         PlaceGreenDirt(CVec pos);
-	void		ApplyShadow(int sx, int sy, int w, int h);
 
 	struct CollisionInfo  {
 		CollisionInfo() : occured(false), left(false), top(false), right(false), bottom(false), hitBounds(false), hitRockDirt(false), x(0), y(0) {}
@@ -505,6 +493,9 @@ public:
 		else
 			return m_materialList[0];
 	}
+	Material const& getMaterialDoubleRes(unsigned int x, unsigned int y) const {
+		return getMaterial(x/2, y/2); // for now ...
+	}
 
 	Material const& getMaterialWrapped(int x, int y) const
 	{
@@ -532,10 +523,14 @@ public:
 	
 	void putMaterial( Material const& mat, unsigned int x, unsigned int y )
 	{
-		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
-			material->line[y][x] = mat.index;
+		putMaterial(mat.index, x, y);
 	}
-	
+
+	void putMaterialDoubleRes( unsigned char index, unsigned int x, unsigned int y )
+	{
+		putMaterial(index, x/2, y/2); // for now ...
+	}
+
 	bool isInside(unsigned int x, unsigned int y) const
 	{
 		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
@@ -558,8 +553,10 @@ public:
 	bool applyEffect( LevelEffect* effect, int x, int y);
 	
 	void loaderSucceeded();
-	
-	
+private:
+	void lxflagsToGusflags();
+public:
+
 #ifndef DEDICATED_ONLY
 	ALLEGRO_BITMAP* image;
 	ALLEGRO_BITMAP* background;

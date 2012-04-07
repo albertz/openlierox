@@ -103,10 +103,7 @@ bool CMap::NewFrom(CMap* map)
 	m_water = map->m_water;	
 	
 	// Copy the data
-	bmpImage = image ? image->surf : GetCopiedImage(map->bmpImage);
 	bmpDrawImage = map->bmpDrawImage.get() ? GetCopiedImage(map->bmpDrawImage) : NULL;
-	bmpBackImage = (map->background && (map->background->surf.get() == map->bmpBackImage.get())) ? background->surf : GetCopiedImage(map->bmpBackImage);
-	bmpShadowMap = map->bmpShadowMap.get() ? GetCopiedImage(map->bmpShadowMap) : NULL;
 #ifdef _AI_DEBUG
 	bmpDebugImage = map->bmpDebugImage.get() ? GetCopiedImage(map->bmpDebugImage) : NULL;
 #endif
@@ -167,9 +164,8 @@ bool CMap::LoadFromCache(const std::string& filename)
 size_t CMap::GetMemorySize()
 {
 	size_t res = sizeof(CMap) +
-		GetSurfaceMemorySize(bmpBackImage.get()) + GetSurfaceMemorySize(bmpImage.get()) +
 		GetSurfaceMemorySize(bmpDrawImage.get()) + GetSurfaceMemorySize(bmpGreenMask.get()) +
-		GetSurfaceMemorySize(bmpShadowMap.get()) + GetSurfaceMemorySize(bmpMiniMap.get()) +
+GetSurfaceMemorySize(bmpMiniMap.get()) +
 		GetSurfaceMemorySize(bmpMiniMapTransparent.get()) +
 		Width * Height + // Pixel flags
 		Name.size() + FileName.size() +
@@ -466,12 +462,6 @@ bool CMap::CreateSurface()
 	if(fmt == NULL)
 		errors("CMap::CreateSurface: ERROR: fmt is nothing\n");
 
-	bmpImage = gfxCreateSurface(Width, Height);
-	if(bmpImage.get() == NULL) {
-		SetError("CMap::CreateSurface(): bmpImage creation failed, perhaps out of memory");
-		return false;
-	}
-
 #ifdef _AI_DEBUG
 	bmpDebugImage = gfxCreateSurface(Width*2, Height*2);
 	if (bmpDebugImage.get() == NULL)  {
@@ -489,15 +479,9 @@ bool CMap::CreateSurface()
 		return false;
 	}
 
-	bmpBackImage = gfxCreateSurface(Width, Height);
-	if(bmpBackImage.get() == NULL) {
-		SetError("CMap::CreateSurface(): bmpBackImage creation failed, perhaps out of memory");
-		return false;
-	}
-
-    bmpShadowMap = gfxCreateSurface(Width, Height);
-	if(bmpShadowMap.get() == NULL) {
-		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
+	bmpBackImageHiRes = gfxCreateSurface(Width*2, Height*2);
+	if(bmpBackImageHiRes.get() == NULL) {
+		SetError("CMap::CreateSurface(): bmpBackImageHiRes creation failed, perhaps out of memory");
 		return false;
 	}
 
@@ -522,14 +506,14 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 
 	// Clipping
-	if (!ClipRefRectWith(x, y, w, h, (SDLRect&)bmpImage.get()->clip_rect))
+	if (!ClipRefRectWith(x, y, w, h, (SDLRect&)material->surf->clip_rect))
 		return;
 
 	// Grid
 	lockFlags();
 
 	// Update the bmpImage according to pixel flags
-	if (update_image && (bmpBackImage.get() || bmpBackImageHiRes.get()))  {
+	if (update_image && bmpBackImageHiRes.get())  {
 
 		// Update
 		if( bmpBackImageHiRes.get() )
@@ -566,46 +550,9 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 			UnlockSurface(bmpDrawImage);
 			UnlockSurface(bmpBackImageHiRes);
 		}
-		else
-		{
-			LOCK_OR_QUIT(bmpImage);
-			LOCK_OR_QUIT(bmpBackImage);
-
-			// Init the variables
-			byte bpp = bmpImage.get()->format->BytesPerPixel;
-			Uint8* img_pixel = (Uint8 *)bmpImage.get()->pixels + y * bmpImage.get()->pitch + x * bpp;
-			Uint8* back_pixel = (Uint8 *)bmpBackImage.get()->pixels + y * bmpBackImage.get()->pitch + x * bpp;
-			uchar*const* pfline = &material->line[y];
-			Uint16 ImgRowStep = bmpImage.get()->pitch - (w * bpp);
-			Uint16 BackRowStep = bmpBackImage.get()->pitch - (w * bpp);
-
-			for (int i = h; i; --i)  {
-				const uchar* pf = &(*pfline)[x];
-				for (int j = w; j; --j)  {
-					if (m_materialList[*pf].toLxFlags() & PX_EMPTY) // Empty pixel - copy from the background image
-						memcpy(img_pixel, back_pixel, bpp);
-
-					img_pixel += bpp;
-					back_pixel += bpp;
-					pf++;
-				}
-
-				img_pixel += ImgRowStep;
-				back_pixel += BackRowStep;
-				pfline++;
-			}
-			UnlockSurface(bmpImage);
-			UnlockSurface(bmpBackImage);
-		}
 	}
 
 	unlockFlags();
-
-	// Apply shadow
-	ApplyShadow(x - shadow_update, y - shadow_update, w + 2 * shadow_update, h + 2 * shadow_update);
-
-	// Update draw image
-	UpdateDrawImage(x, y, w, h);
 
 	// Update minimap
 	UpdateMiniMapRect(x - shadow_update - 10, y - shadow_update - 10, w + 2 * shadow_update + 20, h + 2 * shadow_update + 20);
@@ -673,24 +620,6 @@ void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int 
 }
 
 
-////////////////////
-// Updates the bmpDrawImage with data from bmpImage
-// X, Y, W, H apply to bmpImage, not bmpDrawImage
-void CMap::UpdateDrawImage(int x, int y, int w, int h)
-{
-	if(bDedicated) return;
-	
-	if(gusIsLoaded())
-		return;
-
-	if( bmpBackImageHiRes.get() )
-		return;
-		
-	if(tLXOptions->bAntiAliasing)
-		DrawImageScale2x(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
-	else
-		DrawImageStretch2(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
-}
 
 ////////////////
 // Set dimensions of the minimap
@@ -726,44 +655,29 @@ void CMap::SetMinimapDimensions(uint _w, uint _h)
 // Tile the map
 void CMap::TileMap()
 {
-	if(bDedicated) return;
-	
-	if(gusIsLoaded()) return;
-	
-	if(!bmpImage.get()) {
-		errors << "CMap::TileMap: map-image not loaded" << endl;
-		return;
-	}
-	
 	uint x,y;
 
 	// Place the tiles
 
 	// Place the first row
-	if(bmpImage.get())
+	if(bmpDrawImage.get())
 		for(y=0;y<Height;y+=Theme.bmpFronttile.get()->h) {
 			for(x=0;x<Width;x+=Theme.bmpFronttile.get()->w) {
-				DrawImage(bmpImage.get(), Theme.bmpFronttile,x,y);
+				DrawImageStretch2(bmpDrawImage.get(), Theme.bmpFronttile,0,0,x*2,y*2,Theme.bmpFronttile->w,Theme.bmpFronttile->h);
 			}
 		}
 
-	if(bmpBackImage.get())
+	if(bmpBackImageHiRes.get())
 		for(y=0;y<Height;y+=Theme.bmpBacktile.get()->h) {
 			for(x=0;x<Width;x+=Theme.bmpBacktile.get()->w) {
-				DrawImage(bmpBackImage.get(), Theme.bmpBacktile,x,y);
+				DrawImageStretch2(bmpBackImageHiRes.get(), Theme.bmpBacktile,0,0,x*2,y*2,Theme.bmpBacktile->w,Theme.bmpBacktile->h);
 			}
 		}
-
-	// Update the draw image
-	UpdateDrawImage(0, 0, Width, Height);
 
 	// Set the pixel flags
 	lockFlags();
 	memset(material->surf->pixels, Material::indexFromLxFlag(PX_DIRT), material->surf->pitch * Height * sizeof(uchar));
 	unlockFlags();
-
-    // Calculate the shadowmap
-    CalculateShadowMap();
 
     // Calculate the total dirt count
     nTotalDirtCount = Width * Height;
@@ -931,87 +845,7 @@ bool CMap::CheckAreaFree(int x, int y, int w, int h)
 // Draw an object's shadow
 void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Surface * bmpObjShadow, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
-	if(gusIsLoaded()) return;
-	
-	// TODO: simplify, possibly think up a better algo...
-	// TODO: reduce local variables to 5
-	if(!bmpDest) {
-		errors << "CMap::DrawObjectShadow: bmpDest not set" << endl;
-		return;
-	}
-	
-	if(!bmpObj) {
-		errors << "CMap::DrawObjectShadow: bmpObj not set" << endl;
-		return;
-	}
-	
-	if(!view) {
-		errors << "CMap::DrawObjectShadow: view not set" << endl;
-		return;
-	}
-	
-	if(!bmpShadowMap.get()) {
-		errors << "CMap::DrawObjectShadow: shadow map not initialised" << endl;
-		return;
-	}
-
-	const ShadowClipInfo i = ClipShadow(bmpDest, bmpObj, bmpShadowMap.get(), sx, sy, w, h, view, wx, wy);
-	if (!i.h || !i.w)
-		return;
-
-	// If we are bigger, we have to check the whole area of the shadow
-	if (CheckAreaFree(i.map_x, i.map_y, i.w, i.h) && bmpObjShadow)  {
-		DrawImageAdv(bmpDest, bmpObjShadow, i.obj_x, i.obj_y, i.dest_x, i.dest_y, i.w, i.h);
-		return;
-	}
-
-	// Lock the surfaces
-	LOCK_OR_QUIT(bmpDest);
-	LOCK_OR_QUIT(bmpObj);
-	LOCK_OR_QUIT(bmpShadowMap);
-
-	// Pixels
-	Uint8 *dest_row = (Uint8 *)bmpDest->pixels + (i.dest_y * bmpDest->pitch) + (i.dest_x * bmpDest->format->BytesPerPixel);
-	Uint8 *obj_row  = (Uint8 *)bmpObj->pixels + (i.obj_y * bmpObj->pitch) + (i.obj_x * bmpObj->format->BytesPerPixel);
-	Uint8 *shadow_row = (Uint8 *)bmpShadowMap->pixels + (i.map_y * bmpShadowMap->pitch) + (i.map_x * bmpShadowMap->format->BytesPerPixel);
-	uchar*const* pfline = &material->line[i.map_y];
-
-	PixelGet& getter = getPixelGetFunc(bmpObj);
-	PixelCopy& copier = getPixelCopyFunc(bmpShadowMap.get(), bmpDest);
-
-	// Draw the shadow
-	for (int loop_y = i.h; loop_y; --loop_y)  {
-		const uchar* pf = &(*pfline)[i.map_x];
-		Uint8 *shadowmap_px = shadow_row;
-		Uint8 *obj_px = obj_row;
-		Uint8 *dest_px = dest_row;
-
-		for (int loop_x = i.w; loop_x; --loop_x)  {
-
-			if (m_materialList[*pf].toLxFlags() & PX_EMPTY)  { // Don't draw shadow on solid objects
-
-				// Put pixel if not tranparent
-				if (!IsTransparent(bmpObj, getter.get(obj_px)))
-					copier.copy(dest_px, shadowmap_px);
-			}
-
-			// Update the pixels & flag
-			dest_px		 += bmpDest->format->BytesPerPixel;
-			obj_px		 += bmpObj->format->BytesPerPixel;
-			shadowmap_px += bmpShadowMap->format->BytesPerPixel * (loop_x & 1); // We draw the shadow doubly stretched -> only 1/2 pixel on shadowmap
-			pf			 += loop_x & 1;
-		}
-
-		// Skip to next row
-		dest_row	   += bmpDest->pitch;
-		obj_row		   += bmpObj->pitch;
-		shadow_row	   += bmpShadowMap->pitch * (loop_y & 1); // We draw the shadow doubly stretched -> only 1/2 row on shadowmap
-		pfline		   += loop_y & 1;
-	}
-
-	UnlockSurface(bmpShadowMap);
-	UnlockSurface(bmpDest);
-	UnlockSurface(bmpObj);
+	// TODO: reimplement ...
 }
 
 
@@ -1034,10 +868,11 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 	
 	// NOTE: if we fix shadow for infinite maps here, we cannot use GetPixel this way!
 	if( GetPixelFlag(wx, wy /*, cClient->getGameLobby()[FT_InfiniteMap]*/) & PX_EMPTY )  {  // We should check all the 4 pixels, but no one will ever notice it
-		LOCK_OR_QUIT(bmpShadowMap);
-		Color color = Color(bmpShadowMap->format, GetPixel(bmpShadowMap.get(), wx, wy));
-		UnlockSurface(bmpShadowMap);
+		LOCK_OR_QUIT(bmpBackImageHiRes);
+		Color color = Color(bmpBackImageHiRes->format, GetPixel(bmpBackImageHiRes.get(), wx*2, wy*2));
+		UnlockSurface(bmpBackImageHiRes);
 
+		color.a = 96;
 		DrawRectFill2x2(bmpDest, p.x, p.y, color);
 	}
 }
@@ -1080,7 +915,7 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 	}
 
 	// Clipping
-	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)bmpImage.get()->clip_rect))
+	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)material->surf->clip_rect))
 		return 0;
 			
 	SaveToMemoryInternal( map_x, map_y, w, h );
@@ -1139,63 +974,6 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 		}
 		UnlockSurface(bmpDrawImage);
 	}
-	else // Low-res image
-	{
-		if(bmpImage.get() == NULL || background == NULL || background->surf.get() == NULL) {
-			unlockFlags();
-			UnlockSurface(hole);
-			// this should not happen. i think it does right now in editor but i dont care
-			errors << "CMap::CarveHole: something is NULL, something went wrong, whoot?" << endl;
-			return 0;
-		}
-		
-		if (!LockSurface(bmpImage)) {
-			unlockFlags();
-			UnlockSurface(hole);
-			errors << "CMap::CarveHole: cannot lock surface bmpImage" << endl;
-			return 0;
-		}
-		
-		Uint8* mapimage_px = (Uint8 *)bmpImage.get()->pixels + map_y * bmpImage.get()->pitch + map_x * bpp;
-		Uint8* back_px = (Uint8 *)background->surf->pixels + map_y * background->surf->pitch + map_x * bpp;
-		int MapImageRowStep = bmpImage.get()->pitch - (w * bpp);
-		for(int hy = h; hy; --hy)  {
-			uchar* PixelFlag = &(*PixelFlagLine)[map_x];
-			for(int hx = w; hx; --hx) {
-
-				// Carve only dirt
-				if (m_materialList[*PixelFlag].toLxFlags() & PX_DIRT)  {
-
-					Uint32 CurrentPixel = GetPixelFromAddr(hole_px, bpp);
-
-					// Set the flag to empty
-					if(CurrentPixel == tLX->clPink.get(hole.get()->format)) {
-
-						// Increase the dirt count
-						nNumDirt++;
-
-						*PixelFlag = Material::indexFromLxFlag(PX_EMPTY);
-						PutPixelToAddr(mapimage_px, GetPixelFromAddr(back_px, bpp), bpp);
-
-					// Put pixels that are not black/pink (eg, brown)
-					} else if(CurrentPixel != tLX->clBlack.get(hole.get()->format))
-						PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
-				}
-
-				hole_px += bpp;
-				mapimage_px += bpp;
-				back_px += bpp;
-				PixelFlag++;
-
-			}
-
-			hole_px += HoleRowStep;
-			mapimage_px += MapImageRowStep;
-			back_px += MapImageRowStep;
-			PixelFlagLine++;
-		}
-		UnlockSurface(bmpImage);
-	}
 
 	unlockFlags();
 
@@ -1208,109 +986,6 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
     return nNumDirt;
 }
 
-
-/*INLINE void CarveHole_handlePixel(CMap* map, int& nNumDirt, int map_x, int map_y, Uint32 hole_pixel) {
-	uchar* px = map->GetPixelFlags() + map_y * map->GetWidth() + map_x;
-
-	if(*px & PX_DIRT) {
-		// Set the flag to empty
-		if(hole_pixel == tLX->clPink) {
-
-			// Increase the dirt count
-			nNumDirt++;
-
-			*px = PX_EMPTY;
-
-		// Put pixels that are not black/pink (eg, brown)
-		} else if(hole_pixel != tLX->clBlack)
-			PutPixel(map->GetImage(), map_x, map_y, hole_pixel);
-	}
-
-	if(*px & PX_EMPTY) {
-		// redraw background-pixel because perhaps we don't have shadow here any more
-		// we will update the shadowed pixel later
-		CopyPixel_SameFormat(map->GetImage(), map->GetBackImage(), map_x, map_y);
-	}
-
-}
-
-class CarveHole_PixelWalker {
-public:
-	CMap* map; SmartPointer<SDL_Surface> hole; int& nNumDirt;
-	int map_left, map_top;
-
-	CarveHole_PixelWalker(CMap* map_, const SmartPointer<SDL_Surface> & hole_, int& nNumDirt_, int map_left_, int map_top_) :
-		map(map_), hole(hole_), nNumDirt(nNumDirt_), map_left(map_left_), map_top(map_top_) {}
-
-	INLINE bool operator()(int map_x, int map_y) {
-		CarveHole_handlePixel(map, nNumDirt, map_x, map_y, GetPixel(hole, map_x - map_left, map_y - map_top));
-		return true;
-	}
-
-};
-
-
-///////////////////
-// Carve a hole in the map
-//
-// Returns the number of dirt pixels carved
-int CMap::CarveHole(int size, CVec pos)
-{
-	if(size < 0 || size > 4) {
-		// Just clamp it and continue
-		size = MAX(size, 0);
-		size = MIN(size, 4);
-	}
-
-	// Calculate half
-	SmartPointer<SDL_Surface> hole = Theme.bmpHoles[size];
-	if (!hole)
-		return 0;
-
-	int nNumDirt = 0;
-	int map_left = (int)pos.x - (hole->w / 2);
-	int map_top = (int)pos.y - (hole->h / 2);
-
-	lockFlags();
-
-	if (!LockSurface(hole))
-		return 0;
-	if (!LockSurface(bmpImage))
-		return 0;
-	if (!LockSurface(bmpBackImage))
-		return 0;
-
-	walkPixels(ClipRect<int>(&map_left, &map_top, &hole->w, &hole->h), CarveHole_PixelWalker(this, hole, nNumDirt, map_left, map_top));
-
-	unlockFlags();
-
-	UnlockSurface(hole);
-	UnlockSurface(bmpImage);
-	UnlockSurface(bmpBackImage);
-
-	if(!nNumDirt)
-		return 0;
-
-    // Recalculate the grid
-    lockFlags();
-	for(int hx = 0; hx < hole->w; hx += nGridWidth)
-		for(int hy = 0; hy < hole->h; hy += nGridHeight) {
-			const int x = map_left + hx;
-			const int y = map_top + hy;
-			calculateGridCell(x, y, true);
-		}
-	unlockFlags();
-
-	// Apply a shadow
-	ApplyShadow(map_left - 5, map_top - 5, hole->w + 25, hole->h + 25);
-
-	// Update the draw image
-	UpdateDrawImage(map_left - 5, map_top - 5, hole->w + 25, hole->h + 25);
-
-	UpdateMiniMapRect(map_left, map_top, hole->w, hole->h);
-
-    return nNumDirt;
-}*/
 
 
 ///////////////////
@@ -1358,8 +1033,8 @@ int CMap::PlaceDirt(int size, CVec pos)
 	// Calculate clipping
 	int clip_y = MAX(sy, 0);
 	int clip_x = MAX(sx, 0);
-	int clip_h = MIN(sy+h, bmpImage.get()->h);
-	int clip_w = MIN(sx+w, bmpImage.get()->w);
+	int clip_h = MIN(sy+h, material->h);
+	int clip_w = MIN(sx+w, material->w);
 	int hole_clip_y = -MIN(sy,(int)0);
 	int hole_clip_x = -MIN(sx,(int)0);
 	
@@ -1418,53 +1093,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 		}
 		UnlockSurface(bmpDrawImage);
 	}
-	else // Low-res image
-	{
-		if (!LockSurface(bmpImage))
-			return 0;
-		// Go through the pixels in the hole, setting the flags to dirt
-		for(y = hole_clip_y, dy = clip_y; dy < clip_h; y++, dy++) {
-
-			Uint8* p = (Uint8 *)hole.get()->pixels + y * hole.get()->pitch + hole_clip_x * hole.get()->format->BytesPerPixel;
-			uchar* px = &material->line[dy][clip_x];
-			Uint8* p2 = (Uint8 *)bmpImage.get()->pixels + dy * bmpImage.get()->pitch + clip_x * bmpImage.get()->format->BytesPerPixel;
-
-			for(x=hole_clip_x,dx=clip_x;dx<clip_w;x++,dx++) {
-
-				pixel = GetPixelFromAddr(p, screenbpp);
-				uchar flag = m_materialList[*px].toLxFlags();
-
-				ix = dx % Theme.bmpFronttile.get()->w;
-				iy = dy % Theme.bmpFronttile.get()->h;
-
-				// Set the flag to empty
-				if(!IsTransparent(hole.get(), pixel) && !(flag & PX_ROCK)) {
-                    if( flag & PX_EMPTY ) {
-                        nDirtCount++;
-						putpixel(background, dx, dy, getpixel(image, dx, dy));
-					}
-					
-					*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
-
-					// Place the dirt image
-					PutPixelToAddr(p2, GetPixel(Theme.bmpFronttile.get(), ix, iy), screenbpp);
-				}
-
-				// Put pixels that are not black/pink (eg, brown)
-				if(!IsTransparent(hole.get(), pixel) && pixel != pink && (flag & PX_EMPTY)) {
-					PutPixelToAddr(p2, pixel, screenbpp);
-					// TODO: this should be obsolete & wrong, shoudln't it?
-					//*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
-                    //nDirtCount++;
-                }
-
-				p += screenbpp;
-				p2 += screenbpp;
-				px++;
-			}
-		}
-		UnlockSurface(bmpImage);
-	}
 
 	unlockFlags();
 
@@ -1517,8 +1145,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 	// Calculate clipping
 	int clip_y = MAX(sy, 0);
 	int clip_x = MAX(sx, 0);
-	int clip_h = MIN(sy+h, bmpImage.get()->h);
-	int clip_w = MIN(sx+w, bmpImage.get()->w);
+	int clip_h = MIN(sy+h, material->h);
+	int clip_w = MIN(sx+w, material->w);
 	int green_clip_y = -MIN(sy,(int)0);
 	int green_clip_x = -MIN(sx,(int)0);
 	
@@ -1579,52 +1207,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 		}
 		UnlockSurface(bmpDrawImage);
 	}
-	else // Low-res image
-	{
-		if (!LockSurface(bmpImage))
-			return 0;
-		// Go through the pixels in the hole, setting the flags to dirt
-		for(y = green_clip_y, dy=clip_y; dy < clip_h; y++, dy++) {
-
-			Uint8* p = (Uint8*)bmpGreenMask.get()->pixels
-				+ y * bmpGreenMask.get()->pitch
-				+ green_clip_x * bmpGreenMask.get()->format->BytesPerPixel;
-			uchar* px = &material->line[dy][clip_x];
-			Uint8* p2 = (Uint8 *)bmpImage.get()->pixels + dy * bmpImage.get()->pitch + clip_x * bmpImage.get()->format->BytesPerPixel;
-
-			for(x = green_clip_x, dx=clip_x; dx < clip_w; x++, dx++) {
-
-				pixel = GetPixelFromAddr(p,screenbpp);
-				uchar flag = m_materialList[*px].toLxFlags();
-
-				// Set the flag to dirt
-				if(pixel == green && (flag & PX_EMPTY)) {
-					putpixel(background, dx, dy, getpixel(image, dx, dy));
-					*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
-                    nGreenCount++;
-
-                    // Place a random green pixel
-                    gr = greens[ GetRandomInt(3) ];
-
-					// Place the green pixel
-					PutPixelToAddr(p2, gr, screenbpp);
-				}
-
-				// Put pixels that are not green/pink (eg, dark green)
-                if(pixel != green && pixel != pink && (flag & PX_EMPTY)) {
-					putpixel(background, dx, dy, getpixel(image, dx, dy));
-					PutPixelToAddr(p2, pixel, screenbpp);
-					*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
-                    nGreenCount++;
-                }
-
-				p += screenbpp;
-				p2 += screenbpp;
-				px++;
-			}
-		}
-		UnlockSurface(bmpImage);
-	}
 
 	unlockFlags();
 
@@ -1681,7 +1263,7 @@ void CMap::StaticCollisionCheckFinite(const CVec &objpos, int objw, int objh, CM
 
 	// Cross check, taken from worm collision
 	SDL_Rect coll_r = { (int)objpos.x - objw / 2, (int)objpos.y - objh / 2, objw, objh };
-	if (!ClipRefRectWith(coll_r.x, coll_r.y, coll_r.w, coll_r.h, (SDLRect&)bmpImage->clip_rect))
+	if (!ClipRefRectWith(coll_r.x, coll_r.y, coll_r.w, coll_r.h, (SDLRect&)material->surf->clip_rect))
 		return;
 	result.x = coll_r.x + coll_r.w / 2;
 	result.y = coll_r.y + coll_r.h / 2;
@@ -1768,129 +1350,10 @@ void CMap::StaticCollisionCheckInfinite(const CVec &objpos, int objw, int objh, 
 }
 
 
-///////////////////
-// Apply a shadow to an area
-void CMap::ApplyShadow(int sx, int sy, int w, int h)
-{
-	if(bDedicated) return;
-	// Draw shadows?
-	if(!tLXOptions->bShadows) return;
-	if(gusIsLoaded()) return;
-	if(!bmpShadowMap.get()) return;
-	
-	int x, y, n;
-	uint ox,oy;
-	Uint32 offset;
-
-	Uint8 *pixel,*src;
-
-	int screenbpp = getMainPixelFormat()->BytesPerPixel;
-
-	LOCK_OR_QUIT(bmpShadowMap);
-
-	lockFlags();
-
-	int clip_y = MAX(sy, (int)0);
-	int clip_x = MAX(sx, (int)0);
-	int clip_h = MIN(sy + h, Height);
-	int clip_w = MIN(sx + w, Width);
-
-	if( bmpBackImageHiRes.get() ) // Hi-res image
-	{
-		LOCK_OR_QUIT(bmpDrawImage);
-		int DrawImagePitch = bmpDrawImage.get()->pitch;
-		int ShadowMapPitch = bmpShadowMap.get()->pitch;
-		for(y = clip_y; y < clip_h; y++) 
-		{
-			uchar* px = &material->line[y][clip_x];
-			for(x = clip_x; x < clip_w; x++) 
-			{
-				uchar flag = m_materialList[*(uchar *)px].toLxFlags();
-				// Edge hack
-				//if(x==0 || y==0 || x==Width-1 || y==Height-1)
-					//flag = PX_EMPTY;
-				if(!(flag & PX_EMPTY)) 
-				{
-					ox = x+1; oy = y+1;
-					// Draw the shadow
-					for(n = 0; n < SHADOW_DROP; n++) 
-					{
-						// Clipping
-						if(ox >= Width) break;
-						if(oy >= Height) break;
-
-						if(!( unsafeGetPixelFlag(ox, oy) & PX_EMPTY))
-							break;
-
-						pixel = (Uint8*)bmpDrawImage.get()->pixels + oy*2*DrawImagePitch + ox*2*screenbpp;
-						src = (Uint8*)bmpShadowMap.get()->pixels + oy*ShadowMapPitch + ox*screenbpp;
-						memcpy(pixel, src, screenbpp);
-						memcpy(pixel+screenbpp, src, screenbpp);
-						memcpy(pixel+DrawImagePitch, src, screenbpp);
-						memcpy(pixel+DrawImagePitch+screenbpp, src, screenbpp);
-
-						ox++; oy++;
-					}
-				}
-
-				px++;
-			}
-		}
-		UnlockSurface(bmpDrawImage);
-	}
-	else // Low-res image
-	{
-		LOCK_OR_QUIT(bmpImage);
-		for(y = clip_y; y < clip_h; y++) {
-
-			uchar* px = &material->line[y][clip_x];
-
-			for(x = clip_x; x < clip_w; x++) {
-
-				uchar flag = m_materialList[*(uchar *)px].toLxFlags();
-
-				// Edge hack
-				//if(x==0 || y==0 || x==Width-1 || y==Height-1)
-					//flag = PX_EMPTY;
-
-				if(!(flag & PX_EMPTY)) {
-					ox = x+1; oy = y+1;
-
-					// Draw the shadow
-					for(n = 0; n < SHADOW_DROP; n++) {
-
-						// Clipping
-						if(ox >= Width) break;
-						if(oy >= Height) break;
-
-						if(!( unsafeGetPixelFlag(ox, oy) & PX_EMPTY))
-							break;
-
-                        offset = oy*bmpImage.get()->pitch + ox*screenbpp;
-                        pixel = (Uint8*)bmpImage.get()->pixels + offset;
-                        src = (Uint8*)bmpShadowMap.get()->pixels + offset;
-						memcpy(pixel, src, screenbpp);
-
-						ox++; oy++;
-					}
-				}
-
-				px++;
-			}
-		}
-		UnlockSurface(bmpImage);
-	}
-
-	unlockFlags();
-
-	UnlockSurface(bmpShadowMap);
-
-	bMiniMapDirty = true;
-}
-
 
 ///////////////////
 // Calculate the shadow map
+/*
 void CMap::CalculateShadowMap()
 {
 	if(bmpBackImage.get() && bmpShadowMap.get()) {
@@ -1899,7 +1362,7 @@ void CMap::CalculateShadowMap()
 		DrawRectFillA(bmpShadowMap.get(),0,0,bmpShadowMap.get()->w,bmpShadowMap.get()->h,tLX->clBlack,96);
 	}
 }
-
+*/
 
 ///////////////////
 // Place a stone
@@ -1936,15 +1399,15 @@ void CMap::PlaceStone(int size, CVec pos)
 	sy = (int)pos.y - (stone.get()->h >> 1);
 
 	// Blit the stone to the surface
-	DrawImage(bmpImage.get(), stone, sx, sy);
+	DrawImageStretch2(bmpDrawImage.get(), stone, 0,0, sx*2, sy*2, stone->w, stone->h);
 
 	LOCK_OR_QUIT(stone);
 
 	lockFlags();
 
 	// Calculate the clipping bounds, so we don't have to check each loop then
-	short clip_h = MIN(sy+stone.get()->h, bmpImage.get()->h) - sy;
-	short clip_w = MIN(sx+stone.get()->w, bmpImage.get()->w) - sx;
+	short clip_h = MIN(sy+stone.get()->h, material->h) - sy;
+	short clip_w = MIN(sx+stone.get()->w, material->w) - sx;
 	short clip_y = 0;
 	short clip_x = 0;
 	if (sy<0)
@@ -2023,13 +1486,13 @@ void CMap::PlaceMisc(int id, CVec pos)
 
 
 	LOCK_OR_QUIT(misc);
-	LOCK_OR_QUIT(bmpImage);
+	LOCK_OR_QUIT(bmpDrawImage);
 
 	lockFlags();
 
 	// Calculate the clipping bounds, so we don't have to check each loop then
-	short clip_h = MIN(sy+misc.get()->h,bmpImage.get()->h)-sy;
-	short clip_w = MIN(sx+misc.get()->w,bmpImage.get()->w)-sx;
+	short clip_h = MIN(sy+misc.get()->h,material->h)-sy;
+	short clip_w = MIN(sx+misc.get()->w,material->w)-sx;
 	short clip_y = 0;
 	short clip_x = 0;
 	if (sy<0)
@@ -2055,7 +1518,10 @@ void CMap::PlaceMisc(int id, CVec pos)
 
 			// Put the pixel down
 			if(!IsTransparent(misc.get(), GetPixelFromAddr(p, misc.get()->format->BytesPerPixel)) && (m_materialList[*px].toLxFlags() & PX_DIRT)) {
-				PutPixel(bmpImage.get(), dx, dy, GetPixelFromAddr(p, misc.get()->format->BytesPerPixel));
+				PutPixel(bmpDrawImage.get(), dx*2, dy*2, GetPixelFromAddr(p, misc.get()->format->BytesPerPixel));
+				PutPixel(bmpDrawImage.get(), dx*2+1, dy*2, GetPixelFromAddr(p, misc.get()->format->BytesPerPixel));
+				PutPixel(bmpDrawImage.get(), dx*2, dy*2+1, GetPixelFromAddr(p, misc.get()->format->BytesPerPixel));
+				PutPixel(bmpDrawImage.get(), dx*2+1, dy*2+1, GetPixelFromAddr(p, misc.get()->format->BytesPerPixel));
 				*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
 			}
 
@@ -2066,11 +1532,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 
 	unlockFlags();
 
-	UnlockSurface(bmpImage);
+	UnlockSurface(bmpDrawImage);
 	UnlockSurface(misc);
-
-	// Update the draw image
-	UpdateDrawImage(sx, sy, clip_w, clip_h);
 
 	bMiniMapDirty = true;
 }
@@ -2084,10 +1547,6 @@ void CMap::PutImagePixel(uint x, uint y, Color colour)
     // Checking edges
 	if(x >= Width || y >= Height)
 		return;
-
-	LOCK_OR_QUIT(bmpImage)
-    PutPixel(bmpImage.get(), x, y, colour.get(bmpImage.get()->format));
-	UnlockSurface(bmpImage);
 
 	x *= 2;
 	y *= 2;
@@ -2122,13 +1581,6 @@ void CMap::UpdateMiniMap(bool force)
 				DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
 			else
 				DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-		}
-		else
-		{
-			if (tLXOptions->bAntiAliasing)
-				DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-			else
-				DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
 		}
 	}
 
@@ -2166,20 +1618,6 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 			DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
 		else
 			DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
-	}
-	else
-	{
-		// Calculate ratios
-		const float xratio = (float)bmpMiniMap.get()->w / (float)bmpImage.get()->w;
-		const float yratio = (float)bmpMiniMap.get()->h / (float)bmpImage.get()->h;
-
-		const int dx = (int)((float)x * xratio);
-		const int dy = (int)((float)y * yratio);
-
-		if (tLXOptions->bAntiAliasing)
-			DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
-		else
-			DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
 	}
 	UpdateMiniMapTransparent();
 }
@@ -2364,18 +1802,6 @@ bool CMap::Load(const std::string& filename)
 	
 	bMiniMapDirty = true;
 	Created = true;
-    //sRandomLayout.bUsed = false;
-	
-	if(!gusIsLoaded()) {
-		// Calculate the shadowmap
-		CalculateShadowMap();
-		
-		// Apply the shadow
-		ApplyShadow(0, 0, Width, Height);
-
-		// Update the draw image
-		UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
-	}
 	
     // Calculate the total dirt count
     CalculateDirtCount();
@@ -2456,7 +1882,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 	// The images are saved in a raw 24bit format.
 	// 8 bits per r,g,b channel
 
-	if( !bmpBackImage.get() || !bmpImage.get() || !material )
+	if( !bmpBackImageHiRes.get() || !bmpDrawImage.get() || !material )
 		return false;
 
 	// Write out the images & pixeflags to memory, compress the data & save the compressed data
@@ -2475,30 +1901,30 @@ bool CMap::SaveImageFormat(FILE *fp)
 
 	// Save the back image
 	p=0;
-	LOCK_OR_FAIL(bmpBackImage);
+	LOCK_OR_FAIL(bmpBackImageHiRes);
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
-			GetColour4( GetPixel(bmpBackImage.get(),x,y), bmpBackImage.get()->format, &r, &g, &b ,&a );
+			GetColour4( GetPixel(bmpBackImageHiRes.get(),x*2,y*2), bmpBackImageHiRes.get()->format, &r, &g, &b ,&a );
 
 			pSource[p++] = r;
 			pSource[p++] = g;
 			pSource[p++] = b;
 		}
 	}
-	UnlockSurface(bmpBackImage);
+	UnlockSurface(bmpBackImageHiRes);
 
 
 	// Save the front image
-	LOCK_OR_FAIL(bmpImage);
+	LOCK_OR_FAIL(bmpDrawImage);
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
-			GetColour4( GetPixel(bmpImage.get(),x,y), bmpImage.get()->format, &r, &g, &b ,&a );
+			GetColour4( GetPixel(bmpDrawImage.get(),x*2,y*2), bmpDrawImage.get()->format, &r, &g, &b ,&a );
 			pSource[p++] = r;
 			pSource[p++] = g;
 			pSource[p++] = b;
 		}
 	}
-	UnlockSurface(bmpImage);
+	UnlockSurface(bmpDrawImage);
 
 	// Save the pixel flags
 	lockFlags();
@@ -2627,12 +2053,6 @@ void CMap::NewNet_RestoreFromMemory()
 			DrawImageAdv( bmpDrawImage.get(), bmpSavedImage, startX*2, startY*2, startX*2, startY*2, sizeX*2, sizeY*2 );
 			UnlockSurface(bmpDrawImage);
 		}
-		else
-		{
-			LOCK_OR_QUIT(bmpImage);
-			DrawImageAdv( bmpImage.get(), bmpSavedImage, startX, startY, startX, startY, sizeX, sizeY );
-			UnlockSurface(bmpImage);
-		}
 
 		for( int y=startY; y<startY+sizeY; y++ )
 			memcpy( (char*)material->surf->pixels + y*material->surf->pitch + startX, savedPixelFlags + y*material->surf->pitch + startX, sizeX*sizeof(uchar) );
@@ -2646,7 +2066,6 @@ void CMap::NewNet_RestoreFromMemory()
 		}
 		else
 		{
-			UpdateDrawImage(startX, startY, sizeX, sizeY);
 			UpdateMiniMapRect(startX-10, startY-10, sizeX+20, sizeY+20);
 		}
 	}
@@ -2701,12 +2120,6 @@ void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 					DrawImageAdv( bmpSavedImage.get(), bmpDrawImage, startX*2, startY*2, startX*2, startY*2, sizeX*2, sizeY*2 );
 					UnlockSurface(bmpDrawImage);
 				}
-				else
-				{
-					LOCK_OR_QUIT(bmpImage);
-					DrawImageAdv( bmpSavedImage.get(), bmpImage, startX, startY, startX, startY, sizeX, sizeY );
-					UnlockSurface(bmpImage);
-				}
 
 				for( int y=startY; y<startY+sizeY; y++ )
 					memcpy( savedPixelFlags + y*material->surf->pitch + startX, (char*)material->surf->pixels + y*material->surf->pitch + startX, sizeX*sizeof(uchar) );
@@ -2727,13 +2140,10 @@ void CMap::Shutdown()
 
 		//notes << "Some created map is shutting down..." << endl;
 
-		bmpImage = NULL;
 		bmpDrawImage = NULL;
 #ifdef _AI_DEBUG
 		bmpDebugImage = NULL;
 #endif
-		bmpBackImage = NULL;
-		bmpShadowMap = NULL;
 		bmpMiniMap = NULL;
 		bmpBackImageHiRes = NULL;
 
@@ -2752,14 +2162,11 @@ void CMap::Shutdown()
 	}
 	// Safety
 	else  {
-		bmpImage = NULL;
 		bmpDrawImage = NULL;
 #ifdef _AI_DEBUG
 		bmpDebugImage = NULL;
 #endif
-		bmpBackImage = NULL;
 		bmpBackImageHiRes = NULL;
-		bmpShadowMap = NULL;
 		bmpMiniMap = NULL;
 		Objects = NULL;
 		AdditionalData.clear();
@@ -2974,38 +2381,22 @@ std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 
 
 Color CMap::getColorAt(long x, long y) {
-	if(gusIsLoaded()) {
-		return Color(image->surf->format, getpixel(image, x, y));
-	}
-	else if(bmpImage.get()) {
-		if(!LockSurface(bmpImage)) return Color();
-		return Color(bmpImage->format, GetPixel(bmpImage.get(), x, y));
-		UnlockSurface(bmpImage);		
+	if(bmpDrawImage.get()) {
+		if(!LockSurface(bmpDrawImage)) return Color();
+		return Color(bmpDrawImage->format, GetPixel(bmpDrawImage.get(), x*2, y*2));
+		UnlockSurface(bmpDrawImage);
 	}
 	return Color();
 }
 
 void CMap::putColorTo(long x, long y, Color c) {
-	if(gusIsLoaded()) {
-		return putpixel(image, x, y, c.get(image->surf->format));
-	}
-	else if(bmpImage.get()) {
-		if(!LockSurface(bmpImage)) return;
-		PutPixel(bmpImage.get(),x, y, c.get(bmpImage->format));
-		UnlockSurface(bmpImage);		
-
+	if(bmpDrawImage.get())
 		DrawRectFill2x2(bmpDrawImage.get(), x*2, y*2, c);
-	}
 }
 
 void CMap::putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int sw, int sh) {
-	if(gusIsLoaded()) {
-		DrawImageAdv(image->surf.get(), surf, sx, sy, x, y, sw, sh);
-	}
-	else if(bmpImage.get()) {
-		DrawImageAdv(GetImage().get(), surf, sx, sy, x, y, sw, sh);
-		DrawImageStretch2(bmpDrawImage.get(), GetImage(), x, y, x*2, y*2, sw, sh);
-	}
+	if(bmpDrawImage.get())
+		DrawImageStretch2(bmpDrawImage.get(), surf, sx, sy, x*2, y*2, sw, sh);
 }
 
 

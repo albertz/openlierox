@@ -168,8 +168,8 @@ struct ALLEGRO_BITMAP            /* a bitmap structure */
 
 
 SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h);
-SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename);
-ALLEGRO_BITMAP *load_bitmap(const std::string& filename);
+SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename, bool stretch2);
+ALLEGRO_BITMAP *load_bitmap(const std::string& filename, bool stretch2);
 ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf);
 ALLEGRO_BITMAP *create_bitmap(int width, int height);
 ALLEGRO_BITMAP *create_bitmap_ex(int color_depth, int width, int height);
@@ -213,8 +213,10 @@ void draw_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite, int x, int y);
 void draw_sprite_h_flip(struct ALLEGRO_BITMAP *bmp, struct ALLEGRO_BITMAP *sprite, int x, int y);
 
 void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+void blit_stretch2(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int swidth, int sheight);
 void stretch_blit(ALLEGRO_BITMAP *s, ALLEGRO_BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h);
 void masked_blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+void masked_blit_stretch2(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int swidth, int sheight);
 
 void clear_bitmap(ALLEGRO_BITMAP*);
 

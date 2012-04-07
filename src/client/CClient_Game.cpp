@@ -287,19 +287,17 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 
 		px = (uint)pos.x;
 
-		LOCK_OR_QUIT(game.gameMap()->GetImage());
 		for(x=px-2; x<px+2; x++) {
 			// Clipping
 			if(x < 0)	continue;
 			if(x >= (int)game.gameMap()->GetWidth())	break;
 
 			if(game.gameMap()->GetPixelFlag(x,y) & PX_DIRT) {
-				DirtEntityColour = Color(game.gameMap()->GetImage()->format, GetPixel(game.gameMap()->GetImage().get(),x,y));
+				DirtEntityColour = game.gameMap()->getColorAt(x,y);
 				gotDirt = true;
 				break;
 			}
 		}
-		UnlockSurface(game.gameMap()->GetImage());
 	}
 	
 	// Go through bonuses. If any were next to an explosion, destroy the bonus explosivly
@@ -521,27 +519,24 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 void CClient::SendCarve(CVec pos)
 {
 	int x,y,n,px;
-	Color Colour = game.gameMap()->GetTheme()->iDefaultColour;
 
 	// Go through until we find dirt to throw around
 	y = MIN((int)pos.y,game.gameMap()->GetHeight()-1);
 	y = MAX(y,0);
 	px = (int)pos.x;
 
-	LOCK_OR_QUIT(game.gameMap()->GetImage());
 	for(x=px-2; x<=px+2; x++) {
 		// Clipping
 		if(x<0)	continue;
 		if((uint)x>=game.gameMap()->GetWidth())	break;
 
 		if(game.gameMap()->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = Color(game.gameMap()->GetImage()->format, GetPixel(game.gameMap()->GetImage().get(),x,y));
+			Color c = game.gameMap()->getColorAt(x,y);
 			for(n=0;n<3;n++)
-				SpawnEntity(ENT_PARTICLE,0,pos,GetRandomVec().multPairwise(30,10),Colour,NULL);
+				SpawnEntity(ENT_PARTICLE,0,pos,GetRandomVec().multPairwise(30,10),c,NULL);
 			break;
 		}
 	}
-	UnlockSurface(game.gameMap()->GetImage());
 
 
 	// Just carve a hole for the moment
