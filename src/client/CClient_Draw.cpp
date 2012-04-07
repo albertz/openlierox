@@ -867,12 +867,14 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	ScopedSurfaceClip clip(bmpDest, rect);
 	
 	if(clientSettings[CS_Raytracing]) {
+		// TODO: recode ...
+		/*
 		for(int y = 0; y < v->GetHeight(); ++y)
 			for(int x = 0; x < v->GetWidth(); ++x)
 				PutPixelToAddr((Uint8*)gfx.buffer->line[y] + x * gfx.buffer->surf->format->BytesPerPixel, getGamePixelColor(v->GetWorldX() + x, v->GetWorldY() + y).get(gfx.buffer->surf->format), gfx.buffer->surf->format->BytesPerPixel);
 		
-		DrawImageStretch2(bmpDest, gfx.buffer->surf.get(), 0, 0, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());
-		return;
+		DrawImageStretch2(bmpDest, gfx.buffer->surf.get(), 0, 0, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());*/
+		//return;
 	}
 	
 	const bool gusanosDrawing = gusGame.isEngineNeeded();
