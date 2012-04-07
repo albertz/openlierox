@@ -15,12 +15,6 @@
 #include "OLXCommand.h"
 #include "util/macros.h"
 
-#if !defined(WIN32) || defined(HAVE_PTHREAD)
-#include <pthread.h>
-#ifndef HAVE_PTHREAD
-#define HAVE_PTHREAD
-#endif
-#endif
 
 static bool isThreadIdValid(ThreadId id) {
 	if(id == 0) return false;
@@ -59,36 +53,6 @@ void getAllThreads(std::set<ThreadId>& ids) {
 	}
 }
 
-std::string getThreadName(ThreadId tid) {
-#ifdef HAVE_PTHREAD
-	char buf[128] = "\0";
-	if(pthread_getname_np((pthread_t) tid, buf, sizeof(buf)) == 0)
-		if(strlen(buf) > 0)
-			return buf;
-#endif
-
-	if(threadPool) {
-		std::map<ThreadId, std::string> threads;
-		threadPool->getAllWorkingThreads(threads);
-		foreach(t, threads) {
-			if(t->first == tid)
-				return t->second;
-		}
-	}
-
-	return "";
-}
-
-ThreadId getCurrentThreadId() {
-#ifdef HAVE_PTHREAD
-	return (ThreadId) pthread_self();
-#else
-	// SDL_ThreadID returns a Uint32.
-	// On 64bit systems, this might not be enough information about the current thread.
-	// Win64 thread HANDLE is 64bit, aswell as pthread_t.
-	return (ThreadId) SDL_ThreadID();
-#endif
-}
 
 ThreadPool::ThreadPool(unsigned int size) {
 	nextAction = NULL; nextIsHeadless = false; nextData = NULL;

@@ -28,7 +28,6 @@
 #include <mach/mach_init.h>
 #include <sys/sysctl.h>
 #include <mach/mach_traps.h>
-#include <pthread.h>
 #elif defined(WIN32) || defined(WIN64)
 #include <windows.h>
 #else
@@ -50,20 +49,47 @@
 #endif
 
 #include "StringUtils.h"
+#include "ThreadPool.h"
+#include "util/macros.h"
+
+#if !defined(WIN32) || defined(HAVE_PTHREAD)
+#include <pthread.h>
+#ifndef HAVE_PTHREAD
+#define HAVE_PTHREAD
+#endif
+
+// pthread_setname_np only available since MacOSX SDK 10.6
+#if defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#define HAVE_PTHREAD_NAME
+#endif
+
+#endif
+
 
 
 #ifdef THREADNAME_VIA_SIGUSR1
-#ifndef _MSC_VER
 static void setCurThreadName__signalraiser(const char* name) {
+#ifndef _MSC_VER
 	// this signal is only for debuggers, we should ignore it
 	signal( SIGUSR1, SIG_IGN );
 
 	// KDevelop will catch this, read the 'name' parameter and continue execution
 	raise( SIGUSR1 );
+#endif
 }
 #endif
-#endif
 
+
+ThreadId getCurrentThreadId() {
+#ifdef HAVE_PTHREAD
+	return (ThreadId) pthread_self();
+#else
+	// SDL_ThreadID returns a Uint32.
+	// On 64bit systems, this might not be enough information about the current thread.
+	// Win64 thread HANDLE is 64bit, aswell as pthread_t.
+	return (ThreadId) SDL_ThreadID();
+#endif
+}
 
 //////////////////
 // Gives a name to the thread
@@ -94,20 +120,35 @@ void setCurThreadName(const std::string& name)
 	__except (EXCEPTION_CONTINUE_EXECUTION)
 	{
 	}
-#else
-	
+#endif
+
 #ifdef THREADNAME_VIA_SIGUSR1
 	setCurThreadName__signalraiser(name.c_str());
 #endif
 
-#ifdef __APPLE__
-	// pthread_setname_np only available since SDK 10.6
-#if defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#ifdef HAVE_PTHREAD_NAME
 	pthread_setname_np(name.c_str());
 #endif
+}
+
+std::string getThreadName(ThreadId tid) {
+#ifdef HAVE_PTHREAD
+	char buf[128] = "\0";
+	if(pthread_getname_np((pthread_t) tid, buf, sizeof(buf)) == 0)
+		if(strlen(buf) > 0)
+			return buf;
 #endif
-	
-#endif
+
+	if(threadPool) {
+		std::map<ThreadId, std::string> threads;
+		threadPool->getAllWorkingThreads(threads);
+		foreach(t, threads) {
+			if(t->first == tid)
+				return t->second;
+		}
+	}
+
+	return "";
 }
 
 void setCurThreadPriority(float p) {
