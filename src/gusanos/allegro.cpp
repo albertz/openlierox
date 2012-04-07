@@ -112,10 +112,12 @@ SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename
 	SmartPointer<SDL_Surface> img = LoadGameImage_unaltered(filename, false, true);
 	if(img.get() == NULL)
 		return NULL;
-	if(img->format->BitsPerPixel == 8)
+	if(img->format->BitsPerPixel == 8) {
+		if(stretch2) return GetCopiedStretched2Image(img);
 		return img;
-	
-	SmartPointer<SDL_Surface> converted = create_32bpp_sdlsurface__allegroformat(img->w, img->h);
+	}
+
+	SmartPointer<SDL_Surface> converted = create_32bpp_sdlsurface__allegroformat(stretch2 ? (img->w*2) : img->w, stretch2 ? (img->h*2) : img->h);
 	CopySurface(converted.get(), img.get(), 0, 0, 0, 0, img->w, img->h, stretch2);
 	
 	if(!converted.get()) {
