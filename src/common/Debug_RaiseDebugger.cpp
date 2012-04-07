@@ -9,6 +9,7 @@
 
 #include "Debug.h"
 #include "CrashHandler.h"
+#include <stdio.h>
 
 #ifdef WIN32
 
