@@ -54,6 +54,8 @@ static void sub_to_abs_coords(ALLEGRO_BITMAP* bmp, int& x, int& y) {
 }
 
 static ALLEGRO_BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf, int subx, int suby, int subw, int subh) {
+	if(surf.get() == NULL) return NULL;
+
 	ALLEGRO_BITMAP* bmp = new ALLEGRO_BITMAP();
 	
 	bmp->surf = surf;
@@ -74,10 +76,7 @@ static ALLEGRO_BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& s
 }
 
 ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {
-	if(surf.get())
-		return create_bitmap_from_sdl(surf, 0, 0, surf->w, surf->h);
-	else
-		return NULL;
+	return create_bitmap_from_sdl(surf, 0, 0, surf->w, surf->h);
 }
 
 void

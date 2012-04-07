@@ -161,17 +161,8 @@ struct ALLEGRO_BITMAP            /* a bitmap structure */
 		// ALLEGRO_BITMAP itself
 		int sub_x, sub_y;		// subpart (if you use create_sub_bitmap)
 		int w, h;                     /* width and height in pixels */
-		//int clip;                     /* flag if clipping is turned on */
 		int cl, cr, ct, cb;           /* clip left, right, top and bottom values */
 		
-
-		//void (*write_bank)();         /* write bank selector, see bank.s */
-		//void (*read_bank)();          /* read bank selector, see bank.s */
-		//void *dat;                    /* the memory we allocated for the bitmap */
-		//int bitmap_id;                /* for identifying sub-bitmaps */
-		//void *extra;                  /* points to a structure with more info */
-		//int line_ofs;                 /* line offset (for screen sub-bitmaps) */
-		//int seg;                      /* bitmap segment */
 		unsigned char **line;       /* pointers to the start of each line */
 	};
 
