@@ -45,10 +45,11 @@ int l_gfx_draw_box(lua_State* L)
 	//ALLEGRO_BITMAP* b = *static_cast<ALLEGRO_BITMAP **>(lua_touserdata(L, 1));
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
-	int x1 = lua_tointeger(L, 2);
-	int y1 = lua_tointeger(L, 3);
-	int x2 = lua_tointeger(L, 4);
-	int y2 = lua_tointeger(L, 5);
+	// All images are doubleRes.
+	int x1 = int(lua_tonumber(L, 2) * 2);
+	int y1 = int(lua_tonumber(L, 3) * 2);
+	int x2 = int(lua_tonumber(L, 4) * 2);
+	int y2 = int(lua_tonumber(L, 5) * 2);
 	int c = lua_tointeger(L, 6);
 #ifndef NO_DEPRECATED
 	if(lua_gettop(L) >= 8) // Deprecated
@@ -87,10 +88,11 @@ int l_gfx_line(lua_State* L)
 	LuaContext context(L);
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
-	int x1 = lua_tointeger(L, 2);
-	int y1 = lua_tointeger(L, 3);
-	int x2 = lua_tointeger(L, 4);
-	int y2 = lua_tointeger(L, 5);
+	// All images are doubleRes.
+	int x1 = int(lua_tonumber(L, 2) * 2);
+	int y1 = int(lua_tonumber(L, 3) * 2);
+	int x2 = int(lua_tonumber(L, 4) * 2);
+	int y2 = int(lua_tonumber(L, 5) * 2);
 	int c = lua_tointeger(L, 6);
 	
 	blitter.line(b, x1, y1, x2, y2, c);
@@ -109,10 +111,11 @@ int l_gfx_linewu(lua_State* L)
 	LuaContext context(L);
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
-	lua_Number x1 = lua_tonumber(L, 2);
-	lua_Number y1 = lua_tonumber(L, 3);
-	lua_Number x2 = lua_tonumber(L, 4);
-	lua_Number y2 = lua_tonumber(L, 5);
+	// All images are doubleRes.
+	lua_Number x1 = lua_tonumber(L, 2) * 2;
+	lua_Number y1 = lua_tonumber(L, 3) * 2;
+	lua_Number x2 = lua_tonumber(L, 4) * 2;
+	lua_Number y2 = lua_tonumber(L, 5) * 2;
 	int c = lua_tointeger(L, 6);
 	
 	blitter.linewu(b, (float)x1, (float)y1, (float)x2, (float)y2, c);
@@ -131,11 +134,15 @@ int l_gfx_putpixelwu(lua_State* L)
 	LuaContext context(L);
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
-	lua_Number x = lua_tonumber(L, 2);
-	lua_Number y = lua_tonumber(L, 3);
+	// All images are doubleRes.
+	lua_Number x = lua_tonumber(L, 2) * 2;
+	lua_Number y = lua_tonumber(L, 3) * 2;
 	int c = lua_tointeger(L, 4);
 	
 	blitter.putpixelwu(b, (float)x, (float)y, c);
+	blitter.putpixelwu(b, (float)x+1, (float)y, c);
+	blitter.putpixelwu(b, (float)x, (float)y+1, c);
+	blitter.putpixelwu(b, (float)x+1, (float)y+1, c);
 #endif
 	return 0;
 }
@@ -151,13 +158,18 @@ int l_gfx_putpixel(lua_State* L)
 	LuaContext context(L);
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
-	int x = lua_tointeger(L, 2);
-	int y = lua_tointeger(L, 3);
+	// All images are doubleRes.
+	int x = int(lua_tonumber(L, 2) * 2);
+	int y = int(lua_tonumber(L, 3) * 2);
 	int cr = lua_tointeger(L, 4);
 	int cg = lua_tointeger(L, 5);
 	int cb = lua_tointeger(L, 6);
-	
-	blitter.putpixel(b, x, y, makecol(cr, cg, cb));
+	int c = makecol(cr, cg, cb);
+
+	blitter.putpixel(b, x, y, c);
+	blitter.putpixel(b, x+1, y, c);
+	blitter.putpixel(b, x, y+1, c);
+	blitter.putpixel(b, x+1, y+1, c);
 #endif
 	return 0;
 }
@@ -173,9 +185,10 @@ int l_gfx_hline(lua_State* L)
 	LuaContext context(L);
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
-	int x1 = lua_tointeger(L, 2);
-	int y1 = lua_tointeger(L, 3);
-	int x2 = lua_tointeger(L, 4);
+	// All images are doubleRes.
+	int x1 = int(lua_tonumber(L, 2) * 2);
+	int y1 = int(lua_tonumber(L, 3) * 2);
+	int x2 = int(lua_tonumber(L, 4) * 2);
 	Pixel c = lua_tointeger(L, 5);
 	
 	blitter.hline(b, x1, y1, x2, c);
@@ -313,7 +326,8 @@ METHOD(CViewport, viewport_fromMap,  {
 	Returns the width of this bitmap.
 */
 METHOD(ALLEGRO_BITMAP, bitmap_w,  {
-	lua_pushinteger(context, p->w);
+	// All images are doubleRes.
+	lua_pushinteger(context, p->w/2);
 	return 1;
 })
 
@@ -322,7 +336,8 @@ METHOD(ALLEGRO_BITMAP, bitmap_w,  {
 	Returns the width of this bitmap.
 */
 METHOD(ALLEGRO_BITMAP, bitmap_h,  {
-	lua_pushinteger(context, p->h);
+	// All images are doubleRes.
+	lua_pushinteger(context, p->h/2);
 	return 1;
 })
 
