@@ -58,9 +58,14 @@
 #define HAVE_PTHREAD
 #endif
 
+#ifndef HAVE_PTHREAD_NAME
 // pthread_setname_np only available since MacOSX SDK 10.6
-#if defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+#if defined(__APPLE__) && defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
 #define HAVE_PTHREAD_NAME
+// glibc 2.12 introduced this
+#elif __GLIBC_PREREQ(2,12)
+#define HAVE_PTHREAD_NAME
+#endif
 #endif
 
 #endif
