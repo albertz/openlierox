@@ -135,7 +135,7 @@ void CNinjaRope::draw(CViewport *viewport)
 	if(gusGame.NRPartType == NULL) return;
 	
 	ALLEGRO_BITMAP* where = viewport->dest;
-	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
+	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) ) * 2 /* doubleRes */;
 	if (Released)
 	{
 		if (!m_sprite)
