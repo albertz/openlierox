@@ -121,6 +121,9 @@ public:
 	ATTR(Game, int, iMatchWinnerTeam, 12, {})
 
 	ATTR(Game, std::string, hudPermanentText, 20, {}) // drawn always on top, only reset at gamestart
+	ATTR(Game, bool, levelDarkMode, 30, { defaultValue = false; })
+
+	bool isLevelDarkMode();
 
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::vector<CWormInputHandler*> players;

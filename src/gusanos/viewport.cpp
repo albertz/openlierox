@@ -155,13 +155,13 @@ void CViewport::gusRender()
 
 	game.gameMap()->gusDraw(dest, offX, offY);
 
-	if ( game.gameMap()->config()->darkMode && game.gameMap()->lightmap )
+	if ( game.isLevelDarkMode() && game.gameMap()->lightmap )
 		blit( game.gameMap()->lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 		iter->draw(this);
 
-	if(game.gameMap()->config()->darkMode)
+	if(game.isLevelDarkMode())
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 
 	// only use the player/worm specific drawings in gus mods

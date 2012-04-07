@@ -1352,6 +1352,11 @@ int& Game::writeTeamScore(int team) {
 }
 
 
+bool Game::isLevelDarkMode() {
+	return gameMap()->config()->darkMode || levelDarkMode;
+}
+
+
 int oldLXStateInt() {
 	switch(game.state) {
 	case Game::S_Lobby: return 0;

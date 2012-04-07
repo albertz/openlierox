@@ -506,7 +506,7 @@ void Particle::draw(CViewport* viewport)
 	if (m_type->distortion) {
 		m_type->distortion->apply( where, x, y, m_type->distortMagnitude );
 	}
-	if ( game.gameMap()->config()->darkMode && m_type->lightHax ) {
+	if ( game.isLevelDarkMode() && m_type->lightHax ) {
 		game.gameMap()->culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
 	}
 }
