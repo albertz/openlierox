@@ -87,10 +87,11 @@ int l_sprites_load(lua_State* L)
 METHODC(SpriteSet, sprites_render,
 	//ALLEGRO_BITMAP* b = *static_cast<ALLEGRO_BITMAP **>(lua_touserdata(context, 2));
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
-		
+
+	// All images in doubleRes.
 	int frame = lua_tointeger(context, 3);
-	int x = lua_tointeger(context, 4);
-	int y = lua_tointeger(context, 5);
+	int x = int(lua_tonumber(context, 4) * 2);
+	int y = int(lua_tonumber(context, 5) * 2);
 	p->getSprite(frame)->draw(b, x, y, blitter);
 	
 	return 0;
@@ -108,10 +109,11 @@ METHODC(SpriteSet, sprites_render,
 METHODC(SpriteSet, sprites_render_skinned_box,  {
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
 	
-	int x1 = lua_tointeger(context, 3);
-	int y1 = lua_tointeger(context, 4);
-	int x2 = lua_tointeger(context, 5);
-	int y2 = lua_tointeger(context, 6);
+	// All images in doubleRes.
+	int x1 = int(lua_tonumber(context, 3) * 2);
+	int y1 = int(lua_tonumber(context, 4) * 2);
+	int x2 = int(lua_tonumber(context, 5) * 2);
+	int y2 = int(lua_tonumber(context, 6) * 2);
 	int c = lua_tointeger(context, 7);
 
 	if(lua_gettop(context) >= 9) // Deprecated
@@ -130,10 +132,11 @@ METHODC(SpriteSet, sprites_render_skinned_box,  {
 METHODC(SpriteSet, sprites_render_skinned_box,  (
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
 	
-	int x1 = lua_tointeger(context, 3);
-	int y1 = lua_tointeger(context, 4);
-	int x2 = lua_tointeger(context, 5);
-	int y2 = lua_tointeger(context, 6);
+	// All images in doubleRes.
+	int x1 = int(lua_tonumber(context, 3) * 2);
+	int y1 = int(lua_tonumber(context, 4) * 2);
+	int x2 = int(lua_tonumber(context, 5) * 2);
+	int y2 = int(lua_tonumber(context, 6) * 2);
 	int c = lua_tointeger(context, 7);
 	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2, y2), c);
 	
@@ -227,8 +230,9 @@ METHODC(Font, font_render,  {
 		
 	std::string s(sc);
 		
-	int x = lua_tointeger(context, 4);
-	int y = lua_tointeger(context, 5);
+	// All images in doubleRes.
+	int x = int(lua_tonumber(context, 4) * 2);
+	int y = int(lua_tonumber(context, 5) * 2);
 	
 	int cr = 255;
 	int cg = 255;
