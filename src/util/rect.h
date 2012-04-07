@@ -134,7 +134,7 @@ public:
 		return *this;
 	}
 	
-	BasicRect operator+(VectorD2<T> const& b)
+	BasicRect operator+(VectorD2<T> const& b) const
 	{
 		return BasicRect(*this) += b;
 	}
@@ -145,10 +145,35 @@ public:
 		x2 += b.x;
 		y1 += b.y;
 		y2 += b.y;
-		
 		return *this;
 	}
-	
+
+	BasicRect operator*(T f) const
+	{
+		return BasicRect(*this) *= f;
+	}
+
+	BasicRect& operator*=(T f) {
+		x1 *= f;
+		x2 *= f;
+		y1 *= f;
+		y2 *= f;
+		return *this;
+	}
+
+	BasicRect operator/(T f) const
+	{
+		return BasicRect(*this) /= f;
+	}
+
+	BasicRect& operator/=(T f) {
+		x1 /= f;
+		x2 /= f;
+		y1 /= f;
+		y2 /= f;
+		return *this;
+	}
+
 	BasicRect translate(T x, T y)
 	{
 		return BasicRect(x1 + x, y1 + y, x2 + x, y2 + y);
