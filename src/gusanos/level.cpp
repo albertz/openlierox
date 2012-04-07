@@ -257,12 +257,12 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 {
 	if (image) {
 		if (!paralax) {
-			blit(image,where,x,y,0,0,where->w,where->h);
+			blit(image,where,x*2,y*2,0,0,where->w,where->h);
 		} else {
-			int px = int(x * (paralax->w - where->w) / float( material->w - where->w ));
-			int py = int(y * (paralax->h - where->h) / float( material->h - where->h ));
-			blit(paralax,where,px,py,0,0,where->w,where->h);
-			masked_blit(image,where,x,y,0,0,where->w,where->h);
+			int px = int(x * (paralax->w - where->w) / float( image->w - where->w ));
+			int py = int(y * (paralax->h - where->h) / float( image->h - where->h ));
+			blit(paralax,where,px*2,py*2,0,0,where->w,where->h);
+			masked_blit(image,where,x*2,y*2,0,0,where->w,where->h);
 		}
 
 		if ( gusGame.options.showMapDebug ) {
