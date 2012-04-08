@@ -220,14 +220,12 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 					LocalSetColorDepth cd(8);
 					level->lightmap = create_bitmap(level->material->w*2, level->material->h*2);
 				}
+				// tmpLightmap is also doubleRes already
 				for ( int y = 0; y < tempLightmap->h ; ++y )
 				for ( int x = 0; x < tempLightmap->w ; ++x )
 				{
 					Uint32 c = getpixel(tempLightmap, x, y);
-					putpixel( level->lightmap, x*2, y*2, c );
-					putpixel( level->lightmap, x*2+1, y*2, c );
-					putpixel( level->lightmap, x*2, y*2+1, c );
-					putpixel( level->lightmap, x*2+1, y*2+1, c );
+					putpixel( level->lightmap, x, y, c );
 				}
 				destroy_bitmap( tempLightmap );
 			}
