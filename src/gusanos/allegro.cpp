@@ -295,8 +295,13 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
 // We only support DRAW_MODE_TRANS which is translucent color blending.
 // (This was the only mode (for Allgro drawing_mode) used by Gus code.)
 
+// linear interpolator blender mode for combining translucent or lit truecolor pixels
 void set_trans_blender(int r, int g, int b, int a) {}
+
+// additive blender mode for combining translucent or lit truecolor pixels
 void set_add_blender (int r, int g, int b, int a) {}
+
+// sets mode to DRAW_MODE_SOLID. i.e. simply copying pixels without op
 void solid_mode() {}
 
 
