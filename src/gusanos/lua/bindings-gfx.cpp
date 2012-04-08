@@ -61,7 +61,7 @@ int l_gfx_draw_box(lua_State* L)
 	}
 #endif
 	
-	blitter.rectfill(b, x1, y1, x2, y2, c);
+	blitter.rectfill(b, x1, y1, x2+1, y2+1, c);
 #endif
 	return 0;
 }
@@ -95,7 +95,9 @@ int l_gfx_line(lua_State* L)
 	int y2 = int(lua_tonumber(L, 5) * 2);
 	int c = lua_tointeger(L, 6);
 	
-	blitter.line(b, x1, y1, x2, y2, c);
+	for(short dy = 0; dy < 2; ++dy)
+	for(short dx = 0; dx < 2; ++dx)
+	blitter.line(b, x1+dx, y1+dy, x2+dx, y2+dy, c);
 #endif
 	return 0;
 }
@@ -118,7 +120,9 @@ int l_gfx_linewu(lua_State* L)
 	lua_Number y2 = lua_tonumber(L, 5) * 2;
 	int c = lua_tointeger(L, 6);
 	
-	blitter.linewu(b, (float)x1, (float)y1, (float)x2, (float)y2, c);
+	for(short dy = 0; dy < 2; ++dy)
+	for(short dx = 0; dx < 2; ++dx)
+	blitter.linewu(b, (float)x1+dx, (float)y1+dy, (float)x2+dx, (float)y2+dy, c);
 #endif
 	return 0;
 }
@@ -139,10 +143,9 @@ int l_gfx_putpixelwu(lua_State* L)
 	lua_Number y = lua_tonumber(L, 3) * 2;
 	int c = lua_tointeger(L, 4);
 	
-	blitter.putpixelwu(b, (float)x, (float)y, c);
-	blitter.putpixelwu(b, (float)x+1, (float)y, c);
-	blitter.putpixelwu(b, (float)x, (float)y+1, c);
-	blitter.putpixelwu(b, (float)x+1, (float)y+1, c);
+	for(short dy = 0; dy < 2; ++dy)
+	for(short dx = 0; dx < 2; ++dx)
+	blitter.putpixelwu(b, (float)x+dx, (float)y+dy, c);
 #endif
 	return 0;
 }
@@ -166,10 +169,9 @@ int l_gfx_putpixel(lua_State* L)
 	int cb = lua_tointeger(L, 6);
 	int c = makecol(cr, cg, cb);
 
-	blitter.putpixel(b, x, y, c);
-	blitter.putpixel(b, x+1, y, c);
-	blitter.putpixel(b, x, y+1, c);
-	blitter.putpixel(b, x+1, y+1, c);
+	for(short dy = 0; dy < 2; ++dy)
+	for(short dx = 0; dx < 2; ++dx)
+	blitter.putpixel(b, x+dx, y+dy, c);
 #endif
 	return 0;
 }
@@ -192,6 +194,7 @@ int l_gfx_hline(lua_State* L)
 	Pixel c = lua_tointeger(L, 5);
 	
 	blitter.hline(b, x1, y1, x2, c);
+	blitter.hline(b, x1, y1+1, x2, c);
 #endif
 	return 0;
 }
