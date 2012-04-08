@@ -215,7 +215,7 @@ void PartType::touch()
 			int width = lightSize.x;
 			int height = lightSize.y;
 			
-			ALLEGRO_BITMAP* l = create_bitmap_ex(8, width, height );
+			ALLEGRO_BITMAP* l = create_bitmap_ex(8, width*2, height*2);
 			
 			int hwidth = width / 2;
 			int hheight = height / 2;
@@ -229,7 +229,7 @@ void PartType::touch()
 					int v = lua_tointeger(luaIngame, -1);
 					if(v < 0) v = 0;
 					else if(v > 255) v = 255;
-					putpixel_solid(l, x, y, v);
+					putpixel_solid2x2(l, x*2, y*2, v);
 					luaIngame.pop(1);
 				}
 				else
