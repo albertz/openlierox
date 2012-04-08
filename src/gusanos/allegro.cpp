@@ -20,7 +20,7 @@
 #include "EventQueue.h"
 #include "LieroX.h"
 #include "Options.h"
-
+#include "gusanos/blitters/blitters.h"
 
 
 static int color_conversion = 0;
@@ -328,6 +328,17 @@ void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, Uint32 color) {
 	putpixel__nocheck(bmp, x, y, color);
 }
 
+void putpixel2x2(ALLEGRO_BITMAP *bmp, int x, int y, Uint32 color) {
+	for(short dy = 0; dy < 2; ++dy)
+	for(short dx = 0; dx < 2; ++dx)
+	putpixel(bmp, x+dx, y+dy, color);
+}
+
+void copypixel_solid2x2(ALLEGRO_BITMAP* dst, ALLEGRO_BITMAP* src, int x, int y) {
+	for(short dy = 0; dy < 2; ++dy)
+	for(short dx = 0; dx < 2; ++dx)
+	putpixel_solid(dst, x+dx, y+dy, getpixel(src, x+dx, y+dy));
+}
 
 
 static Color allegcol_to_Col(Uint32 col) {

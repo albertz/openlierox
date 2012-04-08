@@ -203,6 +203,10 @@ __INLINE__ int is_video_bitmap(ALLEGRO_BITMAP *bmp)
 
 Uint32 getpixel(ALLEGRO_BITMAP *bmp, int x, int y);
 void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, Uint32 color);
+void putpixel2x2(ALLEGRO_BITMAP *bmp, int x, int y, Uint32 color);
+
+void copypixel_solid2x2(ALLEGRO_BITMAP* dst, ALLEGRO_BITMAP* src, int x, int y);
+
 void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, Uint32 color);
 void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, Uint32 color);
 void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color);
