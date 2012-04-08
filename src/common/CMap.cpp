@@ -1566,23 +1566,7 @@ void CMap::UpdateMiniMap(bool force)
 		return;
 	}
 	
-	if(gusIsLoaded()) {
-		gusUpdateMinimap(0, 0, Width, Height);
-	}
-	else {
-		if(!bmpDrawImage.get()) {
-			errors << "CMap::UpdateMiniMap: drawimage surface not initialised" << endl;
-			return;
-		}
-		
-		if( bmpBackImageHiRes.get() )
-		{
-			if (tLXOptions->bAntiAliasing)
-				DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-			else
-				DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-		}
-	}
+	gusUpdateMinimap(0, 0, Width, Height);
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
