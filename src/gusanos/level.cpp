@@ -42,7 +42,8 @@ struct AddCuller : Culler<AddCuller>
 
 	bool block(int x, int y)
 	{
-		return m_level.unsafeGetMaterial(x,y).blocks_light;
+		// doubleRes to singleRes coords
+		return m_level.unsafeGetMaterial(x/2,y/2).blocks_light;
 	}
 
 	void line(int y, int x1, int x2)
