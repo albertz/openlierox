@@ -421,6 +421,8 @@ void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source
 	SDL_Rect srcrect = { source_x, source_y, width, height };
 	SDL_Rect dstrect = { dest_x, dest_y, width, height };
 	DrawImageAdv(dest->surf.get(), source->surf.get(), dstrect, srcrect);
+	// This doesn' work. We need colorkey handling:
+	// CopySurface(dest->surf.get(), source->surf.get(), source_x, source_y, dest_x, dest_y, width, height);
 }
 
 void blit_stretch2(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int swidth, int sheight) {
