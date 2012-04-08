@@ -442,9 +442,9 @@ void CMap::loaderSucceeded()
 	}
 
 	if(!background) {
-		background = create_bitmap(image->w, image->h);
-		blit(image, background, 0,0,0,0,image->w, image->h);
-		DrawRectFill(background->surf, 0, 0, background->w, background->h, Color(0,0,0,120));
+		background = create_bitmap_from_sdl(GetCopiedImage(image->surf));
+		// Does this make sense? In CMap::applyEffect, we replace every pixel from image by it.
+		//DrawRectFill(background->surf.get(), 0, 0, background->w, background->h, Color(0,0,0,120));
 	}
 
 	if ( !watermap ) {
