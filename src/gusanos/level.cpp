@@ -444,9 +444,7 @@ void CMap::loaderSucceeded()
 	if(!background) {
 		background = create_bitmap(image->w, image->h);
 		blit(image, background, 0,0,0,0,image->w, image->h);
-		gfx.setBlender(ALPHA,120);
-		rectfill( background, 0,0,background->w,background->h,0);
-		solid_mode();
+		DrawRectFill(background->surf, 0, 0, background->w, background->h, Color(0,0,0,120));
 	}
 
 	if ( !watermap ) {
