@@ -17,6 +17,7 @@ using namespace std;
 #include "CVec.h"
 Sprite* genLight( int radius )
 {
+	radius *= 2; // doubleRes
 	ALLEGRO_BITMAP* lightHax;
 	{
 		//LocalSetColorDepth cd(8);
