@@ -272,6 +272,13 @@ INLINE void putpixel_solid(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 	SELECT_ALL(putpixel_solid, (where, x, y, color1));
 }
 
+INLINE void putpixel_solid2x2(ALLEGRO_BITMAP* where, int x, int y, Pixel color1) {
+	putpixel_solid(where, x, y, color1);
+	putpixel_solid(where, x+1, y, color1);
+	putpixel_solid(where, x, y+1, color1);
+	putpixel_solid(where, x+1, y+1, color1);
+}
+
 INLINE void putpixelwu_solid(ALLEGRO_BITMAP* where, float x, float y, Pixel color1)
 {
 	//blendwu blender checks range
