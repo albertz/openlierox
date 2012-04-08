@@ -335,6 +335,9 @@ void CMap::culledDrawLight( Sprite* sprite, CViewport* viewport, const IVec& pos
 
 	if ( r.isIntersecting( Rect( viewport->fadeBuffer ) + off ) ) // Check that it can be seen
 	{
+		// we use drawSpriteLine_add which requires the same bit depths
+		assert(renderBitmap->surf->format->BitsPerPixel == 8);
+
 		AddCuller addCuller(
 		    *this,
 		    viewport->fadeBuffer,

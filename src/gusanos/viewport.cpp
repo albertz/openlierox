@@ -101,6 +101,8 @@ void CViewport::drawLight(IVec const& v)
 	Rect r(0, 0, game.gameMap()->GetWidth()*2 - 1, game.gameMap()->GetHeight()*2 - 1);
 	r &= Rect(renderBitmap) + loff;
 
+	// we use drawSpriteLine_add which requires the same bit depths
+	assert(renderBitmap->surf->format->BitsPerPixel == 8);
 	TestCuller testCuller(fadeBuffer, renderBitmap, -off.x, -off.y, -loff.x, -loff.y, r);
 
 	testCuller.cullOmni(v.x*2, v.y*2);
