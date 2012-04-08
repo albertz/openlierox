@@ -379,7 +379,13 @@ void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color) {
 void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color) {
 	sub_to_abs_coords(bmp, x1, y1);
 	sub_to_abs_coords(bmp, x2, y2);
-	DrawRectFill(bmp->surf.get(), x1, y1, x2, y2, allegcol_to_Col(color));
+	if(bmp->surf->format->BitsPerPixel == 8) {
+		// currently, DrawRectFill cannot handle 8bit and/or allegcol_to_Col is wrong
+		SDL_Rect r = { x1, y1, x2-x1, y2-y1 };
+		SDL_FillRect(bmp->surf.get(), &r, color);
+	}
+	else
+		DrawRectFill(bmp->surf.get(), x1, y1, x2, y2, allegcol_to_Col(color));
 }
 
 void circle(ALLEGRO_BITMAP *bmp, int x, int y, int radius, Uint32 color) {
