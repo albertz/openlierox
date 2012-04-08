@@ -32,8 +32,8 @@ bool LieroFontLoader::load(Font* font, std::string const& path)
 		
 	long bitmapWidth = 7, bitmapHeight = 250 * 8;
 
-	font->m_bitmap = create_bitmap_ex(8, bitmapWidth, bitmapHeight);
-	if(!font->m_bitmap)
+	ALLEGRO_BITMAP* fontBitmap = create_bitmap_ex(8, bitmapWidth, bitmapHeight);
+	if(!fontBitmap)
 		return false;
 		
 	font->m_supportColoring = true;
@@ -46,7 +46,7 @@ bool LieroFontLoader::load(Font* font, std::string const& path)
 	if(f.gcount() < (int)buffer.size())
 		return false;
 
-	font->m_chars.assign(2, Font::CharInfo(Rect(0, 0, 1, 1), 0)); // Two empty slots
+	font->m_chars.assign(2, Font::CharInfo(Rect(0, 0, 2, 2), 0)); // Two empty slots
 
 	int y = 0;
 	for(int i = 0; i < 250; ++i)
@@ -69,13 +69,17 @@ bool LieroFontLoader::load(Font* font, std::string const& path)
 				
 				int c = v ? 255 : 0;
 
-				putpixel(font->m_bitmap, x, y, c);
+				putpixel(fontBitmap, x, y, c);
 			}
 		}
 		
-		font->m_chars.push_back(Font::CharInfo(Rect(0, beginy, width, endy + 1), 0));
+		font->m_chars.push_back(Font::CharInfo(Rect(0, beginy, width, endy + 1)*2, 0));
 	}
-	
+
+	SmartPointer<SDL_Surface> doubleResFont = GetCopiedStretched2Image(fontBitmap->surf);
+	destroy_bitmap(fontBitmap); fontBitmap = NULL;
+	font->m_bitmap = create_bitmap_from_sdl(doubleResFont);
+
 	font->buildSubBitmaps();
 	
 	return true;
