@@ -369,7 +369,7 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 					putMaterialDoubleRes( /*background*/1, drawX+x, drawY+y );
 					checkWBorders( (drawX+x)/2, (drawY+y)/2 );
 #ifndef DEDICATED_ONLY
-					putpixel2x2(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
+					putpixel(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
 #endif
 				}
 			}
