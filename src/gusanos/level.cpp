@@ -205,17 +205,17 @@ void CMap::gusThink()
 #ifndef DEDICATED_ONLY
 	foreach_delete( wp, m_water ) {
 		if ( getMaterialIndex( wp->x, wp->y ) != wp->mat ) {
-			putpixel_solid(image, wp->x, wp->y, getpixel(background, wp->x, wp->y) );
+			copypixel_solid2x2(image, background, wp->x*2, wp->y*2);
 			m_water.erase(wp);
 		} else
 			if ( rnd() > WaterSkipFactor ) {
 				unsigned char mat = getMaterialIndex( wp->x, wp->y+1 );
 				if ( m_materialList[mat].particle_pass && !m_materialList[mat].flows) {
 					checkWBorders( wp->x, wp->y  );
-					putpixel_solid(image, wp->x, wp->y, getpixel(background, wp->x, wp->y) );
+					copypixel_solid2x2(image, background, wp->x*2, wp->y*2);
 					putMaterial( 1, wp->x, wp->y );
 					++wp->y;
-					putpixel_solid(image, wp->x, wp->y, getpixel(watermap, wp->x, wp->y) );
+					copypixel_solid2x2(image, watermap, wp->x*2, wp->y*2);
 					putMaterial( wp->mat, wp->x, wp->y );
 					wp->count = 0; // Reset stagnation counter because it moved
 				} else {
@@ -228,10 +228,10 @@ void CMap::gusThink()
 					mat = getMaterialIndex( wp->x+dir, wp->y );
 					if ( m_materialList[mat].particle_pass && !m_materialList[mat].flows ) {
 						checkWBorders( wp->x, wp->y );
-						putpixel_solid(image, wp->x, wp->y, getpixel(background, wp->x, wp->y) );
+						copypixel_solid2x2(image, background, wp->x*2, wp->y*2);
 						putMaterial( 1, wp->x, wp->y );
 						wp->x += dir;
-						putpixel_solid(image, wp->x, wp->y, getpixel(watermap, wp->x, wp->y) );
+						copypixel_solid2x2(image, watermap, wp->x*2, wp->y*2);
 						putMaterial( wp->mat, wp->x, wp->y );
 						wp->count = 0;
 						// Reset stagnation counter because it moved
@@ -283,12 +283,11 @@ void CMap::specialDrawSprite( Sprite* sprite, ALLEGRO_BITMAP* where, const IVec&
 
 	int xMatStart = matPos.x - sprite->m_xPivot;
 	int yMatStart = matPos.y - sprite->m_yPivot;
-	int xDrawStart = pos.x - sprite->m_xPivot;
-	int yDrawStart = pos.y - sprite->m_yPivot;
+	int xDrawStart = pos.x*2 - sprite->m_xPivot;
+	int yDrawStart = pos.y*2 - sprite->m_yPivot;
 	for ( int y = 0; y < sprite->m_bitmap->h ; ++y )
 		for ( int x = 0; x < sprite->m_bitmap->w ; ++x ) {
 			if ( getMaterial ( xMatStart + x , yMatStart + y ).draw_exps ) {
-				//int c = sprite->m_bitmap->line[y][x];
 				int c = getpixel( sprite->m_bitmap, x, y );
 				if ( c != transCol )
 					blitter.putpixel( where, xDrawStart + x, yDrawStart + y, c );
@@ -370,7 +369,7 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 					putMaterialDoubleRes( /*background*/1, drawX+x, drawY+y );
 					checkWBorders( (drawX+x)/2, (drawY+y)/2 );
 #ifndef DEDICATED_ONLY
-					putpixel(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
+					putpixel2x2(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
 #endif
 				}
 			}
@@ -491,19 +490,19 @@ void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
 
 	if (paralax) {
 		// Calculate ratios
-		const float parxratio = (float)paralax->w / (float)Width;
-		const float paryratio = (float)paralax->h / (float)Height;
+		const float parxratio = (float)paralax->w / (float)image->w;
+		const float paryratio = (float)paralax->h / (float)image->h;
 		
-		const int parx = (int)((float)x * parxratio);
-		const int pary = (int)((float)y * paryratio);
-		const int parw = (int)((float)w * parxratio);
-		const int parh = (int)((float)h * paryratio);
+		const int parx = (int)((float)x * parxratio * 2);
+		const int pary = (int)((float)y * paryratio * 2);
+		const int parw = (int)((float)w * parxratio * 2);
+		const int parh = (int)((float)h * paryratio * 2);
 
-		(*blitFct) (bmpMiniMap.get(), paralax->surf.get(), parx, pary, dx, dy, parw, parh, xratio / parxratio, yratio / paryratio);
+		(*blitFct) (bmpMiniMap.get(), paralax->surf.get(), parx, pary, dx, dy, parw, parh, 0.5f * xratio / parxratio, 0.5f * yratio / paryratio);
 	} else {
 		DrawRectFill(bmpMiniMap.get(), x - 1, y - 1, x + w + 1, y + h + 1, Color());
 	}
 	
-	(*blitFct) (bmpMiniMap.get(), image->surf.get(), x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+	(*blitFct) (bmpMiniMap.get(), image->surf.get(), (x - 1)*2, (y - 1)*2, dx, dy, (w + 1)*2, (h + 1)*2, xratio*0.5f, yratio*0.5f);
 }
 
