@@ -181,10 +181,10 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		// draw worms
 		for_each_iterator(CWorm*, w, game.aliveWorms())
 			w->get()->Draw(bmpDest, v);
-
-		for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
-			iter->draw(this);
 	}
+
+	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
+		iter->draw(this);
 
 	if(game.isLevelDarkMode())
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
