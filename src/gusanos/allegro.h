@@ -302,14 +302,6 @@ void bmp_unwrite_line(ALLEGRO_BITMAP* bmp);
 
 
 
-#define DRAW_MODE_SOLID             0        /* flags for drawing_mode() */
-#define DRAW_MODE_XOR               1
-#define DRAW_MODE_COPY_PATTERN      2
-#define DRAW_MODE_SOLID_PATTERN     3
-#define DRAW_MODE_MASKED_PATTERN    4
-#define DRAW_MODE_TRANS             5
-
-void drawing_mode(int mode, ALLEGRO_BITMAP *pattern, int x_anchor, int y_anchor);
 void set_trans_blender(int r, int g, int b, int a);
 void set_add_blender (int r, int g, int b, int a);
 void solid_mode();

@@ -27,7 +27,6 @@ public:
 #ifndef DEDICATED_ONLY
 	INLINE void setBlender( Blenders blender, int alpha )
 	{
-		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 		switch ( blender )
 		{
 			case ALPHA:

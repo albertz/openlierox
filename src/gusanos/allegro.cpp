@@ -291,7 +291,10 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
 	FMOD(*h, 1.0f);
 }
 
-void drawing_mode(int mode, ALLEGRO_BITMAP *pattern, int x_anchor, int y_anchor) {}
+
+// We only support DRAW_MODE_TRANS which is translucent color blending.
+// (This was the only mode (for Allgro drawing_mode) used by Gus code.)
+
 void set_trans_blender(int r, int g, int b, int a) {}
 void set_add_blender (int r, int g, int b, int a) {}
 void solid_mode() {}
