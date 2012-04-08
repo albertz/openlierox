@@ -50,13 +50,13 @@ struct TestCuller : public Culler<TestCuller>
 
 	bool block(int x, int y)
 	{
-		return !game.gameMap()->unsafeGetMaterial(x, y).worm_pass;
+		// doubleRes to singleRes coords
+		return !game.gameMap()->unsafeGetMaterial(x/2, y/2).worm_pass;
 	}
 
 	void line(int y, int x1, int x2)
 	{
 		//hline_add(dest, x1 + scrOffX, y + scrOffY, x2 + scrOffX + 1, makecol(50, 50, 50), 255);
-
 
 		drawSpriteLine_add(
 		    dest,
@@ -78,7 +78,7 @@ struct TestCuller : public Culler<TestCuller>
 	int destOffY;
 };
 
-static ALLEGRO_BITMAP* testLight = 0;
+static Sprite* testLight = 0;
 
 void CViewport::setDestination(int width, int height)
 {
@@ -88,33 +88,22 @@ void CViewport::setDestination(int width, int height)
 	destroy_bitmap(fadeBuffer);
 	fadeBuffer = create_bitmap_ex(8, width, height);
 
-	if(!testLight) {
-		static const int s = 500;
-		destroy_bitmap(testLight);
-		testLight = create_bitmap_ex(8, s, s);
-
-		for(int y = 0; y < s; ++y)
-			for(int x = 0; x < s; ++x) {
-				double v = 1.0*(double(s)/2 - (IVec(x, y) - IVec(s/2, s/2)).length());
-				if(v < 0.0)
-					v = 0.0;
-				int iv = int(v);
-				putpixel_solid(testLight, x, y, iv);
-			}
-	}		
+	if(!testLight)
+		testLight = genLight(300);
 }
 
 void CViewport::drawLight(IVec const& v)
 {
-	IVec off(Left,Top);
-	IVec loff(v - IVec(testLight->w/2, testLight->h/2));
+	ALLEGRO_BITMAP* renderBitmap = testLight->m_bitmap;
+	IVec off = getPos() * 2;
+	IVec loff(v*2 - IVec(testLight->m_xPivot, testLight->m_yPivot));
 
 	Rect r(0, 0, game.gameMap()->GetWidth()*2 - 1, game.gameMap()->GetHeight()*2 - 1);
-	r &= Rect(testLight) + loff;
+	r &= Rect(renderBitmap) + loff;
 
-	TestCuller testCuller(fadeBuffer, testLight, -off.x, -off.y, -loff.x, -loff.y, r);
+	TestCuller testCuller(fadeBuffer, renderBitmap, -off.x, -off.y, -loff.x, -loff.y, r);
 
-	testCuller.cullOmni(v.x, v.y);
+	testCuller.cullOmni(v.x*2, v.y*2);
 }
 
 
@@ -185,6 +174,11 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 		iter->draw(this);
+
+	if(game.isLevelDarkMode() && pcTargetWorm) {
+		if(pcTargetWorm->isActive())
+			drawLight(pcTargetWorm->pos().get());
+	}
 
 	if(game.isLevelDarkMode())
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
