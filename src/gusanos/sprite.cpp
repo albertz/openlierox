@@ -30,7 +30,7 @@ Sprite* genLight( int radius )
 				color = 0;
 			putpixel(lightHax,x,y,color);
 		}
-	return new Sprite(lightHax, radius, radius);
+	return new Sprite(lightHax, -1, -1);
 }
 
 Sprite::Sprite( ALLEGRO_BITMAP* bitmap, int xPivot, int yPivot)
