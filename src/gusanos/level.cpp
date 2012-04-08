@@ -373,6 +373,7 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 					checkWBorders( (drawX+x)/2, (drawY+y)/2 );
 #ifndef DEDICATED_ONLY
 					putpixel(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
+					putpixel(lightmap, drawX+x, drawY+y, 0);
 #endif
 				}
 			}
