@@ -982,7 +982,6 @@ Color CWorm::renderColorAt(/* relative game coordinates */ int x, int y) const {
 	return cSkin.get().renderColorAt(x*2 + cSkin.get().getSkinWidth()/2, y*2 + cSkin.get().getSkinHeight()/2, f, iFaceDirectionSide == DIR_LEFT);
 }
 
-extern bool hackLXWormDrawInGusanos;
 
 ///////////////////
 // Draw the worm
@@ -1139,7 +1138,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	// Draw the crosshair
 	//
-	if(!game.gameScript()->gusEngineUsed() || !hackLXWormDrawInGusanos) {
+	if(!game.gameScript()->gusEngineUsed()) {
 		CVec forw;
 		GetVecsFromAngle((float)a, &forw, NULL);
 		forw *= tLXOptions->fCrosshairDistance;
@@ -1167,7 +1166,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Find the right pic
 	int f = ((int)fFrame*7);
-	if(hackLXWormDrawInGusanos && game.gameScript()->gusEngineUsed()) f = (m_animator->getFrame() % 3) * 7;
+	if(game.gameScript()->gusEngineUsed()) f = (m_animator->getFrame() % 3) * 7;
 	int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 	f += ang;
 
@@ -1242,7 +1241,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	const wpnslot_t *Slot = getCurWeapon();
 
 	// Draw the weapon name
-	if((!game.gameScript()->gusEngineUsed() || !hackLXWormDrawInGusanos) && bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
+	if(!game.gameScript()->gusEngineUsed() && bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
 		if(isChangingWpn()) {
 			if(Slot->weapon())
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->weapon()->Name);
@@ -1253,7 +1252,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	}
 
 	// Draw the worm's name
-	if ((!game.gameScript()->gusEngineUsed() || !hackLXWormDrawInGusanos) && isWormVisible(this, v))  {
+	if (!game.gameScript()->gusEngineUsed() && isWormVisible(this, v))  {
 		std::string WormName = sName;
 		if( sAFKMessage.get() != "" )
 			WormName += " " + sAFKMessage.get();
@@ -1279,7 +1278,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Copied from ::Draw
 		// TODO: a separate function for this
 		int f = ((int)fFrame*7);
-		if(hackLXWormDrawInGusanos && game.gameScript()->gusEngineUsed()) f = (m_animator->getFrame() % 3) * 7;
+		if(game.gameScript()->gusEngineUsed()) f = (m_animator->getFrame() % 3) * 7;
 		int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 		f += ang;
 

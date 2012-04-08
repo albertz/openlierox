@@ -523,13 +523,11 @@ void CWorm::removeRefsToPlayer(CWormInputHandler* player)
 #ifndef DEDICATED_ONLY
 #include "AuxLib.h"
 
-extern bool hackLXWormDrawInGusanos;
 
 void CWorm::draw(CViewport* viewport)
 {
 	if(!bPrepared) return;
 
-	if(hackLXWormDrawInGusanos) return;
 	if(!game.gameScript() || !game.gameScript()->gusEngineUsed())
 		// OLX will draw this worm
 		return;

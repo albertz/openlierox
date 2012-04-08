@@ -857,7 +857,6 @@ void CClient::DrawChatter(SDL_Surface * bmpDest)
 	}
 }
 
-bool hackLXWormDrawInGusanos = true;
 
 void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	if(!game.gameMap() || !game.gameMap()->isLoaded()) return;
@@ -889,6 +888,8 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	if (!gusanosDrawing)
 		game.gameMap()->Draw(bmpDest, v);
 		
+
+	// TODO: move that all into gusRender()
 	// The following will be drawn only when playing
 	if (game.state >= Game::S_Preparing || iNetStatus == NET_PLAYING)  {
 		// update the drawing position
@@ -900,10 +901,8 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 			DrawProjectileShadows(bmpDest, v);
 
 			// Draw the worm shadows
-			if(hackLXWormDrawInGusanos) {
-				for_each_iterator(CWorm*, w, game.aliveWorms())
-					w->get()->DrawShadow(bmpDest, v);
-			}
+			for_each_iterator(CWorm*, w, game.aliveWorms())
+				w->get()->DrawShadow(bmpDest, v);
 		}
 
 		// Draw the entities
@@ -918,18 +917,9 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 		// draw unattached flags and flag spawnpoints
 		cClient->flagInfo()->draw(bmpDest, v);
 		
-		// Draw all the worms in the game
-		if(!hackLXWormDrawInGusanos && game.gameScript()->gusEngineUsed()) {
-			// draw attached flag
-			for_each_iterator(CWorm*, w, game.aliveWorms())
-				if(w->get()->isVisible(v))
-					cClient->flagInfo()->drawWormAttachedFlag(w->get(), bmpDest, v);
-			
-		} else {
-			// no gus worm drawing, draw them now
-			for_each_iterator(CWorm*, w, game.aliveWorms())
-				w->get()->Draw(bmpDest, v);
-		}
+		// draw worms
+		for_each_iterator(CWorm*, w, game.aliveWorms())
+			w->get()->Draw(bmpDest, v);
 	}
 	
 }
