@@ -109,7 +109,7 @@ void CViewport::drawLight(IVec const& v)
 	IVec off(Left,Top);
 	IVec loff(v - IVec(testLight->w/2, testLight->h/2));
 
-	Rect r(0, 0, game.gameMap()->GetWidth() - 1, game.gameMap()->GetHeight() - 1);
+	Rect r(0, 0, game.gameMap()->GetWidth()*2 - 1, game.gameMap()->GetHeight()*2 - 1);
 	r &= Rect(testLight) + loff;
 
 	TestCuller testCuller(fadeBuffer, testLight, -off.x, -off.y, -loff.x, -loff.y, r);
@@ -140,9 +140,6 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 
 	if ( game.isLevelDarkMode() && game.gameMap()->lightmap )
 		blit( game.gameMap()->lightmap, fadeBuffer, offX*2,offY*2, 0, 0, fadeBuffer->w, fadeBuffer->h );
-
-	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
-		iter->draw(this);
 
 	if (game.state == Game::S_Playing)  {
 		// for this scope as a small hack ...
@@ -184,6 +181,9 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		// draw worms
 		for_each_iterator(CWorm*, w, game.aliveWorms())
 			w->get()->Draw(bmpDest, v);
+
+		for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
+			iter->draw(this);
 	}
 
 	if(game.isLevelDarkMode())
