@@ -526,11 +526,12 @@ void CWorm::removeRefsToPlayer(CWormInputHandler* player)
 
 void CWorm::draw(CViewport* viewport)
 {
-	if(!bPrepared) return;
+	// This is the Gusanos worm draw function.
+	// Earlier, we drew this in either OLX or Gus.
+	// Now, we draw the worm itself in OLX and
+	// only Gus specific stuff here.
 
-	if(!game.gameScript() || !game.gameScript()->gusEngineUsed())
-		// OLX will draw this worm
-		return;
+	if(!bPrepared) return;
 	
 	if (getAlive() && isVisible(viewport) && gusSkinVisble) {
 		ALLEGRO_BITMAP* where = viewport->dest;
@@ -543,7 +544,7 @@ void CWorm::draw(CViewport* viewport)
 			int renderX = x;
 			int renderY = y;
 
-			if (cNinjaRope.get().isReleased()) {
+			if(/* use OLX ninjarope drawing */ false && cNinjaRope.get().isReleased()) {
 				IVec nrPos = viewport->convertCoords( IVec(Vec(cNinjaRope.get().pos())) );
 				line(where, x, y, nrPos.x, nrPos.y, cNinjaRope.get().getColour());
 			}
@@ -563,9 +564,8 @@ void CWorm::draw(CViewport* viewport)
 			int ang = MIN((int)( (angle.toDeg())/151 * 7 ), 6);  // clamp the value because LX skins don't have the very bottom aim
 			f += ang;
 			
-			//int colour = universalToLocalColor(this->getSkin().getColor().get());
-			//skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getPointingAngle())->draw(where, renderX, renderY);			
-			cSkin.get().DrawHalf(where->surf.get(), where->sub_x + renderX - cSkin.get().getSkinWidth() / 4, where->sub_y + renderY - cSkin.get().getSkinHeight() / 4, f, false, flipped);
+			if(false) // OLX code draws this
+				cSkin.get().DrawHalf(where->surf.get(), where->sub_x + renderX - cSkin.get().getSkinWidth() / 4, where->sub_y + renderY - cSkin.get().getSkinHeight() / 4, f, false, flipped);
 
 			if ( getCurrentWeaponRef() )
 				getCurrentWeaponRef()->drawTop(where, renderX, renderY);
