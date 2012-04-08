@@ -15,6 +15,7 @@
 #include "culling.h"
 #include "game/CMap.h"
 #include "game/Game.h"
+#include "FlagInfo.h"
 #include <list>
 
 #include "sprite_set.h" // TEMP
@@ -142,6 +143,48 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 		iter->draw(this);
+
+	if (game.state == Game::S_Playing)  {
+		// for this scope as a small hack ...
+		SDL_Surface* bmpDest = dest->surf.get();
+		CViewport _v;
+		_v.Height = this->Height;
+		_v.Width = this->Width;
+		_v.VirtHeight = this->VirtHeight;
+		_v.VirtWidth = this->VirtWidth;
+		_v.WorldX = this->WorldX;
+		_v.WorldY = this->WorldY;
+		CViewport* v = &_v;
+
+		// update the drawing position
+		for_each_iterator(CWorm*, w, game.aliveWorms())
+			w->get()->UpdateDrawPos();
+
+		if( tLXOptions->bShadows ) {
+			// Draw the projectile shadows
+			cClient->DrawProjectileShadows(bmpDest, v);
+
+			// Draw the worm shadows
+			for_each_iterator(CWorm*, w, game.aliveWorms())
+				w->get()->DrawShadow(bmpDest, v);
+		}
+
+		// Draw the entities
+		DrawEntities(bmpDest, v);
+
+		// Draw the projectiles
+		cClient->DrawProjectiles(bmpDest, v);
+
+		// Draw the bonuses
+		cClient->DrawBonuses(bmpDest, v);
+
+		// draw unattached flags and flag spawnpoints
+		cClient->flagInfo()->draw(bmpDest, v);
+
+		// draw worms
+		for_each_iterator(CWorm*, w, game.aliveWorms())
+			w->get()->Draw(bmpDest, v);
+	}
 
 	if(game.isLevelDarkMode())
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);

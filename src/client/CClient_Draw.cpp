@@ -876,52 +876,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 		//return;
 	}
 	
-	const bool gusanosDrawing = gusGame.isEngineNeeded();
-	if(gusanosDrawing)
-		v->gusRender(bmpDest);
-		
-	// Weather
-	//cWeather.Draw(bmpDest, v);
-	
-	// Earlier: When game menu is visible (bGameMenu), it covers all this anyway, so we won't bother to draw it.
-	// We draw it anyway now because we could use some nice alpha blending or so
-	if (!gusanosDrawing)
-		game.gameMap()->Draw(bmpDest, v);
-		
-
-	// TODO: move that all into gusRender()
-	// The following will be drawn only when playing
-	if (game.state >= Game::S_Preparing || iNetStatus == NET_PLAYING)  {
-		// update the drawing position
-		for_each_iterator(CWorm*, w, game.aliveWorms())
-			w->get()->UpdateDrawPos();
-
-		if( tLXOptions->bShadows ) {
-			// Draw the projectile shadows
-			DrawProjectileShadows(bmpDest, v);
-
-			// Draw the worm shadows
-			for_each_iterator(CWorm*, w, game.aliveWorms())
-				w->get()->DrawShadow(bmpDest, v);
-		}
-
-		// Draw the entities
-		DrawEntities(bmpDest, v);
-
-		// Draw the projectiles
-		DrawProjectiles(bmpDest, v);
-
-		// Draw the bonuses
-		DrawBonuses(bmpDest, v);
-		
-		// draw unattached flags and flag spawnpoints
-		cClient->flagInfo()->draw(bmpDest, v);
-		
-		// draw worms
-		for_each_iterator(CWorm*, w, game.aliveWorms())
-			w->get()->Draw(bmpDest, v);
-	}
-	
+	v->gusRender(bmpDest);
 }
 
 
