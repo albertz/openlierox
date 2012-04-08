@@ -291,6 +291,11 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
 	FMOD(*h, 1.0f);
 }
 
+void drawing_mode(int mode, ALLEGRO_BITMAP *pattern, int x_anchor, int y_anchor) {}
+void set_trans_blender(int r, int g, int b, int a) {}
+void set_add_blender (int r, int g, int b, int a) {}
+void solid_mode() {}
+
 
 static bool coord_in_bmp(ALLEGRO_BITMAP* bmp, int x, int y) {
 	return x >= 0 && x < bmp->w && y >= 0 && y < bmp->h;
@@ -366,8 +371,7 @@ void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color) {
 void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color) {
 	sub_to_abs_coords(bmp, x1, y1);
 	sub_to_abs_coords(bmp, x2, y2);
-	SDL_Rect rect = { x1, y1, x2 - x1, y2 - y1 };
-	SDL_FillRect(bmp->surf.get(), &rect, color);
+	DrawRectFill(bmp->surf.get(), x1, y1, x2, y2, allegcol_to_Col(color));
 }
 
 void circle(ALLEGRO_BITMAP *bmp, int x, int y, int radius, Uint32 color) {
@@ -455,10 +459,6 @@ void bmp_unwrite_line(ALLEGRO_BITMAP* bmp) {}
 
 
 
-void drawing_mode(int mode, ALLEGRO_BITMAP *pattern, int x_anchor, int y_anchor) {}
-void set_trans_blender(int r, int g, int b, int a) {}
-void set_add_blender (int r, int g, int b, int a) {}
-void solid_mode() {}
 
 /*
 int getr(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return r; }
