@@ -437,7 +437,7 @@ void CMap::loaderSucceeded()
 		// NOTE: doubleRes lightmap
 		LocalSetColorDepth cd(8);
 		lightmap = create_bitmap(material->w*2, material->h*2);
-		clear_to_color(lightmap, 50);
+		clear_to_color(lightmap, 0); // 50 earlier. but 0 makes more sense. also matches the CMap::applyEffect value.
 		for ( int x = 0; x < lightmap->w ; ++x )
 			for ( int y = 0; y < lightmap->h ; ++y ) {
 				if ( unsafeGetMaterial(x/2,y/2).blocks_light )
