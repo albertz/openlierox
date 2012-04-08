@@ -124,7 +124,7 @@ METHODC(SpriteSet, sprites_render_skinned_box,  {
 		c = makecol(c, g, b);
 	}
 
-	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2, y2), c);
+	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2+1, y2+1), c);
 	
 	return 0;
 })
@@ -138,7 +138,7 @@ METHODC(SpriteSet, sprites_render_skinned_box,  (
 	int x2 = int(lua_tonumber(context, 5) * 2);
 	int y2 = int(lua_tonumber(context, 6) * 2);
 	int c = lua_tointeger(context, 7);
-	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2, y2), c);
+	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2+1, y2+1), c);
 	
 	return 0;
 ))
