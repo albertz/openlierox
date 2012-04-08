@@ -211,12 +211,12 @@ public:
 	
 	IVec convertCoords( IVec const & coord )
 	{
-		return coord - IVec(WorldX,WorldY);
+		return (coord - IVec(WorldX,WorldY)) * 2 /* doubleRes */;
 	}
 	
 	Vec convertCoordsPrec( Vec const & coord )
 	{
-		return coord - Vec((float)WorldX,(float)WorldY);
+		return (coord - Vec((float)WorldX,(float)WorldY)) * 2 /* doubleRes */;
 	}
 	
 	ALLEGRO_BITMAP* getBitmap() { return dest; }

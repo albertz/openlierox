@@ -132,10 +132,12 @@ int CNinjaRope::getColour() const
 #ifndef DEDICATED_ONLY
 void CNinjaRope::draw(CViewport *viewport)
 {
+	return; // for now, we purely draw this in OLX code
+
 	if(gusGame.NRPartType == NULL) return;
 	
 	ALLEGRO_BITMAP* where = viewport->dest;
-	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) ) * 2 /* doubleRes */;
+	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
 	if (Released)
 	{
 		if (!m_sprite)

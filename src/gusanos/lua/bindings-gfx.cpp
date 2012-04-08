@@ -313,9 +313,10 @@ METHOD(CViewport, viewport_fromMap,  {
 	lua_Integer x = lua_tointeger(context, 2);
 	lua_Integer y = lua_tointeger(context, 3);
 	
+	// We get them already in doubleRes. But Lua expects singleRes.
 	IVec v(p->convertCoords(IVec(x, y)));
-	context.push(v.x);
-	context.push(v.y);
+	context.push(v.x/2);
+	context.push(v.y/2);
 	return 2;
 })
 
