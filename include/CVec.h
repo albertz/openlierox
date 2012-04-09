@@ -42,6 +42,7 @@ struct VectorD2 {
 		x = (_T)cp.x; y = (_T)cp.y;
 	}
 
+	// clockwise direction. starting at top (12 o'clock), i.e. (0,-1)
 	VectorD2(Angle angle, double length = 1)
 	{
 		double radians = angle.toRad();
@@ -100,6 +101,7 @@ struct VectorD2 {
 		return x*x + y*y;
 	}
 
+	// equivalent to Angle-constructor.
 	Angle getAngle() const
 	{
 		return Angle::fromRad( atan2(double(x), double(-y)) );

@@ -156,8 +156,8 @@ public:
 	// Render the list item object
 	virtual void Render(SDL_Surface *dest, int x, int y)  
 	{
-		DrawArrow(dest, x, y + (tRect.h - ARROW_H)/2, ARROW_W, ARROW_H, ardLeft, tLX->clNormalText);
-		DrawArrow(dest, x + ARROW_W, y + (tRect.h - ARROW_H)/2, ARROW_W, ARROW_H, ardRight, tLX->clNormalText);
+		DrawSimpleArrow(dest, x, y + (tRect.h - ARROW_H)/2, ARROW_W, ARROW_H, ardLeft, tLX->clNormalText);
+		DrawSimpleArrow(dest, x + ARROW_W, y + (tRect.h - ARROW_H)/2, ARROW_W, ARROW_H, ardRight, tLX->clNormalText);
 	}
 };
 

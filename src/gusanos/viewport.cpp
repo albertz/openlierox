@@ -16,6 +16,7 @@
 #include "game/CMap.h"
 #include "game/Game.h"
 #include "FlagInfo.h"
+#include "CGameMode.h"
 #include <list>
 
 #include "sprite_set.h" // TEMP
@@ -224,6 +225,13 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		if(pcTargetWorm && dynamic_cast<CWormHumanInputHandler*>(pcTargetWorm->inputHandler()) != NULL) {
 			LUACALLBACK(viewportRender).call()(getLuaReference())(pcTargetWorm->getLuaReference())();
 		}
+	}
+
+	if(GetGameModeIndex(game.gameMode()) == GM_RACE || GetGameModeIndex(game.gameMode()) == GM_TEAMRACE) {
+		DrawArrow(dest->surf.get(), 100, 100, 30, 30, Angle(0.0), Color(100,255,30,200));
+		DrawArrow(dest->surf.get(), 150, 100, 30, 30, Angle(90.0), Color(200,255,30,200));
+		DrawArrow(dest->surf.get(), 200, 100, 30, 30, Angle(-90.0), Color(200,0,30,100));
+		DrawArrow(dest->surf.get(), 250, 100, 30, 30, getTarget()->getFaceDirection().getAngle(), Color(0,255,30,200));
 	}
 
 	DrawImage(bmpDest, dest->surf, this->GetLeft()/2, this->GetTop()/2);

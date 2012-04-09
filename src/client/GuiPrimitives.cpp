@@ -38,7 +38,7 @@ void DrawSimpleButton(SDL_Surface *bmpDest, int x, int y, int w, int h, Color fa
 
 //////////////////////
 // Draws a simple filled arrow
-void DrawArrow(SDL_Surface *bmpDest, int x, int y, int w, int h, ArrowDirection dir, Color col)
+void DrawSimpleArrow(SDL_Surface *bmpDest, int x, int y, int w, int h, ArrowDirection dir, Color col)
 {
 
 	// Draw the arrow according to the direction

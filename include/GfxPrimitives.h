@@ -30,6 +30,7 @@
 #include "Debug.h"
 #include "CVec.h"
 #include "CodeAttributes.h"
+#include "util/angle.h"
 
 
 //
@@ -749,6 +750,8 @@ struct ScopedBackgroundLoadingAni {
 	ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type = LAT_CIRCLES);
 	~ScopedBackgroundLoadingAni();
 };
+
+void DrawArrow(SDL_Surface* bmpDest, int x, int y, int w, int h, Angle dir, Color c);
 
 
 /////////////////////

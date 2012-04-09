@@ -30,7 +30,7 @@ enum ArrowDirection  {
 };
 
 void DrawSimpleButton(SDL_Surface *bmpDest, int x, int y, int w, int h, Color face, Color light, Color dark, bool down);
-void DrawArrow(SDL_Surface *bmpDest, int x, int y, int w, int h, ArrowDirection dir, Color col);
+void DrawSimpleArrow(SDL_Surface *bmpDest, int x, int y, int w, int h, ArrowDirection dir, Color col);
 void DrawCheck(SDL_Surface *bmpDest, int x, int y, int w, int h, Color col);
 
 

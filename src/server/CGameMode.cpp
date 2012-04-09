@@ -515,6 +515,7 @@ extern CGameMode* gameMode_Race;
 extern CGameMode* gameMode_TeamRace;
 
 
+// must match GameModeIndex
 static CGameMode* gameModes[] = {
 	gameMode_DeathMatch,
 	gameMode_TeamDeathMatch,

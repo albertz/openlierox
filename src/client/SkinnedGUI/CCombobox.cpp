@@ -472,7 +472,7 @@ void CCombobox::DoRepaint()
 	} else {
 		int w = getHeight() - cBorder.getTopW() - cBorder.getBottomW();
 		DrawSimpleButton(bmpBuffer.get(), getWidth() - cBorder.getRightW() - w, cBorder.getTopW(), w, w, iExpandFace, iExpandLight, iExpandShadow, bMouseDown || cItemList);
-		DrawArrow(bmpBuffer.get(), getWidth() - cBorder.getRightW() - (w + ARROW_W) / 2, cBorder.getTopW() + (w - ARROW_H)/2, ARROW_W, ARROW_H, ardDown, iExpandArrow);
+		DrawSimpleArrow(bmpBuffer.get(), getWidth() - cBorder.getRightW() - (w + ARROW_W) / 2, cBorder.getTopW() + (w - ARROW_H)/2, ARROW_W, ARROW_H, ardDown, iExpandArrow);
 	}
 
 	// Border

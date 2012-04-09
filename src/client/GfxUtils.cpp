@@ -126,3 +126,29 @@ ScopedBackgroundLoadingAni::~ScopedBackgroundLoadingAni() {
 }
 
 
+
+void DrawArrow(SDL_Surface* bmpDest, int x, int y, int w, int h, Angle dir, Color c) {
+	VectorD2<float> angleVec(dir + Angle(90.)); // thus the 0-angle is the normal. see VectorD2 from angle construction.
+	MatrixD2<float> transMatrix = MatrixD2<float>::Rotation(angleVec.x, angleVec.y);
+	transMatrix.v1.x *= w;
+	transMatrix.v2.x *= w;
+	transMatrix.v1.y *= h;
+	transMatrix.v2.y *= h;
+
+#define P(_x,_y) VectorD2<int>(transMatrix * VectorD2<float>(float(_x)-0.5f,float(_y)-0.5f) + VectorD2<float>(x,y) * 0.5f)
+	Polygon2D poly;
+	poly.startPointAdding();
+	{
+		poly.addPoint(P(0.5, 0));
+		poly.addPoint(P(2.0/3, 1.0/3));
+		poly.addPoint(P(3.0/5, 1.0/3));
+		poly.addPoint(P(3.0/5, 1));
+		poly.addPoint(P(2.0/5, 1));
+		poly.addPoint(P(2.0/5, 1.0/3));
+		poly.addPoint(P(1.0/3, 1.0/3));
+	}
+	poly.endPointAdding();
+	poly.drawFilled(bmpDest, x, y, c);
+#undef P
+}
+

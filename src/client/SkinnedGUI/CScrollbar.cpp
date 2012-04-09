@@ -152,7 +152,7 @@ void CScrollbar::DoRepaintVertical()
 		DrawImageAdv(bmpBuffer.get(), bmpTop, sx,0, 0, 0, bmpTop->w/3, bmpTop->h);
 	} else {
 		DrawSimpleButton(bmpBuffer.get(), 0, 0, getWidth(), getWidth(), iColor, iHighlightColor, iShadowColor, bTopButtonDown);
-		DrawArrow(bmpBuffer.get(), (getWidth() - ARROW_W) / 2, (getWidth() - ARROW_H) / 2, ARROW_W, ARROW_H, ardUp, iArrowColor);
+		DrawSimpleArrow(bmpBuffer.get(), (getWidth() - ARROW_W) / 2, (getWidth() - ARROW_H) / 2, ARROW_W, ARROW_H, ardUp, iArrowColor);
 	}
 
 	// Bottom arrow
@@ -166,7 +166,7 @@ void CScrollbar::DoRepaintVertical()
 		DrawImageAdv(bmpBuffer.get(), bmpBottom, sx,0, 0, getHeight() - bmpBottom->h, bmpBottom->w/3, bmpBottom->h);
 	} else {
 		DrawSimpleButton(bmpBuffer.get(), 0, getHeight() - getWidth(), getWidth(), getWidth(), iColor, iHighlightColor, iShadowColor, bBotButtonDown);
-		DrawArrow(bmpBuffer.get(), (getWidth() - ARROW_W) / 2, getHeight() - (getWidth() + ARROW_H) / 2 - 1, ARROW_W, ARROW_H, ardDown, iArrowColor);
+		DrawSimpleArrow(bmpBuffer.get(), (getWidth() - ARROW_W) / 2, getHeight() - (getWidth() + ARROW_H) / 2 - 1, ARROW_W, ARROW_H, ardDown, iArrowColor);
 	}
 
 	// Slider
@@ -232,7 +232,7 @@ void CScrollbar::DoRepaintHorizontal()
 		DrawImageAdv(bmpBuffer.get(), bmpTop, sx, 0, 0, 0, bmpTop->w/3, bmpTop->h);
 	} else {
 		DrawSimpleButton(bmpBuffer.get(), 0, 0, getHeight(), getHeight(), iColor, iHighlightColor, iShadowColor, bTopButtonDown);
-		DrawArrow(bmpBuffer.get(), (getHeight() - ARROW_H) / 2, (getHeight() - ARROW_W) / 2, ARROW_H, ARROW_W, ardLeft, iArrowColor);
+		DrawSimpleArrow(bmpBuffer.get(), (getHeight() - ARROW_H) / 2, (getHeight() - ARROW_W) / 2, ARROW_H, ARROW_W, ardLeft, iArrowColor);
 	}
 
 	// Right button
@@ -246,7 +246,7 @@ void CScrollbar::DoRepaintHorizontal()
 		DrawImageAdv(bmpBuffer.get(), bmpBottom, sx, 0, getWidth() - right_w, 0, bmpBottom->w/3, bmpBottom->h);
 	} else {
 		DrawSimpleButton(bmpBuffer.get(), getWidth() - getHeight(), 0, getWidth(), getHeight(), iColor, iHighlightColor, iShadowColor, bBotButtonDown);
-		DrawArrow(bmpBuffer.get(), getWidth() - (getHeight() + ARROW_H) / 2, (getHeight() - ARROW_W) / 2, ARROW_H, ARROW_W, ardRight, iArrowColor);
+		DrawSimpleArrow(bmpBuffer.get(), getWidth() - (getHeight() + ARROW_H) / 2, (getHeight() - ARROW_W) / 2, ARROW_H, ARROW_W, ardRight, iArrowColor);
 	}
 
 	// Slider
