@@ -938,9 +938,6 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 	{
 		if (!LockSurface(bmpDrawImage))
 			return 0;
-		Uint8* mapimage_px = (Uint8 *)bmpDrawImage.get()->pixels + map_y * 2 * bmpDrawImage.get()->pitch + map_x * bpp * 2;
-		int MapImageRowSize = bmpDrawImage.get()->pitch;
-		int MapImageRowStep = bmpDrawImage.get()->pitch * 2 - (w * bpp * 2);
 		for(int hy = h; hy; --hy)  
 		{
 			uchar* PixelFlag = &(*PixelFlagLine)[map_x];
@@ -948,28 +945,25 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 			{
 				if (m_materialList[*PixelFlag].toLxFlags() & PX_DIRT)  // Carve only dirt
 				{
-					Uint32 CurrentPixel = GetPixelFromAddr(hole_px, bpp);
+					Color CurrentPixel = Color(hole->format, GetPixelFromAddr(hole_px, bpp));
+					int mapx2 = (map_x + w - hx)*2;
+					int mapy2 = (map_y + h - hy)*2;
+
 					// Set the flag to empty
-					if(CurrentPixel == tLX->clPink.get(hole.get()->format)) 
+					if(CurrentPixel == tLX->clPink)
 					{
 						// Increase the dirt count
 						nNumDirt++;
 						*PixelFlag = Material::indexFromLxFlag(PX_EMPTY);
-					} 
-					else if(CurrentPixel != tLX->clBlack.get(hole.get()->format)) // Put pixels that are not black/pink (eg, brown)
-					{
-						PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
-						PutPixelToAddr(mapimage_px+bpp, CurrentPixel, bpp);
-						PutPixelToAddr(mapimage_px+MapImageRowSize, CurrentPixel, bpp);
-						PutPixelToAddr(mapimage_px+MapImageRowSize+bpp, CurrentPixel, bpp);
+						putpixel2x2(lightmap, mapx2, mapy2, 0);
 					}
+					else if(CurrentPixel != tLX->clBlack) // Put pixels that are not black/pink (eg, brown)
+						PutPixel2x2(bmpDrawImage.get(), mapx2, mapy2, CurrentPixel.get(bmpDrawImage->format));
 				}
 				hole_px += bpp;
-				mapimage_px += bpp * 2;
 				PixelFlag++;
 			}
 			hole_px += HoleRowStep;
-			mapimage_px += MapImageRowStep;
 			PixelFlagLine++;
 		}
 		UnlockSurface(bmpDrawImage);
