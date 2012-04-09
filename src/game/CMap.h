@@ -569,14 +569,13 @@ public:
 	Encoding::VectorEncoding intVectorEncoding;
 	Encoding::DiffVectorEncoding diffVectorEncoding;
 	
-	struct ParticleBlockPredicate
-	{
-		bool operator()(Material const& m)
-		{
-			return !m.particle_pass;
-		}
+	struct ParticleBlockPredicate {
+		bool operator()(Material const& m) { return !m.particle_pass; }
 	};
-			
+	struct LightBlockPredicate {
+		bool operator()(Material const& m) { return m.blocks_light; }
+	};
+
 	void setEvents( LevelConfig* events )
 	{
 		delete m_config;

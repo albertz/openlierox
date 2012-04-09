@@ -961,7 +961,7 @@ bool CWorm::isVisible(const CViewport* v) const {
 	return isVisible(v->getTarget());
 }
 
-static INLINE bool isWormVisible(CWorm* w, CViewport* v) {
+static INLINE bool _isWormVisible(CWorm* w, CViewport* v) {
 	return w->isVisible(v);
 }
 
@@ -999,10 +999,25 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	int x = p.x - l;
 	int y = p.y - t;
 
+	bool isWormVisible = _isWormVisible(this, v);
+	bool drawExtras = isWormVisible; // such as name, crossair, etc.
+	if(drawExtras && game.isLevelDarkMode() && bAlive) {
+		if(v->getTarget() &&
+				game.gameMap()->trace(
+					vDrawPos.x, vDrawPos.y,
+					v->getTarget()->vDrawPos.x, v->getTarget()->vDrawPos.y,
+					CMap::LightBlockPredicate())) {
+			// the viewport worm cannot directly see the target.
+			// avoid drawing name etc which might be visible because it overlaps rock material.
+			drawExtras = false;
+		}
+	}
+
+
 	// Draw the ninja rope
 	// HINT: draw it before the clipping check because the rope might be visible even if the worm is not
-	if (isWormVisible(this, v) && bAlive)
-		cNinjaRope.get().Draw(bmpDest,v,vDrawPos);
+	if (isWormVisible && bAlive)
+		cNinjaRope.get().Draw(bmpDest,v,vDrawPos, drawExtras);
 
 	// Are we inside the viewport?
 	if(x+l+10 < l || x-10 > v->GetVirtW()
@@ -1020,7 +1035,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the damage amount that worm received
 	// Even the worm is dead draw damage for some time anyway (looks pretty)
-	if( tLXOptions->bDamagePopups && isWormVisible(this, v) )
+	if( tLXOptions->bDamagePopups && drawExtras )
 	{
 		// Sort them first
 		std::map< AbsTime, int > DamageReportDrawOrder;
@@ -1089,7 +1104,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		return;
 
 	
-	if (tLXOptions->bShowHealth && isWormVisible(this, v))  {
+	if (tLXOptions->bShowHealth && drawExtras)  {
 		if (!bLocal || m_type != PRF_HUMAN)  {
 			int hx = x + l;
 			int hy = y + t - 9; // -8 = worm height/2
@@ -1138,7 +1153,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	// Draw the crosshair
 	//
-	if(!game.gameScript()->gusEngineUsed()) {
+	if(!game.gameScript()->gusEngineUsed() && drawExtras && bLocal) {
 		CVec forw;
 		GetVecsFromAngle((float)a, &forw, NULL);
 		forw *= tLXOptions->fCrosshairDistance;
@@ -1154,8 +1169,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			bGotTarget = false;
 		}
 
-		if(bLocal && isWormVisible(this, v))
-			DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cp.x - 2, cp.y - 2, 6, 6);
+		DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cp.x - 2, cp.y - 2, 6, 6);
 	}
 
 	//
@@ -1177,7 +1191,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 
 	// Draw the worm
-	if (isWormVisible(this, v)) {
+	if (isWormVisible) {
 		cSkin.get().Draw(bmpDest, x - cSkin.get().getSkinWidth()/2, y - cSkin.get().getSkinHeight()/2, f, false, iFaceDirectionSide == DIR_LEFT);
 		cSparkles.Process();
 	}
@@ -1209,7 +1223,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	// Draw the muzzle flash
 	//
-	if (bDrawMuzzle && isWormVisible(this, v))  {
+	if (bDrawMuzzle && isWormVisible)  {
 		switch(iFaceDirectionSide) {
 
 		case DIR_RIGHT:
@@ -1235,13 +1249,13 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	} // if
 	bDrawMuzzle = false;
 
-	if(isWormVisible(this, v))
+	if(isWormVisible)
 		cClient->flagInfo()->drawWormAttachedFlag(this, bmpDest, v);
 
 	const wpnslot_t *Slot = getCurWeapon();
 
 	// Draw the weapon name
-	if(!game.gameScript()->gusEngineUsed() && bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
+	if(!game.gameScript()->gusEngineUsed() && bLocal && m_type == PRF_HUMAN && drawExtras) {
 		if(isChangingWpn()) {
 			if(Slot->weapon())
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->weapon()->Name);
@@ -1252,7 +1266,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	}
 
 	// Draw the worm's name
-	if (!game.gameScript()->gusEngineUsed() && isWormVisible(this, v))  {
+	if (!game.gameScript()->gusEngineUsed() && drawExtras)  {
 		std::string WormName = sName;
 		if( sAFKMessage.get() != "" )
 			WormName += " " + sAFKMessage.get();
@@ -1274,7 +1288,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 // Draw the worm's shadow
 void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 {
-	if( tLXOptions->bShadows && v && isWormVisible(this, v) )  {
+	if( tLXOptions->bShadows && v && _isWormVisible(this, v) )  {
 		// Copied from ::Draw
 		// TODO: a separate function for this
 		int f = ((int)fFrame*7);

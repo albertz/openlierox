@@ -126,7 +126,7 @@ void CNinjaRope::Shoot(CVec dir)
 
 ///////////////////
 // Draw the thing
-void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos) const
+void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos, bool drawHook) const
 {
 	if(!Released)
 		return;
@@ -169,7 +169,8 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos) const
 	   hy>=t && hy<=t+view->GetVirtH()) {
 
 		// Hook
-		DrawImage(bmpDest,DeprecatedGUI::gfxGame.bmpHook,hx-2,hy-2);
+		if(drawHook)
+			DrawImage(bmpDest,DeprecatedGUI::gfxGame.bmpHook,hx-2,hy-2);
 	}
 
 	// The clipping on the viewport is done in the line function

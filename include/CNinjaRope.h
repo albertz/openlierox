@@ -63,7 +63,7 @@ public:
 	// Methods
 	void		Clear();
 
-	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos) const;
+	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos, bool drawHook) const;
 	void		Shoot(CVec dir);
 
 	CVec		GetForce() const;
