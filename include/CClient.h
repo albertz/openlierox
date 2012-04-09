@@ -590,6 +590,7 @@ public:
 
 	CViewport * getViewports()					{ return cViewports; }
 	bool		isWormVisibleOnAnyViewport(int worm) const; 
+	bool		isWormTargetOnAnyViewport(int worm) const;
 
 	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; }
 	AbsTime		getLastFileRequest()					{ return fLastFileRequest; }

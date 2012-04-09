@@ -1902,6 +1902,16 @@ bool CClient::isWormVisibleOnAnyViewport(int worm) const {
 	return false;
 }
 
+bool CClient::isWormTargetOnAnyViewport(int worm) const {
+	for(int i = 0; i < NUM_VIEWPORTS; ++i) {
+		const CViewport* v = &cViewports[i];
+		if(!v->getUsed()) continue;
+		if(v->getTarget() && v->getTarget()->getID() == worm)
+			return true;
+	}
+	return false;
+}
+
 
 /////////////////
 // Writes the log into the specified file

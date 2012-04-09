@@ -868,6 +868,10 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 // Hide a worm at receiver's screen
 void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, int forworm, bool show, bool immediate)
 {
+	worm->setVisibleForWorm(forworm, show);
+	if(show && !immediate && cClient->isWormTargetOnAnyViewport(forworm))
+		SpawnEntity(ENT_SPAWN,0,worm->getPos(),CVec(0,0),Color(),NULL); // Spawn some sparkles, looks good
+
 	if(cl->isLocalClient()) return;
 	if(cl->getClientVersion() >= OLXBetaVersion(0,59,10)) return;
 
