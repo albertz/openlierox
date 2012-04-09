@@ -1455,7 +1455,7 @@ void CWormBotInputHandler::AI_Think()
         if(AI_FindHealth())
             return;
 
-	{
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() != GM_RACE && cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() != GM_TEAMRACE)	{
 		// search for weapon if we need some
 		int wpnNum = 0;
 		for(size_t i = 0; i < m_worm->tWeapons.size(); ++i)
