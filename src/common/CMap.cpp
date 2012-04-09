@@ -1578,25 +1578,7 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 	if (bMiniMapDirty)
 		return;
 
-	if(gusIsLoaded()) {
-		gusUpdateMinimap(x, y, w, h);
-		return;
-	}
-
-	if( bmpBackImageHiRes.get() )
-	{
-		// Calculate ratios
-		const float xratio = (float)bmpMiniMap.get()->w / (float)bmpDrawImage.get()->w;
-		const float yratio = (float)bmpMiniMap.get()->h / (float)bmpDrawImage.get()->h;
-
-		const int dx = (int)((float)x * xratio);
-		const int dy = (int)((float)y * yratio);
-
-		if (tLXOptions->bAntiAliasing)
-			DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
-		else
-			DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
-	}
+	gusUpdateMinimap(x, y, w, h);
 	UpdateMiniMapTransparent();
 }
 
