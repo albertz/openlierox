@@ -1450,12 +1450,13 @@ void CWormBotInputHandler::AI_Think()
     AI_ReloadWeapons();
 
 
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() != GM_RACE && cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() != GM_TEAMRACE) {
     // If our health is less than 15% (critical), our main priority is health
     if(m_worm->health < 15)
         if(AI_FindHealth())
             return;
 
-	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() != GM_RACE && cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() != GM_TEAMRACE)	{
+	{
 		// search for weapon if we need some
 		int wpnNum = 0;
 		for(size_t i = 0; i < m_worm->tWeapons.size(); ++i)
@@ -1472,6 +1473,7 @@ void CWormBotInputHandler::AI_Think()
 				return;
 			}
 		}
+	}
 	}
 	
     // Search for an unfriendly worm
