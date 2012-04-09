@@ -24,7 +24,6 @@ public:
 	
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
-	virtual bool Spawn(CWorm* worm, CVec pos);
 	virtual void Kill(CWorm* victim, CWorm* killer);
 	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
@@ -55,12 +54,6 @@ void CTag::PrepareWorm(CWorm* worm)
 {
 	worm->setTagIT(false);
 	worm->setTagTime(TimeDiff(0));
-}
-
-bool CTag::Spawn(CWorm* worm, CVec pos)
-{
-	worm->Spawn(pos);
-	return true;
 }
 
 void CTag::Kill(CWorm* victim, CWorm* killer)

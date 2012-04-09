@@ -30,7 +30,7 @@ public:
 	virtual float TimeLimit() { return fGameLength; }
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
-	virtual bool Spawn(CWorm* worm, CVec pos);
+	virtual bool Spawn(CWorm* worm, CVec& pos);
 	virtual void Kill(CWorm* victim, CWorm* killer);
 	virtual bool Shoot(CWorm* worm);
 	virtual void Simulate();
@@ -112,10 +112,9 @@ void CHideAndSeek::PrepareWorm(CWorm* worm)
 		worm->getClient()->getNetEngine()->SendText(teamhint[CLAMP(worm->getTeam(),0,1)], TXT_NORMAL);
 }
 
-bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
+bool CHideAndSeek::Spawn(CWorm* worm, CVec& pos)
 {
 	pos = game.gameMap()->FindSpot();
-	worm->Spawn(pos);
 	visible[worm->getID()] = true; // So that Hide() doesn't ignore our request.
 	Hide(worm, false);
 	fWarmupTime[worm->getID()] = game.serverTime() + TimeDiff((float)gameSettings[FT_HS_HideTime]);

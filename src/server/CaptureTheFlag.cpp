@@ -104,7 +104,7 @@ struct CaptureTheFlag : public CGameMode {
 		return fallback;
 	}
 	
-	virtual bool Spawn(CWorm* worm, CVec pos) {
+	virtual bool Spawn(CWorm* worm, CVec& pos) {
 		if(!CGameMode::Spawn(worm, pos)) return false;
 		
 		if(!cServer->flagInfo()->getFlag(worm->getTeam())) {

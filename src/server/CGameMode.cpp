@@ -62,8 +62,7 @@ static void playSoundForWorm(int wormId, const std::string& s) {
 }
 
 
-bool CGameMode::Spawn(CWorm* worm, CVec pos) {
-	worm->Spawn(pos);
+bool CGameMode::Spawn(CWorm* worm, CVec& pos) {
 	return true;
 }
 

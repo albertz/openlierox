@@ -89,7 +89,7 @@ struct Race : public CGameMode {
 		else return f->second;
 	}
 	
-	virtual bool Spawn(CWorm* worm, CVec pos) {
+	virtual bool Spawn(CWorm* worm, CVec& pos) {
 		if(wayPoints.size() == 0) {
 			errors << "Race::Spawn: not prepared yet" << endl;
 			return true;
@@ -106,9 +106,7 @@ struct Race : public CGameMode {
 			cServer->flagInfo()->applyInitFlag(getWormFlag(worm), wayPoints[1]);
 			nextGoals[getWormFlag(worm)] = 1;
 		}
-		
-		worm->Spawn(pos);
-		
+				
 		return true;
 	}
 	
