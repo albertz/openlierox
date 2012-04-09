@@ -1,0 +1,23 @@
+# This is the game settings preset file for Mario Kart
+
+[GameSettings]
+Name = Mario Kart
+Description = Mario Kart. for race games. enables a single weapon slot
+
+[GameInfo]
+# generic stuff, better for race
+WeaponCombos = false
+WormWallHugging = false
+
+# special mario like weapon handling
+WeaponSlotsNum = 1
+DisableWpnsAtStartup = true
+DisableWpnsWhenEmpty = true
+Bonuses = true
+
+# We only want weapon bonuses
+BonusHealthToWeaponChance = 1.0
+
+# Every 10 secs a new one. normal default is 30.
+# They get destroyed by default after 60 secs.
+BonusFrequency = 10
