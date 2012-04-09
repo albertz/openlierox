@@ -386,7 +386,11 @@ int GameServer::PrepareGame(std::string* errMsg)
 
 void GameServer::PrepareWorm(CWorm* worm) {
 	// initial server side weapon handling
-	if(worm->isSpectating()) {
+	if(gameSettings[FT_DisableWpnsAtStartup]) {
+		worm->weaponSlots.write().reset();
+		worm->bWeaponsReady = true;
+	}
+	else if(worm->isSpectating()) {
 		worm->GetRandomWeapons();
 		worm->bWeaponsReady = true;
 	}

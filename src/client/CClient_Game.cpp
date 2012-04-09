@@ -560,10 +560,8 @@ void CClient::PlayerShoot(CWorm *w)
 	if(Slot->LastFire>0)
 		return;
 
-	if(!Slot->weapon()) {
-		errors << "PlayerShoot: Slot->Weapon not set. Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
+	if(!Slot->weapon())
 		return;
-	}
 
 	// Safe the ROF time (Rate of Fire). That's the pause time after each shot.
 	// In simulateWormWeapon, we decrease this by deltatime and
