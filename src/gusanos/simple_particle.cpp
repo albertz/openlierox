@@ -53,7 +53,7 @@ void SimpleParticle::think()
 void SimpleParticle::draw(CViewport* viewport)
 {
 	IVec rPos = viewport->convertCoords(IVec(Vec(pos())));
-	putpixel(viewport->dest, rPos.x, rPos.y, colour);
+	putpixel2x2(viewport->dest, rPos.x, rPos.y, colour);
 	//putpixel(where, (posx >> 8)-xOff, (posy >> 8)-yOff, colour);
 }
 
@@ -63,8 +63,11 @@ void SimpleParticle32::draw(CViewport* viewport)
 	ALLEGRO_BITMAP* where = viewport->dest;
 
 	if((unsigned int)rPos.x < (unsigned int)where->w
-	&& (unsigned int)rPos.y < (unsigned int)where->h )
-		Blitters::putpixel_solid_32(where, rPos.x, rPos.y, colour);
+	&& (unsigned int)rPos.y < (unsigned int)where->h ) {
+		for(short dy = 0; dy < 2; ++dy)
+		for(short dx = 0; dx < 2; ++dx)
+		Blitters::putpixel_solid_32(where, rPos.x+dx, rPos.y+dy, colour);
+	}
 }
 
 void SimpleParticle16::draw(CViewport* viewport)
@@ -73,20 +76,27 @@ void SimpleParticle16::draw(CViewport* viewport)
 	ALLEGRO_BITMAP* where = viewport->dest;
 
 	if((unsigned int)rPos.x < (unsigned int)where->w
-	&& (unsigned int)rPos.y < (unsigned int)where->h )
-		Blitters::putpixel_solid_16(where, rPos.x, rPos.y, colour);
+	&& (unsigned int)rPos.y < (unsigned int)where->h ) {
+		for(short dy = 0; dy < 2; ++dy)
+		for(short dx = 0; dx < 2; ++dx)
+		Blitters::putpixel_solid_16(where, rPos.x+dx, rPos.y+dy, colour);
+	}
 }
 
 void SimpleParticle32wu::draw(CViewport* viewport)
 {
-	Vec rPos = viewport->convertCoordsPrec( pos() );
-	Blitters::putpixelwu_blend_32(viewport->dest, rPos.x, rPos.y, colour, 256);
+	Vec rPos = viewport->convertCoordsPrec( pos() );	
+	for(short dy = 0; dy < 2; ++dy)
+	for(short dx = 0; dx < 2; ++dx)
+	Blitters::putpixelwu_blend_32(viewport->dest, rPos.x+dx, rPos.y+dy, colour, 256);
 }
 
 void SimpleParticle16wu::draw(CViewport* viewport)
 {
 	Vec rPos = viewport->convertCoordsPrec( pos() );
-	Blitters::putpixelwu_blend_16(viewport->dest, rPos.x, rPos.y, colour, 32);
+	for(short dy = 0; dy < 2; ++dy)
+	for(short dx = 0; dx < 2; ++dx)
+	Blitters::putpixelwu_blend_16(viewport->dest, rPos.x+dx, rPos.y+dy, colour, 32);
 }
 
 #endif

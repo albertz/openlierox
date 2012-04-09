@@ -115,9 +115,9 @@ void Explosion::draw(CViewport* viewport)
 		if(!m_type->invisible)
 		{
 			if(m_type->wupixels)
-				blitter.putpixelwu(where, rPosPrec.x, rPosPrec.y, m_type->colour);
+				blitter.putpixelwu2x2(where, rPosPrec.x, rPosPrec.y, m_type->colour);
 			else
-				blitter.putpixel(where, x, y, m_type->colour);
+				blitter.putpixel2x2(where, x, y, m_type->colour);
 		}
 	}
 	else

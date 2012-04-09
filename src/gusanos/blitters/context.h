@@ -122,6 +122,18 @@ struct BlitterContext
 	FUNC_6(line, ALLEGRO_BITMAP*, int, int, int, int, Pixel)
 	FUNC_5(hline, ALLEGRO_BITMAP*, int, int, int, Pixel)
 
+	void putpixel2x2(ALLEGRO_BITMAP* bmp, int x, int y, Pixel c) const {
+		for(short dy = 0; dy < 2; ++dy)
+		for(short dx = 0; dx < 2; ++dx)
+		putpixel(bmp, x+dx, y+dy, c);
+	}
+
+	void putpixelwu2x2(ALLEGRO_BITMAP* bmp, float x, float y, Pixel c) const {
+		for(short dy = 0; dy < 2; ++dy)
+		for(short dx = 0; dx < 2; ++dx)
+		putpixelwu(bmp, x+dx, y+dy, c);
+	}
+
 private:
 	Type m_type;
 	int m_fact;
