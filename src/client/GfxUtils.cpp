@@ -135,7 +135,7 @@ void DrawArrow(SDL_Surface* bmpDest, int x, int y, int w, int h, Angle dir, Colo
 	transMatrix.v1.y *= h;
 	transMatrix.v2.y *= h;
 
-#define P(_x,_y) VectorD2<int>(transMatrix * VectorD2<float>(float(_x)-0.5f,float(_y)-0.5f) + VectorD2<float>(x,y) * 0.5f)
+#define P(_x,_y) VectorD2<int>(transMatrix * VectorD2<float>(float(_x)-0.5f,float(_y)-0.5f) + VectorD2<float>(w,h)*0.5f)
 	Polygon2D poly;
 	poly.startPointAdding();
 	{
