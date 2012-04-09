@@ -240,6 +240,14 @@ struct Race : public CGameMode {
 		// fallback (very unprobable that this will be used in game)
 		return CGameMode::CompareWormsScore(w1, w2);
 	}
+
+	virtual bool HaveTargetPos(CWorm* w) { return true; }
+	virtual CVec TargetPos(CWorm* w) {
+		WayPointID wayPt = getNextGoal(getWormFlag(w));
+		if(wayPt >= 0 && (size_t)wayPt < wayPoints.size()) return wayPoints[wayPt];
+		return CVec();
+	}
+
 };
 
 struct TeamRace : public Race {

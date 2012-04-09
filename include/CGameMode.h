@@ -65,6 +65,9 @@ public:
 	virtual float FlagPointRadius() { return 6.0f; }
 	virtual float FlagRadius() { return 6.0f; }
 	
+	virtual bool HaveTargetPos(CWorm* w) { return false; }
+	virtual CVec TargetPos(CWorm* w) { return CVec(); }
+
 	// helper functions
 	int WormsAliveInTeam(int t);
 	int TeamKills(int t);
