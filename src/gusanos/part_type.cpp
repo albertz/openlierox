@@ -184,8 +184,10 @@ void PartType::touch()
 			DistortionMap* d = new DistortionMap;
 			int width = distortionSize.x;
 			int height = distortionSize.y;
-			d->map.resize(width * height);
-			d->width = width;
+
+			// DistortionMap is doubleRes
+			d->map.resize(width * height * 4);
+			d->width = width * 2;
 			
 			int hwidth = width / 2;
 			int hheight = height / 2;
@@ -196,7 +198,9 @@ void PartType::touch()
 				int n = (luaIngame.call(f, 2), x - hwidth, y - hheight, width, height)();
 				if(n == 2)
 				{
-					d->map[y * width + x] = Vec((float)lua_tonumber(luaIngame, -2), (float)lua_tonumber(luaIngame, -1));
+					for(short dy = 0; dy < 2; ++dy)
+					for(short dx = 0; dx < 2; ++dx)
+					d->map[(y*2+dy) * width*2 + (x*2+dx)] = Vec((float)lua_tonumber(luaIngame, -2), (float)lua_tonumber(luaIngame, -1)) * 2 /*doubleRes*/;
 					luaIngame.pop(n);
 				}
 				else

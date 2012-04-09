@@ -19,6 +19,8 @@ using std::string;
 
 DistortionMap* lensMap(int radius)
 {
+	radius *= 2; // doubleRes
+
 	DistortionMap* lens = new DistortionMap;
 
 	for ( int y = 0; y < radius*2; ++y )
@@ -43,6 +45,8 @@ DistortionMap* lensMap(int radius)
 
 DistortionMap* swirlMap(int radius)
 {
+	radius *= 2; // doubleRes
+
 	DistortionMap* swirl = new DistortionMap;
 
 	for ( int y = 0; y < radius*2; ++y )
@@ -75,6 +79,8 @@ DistortionMap* swirlMap(int radius)
 
 DistortionMap* spinMap(int radius)
 {
+	radius *= 2; // doubleRes
+
 	DistortionMap* spin = new DistortionMap;
 
 	for ( int y = 0; y < radius*2; ++y )
@@ -104,6 +110,8 @@ DistortionMap* spinMap(int radius)
 
 DistortionMap* rippleMap(int radius, int frequency)
 {
+	radius *= 2; // doubleRes
+
 	DistortionMap* ripple = new DistortionMap;
 
 	for ( int y = 0; y < radius*2; ++y )
@@ -131,12 +139,14 @@ DistortionMap* rippleMap(int radius, int frequency)
 
 DistortionMap* randomMap(int radius)
 {
+	radius *= 2; // doubleRes
+
 	DistortionMap* lens = new DistortionMap;
 
 	for ( int y = 0; y < radius*2; ++y )
 	for ( int x = 0; x < radius*2; ++x )
 	{
-		lens->map.push_back( Vec(Angle(rnd()*360.0), rnd() * 2.0 ) );
+		lens->map.push_back( Vec(Angle(rnd()*360.0), rnd() * 2.0 ) * 2 /*doubleRes*/ );
 	}
 	lens->width = radius*2;
 	return lens;
@@ -170,7 +180,7 @@ DistortionMap* bitmapMap(const string &filename)
 			c = getpixel(heightMap,x,y+1);
 			rgb_to_hsv(getr(c), getg(c), getb(c), &h, &s, &value);
 			distort+= Vec(0,1)*value;
-			lens->map.push_back( distort*10 );
+			lens->map.push_back( distort*10 * 2 /*doubleRes*/ );
 		}
 		lens->width = heightMap->w;
 		destroy_bitmap(heightMap);
