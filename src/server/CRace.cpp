@@ -243,8 +243,9 @@ struct Race : public CGameMode {
 
 	virtual bool HaveTargetPos(CWorm* w) { return true; }
 	virtual CVec TargetPos(CWorm* w) {
-		WayPointID wayPt = getNextGoal(getWormFlag(w));
-		if(wayPt >= 0 && (size_t)wayPt < wayPoints.size()) return wayPoints[wayPt];
+		int flagId = getWormFlag(w);
+		Flag* flag = cClient->flagInfo()->getFlag(flagId);
+		if(flag) return flag->spawnPoint.pos;
 		return CVec();
 	}
 
