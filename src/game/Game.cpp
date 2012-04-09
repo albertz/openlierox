@@ -526,6 +526,11 @@ Result Game::prepareGameloop() {
 	}
 
 	if(game.isServer()) {
+		// reset. gamemodes might overwrite those.
+		// it also might make sense to generalize these resets via AttrDesc and some resetOnPrepare.
+		levelDarkMode = false;
+		darkMode_wormLightRadius = darkMode_wormLightRadius_Type::attrDesc()->defaultValue;
+
 		notes << "preparing game mode " << game.gameMode()->Name() << endl;
 		game.gameMode()->PrepareGame();
 
