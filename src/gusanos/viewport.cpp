@@ -154,6 +154,7 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		_v.VirtWidth = this->VirtWidth;
 		_v.WorldX = this->WorldX;
 		_v.WorldY = this->WorldY;
+		_v.pcTargetWorm = this->pcTargetWorm;
 		CViewport* v = &_v;
 
 		// update the drawing position
