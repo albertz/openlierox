@@ -1596,10 +1596,8 @@ bool CWormBotInputHandler::AI_FindBonus(int bonustype)
 // Reloads the weapons
 void CWormBotInputHandler::AI_ReloadWeapons()
 {
-    ushort  i;
-
     // Go through reloading the weapons
-    for(i=0; i<5; i++) {
+	for(ushort i=0; i<m_worm->tWeapons.size(); i++) {
         if(m_worm->tWeapons[i].Reloading) {
             m_worm->iCurrentWeapon = i;
             break;
