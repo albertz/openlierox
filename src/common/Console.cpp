@@ -34,6 +34,8 @@
 #include "PreInitVar.h"
 #include "Autocompletion.h"
 #include "OLXCommand.h"
+#include "FindFile.h"
+#include "util/macros.h"
 
 
 
@@ -46,13 +48,14 @@
 
 #define		MAX_CONLENGTH	256
 #define		MAX_CONLINES	15
-#define		MAX_CONHISTORY	10
+#define		MAX_CONHISTORY	100
 
 
 struct conline_t {
 	int			Colour;
 	std::string	strText;
 };
+
 
 
 struct console_t {
@@ -64,10 +67,6 @@ struct console_t {
 	size_t		iCurpos;
 	conline_t	Line[MAX_CONLINES];
 	
-	int			icurHistory;
-	int			iNumHistory;
-	conline_t	History[MAX_CONHISTORY];
-	
 	int			iBlinkState; // 1 - displayed, 0 - hidden
 	AbsTime		fBlinkTime;
 	
@@ -77,7 +76,7 @@ struct console_t {
 
 
 
-
+static void saveHistory();
 
 struct IngameConsole : CmdLineIntf {
 	ThreadPoolItem* thread;
@@ -302,6 +301,7 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 			Con_AddText(CNC_NORMAL, "]" + cmd);
 			Execute(this, cmd);
 			addHistoryEntry(cmd);
+			saveHistory();
 		}
 	
 		invalidateHistoryPos();
@@ -396,6 +396,36 @@ console_t	*Console = NULL;
 
 bool Con_IsInited() { return Console != NULL; }
 
+static const char* HistoryFilename = "game-cli-history.txt";
+
+static void loadHistory() {
+	FILE* fp = OpenGameFile(HistoryFilename, "r");
+	if(!fp) return;
+
+	while( !feof(fp) && !ferror(fp) ) {
+		std::string l = ReadUntil(fp);
+		TrimSpaces(l);
+		if(l.empty()) continue;
+
+		ingameConsole.addHistoryEntry(l);
+	}
+
+	fclose(fp);
+	return;
+}
+
+static void saveHistory() {
+	FILE* fp = OpenGameFile(HistoryFilename, "w");
+	if(!fp) return;
+
+	foreach(l, ingameConsole.history) {
+		fwrite(l->c_str(), l->size(), 1, fp);
+		fwrite("\n", 1, 1, fp);
+	}
+
+	fclose(fp);
+	return;
+}
 
 // for Con_AddText
 static SDL_mutex* con_mutex = NULL;
@@ -418,8 +448,6 @@ int Con_Initialize()
 	Console->fPosition = 1.0f;
 	Console->iState = CON_HIDDEN;
 	Console->iLastchar = 0;
-	Console->icurHistory = -1;
-	Console->iNumHistory = 0;
 	Console->iCurpos = 0;
 	Console->fBlinkTime = 0;
 	Console->iBlinkState = 1;
@@ -429,9 +457,7 @@ int Con_Initialize()
 		Console->Line[n].Colour = CNC_NORMAL;
 	}
 
-	for(n=0;n<MAX_CONHISTORY;n++)
-		Console->History[n].strText = "";
-
+	loadHistory();
 	ingameConsole.startThread();
 	
     Console->bmpConPic = LoadGameImage("data/gfx/console.png");
