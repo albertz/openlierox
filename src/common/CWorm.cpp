@@ -320,6 +320,7 @@ void CWorm::Prepare()
 
 	if(weOwnThis()) {
 		iCurrentWeapon = 0;
+		weaponSlots.write().resize((int)cClient->getGameLobby()[FT_WeaponSlotsNum]);
 		weaponSlots.write().reset();
 		GetRandomWeapons();
 		// weapons should be loaded properly in initWeaponSelection

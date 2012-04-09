@@ -202,6 +202,7 @@ enum FeatureIndex {
 	FT_JumpToAimDir,
 	FT_AllowWeaponsChange,
 	FT_ImmediateStart,
+	FT_WeaponSlotsNum,
 	FT_DisableWpnsWhenEmpty,
 	FT_WeaponCombos,
 	FT_InfiniteMap,

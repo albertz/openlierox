@@ -207,6 +207,12 @@ void Game::onSettingsUpdate(BaseObject* settingsObj, const AttrDesc* attrDesc, S
 
 	bool needReinit = false;
 	switch(featureIndex) {
+	case FT_WeaponSlotsNum:
+		for_each_iterator(CWorm*, w, game.localWorms()) {
+			w->get()->weaponSlots.write().resize((int)curValue);
+		}
+		break;
+
 	case FT_Map:
 		if(cClient)
 			cClient->bHaveMap = infoForLevel(curValue.as<LevelInfo>()->path).valid;
