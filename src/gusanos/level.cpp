@@ -375,8 +375,10 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 					putMaterialDoubleRes( /*background*/1, drawX+x, drawY+y );
 					checkWBorders( (drawX+x)/2, (drawY+y)/2 );
 #ifndef DEDICATED_ONLY
-					putpixel(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
-					putpixel(lightmap, drawX+x, drawY+y, 0);
+					// note that these are needed to be 2x2 as long as material is singleRes, i.e. putMaterialDoubleRes is also 2x2.
+					// otherwise we would miss some in the next line
+					copypixel_solid2x2(image, background, drawX+x, drawY+y);
+					putpixel2x2(lightmap, drawX+x, drawY+y, 0);
 #endif
 				}
 			}
