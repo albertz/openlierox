@@ -1675,7 +1675,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo, CServerConnection* cl) 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->NewWorm_Signal(w);
 			
-	if(game.isServer() && tLXOptions->iRandomTeamForNewWorm > 0 && game.gameMode()->GameTeams() > 1) {
+	if(game.isServer() && !game.isLocalGame() && tLXOptions->iRandomTeamForNewWorm > 0 && game.gameMode()->GameTeams() > 1) {
 		w->setTeam(-1); // set it invalid to not count it
 		
 		typedef int WormCount;
