@@ -227,11 +227,38 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		}
 	}
 
-	if(GetGameModeIndex(game.gameMode()) == GM_RACE || GetGameModeIndex(game.gameMode()) == GM_TEAMRACE) {
-		DrawArrow(dest->surf.get(), 100, 100, 30, 30, Angle(0.0), Color(100,255,30,200));
-		DrawArrow(dest->surf.get(), 150, 100, 30, 30, Angle(90.0), Color(200,255,30,200));
-		DrawArrow(dest->surf.get(), 200, 100, 30, 30, Angle(-90.0), Color(200,0,30,100));
-		DrawArrow(dest->surf.get(), 250, 100, 30, 30, getTarget()->getFaceDirection().getAngle(), Color(0,255,30,200));
+	if(getTarget() && game.gameMode() && game.gameMode()->HaveTargetPos(getTarget())) {
+		CVec wormPos = convertCoordsPrec(getTarget()->pos());
+		CVec targetPos = convertCoordsPrec(game.gameMode()->TargetPos(getTarget()));
+		CVec dir = targetPos - wormPos;
+
+		if(dir.length() > 1) {
+			CVec dirNormal = dir.normal();
+			dir -= dirNormal * 50.f;
+
+			static const int arrowW = 30;
+			float f = 1.f;
+			if(dir.x && (wormPos + dir * f).x - arrowW/2 < 0)
+				f = CLAMP((arrowW/2 - wormPos.x) / dir.x, 0.f, f);
+			if(dir.y && (wormPos + dir * f).y - arrowW/2 < 0)
+				f = CLAMP((arrowW/2 - wormPos.y) / dir.y, 0.f, f);
+			if(dir.x && (wormPos + dir * f).x + arrowW/2 > dest->w)
+				f = CLAMP((dest->w - arrowW/2 - wormPos.x) / dir.x, 0.f, f);
+			if(dir.y && (wormPos + dir * f).y + arrowW/2 > dest->h)
+				f = CLAMP((dest->h - arrowW/2 - wormPos.y) / dir.y, 0.f, f);
+
+			dir *= f;
+			float diffToTarget = (wormPos - targetPos).length();
+			if(diffToTarget > 1) {
+				CVec p = wormPos + dir;
+
+				int alpha = 200;
+				if(diffToTarget < 100)
+					alpha = CLAMP(int(alpha * (diffToTarget - 50.f) / 50.f), 0, alpha);
+
+				DrawArrow(dest->surf.get(), (int)p.x-arrowW/2, (int)p.y-arrowW/2, arrowW, arrowW, dirNormal.getAngle(), Color(0,255,30,alpha));
+			}
+		}
 	}
 
 	DrawImage(bmpDest, dest->surf, this->GetLeft()/2, this->GetTop()/2);
