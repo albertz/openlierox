@@ -955,6 +955,7 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 						// Increase the dirt count
 						nNumDirt++;
 						*PixelFlag = Material::indexFromLxFlag(PX_EMPTY);
+						copypixel_solid2x2(image, background, mapx2, mapy2);
 						putpixel2x2(lightmap, mapx2, mapy2, 0);
 					}
 					else if(CurrentPixel != tLX->clBlack) // Put pixels that are not black/pink (eg, brown)
