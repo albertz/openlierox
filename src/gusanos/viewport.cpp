@@ -87,9 +87,6 @@ void CViewport::setDestination(int width, int height)
 
 	destroy_bitmap(fadeBuffer);
 	fadeBuffer = create_bitmap_ex(8, width, height);
-
-	if(!testLight)
-		testLight = genLight(300);
 }
 
 void CViewport::drawLight(IVec const& v)
@@ -122,6 +119,21 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		
 		if(needDestReset)
 			setDestination(destw, desth);
+	}
+
+	{
+		int r = game.darkMode_wormLightRadius;
+		if(r < 1) r = 1;
+		if(r > 500) r = 500; // sane maximum. dont crash OLX
+
+		bool needLightReset = false;
+		if(!testLight)
+			needLightReset = true;
+		else if(testLight->m_xPivot != r * 2 /*doubleRes*/)
+			needLightReset = true;
+
+		if(needLightReset)
+			testLight = genLight(r);
 	}
 
 	int offX = static_cast<int>(WorldX);
