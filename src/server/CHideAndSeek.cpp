@@ -85,6 +85,7 @@ void CHideAndSeek::makeVisible(CWorm* worm, bool vis) {
 
 void CHideAndSeek::PrepareGame()
 {
+	game.levelDarkMode = true; // nicer gameplay :)
 	GenerateTimes();
 	for(int i = 0; i < MAX_WORMS; i++) {
 		fLastAlert[i] = 0;
