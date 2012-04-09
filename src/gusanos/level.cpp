@@ -279,15 +279,18 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 // TODO: optimize this
 void CMap::specialDrawSprite( Sprite* sprite, ALLEGRO_BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter )
 {
+	// pos are where-coords. i.e. they are already doubleRes
+	// matPos are material/world coords. i.e. singleRes
+
 	int transCol = makecol(255,0,255); // TODO: make a gfx.getTransCol() function
 
-	int xMatStart = matPos.x - sprite->m_xPivot;
-	int yMatStart = matPos.y - sprite->m_yPivot;
-	int xDrawStart = pos.x*2 - sprite->m_xPivot;
-	int yDrawStart = pos.y*2 - sprite->m_yPivot;
+	int xMatStart = matPos.x*2 - sprite->m_xPivot;
+	int yMatStart = matPos.y*2 - sprite->m_yPivot;
+	int xDrawStart = pos.x - sprite->m_xPivot;
+	int yDrawStart = pos.y - sprite->m_yPivot;
 	for ( int y = 0; y < sprite->m_bitmap->h ; ++y )
 		for ( int x = 0; x < sprite->m_bitmap->w ; ++x ) {
-			if ( getMaterial ( xMatStart + x , yMatStart + y ).draw_exps ) {
+			if ( getMaterialDoubleRes( xMatStart + x , yMatStart + y ).draw_exps ) {
 				int c = getpixel( sprite->m_bitmap, x, y );
 				if ( c != transCol )
 					blitter.putpixel( where, xDrawStart + x, yDrawStart + y, c );
