@@ -1092,8 +1092,6 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 
 	w->Spawn(p);
 
-	game.gameMap()->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
-
 	if(client->isWormVisibleOnAnyViewport(id)) {
 		// Show a spawn entity but only if worm is not hidden on any of our local viewports
 		SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);

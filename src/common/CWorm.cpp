@@ -624,6 +624,8 @@ void CWorm::Spawn(CVec position) {
 
 	cDamageReport.clear();
 
+	game.gameMap()->CarveHole(SPAWN_HOLESIZE, pos(), cClient->getGameLobby()[FT_InfiniteMap]);
+
 	bAlive = true;
 }
 
