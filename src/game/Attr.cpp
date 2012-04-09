@@ -23,6 +23,7 @@
 #include "OLXCommand.h"
 #include "CClient.h"
 #include "Mutex.h"
+#include "CServerConnection.h"
 
 static CServerConnection* attrUpdateByClientScope = NULL;
 static bool attrUpdateByServerScope = false;
@@ -31,7 +32,8 @@ AttrUpdateByClientScope::AttrUpdateByClientScope(CServerConnection *cl) {
 	assert(cl != NULL);
 	assert(attrUpdateByClientScope == NULL); // no nesting
 	assert(!attrUpdateByServerScope);
-	attrUpdateByClientScope = cl;
+	if(!cl->isLocalClient())
+		attrUpdateByClientScope = cl;
 }
 
 AttrUpdateByClientScope::~AttrUpdateByClientScope() {
