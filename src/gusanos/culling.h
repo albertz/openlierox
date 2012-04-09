@@ -3,6 +3,7 @@
 
 #include <stack>
 #include <algorithm>
+#include <stdint.h>
 #include "util/rect.h"
 
 #ifdef max
@@ -34,23 +35,23 @@ struct Culler
 /*
 	struct StackItem
 	{
-		int epos;
-		int eslope;
-		int hp;
-		int vp;
+		int64_t epos;
+		int64_t eslope;
+		int64_t hp;
+		int64_t vp;
 	};
 	
 
 	void cull()
 	{
-		int bslope = -0x100;
-		int bpos   = (this->beginH() << 8) + 128;
-		int eslope = 0x100;
-		int epos   = (this->beginH() << 8) + 128;
-		int vp = this->beginV();
-		int bp, hp, hpe;
+		int64_t bslope = -0x100;
+		int64_t bpos   = (this->beginH() << 8) + 128;
+		int64_t eslope = 0x100;
+		int64_t epos   = (this->beginH() << 8) + 128;
+		int64_t vp = this->beginV();
+		int64_t bp, hp, hpe;
 		
-		int beginH = bpos;
+		int64_t beginH = bpos;
 		
 		std::stack<StackItem> stack;
 		
@@ -217,33 +218,33 @@ struct Culler
 		}
 	}
 */
-	static int diffFix(int i)
+	static int64_t diffFix(int64_t i)
 	{
 		return (i * 256);
 	}
 	
-	template<int HDir>
-	static int fix(int i)
+	template<int64_t HDir>
+	static int64_t fix(int64_t i)
 	{
 		return (i * 256) + (HDir < 0 ? 127 : 128);
 	}
 	
-	static int integer(int f)
+	static int64_t integer(int64_t f)
 	{
 		return f / 256;
 	}
 	
-	static int slope(int dx, int dy)
+	static int64_t slope(int64_t dx, int64_t dy)
 	{
 		return (dx * 256) / dy;
 	}
 	
-	template<int HDir>
-	bool scan(int& x, int limit, int y)
+	template<int64_t HDir>
+	bool scan(int64_t& x, int64_t limit, int64_t y)
 	{
 		if(HDir == -1)
 		{
-			int m = std::max(limit - 1, rect.x1 - 1);
+			int64_t m = std::max(limit - 1, (int64_t)rect.x1 - 1);
 				
 			for(; x > m ; --x)
 			{
@@ -255,7 +256,7 @@ struct Culler
 		}
 		else if(HDir == 1)
 		{
-			int m = std::min(limit + 1, rect.x2 + 1);
+			int64_t m = std::min(limit + 1, (int64_t)rect.x2 + 1);
 				
 			for(; x < m ; ++x)
 			{
@@ -268,12 +269,12 @@ struct Culler
 		else assert(false);
 	}
 	
-	template<int HDir>
-	bool skip(int& x, int limit, int y)
+	template<int64_t HDir>
+	bool skip(int64_t& x, int64_t limit, int64_t y)
 	{
 		if(HDir == -1)
 		{
-			int m = std::max(limit, rect.x1);
+			int64_t m = std::max(limit, (int64_t)rect.x1);
 			
 			if(x <= m)
 				return true;
@@ -291,7 +292,7 @@ struct Culler
 		}
 		else if(HDir == 1)
 		{
-			int m = std::min(limit, rect.x2);
+			int64_t m = std::min(limit, (int64_t)rect.x2);
 			
 			if(x >= m)
 				return true;
@@ -310,8 +311,8 @@ struct Culler
 		else assert(false);
 	}
 	
-	template<int VDir>
-	bool checkY(int y)
+	template<int64_t VDir>
+	bool checkY(int64_t y)
 	{
 		if(VDir == -1)
 		{
@@ -327,22 +328,22 @@ struct Culler
 		return true;
 	}
 		
-	int extend(int f, int slope) // Returns the coverage of a slope
+	int64_t extend(int64_t f, int64_t slope) // Returns the coverage of a slope
 	{
 		return integer(f + (slope / 2));
 	}
 	
-	int getXOffset(int x)
+	int64_t getXOffset(int64_t x)
 	{
 		return x - orgX;
 	}
 	
-	int getYOffset(int y)
+	int64_t getYOffset(int64_t y)
 	{
 		return abs(y - orgY);
 	}
 	
-	void cullOmni(int x, int y)
+	void cullOmni(int64_t x, int64_t y)
 	{
 		if(!rect.isValid())
 			return;
@@ -356,15 +357,15 @@ struct Culler
 		orgX = x;
 		orgY = y;
 				
-		int xp = x;
+		int64_t xp = x;
 		scan<1>(xp, rect.x2, y);
-		int flslope = slope(getXOffset(xp), 1);
-		int l = extend(fix<1>(xp), flslope);
+		int64_t flslope = slope(getXOffset(xp), 1);
+		int64_t l = extend(fix<1>(xp), flslope);
 
 		cullRows<-1, 1>(y-1, l, fix<1>(xp-1), diffFix(flslope), x+2, fix<1>(x+2), diffFix(1));			
 		cullRows<1, 1>(y+1, l, fix<1>(xp-1), diffFix(flslope), x+2, fix<1>(x+2), diffFix(1));
 		
-		int r = xp - 1;
+		int64_t r = xp - 1;
 		xp = x;
 		scan<-1>(xp, rect.x1, y);
 		flslope = slope(getXOffset(xp), 1);
@@ -379,8 +380,8 @@ struct Culler
 	}
 	
 	// Goes from r to l and generates new segments.
-	template<int VDir, int HDir>
-	void cullRows(int y, int l, int fl, int flslope, int r, int fr, int frslope)
+	template<int64_t VDir, int64_t HDir>
+	void cullRows(int64_t y, int64_t l, int64_t fl, int64_t flslope, int64_t r, int64_t fr, int64_t frslope)
 	{
 	tailcall:
 		if(!checkY<VDir>(y))
@@ -388,7 +389,7 @@ struct Culler
 			
 		assert(getYOffset(y) != 0);
 				
-		int xp = r;
+		int64_t xp = r;
 		while(scan<HDir>(xp, l, y))
 		{
 			// * ***
@@ -403,12 +404,12 @@ struct Culler
 				
 				if(checkY<VDir>(y + VDir))
 				{
-					int t = xp - HDir;
+					int64_t t = xp - HDir;
 					
-					int nextflslope = slope(getXOffset(xp), getYOffset(y) + 1);
-					int nextl = extend(fix<HDir>(t), nextflslope);
-					int nextr = extend(fr, frslope);
-					int nextfl = fix<HDir>(nextl);
+					int64_t nextflslope = slope(getXOffset(xp), getYOffset(y) + 1);
+					int64_t nextl = extend(fix<HDir>(t), nextflslope);
+					int64_t nextr = extend(fr, frslope);
+					int64_t nextfl = fix<HDir>(nextl);
 					
 					if(scan<HDir>(t, nextl, y + VDir))
 					{
@@ -446,7 +447,7 @@ struct Culler
 			
 			if(checkY<VDir>(y + VDir))
 			{
-				int t = xp - HDir;
+				int64_t t = xp - HDir;
 				l = extend(fl, flslope);
 				r = extend(fr, frslope);
 				
@@ -465,8 +466,8 @@ struct Culler
 		}
 	}
 	
-	template<int VDir>
-	void cullRowsStraight(int y, int fl, int flslope, int fr, int frslope)
+	template<int64_t VDir>
+	void cullRowsStraight(int64_t y, int64_t fl, int64_t flslope, int64_t fr, int64_t frslope)
 	{
 	tailcall:
 		if(!checkY<VDir>(y))
@@ -474,14 +475,14 @@ struct Culler
 			
 		assert(getYOffset(y) != 0);
 		
-		int l = integer(fl);
-		int r = integer(fr);
+		int64_t l = integer(fl);
+		int64_t r = integer(fr);
 		
 		// l is bound-tested, check r
 		if(r < rect.x1)
 			r = rect.x1;
 
-		int xp = r;
+		int64_t xp = r;
 		while(scan<1>(xp, l, y))
 		{
 			// * ***
@@ -489,15 +490,15 @@ struct Culler
 			
 			if(xp != r) // If we start in a blocked pixel, don't try to fill
 			{
-				int t = xp - 1;
+				int64_t t = xp - 1;
 				
 				self->line(y, r, t);
 
 				if(checkY<VDir>(y + VDir)) 
 				{
-					int nextflslope = slope(getXOffset(t), getYOffset(y));
-					int nextfl = fix<1>(t) + nextflslope;
-					int nextfr = fr + frslope;
+					int64_t nextflslope = slope(getXOffset(t), getYOffset(y));
+					int64_t nextfl = fix<1>(t) + nextflslope;
+					int64_t nextfr = fr + frslope;
 							
 					cullRowsStraight<VDir>(y + VDir, nextfl, nextflslope, nextfr, frslope);
 				}
@@ -516,7 +517,7 @@ struct Culler
 		
 		if(xp != r)
 		{
-			int t = xp - 1;
+			int64_t t = xp - 1;
 			self->line(y, r, t);
 			
 			if(checkY<VDir>(y + VDir))
@@ -530,8 +531,8 @@ struct Culler
 	}
 	
 	Rect rect;
-	int orgX;
-	int orgY;
+	int64_t orgX;
+	int64_t orgY;
 };
 
 #undef self
