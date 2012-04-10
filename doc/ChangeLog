@@ -1,3 +1,62 @@
+0.59 beta10
+===========
+- Mario Kart game settings preset mainly for race mode. select bonuses and kill enemies
+- draw arrow in race mode to the next check point
+- new option DisableWpnsAtStartup
+- console persistence history support
+- level dark mode used in Hide&Seek
+- game.levelDarkMode and game.darkMode_wormLightRadius
+- merge Gusanos/LX drawing. huge implications. basically all Gusanos special effects such as lightning, shadows, distortion can be used in LX. Gusanos is drawn at double res now. i.e. worms don't look pixelized anymore.
+- simplified/overlayed HUD. the game gets the full screen
+- single player game config structure simplified
+- console: `restartGame`
+- console: `reinitLua` - reinit the the global Lua instance. restarts your startup scripts
+- Lua list object: `size` and iterator interface
+- Lua worm state object: `shoot`, `carve`, `move`, `jump`
+- Lua weapon slot objects: `weaponName`
+- Lua worm objects: `isLocal`, `isHuman`, `isBot`
+- new Lua bindings: exit, serverStart, serverStop, serverJoined, serverLeft, gamePrepare, gameBegin, wormPrepare, gameOver, gotoLobby
+- Lua `setTimeout` function (like the JavaScript equivalent)
+- Lua `system.time` (millisecs since OLX start), `system.version` (OLX version)
+- Lua `commands` wrapper (to console commands)
+- Lua `settings` wrapper (to all variables)
+- Lua `game.settings` wrapper (to GameOptions.GameInfo)
+- Lua `game.worms` wrapper
+- Lua `game` wrapper to the internal main Game structure, i.e. state (lobby, preparing, playing), gameOver, hudPermanentText, iMatchWinner, teamScores, etc.
+- Lua startup scripts (startup*.lua)
+- console: `lua` - executes Lua code in the global Lua instance
+- new global Lua instance
+- Lua: access to any serializable game object, i.e. to all relevant game attributes
+- vars: Game is an alias to GameOptions.GameInfo
+- Lua: `player:weapon_types()` - returns selected weapon types
+- weapon slots became dynamic. custom sizes possible. new option WeaponSlotsNum
+- all other beta versions are automatically banned
+- termios console CLI support based on linenoise
+- single threaded debug mode
+- simplification of internal game state and game loop
+- fixes in net channel bandwidth handling
+- new network syncing based on the game object serialization
+- game object serialization system
+- merge Gusanos/LX aim speed/angle/dir, ninjarope, worm spawning
+- Gusanos support for RopeCanAttachWorm
+- RopeCanAttachWorm option
+- internal refactoring of list of worms
+- HUD feedback: "Waiting for respawn …" and others
+- press jump to spawn worm
+- MaxRespawnTime option. If enabled (>=0) and if both this time and RespawnTime went by, the worm is automatically spawned
+- Gusanos supports RopeRestLength
+- Gusanos/LX share RopeMaxLength
+- Gusanos startup-init cleaned up, much faster
+- Gusanos/LX share RopeStrength
+- Gusanos supports RopeAddParentSpeed
+- unified server/client code. shares same gamestate (map, mod, etc)
+- many Gusanos cleanups and fixes
+- command line arg: `-disablestdincli`, `-disablecrashhandler`
+- console: `debugDumpCallstack`, `debugDumpAllThreadsCallstack`
+- updated Google Breakpad. also updated crash handler (Breakpad currently not used anymore). crash handler now based on libbfd and also prints line numbers and more
+- serverlist handling refactored internally
+- many random fixes
+
 0.58 (beta1,2: 2009-10-05, beta3: 2009-10-09, beta4: 2009-10-12)
 ====
 - Hide & Seek gamemode
