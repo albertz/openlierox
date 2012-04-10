@@ -507,7 +507,7 @@ void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
 
 		(*blitFct) (bmpMiniMap.get(), paralax->surf.get(), parx, pary, dx, dy, parw, parh, 0.5f * xratio / parxratio, 0.5f * yratio / paryratio);
 	} else {
-		DrawRectFill(bmpMiniMap.get(), x - 1, y - 1, x + w + 1, y + h + 1, Color());
+		DrawRectFill(bmpMiniMap.get(), dx, dy, dx + int(xratio*(w+1)), dy + int(yratio*(h+1)), Color());
 	}
 	
 	(*blitFct) (bmpMiniMap.get(), image->surf.get(), (x - 1)*2, (y - 1)*2, dx, dy, (w + 1)*2, (h + 1)*2, xratio*0.5f, yratio*0.5f);
