@@ -617,6 +617,9 @@ Result Game::prepareGameloop() {
 	prepareCallbacks();
 	prepareCallbacks.disconnect_all_slots();
 
+	if(gameSettings[FT_ImmediateStart])
+		game.state = Game::S_Playing;
+
 	ProcessEvents();
 	notes << "GameLoopStart. MaxFPS is " << tLXOptions->nMaxFPS << endl;
 
