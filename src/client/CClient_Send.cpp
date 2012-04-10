@@ -390,6 +390,9 @@ void CClientNetEngineBeta9NewNet::SendNewNetChecksum()
 }
 
 void CClient::SendGameStateUpdates() {
+	if(getServerVersion() < OLXBetaVersion(0,59,10))
+		return;
+
 	GameState& state = *serverGameState;
 	GameStateUpdates updates;
 	updates.diffFromStateToCurrent(state);

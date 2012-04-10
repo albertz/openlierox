@@ -602,6 +602,8 @@ void GameServer::SendGameStateUpdates() {
 			continue;
 		if(!cl->isConnected())
 			continue;
+		if(cl->getClientVersion() < OLXBetaVersion(0,59,10))
+			continue;
 		if(!checkBandwidth(cl)) {
 			if(cl == firstNonlocalClientConnection()) bandwidthHitCounter.addData(1);
 			continue;
