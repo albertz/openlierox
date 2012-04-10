@@ -2772,7 +2772,7 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	bCurrentSettings = true;
 
     // Do checks on whether or not to show
-	if(iNetStatus != NET_CONNECTED && !cShowSettings.isDown() && !game.gameOver)
+	if(game.state == Game::S_Playing && !cShowSettings.isDown() && !game.gameOver)
 		bCurrentSettings = false;
 
 	if (game.gameOver && bGameMenu)

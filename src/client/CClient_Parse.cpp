@@ -1784,7 +1784,7 @@ void CClientNetEngineBeta9NewNet::ParseUpdateWorms(CBytestream *bs)
 
 template<typename T>
 static bool onlyUpdateInLobby(CClient* client, FeatureIndex i, const T& update) {
-	if(client->getStatus() != NET_CONNECTED) {
+	if(game.state != Game::S_Lobby) {
 		if(client->getGameLobby()[i] != update)
 			notes << "CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring update " << featureArray[i].name << " '" << client->getGameLobby()[i].toString() << "' -> '" << ScriptVar_t::MaybeRef(update).toString() << "'" << endl;
 		return false;
