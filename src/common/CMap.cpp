@@ -165,8 +165,7 @@ size_t CMap::GetMemorySize()
 {
 	size_t res = sizeof(CMap) +
 		GetSurfaceMemorySize(bmpDrawImage.get()) + GetSurfaceMemorySize(bmpGreenMask.get()) +
-GetSurfaceMemorySize(bmpMiniMap.get()) +
-		GetSurfaceMemorySize(bmpMiniMapTransparent.get()) +
+		GetSurfaceMemorySize(bmpMiniMap.get()) +
 		Width * Height + // Pixel flags
 		Name.size() + FileName.size() +
 		Theme.name.size();
@@ -1565,7 +1564,6 @@ void CMap::UpdateMiniMap(bool force)
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
-	UpdateMiniMapTransparent();
 }
 
 ///////////////////
@@ -1580,25 +1578,8 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 		return;
 
 	gusUpdateMinimap(x, y, w, h);
-	UpdateMiniMapTransparent();
 }
 
-void CMap::UpdateMiniMapTransparent()
-{
-	//if( !( game.gameScript() && game.gameScript()->gusEngineUsed() ) )
-	//	return;
-	if( bmpMiniMapTransparent.get() == NULL || 
-		bmpMiniMapTransparent.get()->w != bmpMiniMap.get()->w || 
-		bmpMiniMapTransparent.get()->h != bmpMiniMap.get()->h )
-	{
-		bmpMiniMapTransparent = gfxCreateSurface(bmpMiniMap.get()->w, bmpMiniMap.get()->h);
-		SetPerSurfaceAlpha(bmpMiniMapTransparent.get(), 128); // 128 should be optimised in SDL
-		FillSurface(bmpMiniMapTransparent.get(), MakeColour(0, 0, 0, 128)); // Enable per-pixel alpha
-	}
-	SetPerSurfaceAlpha(bmpMiniMap.get(), 255); // Make it not overwrite per-pixel alpha
-	DrawImage(bmpMiniMapTransparent.get(), bmpMiniMap, 0, 0);
-	//SetPerSurfaceAlpha(bmpMiniMapTransparent.get(), 128); // Just in case
-}
 
 void CMap::drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVec& pos, Uint8 r, Uint8 g, Uint8 b, bool big, bool special) {
 	if(bDedicated) return;
@@ -1675,13 +1656,8 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt)
 	if(bMiniMapDirty)
 		UpdateMiniMap();
 
-	// Draw the minimap
-	//if( game.gameScript() && game.gameScript()->gusEngineUsed() )
-		DrawImage(bmpDest, bmpMiniMapTransparent, x, y);
-	//else
-	//	DrawImage(bmpDest, bmpMiniMap, x, y);
-
-	SetPerSurfaceAlpha(bmpMiniMap.get(), 255);
+	SetPerSurfaceAlpha(bmpMiniMap.get(), 128);
+	DrawImage(bmpDest, bmpMiniMap, x, y);
 
 	fBlinkTime+=dt;
 	if(fBlinkTime>0.5f)
