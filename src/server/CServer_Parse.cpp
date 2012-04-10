@@ -319,6 +319,8 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 ///////////////////
 // Parse an update packet
 void CServerNetEngine::ParseUpdate(CBytestream *bs) {
+	AttrUpdateByClientScope updateScope(cl);
+
 	for_each_iterator(CWorm*, w_, game.wormsOfClient(cl)) {
 		CWorm* w = w_->get();
 

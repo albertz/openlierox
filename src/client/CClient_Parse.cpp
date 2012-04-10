@@ -1726,6 +1726,8 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 // Parse an 'update-worms' packet
 void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 {
+	AttrUpdateByServerScope	updateScope;
+
 	byte count = bs->readByte();
 	if (count > MAX_WORMS)  {
 		hints << "CClientNetEngine::ParseUpdateWorms: invalid worm count (" << count << ")" << endl;
