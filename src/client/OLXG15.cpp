@@ -165,8 +165,6 @@ void OLXG15_t::gameFrame()
 			{
 				Weapons[i].changed = true;
 			}
-		case NET_PLAYING:
-			break;
 	}
 
 	if (showingSplash)

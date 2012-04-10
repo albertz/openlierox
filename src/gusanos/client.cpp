@@ -132,7 +132,7 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 		cClient->SetupGameInputs(); // we must init the inputs for the new inputhandler
 		
 		if(game.state >= Game::S_Preparing) {
-			if(cClient->getStatus() == NET_PLAYING) // playing
+			if(game.state == Game::S_Playing)
 				player->startGame();
 			else if(!game.gameScript()->gusEngineUsed())
 				player->initWeaponSelection();

@@ -17,7 +17,6 @@ enum ClientNetState {
 	NET_DISCONNECTED=0,
 	NET_CONNECTING,			// Server doesn't use this state, only client side
 	NET_CONNECTED,			// Server usage: when client connected or playing, client usage: only when in server lobby
-	NET_PLAYING,			// Server doesn't use this state, only client side
 	NET_ZOMBIE				// Server side only state - server won't accept any client packets and will send disconnect packets to client
 };
 
@@ -26,7 +25,6 @@ INLINE const char* NetStateString(ClientNetState state) {
 		case NET_DISCONNECTED: return "NET_DISCONNECTED";
 		case NET_CONNECTING: return "NET_CONNECTING";
 		case NET_CONNECTED: return "NET_CONNECTED";
-		case NET_PLAYING: return "NET_PLAYING";
 		case NET_ZOMBIE: return "NET_ZOMBIE";
 	}
 	return "INVALID NETSTATE";

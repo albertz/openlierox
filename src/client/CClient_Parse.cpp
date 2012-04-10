@@ -113,7 +113,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 	// A Bad Connection
 	else if(cmd == "lx::badconnect") {
 		// If we are already connected, ignore this
-		if (client->iNetStatus == NET_CONNECTED || client->iNetStatus == NET_PLAYING)  {
+		if (client->iNetStatus == NET_CONNECTED)  {
 			notes << "CClientNetEngine::ParseConnectionlessPacket: already connected, ignoring" << endl;
 		} else {
 			client->iNetStatus = NET_DISCONNECTED;
@@ -180,7 +180,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 void CClientNetEngine::ParseChallenge(CBytestream *bs)
 {
 	// If we are already connected, ignore this
-	if (client->iNetStatus == NET_CONNECTED || client->iNetStatus == NET_PLAYING)  {
+	if (client->iNetStatus == NET_CONNECTED)  {
 		notes << "CClientNetEngine::ParseChallenge: already connected, ignoring" << endl;
 		return;
 	}
@@ -265,7 +265,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 			if (client->iNetStatus == NET_CONNECTED)  {
 				notes << "CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids" << endl;
 			}
-			else if(client->iNetStatus == NET_PLAYING) {
+			if(game.state == Game::S_Playing) {
 				warnings << "CClientNetEngine::ParseConnected: currently playing; ";
 				warnings << "it's too risky to proceed a reconnection, so we ignore this" << endl;
 				return;
@@ -746,7 +746,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 	// If we're playing, the game has to be ready
-	if (client->iNetStatus == NET_PLAYING && !game.gameOver)  {
+	if (game.state == Game::S_Playing && !game.gameOver)  {
 		((game.isClient()) ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
 		if(game.state < Game::S_Preparing && game.needManualClientSideStateManagement())
@@ -937,7 +937,7 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 
 bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 {
-	bool isReconnect = game.state >= Game::S_Preparing || client->iNetStatus == NET_PLAYING;
+	bool isReconnect = game.state >= Game::S_Preparing;
 	
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
@@ -973,17 +973,11 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 		warnings << "CClientNetEngine::ParseStartGame: cannot start the game because the game is not ready" << endl;
 		return;
 	}
-
-	if (client->iNetStatus == NET_PLAYING && game.state < Game::S_Playing)  {
-		warnings << "Client: got start signal in runnign game with unset gamerunning flag" << endl;
-		client->iNetStatus = NET_CONNECTED;
-	}
 	
 	notes << "Client: get BeginMatch signal";
 	
 	if(game.state == Game::S_Playing) {
 		notes << ", back to game" << endl;
-		client->iNetStatus = NET_PLAYING;
 		for_each_iterator(CWorm*, w, game.localWorms()) {
 			if(w->get()->bWeaponsReady)
 				w->get()->StartGame();
@@ -993,15 +987,8 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	notes << endl;
 	if(game.needManualClientSideStateManagement())
 		game.state = Game::S_Playing;
-	
-	// Already got this
-	if (client->iNetStatus == NET_PLAYING)  {
-		notes << "CClientNetEngine::ParseStartGame: already playing - ignoring" << endl;
-		return;
-	}
-	
+		
 	client->fLastSimulationTime = tLX->currentTime;
-	client->iNetStatus = NET_PLAYING;
 	game.serverFrame = 0;
 
 	// Re-initialize the ingame scoreboard
@@ -1283,7 +1270,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 
 
 static std::string getChatText(CClient* client) {
-	if(client->getStatus() == NET_PLAYING || game.state >= Game::S_Preparing)
+	if(game.state >= Game::S_Preparing)
 		return client->chatterText();
 	else if(game.isServer() && !game.isLocalGame())
 		return DeprecatedGUI::Menu_Net_HostLobbyGetText();
@@ -1295,7 +1282,7 @@ static std::string getChatText(CClient* client) {
 }
 
 static void setChatText(CClient* client, const std::string& txt) {
-	if(client->getStatus() == NET_PLAYING || game.state >= Game::S_Preparing) {
+	if(game.state >= Game::S_Preparing) {
 		client->chatterText() = txt;
 		client->setChatPos( Utf8StringSize(txt) );
 	} else if(game.isServer() && !game.isLocalGame()) {

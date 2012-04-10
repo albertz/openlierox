@@ -629,7 +629,7 @@ void Cmd_suicide::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		return;
 	}
 	
-	if(cClient->getStatus() != NET_PLAYING)  {
+	if(game.state != Game::S_Playing)  {
 		caller->writeMsg("Cannot suicide when not playing!", CNC_WARNING);
 		return;
 	}
@@ -680,7 +680,7 @@ void Cmd_unstuck::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	}
 	
 	// Not playing
-	if(cClient->getStatus() != NET_PLAYING)  {
+	if(game.state != Game::S_Playing)  {
 		caller->writeMsg("Cannot unstuck when not playing!", CNC_WARNING);
 		return;
 	}
@@ -908,12 +908,12 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 			
 			while( game.state != Game::S_Quit ) // TODO: put mutex here
 			{
-				if(params[0] == "game" && cClient && cClient->getStatus() == NET_PLAYING) // TODO: put mutex here
+				if(params[0] == "game" && cClient && game.state == Game::S_Playing) // TODO: put mutex here
 				{
 					//stdoutCLI().writeMsg("wait: trigger: game started");
 					break;
 				}
-				if(params[0] == "lobby" && cClient && cClient->getStatus() == NET_CONNECTED) // TODO: put mutex here
+				if(params[0] == "lobby" && cClient && game.state == Game::S_Lobby) // TODO: put mutex here
 				{
 					//stdoutCLI().writeMsg("wait: trigger: lobby started");
 					break;
@@ -974,7 +974,7 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 COMMAND(setViewport, "Set viewport mode", "mode=follow|cycle|freelook|actioncam [wormID] [mode2] [wormID2]", 1, 4);
 void Cmd_setViewport::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	
-	if(!cClient || cClient->getStatus() != NET_PLAYING)
+	if(game.state != Game::S_Playing)
 	{
 		caller->writeMsg("Cannot set viewport while not playing");
 		return;
@@ -1995,7 +1995,7 @@ COMMAND(chatMsg, "give a global chat message", "text", 1, 1);
 void Cmd_chatMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(game.isClient() || !cServer || !cServer->isServerRunning())
 	{
-		if( cClient && (cClient->getStatus() == NET_CONNECTED || cClient->getStatus() == NET_PLAYING) )
+		if( cClient && (cClient->getStatus() == NET_CONNECTED) )
 			cClient->getNetEngine()->SendText( params[0], game.localWorms()->tryGet() ? game.localWorms()->tryGet()->getName() : "" );
 		else
 		{

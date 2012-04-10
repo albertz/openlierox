@@ -577,7 +577,7 @@ void CClient::FinishMapDownloads()
 			cHttpDownloader->RemoveFileDownload(sMapDownloadName);
 
 		// If playing, load the map
-		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMap))  {
+		if (game.state >= Game::S_Preparing && bWaitingForMap)  {
 			if (game.gameMap() && game.gameMap()->getCreated())  {
 				hints << "Finished map downloading but another map is already loaded." << endl;
 				return;
@@ -607,7 +607,7 @@ void CClient::FinishModDownloads()
 
 		zip * zipfile = zip_open( Utf8ToSystemNative(fname).c_str(), 0, NULL );
 		if( zipfile == NULL ) {
-			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+			if (game.state == Game::S_Playing || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
 				bServerError = true;
 				strServerErrorMsg = "Cannot access the downloaded mod! zip_open failed.";
 			}
@@ -616,7 +616,7 @@ void CClient::FinishModDownloads()
 
 		if( zip_name_locate(zipfile, (sModDownloadName + "/script.lgs").c_str(), ZIP_FL_NOCASE) == -1 )
 		{
-			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+			if (game.state == Game::S_Playing || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
 				bServerError = true;
 				strServerErrorMsg = "Cannot access the downloaded mod! zip_name_locate failed.";
 			}
@@ -648,7 +648,7 @@ void CClient::FinishModDownloads()
 
 	// Check that the script.lgs file is available
 	if (!infoForMod(sModDownloadName).valid)  {
-		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+		if (game.state == Game::S_Playing || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
 			bServerError = true;
 			strServerErrorMsg = "Cannot access the downloaded mod! mod cannot be loaded.";
 		}
@@ -665,7 +665,7 @@ void CClient::FinishModDownloads()
 	}
 
 	// Load the mod if playing
-	if (game.isClient() && (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod)))  {
+	if (game.isClient() && (game.state == Game::S_Playing || (iNetStatus == NET_CONNECTED && bWaitingForMod)))  {
 		bWaitingForMod = false;
 
 		if (game.gameScript() && game.gameScript()->GetNumWeapons() > 0)  {
@@ -985,7 +985,7 @@ void CClient::Frame()
 		return;
 	
 	if(
-		(game.state == Game::S_Playing || iNetStatus == NET_PLAYING) &&
+		(game.state == Game::S_Playing) &&
 		!bWaitingForMap &&
 		!bWaitingForMod &&
 		game.gameMap() &&
@@ -1081,7 +1081,7 @@ bool CClient::ReadPackets()
 	}
 
 	// Check if our connection with the server timed out
-	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() + TimeDiff((float)LX_CLTIMEOUT) < tLX->currentTime && game.isClient()) {
+	if(game.state == Game::S_Playing && cNetChan->getLastReceived() + TimeDiff((float)LX_CLTIMEOUT) < tLX->currentTime && game.isClient()) {
 		// AbsTime out
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
@@ -1110,7 +1110,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 
 	if(!sendPendingOnly) {
 		// Playing packets
-		if(iNetStatus == NET_PLAYING || game.state >= Game::S_Preparing)
+		if(game.state >= Game::S_Preparing)
 		{
 			cNetEngine->SendWormDetails();
 			cNetEngine->SendReportDamage();	// It sends only if someting is queued
@@ -1119,7 +1119,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 
 		// Send every second
 		// TODO: move this somewhere else
-		if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && game.state >= Game::S_Preparing))  && (tLX->currentTime - fMyPingRefreshed).seconds() > 1) {
+		if ((game.state >= Game::S_Preparing)  && (tLX->currentTime - fMyPingRefreshed).seconds() > 1) {
 			CBytestream ping;
 
 			// TODO: move this out here
@@ -1144,7 +1144,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 #endif
 	}
 	
-	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
+	if(game.state == Game::S_Playing || iNetStatus == NET_CONNECTED)
 		cNetChan->Transmit(&bsUnreliable);
 	
 	bsUnreliable.Clear();
@@ -1791,7 +1791,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				// we will recheck that in clients frame
 			}
 			else { // weapons are already ready				
-				if(cClient->getStatus() == NET_PLAYING) { // that means that we were already ready before
+				if(game.state == Game::S_Playing) { // that means that we were already ready before
 					// send weapon list to other clients
 					for(int ii = 0; ii < MAX_CLIENTS; ii++) {
 						if(!cServer->getClients()[ii].isLocalClient() && cServer->getClients()[ii].getClientVersion() < OLXBetaVersion(0,59,10)) {

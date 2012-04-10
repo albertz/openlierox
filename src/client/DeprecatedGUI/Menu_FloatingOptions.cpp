@@ -610,7 +610,7 @@ void Menu_FloatingOptionsFrame()
 							if (convoLogger)  {
 								if (tLXOptions->bLogConvos)  {
 									convoLogger->startLogging();
-									if (cClient && (cClient->getStatus() == NET_CONNECTED || cClient->getStatus() == NET_PLAYING))
+									if (cClient && (cClient->getStatus() == NET_CONNECTED))
 										convoLogger->enterServer(cClient->getServerName());
 								} else
 									convoLogger->endLogging();

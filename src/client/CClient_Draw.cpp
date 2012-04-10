@@ -525,7 +525,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// DEBUG: draw the AI paths
 #ifdef _AI_DEBUG
-	if (iNetStatus == NET_PLAYING && game.gameMap())  {
+	if (game.state == Game::S_Playing && game.gameMap())  {
 		static AbsTime last = tLX->currentTime;
 		if ((tLX->currentTime - last).seconds() >= 0.5f)  {
 			game.gameMap()->ClearDebugImage();
@@ -539,7 +539,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 #endif
 
 	// Draw the viewports
-	if(((iNetStatus == NET_CONNECTED  && game.state >= Game::S_Preparing ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
+	if((game.state >= Game::S_Preparing) && !bWaitingForMap) {
 
 		// Draw the viewports
 		for( ushort i=0; i<NUM_VIEWPORTS; i++ ) {
@@ -559,7 +559,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// Mini-Map
 		if (game.gameMap() != NULL && (bool)getGameLobby()[FT_MiniMap])  {
-			if (game.state >= Game::S_Preparing || iNetStatus == NET_PLAYING)
+			if (game.state >= Game::S_Preparing)
 				game.gameMap()->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, tLX->fDeltaTime );
 			else {
 				if(game.gameMap()->GetMiniMap().get())
@@ -2337,12 +2337,11 @@ void CClient::ProcessSpectatorViewportKeys()
 	if( fSpectatorViewportMsgTimeout + 1.0 < tLX->currentTime )
 		sSpectatorViewportMsg = "";
 
-	if( iNetStatus != NET_PLAYING )
+	if( game.state != Game::S_Playing )
 		return;
 
 	if( game.gameScript()->gusEngineUsed() )
 		// TODO: only for now
-		// we should just update iNetStatus to NET_PLAYING, that would be nicer
 		return;
 
 	// reset viewports when spawned
@@ -2709,7 +2708,7 @@ void CClient::DrawPlayerWaiting(SDL_Surface * bmpDest)
 	int x = 0;
 	int y = tLXOptions->bTopBarVisible ? getTopBarBottom() : 0;
 
-	if (iNetStatus == NET_PLAYING || game.isLocalGame() || bGameMenu)
+	if (game.state == Game::S_Playing || game.isLocalGame() || bGameMenu)
 		return;
 
 	// Get the number of players
@@ -2744,7 +2743,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
         return;
     if(cShowScore.isDown() && !bChat_Typing)
         bShowScore = true;
-	if(iNetStatus == NET_CONNECTED && game.state >= Game::S_Preparing && !game.isLocalGame()) {
+	if(game.state == Game::S_Preparing && !game.isLocalGame()) {
         bShowScore = true;
         bShowReady = true;
     }

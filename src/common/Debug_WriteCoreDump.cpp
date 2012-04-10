@@ -40,8 +40,6 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 					strncat(buffer, "In game, selecting weapons.", bufsize);
 				else
 					strncat(buffer, "In lobby.", bufsize);
-			} else if (cClient->getStatus() == NET_PLAYING)  {
-				strncat(buffer, "In game, playing.", bufsize);
 			} else if (cClient->getStatus() == NET_CONNECTING)  {
 				strncat(buffer, "Connecting to a server.", bufsize);
 			} else if (cClient->getStatus() == NET_DISCONNECTED)  {
