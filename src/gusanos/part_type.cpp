@@ -192,15 +192,13 @@ void PartType::touch()
 			int hwidth = width / 2;
 			int hheight = height / 2;
 			
-			for(int y = 0; y < height; ++y)
-			for(int x = 0; x < width; ++x)
+			for(int y = 0; y < height*2; ++y)
+			for(int x = 0; x < width*2; ++x)
 			{
-				int n = (luaIngame.call(f, 2), x - hwidth, y - hheight, width, height)();
+				int n = (luaIngame.call(f, 2), x*0.5f - hwidth, y*0.5f - hheight, width, height)();
 				if(n == 2)
 				{
-					for(short dy = 0; dy < 2; ++dy)
-					for(short dx = 0; dx < 2; ++dx)
-					d->map[(y*2+dy) * width*2 + (x*2+dx)] = Vec((float)lua_tonumber(luaIngame, -2), (float)lua_tonumber(luaIngame, -1)) * 2 /*doubleRes*/;
+					d->map[y * width*2 + x] = Vec((float)lua_tonumber(luaIngame, -2), (float)lua_tonumber(luaIngame, -1)) * 2 /*doubleRes*/;
 					luaIngame.pop(n);
 				}
 				else
