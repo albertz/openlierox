@@ -308,8 +308,6 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 	
 	if(game.state == Game::S_Playing)
 		server->BeginMatch(cl);
-	else if(gameSettings[FT_ImmediateStart])
-		server->BeginMatch(cl);
 	else
 		// Check if all the clients are ready
 		server->CheckReadyClient();
