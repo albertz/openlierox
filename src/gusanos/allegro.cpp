@@ -76,6 +76,7 @@ static ALLEGRO_BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& s
 }
 
 ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {
+	if(!surf.get()) return NULL;
 	return create_bitmap_from_sdl(surf, 0, 0, surf->w, surf->h);
 }
 
