@@ -1930,6 +1930,27 @@
     <ClCompile Include="..\..\src\client\PixelFunctors.cpp">
       <Filter>System Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug_AmIBeingDebugged.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug_DumpCallstack.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug_extended_backtrace.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug_GetCallstack.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug_GetPCFromUContext.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug_RaiseDebugger.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug_WriteCoreDump.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\msvc\libs\dbghelp.lib">
