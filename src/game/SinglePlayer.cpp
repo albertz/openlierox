@@ -237,6 +237,7 @@ void SinglePlayerGame::setLevelSucceeded() {
 	
 	notes << "SinglePlayerGame: level was succeeded" << endl;
 	levelSucceeded = true;
+	game.gameOver = true;
 	tLXOptions->localplayLevels[currentGame] = MAX((int)tLXOptions->localplayLevels[currentGame], (int)currentLevel + 1);
 	
 	if(gameLevelExists(currentGame, currentLevel + 1))
@@ -253,6 +254,7 @@ void SinglePlayerGame::Simulate() {
 
 bool SinglePlayerGame::CheckGameOver() {
 	if(standardGameMode && standardGameMode->CheckGameOver()) {
+		notes << "SinglePlayer game gameOver, winner is " << standardGameMode->Winner() << ", winner team is " << standardGameMode->WinnerTeam() << endl;
 		CWorm* w = game.firstLocalHumanWorm();
 		if(w && standardGameMode->Winner() == w->getID())
 			setLevelSucceeded();
