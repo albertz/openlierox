@@ -40,22 +40,22 @@ struct AddCuller : Culler<AddCuller>
 			m_alpha(alpha)
 	{}
 
-	bool block(int x, int y)
+	bool block(int64_t x, int64_t y)
 	{
 		// doubleRes to singleRes coords
-		return m_level.unsafeGetMaterial(x/2,y/2).blocks_light;
+		return m_level.unsafeGetMaterial(uint32_t(x/2),uint32_t(y/2)).blocks_light;
 	}
 
-	void line(int y, int x1, int x2)
+	void line(int64_t y, int64_t x1, int64_t x2)
 	{
 		drawSpriteLine_add(
 		    m_dest,
 		    m_source,
-		    x1 - m_destOffx,
-		    y - m_destOffy,
-		    x1 - m_sourceOffx,
-		    y - m_sourceOffy,
-		    x2 - m_sourceOffx + 1,
+		    int(x1 - m_destOffx),
+		    int(y - m_destOffy),
+		    int(x1 - m_sourceOffx),
+		    int(y - m_sourceOffy),
+		    int(x2 - m_sourceOffx + 1),
 		    m_alpha
 		);
 	}

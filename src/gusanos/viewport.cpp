@@ -49,24 +49,24 @@ struct TestCuller : public Culler<TestCuller>
 	{
 	}
 
-	bool block(int x, int y)
+	bool block(int64_t x, int64_t y)
 	{
 		// doubleRes to singleRes coords
-		return !game.gameMap()->unsafeGetMaterial(x/2, y/2).worm_pass;
+		return !game.gameMap()->unsafeGetMaterial(uint32_t(x/2), uint32_t(y/2)).worm_pass;
 	}
 
-	void line(int y, int x1, int x2)
+	void line(int64_t y, int64_t x1, int64_t x2)
 	{
 		//hline_add(dest, x1 + scrOffX, y + scrOffY, x2 + scrOffX + 1, makecol(50, 50, 50), 255);
 
 		drawSpriteLine_add(
 		    dest,
 		    src,
-		    x1 + scrOffX,
-		    y + scrOffY,
-		    x1 + destOffX,
-		    y + destOffY,
-		    x2 + destOffX + 1,
+		    int(x1 + scrOffX),
+		    int(y + scrOffY),
+		    int(x1 + destOffX),
+		    int(y + destOffY),
+		    int(x2 + destOffX + 1),
 		    255);
 	}
 
@@ -248,7 +248,7 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 				f = CLAMP((dest->h - arrowW/2 - wormPos.y) / dir.y, 0.f, f);
 
 			dir *= f;
-			float diffToTarget = (wormPos - targetPos).length();
+			float diffToTarget = (float)(wormPos - targetPos).length();
 			if(diffToTarget > 1) {
 				CVec p = wormPos + dir;
 
