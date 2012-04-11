@@ -480,36 +480,43 @@ void CMap::loaderSucceeded()
 
 
 
-void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
-	void (*blitFct) ( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
-	
+void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& paralax, int x, int y, int w, int h, float resFactor) {
+	void (*blitFct) (SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
+
 	if (tLXOptions->bAntiAliasing)
 		blitFct = &DrawImageResampledAdv;
 	else
 		blitFct = &DrawImageResizedAdv;
-	
+
+	const int Width = image->w * resFactor;
+	const int Height = image->h * resFactor;
+
 	// Calculate ratios
 	const float xratio = (float)bmpMiniMap.get()->w / (float)Width;
 	const float yratio = (float)bmpMiniMap.get()->h / (float)Height;
-	
+
 	const int dx = (int)((float)x * xratio);
 	const int dy = (int)((float)y * yratio);
 
-	if (paralax) {
+	if (paralax.get()) {
 		// Calculate ratios
 		const float parxratio = (float)paralax->w / (float)image->w;
 		const float paryratio = (float)paralax->h / (float)image->h;
-		
+
 		const int parx = (int)((float)x * parxratio * 2);
 		const int pary = (int)((float)y * paryratio * 2);
 		const int parw = (int)((float)w * parxratio * 2);
 		const int parh = (int)((float)h * paryratio * 2);
 
-		(*blitFct) (bmpMiniMap.get(), paralax->surf.get(), parx, pary, dx, dy, parw, parh, 0.5f * xratio / parxratio, 0.5f * yratio / paryratio);
+		(*blitFct) (bmpMiniMap.get(), paralax.get(), parx, pary, dx, dy, parw, parh, resFactor * xratio / parxratio, resFactor * yratio / paryratio);
 	} else {
 		DrawRectFill(bmpMiniMap.get(), dx, dy, dx + int(xratio*(w+1)), dy + int(yratio*(h+1)), Color());
 	}
-	
-	(*blitFct) (bmpMiniMap.get(), image->surf.get(), (x - 1)*2, (y - 1)*2, dx, dy, (w + 1)*2, (h + 1)*2, xratio*0.5f, yratio*0.5f);
+
+	(*blitFct) (bmpMiniMap.get(), image.get(), (x - 1)/resFactor, (y - 1)/resFactor, dx, dy, (w + 1)/resFactor, (h + 1)/resFactor, xratio*resFactor, yratio*resFactor);
+}
+
+void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
+	gusUpdateMinimap(bmpMiniMap, image->surf, paralax ? paralax->surf : NULL, x, y, w, h, 0.5f);
 }
 

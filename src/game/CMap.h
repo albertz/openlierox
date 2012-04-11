@@ -480,6 +480,7 @@ public:
 #ifndef DEDICATED_ONLY
 	void gusDraw(ALLEGRO_BITMAP* where, int x, int y);
 #endif
+	static void gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& paralax, int x, int y, int w, int h, float resFactor);
 	void gusUpdateMinimap(int x, int y, int w, int h);
 	
 	bool getPredefinedSpawnLocation(CWorm* worm, CVec* v);
