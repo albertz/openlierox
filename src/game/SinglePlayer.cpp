@@ -151,6 +151,8 @@ static void SinglePlayer_CleanupAfterGameloopEnd() {
 }
 
 bool SinglePlayerGame::startGame() {
+	levelSucceeded = false;
+
 	if(!currentGameValid) {
 		errors << "SinglePlayerGame::startGame: cannot start game: current game/level is invalid" << endl;
 		return false;
@@ -228,7 +230,6 @@ bool SinglePlayerGame::startGame() {
 	
 	game.cleanupCallbacks.connect(boost::bind(&SinglePlayer_CleanupAfterGameloopEnd));
 	
-	levelSucceeded = false;
 	return true;
 }
 
