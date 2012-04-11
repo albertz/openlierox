@@ -102,7 +102,8 @@ namespace{
 		fillSpawnPointList(parser, "teambases", returnConf->teamBases);
 		
 		returnConf->darkMode = parser.getBool("dark_mode");
-		
+		returnConf->doubleRes = parser.getBool("double_res");
+
 		OmfgScript::Parser::GameEventIter i(parser);
 		for(; i; ++i)
 		{
@@ -196,22 +197,22 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 #ifndef DEDICATED_ONLY
 		std::string imagePath = path + "/level";
 		
-		level->image = gfx.loadBitmap(imagePath.c_str());
+		level->image = gfx.loadBitmap(imagePath.c_str(), false, /*stretch2*/ !level->config()->doubleRes);
 		if (level->image)
 		{			
 			std::string backgroundPath = path + "/background";
 			
-			level->background = gfx.loadBitmap(backgroundPath.c_str());
+			level->background = gfx.loadBitmap(backgroundPath.c_str(), false, !level->config()->doubleRes);
 			
 			std::string paralaxPath = path + "/paralax";
-			level->paralax = gfx.loadBitmap(paralaxPath.c_str());
+			level->paralax = gfx.loadBitmap(paralaxPath.c_str(), false, !level->config()->doubleRes);
 			
 			if(!level->paralax)
 				notes << "Paralax not loaded" << endl;
 			
 			std::string lightmapPath = path + "/lightmap";
 		
-			ALLEGRO_BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str());
+			ALLEGRO_BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str(), false, !level->config()->doubleRes);
 			
 			if ( tempLightmap )
 			{

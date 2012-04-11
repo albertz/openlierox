@@ -55,13 +55,14 @@ struct SpawnPoint
 
 struct LevelConfig
 {
-	LevelConfig() : darkMode(false)	{}
+	LevelConfig() : darkMode(false), doubleRes(false) {}
 	
 	std::vector<SpawnPoint> teamBases;
 	std::vector<SpawnPoint> spawnPoints;
 	boost::shared_ptr<GameEvent> gameStart;
 	boost::shared_ptr<GameEvent> gameEnd;
 	bool darkMode;
+	bool doubleRes;
 };
 
 #endif // _LEVEL_H_
