@@ -136,22 +136,17 @@ struct CustomVarWeakRefType {
 
 struct StringType : GetType<std::string> {};
 
-template<typename T>
-struct _SelectType {
-	template<int N> struct Num { char array[N]; };
-	template<int> struct Type;
+template<int N> struct _Num { char array[N]; };
+template<int, typename T> struct _SelectType;
 
-	template<> struct Type<1> : Num<1> { typedef CustomVarWeakRefType<T> type; };
-	static Type<1> selectType(const CustomVar&) { return NULL; }
+template<typename T> struct _SelectType<1,T> : _Num<1> { typedef CustomVarWeakRefType<T> type; };
+template<typename T> static _SelectType<1,T> _selectType(T*, const CustomVar&) { return NULL; }
 
-	template<> struct Type<2> : Num<2> { typedef StringType type; };
-	static Type<2> selectType(const char*) { return NULL; }
-	static Type<2> selectType(char[]) { return NULL; }
+template<typename T> struct _SelectType<2,T> : _Num<2> { typedef StringType type; };
+template<typename T> static _SelectType<2,T> _selectType(T*, const char*) { return NULL; }
+template<typename T> static _SelectType<2,T> _selectType(T*, char[]) { return NULL; }
 
-	typedef typename Type<sizeof(selectType(*(T*)NULL).array)>::type type; 
-};
-
-template<typename T> struct GetType : _SelectType<T>::type {};
+template<typename T> struct GetType : _SelectType<sizeof(_selectType((T*)NULL, *(T*)NULL).array), T>::type {};
 
 
 
