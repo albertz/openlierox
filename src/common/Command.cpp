@@ -2404,6 +2404,43 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 	}	
 }
 
+COMMAND(exportLevel, "export current level data", "levelname", 1, 1);
+void Cmd_exportLevel::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
+	CMap* m = game.gameMap();
+	if(!m || !m->isLoaded()) {
+		caller->writeMsg("map is not loaded");
+		return;
+	}
+
+	std::string filename = "levels/" + params[0];
+	if(IsFileAvailable(filename, false, false)) {
+		caller->writeMsg("level does already exist, choose another levelname");
+		return;
+	}
+
+	SaveSurface(m->material->surf, filename + "/material.png", FMT_PNG, "");
+	SaveSurface(m->image->surf, filename + "/level.png", FMT_PNG, "");
+	SaveSurface(m->background->surf, filename + "/background.png", FMT_PNG, "");
+	if(m->paralax)
+		SaveSurface(m->paralax->surf, filename + "/paralax.png", FMT_PNG, "");
+	if(m->lightmap)
+		SaveSurface(m->lightmap->surf, filename + "/lightmap.png", FMT_PNG, "");
+
+	{
+		std::ofstream f;
+		if(!OpenGameFileW(f, filename + "/config.cfg")) {
+			errors << "error opening " << filename << "/config.cfg" << endl;
+			return;
+		}
+
+		f << "double_res = 1" << endl;
+		if(m->config()->darkMode)
+			f << "dark_mode = 1" << endl;
+
+		f.close();
+	}
+}
+
 
 COMMAND(saveConfig, "save current config", "[filename]", 0, 1);
 void Cmd_saveConfig::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
