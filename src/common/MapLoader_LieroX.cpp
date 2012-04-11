@@ -197,12 +197,12 @@ class ML_LieroX : public MapLoad {
 		{
 			std::string chunkName;
 			if(!fread_fixedwidthstr<16>(chunkName, fp)) {
-				errors << "CMap::LoadAdditionalLevelData: error while reading" << endl;
+				errors << "CMap::LoadAdditionalLevelData: error while reading chunk name" << endl;
 				break;
 			}
 			Uint32 size = 0;
 			if(fread_endian<Uint32>(fp, size) == 0) {
-				errors << "CMap::LoadAdditionalLevelData: error while reading (attribute " << chunkName << ")" << endl;
+				errors << "CMap::LoadAdditionalLevelData: error while reading size (attribute " << chunkName << ")" << endl;
 				break;
 			}
 			uint8_t *pSource = new uint8_t[size];
@@ -212,7 +212,7 @@ class ML_LieroX : public MapLoad {
 			}
 			if(fread(pSource, sizeof(uint8_t), size, fp) < size) {
 				delete[] pSource;
-				errors << "CMap::LoadAdditionalLevelData: error while reading" << endl;
+				errors << "CMap::LoadAdditionalLevelData: error while reading data (attribute " << chunkName << ")" << endl;
 				break;
 			}
 			
