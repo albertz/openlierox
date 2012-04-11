@@ -118,7 +118,7 @@ void DumpCallstack(const PrintOutFct& printer, void*const* buffer, int size) {
 
 void DumpCallstackPrintf(void* callpnt) 
 {
-	PrintStackWalker sw;
+	PrintStackWalker sw(NULL);
 	sw.ShowCallstack();
 }
 

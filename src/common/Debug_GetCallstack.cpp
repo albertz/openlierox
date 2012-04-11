@@ -67,7 +67,7 @@
 #include <stdlib.h>
 #endif
 
-#ifdef HAVE_EXECINFO
+#if HAVE_EXECINFO
 
 #include <signal.h>
 #include <pthread.h>

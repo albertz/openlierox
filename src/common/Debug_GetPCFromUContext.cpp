@@ -8,7 +8,7 @@
  */
 
 #ifdef WIN32
-void* GetPCFromUContext(void* ucontext) { return NULL; }
+void* GetPCFromUContext(void* ucontext) { return 0; }
 
 #else
 
