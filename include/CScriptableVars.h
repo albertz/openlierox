@@ -138,12 +138,17 @@ struct StringType : GetType<std::string> {};
 
 template<typename T>
 struct _SelectType {
-	static CustomVarWeakRefType<T>* selectType(const CustomVar&) { return NULL; }
+	template<int N> struct Num { char array[N]; };
+	template<int> struct Type;
 
-	static StringType* selectType(const char*) { return NULL; }
-	static StringType* selectType(char[]) { return NULL; }
+	template<> struct Type<1> : Num<1> { typedef CustomVarWeakRefType<T> type; };
+	static Type<1> selectType(const CustomVar&) { return NULL; }
 
-	typedef BOOST_TYPEOF(*selectType(*(T*)NULL)) type;
+	template<> struct Type<2> : Num<2> { typedef StringType type; };
+	static Type<2> selectType(const char*) { return NULL; }
+	static Type<2> selectType(char[]) { return NULL; }
+
+	typedef typename Type<sizeof(selectType(*(T*)NULL).array)>::type type; 
 };
 
 template<typename T> struct GetType : _SelectType<T>::type {};
