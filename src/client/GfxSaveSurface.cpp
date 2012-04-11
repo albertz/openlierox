@@ -24,6 +24,9 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 	if(src->format->BitsPerPixel == 8) {
 		gdImagePtr gd_image = gdImageCreatePalette(src->w, src->h);
 		if(!gd_image) return NULL;
+		// we must allocate 255 colors in the palette so that it becomes an 8bit gdImage
+		for(int i = 0; i < 255; ++i)
+			gdImageColorAllocate(gd_image, i, i, i);
 		LockSurface(src);
 		for(int y = 0; y < src->h; ++y) {
 			for(int x = 0; x < src->w; ++x)
