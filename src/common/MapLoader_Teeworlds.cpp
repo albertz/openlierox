@@ -16,6 +16,8 @@
 #include "GfxPrimitives.h"
 #include "Color.h"
 #include "CVec.h"
+#include "gusanos/allegro.h"
+#include "game/CMap.h"
 #include <zlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -337,6 +339,7 @@ static std::string rawReadStr(char* start, char* end) {
 }
 
 struct ML_Teeworlds : MapLoad {
+	CMap* map;
 	CDatafileHeader teeHeader;
 	std::vector<CDatafileItemType> itemTypes;
 	std::vector<CDatafileItemOffset> itemOffsets;
@@ -694,7 +697,65 @@ struct ML_Teeworlds : MapLoad {
 
 	}
 
+	bool getGameLayer(TWGroup*& group, TWLayer*& layer) {
+		foreach(g, groups) {
+			foreach(lp, g->layers) {
+				TWLayer& l = *lp;
+				if(l.type == LAYERTYPE_TILES && l.tileLayer.game) {
+					group = &*g;
+					layer = &l;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	static const int TileW = 16, TileH = 16;
+
+	void setMaterialIndex(uint32_t x, int32_t y, int index) {
+		for(int ty = 0; ty < TileH; ++ty)
+			for(int tx = 0; tx < TileW; ++tx)
+
+	}
+
+	Result buildMaterialMap() {
+		TWGroup* gameGroup = NULL;
+		TWLayer* gameLayer = NULL;
+		if(!getGameLayer(gameGroup, gameLayer))
+			return "game layer not found";
+		TWTileLayer& l = gameLayer->tileLayer;
+
+		map->Width = l.width * TileW;
+		map->Height = l.height * TileH;
+		map->material = create_bitmap_ex(8, map->Width, map->Height);
+
+		for(uint32_t y = 0; y < map->Height; ++y) {
+			for(uint32_t x = 0; x < map->Width; ++x) {
+				TWTile& t = l.tiles[y * l.width + x];
+				int matIndex = 0;
+				if(t.index == TileAir)
+					matIndex = 1; // background
+				else if(t.index == TileSolid)
+					matIndex = 0;
+				else if(t.index == TileDeath) {
+
+				}
+				else if(t.index == TileNohook) {
+
+				}
+				else
+					return "found game map tile with invalid index " + itoa(t.index);
+				setMaterialIndex(x * TileW, y * TileH, matIndex);
+			}
+		}
+
+		return true;
+	}
+
 	virtual Result parseData(CMap* m) {
+		map = m;
+
 		if(NegResult r = parseHeader(false)) return r.res; // just do it again to seek to right pos
 
 		if(teeHeader.m_NumItemTypes < 0)
@@ -720,6 +781,8 @@ struct ML_Teeworlds : MapLoad {
 		if(NegResult r = parseGroups()) return r.res;
 
 		// envpoints, envelopes not needed (?)
+
+		if(NegResult r = buildMaterialMap()) return r.res;
 
 		renderMap(-1);
 
@@ -849,6 +912,11 @@ Result TWTileLayer::read(ML_Teeworlds* l, char* p, char* end) {
 	if(version >= 3 && end - p >= 3*4)
 		name = rawReadStr(p, p + 3*4);
 
+	if(width <= 0)
+		return "tile layer: got invalid width " + itoa(width);
+	if(height <= 0)
+		return "tile layer: got invalid height " + itoa(height);
+
 	{
 		Raw data;
 		if(NegResult r = l->getDecompressedData(data_idx, data))
@@ -859,6 +927,9 @@ Result TWTileLayer::read(ML_Teeworlds* l, char* p, char* end) {
 		char *tp = &data[0], *tend = &data[data.size()];
 		for(size_t i = 0; i < tiles.size(); ++i)
 			tiles[i].read(tp, tend);
+
+		if(tiles.size() != (size_t) width * height)
+			return "tile count invalid, expected: " + itoa(width*height) + ", got: " + itoa(tiles.size());
 	}
 
 	// ignore tele_list, speedup_list for now. only used for TeeWorlds race mod
