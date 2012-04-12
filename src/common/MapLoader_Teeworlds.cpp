@@ -189,6 +189,69 @@ struct TWImage {
 	Result read(ML_Teeworlds* l, char* p, char* end);
 };
 
+struct TWTileLayer {
+	int32_t version;
+	int32_t width;
+	int32_t height;
+	int32_t game_type;
+	int32_t color[4];
+	int32_t color_env;
+	int32_t color_env_offset;
+	int32_t image_id;
+	int32_t data_idx;
+	std::string name;
+	Result read(ML_Teeworlds* l, char* p, char* end);
+};
+
+struct TWQuadLayer {
+	int32_t version;
+	int32_t num_quads;
+	int32_t data_idx;
+	int32_t image_id;
+	std::string name;
+	Result read(ML_Teeworlds* l, char* p, char* end);
+};
+
+struct TWLayer {
+	int32_t layer_version;
+	LayerType type;
+	int32_t flags;
+	bool detail;
+	TWTileLayer tileLayer;
+	TWQuadLayer quadLayer;
+
+	Result read(ML_Teeworlds* l, char* p, char* end);
+};
+
+struct TWGroup {
+	int32_t version;
+	int32_t offset_x;
+	int32_t offset_y;
+	int32_t parallax_x;
+	int32_t parallax_y;
+	int32_t start_layer;
+	int32_t num_layers;
+	int32_t use_clipping;
+	int32_t clip_x;
+	int32_t clip_y;
+	int32_t clip_w;
+	int32_t clip_h;
+	std::string name;
+	std::vector<TWLayer> layers;
+
+	Result read(ML_Teeworlds* l, char* p, char* end);
+	Result readLayers(ML_Teeworlds* l);
+};
+
+typedef std::string Raw; // or std::vector. doesn't really matter. std::string is usually copy-on-write which is preferable for us
+
+static std::string rawReadStr(char* start, char* end) {
+	size_t s = 0;
+	while(start + s < end && start[s] != 0)
+		++s;
+	return std::string(start, s);
+}
+
 struct ML_Teeworlds : MapLoad {
 	CDatafileHeader teeHeader;
 	std::vector<CDatafileItemType> itemTypes;
@@ -196,8 +259,7 @@ struct ML_Teeworlds : MapLoad {
 	std::vector<CDatafileDataOffset> dataOffsets;
 	TWMapInfo info;
 	std::vector<TWImage> images;
-
-	typedef std::string Raw; // or std::vector. doesn't really matter. std::string is usually copy-on-write which is preferable for us
+	std::vector<TWGroup> groups;
 
 	virtual std::string format() { return "Teeworlds"; }
 	virtual std::string formatShort() { return "Tee"; }
@@ -316,16 +378,30 @@ struct ML_Teeworlds : MapLoad {
 
 	Result parseImages() {
 		CDatafileItemType* t = getItemType(ITEM_IMAGE);
-		if(!t) return "no images found"; // todo: is this an error actually?
+		if(!t) return "no images found";
 
 		for(int i = 0; i < t->m_Num; ++i) {
 			Raw item;
 			if(NegResult r = getItem(t->m_Start + i, item))
 				return "parseImages failed: " + r.res.humanErrorMsg;
-			char *p = &item[0], *end = &item[item.size()];
-			TWImage image;
-			if(NegResult r = image.read(this, p, end)) return r.res;
-			images.push_back(image);
+			images.push_back(TWImage());
+			if(NegResult r = images.back().read(this, &item[0], &item[item.size()]))
+				return r.res;
+		}
+		return true;
+	}
+
+	Result parseGroups() {
+		CDatafileItemType* t = getItemType(ITEM_IMAGE);
+		if(!t) return "no groups found";
+
+		for(int i = 0; i < t->m_Num; ++i) {
+			Raw item;
+			if(NegResult r = getItem(t->m_Start + i, item))
+				return "parseGroups failed: " + r.res.humanErrorMsg;
+			groups.push_back(TWGroup());
+			if(NegResult r = groups.back().read(this, &item[0], &item[item.size()]))
+				return r.res;
 		}
 		return true;
 	}
@@ -353,7 +429,7 @@ struct ML_Teeworlds : MapLoad {
 
 		if(NegResult r = parseVersion()) return r.res;
 		if(NegResult r = parseImages()) return r.res;
-
+		if(NegResult r = parseGroups()) return r.res;
 
 		// ...
 
@@ -376,6 +452,107 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 		if(NegResult r = l->getDecompressedData(data_idx, data))
 			return r.res;
 
+	return true;
+}
+
+Result TWGroup::read(ML_Teeworlds* l, char* p, char* end) {
+	version = pread_endian<int32_t>(p, end);
+	offset_x = pread_endian<int32_t>(p, end);
+	offset_y = pread_endian<int32_t>(p, end);
+	parallax_x = pread_endian<int32_t>(p, end);
+	parallax_y = pread_endian<int32_t>(p, end);
+	start_layer = pread_endian<int32_t>(p, end);
+	num_layers = pread_endian<int32_t>(p, end);
+	use_clipping = pread_endian<int32_t>(p, end);
+	clip_x = pread_endian<int32_t>(p, end);
+	clip_y = pread_endian<int32_t>(p, end);
+	clip_w = pread_endian<int32_t>(p, end);
+	clip_h = pread_endian<int32_t>(p, end);
+
+	if(version >= 3 && end - p >= 3*4)
+		name = rawReadStr(p, p + 3*4);
+	else
+		name = "";
+
+	if(p > end) return "group item data is invalid, read behind end";
+	return true;
+}
+
+Result TWGroup::readLayers(ML_Teeworlds* l) {
+	CDatafileItemType* t = l->getItemType(ITEM_LAYER);
+	if(!t) return "item layer type not found";
+	if(start_layer + num_layers > t->m_Num)
+		return "start_layer + num_layers are going out of bounds of item layers";
+	layers.resize(num_layers);
+	for(int j = 0; j < num_layers; ++j) {
+		Raw data;
+		if(NegResult r = l->getItem(t->m_Start + start_layer + j, data))
+			return "readLayers: " + r.res.humanErrorMsg;
+		if(NegResult r = layers[j].read(l, &data[0], &data[data.size()]))
+			return "readLayer: " + r.res.humanErrorMsg;
+	}
+	return true;
+}
+
+Result TWLayer::read(ML_Teeworlds* l, char* p, char* end) {
+	layer_version = pread_endian<int32_t>(p, end);
+	type = (LayerType) pread_endian<int32_t>(p, end);
+	flags = pread_endian<int32_t>(p, end);
+	detail = (bool) flags;
+
+	if(type == LAYERTYPE_TILES) {
+		return tileLayer.read(l, p, end);
+	} else if(type == LAYERTYPE_QUADS) {
+		return quadLayer.read(l, p, end);
+	} else {
+		// ignore other types for now...
+		if(p > end) return "layer itemdata is invalid, read behind end";
+		return true;
+	}
+	assert(false); return false;
+}
+
+Result TWTileLayer::read(ML_Teeworlds* l, char* p, char* end) {
+	version = pread_endian<int32_t>(p, end);
+	width = pread_endian<int32_t>(p, end);
+	height = pread_endian<int32_t>(p, end);
+	game_type = pread_endian<int32_t>(p, end);
+	color[0] = pread_endian<int32_t>(p, end);
+	color[1] = pread_endian<int32_t>(p, end);
+	color[2] = pread_endian<int32_t>(p, end);
+	color[3] = pread_endian<int32_t>(p, end);
+	color_env = pread_endian<int32_t>(p, end);
+	color_env_offset = pread_endian<int32_t>(p, end);
+	image_id = pread_endian<int32_t>(p, end);
+	data_idx = pread_endian<int32_t>(p, end);
+	name = "";
+	if(version >= 3 && end - p >= 3*4)
+		name = rawReadStr(p, p + 3*4);
+
+	Raw tileData;
+	if(NegResult r = l->getDecompressedData(data_idx, tileData))
+		return "tile data: " + r.res.humanErrorMsg;
+
+	// TODO: tiles
+
+	// ignore tele_list, speedup_list
+
+	if(p > end) return "tilelayer itemdata is invalid, read behind end";
+	return true;
+}
+
+Result TWQuadLayer::read(ML_Teeworlds* l, char* p, char* end) {
+	version = pread_endian<int32_t>(p, end);
+	num_quads = pread_endian<int32_t>(p, end);
+	data_idx = pread_endian<int32_t>(p, end);
+	image_id = pread_endian<int32_t>(p, end);
+	name = "";
+	if(version >= 2 && end - p >= 3*4)
+		name = rawReadStr(p, p + 3*4);
+
+	// TODO ...
+
+	if(p > end) return "quadlayer itemdata is invalid, read behind end";
 	return true;
 }
 
