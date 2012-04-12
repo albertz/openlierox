@@ -62,6 +62,8 @@ that the license does not permit.
 // http://sushitee.github.com/tml/mapformat.html
 // https://github.com/erdbeere/tml/blob/master/tml/datafile.py
 // https://github.com/teeworlds/teeworlds/blob/master/src/engine/shared/datafile.cpp
+// https://github.com/teeworlds/teeworlds/blob/master/src/game/mapitems.h
+// https://github.com/teeworlds/teeworlds/blob/master/src/game/editor/io.cpp
 // https://github.com/teeworlds/teeworlds/blob/master/datasrc/content.py
 
 struct ML_Teeworlds;
@@ -231,7 +233,7 @@ struct TWGroup {
 	int32_t parallax_y;
 	int32_t start_layer;
 	int32_t num_layers;
-	int32_t use_clipping;
+	bool use_clipping;
 	int32_t clip_x;
 	int32_t clip_y;
 	int32_t clip_w;
@@ -392,7 +394,7 @@ struct ML_Teeworlds : MapLoad {
 	}
 
 	Result parseGroups() {
-		CDatafileItemType* t = getItemType(ITEM_IMAGE);
+		CDatafileItemType* t = getItemType(ITEM_GROUP);
 		if(!t) return "no groups found";
 
 		for(int i = 0; i < t->m_Num; ++i) {
@@ -433,7 +435,7 @@ struct ML_Teeworlds : MapLoad {
 
 		// ...
 
-		return false;
+		return "implementation incomplete";
 	}
 
 };
@@ -463,18 +465,23 @@ Result TWGroup::read(ML_Teeworlds* l, char* p, char* end) {
 	parallax_y = pread_endian<int32_t>(p, end);
 	start_layer = pread_endian<int32_t>(p, end);
 	num_layers = pread_endian<int32_t>(p, end);
-	use_clipping = pread_endian<int32_t>(p, end);
-	clip_x = pread_endian<int32_t>(p, end);
-	clip_y = pread_endian<int32_t>(p, end);
-	clip_w = pread_endian<int32_t>(p, end);
-	clip_h = pread_endian<int32_t>(p, end);
-
+	if(version >= 2) {
+		use_clipping = (bool) pread_endian<int32_t>(p, end);
+		clip_x = pread_endian<int32_t>(p, end);
+		clip_y = pread_endian<int32_t>(p, end);
+		clip_w = pread_endian<int32_t>(p, end);
+		clip_h = pread_endian<int32_t>(p, end);
+	}
+	else {
+		use_clipping = false;
+		clip_x = clip_y = clip_w = clip_h = 0;
+	}
 	if(version >= 3 && end - p >= 3*4)
 		name = rawReadStr(p, p + 3*4);
 	else
 		name = "";
 
-	if(p > end) return "group item data is invalid, read behind end";
+	if(p > end) return "group item data is invalid, read behind end by " + itoa(p - end) + " bytes";
 	return true;
 }
 
