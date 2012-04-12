@@ -14,6 +14,8 @@
 #include "util/Result.h"
 #include "util/macros.h"
 #include "GfxPrimitives.h"
+#include "Color.h"
+#include "CVec.h"
 #include <zlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -65,6 +67,7 @@ that the license does not permit.
 // https://github.com/teeworlds/teeworlds/blob/master/src/engine/shared/datafile.cpp
 // https://github.com/teeworlds/teeworlds/blob/master/src/game/mapitems.h
 // https://github.com/teeworlds/teeworlds/blob/master/src/game/editor/io.cpp
+// https://github.com/teeworlds/teeworlds/blob/master/src/game/client/components/maplayers.cpp
 // https://github.com/teeworlds/teeworlds/blob/master/src/game/client/render_map.cpp
 // https://github.com/teeworlds/teeworlds/blob/master/datasrc/content.py
 
@@ -77,6 +80,26 @@ enum ItemType {
 
 enum LayerType {
 	LAYERTYPE_INVALID, LAYERTYPE_GAME, LAYERTYPE_TILES, LAYERTYPE_QUADS
+};
+
+enum TileFlag {
+	TileAir = 0,
+	TileSolid,
+	TileDeath,
+	TileNohook
+};
+
+enum {
+	TILEFLAG_VFLIP=1,
+	TILEFLAG_HFLIP=2,
+	TILEFLAG_OPAQUE=4,
+	TILEFLAG_ROTATE=8,
+};
+
+enum {
+	TILERENDERFLAG_EXTEND = 1,
+	LAYERRENDERFLAG_OPAQUE = 2,
+	LAYERRENDERFLAG_TRANSPARENT = 4,
 };
 
 struct CDatafileItemType
@@ -206,12 +229,31 @@ struct TWTile {
 	}
 };
 
-struct TWTileLayer {
+struct TWPoint {
+	VectorD2<int32_t> v;
+	void read(char*& p, char* end) {
+		v.x = pread_endian<int32_t>(p, end);
+		v.y = pread_endian<int32_t>(p, end);
+	}
+};
+
+struct TWColor {
+	Color c;
+	void read(char*& p, char* end) {
+		c.r = pread_endian<int32_t>(p, end);
+		c.g = pread_endian<int32_t>(p, end);
+		c.b = pread_endian<int32_t>(p, end);
+		c.a = pread_endian<int32_t>(p, end);
+	}
+};
+
+struct TWTileLayer { // CMapItemLayerTilemap
 	int32_t version;
 	int32_t width;
 	int32_t height;
-	int32_t game_type;
-	int32_t color[4];
+	int32_t flags;
+	bool game;
+	TWColor color;
 	int32_t color_env;
 	int32_t color_env_offset;
 	int32_t image_id;
@@ -220,24 +262,6 @@ struct TWTileLayer {
 	std::vector<TWTile> tiles;
 
 	Result read(ML_Teeworlds* l, char* p, char* end);
-};
-
-struct TWPoint {
-	int32_t x, y;
-	void read(char*& p, char* end) {
-		x = pread_endian<int32_t>(p, end);
-		y = pread_endian<int32_t>(p, end);
-	}
-};
-
-struct TWColor {
-	int32_t r,g,b,a;
-	void read(char*& p, char* end) {
-		r = pread_endian<int32_t>(p, end);
-		g = pread_endian<int32_t>(p, end);
-		b = pread_endian<int32_t>(p, end);
-		a = pread_endian<int32_t>(p, end);
-	}
 };
 
 struct TWQuad {
@@ -262,7 +286,7 @@ struct TWQuad {
 	}
 };
 
-struct TWQuadLayer {
+struct TWQuadLayer { // CMapItemLayerQuads
 	int32_t version;
 	int32_t num_quads;
 	int32_t data_idx;
@@ -462,8 +486,212 @@ struct ML_Teeworlds : MapLoad {
 			groups.push_back(TWGroup());
 			if(NegResult r = groups.back().read(this, &item[0], &item[item.size()]))
 				return r.res;
+			if(NegResult r = groups.back().readLayers(this))
+				return r.res;
 		}
 		return true;
+	}
+
+	void renderTilemap(TWTile* tiles, int w, int h, float Scale, Color color, int RenderFlags) {
+		float ScreenX0 = 0.f, ScreenX1 = 1024.f;
+		float ScreenY0 = 0.f, ScreenY1 = 768.f;
+		float ScreenW = ScreenX1 - ScreenX0;
+		float ScreenH = ScreenY1 - ScreenY0;
+
+		// calculate the final pixelsize for the tiles
+		float TilePixelSize = 1024/32.0f;
+		float FinalTileSize = Scale/(ScreenX1-ScreenX0) * ScreenW;
+		float FinalTilesetScale = FinalTileSize/TilePixelSize;
+
+		float r=1, g=1, b=1, a=1;
+		/*if(ColorEnv >= 0)
+		{
+			float aChannels[4];
+			//pfnEval(ColorEnvOffset/1000.0f, ColorEnv, aChannels, pUser);
+			r = aChannels[0];
+			g = aChannels[1];
+			b = aChannels[2];
+			a = aChannels[3];
+		}*/
+
+		//Graphics()->QuadsBegin();
+		//Graphics()->SetColor(Color.r*r, Color.g*g, Color.b*b, Color.a*a);
+
+		int StartY = (int)(ScreenY0/Scale)-1;
+		int StartX = (int)(ScreenX0/Scale)-1;
+		int EndY = (int)(ScreenY1/Scale)+1;
+		int EndX = (int)(ScreenX1/Scale)+1;
+
+		// adjust the texture shift according to mipmap level
+		float TexSize = 1024.0f;
+		float Frac = (1.25f/TexSize) * (1/FinalTilesetScale);
+		float Nudge = (0.5f/TexSize) * (1/FinalTilesetScale);
+
+		for(int y = StartY; y < EndY; y++)
+			for(int x = StartX; x < EndX; x++)
+			{
+				int mx = x;
+				int my = y;
+
+				if(RenderFlags&TILERENDERFLAG_EXTEND)
+				{
+					if(mx<0)
+						mx = 0;
+					if(mx>=w)
+						mx = w-1;
+					if(my<0)
+						my = 0;
+					if(my>=h)
+						my = h-1;
+				}
+				else
+				{
+					if(mx<0)
+						continue; // mx = 0;
+					if(mx>=w)
+						continue; // mx = w-1;
+					if(my<0)
+						continue; // my = 0;
+					if(my>=h)
+						continue; // my = h-1;
+				}
+
+				int c = mx + my*w;
+
+				unsigned char Index = tiles[c].index;
+				if(Index)
+				{
+					unsigned char Flags = tiles[c].flags;
+
+					bool Render = false;
+					if(Flags&TILEFLAG_OPAQUE)
+					{
+						if(RenderFlags&LAYERRENDERFLAG_OPAQUE)
+							Render = true;
+					}
+					else
+					{
+						if(RenderFlags&LAYERRENDERFLAG_TRANSPARENT)
+							Render = true;
+					}
+
+					if(Render)
+					{
+
+						int tx = Index%16;
+						int ty = Index/16;
+						int Px0 = tx*(1024/16);
+						int Py0 = ty*(1024/16);
+						int Px1 = Px0+(1024/16)-1;
+						int Py1 = Py0+(1024/16)-1;
+
+						float x0 = Nudge + Px0/TexSize+Frac;
+						float y0 = Nudge + Py0/TexSize+Frac;
+						float x1 = Nudge + Px1/TexSize-Frac;
+						float y1 = Nudge + Py0/TexSize+Frac;
+						float x2 = Nudge + Px1/TexSize-Frac;
+						float y2 = Nudge + Py1/TexSize-Frac;
+						float x3 = Nudge + Px0/TexSize+Frac;
+						float y3 = Nudge + Py1/TexSize-Frac;
+
+						if(Flags&TILEFLAG_VFLIP)
+						{
+							x0 = x2;
+							x1 = x3;
+							x2 = x3;
+							x3 = x0;
+						}
+
+						if(Flags&TILEFLAG_HFLIP)
+						{
+							y0 = y3;
+							y2 = y1;
+							y3 = y1;
+							y1 = y0;
+						}
+
+						if(Flags&TILEFLAG_ROTATE)
+						{
+							float Tmp = x0;
+							x0 = x3;
+							x3 = x2;
+							x2 = x1;
+							x1 = Tmp;
+							Tmp = y0;
+							y0 = y3;
+							y3 = y2;
+							y2 = y1;
+							y1 = Tmp;
+						}
+
+						//Graphics()->QuadsSetSubsetFree(x0, y0, x1, y1, x2, y2, x3, y3);
+						//IGraphics::CQuadItem QuadItem(x*Scale, y*Scale, Scale, Scale);
+						//Graphics()->QuadsDrawTL(&QuadItem, 1);
+					}
+				}
+				x += tiles[c].skip;
+			}
+	}
+
+	void renderMap(int renderType) {
+		bool passedGameLayer = false;
+
+		notes << "found " << groups.size() << " groups" << endl;
+		foreach(g, groups) {
+			notes << " group: " << g->layers.size() << " layers" << endl;
+
+			// ignoring clipping scope ...
+			// MapScreenToGroup(Center.x, Center.y, pGroup);
+
+			foreach(lp, g->layers) {
+				TWLayer& l = *lp;
+				notes << "  layer type: " << l.type << endl;
+				bool render = false;
+				bool isGameLayer = false;
+				if(l.type == LAYERTYPE_TILES && l.tileLayer.game) {
+					notes << "  - is game layer" << endl;
+					isGameLayer = true;
+					passedGameLayer = true;
+					// seems we need to init with sane defaults (tw/game/layers.cpp)
+					g->offset_x = g->offset_y = g->parallax_x = g->parallax_y = 0;
+				}
+
+				if(renderType == -1)
+					render = true;
+				else if(renderType == 0) {
+					if(passedGameLayer) return;
+					render = true;
+				}
+				else {
+					if(passedGameLayer && !isGameLayer)
+						render = true;
+				}
+
+				if(!render) continue;
+				if(isGameLayer) continue;
+
+				if(l.type == LAYERTYPE_TILES) {
+					notes << "  - render tiles layer, w: " << l.tileLayer.width << ", h: " << l.tileLayer.height << endl;
+					// blendnone
+					renderTilemap(&l.tileLayer.tiles[0], l.tileLayer.width, l.tileLayer.height, 32.0f, l.tileLayer.color.c, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_OPAQUE);
+					// blendnormal
+					renderTilemap(&l.tileLayer.tiles[0], l.tileLayer.width, l.tileLayer.height, 32.0f, l.tileLayer.color.c, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_TRANSPARENT);
+				} else if(l.type == LAYERTYPE_QUADS) {
+					notes << "  - render quad layer, num quads: " << l.quadLayer.num_quads << ", image_id: " << l.quadLayer.image_id << endl;
+					if(l.quadLayer.image_id == -1) {
+						notes << "  - no image, ignore..." << endl;
+						continue;
+					}
+					if(l.quadLayer.image_id >= 0 && (size_t)l.quadLayer.image_id < images.size()) {
+						TWImage& img = images[l.quadLayer.image_id];
+						notes << "  - w: " << img.width << ", h: " << img.height << endl;
+					}
+					else
+						notes << "  - bad image_id" << endl;
+				}
+			}
+		}
+
 	}
 
 	virtual Result parseData(CMap* m) {
@@ -491,7 +719,9 @@ struct ML_Teeworlds : MapLoad {
 		if(NegResult r = parseImages()) return r.res;
 		if(NegResult r = parseGroups()) return r.res;
 
-		// ...
+		// envpoints, envelopes not needed (?)
+
+		renderMap(-1);
 
 		return "implementation incomplete";
 	}
@@ -590,7 +820,7 @@ Result TWLayer::read(ML_Teeworlds* l, char* p, char* end) {
 	layer_version = pread_endian<int32_t>(p, end);
 	type = (LayerType) pread_endian<int32_t>(p, end);
 	flags = pread_endian<int32_t>(p, end);
-	detail = (bool) flags;
+	detail = (flags & 1) != 0;
 
 	if(type == LAYERTYPE_TILES) {
 		return tileLayer.read(l, p, end);
@@ -608,11 +838,9 @@ Result TWTileLayer::read(ML_Teeworlds* l, char* p, char* end) {
 	version = pread_endian<int32_t>(p, end);
 	width = pread_endian<int32_t>(p, end);
 	height = pread_endian<int32_t>(p, end);
-	game_type = pread_endian<int32_t>(p, end);
-	color[0] = pread_endian<int32_t>(p, end);
-	color[1] = pread_endian<int32_t>(p, end);
-	color[2] = pread_endian<int32_t>(p, end);
-	color[3] = pread_endian<int32_t>(p, end);
+	flags = pread_endian<int32_t>(p, end);
+	game = (flags & 1) != 0;
+	color.read(p, end);
 	color_env = pread_endian<int32_t>(p, end);
 	color_env_offset = pread_endian<int32_t>(p, end);
 	image_id = pread_endian<int32_t>(p, end);
@@ -658,6 +886,9 @@ Result TWQuadLayer::read(ML_Teeworlds* l, char* p, char* end) {
 		char *tp = &data[0], *tend = &data[data.size()];
 		for(size_t i = 0; i < quads.size(); ++i)
 			quads[i].read(tp, tend);
+
+		if(num_quads != (int)quads.size())
+			return "quads num expected: " + itoa(num_quads) + ", got: " + itoa(quads.size());
 	}
 
 	if(p > end) return "quadlayer itemdata is invalid, read behind end";
