@@ -65,6 +65,7 @@ that the license does not permit.
 // https://github.com/teeworlds/teeworlds/blob/master/src/engine/shared/datafile.cpp
 // https://github.com/teeworlds/teeworlds/blob/master/src/game/mapitems.h
 // https://github.com/teeworlds/teeworlds/blob/master/src/game/editor/io.cpp
+// https://github.com/teeworlds/teeworlds/blob/master/src/game/client/render_map.cpp
 // https://github.com/teeworlds/teeworlds/blob/master/datasrc/content.py
 
 struct ML_Teeworlds;
@@ -192,6 +193,19 @@ struct TWImage {
 	Result read(ML_Teeworlds* l, char* p, char* end);
 };
 
+struct TWTile {
+	uint8_t index;
+	uint8_t flags;
+	uint8_t skip;
+	uint8_t reserved;
+	void read(char*& p, char* end) {
+		index = pread_endian<uint8_t>(p, end);
+		flags = pread_endian<uint8_t>(p, end);
+		skip = pread_endian<uint8_t>(p, end);
+		reserved = pread_endian<uint8_t>(p, end);
+	}
+};
+
 struct TWTileLayer {
 	int32_t version;
 	int32_t width;
@@ -203,7 +217,49 @@ struct TWTileLayer {
 	int32_t image_id;
 	int32_t data_idx;
 	std::string name;
+	std::vector<TWTile> tiles;
+
 	Result read(ML_Teeworlds* l, char* p, char* end);
+};
+
+struct TWPoint {
+	int32_t x, y;
+	void read(char*& p, char* end) {
+		x = pread_endian<int32_t>(p, end);
+		y = pread_endian<int32_t>(p, end);
+	}
+};
+
+struct TWColor {
+	int32_t r,g,b,a;
+	void read(char*& p, char* end) {
+		r = pread_endian<int32_t>(p, end);
+		g = pread_endian<int32_t>(p, end);
+		b = pread_endian<int32_t>(p, end);
+		a = pread_endian<int32_t>(p, end);
+	}
+};
+
+struct TWQuad {
+	TWPoint points[5];
+	TWColor colors[4];
+	TWPoint texCoords[4];
+	int32_t pos_env;
+	int32_t pos_env_offset;
+	int32_t color_env;
+	int32_t color_env_offset;
+	void read(char*& p, char* end) {
+		for(int i = 0; i < 5; ++i)
+			points[i].read(p, end);
+		for(int i = 0; i < 4; ++i)
+			colors[i].read(p, end);
+		for(int i = 0; i < 4; ++i)
+			texCoords[i].read(p, end);
+		pos_env = pread_endian<int32_t>(p, end);
+		pos_env_offset = pread_endian<int32_t>(p, end);
+		color_env = pread_endian<int32_t>(p, end);
+		color_env_offset = pread_endian<int32_t>(p, end);
+	}
 };
 
 struct TWQuadLayer {
@@ -212,6 +268,7 @@ struct TWQuadLayer {
 	int32_t data_idx;
 	int32_t image_id;
 	std::string name;
+	std::vector<TWQuad> quads;
 	Result read(ML_Teeworlds* l, char* p, char* end);
 };
 
@@ -564,13 +621,19 @@ Result TWTileLayer::read(ML_Teeworlds* l, char* p, char* end) {
 	if(version >= 3 && end - p >= 3*4)
 		name = rawReadStr(p, p + 3*4);
 
-	Raw tileData;
-	if(NegResult r = l->getDecompressedData(data_idx, tileData))
-		return "tile data: " + r.res.humanErrorMsg;
+	{
+		Raw data;
+		if(NegResult r = l->getDecompressedData(data_idx, data))
+			return "tile data: " + r.res.humanErrorMsg;
+		if(data.size() % 4)
+			return "tile data size is not a multiple of 4";
+		tiles.resize(data.size() / 4);
+		char *tp = &data[0], *tend = &data[data.size()];
+		for(size_t i = 0; i < tiles.size(); ++i)
+			tiles[i].read(tp, tend);
+	}
 
-	// TODO: tiles
-
-	// ignore tele_list, speedup_list
+	// ignore tele_list, speedup_list for now. only used for TeeWorlds race mod
 
 	if(p > end) return "tilelayer itemdata is invalid, read behind end";
 	return true;
@@ -585,7 +648,17 @@ Result TWQuadLayer::read(ML_Teeworlds* l, char* p, char* end) {
 	if(version >= 2 && end - p >= 3*4)
 		name = rawReadStr(p, p + 3*4);
 
-	// TODO ...
+	{
+		Raw data;
+		if(NegResult r = l->getDecompressedData(data_idx, data))
+			return "quad data: " + r.res.humanErrorMsg;
+		if(data.size() % 152)
+			return "quad data size is not a multiple of 152";
+		quads.resize(data.size() / 152);
+		char *tp = &data[0], *tend = &data[data.size()];
+		for(size_t i = 0; i < quads.size(); ++i)
+			quads[i].read(tp, tend);
+	}
 
 	if(p > end) return "quadlayer itemdata is invalid, read behind end";
 	return true;
