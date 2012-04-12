@@ -853,7 +853,7 @@ private:
 public:
 	static const bool withKeenBorders = false;
 	
-	bool parseHeader(bool printErrors) {
+	Result parseHeader(bool printErrors) {
 		head.name = GetBaseFilename(filename);
 		
 		fseek(fp,0,SEEK_SET);
@@ -892,7 +892,7 @@ public:
 	}
 	
 	
-	bool parseData(CMap* m) {
+	Result parseData(CMap* m) {
 		ParseFinalizer finalizer(this, m);
 		
 		int episode = 0;

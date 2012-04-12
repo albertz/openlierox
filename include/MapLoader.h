@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <SDL.h>
 #include "SmartPointer.h"
+#include "util/Result.h"
 class CMap;
 
 struct MapHeader {
@@ -41,8 +42,8 @@ public:
 	virtual std::string formatShort() = 0;
 	const MapHeader& header() { return head; }
 	
-	virtual bool parseHeader(bool printErrors = true) = 0;
-	virtual bool parseData(CMap* m) = 0; // this assumes that the header was already parsed successfully
+	virtual Result parseHeader(bool printErrors = true) = 0;
+	virtual Result parseData(CMap* m) = 0; // this assumes that the header was already parsed successfully
 	virtual SmartPointer<SDL_Surface> getMinimap(); // in some cases, this can be done independent from data parseData and much faster. this also assumes that the header was already parsed successfully
 	
 	MapLoad* parseHeaderAndCheck(bool printErrors = true) {

@@ -26,7 +26,7 @@ public:
 	std::string format() { return "Original Liero"; }
 	std::string formatShort() { return "Liero"; }
 	
-	bool parseHeader(bool printErrors) {
+	Result parseHeader(bool printErrors) {
 		// Validate the liero level
 		fseek(fp,0,SEEK_END);
 		size_t length = ftell(fp);
@@ -49,7 +49,7 @@ public:
 		return true;
 	}
 	
-	bool parseData(CMap* m) {
+	Result parseData(CMap* m) {
 		ParseFinalizer finalizer(this, m);
 		
 		fseek(fp,0,SEEK_SET);

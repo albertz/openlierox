@@ -34,7 +34,7 @@ class ML_LieroX : public MapLoad {
 	std::string format() { return id; }
 	std::string formatShort() { return "LX"; }
 	
-	bool parseHeader(bool printErrors) {
+	Result parseHeader(bool printErrors) {
 		// Header
 		id = freadfixedcstr(fp, 32);
 		int	version = 0;
@@ -386,7 +386,7 @@ class ML_LieroX : public MapLoad {
 	}
 	
 	
-	bool parseData(CMap* m) {
+	Result parseData(CMap* m) {
 		ParseFinalizer finalizer(this, m);
 		
 		m->Name = head.name;

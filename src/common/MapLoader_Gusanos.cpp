@@ -26,7 +26,7 @@ public:
 	std::string format() { return loader->format(); }
 	std::string formatShort() { return loader->formatShort(); }
 	
-	virtual bool parseHeader(bool printErrors) {
+	virtual Result parseHeader(bool printErrors) {
 		return true;
 	}
 	
@@ -51,7 +51,7 @@ public:
 		return minimap;
 	}	
 	
-	virtual bool parseData(CMap* m) {
+	virtual Result parseData(CMap* m) {
 		ParseFinalizer finalizer(this, m);
 		
 		curMap = m;
