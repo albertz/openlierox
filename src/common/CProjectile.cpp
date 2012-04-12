@@ -210,7 +210,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 
 		for(int x=px-w;x<=px+w;x++) {
 
-			if(!(map->materialForIndex(*pf).toLxFlags() & PX_EMPTY))
+			if(!map->materialForIndex(*pf).particle_pass)
 				return PJC_TERRAIN;
 
 			pf++;
