@@ -1724,10 +1724,10 @@ bool CMap::Load(const std::string& filename)
 	}
 	
 	{
-		bool res = loader->parseData(this);
+		Result res = loader->parseData(this);
 		delete loader;
 		if(!res) {
-			warnings << "level loader for " << filename << " returned with error" << endl;
+			warnings << "level loader for " << filename << " returned with error: " << res.humanErrorMsg << endl;
 			return false;
 		}
 		
