@@ -94,6 +94,13 @@ static size_t fread_endian(FILE* stream, _D& d) {
 	return ret;
 }
 
+template <typename T>
+static T pread_endian(const char* p) {
+	T data = *(T*)p;
+	EndianSwap(data);
+	return data;
+}
+
 
 template<typename T1, typename T2>
 static size_t fread_endian_M(FILE* stream, MatrixD2<T2>& d) {
