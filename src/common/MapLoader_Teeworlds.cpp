@@ -15,6 +15,8 @@
 #include "util/macros.h"
 #include <zlib.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <errno.h>
 
 /* Teeworlds licence.txt:
 
@@ -61,6 +63,8 @@ that the license does not permit.
 // https://github.com/erdbeere/tml/blob/master/tml/datafile.py
 // https://github.com/teeworlds/teeworlds/blob/master/src/engine/shared/datafile.cpp
 // https://github.com/teeworlds/teeworlds/blob/master/datasrc/content.py
+
+struct ML_Teeworlds;
 
 enum ItemType {
 	ITEM_VERSION, ITEM_INFO, ITEM_IMAGE, ITEM_ENVELOPE, ITEM_GROUP, ITEM_LAYER,
@@ -172,13 +176,28 @@ struct TWMapInfo {
 	std::string settings;
 };
 
+struct TWImage {
+	int32_t version;
+	int32_t width;
+	int32_t height;
+	bool external;
+	int32_t name_idx;
+	int32_t data_idx;
+	std::string name;
+	std::string data;
+
+	Result read(ML_Teeworlds* l, char* p, char* end);
+};
+
 struct ML_Teeworlds : MapLoad {
 	CDatafileHeader teeHeader;
 	std::vector<CDatafileItemType> itemTypes;
 	std::vector<CDatafileItemOffset> itemOffsets;
 	std::vector<CDatafileDataOffset> dataOffsets;
 	TWMapInfo info;
-	typedef std::string Raw;
+	std::vector<TWImage> images;
+
+	typedef std::string Raw; // or std::vector. doesn't really matter. std::string is usually copy-on-write which is preferable for us
 
 	virtual std::string format() { return "Teeworlds"; }
 	virtual std::string formatShort() { return "Tee"; }
@@ -214,22 +233,26 @@ struct ML_Teeworlds : MapLoad {
 		return itemOffsets[itemIndex+1].m_Offset - itemOffsets[itemIndex].m_Offset - 8;
 	}
 
-	Raw getItem(uint32_t itemIndex) {
-		if(itemIndex >= itemOffsets.size()) return Raw();
+	Result getItem(uint32_t itemIndex, Raw& data) {
+		if(itemIndex >= itemOffsets.size()) return "getItem: index " + itoa(itemIndex) + " out of bounds (size: " + itoa(itemOffsets.size()) + ")";
 		size_t off = baseOffset() + itemOffsets[itemIndex].m_Offset + 8; // +8 to cut out type_and_id and size
 		size_t size = getItemSize(itemIndex);
-		Raw data;
 		data.resize(size);
-		fseek(fp, off, SEEK_SET);
-		fread(&data[0], 1, size, fp);
-		return data;
+		if(fseek(fp, off, SEEK_SET) != 0)
+			return "getItem: fseek failed: " + std::string(strerror(errno));
+		if(fread(&data[0], 1, size, fp) != size) {
+			if(ferror(fp)) return "getItem: file read error";
+			if(feof(fp)) return "getItem: eof reached";
+			return "getItem: unknown fread error";
+		}
+		return true;
 	}
 
-	Raw getItem(ItemType itemType, uint32_t relIndex) {
+	Result getItem(ItemType itemType, uint32_t relIndex, Raw& data) {
 		CDatafileItemType* t = getItemType(itemType);
-		if(!t) return Raw();
-		if((int)relIndex >= t->m_Num) return Raw();
-		return getItem(t->m_Start + relIndex);
+		if(!t) return "getItem: item type " + itoa((int)itemType) + " not found";
+		if((int)relIndex >= t->m_Num) return "getItem: relIndex " + itoa(relIndex) + " out of bounds (size: " + itoa(t->m_Num) + ")";
+		return getItem(t->m_Start + relIndex, data);
 	}
 
 	size_t getDataSize(uint32_t index) {
@@ -239,31 +262,72 @@ struct ML_Teeworlds : MapLoad {
 		return dataOffsets[index + 1].m_Offset - dataOffsets[index].m_Offset;
 	}
 
-	Raw getData(uint32_t index) {
-		if(index >= dataOffsets.size()) return Raw();
+	Result getData(uint32_t index, Raw& data) {
+		if(index >= dataOffsets.size()) return "getData: index out of bounds";
 		size_t off = baseOffset() + teeHeader.m_ItemSize + dataOffsets[index].m_Offset;
 		size_t size = getDataSize(index);
-		Raw data;
 		data.resize(size);
-		fseek(fp, off, SEEK_SET);
-		fread(&data[0], 1, size, fp);
-		return data;
+		if(fseek(fp, off, SEEK_SET) != 0)
+			return "getData: fseek failed: " + std::string(strerror(errno));
+		if(fread(&data[0], 1, size, fp) != size) {
+			if(ferror(fp)) return "getData: file read error";
+			if(feof(fp)) return "getData: eof reached";
+			return "getData: unknown fread error";
+		}
+		return true;
+	}
+
+	Result getDecompressedData(uint32_t index, Raw& data) {
+		Raw compressedData;
+		if(NegResult r = getData(index, compressedData)) return r.res;
+		if(!Decompress(compressedData, &data))
+			return "decompress failed";
+		return true;
+	}
+
+	Result getDecompressedDataString(uint32_t index, std::string& str) {
+		Raw data;
+		if(NegResult r = getDecompressedData(index, data)) return r.res;
+		if(data.size() == 0) return "getDecompressedDataString: data is empty";
+		if(data[data.size() - 1] != '\0') return "getDecompressedDataString: non-zero at end";
+		str = data.substr(0, data.size() - 1);
+		return true;
 	}
 
 	Result parseVersion() {
-		Raw data = getItem(ITEM_VERSION, 0);
-		if(data.size() < 4)
+		Raw data;
+		if(NegResult r = getItem(ITEM_VERSION, 0, data))
+			return "parseVersion failed: " + r.res.humanErrorMsg;
+		if(data.size() < sizeof(uint32_t))
 			return "version item not found / invalid";
-		uint32_t version = pread_endian<uint32_t>(&data[0]);
+		char* p = &data[0];
+		uint32_t version = pread_endian<uint32_t>(p, &data[data.size()]);
 		if(version != 1)
 			return "wrong version";
 		return true;
 	}
 
 	Result parseInfo() {
-		Raw data = getItem(ITEM_INFO, 0);
+		Raw data;
+		getItem(ITEM_INFO, 0, data);
 		// TODO...
 		return true; // not important
+	}
+
+	Result parseImages() {
+		CDatafileItemType* t = getItemType(ITEM_IMAGE);
+		if(!t) return "no images found"; // todo: is this an error actually?
+
+		for(int i = 0; i < t->m_Num; ++i) {
+			Raw item;
+			if(NegResult r = getItem(t->m_Start + i, item))
+				return "parseImages failed: " + r.res.humanErrorMsg;
+			char *p = &item[0], *end = &item[item.size()];
+			TWImage image;
+			if(NegResult r = image.read(this, p, end)) return r.res;
+			images.push_back(image);
+		}
+		return true;
 	}
 
 	virtual Result parseData(CMap* m) {
@@ -288,6 +352,8 @@ struct ML_Teeworlds : MapLoad {
 			dataOffsets[i].read(fp);
 
 		if(NegResult r = parseVersion()) return r.res;
+		if(NegResult r = parseImages()) return r.res;
+
 
 		// ...
 
@@ -295,6 +361,23 @@ struct ML_Teeworlds : MapLoad {
 	}
 
 };
+
+Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
+	version = pread_endian<int32_t>(p, end);
+	width = pread_endian<int32_t>(p, end);
+	height = pread_endian<int32_t>(p, end);
+	external = (bool) pread_endian<int32_t>(p, end);
+	name_idx = pread_endian<int32_t>(p, end);
+	data_idx = pread_endian<int32_t>(p, end);
+	if(p > end) return "image item data is invalid, read behind end";
+
+	if(NegResult r = l->getDecompressedDataString(name_idx, name)) return r.res;
+	if(!external)
+		if(NegResult r = l->getDecompressedData(data_idx, data))
+			return r.res;
+
+	return true;
+}
 
 MapLoad* createMapLoad_Teeworlds() {
 	return new ML_Teeworlds();
