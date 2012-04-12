@@ -13,7 +13,8 @@ Material::Material()
 	creates_water = false;
 	damage = 0;
 	is_stagnated_water = false;
-	
+	can_hook = false;
+
 	index = 0; // Should I not initialize this?
 }
 

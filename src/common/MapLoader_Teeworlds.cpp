@@ -713,10 +713,10 @@ struct ML_Teeworlds : MapLoad {
 
 	static const int TileW = 16, TileH = 16;
 
-	void setMaterialIndex(uint32_t x, int32_t y, int index) {
+	void setMaterialIndex(uint32_t x, int32_t y, uint8_t index) {
 		for(int ty = 0; ty < TileH; ++ty)
 			for(int tx = 0; tx < TileW; ++tx)
-
+				map->material->line[y + ty][x + tx] = index;
 	}
 
 	Result buildMaterialMap() {
@@ -733,17 +733,15 @@ struct ML_Teeworlds : MapLoad {
 		for(uint32_t y = 0; y < map->Height; ++y) {
 			for(uint32_t x = 0; x < map->Width; ++x) {
 				TWTile& t = l.tiles[y * l.width + x];
-				int matIndex = 0;
+				uint8_t matIndex = 0;
 				if(t.index == TileAir)
-					matIndex = 1; // background
+					matIndex = MATINDEX_BG;
 				else if(t.index == TileSolid)
-					matIndex = 0;
-				else if(t.index == TileDeath) {
-
-				}
-				else if(t.index == TileNohook) {
-
-				}
+					matIndex = MATINDEX_SOLID;
+				else if(t.index == TileDeath)
+					matIndex = MATINDEX_DEATH;
+				else if(t.index == TileNohook)
+					matIndex = MATINDEX_NOHOOK;
 				else
 					return "found game map tile with invalid index " + itoa(t.index);
 				setMaterialIndex(x * TileW, y * TileH, matIndex);

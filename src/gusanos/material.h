@@ -7,6 +7,13 @@
 
 #include "level/LXMapFlags.h"
 
+// see CMap::gusInit()
+#define MATINDEX_SOLID 0
+#define MATINDEX_BG 1
+#define MATINDEX_DIRT 2
+#define MATINDEX_DEATH 5
+#define MATINDEX_NOHOOK 6
+
 struct Material
 {
 	Material();
@@ -23,7 +30,8 @@ struct Material
 	bool creates_water;
 	bool is_stagnated_water;
 	int damage;
-	
+	bool can_hook;
+
 	// Use as read only
 	unsigned char index;
 	

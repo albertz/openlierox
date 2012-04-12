@@ -99,6 +99,7 @@ void CMap::gusInit()
 	m_materialList[0].particle_pass = false;
 	m_materialList[0].draw_exps = false;
 	m_materialList[0].blocks_light = true;
+	m_materialList[0].can_hook = true;
 
 	// Background
 	m_materialList[1].worm_pass = true;
@@ -112,21 +113,37 @@ void CMap::gusInit()
 	m_materialList[2].destroyable = true;
 	m_materialList[2].blocks_light = true;
 	m_materialList[2].flows = false;
+	m_materialList[2].can_hook = true;
 
 	// Special dirt
 	m_materialList[3].worm_pass = true;
 	m_materialList[3].particle_pass = false;
 	m_materialList[3].draw_exps = false;
 	m_materialList[3].destroyable = true;
+	m_materialList[3].can_hook = true;
 
 	// Special rock
 	m_materialList[4].worm_pass = false;
 	m_materialList[4].particle_pass = true;
 	m_materialList[4].draw_exps = false;
 
+	// damage area (used by TeeWorlds)
+	m_materialList[5].worm_pass = true;
+	m_materialList[5].particle_pass = true;
+	m_materialList[5].draw_exps = true;
+	m_materialList[5].damage = 100;
+
+	// nohook rock (used by TeeWorlds)
+	m_materialList[6].worm_pass = false;
+	m_materialList[6].particle_pass = false;
+	m_materialList[6].draw_exps = false;
+	m_materialList[6].blocks_light = true;
+	m_materialList[6].can_hook = false;
+
 	m_materialList[7].worm_pass = false;
 	m_materialList[7].particle_pass = false;
 	m_materialList[7].draw_exps = false;
+	m_materialList[7].can_hook = true;
 
 	for ( size_t i = 0; i < m_materialList.size() ; ++i ) {
 		m_materialList[i].index = i;
