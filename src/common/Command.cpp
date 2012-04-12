@@ -2404,9 +2404,18 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 	}	
 }
 
-COMMAND(exportLevel, "export current level data", "levelname", 1, 1);
+COMMAND(exportLevel, "export current level data. or from the specified level", "exportlevelname [level]", 1, 2);
 void Cmd_exportLevel::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
-	CMap* m = game.gameMap();
+	CMap* m = NULL;
+	SmartPointer<CMap> tmpMap;
+	if(params.size() >= 2) {
+		tmpMap = new CMap();
+		if(!tmpMap->Load("levels/" + params[1]))
+			return caller->writeMsg("failed to load level " + params[1]);
+		m = tmpMap.get();
+	}
+	else
+		m = game.gameMap();
 	if(!m || !m->isLoaded()) {
 		caller->writeMsg("map is not loaded");
 		return;
