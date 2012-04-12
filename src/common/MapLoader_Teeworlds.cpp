@@ -13,6 +13,7 @@
 #include "EndianSwap.h"
 #include "util/Result.h"
 #include "util/macros.h"
+#include "GfxPrimitives.h"
 #include <zlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -186,7 +187,7 @@ struct TWImage {
 	int32_t name_idx;
 	int32_t data_idx;
 	std::string name;
-	std::string data;
+	SmartPointer<SDL_Surface> image;
 
 	Result read(ML_Teeworlds* l, char* p, char* end);
 };
@@ -449,10 +450,37 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 	data_idx = pread_endian<int32_t>(p, end);
 	if(p > end) return "image item data is invalid, read behind end";
 
+	if(width <= 0)
+		return "image width invalid: " + itoa(width);
+	if(height <= 0)
+		return "image height invalid: " + itoa(width);
+
 	if(NegResult r = l->getDecompressedDataString(name_idx, name)) return r.res;
-	if(!external)
+	if(external) {
+		std::string filename = "data/teeworlds/mapres/" + name + ".png";
+		image = LoadGameImage(filename);
+		if(!image.get())
+			return "failed to load external image " + name;
+		if(image->w != width)
+			return "width does not match. expected: " + itoa(width) + ", got: " + itoa(image->w);
+		if(image->h != height)
+			return "height does not match. expected: " + itoa(height) + ", got: " + itoa(image->h);
+	}
+	else { // non external
+		Raw data;
 		if(NegResult r = l->getDecompressedData(data_idx, data))
 			return r.res;
+		if(data.size() != (size_t) width * height * 4)
+			return "raw image data size invalid. expected: " + itoa(width*height*4) + ", got: " + itoa(data.size());
+		image = SDL_CreateRGBSurface(
+					SDL_SWSURFACE | SDL_SRCALPHA,
+					width, height,
+					32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+		LockSurface(image);
+		for(int y = 0; y < height; ++y)
+			memcpy(&image->pixels[y * image->pitch], &data[y * width], width * 4);
+		UnlockSurface(image);
+	}
 
 	return true;
 }
