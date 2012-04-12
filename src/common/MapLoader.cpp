@@ -41,6 +41,7 @@ MapLoad* createMapLoad_OrigLiero();
 MapLoad* createMapLoad_LieroX();
 MapLoad* createMapLoad_CK123();
 MapLoad* createMapLoad_Gusanos(ResourceLocator<CMap>::BaseLoader* l, const std::string& name);
+MapLoad* createMapLoad_Teeworlds();
 
 
 MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool printErrors) {
@@ -68,6 +69,9 @@ MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool prin
 			
 		if( fileext == "ck1" || fileext == "ck2" || fileext == "ck3" )
 			return (createMapLoad_CK123()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
+
+		if( fileext == "map" )
+			return (createMapLoad_Teeworlds()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
 	}
 	
 	if(printErrors) errors << "level format of file " << filename << " unknown" << endl;
