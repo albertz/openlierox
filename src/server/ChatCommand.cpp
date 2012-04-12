@@ -1008,7 +1008,7 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 		if(i != params.begin()) cmd += " \"" + *i + "\"";
 		else cmd += *i;
 	}
-	Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), cmd) );
+	Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), NULL, cmd) );
 	
 	return "";
 }
@@ -1127,6 +1127,6 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		return "same weapons as host worm are forced";
 	
 	// a bit hacky, but well...
-	Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), "selectWeapons " + itoa(w->getID())) );	
+	Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), NULL, "selectWeapons " + itoa(w->getID())) );
 	return "";
 }

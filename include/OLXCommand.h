@@ -24,6 +24,7 @@
 #include <vector>
 #include <map>
 #include "CodeAttributes.h"
+#include "SmartPointer.h"
 
 typedef std::map<size_t,size_t> ParamSeps;
 
@@ -79,10 +80,18 @@ struct CmdLineIntf {
 	virtual void finishedCommand(const std::string& cmd) {} // gets called after a cmd was executed from this CLI
 	virtual ~CmdLineIntf() {}
 	
+	struct Command;
+	struct ExecScope {
+		virtual ~ExecScope() {}
+		virtual void execNow(const Command& cmd) {}
+	};
+
 	struct Command {
 		CmdLineIntf* sender;
+		SmartPointer<ExecScope> execScope;
 		std::string cmd;
-		Command(CmdLineIntf* s = NULL, const std::string& c = "") : sender(s), cmd(c) {}
+		Command(CmdLineIntf* s = NULL, const SmartPointer<ExecScope>& sc = NULL, const std::string& c = "")
+			: sender(s), execScope(sc), cmd(c) {}
 	};
 
 
@@ -107,7 +116,8 @@ CommandDesc* GetCommandDesc(const std::string& cmdname);
 // Pushs a command into the command queue. This will not do any parsing nor executing.
 // All that is done when you call HandlePendingCommands().
 void Execute(const CmdLineIntf::Command& cmd);
-INLINE void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, cmd)); }
+INLINE void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, NULL, cmd)); }
+INLINE void Execute(CmdLineIntf* sender, const SmartPointer<CmdLineIntf::ExecScope>& execScope, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, execScope, cmd)); }
 
 bool havePendingCommands();
 

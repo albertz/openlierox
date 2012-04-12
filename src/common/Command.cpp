@@ -2593,8 +2593,11 @@ void HandlePendingCommands() {
 				break;
 		}
 
+		if(command.execScope.get())
+			command.execScope->execNow(command);
 		HandleCommand(command);
 		command.sender->finishedCommand(command.cmd);
+		command.execScope = NULL;
 
 		if(game.state.ext.updated)
 			// Next frame, we will continue with other pending commands.
@@ -2604,6 +2607,11 @@ void HandlePendingCommands() {
 }
 
 std::vector<std::string> Execute_Here(const std::string& cmd) {
+	if(!isGameloopThread()) {
+		errors << "cannot Execute_Here(" + cmd + "): we are not in the gameloop thread" << endl;
+		return std::vector<std::string>();
+	}
+
 	struct DirectCliWrapper : CmdLineIntf {
 		std::vector<std::string> returns;
 		
@@ -2620,7 +2628,7 @@ std::vector<std::string> Execute_Here(const std::string& cmd) {
 	}
 	directCli;
 	
-	HandleCommand(CmdLineIntf::Command(&directCli, cmd));
+	HandleCommand(CmdLineIntf::Command(&directCli, NULL, cmd));
 	return directCli.returns;
 }
 

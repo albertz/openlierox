@@ -130,38 +130,55 @@ void print_binary_string(const std::string& txt) {
 	notes << buf << endl;
 }
 
-struct StartupCLI : CmdLineIntf {
-	struct _IgnoreSilentScope {
-		Logger& l;
-		int old;
-		_IgnoreSilentScope(Logger& l_) : l(l_), old(l.minCoutVerb) {
-			l.minCoutVerb = 0;
+struct IgnoreSilentScope {
+	static int count;
+	static int oldN, oldH, oldW;
+	IgnoreSilentScope() {
+		if(count == 0) {
+			oldN = notes.minCoutVerb;
+			oldH = hints.minCoutVerb;
+			oldW = warnings.minCoutVerb;
+			notes.minCoutVerb = 0;
+			hints.minCoutVerb = 0;
+			warnings.minCoutVerb = 0;
 		}
-		~_IgnoreSilentScope() {
-			l.minCoutVerb = old;
+		count++;
+	}
+	~IgnoreSilentScope() {
+		count--;
+		if(count == 0) {
+			notes.minCoutVerb = oldN;
+			hints.minCoutVerb = oldH;
+			warnings.minCoutVerb = oldW;
 		}
-	};
-	struct IgnoreSilentScope {
-		_IgnoreSilentScope n, w, h;
-		IgnoreSilentScope() : n(notes), w(warnings), h(hints) {}
-	};
+	}
+};
+int IgnoreSilentScope::count;
+int IgnoreSilentScope::oldN;
+int IgnoreSilentScope::oldH;
+int IgnoreSilentScope::oldW;
+
+
+struct StartupCLI : CmdLineIntf, CmdLineIntf::ExecScope {
+	SmartPointer<IgnoreSilentScope> ignoreSilentScope;
+
+	virtual void execNow(const Command &cmd) {
+		ignoreSilentScope = new IgnoreSilentScope();
+		notes << "startup command: " << cmd.cmd << endl;
+	}
 
 	virtual void pushReturnArg(const std::string& str) {
-		IgnoreSilentScope scope;
 		notes << "Ret: " << str << endl;
 	}
 
 	virtual void finalizeReturn() {
-		IgnoreSilentScope scope;
-		notes << "Ret." << endl;
+		//notes << "Ret." << endl; // annoying
 	}
 
 	virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
-		IgnoreSilentScope scope;
 		notes << msg << endl;
 	}
 };
-static StartupCLI startupCLI;
 
 static void DoSystemChecks() {
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
@@ -344,9 +361,9 @@ startpoint:
 
 	initLuaGlobal();
 
-	for(std::list<std::string>::iterator i = startupCommands.begin(); i != startupCommands.end(); ++i) {		
-		notes << "startup command: " << *i << endl;
-		Execute(&startupCLI, *i);
+	for(std::list<std::string>::iterator i = startupCommands.begin(); i != startupCommands.end(); ++i) {
+		SmartPointer<CmdLineIntf::ExecScope> startupCLI = new StartupCLI();
+		Execute(dynamic_cast<CmdLineIntf*>(startupCLI.get()), startupCLI, *i);
 	}
 	startupCommands.clear(); // don't execute them again
 
