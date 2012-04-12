@@ -730,8 +730,8 @@ struct ML_Teeworlds : MapLoad {
 		map->Height = l.height * TileH;
 		map->material = create_bitmap_ex(8, map->Width, map->Height);
 
-		for(uint32_t y = 0; y < map->Height; ++y) {
-			for(uint32_t x = 0; x < map->Width; ++x) {
+		for(int y = 0; y < l.width; ++y) {
+			for(int x = 0; x < l.height; ++x) {
 				TWTile& t = l.tiles[y * l.width + x];
 				uint8_t matIndex = 0;
 				if(t.index == TileAir)
@@ -743,7 +743,7 @@ struct ML_Teeworlds : MapLoad {
 				else if(t.index == TileNohook)
 					matIndex = MATINDEX_NOHOOK;
 				else
-					return "found game map tile with invalid index " + itoa(t.index);
+					matIndex = MATINDEX_BG; // ignore unknown
 				setMaterialIndex(x * TileW, y * TileH, matIndex);
 			}
 		}
