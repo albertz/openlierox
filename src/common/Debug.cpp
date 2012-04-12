@@ -100,14 +100,14 @@ static bool logger_output(Logger& log, const std::string& buf) {
 	if (tLXOptions && tLXOptions->bLogTimestamps)
 		prefix = GetLogTimeStamp() + prefix;
 
-	if(!tLXOptions || tLXOptions->iVerbosity >= log.minCoutVerb) {
+	if((tLXOptions ? tLXOptions->iVerbosity : 0) >= log.minCoutVerb) {
 		SDL_mutexP(globalCoutMutex);
 		StdinCLI_StdoutScope stdoutScope;
 		ret = PrettyPrint(prefix, buf, CoutPrint(), log.lastWasNewline);
 		//std::cout.flush();
 		SDL_mutexV(globalCoutMutex);
 	}
-	if(tLXOptions && tLXOptions->iVerbosity >= log.minCallstackVerb) {
+	if((tLXOptions ? tLXOptions->iVerbosity : 0) >= log.minCallstackVerb) {
 		DumpCallstackPrintf();
 	}
 	if(tLXOptions && Con_IsInited() && tLXOptions->iVerbosity >= log.minIngameConVerb) {
