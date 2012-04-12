@@ -1,6 +1,10 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+/* An array of Material structs is CMap::m_materialList.
+  This gets initialized by CMap::gusInit() in level.cpp.
+  */
+
 #include "level/LXMapFlags.h"
 
 struct Material
