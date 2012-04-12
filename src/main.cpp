@@ -130,6 +130,39 @@ void print_binary_string(const std::string& txt) {
 	notes << buf << endl;
 }
 
+struct StartupCLI : CmdLineIntf {
+	struct _IgnoreSilentScope {
+		Logger& l;
+		int old;
+		_IgnoreSilentScope(Logger& l_) : l(l_), old(l.minCoutVerb) {
+			l.minCoutVerb = 0;
+		}
+		~_IgnoreSilentScope() {
+			l.minCoutVerb = old;
+		}
+	};
+	struct IgnoreSilentScope {
+		_IgnoreSilentScope n, w, h;
+		IgnoreSilentScope() : n(notes), w(warnings), h(hints) {}
+	};
+
+	virtual void pushReturnArg(const std::string& str) {
+		IgnoreSilentScope scope;
+		notes << "Ret: " << str << endl;
+	}
+
+	virtual void finalizeReturn() {
+		IgnoreSilentScope scope;
+		notes << "Ret." << endl;
+	}
+
+	virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
+		IgnoreSilentScope scope;
+		notes << msg << endl;
+	}
+};
+static StartupCLI startupCLI;
+
 static void DoSystemChecks() {
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
@@ -311,9 +344,9 @@ startpoint:
 
 	initLuaGlobal();
 
-	for(std::list<std::string>::iterator i = startupCommands.begin(); i != startupCommands.end(); ++i) {
+	for(std::list<std::string>::iterator i = startupCommands.begin(); i != startupCommands.end(); ++i) {		
 		notes << "startup command: " << *i << endl;
-		Execute(&stdoutCLI(), *i);
+		Execute(&startupCLI, *i);
 	}
 	startupCommands.clear(); // don't execute them again
 
@@ -372,6 +405,11 @@ static void ParseArguments_BeforeInit(int argc, char *argv[]) {
 		}
 		else if( stricmp(a, "-disablecrashhandler") == 0 ) {
 			CrashHandler::enableCrashHandler = false;
+		}
+		else if( stricmp(a, "-silent") == 0 ) {
+			notes.minCoutVerb = 2;
+			hints.minCoutVerb = 2;
+			warnings.minCoutVerb = 1;
 		}
 	}
 }
