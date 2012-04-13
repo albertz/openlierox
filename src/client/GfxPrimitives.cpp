@@ -472,25 +472,21 @@ INLINE void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy
 	UnlockSurface(dst);
 }
 
-
-///////////////////////
-// Copies area from one image to another (not blitting so the alpha values are kept!)
-void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h, bool stretch2)
-{
+SurfaceCopyScope::SurfaceCopyScope(SDL_Surface *src_) : src(src_) {
 	// Copying is a normal blit without colorkey and alpha
 	// If the surface has alpha or colorkey set, we have to remove them and then put them back
 
 	// Save alpha values
-	bool HasAlpha = false;
-	Uint8 PerSurfaceAlpha = SDL_ALPHA_OPAQUE;
+	HasAlpha = false;
+	PerSurfaceAlpha = SDL_ALPHA_OPAQUE;
 	if (src->flags & SDL_SRCALPHA)  {
 		HasAlpha = true;
 		PerSurfaceAlpha = src->format->alpha;
 	}
 
 	// Save colorkey values
-	bool HasColorkey = false;
-	Uint32 Colorkey = 0;
+	HasColorkey = false;
+	Colorkey = 0;
 	if (src->flags & SDL_SRCCOLORKEY)  {
 		HasColorkey = true;
 		Colorkey = src->format->colorkey;
@@ -499,18 +495,27 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 	// Remove alpha and colorkey
 	SDL_SetAlpha(src, 0, 0);
 	SDL_SetColorKey(src, 0, 0);
+}
+
+SurfaceCopyScope::~SurfaceCopyScope() {
+	// Return back alpha and colorkey
+	if (HasAlpha)
+		SDL_SetAlpha(src, SDL_SRCALPHA, PerSurfaceAlpha);
+	if (HasColorkey)
+		SDL_SetColorKey(src, SDL_SRCCOLORKEY, Colorkey);
+}
+
+///////////////////////
+// Copies area from one image to another (not blitting so the alpha values are kept!)
+void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h, bool stretch2)
+{
+	SurfaceCopyScope copyScope(src);
 
 	// Blit
 	if(stretch2)
 		DrawImageStretch2(dst, src, sx, sy, dx, dy, w, h);
 	else
 		DrawImageAdv(dst, src, sx, sy, dx, dy, w, h);
-
-	// Return back alpha and colorkey
-	if (HasAlpha)
-		SDL_SetAlpha(src, SDL_SRCALPHA, PerSurfaceAlpha);
-	if (HasColorkey)
-		SDL_SetColorKey(src, SDL_SRCCOLORKEY, Colorkey);
 }
 
 SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {

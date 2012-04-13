@@ -380,6 +380,16 @@ INLINE void gfxFreeSurface(const SmartPointer<SDL_Surface> & surf)  {
 // Image drawing
 //
 
+struct SurfaceCopyScope {
+	SDL_Surface* src;
+	bool HasAlpha;
+	Uint8 PerSurfaceAlpha;
+	bool HasColorkey;
+	Uint32 Colorkey;
+	SurfaceCopyScope(SDL_Surface* src_);
+	~SurfaceCopyScope();
+};
+
 ///////////////
 // Copies one surface to another (not blitting, so the alpha values are kept!)
 void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h, bool stretch2 = false);
@@ -492,6 +502,7 @@ INLINE SmartPointer<SDL_Surface> GetMirroredImage(SDL_Surface* bmpSrc)  {
 															bmpSrc->format->Bmask,
 															bmpSrc->format->Amask);
 	if (result.get() == NULL) return NULL;
+	SurfaceCopyScope copyScope(bmpSrc);
 	DrawImageAdv_Mirror(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
 	return result;
 }
