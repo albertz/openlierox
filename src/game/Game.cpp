@@ -1361,7 +1361,7 @@ int& Game::writeTeamScore(int team) {
 
 
 bool Game::isLevelDarkMode() {
-	return gameMap()->config()->darkMode || levelDarkMode;
+	return (gameMap()->config() && gameMap()->config()->darkMode) || levelDarkMode;
 }
 
 
