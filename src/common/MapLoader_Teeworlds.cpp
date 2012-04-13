@@ -663,6 +663,7 @@ struct ML_Teeworlds : MapLoad {
 
 						if(Flags&TILEFLAG_VFLIP)
 						{
+							tileSurf = GetVMirroredImage(tileSurf);
 							x0 = x2;
 							x1 = x3;
 							x2 = x3;
@@ -680,6 +681,7 @@ struct ML_Teeworlds : MapLoad {
 
 						if(Flags&TILEFLAG_ROTATE)
 						{
+							tileSurf = GetRotatedImage(tileSurf);
 							float Tmp = x0;
 							x0 = x3;
 							x3 = x2;
