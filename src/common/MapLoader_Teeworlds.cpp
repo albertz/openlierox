@@ -529,9 +529,8 @@ struct ML_Teeworlds : MapLoad {
 
 	// 64px is the orig tile pixel size. when we take that as doubleRes,
 	// we would get 32px for tile size. This is too big. Thus scale it down.
-	static const int ScaleDownFactor = 2;
-	static const int TilePixelW = 1024/16, TilePixelH = 1024/16;
-	static const int TargetTilePixelW = TilePixelW/ScaleDownFactor, TargetTilePixelH = TilePixelH/ScaleDownFactor;
+	static const int TilePixelW = 1024/16, TilePixelH = 1024/16; // = 64
+	static const int TargetTilePixelW = 24, TargetTilePixelH = 24; // scale factor 2.666
 
 	void renderTilemap(int group, int layer, TWLayer& l, int RenderFlags, const SmartPointer<SDL_Surface>& surf) {
 		TWTile* tiles = &l.tileLayer.tiles[0];
