@@ -10,6 +10,7 @@
 #include "../parser.h"
 #include "util/macros.h"
 #include "game/CMap.h"
+#include "GfxPrimitives.h"
 #include <string>
 
 #include "../omfgscript/omfg_script.h"
@@ -205,6 +206,10 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 
 			if(!level->paralax)
 				notes << "Paralax not loaded" << endl;
+
+			level->bmpForeground = LoadGameImage(path + "/foreground.png", true);
+			if(!level->config()->doubleRes && level->bmpForeground.get())
+				level->bmpForeground = GetCopiedStretched2Image(level->bmpForeground);
 			
 			std::string lightmapPath = path + "/lightmap";
 		
