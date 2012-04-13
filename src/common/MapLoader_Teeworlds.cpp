@@ -526,7 +526,9 @@ struct ML_Teeworlds : MapLoad {
 
 	}
 
-	void renderTilemap(int group, int layer, TWLayer& l, int RenderFlags) {
+	static const int TilePixelW = 1024/16, TilePixelH = 1024/16;
+
+	void renderTilemap(int group, int layer, TWLayer& l, int RenderFlags, const SmartPointer<SDL_Surface>& surf) {
 		TWTile* tiles = &l.tileLayer.tiles[0];
 		const int w = l.tileLayer.width;
 		const int h = l.tileLayer.height;
@@ -543,8 +545,6 @@ struct ML_Teeworlds : MapLoad {
 			return;
 		}
 		TWImage& img = images[l.tileLayer.image_id];
-
-		SmartPointer<SDL_Surface> surf = gfxCreateSurfaceAlpha(w * TileW, h * TileH);
 
 		const float Scale = 32.f;
 		const float ScreenX0 = 0.f, ScreenX1 = 1024.f;
@@ -679,7 +679,7 @@ struct ML_Teeworlds : MapLoad {
 						}
 
 						// TODO: flags
-						DrawImageAdv(surf.get(), img.image.get(), Px0, Py0, mx * TileW, my * TileH, 1024/16, 1024/16);
+						DrawImageAdv(surf.get(), img.image.get(), Px0, Py0, mx * TilePixelW, my * TilePixelH, TilePixelW, TilePixelH);
 
 						//Graphics()->QuadsSetSubsetFree(x0, y0, x1, y1, x2, y2, x3, y3);
 						//IGraphics::CQuadItem QuadItem(x*Scale, y*Scale, Scale, Scale);
@@ -689,7 +689,7 @@ struct ML_Teeworlds : MapLoad {
 				x += tiles[c].skip;
 			}
 
-		SaveSurface(surf, "tilemap-" + itoa(group) + "-" + itoa(layer) + ".png", FMT_PNG, "");
+		SaveSurface(img.image, "tiletex-" + itoa(group) + "-" + itoa(layer) + ".png", FMT_PNG, "");
 	}
 
 	void renderQuads(int group, int layer, TWLayer& l, int RenderFlags) {
@@ -710,6 +710,9 @@ struct ML_Teeworlds : MapLoad {
 
 	void renderMap(int renderType) {
 		bool passedGameLayer = false;
+
+		SmartPointer<SDL_Surface> surf = gfxCreateSurfaceAlpha(map->Width / TileW * TilePixelW, map->Height / TileH * TilePixelH);
+		SDL_FillRect(surf.get(), NULL, SDL_MapRGBA(surf.get()->format, 0, 0, 0, 0)); // alpha everywhere
 
 		notes << "found " << groups.size() << " groups" << endl;
 		int group = -1;
@@ -748,10 +751,15 @@ struct ML_Teeworlds : MapLoad {
 				if(isGameLayer) continue;
 
 				if(l.type == LAYERTYPE_TILES) {
+					if(l.tileLayer.width != surf->w / TilePixelW || l.tileLayer.height != surf->h / TilePixelH) {
+						notes << "ignoring layer " << group << "-" << layer << ", size mismatch" << endl;
+						debugPrint(l);
+						continue;
+					}
 					// blendnone
-					//renderTilemap(group, layer, l, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_OPAQUE);
+					renderTilemap(group, layer, l, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_OPAQUE, surf);
 					// blendnormal
-					renderTilemap(group, layer, l, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_TRANSPARENT);
+					renderTilemap(group, layer, l, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_TRANSPARENT, surf);
 				} else if(l.type == LAYERTYPE_QUADS) {
 					if(l.quadLayer.image_id == -1)
 						continue;
@@ -763,6 +771,7 @@ struct ML_Teeworlds : MapLoad {
 			}
 		}
 
+		SaveSurface(surf, "tilemap-" + itoa(renderType) + ".png", FMT_PNG, "");
 	}
 
 	bool getGameLayer(TWGroup*& group, TWLayer*& layer) {
@@ -875,7 +884,7 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 	if(NegResult r = l->getDecompressedDataString(name_idx, name)) return r.res;
 	if(external) {
 		std::string filename = "data/teeworlds/mapres/" + name + ".png";
-		image = LoadGameImage(filename);
+		image = LoadGameImage(filename, true);
 		if(!image.get())
 			return "failed to load external image " + name;
 		if(image->w != width)
@@ -892,7 +901,7 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 		image = SDL_CreateRGBSurface(
 					SDL_SWSURFACE | SDL_SRCALPHA,
 					width, height,
-					32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+					32, 0x000000ff, 0xff000000, 0x00ff0000, 0x0000ff00);
 		LockSurface(image);
 		for(int y = 0; y < height; ++y)
 			memcpy(&image->pixels[y * image->pitch], &data[y * width], width * 4);
