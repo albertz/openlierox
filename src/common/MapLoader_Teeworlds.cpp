@@ -527,7 +527,11 @@ struct ML_Teeworlds : MapLoad {
 
 	}
 
+	// 64px is the orig tile pixel size. when we take that as doubleRes,
+	// we would get 32px for tile size. This is still to big. Thus half it.
+	static const int ScaleDownFactor = 2;
 	static const int TilePixelW = 1024/16, TilePixelH = 1024/16;
+	static const int TargetTilePixelW = TilePixelW/ScaleDownFactor, TargetTilePixelH = TilePixelH/ScaleDownFactor;
 
 	void renderTilemap(int group, int layer, TWLayer& l, int RenderFlags, const SmartPointer<SDL_Surface>& surf) {
 		TWTile* tiles = &l.tileLayer.tiles[0];
@@ -649,6 +653,14 @@ struct ML_Teeworlds : MapLoad {
 						float x3 = Nudge + Px0/TexSize+Frac;
 						float y3 = Nudge + Py1/TexSize-Frac;
 
+						SmartPointer<SDL_Surface> tileSurf = gfxCreateSurfaceAlpha(TargetTilePixelW, TargetTilePixelW);
+						{
+							SmartPointer<SDL_Surface> tileSurfOrig = gfxCreateSurfaceAlpha(TilePixelW, TilePixelW);
+							CopySurface(tileSurfOrig.get(), img.image.get(), Px0, Py0, 0, 0, TilePixelW, TilePixelH);
+							SurfaceCopyScope copyScope(tileSurfOrig.get());
+							DrawImageScaleHalfAdv(tileSurf.get(), tileSurfOrig.get(), 0, 0, 0, 0, TilePixelW, TilePixelH);
+						}
+
 						if(Flags&TILEFLAG_VFLIP)
 						{
 							x0 = x2;
@@ -659,6 +671,7 @@ struct ML_Teeworlds : MapLoad {
 
 						if(Flags&TILEFLAG_HFLIP)
 						{
+							tileSurf = GetMirroredImage(tileSurf);
 							y0 = y3;
 							y2 = y1;
 							y3 = y1;
@@ -680,7 +693,7 @@ struct ML_Teeworlds : MapLoad {
 						}
 
 						// TODO: flags
-						DrawImageAdv(surf.get(), img.image.get(), Px0, Py0, mx * TilePixelW, my * TilePixelH, TilePixelW, TilePixelH);
+						DrawImageAdv(surf.get(), tileSurf, 0, 0, mx * TargetTilePixelW, my * TargetTilePixelH, TargetTilePixelW, TargetTilePixelH);
 
 						//Graphics()->QuadsSetSubsetFree(x0, y0, x1, y1, x2, y2, x3, y3);
 						//IGraphics::CQuadItem QuadItem(x*Scale, y*Scale, Scale, Scale);
@@ -749,7 +762,7 @@ struct ML_Teeworlds : MapLoad {
 				if(isGameLayer) continue;
 
 				if(l.type == LAYERTYPE_TILES) {
-					if(l.tileLayer.width != surf->w / TilePixelW || l.tileLayer.height != surf->h / TilePixelH) {
+					if(l.tileLayer.width != surf->w / TargetTilePixelW || l.tileLayer.height != surf->h / TargetTilePixelH) {
 						notes << "ignoring layer " << group << "-" << layer << ", size mismatch" << endl;
 						debugPrint(l);
 						continue;
@@ -768,8 +781,6 @@ struct ML_Teeworlds : MapLoad {
 				}
 			}
 		}
-
-		SaveSurface(surf, "tilemap-" + itoa(renderType) + ".png", FMT_PNG, "");
 	}
 
 	bool getGameLayer(TWGroup*& group, TWLayer*& layer) {
@@ -786,7 +797,8 @@ struct ML_Teeworlds : MapLoad {
 		return false;
 	}
 
-	static const int TileW = TilePixelW / 2, TileH = TilePixelH / 2;
+	// TargetTilePixel size is doubleRes. This is for material size, i.e. singleRes.
+	static const int TileW = TargetTilePixelW/2, TileH = TargetTilePixelH/2;
 
 	void setMaterialIndex(uint32_t x, int32_t y, uint8_t index) {
 		for(int ty = 0; ty < TileH; ++ty)
@@ -862,12 +874,15 @@ struct ML_Teeworlds : MapLoad {
 
 		if(NegResult r = buildMaterialMap()) return r.res;
 
-		SmartPointer<SDL_Surface> surf = gfxCreateSurfaceAlpha(map->Width / TileW * TilePixelW, map->Height / TileH * TilePixelH);
-		SDL_FillRect(surf.get(), NULL, SDL_MapRGBA(surf.get()->format, 0, 0, 0, 0)); // alpha everywhere
+		map->bmpDrawImage = map->bmpBackImageHiRes = gfxCreateSurfaceAlpha(map->Width / TileW * TargetTilePixelW, map->Height / TileH * TargetTilePixelH);
+		SDL_FillRect(map->bmpDrawImage.get(), NULL, SDL_MapRGBA(map->bmpDrawImage.get()->format, 0, 0, 0, 0)); // alpha everywhere
+		map->bmpForeground = gfxCreateSurfaceAlpha(map->Width / TileW * TargetTilePixelW, map->Height / TileH * TargetTilePixelH);
+		SDL_FillRect(map->bmpForeground.get(), NULL, SDL_MapRGBA(map->bmpForeground.get()->format, 0, 0, 0, 0)); // alpha everywhere
 
-		renderMap(-1, surf);
-		map->bmpDrawImage = surf;
-		map->bmpBackImageHiRes = surf;
+		renderMap(0, map->bmpBackImageHiRes);
+		renderMap(1, map->bmpForeground);
+
+		map->paralax = create_bitmap(640,480); // maps are transparent. as long as we dont create a real paralax, we must have this
 
 		if(!m->MiniNew(m->material->w, m->material->h)) {
 			errors << "Teeworlds lvl loader (" << filename << "): cannot create minimap" << endl;
