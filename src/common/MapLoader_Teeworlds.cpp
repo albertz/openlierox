@@ -657,8 +657,8 @@ struct ML_Teeworlds : MapLoad {
 						{
 							SmartPointer<SDL_Surface> tileSurfOrig = gfxCreateSurfaceAlpha(TilePixelW, TilePixelW);
 							CopySurface(tileSurfOrig.get(), img.image.get(), Px0, Py0, 0, 0, TilePixelW, TilePixelH);
-							SurfaceCopyScope copyScope(tileSurfOrig.get());
-							DrawImageScaleHalfAdv(tileSurf.get(), tileSurfOrig.get(), 0, 0, 0, 0, TilePixelW, TilePixelH);
+							SDL_FillRect(tileSurf.get(), NULL, 0 /*fully transparent*/);
+							DrawImageResampledAdv(tileSurf.get(), tileSurfOrig.get(), 0, 0, 0, 0, TilePixelW, TilePixelH, TargetTilePixelW, TargetTilePixelH);
 						}
 
 						if(Flags&TILEFLAG_VFLIP)
@@ -883,6 +883,9 @@ struct ML_Teeworlds : MapLoad {
 		renderMap(1, map->bmpForeground);
 
 		map->paralax = create_bitmap(640,480); // maps are transparent. as long as we dont create a real paralax, we must have this
+		DrawRectFill(map->paralax->surf.get(), 0, 0, map->paralax->w, map->paralax->h,
+					 // that's the baby-blue color commonly used in Teeworlds :P
+					 Color(154, 183, 215));
 
 		if(!m->MiniNew(m->material->w, m->material->h)) {
 			errors << "Teeworlds lvl loader (" << filename << "): cannot create minimap" << endl;
