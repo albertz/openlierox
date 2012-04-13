@@ -15,8 +15,10 @@
 
 
 void CMap::lxflagsToGusflags() {
-	image = create_bitmap_from_sdl(bmpDrawImage);
-	background = create_bitmap_from_sdl(bmpBackImageHiRes);
+	if(!image)
+		image = create_bitmap_from_sdl(bmpDrawImage);
+	if(!background)
+		background = create_bitmap_from_sdl(bmpBackImageHiRes);
 
 	loaderSucceeded();
 }
@@ -30,7 +32,8 @@ static void setMinimap(CMap* m, SmartPointer<SDL_Surface>& minimap) {
 }
 
 void MapLoad::parseDataFinalize(CMap* m) {
-	if(m->GetMiniMap().get()) m->UpdateMiniMap(true);
+	if(m->GetMiniMap().get() && m->image)
+		m->UpdateMiniMap(true);
 	setMinimap(m, minimap);
 }
 
