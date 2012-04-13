@@ -2432,6 +2432,8 @@ void Cmd_exportLevel::exec(CmdLineIntf *caller, const std::vector<std::string>& 
 	SaveSurface(m->background->surf, filename + "/background.png", FMT_PNG, "");
 	if(m->paralax)
 		SaveSurface(m->paralax->surf, filename + "/paralax.png", FMT_PNG, "");
+	if(m->bmpForeground.get())
+		SaveSurface(m->bmpForeground, filename + "/foreground.png", FMT_PNG, "");
 	if(m->lightmap)
 		SaveSurface(m->lightmap->surf, filename + "/lightmap.png", FMT_PNG, "");
 
