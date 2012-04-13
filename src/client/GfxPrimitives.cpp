@@ -808,7 +808,7 @@ void DrawImageTiledY(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, 
 
 
 ///////////////////
-// Draw the image mirrored with a huge amount of options
+// Draw the image mirrored with a huge amount of options. horiz, i.e. x is flipped
 void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: fix this
@@ -1291,6 +1291,51 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 	if (dw != 0 && dh != 0)
 		SafeSoftStretch(bmpSrc, &src, bmpDest, &dst);
 }
+
+
+// vert, i.e. y flipped
+SmartPointer<SDL_Surface> GetVMirroredImage(const SmartPointer<SDL_Surface> & bmpSrc) {
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
+															bmpSrc->flags,
+															bmpSrc->w, bmpSrc->h,
+															bmpSrc->format->BitsPerPixel,
+															bmpSrc->format->Rmask,
+															bmpSrc->format->Gmask,
+															bmpSrc->format->Bmask,
+															bmpSrc->format->Amask);
+
+	LockSurface(bmpSrc); LockSurface(result);
+	PixelCopy& copier = getPixelCopyFunc(bmpSrc.get(), result.get());
+	for(int y = 0; y < result->h; ++y) {
+		for(int x = 0; x < result->w; ++x) {
+			copier.copy(GetPixelAddr(result.get(), x, y), GetPixelAddr(bmpSrc.get(), x, bmpSrc->h - y - 1));
+		}
+	}
+	UnlockSurface(result); UnlockSurface(bmpSrc);
+	return result;
+}
+
+// rotate anti-clockwise
+SmartPointer<SDL_Surface> GetRotatedImage(const SmartPointer<SDL_Surface> & bmpSrc) {
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
+															bmpSrc->flags,
+															bmpSrc->h, bmpSrc->w, // flipped
+															bmpSrc->format->BitsPerPixel,
+															bmpSrc->format->Rmask,
+															bmpSrc->format->Gmask,
+															bmpSrc->format->Bmask,
+															bmpSrc->format->Amask);
+	LockSurface(bmpSrc); LockSurface(result);
+	PixelCopy& copier = getPixelCopyFunc(bmpSrc.get(), result.get());
+	for(int y = 0; y < result->h; ++y) {
+		for(int x = 0; x < result->w; ++x) {
+			copier.copy(GetPixelAddr(result.get(), x, y), GetPixelAddr(bmpSrc.get(), bmpSrc->w - y - 1, x));
+		}
+	}
+	UnlockSurface(result); UnlockSurface(bmpSrc);
+	return result;
+}
+
 
 //
 // Helper functions for the Scale2x algorithm

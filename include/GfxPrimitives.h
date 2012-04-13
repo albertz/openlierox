@@ -510,6 +510,10 @@ INLINE SmartPointer<SDL_Surface> GetMirroredImage(const SmartPointer<SDL_Surface
 	return GetMirroredImage(bmpSrc.get());
 }
 
+SmartPointer<SDL_Surface> GetVMirroredImage(const SmartPointer<SDL_Surface> & bmpSrc);
+SmartPointer<SDL_Surface> GetRotatedImage(const SmartPointer<SDL_Surface> & bmpSrc);
+
+
 /////////////////
 // Draws a sprite doubly stretched but not so advanced
 INLINE void	DrawImageStretch(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int dx, int dy) {
