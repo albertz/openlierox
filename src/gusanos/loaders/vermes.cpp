@@ -200,13 +200,9 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 		level->image = gfx.loadBitmap(imagePath.c_str(), false, /*stretch2*/ !level->config()->doubleRes);
 		if (level->image)
 		{			
-			std::string backgroundPath = path + "/background";
-			
-			level->background = gfx.loadBitmap(backgroundPath.c_str(), false, !level->config()->doubleRes);
-			
-			std::string paralaxPath = path + "/paralax";
-			level->paralax = gfx.loadBitmap(paralaxPath.c_str(), false, !level->config()->doubleRes);
-			
+			level->background = gfx.loadBitmap(path + "/background", false, !level->config()->doubleRes);
+			level->paralax = gfx.loadBitmap(path + "/paralax", false, !level->config()->doubleRes);
+
 			if(!level->paralax)
 				notes << "Paralax not loaded" << endl;
 			
