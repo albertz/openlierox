@@ -495,18 +495,69 @@ struct ML_Teeworlds : MapLoad {
 		return true;
 	}
 
-	void renderTilemap(TWTile* tiles, int w, int h, float Scale, Color color, int RenderFlags) {
-		float ScreenX0 = 0.f, ScreenX1 = 1024.f;
-		float ScreenY0 = 0.f, ScreenY1 = 768.f;
-		float ScreenW = ScreenX1 - ScreenX0;
-		float ScreenH = ScreenY1 - ScreenY0;
+	void debugPrint(TWLayer& l) {
+		notes << "  layer type: " << l.type << endl;
+		bool isGameLayer = false;
+		if(l.type == LAYERTYPE_TILES && l.tileLayer.game) {
+			notes << "  - is game layer" << endl;
+			isGameLayer = true;
+		}
+		if(l.type == LAYERTYPE_TILES) {
+			notes << "  - tiles layer, w: " << l.tileLayer.width << ", h: " << l.tileLayer.height << ", image_id: " << l.tileLayer.image_id << endl;
+			if(l.tileLayer.image_id == -1)
+				notes << "  - no image" << endl;
+			if(l.tileLayer.image_id >= 0 && (size_t)l.tileLayer.image_id < images.size()) {
+				TWImage& img = images[l.tileLayer.image_id];
+				notes << "  - image w: " << img.width << ", h: " << img.height << endl;
+			}
+			else
+				notes << "  - bad image_id" << endl;
+		} else if(l.type == LAYERTYPE_QUADS) {
+			notes << "  - quad layer, num quads: " << l.quadLayer.num_quads << ", image_id: " << l.quadLayer.image_id << endl;
+			if(l.quadLayer.image_id == -1)
+				notes << "  - no image" << endl;
+			if(l.quadLayer.image_id >= 0 && (size_t)l.quadLayer.image_id < images.size()) {
+				TWImage& img = images[l.quadLayer.image_id];
+				notes << "  - image w: " << img.width << ", h: " << img.height << endl;
+			}
+			else
+				notes << "  - bad image_id" << endl;
+		}
+
+	}
+
+	void renderTilemap(int group, int layer, TWLayer& l, int RenderFlags) {
+		TWTile* tiles = &l.tileLayer.tiles[0];
+		const int w = l.tileLayer.width;
+		const int h = l.tileLayer.height;
+		//const Color color = l.tileLayer.color.c;
+
+		if(l.tileLayer.image_id == -1) {
+			warnings << "renderTilemap: no image" << endl;
+			debugPrint(l);
+			return;
+		}
+		if(l.tileLayer.image_id < 0 || (size_t)l.tileLayer.image_id >= images.size()) {
+			warnings << "renderTilemap: invalid image_id" << endl;
+			debugPrint(l);
+			return;
+		}
+		TWImage& img = images[l.tileLayer.image_id];
+
+		SmartPointer<SDL_Surface> surf = gfxCreateSurfaceAlpha(w * TileW, h * TileH);
+
+		const float Scale = 32.f;
+		const float ScreenX0 = 0.f, ScreenX1 = 1024.f;
+		//const float ScreenY0 = 0.f, ScreenY1 = 768.f;
+		const float ScreenW = ScreenX1 - ScreenX0;
+		//const float ScreenH = ScreenY1 - ScreenY0;
 
 		// calculate the final pixelsize for the tiles
-		float TilePixelSize = 1024/32.0f;
-		float FinalTileSize = Scale/(ScreenX1-ScreenX0) * ScreenW;
-		float FinalTilesetScale = FinalTileSize/TilePixelSize;
+		const float TilePixelSize = 1024/32.0f;
+		const float FinalTileSize = Scale/(ScreenX1-ScreenX0) * ScreenW;
+		const float FinalTilesetScale = FinalTileSize/TilePixelSize;
 
-		float r=1, g=1, b=1, a=1;
+		//float r=1, g=1, b=1, a=1;
 		/*if(ColorEnv >= 0)
 		{
 			float aChannels[4];
@@ -520,15 +571,15 @@ struct ML_Teeworlds : MapLoad {
 		//Graphics()->QuadsBegin();
 		//Graphics()->SetColor(Color.r*r, Color.g*g, Color.b*b, Color.a*a);
 
-		int StartY = (int)(ScreenY0/Scale)-1;
-		int StartX = (int)(ScreenX0/Scale)-1;
-		int EndY = (int)(ScreenY1/Scale)+1;
-		int EndX = (int)(ScreenX1/Scale)+1;
+		const int StartY = 0; //(int)(ScreenY0/Scale)-1;
+		const int StartX = 0; //(int)(ScreenX0/Scale)-1;
+		const int EndY = h; //(int)(ScreenY1/Scale)+1;
+		const int EndX = w; //(int)(ScreenX1/Scale)+1;
 
 		// adjust the texture shift according to mipmap level
-		float TexSize = 1024.0f;
-		float Frac = (1.25f/TexSize) * (1/FinalTilesetScale);
-		float Nudge = (0.5f/TexSize) * (1/FinalTilesetScale);
+		const float TexSize = 1024.0f;
+		const float Frac = (1.25f/TexSize) * (1/FinalTilesetScale);
+		const float Nudge = (0.5f/TexSize) * (1/FinalTilesetScale);
 
 		for(int y = StartY; y < EndY; y++)
 			for(int x = StartX; x < EndX; x++)
@@ -581,12 +632,12 @@ struct ML_Teeworlds : MapLoad {
 					if(Render)
 					{
 
-						int tx = Index%16;
-						int ty = Index/16;
-						int Px0 = tx*(1024/16);
-						int Py0 = ty*(1024/16);
-						int Px1 = Px0+(1024/16)-1;
-						int Py1 = Py0+(1024/16)-1;
+						const int tx = Index%16;
+						const int ty = Index/16;
+						const int Px0 = tx*(1024/16);
+						const int Py0 = ty*(1024/16);
+						const int Px1 = Px0+(1024/16)-1;
+						const int Py1 = Py0+(1024/16)-1;
 
 						float x0 = Nudge + Px0/TexSize+Frac;
 						float y0 = Nudge + Py0/TexSize+Frac;
@@ -627,6 +678,9 @@ struct ML_Teeworlds : MapLoad {
 							y1 = Tmp;
 						}
 
+						// TODO: flags
+						DrawImageAdv(surf.get(), img.image.get(), Px0, Py0, mx * TileW, my * TileH, 1024/16, 1024/16);
+
 						//Graphics()->QuadsSetSubsetFree(x0, y0, x1, y1, x2, y2, x3, y3);
 						//IGraphics::CQuadItem QuadItem(x*Scale, y*Scale, Scale, Scale);
 						//Graphics()->QuadsDrawTL(&QuadItem, 1);
@@ -634,25 +688,45 @@ struct ML_Teeworlds : MapLoad {
 				}
 				x += tiles[c].skip;
 			}
+
+		SaveSurface(surf, "tilemap-" + itoa(group) + "-" + itoa(layer) + ".png", FMT_PNG, "");
+	}
+
+	void renderQuads(int group, int layer, TWLayer& l, int RenderFlags) {
+		if(l.quadLayer.image_id == -1) {
+			warnings << "renderQuads: no image" << endl;
+			debugPrint(l);
+			return;
+		}
+		if(l.quadLayer.image_id < 0 || (size_t)l.quadLayer.image_id >= images.size()) {
+			warnings << "renderQuads: invalid image_id" << endl;
+			debugPrint(l);
+			return;
+		}
+		TWImage& img = images[l.quadLayer.image_id];
+
+		SaveSurface(img.image, "quads-" + itoa(group) + "-" + itoa(layer) + ".png", FMT_PNG, "");
 	}
 
 	void renderMap(int renderType) {
 		bool passedGameLayer = false;
 
 		notes << "found " << groups.size() << " groups" << endl;
+		int group = -1;
 		foreach(g, groups) {
+			++group;
 			notes << " group: " << g->layers.size() << " layers" << endl;
 
 			// ignoring clipping scope ...
 			// MapScreenToGroup(Center.x, Center.y, pGroup);
 
+			int layer = -1;
 			foreach(lp, g->layers) {
+				++layer;
 				TWLayer& l = *lp;
-				notes << "  layer type: " << l.type << endl;
 				bool render = false;
 				bool isGameLayer = false;
 				if(l.type == LAYERTYPE_TILES && l.tileLayer.game) {
-					notes << "  - is game layer" << endl;
 					isGameLayer = true;
 					passedGameLayer = true;
 					// seems we need to init with sane defaults (tw/game/layers.cpp)
@@ -674,23 +748,17 @@ struct ML_Teeworlds : MapLoad {
 				if(isGameLayer) continue;
 
 				if(l.type == LAYERTYPE_TILES) {
-					notes << "  - render tiles layer, w: " << l.tileLayer.width << ", h: " << l.tileLayer.height << endl;
 					// blendnone
-					renderTilemap(&l.tileLayer.tiles[0], l.tileLayer.width, l.tileLayer.height, 32.0f, l.tileLayer.color.c, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_OPAQUE);
+					//renderTilemap(group, layer, l, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_OPAQUE);
 					// blendnormal
-					renderTilemap(&l.tileLayer.tiles[0], l.tileLayer.width, l.tileLayer.height, 32.0f, l.tileLayer.color.c, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_TRANSPARENT);
+					renderTilemap(group, layer, l, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_TRANSPARENT);
 				} else if(l.type == LAYERTYPE_QUADS) {
-					notes << "  - render quad layer, num quads: " << l.quadLayer.num_quads << ", image_id: " << l.quadLayer.image_id << endl;
-					if(l.quadLayer.image_id == -1) {
-						notes << "  - no image, ignore..." << endl;
+					if(l.quadLayer.image_id == -1)
 						continue;
-					}
-					if(l.quadLayer.image_id >= 0 && (size_t)l.quadLayer.image_id < images.size()) {
-						TWImage& img = images[l.quadLayer.image_id];
-						notes << "  - w: " << img.width << ", h: " << img.height << endl;
-					}
-					else
-						notes << "  - bad image_id" << endl;
+					// blendnone
+					//renderQuads(group, layer, l, LAYERRENDERFLAG_OPAQUE);
+					// blendnormal
+					renderQuads(group, layer, l, LAYERRENDERFLAG_TRANSPARENT);
 				}
 			}
 		}
@@ -726,12 +794,13 @@ struct ML_Teeworlds : MapLoad {
 			return "game layer not found";
 		TWTileLayer& l = gameLayer->tileLayer;
 
+		notes << "map w: " << l.width << ", h: " << l.height << endl;
 		map->Width = l.width * TileW;
 		map->Height = l.height * TileH;
 		map->material = create_bitmap_ex(8, map->Width, map->Height);
 
-		for(int y = 0; y < l.width; ++y) {
-			for(int x = 0; x < l.height; ++x) {
+		for(int y = 0; y < l.height; ++y) {
+			for(int x = 0; x < l.width; ++x) {
 				TWTile& t = l.tiles[y * l.width + x];
 				uint8_t matIndex = 0;
 				if(t.index == TileAir)
