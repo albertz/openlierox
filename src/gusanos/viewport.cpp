@@ -196,6 +196,10 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 			drawLight(pcTargetWorm->pos().get());
 	}
 
+	if(game.gameMap()->bmpForeground.get()) {
+		DrawImage(dest->surf.get(), game.gameMap()->bmpForeground, offX*2, offY*2);
+	}
+
 	if(game.isLevelDarkMode())
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 

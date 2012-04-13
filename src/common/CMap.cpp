@@ -104,6 +104,7 @@ bool CMap::NewFrom(CMap* map)
 	
 	// Copy the data
 	bmpDrawImage = map->bmpDrawImage.get() ? GetCopiedImage(map->bmpDrawImage) : NULL;
+	bmpForeground = map->bmpForeground.get() ? GetCopiedImage(map->bmpForeground) : NULL;
 #ifdef _AI_DEBUG
 	bmpDebugImage = map->bmpDebugImage.get() ? GetCopiedImage(map->bmpDebugImage) : NULL;
 #endif

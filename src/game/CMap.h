@@ -136,6 +136,9 @@ private:
 	
 	SmartPointer<SDL_Surface> bmpDrawImage;
 	SmartPointer<SDL_Surface> bmpBackImageHiRes;
+public:
+	SmartPointer<SDL_Surface> bmpForeground;
+private:
 	SmartPointer<SDL_Surface> bmpMiniMap;
     SmartPointer<SDL_Surface> bmpGreenMask;
 #ifdef _AI_DEBUG
