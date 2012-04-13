@@ -764,11 +764,13 @@ struct ML_Teeworlds : MapLoad {
 				if(isGameLayer) continue;
 
 				if(l.type == LAYERTYPE_TILES) {
-					if(l.tileLayer.width != surf->w / TargetTilePixelW || l.tileLayer.height != surf->h / TargetTilePixelH) {
+					// this seems to happen and doesn't seem to be a problem
+					// (except of the background color, maybe that is l.tileLayer.color.c)
+					/*if(l.tileLayer.width != surf->w / TargetTilePixelW || l.tileLayer.height != surf->h / TargetTilePixelH) {
 						notes << "ignoring layer " << group << "-" << layer << ", size mismatch" << endl;
 						debugPrint(l);
 						continue;
-					}
+					}*/
 					// blendnone
 					renderTilemap(group, layer, l, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_OPAQUE, surf);
 					// blendnormal
