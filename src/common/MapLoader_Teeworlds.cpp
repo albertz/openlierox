@@ -8,6 +8,7 @@
  */
 
 #include "MapLoader.h"
+#include "MapLoader_common.h"
 #include "StringUtils.h"
 #include "FindFile.h"
 #include "EndianSwap.h"
@@ -708,11 +709,8 @@ struct ML_Teeworlds : MapLoad {
 		SaveSurface(img.image, "quads-" + itoa(group) + "-" + itoa(layer) + ".png", FMT_PNG, "");
 	}
 
-	void renderMap(int renderType) {
+	void renderMap(int renderType, const SmartPointer<SDL_Surface>& surf) {
 		bool passedGameLayer = false;
-
-		SmartPointer<SDL_Surface> surf = gfxCreateSurfaceAlpha(map->Width / TileW * TilePixelW, map->Height / TileH * TilePixelH);
-		SDL_FillRect(surf.get(), NULL, SDL_MapRGBA(surf.get()->format, 0, 0, 0, 0)); // alpha everywhere
 
 		notes << "found " << groups.size() << " groups" << endl;
 		int group = -1;
@@ -788,7 +786,7 @@ struct ML_Teeworlds : MapLoad {
 		return false;
 	}
 
-	static const int TileW = 16, TileH = 16;
+	static const int TileW = TilePixelW / 2, TileH = TilePixelH / 2;
 
 	void setMaterialIndex(uint32_t x, int32_t y, uint8_t index) {
 		for(int ty = 0; ty < TileH; ++ty)
@@ -830,9 +828,13 @@ struct ML_Teeworlds : MapLoad {
 	}
 
 	virtual Result parseData(CMap* m) {
+		ParseFinalizer finalizer(this, m);
 		map = m;
 
 		if(NegResult r = parseHeader(false)) return r.res; // just do it again to seek to right pos
+
+		m->Name = head.name;
+		m->Type = MPT_IMAGE;
 
 		if(teeHeader.m_NumItemTypes < 0)
 			return "invalid numItemTypes";
@@ -860,9 +862,20 @@ struct ML_Teeworlds : MapLoad {
 
 		if(NegResult r = buildMaterialMap()) return r.res;
 
-		renderMap(-1);
+		SmartPointer<SDL_Surface> surf = gfxCreateSurfaceAlpha(map->Width / TileW * TilePixelW, map->Height / TileH * TilePixelH);
+		SDL_FillRect(surf.get(), NULL, SDL_MapRGBA(surf.get()->format, 0, 0, 0, 0)); // alpha everywhere
 
-		return "implementation incomplete";
+		renderMap(-1, surf);
+		map->bmpDrawImage = surf;
+		map->bmpBackImageHiRes = surf;
+
+		if(!m->MiniNew(m->material->w, m->material->h)) {
+			errors << "Teeworlds lvl loader (" << filename << "): cannot create minimap" << endl;
+			return "cannot create minimap";
+		}
+
+		map->lxflagsToGusflags();
+		return true;
 	}
 
 };
