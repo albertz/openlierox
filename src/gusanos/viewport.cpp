@@ -137,8 +137,8 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 			testLight = genLight(r);
 	}
 
-	int offX = static_cast<int>(WorldX);
-	int offY = static_cast<int>(WorldY);
+	const int offX = static_cast<int>(WorldX);
+	const int offY = static_cast<int>(WorldY);
 
 	game.gameMap()->gusDraw(dest, offX, offY);
 
@@ -197,7 +197,7 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 	}
 
 	if(game.gameMap()->bmpForeground.get()) {
-		DrawImage(dest->surf.get(), game.gameMap()->bmpForeground, offX*2, offY*2);
+		DrawImageAdv(dest->surf.get(), game.gameMap()->bmpForeground, offX*2, offY*2, 0, 0, dest->w, dest->h);
 	}
 
 	if(game.isLevelDarkMode())
