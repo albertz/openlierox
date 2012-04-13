@@ -1,5 +1,8 @@
 0.59 beta10
 ===========
+- Teeworlds (https://www.teeworlds.com/) level support (mostly complete)
+- new pixel flags types: no hook, damage area
+- foreground level graphic support (put foreground.png in your (Gus) level dir)
 - Gusanos high-res level support (double_res = 1 in config.cfg)
 - console: `exportLevel`
 - Mario Kart game settings preset mainly for race mode. select bonuses and kill enemies
