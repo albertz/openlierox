@@ -934,10 +934,10 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 		image = SDL_CreateRGBSurface(
 					SDL_SWSURFACE | SDL_SRCALPHA,
 					width, height,
-					32, 0x000000ff, 0xff000000, 0x00ff0000, 0x0000ff00);
+					32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 		LockSurface(image);
 		for(int y = 0; y < height; ++y)
-			memcpy(&image->pixels[y * image->pitch], &data[y * width], width * 4);
+			memcpy(&image->pixels[y * image->pitch], &data[y * width * 4], width * 4);
 		UnlockSurface(image);
 	}
 
