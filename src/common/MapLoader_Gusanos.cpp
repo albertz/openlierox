@@ -40,13 +40,14 @@ public:
 			return minimap;
 		}		
 		SetColorKey(image.get());
+		SmartPointer<SDL_Surface> foreground = LoadGameImage(filename + "/foreground.png", true);
 		SmartPointer<SDL_Surface> paralax = load_bitmap__allegroformat(filename + "/paralax.png", false);
 		
 		const int w = image->w, h = image->h;		
 		bool doubleRes = false;
 		bool resFactor = doubleRes ? 0.5f : 1.0f;
 		minimap = gfxCreateSurface(128, 96);
-		CMap::gusUpdateMinimap(minimap, image, paralax, 0, 0, w, h, resFactor);
+		CMap::gusUpdateMinimap(minimap, foreground, image, paralax, 0, 0, w, h, resFactor);
 		
 		return minimap;
 	}	

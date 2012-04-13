@@ -497,7 +497,7 @@ void CMap::loaderSucceeded()
 
 
 
-void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& paralax, int x, int y, int w, int h, float resFactor) {
+void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& foreground, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& paralax, int x, int y, int w, int h, float resFactor) {
 	void (*blitFct) (SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
 
 	if (tLXOptions->bAntiAliasing)
@@ -531,9 +531,12 @@ void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPo
 	}
 
 	(*blitFct) (bmpMiniMap.get(), image.get(), (x - 1)/resFactor, (y - 1)/resFactor, dx, dy, (w + 1)/resFactor, (h + 1)/resFactor, xratio*resFactor, yratio*resFactor);
+
+	if(foreground.get())
+		(*blitFct) (bmpMiniMap.get(), foreground.get(), (x - 1)/resFactor, (y - 1)/resFactor, dx, dy, (w + 1)/resFactor, (h + 1)/resFactor, xratio*resFactor, yratio*resFactor);
 }
 
 void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
-	gusUpdateMinimap(bmpMiniMap, image->surf, paralax ? paralax->surf : NULL, x, y, w, h, 0.5f);
+	gusUpdateMinimap(bmpMiniMap, bmpForeground, image->surf, paralax ? paralax->surf : NULL, x, y, w, h, 0.5f);
 }
 
