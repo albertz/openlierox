@@ -672,7 +672,7 @@ struct ML_Teeworlds : MapLoad {
 
 						if(Flags&TILEFLAG_HFLIP)
 						{
-							tileSurf = GetMirroredImage(tileSurf);
+							tileSurf = GetHMirroredImage(tileSurf);
 							y0 = y3;
 							y2 = y1;
 							y3 = y1;

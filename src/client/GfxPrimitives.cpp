@@ -1293,8 +1293,8 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 }
 
 
-// vert, i.e. y flipped
-SmartPointer<SDL_Surface> GetVMirroredImage(const SmartPointer<SDL_Surface> & bmpSrc) {
+// horiz, i.e. y flipped
+SmartPointer<SDL_Surface> GetHMirroredImage(const SmartPointer<SDL_Surface> & bmpSrc) {
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 															bmpSrc->flags,
 															bmpSrc->w, bmpSrc->h,
@@ -1315,7 +1315,29 @@ SmartPointer<SDL_Surface> GetVMirroredImage(const SmartPointer<SDL_Surface> & bm
 	return result;
 }
 
-// rotate anti-clockwise
+// vert, i.e. x flipped
+SmartPointer<SDL_Surface> GetVMirroredImage(const SmartPointer<SDL_Surface> & bmpSrc) {
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
+															bmpSrc->flags,
+															bmpSrc->w, bmpSrc->h,
+															bmpSrc->format->BitsPerPixel,
+															bmpSrc->format->Rmask,
+															bmpSrc->format->Gmask,
+															bmpSrc->format->Bmask,
+															bmpSrc->format->Amask);
+
+	LockSurface(bmpSrc); LockSurface(result);
+	PixelCopy& copier = getPixelCopyFunc(bmpSrc.get(), result.get());
+	for(int y = 0; y < result->h; ++y) {
+		for(int x = 0; x < result->w; ++x) {
+			copier.copy(GetPixelAddr(result.get(), x, y), GetPixelAddr(bmpSrc.get(), bmpSrc->w - x - 1, y));
+		}
+	}
+	UnlockSurface(result); UnlockSurface(bmpSrc);
+	return result;
+}
+
+// rotate clockwise
 SmartPointer<SDL_Surface> GetRotatedImage(const SmartPointer<SDL_Surface> & bmpSrc) {
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 															bmpSrc->flags,
@@ -1329,7 +1351,9 @@ SmartPointer<SDL_Surface> GetRotatedImage(const SmartPointer<SDL_Surface> & bmpS
 	PixelCopy& copier = getPixelCopyFunc(bmpSrc.get(), result.get());
 	for(int y = 0; y < result->h; ++y) {
 		for(int x = 0; x < result->w; ++x) {
-			copier.copy(GetPixelAddr(result.get(), x, y), GetPixelAddr(bmpSrc.get(), bmpSrc->w - y - 1, x));
+			copier.copy(GetPixelAddr(result.get(), x, y),
+						GetPixelAddr(bmpSrc.get(), y, bmpSrc->h - x - 1)
+						);
 		}
 	}
 	UnlockSurface(result); UnlockSurface(bmpSrc);
