@@ -876,7 +876,7 @@ struct ML_Teeworlds : MapLoad {
 					}
 				}
 				else
-					notes << "unknown game layer tile index " << t.index << endl;
+					notes << "unknown game layer tile index " << (int)t.index << endl;
 				setMaterialIndex(x * TileW, y * TileH, matIndex);
 			}
 		}
