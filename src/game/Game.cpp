@@ -733,7 +733,10 @@ void Game::frameInner()
 			if(!bDedicated)
 				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + r.humanErrorMsg);
 			prepareCallbacks.disconnect_all_slots();
-			game.state = Game::S_Lobby;
+			if(game.isLocalGame())
+				game.state = Game::S_Inactive;
+			else
+				game.state = Game::S_Lobby;
 		}
 		else if(!gameWasPrepared) {
 			errors << "prepageGameloop: no error but not prepared" << endl;
