@@ -46,7 +46,7 @@
 
 ///////////////////
 // Get the input from a human worm
-void CWormHumanInputHandler::getInput() {		
+void CWormHumanInputHandler::getInput() {
 	// HINT: we are calling this from simulateWorm
 
 	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
@@ -61,6 +61,9 @@ void CWormHumanInputHandler::getInput() {
 		return;
 	}
 	
+	if(m_worm->bWeaponsReady)
+		initInputSystem(); // if not done yet... otherwise it also wont hurt
+
 	TimeDiff dt;
 	// We may have called CWorm::getInput from outside the game inner
 	// 100-fixed-FPS loop and thus have a different GetPhysicsTime()
@@ -655,9 +658,6 @@ struct HumanWormType : WormType {
 WormType* PRF_HUMAN = &PRF_HUMAN_instance;
 
 CWormHumanInputHandler::CWormHumanInputHandler(CWorm* w) : CWormInputHandler(w) {		
-	// we use the normal init system first after the weapons are selected and we are ready
-	stopInputSystem();
-
 	bRopeDown = bRopeDownOnce = false;
 	gusInit();
 	
@@ -942,6 +942,8 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 			if(m_worm->iCurrentWeapon < 0) m_worm->iCurrentWeapon += (int)m_worm->tWeapons.size() + 2;
 		}
 	}
+
+	stopInputSystem(); // if not done yet... otherwise it will also not hurt. it will shut down the regular ingame input system
 }
 
 
