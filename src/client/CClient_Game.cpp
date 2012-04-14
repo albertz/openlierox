@@ -111,6 +111,13 @@ void CClient::Simulation()
 
 		if(w->getAlive()) {
 
+			// Check for damaging areas
+			const Material& mat = game.gameMap()->getMaterial(
+						(unsigned int)CLAMP(w->getPos().x, 0.0f, (float)game.gameMap()->GetWidth() - 1),
+						(unsigned int)CLAMP(w->getPos().y, 0.0f, (float)game.gameMap()->GetHeight() - 1));
+			if(mat.damage)
+				InjureWorm(w, mat.damage, -1);
+
 			// Check if this worm picked up a bonus
 
 			CBonus *b = cBonuses;
