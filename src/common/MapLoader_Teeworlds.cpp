@@ -93,6 +93,23 @@ enum TileFlag {
 };
 
 enum {
+	ENTITY_NULL=0,
+	ENTITY_SPAWN,
+	ENTITY_SPAWN_RED,
+	ENTITY_SPAWN_BLUE,
+	ENTITY_FLAGSTAND_RED,
+	ENTITY_FLAGSTAND_BLUE,
+	ENTITY_ARMOR_1,
+	ENTITY_HEALTH_1,
+	ENTITY_WEAPON_SHOTGUN,
+	ENTITY_WEAPON_GRENADE,
+	ENTITY_POWERUP_NINJA,
+	ENTITY_WEAPON_RIFLE,
+	NUM_ENTITIES,
+	ENTITY_OFFSET=255-16*4
+};
+
+enum {
 	TILEFLAG_VFLIP=1,
 	TILEFLAG_HFLIP=2,
 	TILEFLAG_OPAQUE=4,
@@ -816,7 +833,7 @@ struct ML_Teeworlds : MapLoad {
 			return "game layer not found";
 		TWTileLayer& l = gameLayer->tileLayer;
 
-		notes << "map w: " << l.width << ", h: " << l.height << endl;
+		notes << "TW map w: " << l.width << ", h: " << l.height << endl;
 		map->Width = l.width * TileW;
 		map->Height = l.height * TileH;
 		map->material = create_bitmap_ex(8, map->Width, map->Height);
@@ -824,7 +841,7 @@ struct ML_Teeworlds : MapLoad {
 		for(int y = 0; y < l.height; ++y) {
 			for(int x = 0; x < l.width; ++x) {
 				TWTile& t = l.tiles[y * l.width + x];
-				uint8_t matIndex = 0;
+				uint8_t matIndex = MATINDEX_BG;
 				if(t.index == TileAir)
 					matIndex = MATINDEX_BG;
 				else if(t.index == TileSolid)
@@ -833,8 +850,28 @@ struct ML_Teeworlds : MapLoad {
 					matIndex = MATINDEX_DEATH;
 				else if(t.index == TileNohook)
 					matIndex = MATINDEX_NOHOOK;
+				else if(t.index >= ENTITY_OFFSET) {
+					Vec pos(x * TileW + TileW/2, y * TileH + TileH/2);
+					// see CGameMode::TeamName() for references of team-index
+					switch(t.index - ENTITY_OFFSET) {
+					case ENTITY_SPAWN:
+					case ENTITY_SPAWN_BLUE:
+						map->config()->spawnPoints.push_back(SpawnPoint(pos, 0));
+						break;
+					case ENTITY_SPAWN_RED:
+						map->config()->spawnPoints.push_back(SpawnPoint(pos, 1));
+						break;
+					case ENTITY_FLAGSTAND_BLUE:
+						map->config()->teamBases.push_back(SpawnPoint(pos, 0));
+						break;
+					case ENTITY_FLAGSTAND_RED:
+						map->config()->teamBases.push_back(SpawnPoint(pos, 1));
+						break;
+					default:; // ignore
+					}
+				}
 				else
-					matIndex = MATINDEX_BG; // ignore unknown
+					notes << "unknown game layer tile index " << t.index << endl;
 				setMaterialIndex(x * TileW, y * TileH, matIndex);
 			}
 		}
@@ -850,6 +887,7 @@ struct ML_Teeworlds : MapLoad {
 
 		m->Name = head.name;
 		m->Type = MPT_IMAGE;
+		if(!map->m_config) map->m_config = new LevelConfig();
 
 		if(teeHeader.m_NumItemTypes < 0)
 			return "invalid numItemTypes";
