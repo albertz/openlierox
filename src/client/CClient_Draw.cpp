@@ -2340,7 +2340,7 @@ void CClient::ProcessSpectatorViewportKeys()
 	if( game.state != Game::S_Playing )
 		return;
 
-	if( game.gameScript()->gusEngineUsed() )
+	if( !game.gameScript() || game.gameScript()->gusEngineUsed() )
 		// TODO: only for now
 		return;
 
