@@ -548,7 +548,7 @@ struct ML_Teeworlds : MapLoad {
 	// we would get 32px for tile size. This is too big. Thus scale it down.
 	static const int TilePixelW = 1024/16, TilePixelH = 1024/16; // = 64
 	static const int TargetTilePixelW = 20, TargetTilePixelH = 20;
-	static const float ScaleFactor = TilePixelW / TargetTilePixelW;
+#define ScaleFactor (float(TilePixelW) / TargetTilePixelW)
 
 	void renderTilemap(int group, int layer, TWLayer& l, int RenderFlags, const SmartPointer<SDL_Surface>& surf) {
 		TWTile* tiles = &l.tileLayer.tiles[0];
@@ -852,7 +852,7 @@ struct ML_Teeworlds : MapLoad {
 				else if(t.index == TileNohook)
 					matIndex = MATINDEX_NOHOOK;
 				else if(t.index >= ENTITY_OFFSET) {
-					Vec pos(x * TileW + TileW/2, y * TileH + TileH/2);
+					Vec pos((float)x * TileW + TileW/2, (float)y * TileH + TileH/2);
 					// see CGameMode::TeamName() for references of team-index
 					// and see CTF:getTeamBasePos(). that is why we have +1.
 					// and also see (level.cpp) canPlayerRespawn().
@@ -884,7 +884,7 @@ struct ML_Teeworlds : MapLoad {
 		return true;
 	}
 
-	static const float ParalaxScaleFactor = 1.0f;
+#define ParalaxScaleFactor (1.0f)
 
 	IVec getParalaxSize() {
 		IVec size(640,480); // viewport size should be minimum
@@ -897,7 +897,7 @@ struct ML_Teeworlds : MapLoad {
 					if(l.quadLayer.image_id < 0 || (size_t)l.quadLayer.image_id >= images.size())
 						continue;
 					TWImage& img = images[l.quadLayer.image_id];
-					IVec imgSize(img.width / ParalaxScaleFactor, img.height / ParalaxScaleFactor);
+					IVec imgSize(Vec(img.width / ParalaxScaleFactor, img.height / ParalaxScaleFactor));
 					if(imgSize.x > size.x) size.x = imgSize.x;
 					if(imgSize.y > size.y) size.y = imgSize.y;
 				}
@@ -921,7 +921,7 @@ struct ML_Teeworlds : MapLoad {
 					if(l.quadLayer.image_id < 0 || (size_t)l.quadLayer.image_id >= images.size())
 						continue;
 					TWImage& img = images[l.quadLayer.image_id];
-					IVec imgSize(img.width / ParalaxScaleFactor, img.height / ParalaxScaleFactor);
+					IVec imgSize(Vec(img.width / ParalaxScaleFactor, img.height / ParalaxScaleFactor));
 					DrawImageResampledAdv(
 								map->paralax->surf.get(), img.image,
 								0, 0,
@@ -1031,7 +1031,7 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 					32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 		LockSurface(image);
 		for(int y = 0; y < height; ++y)
-			memcpy(&image->pixels[y * image->pitch], &data[y * width * 4], width * 4);
+			memcpy((uint8_t*)image->pixels + y * image->pitch, &data[y * width * 4], width * 4);
 		UnlockSurface(image);
 	}
 
