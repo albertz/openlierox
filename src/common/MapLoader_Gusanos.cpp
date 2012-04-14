@@ -45,7 +45,7 @@ public:
 		
 		const int w = image->w, h = image->h;		
 		bool doubleRes = false;
-		bool resFactor = doubleRes ? 0.5f : 1.0f;
+		float resFactor = doubleRes ? 0.5f : 1.0f;
 		minimap = gfxCreateSurface(128, 96);
 		CMap::gusUpdateMinimap(minimap, foreground, image, paralax, 0, 0, w, h, resFactor);
 		
