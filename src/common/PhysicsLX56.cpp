@@ -598,12 +598,18 @@ static void simulateNinjarope(float dt, CWorm* owner) {
 
 		const Material& px = game.gameMap()->getMaterial(wrappedHookPos.x, wrappedHookPos.y);
 		if(!px.particle_pass || outsideMap) {
-			rope->Attach();
+			if(!outsideMap && !px.can_hook) {
+				rope->hookVelocity() = CVec(0,0);
+				rope->setShooting( false );
+			}
+			else {
+				rope->Attach();
 
-			if(px.destroyable && firsthit) {
-				Color col = game.gameMap()->getColorAt(wrappedHookPos.x, wrappedHookPos.y);
-				for( short i=0; i<5; i++ )
-					SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), GetRandomVec()*40,col,NULL);
+				if(px.destroyable && firsthit) {
+					Color col = game.gameMap()->getColorAt(wrappedHookPos.x, wrappedHookPos.y);
+					for( short i=0; i<5; i++ )
+						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), GetRandomVec()*40,col,NULL);
+				}
 			}
 		}
 	}

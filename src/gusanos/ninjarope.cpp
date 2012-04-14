@@ -78,10 +78,17 @@ void CNinjaRope::think()
 		checkForWormAttachment();
 
 		if(!isPlayerAttached()) {
-			if(!game.gameMap()->getMaterial( ipos.x, ipos.y ).particle_pass)
+			const Material& mat = game.gameMap()->getMaterial( ipos.x, ipos.y );
+			if(!mat.particle_pass)
 			{
-				if(!HookAttached)
-					Attach();
+				if(mat.can_hook) {
+					if(!HookAttached)
+						Attach();
+				}
+				else {
+					HookAttached = false;
+					velocity().write() = CVec(0,0);
+				}
 			}
 			else
 				HookAttached = false;
