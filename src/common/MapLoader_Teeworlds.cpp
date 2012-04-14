@@ -853,19 +853,23 @@ struct ML_Teeworlds : MapLoad {
 				else if(t.index >= ENTITY_OFFSET) {
 					Vec pos(x * TileW + TileW/2, y * TileH + TileH/2);
 					// see CGameMode::TeamName() for references of team-index
+					// and see CTF:getTeamBasePos(). that is why we have +1.
+					// and also see (level.cpp) canPlayerRespawn().
 					switch(t.index - ENTITY_OFFSET) {
 					case ENTITY_SPAWN:
-					case ENTITY_SPAWN_BLUE:
-						map->config()->spawnPoints.push_back(SpawnPoint(pos, 0));
+						map->config()->spawnPoints.push_back(SpawnPoint(pos, -1));
 						break;
-					case ENTITY_SPAWN_RED:
+					case ENTITY_SPAWN_BLUE:
 						map->config()->spawnPoints.push_back(SpawnPoint(pos, 1));
 						break;
+					case ENTITY_SPAWN_RED:
+						map->config()->spawnPoints.push_back(SpawnPoint(pos, 2));
+						break;
 					case ENTITY_FLAGSTAND_BLUE:
-						map->config()->teamBases.push_back(SpawnPoint(pos, 0));
+						map->config()->teamBases.push_back(SpawnPoint(pos, 1));
 						break;
 					case ENTITY_FLAGSTAND_RED:
-						map->config()->teamBases.push_back(SpawnPoint(pos, 1));
+						map->config()->teamBases.push_back(SpawnPoint(pos, 2));
 						break;
 					default:; // ignore
 					}
