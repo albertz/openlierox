@@ -1011,13 +1011,13 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 		image = LoadGameImage(filename, true);
 		if(!image.get()) {
 			warnings << "failed to load external image " << name << endl;
-			image = gfxCreateSurfaceAlpha(width, height); // create dummy surface
+			image = gfxCreateSurfaceAlpha(1, 1); // create dummy surface
 			SDL_FillRect(image.get(), NULL, 0); // alpha everywhere
 		}
-		if(image->w != width)
-			return "width does not match. expected: " + itoa(width) + ", got: " + itoa(image->w);
-		if(image->h != height)
-			return "height does not match. expected: " + itoa(height) + ", got: " + itoa(image->h);
+		else if(image->w != width || image->h != height)
+			warnings << "size of mapres " << name << " does not match."
+			<< " expected: " << IVec(width,height) << ", got: " << IVec(image->w,image->h)
+			<< endl;
 	}
 	else { // non external
 		Raw data;
