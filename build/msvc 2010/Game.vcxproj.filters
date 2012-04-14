@@ -1004,6 +1004,9 @@
     <ClInclude Include="..\..\src\client\ClientConnectionRequestInfo.h">
       <Filter>Game files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\common\MapLoader_common.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\breakpad\BreakPad.cpp">
@@ -1950,6 +1953,21 @@
     </ClCompile>
     <ClCompile Include="..\..\src\common\Debug_WriteCoreDump.cpp">
       <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MapLoader_CommanderKeen123.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MapLoader_Gusanos.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MapLoader_LieroX.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MapLoader_OrigLiero.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MapLoader_Teeworlds.cpp">
+      <Filter>Game files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

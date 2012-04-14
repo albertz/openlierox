@@ -236,6 +236,7 @@
     <ClInclude Include="..\..\src\client\ClientConnectionRequestInfo.h" />
     <ClInclude Include="..\..\src\client\gfx\raytracing.h" />
     <ClInclude Include="..\..\src\client\StdinCLISupport.h" />
+    <ClInclude Include="..\..\src\common\MapLoader_common.h" />
     <ClInclude Include="..\..\src\game\Attr.h" />
     <ClInclude Include="..\..\src\game\CGameObject.h" />
     <ClInclude Include="..\..\src\game\ClassInfo.h" />
@@ -607,6 +608,11 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\..\src\client\IRC.cpp" />
+    <ClCompile Include="..\..\src\common\MapLoader_CommanderKeen123.cpp" />
+    <ClCompile Include="..\..\src\common\MapLoader_Gusanos.cpp" />
+    <ClCompile Include="..\..\src\common\MapLoader_LieroX.cpp" />
+    <ClCompile Include="..\..\src\common\MapLoader_OrigLiero.cpp" />
+    <ClCompile Include="..\..\src\common\MapLoader_Teeworlds.cpp" />
     <ClCompile Include="..\..\src\common\MathLib.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
