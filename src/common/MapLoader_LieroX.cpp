@@ -119,7 +119,7 @@ class ML_LieroX : public MapLoad {
 			for (Sint64 x = 0; x < head.width; x++)  {
 				Color curcolor = Color(pDest[p], pDest[p+1], pDest[p+2]);
 				p += 3;
-				PutPixel2x2(m->bmpBackImageHiRes.get(), x*2, y*2, curcolor.get(m->bmpBackImageHiRes->format));
+				PutPixel2x2(m->bmpBackImageHiRes.get(), (int)x*2, (int)y*2, curcolor.get(m->bmpBackImageHiRes->format));
 			}
 		}
 		
@@ -128,7 +128,7 @@ class ML_LieroX : public MapLoad {
 			for (Sint64 x = 0;x < head.width; x++)  {
 				Color curcolor = Color(pDest[p], pDest[p+1], pDest[p+2]);
 				p += 3;
-				PutPixel2x2(m->bmpDrawImage.get(), x*2, y*2, curcolor.get(m->bmpDrawImage->format));
+				PutPixel2x2(m->bmpDrawImage.get(), (int)x*2, (int)y*2, curcolor.get(m->bmpDrawImage->format));
 			}
 		}
 		
@@ -144,7 +144,7 @@ class ML_LieroX : public MapLoad {
 				uint8_t lxflag = pDest[p++];
 				m->material->line[y][x] = Material::indexFromLxFlag(lxflag);
 				if(lxflag & PX_EMPTY)
-					CopyPixel2x2_SameFormat(m->bmpDrawImage.get(), m->bmpBackImageHiRes.get(), x*2, y*2);
+					CopyPixel2x2_SameFormat(m->bmpDrawImage.get(), m->bmpBackImageHiRes.get(), (int)x*2, (int)y*2);
 				if(lxflag & PX_DIRT)
 					m->nTotalDirtCount++;
 				n++;
