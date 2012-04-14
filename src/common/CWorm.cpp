@@ -1007,8 +1007,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if(drawExtras && game.isLevelDarkMode() && bAlive) {
 		if(v->getTarget() &&
 				game.gameMap()->trace(
-					vDrawPos.x, vDrawPos.y,
-					v->getTarget()->vDrawPos.x, v->getTarget()->vDrawPos.y,
+					(long)vDrawPos.x, (long)vDrawPos.y,
+					(long)v->getTarget()->vDrawPos.x, (long)v->getTarget()->vDrawPos.y,
 					CMap::LightBlockPredicate())) {
 			// the viewport worm cannot directly see the target.
 			// avoid drawing name etc which might be visible because it overlaps rock material.

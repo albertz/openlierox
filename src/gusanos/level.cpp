@@ -505,8 +505,8 @@ void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPo
 	else
 		blitFct = &DrawImageResizedAdv;
 
-	const int Width = image->w * resFactor;
-	const int Height = image->h * resFactor;
+	const int Width = int(image->w * resFactor);
+	const int Height = int(image->h * resFactor);
 
 	// Calculate ratios
 	const float xratio = (float)bmpMiniMap.get()->w / (float)Width;
@@ -530,10 +530,10 @@ void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPo
 		DrawRectFill(bmpMiniMap.get(), dx, dy, dx + int(xratio*(w+1)), dy + int(yratio*(h+1)), Color());
 	}
 
-	(*blitFct) (bmpMiniMap.get(), image.get(), (x - 1)/resFactor, (y - 1)/resFactor, dx, dy, (w + 1)/resFactor, (h + 1)/resFactor, xratio*resFactor, yratio*resFactor);
+	(*blitFct) (bmpMiniMap.get(), image.get(), int((x - 1)/resFactor), int((y - 1)/resFactor), dx, dy, int((w + 1)/resFactor), int((h + 1)/resFactor), xratio*resFactor, yratio*resFactor);
 
 	if(foreground.get())
-		(*blitFct) (bmpMiniMap.get(), foreground.get(), (x - 1)/resFactor, (y - 1)/resFactor, dx, dy, (w + 1)/resFactor, (h + 1)/resFactor, xratio*resFactor, yratio*resFactor);
+		(*blitFct) (bmpMiniMap.get(), foreground.get(), int((x - 1)/resFactor), int((y - 1)/resFactor), dx, dy, int((w + 1)/resFactor), int((h + 1)/resFactor), xratio*resFactor, yratio*resFactor);
 }
 
 void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
