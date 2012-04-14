@@ -935,6 +935,44 @@ struct ML_Teeworlds : MapLoad {
 		}
 	}
 
+	uint8_t highestAlphaForegroundAirPixel_aroundArea(int x_, int y_) {
+		uint8_t alpha = 0;
+		static const int AreaTileSize = 3;
+		for(int y = std::max(0, y_ - TileH * AreaTileSize); y < std::min(map->material->h, y_ + TileW * AreaTileSize + 1); y += TileH)
+		for(int x = std::max(0, x_ - TileW * AreaTileSize); x < std::min(map->material->w, x_ + TileW * AreaTileSize + 1); x += TileW) {
+			if(map->material->line[y][x] != MATINDEX_BG) continue;
+			for(short dy = 0; dy < 2; ++dy)
+			for(short dx = 0; dx < 2; ++dx) {
+				uint8_t curAlpha = Color(map->bmpForeground->format, GetPixel(map->bmpForeground.get(), x*2 + dx, y*2 + dy)).a;
+				if(curAlpha > alpha)
+					alpha = curAlpha;
+				if(alpha == 255)
+					// this seems too much. return sth less
+					return 200;
+			}
+		}
+		return alpha;
+	}
+
+	// we can optimize the pixel flags for rock when there are round corners.
+	// just make every rock-pixel where we have alpha=0 a background pixel.
+	void optimizeMaterialMap() {
+		for(int y = 0; y < map->material->h; ++y)
+			for(int x = 0; x < map->material->w; ++x) {
+				if(map->material->line[y][x] != MATINDEX_SOLID) continue;
+
+				uint8_t alphaThreshold = highestAlphaForegroundAirPixel_aroundArea(x, y);
+				bool haveAlpha = false;
+				for(short dy = 0; dy < 2; ++dy)
+				for(short dx = 0; dx < 2; ++dx) {
+					if(Color(map->bmpForeground->format, GetPixel(map->bmpForeground.get(), x*2 + dx, y*2 + dy)).a <= alphaThreshold)
+						haveAlpha = true;
+				}
+				if(haveAlpha)
+					map->material->line[y][x] = MATINDEX_BG;
+			}
+	}
+
 	virtual Result parseData(CMap* m) {
 		ParseFinalizer finalizer(this, m);
 		map = m;
@@ -979,6 +1017,8 @@ struct ML_Teeworlds : MapLoad {
 		renderMap(0, map->bmpBackImageHiRes);
 		renderMap(1, map->bmpForeground);
 		createParalax();
+
+		optimizeMaterialMap();
 
 		if(!m->MiniNew(m->material->w, m->material->h)) {
 			errors << "Teeworlds lvl loader (" << filename << "): cannot create minimap" << endl;
