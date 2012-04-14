@@ -2355,14 +2355,19 @@ void CClient::ProcessSpectatorViewportKeys()
 		}
 	}
 	
-	// don't proceed if any of the local human worms is not out of the game
-	// (also don't proceed when waiting for respawn)
 	for_each_iterator(CWorm*, w, game.localWorms()) {
 		if(w->get()->getType() == PRF_HUMAN) {
+			// don't proceed if any of the local human worms is not out of the game
 			if(w->get()->getAlive()) {
 				sSpectatorViewportMsg = "";
 				return;
 			}
+			// dont proceed when selecting weapons
+			if(!w->get()->bWeaponsReady) {
+				sSpectatorViewportMsg = "";
+				return;
+			}
+			// also don't proceed when waiting for respawn
 			if(tLX->currentTime <= w->get()->getTimeofDeath() + 3.0f)
 				return;
 		}
