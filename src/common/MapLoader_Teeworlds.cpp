@@ -548,6 +548,7 @@ struct ML_Teeworlds : MapLoad {
 	// we would get 32px for tile size. This is too big. Thus scale it down.
 	static const int TilePixelW = 1024/16, TilePixelH = 1024/16; // = 64
 	static const int TargetTilePixelW = 24, TargetTilePixelH = 24; // scale factor 2.666
+	static const float ScaleFactor = TilePixelW / TargetTilePixelW;
 
 	void renderTilemap(int group, int layer, TWLayer& l, int RenderFlags, const SmartPointer<SDL_Surface>& surf) {
 		TWTile* tiles = &l.tileLayer.tiles[0];
@@ -883,6 +884,57 @@ struct ML_Teeworlds : MapLoad {
 		return true;
 	}
 
+	static const float ParalaxScaleFactor = 1.0f;
+
+	IVec getParalaxSize() {
+		IVec size(640,480); // viewport size should be minimum
+		foreach(g, groups) {
+			foreach(lp, g->layers) {
+				TWLayer& l = *lp;
+				if(l.type == LAYERTYPE_QUADS && l.tileLayer.game) {
+					if(l.quadLayer.image_id == -1)
+						continue;
+					if(l.quadLayer.image_id < 0 || (size_t)l.quadLayer.image_id >= images.size())
+						continue;
+					TWImage& img = images[l.quadLayer.image_id];
+					IVec imgSize(img.width / ParalaxScaleFactor, img.height / ParalaxScaleFactor);
+					if(imgSize.x > size.x) size.x = imgSize.x;
+					if(imgSize.y > size.y) size.y = imgSize.y;
+				}
+			}
+		}
+		return size;
+	}
+
+	void createParalax() {
+		IVec paralaxSize = getParalaxSize();
+		map->paralax = create_bitmap(paralaxSize.x, paralaxSize.y);
+		DrawRectFill(map->paralax->surf.get(), 0, 0, map->paralax->w, map->paralax->h,
+					 // that's the baby-blue color commonly used in Teeworlds :P
+					 Color(154, 183, 215));
+		foreach(g, groups) {
+			foreach(lp, g->layers) {
+				TWLayer& l = *lp;
+				if(l.type == LAYERTYPE_QUADS && l.tileLayer.game) {
+					if(l.quadLayer.image_id == -1)
+						continue;
+					if(l.quadLayer.image_id < 0 || (size_t)l.quadLayer.image_id >= images.size())
+						continue;
+					TWImage& img = images[l.quadLayer.image_id];
+					IVec imgSize(img.width / ParalaxScaleFactor, img.height / ParalaxScaleFactor);
+					DrawImageResampledAdv(
+								map->paralax->surf.get(), img.image,
+								0, 0,
+								(map->paralax->w - imgSize.x) / 2,
+								(map->paralax->h - imgSize.y) / 2,
+								img.image->w, img.image->h,
+								imgSize.x, imgSize.y
+								);
+				}
+			}
+		}
+	}
+
 	virtual Result parseData(CMap* m) {
 		ParseFinalizer finalizer(this, m);
 		map = m;
@@ -926,11 +978,7 @@ struct ML_Teeworlds : MapLoad {
 
 		renderMap(0, map->bmpBackImageHiRes);
 		renderMap(1, map->bmpForeground);
-
-		map->paralax = create_bitmap(640,480); // maps are transparent. as long as we dont create a real paralax, we must have this
-		DrawRectFill(map->paralax->surf.get(), 0, 0, map->paralax->w, map->paralax->h,
-					 // that's the baby-blue color commonly used in Teeworlds :P
-					 Color(154, 183, 215));
+		createParalax();
 
 		if(!m->MiniNew(m->material->w, m->material->h)) {
 			errors << "Teeworlds lvl loader (" << filename << "): cannot create minimap" << endl;
