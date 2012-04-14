@@ -1694,7 +1694,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt)
 
 ///////////////////
 // Load the map
-bool CMap::Load(const std::string& filename)
+Result CMap::Load(const std::string& filename)
 {	
 	// Weird
 	if (filename == "") {
@@ -1720,8 +1720,8 @@ bool CMap::Load(const std::string& filename)
 	
 	MapLoad* loader = MapLoad::open(filename);
 	if(!loader) {
-		warnings << "level " << filename << " couldn't be loaded" << endl;
-		return false;
+		warnings << "level " << filename << " couldn't be opened" << endl;
+		return "level " + filename + " couldn't be opened";
 	}
 	
 	{
@@ -1729,12 +1729,12 @@ bool CMap::Load(const std::string& filename)
 		delete loader;
 		if(!res) {
 			warnings << "level loader for " << filename << " returned with error: " << res.humanErrorMsg << endl;
-			return false;
+			return res;
 		}
 		
 		if(!material) {
 			errors << "level loader for " << filename << " is behaving wrong, no material flags" << endl;
-			return false;
+			return "level loader for " + filename + " is behaving wrong, no material flags";
 		}
 	}
 	

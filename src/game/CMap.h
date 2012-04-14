@@ -196,7 +196,7 @@ public:
 	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		MiniNew(uint _width, uint _height, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
-	bool		Load(const std::string& filename);
+	Result		Load(const std::string& filename);
 	bool		Save(const std::string& name, const std::string& filename);
 	bool		SaveImageFormat(FILE *fp);
 
