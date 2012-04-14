@@ -875,8 +875,8 @@ struct ML_Teeworlds : MapLoad {
 					default:; // ignore
 					}
 				}
-				else
-					notes << "unknown game layer tile index " << (int)t.index << endl;
+				// silently ignore for now. some maps (e.g. TeeCity) have a lot of them...
+				//else notes << "unknown game layer tile index " << (int)t.index << endl;
 				setMaterialIndex(x * TileW, y * TileH, matIndex);
 			}
 		}
