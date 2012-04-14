@@ -727,6 +727,10 @@ void Game::frameInner()
 		game.startGame();
 
 	if(!gameWasPrepared && game.state >= Game::S_Preparing) {
+		if(game.state.ext.updated) {
+			// handle callbacks
+			iterAttrUpdates(NULL);
+		}
 		Result r = prepareGameloop();
 		if(!r) {
 			warnings << "prepageGameloop failed: " << r.humanErrorMsg << endl;
@@ -737,6 +741,9 @@ void Game::frameInner()
 				game.state = Game::S_Inactive;
 			else
 				game.state = Game::S_Lobby;
+			// handle callbacks and other stuff
+			iterAttrUpdates(NULL);
+			return;
 		}
 		else if(!gameWasPrepared) {
 			errors << "prepageGameloop: no error but not prepared" << endl;
