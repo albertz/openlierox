@@ -1009,8 +1009,11 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 	if(external) {
 		std::string filename = "data/teeworlds/mapres/" + name + ".png";
 		image = LoadGameImage(filename, true);
-		if(!image.get())
-			return "failed to load external image " + name;
+		if(!image.get()) {
+			warnings << "failed to load external image " << name << endl;
+			image = gfxCreateSurfaceAlpha(width, height); // create dummy surface
+			SDL_FillRect(image.get(), NULL, 0); // alpha everywhere
+		}
 		if(image->w != width)
 			return "width does not match. expected: " + itoa(width) + ", got: " + itoa(image->w);
 		if(image->h != height)
