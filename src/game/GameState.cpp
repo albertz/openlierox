@@ -119,6 +119,14 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 			return;
 		}
 		game.createNewWorm(r.objId, false, NULL, Version());
+		if(source) {
+			if(source->gameState->haveObject(r)) {
+				// it should not have the object at this point. however, the client might be fucked up
+				errors << "GameStateUpdate from client: add object " << r.description() << " which it should have had" << endl;
+			}
+			else
+				source->gameState->addObject(r);
+		}
 	}
 
 	uint16_t deletionsNum = bs->readInt16();
@@ -144,6 +152,14 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 			return;
 		}
 		game.removeWorm(w);
+		if(source) {
+			if(!source->gameState->haveObject(r)) {
+				// it should always have the object at this point. however, the client might be fucked up
+				errors << "GameStateUpdate from client: remove obj " << r.description() << " which it should not have had" << endl;
+				source->gameState->addObject(r);
+			}
+			source->gameState->removeObject(r);
+		}
 	}
 
 	uint32_t attrUpdatesNum = bs->readInt(4);
@@ -243,6 +259,14 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 
 		/*if(attrDesc->attrName != "serverFrame")
 			notes << "game state update: <" << r.obj.description() << "> " << attrDesc->attrName << " to " << v.toString() << endl;*/
+		if(source) {
+			if(!source->gameState->haveObject(r.obj)) {
+				// it should always have the object at this point. however, the client might be fucked up
+				errors << "GameStateUpdate from client: attrib update " << r.description() << " about object which it should not have had" << endl;
+				source->gameState->addObject(r.obj);
+			}
+			source->gameState->setObjAttr(r, r.get());
+		}
 	}
 }
 
@@ -332,23 +356,31 @@ void realCopyVar(ScriptVar_t& var);
 void GameState::updateToCurrent() {
 	reset();
 	foreach(o, game.gameStateUpdates->objCreations) {
-		objs[*o] = ObjectState(*o);
+		addObject(*o);
 	}
 	foreach(u, game.gameStateUpdates->objs) {
 		ObjAttrRef r = *u;
-		Objs::iterator it = objs.find(r.obj);
-		assert(it != objs.end());
-		ObjectState& s = it->second;
-		assert(s.obj == it->first);
-		ScriptVar_t& value = s.attribs[u->attr].value;
-		value = r.get();
-		realCopyVar(value);
+		setObjAttr(r, r.get());
 	}
 }
 
 void GameState::addObject(ObjRef o) {
 	assert(!haveObject(o));
 	objs[o] = ObjectState(o);
+}
+
+void GameState::removeObject(ObjRef o) {
+	assert(haveObject(o));
+	objs.erase(o);
+}
+
+void GameState::setObjAttr(ObjAttrRef r, ScriptVar_t value) {
+	Objs::iterator it = objs.find(r.obj);
+	assert(it != objs.end());
+	ObjectState& s = it->second;
+	assert(s.obj == it->first);
+	s.attribs[r.attr].value = value;
+	realCopyVar(s.attribs[r.attr].value);
 }
 
 bool GameState::haveObject(ObjRef o) const {

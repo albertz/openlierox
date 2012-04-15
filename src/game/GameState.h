@@ -65,6 +65,8 @@ struct GameState {
 	void reset();
 	void updateToCurrent();
 	void addObject(ObjRef);
+	void removeObject(ObjRef);
+	void setObjAttr(ObjAttrRef, ScriptVar_t);
 
 	bool haveObject(ObjRef) const;
 	ScriptVar_t getValue(ObjAttrRef) const;
