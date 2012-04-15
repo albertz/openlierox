@@ -1396,8 +1396,8 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 		cl->getChannel()->AddReliablePacketToSend(bs);
 
 		// try to transmit immediatly
-		CBytestream bs;
-		cl->getChannel()->Transmit(&bs);
+		CBytestream unreliable;
+		cl->getChannel()->Transmit(&unreliable);
 	}	
 }
 
