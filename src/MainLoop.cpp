@@ -156,6 +156,7 @@ void startMainLockDetector() {
 				// check if the mainthread is hanging
 				if(oldTime == tLX->currentTime) {
 					warnings << "possible lock of game thread detected" << endl;
+					notes << "current game state: " << game.state << endl;
 					//OlxWriteCoreDump("mainlock");
 					//RaiseDebugger();
 
