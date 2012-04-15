@@ -31,6 +31,7 @@
 #include "gusanos/network.h"
 #include "gusanos/net_worm.h"
 #include "CServer.h"
+#include "CClientNetEngine.h"
 
 #include <math.h>
 #include <string>
@@ -643,12 +644,11 @@ void CWorm::base_die() {
 		if(game.isServer())
 			cServer->killWorm(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1);
 		else {
-			w->Kill(false);
-			if( !NewNet::Active() )
-				w->clearInput();
+			this->Kill(false);
+			this->clearInput();
 
 			// Let the server know that i am dead
-			cNetEngine->SendDeath(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1);
+			cClient->getNetEngine()->SendDeath(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1);
 		}
 	}
 	
