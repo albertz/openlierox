@@ -57,10 +57,11 @@ void GameStateUpdates::writeToBs(CBytestream* bs, const GameState& oldState) con
 	}
 }
 
-static BaseObject* getObjFromRef(ObjRef r) {
+static BaseObject* getObjFromRef(ObjRef r, bool alsoGameSettings = false) {
 	switch(r.classId) {
 	case LuaID<Game>::value: return &game;
 	case LuaID<CWorm>::value: return game.wormById(r.objId, false);
+	case LuaID<Settings>::value: if(alsoGameSettings) { assert(game.isServer()); return &gameSettings; }
 	default: break;
 	}
 	return NULL;
@@ -265,7 +266,9 @@ void GameStateUpdates::handleFromBs(CBytestream* bs, CServerConnection* source) 
 				errors << "GameStateUpdate from client: attrib update " << r.description() << " about object which it should not have had" << endl;
 				source->gameState->addObject(r.obj);
 			}
-			source->gameState->setObjAttr(r, r.get());
+			BaseObject* o = getObjFromRef(r.obj, true);
+			assert(o);
+			source->gameState->setObjAttr(r, r.attr.getAttrDesc()->get(o));
 		}
 	}
 }
