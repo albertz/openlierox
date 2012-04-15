@@ -71,6 +71,10 @@ void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
 
 bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
 	assert(base != NULL);
+	if(this == Game::state_Type::attrDesc()) { // small exception for game.state
+		if(game.state == Game::S_Quit) return false; // don't allow any changes anymore on game.state. just quit
+		return true; // just allow any changes. client might want to disconnect, so client must be allowed to write this :)
+	}
 	if(game.state <= Game::S_Inactive) return true;
 	if(!base->isRegistered()) return true;
 	if(attrUpdateByServerScope || attrUpdateByClientScope) {
@@ -87,7 +91,6 @@ bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
 	// About the const-cast: Too annoying to write in a clean way...
 	if(game.isServer() && getAttrExt((BaseObject*) base).S2CupdateNeeded) return true;
 	if(game.isClient() && cClient->getServerVersion() < OLXBetaVersion(0,59,10)) return true; // old protocol, we just manage it manually
-	if(this == Game::state_Type::attrDesc()) return true; // small exception
 	if(serverside) return game.isServer();
 	if(!serverside) {
 		if(game.isServer() && serverCanUpdate) return true;
