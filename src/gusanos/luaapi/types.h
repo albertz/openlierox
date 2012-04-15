@@ -18,12 +18,14 @@ class LuaReference
 public:
 	typedef int Idx;
 private:
+	bool isNilRef;
 	typedef std::map<WeakRef<lua_State>, Idx> IdxMap;
 	boost::shared_ptr<IdxMap> idxs;
 	void cleanup();
 
 public:
-	LuaReference() { idxs.reset(new IdxMap); }
+	LuaReference() { isNilRef = false; idxs.reset(new IdxMap); }
+	static LuaReference Nil() { LuaReference r; r.isNilRef = true; r.idxs.reset(); return r; }
 
 	void create(LuaContext& ctx); // [-1,0]
 	void push(LuaContext& ctx) const; // [0,1]

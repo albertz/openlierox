@@ -19,7 +19,7 @@ LuaReferenceLazy BaseObject::getLuaReference()
 }
 
 LuaReference LuaReferenceLazy::get(LuaContext& ctx) {
-	if(!obj) return LuaReference();
+	if(!obj) return LuaReference::Nil();
 	if(ref.isSet(ctx))
 		return ref;
 	else

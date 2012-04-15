@@ -1019,6 +1019,7 @@ void LuaReference::cleanup() {
 }
 
 void LuaReference::create(LuaContext& ctx) {
+	assert(!isNilRef);
 	assert(idxs.get());
 	assert(idxs->count(ctx.weakRef) == 0); // not yet created for this Lua context
 	Idx idx = ctx.createReference();
@@ -1027,6 +1028,10 @@ void LuaReference::create(LuaContext& ctx) {
 }
 
 void LuaReference::push(LuaContext& ctx) const {
+	if(isNilRef) {
+		lua_pushnil(ctx);
+		return;
+	}
 	assert(idxs.get());
 	IdxMap::iterator i = idxs->find(ctx.weakRef);
 	assert(i != idxs->end());
@@ -1034,6 +1039,7 @@ void LuaReference::push(LuaContext& ctx) const {
 }
 
 bool LuaReference::isSet(const LuaContext& ctx) const {
+	if(isNilRef) return true;
 	assert(idxs.get());
 	assert(ctx);
 	IdxMap::iterator i = idxs->find(ctx.weakRef);
@@ -1041,6 +1047,8 @@ bool LuaReference::isSet(const LuaContext& ctx) const {
 }
 
 void LuaReference::destroy() {
+	if(isNilRef) return;
+	assert(idxs.get());
 	for(IdxMap::iterator i = idxs->begin(); i != idxs->end(); ++i) {
 		if(!i->first) continue;
 		LuaContext context(i->first.get());
@@ -1050,6 +1058,7 @@ void LuaReference::destroy() {
 }
 
 void LuaReference::invalidate() {
+	if(isNilRef) return;
 	assert(idxs.get());
 	for(IdxMap::iterator i = idxs->begin(); i != idxs->end(); ++i) {
 		if(!i->first) continue;
