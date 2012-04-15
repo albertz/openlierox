@@ -54,12 +54,14 @@ public:
 	CWormInputHandler(CWorm* w) : m_worm(w), uniqueID(0) { gusInit(w); }
 	
 	CWorm* worm() const { return m_worm; }
-	
+	virtual bool weOwnThis() const;
+	virtual CServerConnection* ownerClient() const;
+
 	virtual std::string name() = 0;
-	
+
 	virtual void initWeaponSelection() = 0; // should reset at least bWeaponsReady
 	virtual void doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) = 0;
-	
+
 	// simulation
 	virtual void startGame() {}
 	virtual void getInput() = 0;
@@ -141,7 +143,7 @@ public:
 	virtual void render() {}
 #endif
 	
-	void assignNetworkRole( bool authority );
+	void assignNetworkRole();
 	
 	void assignWorm(CWorm* worm);
 	
@@ -184,7 +186,6 @@ protected:
 	void addActionStart(BitStream* data, BaseActions action);
 	void addActionStop(BitStream* data, BaseActions action);
 	
-	bool m_isAuthority;
 	Net_Node *m_node;
 	BasePlayerInterceptor* m_interceptor;
 		

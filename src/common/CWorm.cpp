@@ -333,8 +333,6 @@ void CWorm::Prepare()
 		m_inputHandler = NULL;
 	}
 
-	m_isAuthority = false;
-
 	skin = skinMask = NULL;
 	m_lastHurt=(0);
 	animate=(false); changing=(false);
@@ -371,13 +369,13 @@ void CWorm::Prepare()
 	if(game.isServer()) {
 		// register network worm-node
 		// as client, we do that in Net_cbNodeRequest_Dynamic
-		NetWorm_Init(true);		
+		NetWorm_Init();
 	}
 		
 	if(game.needToCreateOwnWormInputHandlers()) {
 		if(bLocal) {
 			m_inputHandler = m_type->createInputHandler(this);
-			m_inputHandler->assignNetworkRole(true);
+			m_inputHandler->assignNetworkRole();
 		} else if(game.needProxyWormInputHandler()) {
 			m_inputHandler = new ProxyPlayer(this);
 		
@@ -387,9 +385,9 @@ void CWorm::Prepare()
 			} while(!uniqueID);
 			
 			m_inputHandler->uniqueID = uniqueID;
-			m_inputHandler->assignNetworkRole(true);
 			m_inputHandler->assignWorm(this);
-		}		
+			m_inputHandler->assignNetworkRole();
+		}
 	}
 	
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive

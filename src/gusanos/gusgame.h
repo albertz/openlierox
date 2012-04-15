@@ -135,7 +135,7 @@ public:
 	//static Net_Node* getNode();
 	static void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* data, Net_ConnID connID);
 	
-	void assignNetworkRole( bool authority );
+	void assignNetworkRole();
 	void removeNode();
 	
 	void applyLevelEffect( LevelEffect* effect, int x, int y );

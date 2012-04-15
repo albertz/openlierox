@@ -253,19 +253,22 @@ void Network::olxShutdown() {
 
 void Network::olxHost()
 {
+	assert(game.isServer());
+
 	if(state != StateDisconnected) { // We assume that we're disconnected
 		errors << "Network::olxHost: state is not disconnected" << endl;
 	}
 	
 	m_control = new Server();
 	registerClasses();
-	gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
+	gusGame.assignNetworkRole(); // Gives the gusGame class node authority role
 	setLuaState(StateHosting);
 	SET_STATE(Idle);
 }
 
 void Network::olxConnect()
 {
+	assert(game.isClient());
 	// moved frmo Network::update() message queue handler to here:
 	
 	if(!isDisconnected()) {
@@ -285,7 +288,7 @@ void Network::olxConnect()
 	
 	m_control->Net_ConnectToServer();
 	
-	gusGame.assignNetworkRole( false );
+	gusGame.assignNetworkRole();
 }
 
 void Network::disconnect()

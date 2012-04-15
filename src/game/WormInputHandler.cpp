@@ -48,7 +48,6 @@ void CWormInputHandler::gusInit(CWorm* worm)
 	deleteMe=(false);
 	
 	local=(false);
-	m_isAuthority=(false);
 	m_node=(0);
 	m_interceptor=(0);
 	deleted=(false);
@@ -265,9 +264,19 @@ void CWormInputHandler::assignWorm(CWorm* worm)
 	m_worm->m_owner = this;
 }
 
-void CWormInputHandler::assignNetworkRole( bool authority )
+bool CWormInputHandler::weOwnThis() const {
+	if(m_worm) return m_worm->weOwnThis();
+	return game.isServer();
+}
+
+CServerConnection* CWormInputHandler::ownerClient() const {
+	if(m_worm) return m_worm->ownerClient();
+	return NULL;
+}
+
+void CWormInputHandler::assignNetworkRole()
 {
-	if(!gusGame.isEngineNeeded() && game.isClient() && authority)
+	if(!gusGame.isEngineNeeded() && game.isClient() && weOwnThis())
 		// probably we are on an older server or so; anyway, we cannot create an authority node as client
 		return;
 	
@@ -286,7 +295,7 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 	m_interceptor = new BasePlayerInterceptor( this );
 	m_node->setReplicationInterceptor(m_interceptor);
 	
-	if(authority) {
+	if(weOwnThis()) {
 		if(m_worm) {
 			BitStream* announceData = new BitStream();
 			announceData->addInt(m_worm->getID(), 8);
@@ -304,8 +313,7 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 			errors << "CWormInputHandler::assignNetworkRole: cannot be authority node without worm" << endl;	
 	}
 	
-	m_isAuthority = authority;
-	if( m_isAuthority) {
+	if(weOwnThis()) {
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
 		if( !m_node->registerNodeDynamic(classID, network.getNetControl() ) )
 			allegro_message("ERROR: Unable to register player authority node.");

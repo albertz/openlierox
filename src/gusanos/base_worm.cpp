@@ -604,12 +604,12 @@ void CWorm::respawn()
 
 void CWorm::dig()
 {
-	if( m_isAuthority || !m_node ) {
+	if( weOwnThis() || !m_node ) {
 		if ( getAlive() ) {
 			dig( pos(), getPointingAngle() );
 		
 			// NetWorm code
-			if( m_isAuthority && m_node ) {
+			if( weOwnThis() && m_node ) {
 				BitStream *data = new BitStream;
 				addEvent(data, Dig);
 				game.gameMap()->vectorEncoding.encode<Vec>(*data, pos());
@@ -629,7 +629,7 @@ void CWorm::dig( const Vec& digPos, Angle angle )
 void CWorm::base_die() {
 	if(game.gameScript()->gusEngineUsed()) {
 		// NetWorm code
-		if( m_isAuthority && m_node ) {
+		if( weOwnThis() && m_node ) {
 			BitStream *data = new BitStream;
 			addEvent(data, Die);
 			if ( m_lastHurt )
@@ -653,7 +653,7 @@ void CWorm::base_die() {
 		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
 	}
 	
-	if(m_isAuthority) {
+	if(weOwnThis()) {
 		cServer->killWorm(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1, 0);
 	}
 	
@@ -666,7 +666,7 @@ void CWorm::base_die() {
 
 void CWorm::die()
 {
-	if( m_isAuthority || !m_node )
+	if( weOwnThis() || !m_node )
 		base_die();
 }
 
@@ -697,7 +697,7 @@ bool CWorm::isChangingWpn() {
 
 void CWorm::damage( float amount, CWormInputHandler* damager )
 {
-	if( m_isAuthority || !m_node ) {
+	if( weOwnThis() || !m_node ) {
 		// TODO: maybe we could implement an armor system? ;O
 		m_lastHurt = damager;
 		health -= amount;

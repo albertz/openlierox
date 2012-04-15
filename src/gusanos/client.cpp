@@ -94,7 +94,7 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 			return;
 		}
 		
-		worm->NetWorm_Init(false);
+		worm->NetWorm_Init();
 	}else if ( _requested_class == CWormInputHandler::classID )
 	{
 		if(_announcedata == NULL) {
@@ -118,7 +118,7 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 		
 		// Creates a player class depending on the role
 		CWormInputHandler* player = (_role == eNet_RoleOwner) ? (CWormInputHandler*)new CWormHumanInputHandler(worm) : new ProxyPlayer(worm);
-		player->assignNetworkRole(false);
+		player->assignNetworkRole();
 		
 		if(worm->m_inputHandler) {
 			warnings << "Net_cbNodeRequest_Dynamic: worm " << worm->getName() << " has already the following input handler set: "; warnings.flush();

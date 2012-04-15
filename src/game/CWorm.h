@@ -801,7 +801,7 @@ public:
 	static Net_ClassID  classID;
 	static const float MAX_ERROR_RADIUS;
 	
-	void NetWorm_Init(bool isAuthority);
+	void NetWorm_Init();
 	void NetWorm_Shutdown();
 	
 	void NetWorm_think();
@@ -829,7 +829,6 @@ private:
 	
 	void addEvent(BitStream* data, NetEvents event);
 	
-	bool m_isAuthority;
 	Net_Node *m_node;
 	NetWormInterceptor* m_interceptor;
 	

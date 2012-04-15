@@ -29,10 +29,10 @@ Net_ClassID CWorm::classID = INVALID_CLASS_ID;
 
 const float CWorm::MAX_ERROR_RADIUS = 10.0f;
 
-void CWorm::NetWorm_Init(bool isAuthority)
+void CWorm::NetWorm_Init()
 {
 	if(m_node || m_interceptor) {
-		errors << "CWorm::NetWorm_Init(" << getID() << "," << isAuthority << "): earlier node was not correctly uninitialised" << endl;
+		errors << "CWorm::NetWorm_Init(" << getID() << "," << weOwnThis() << "): earlier node was not correctly uninitialised" << endl;
 		return; // we return here because the chance is high that the old node is really in use and it was incorrect to call NetWorm_Init here again
 	}
 	
@@ -73,16 +73,16 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	announceData->addInt(getID(), 8);
 	m_node->setAnnounceData(announceData);
 	
+	/* // could this code have ever been executed?
 	if(isAuthority && !bLocal) {
 		CServerConnection* cl = getClient();
 		if(cl)
 			m_node->setOwner(NetConnID_conn(cl));
 		else
 			errors << "NetWorm_Init: connection of worm " << getName() << " not found" << endl;
-	}
+	}*/
 	
-	m_isAuthority = isAuthority;
-	if( isAuthority)
+	if(weOwnThis())
 	{
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
 		if( !m_node->registerNodeDynamic(classID, network.getNetControl() ) )

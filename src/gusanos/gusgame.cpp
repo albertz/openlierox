@@ -82,7 +82,6 @@ namespace
 	static const std::string C_DefaultModPath = "Gusanos";
 	bool loaded;
 	Net_Node *m_node;
-	bool m_isAuthority;
 	HashTable<std::string, unsigned long> stringToIndexMap;
 	std::vector<std::string> indexToStringMap;
 	
@@ -681,12 +680,11 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	return true;
 }
 
-void GusGame::assignNetworkRole( bool authority )
+void GusGame::assignNetworkRole()
 {
 	m_node = new Net_Node;
 	
-	m_isAuthority = authority;
-	if( authority)
+	if(/*authority*/ game.isServer())
 	{
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
 		if( !m_node->registerNodeUnique(classID, eNet_RoleAuthority, network.getNetControl() ) )
