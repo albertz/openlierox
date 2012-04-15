@@ -11,7 +11,10 @@ class ProxyPlayer : public CWormInputHandler
 public:
 
 	ProxyPlayer(CWorm* worm);
-	
+
+	virtual bool weOwnThis() const;
+	virtual CServerConnection* ownerClient() const;
+
 	void subThink();
 #ifndef DEDICATED_ONLY
 	void render();
