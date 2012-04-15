@@ -25,6 +25,7 @@
 #include "Mutex.h"
 #include "CServerConnection.h"
 #include "Debug.h"
+#include "FindFile.h"
 
 static CServerConnection* attrUpdateByClientScope = NULL;
 static bool attrUpdateByServerScope = false;
@@ -264,9 +265,28 @@ static void attrUpdateDebugHookPrint(ObjAttrRef a, const ScriptVar_t& oldValue, 
 	DumpCallstack(StdoutPrintFct(), &callstack[0], callstack.size());
 }
 
+static StaticVar<boost::shared_ptr<std::vector<std::string> > > debugAttrHookList;
+
 static void attrUpdateDebugHook(ObjAttrRef a, const ScriptVar_t& oldValue, const ScriptVar_t& newValue, const std::vector<void*>& callstack) {
-	if(a.attr.getAttrDesc()->attrName == "iCurrentWeapon") {
-		attrUpdateDebugHookPrint(a, oldValue, newValue, callstack);
+	if(debugAttrHookList.get().get() == NULL) {
+		FILE* fp = OpenGameFile("debug_attrHookList.txt", "r");
+		if(!fp) return;
+		debugAttrHookList.get().reset(new std::vector<std::string>());
+		while( !feof(fp) && !ferror(fp) ) {
+			std::string l = ReadUntil(fp);
+			TrimSpaces(l);
+			if(l.empty()) continue;
+			if(l[0] == '#') continue;
+
+			debugAttrHookList.get()->push_back(l);
+		}
+		fclose(fp);
+	}
+
+	foreach(astr, *debugAttrHookList.get()) {
+		if(a.attr.getAttrDesc()->attrName == *astr) {
+			attrUpdateDebugHookPrint(a, oldValue, newValue, callstack);
+		}
 	}
 }
 
