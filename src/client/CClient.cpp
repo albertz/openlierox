@@ -1086,6 +1086,10 @@ bool CClient::ReadPackets()
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
 
+		// send disconnect. maybe the server still gets that
+		if(cNetEngine)
+			cNetEngine->SendDisconnect();
+
 		// Stop any file downloads
 		if (bDownloadingMap && cHttpDownloader)
 			cHttpDownloader->CancelFileDownload(sMapDownloadName);
