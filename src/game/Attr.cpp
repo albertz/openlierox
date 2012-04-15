@@ -24,6 +24,7 @@
 #include "CClient.h"
 #include "Mutex.h"
 #include "CServerConnection.h"
+#include "Debug.h"
 
 static CServerConnection* attrUpdateByClientScope = NULL;
 static bool attrUpdateByServerScope = false;
@@ -236,7 +237,75 @@ static void pushObjAttrUpdate(BaseObject& obj) {
 
 void realCopyVar(ScriptVar_t& var);
 
+struct CallInfo {
+	std::vector<void*> callstack;
+	ScriptVar_t oldValue;
+};
+struct CallInfos {
+	std::vector<CallInfo> callInfos;
+	void push_back(const std::vector<void*>& callstack, ScriptVar_t curValue) {
+		if(!callInfos.empty()) {
+			if(callInfos.back().oldValue == curValue)
+				callInfos.pop_back();
+		}
+		callInfos.push_back(CallInfo());
+		callInfos.back().callstack = callstack;
+		callInfos.back().oldValue = curValue;
+	}
+};
+typedef std::map<ObjAttrRef, CallInfos> AttrUpdateCallinfos;
+static StaticVar<AttrUpdateCallinfos> attrUpdateCallinfos;
+
+static void attrUpdateDebugHookPrint(ObjAttrRef a, const ScriptVar_t& oldValue, const ScriptVar_t& newValue, const std::vector<void*>& callstack) {
+	notes << "debugHook: <" << a.obj.description() << "> " << a.attr.getAttrDesc()->description() << ": update " << oldValue.toString() << " -> " << newValue.toString() << endl;
+	DumpCallstack(StdoutPrintFct(), &callstack[0], callstack.size());
+}
+
+static void attrUpdateDebugHook(ObjAttrRef a, const ScriptVar_t& oldValue, const ScriptVar_t& newValue, const std::vector<void*>& callstack) {
+	if(a.attr.getAttrDesc()->attrName == "iCurrentWeapon") {
+		attrUpdateDebugHookPrint(a, oldValue, newValue, callstack);
+	}
+}
+
+static void attrUpdateDebugHooks() {
+#ifdef DEBUG
+	foreach(ci, attrUpdateCallinfos.get()) {
+		ObjAttrRef a = ci->first;
+		const ScriptVar_t* lastValue = NULL;
+		const std::vector<void*>* lastCallstack = NULL;
+		size_t i = 0;
+		foreach(c, ci->second.callInfos) {
+			if(i > 0)
+				attrUpdateDebugHook(a, *lastValue, c->oldValue, *lastCallstack);
+			lastValue = &c->oldValue;
+			lastCallstack = &c->callstack;
+			++i;
+		}
+		if(i > 0) {
+			if(!a.obj.obj)
+				attrUpdateDebugHook(a, *lastValue, ScriptVar_t(), *lastCallstack);
+			else if(a.get() != *lastValue)
+				attrUpdateDebugHook(a, *lastValue, a.get(), *lastCallstack);
+		}
+	}
+	attrUpdateCallinfos.get().clear();
+#endif
+}
+
+static void attrUpdateAddCallInfo(BaseObject& obj, const AttrDesc* attrDesc) {
+#ifdef DEBUG
+	ScriptVar_t curValue = attrDesc->get(&obj);
+	realCopyVar(curValue);
+	std::vector<void*> callstack(128);
+	int c = GetCallstack(0, &callstack[0], callstack.size());
+	if(c < 0) c = 0;
+	callstack.resize(c);
+	attrUpdateCallinfos.get()[ObjAttrRef(obj.thisRef, attrDesc)].push_back(callstack, curValue);
+#endif
+}
+
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
+	attrUpdateAddCallInfo(obj, attrDesc);
 	if(obj.attrUpdates.empty())
 		pushObjAttrUpdate(obj);
 	AttrExt& ext = attrDesc->getAttrExt(&obj);
@@ -272,6 +341,8 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 
 void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback) {
 	Mutex::ScopedLock lock(objUpdatesMutex.get());
+
+	attrUpdateDebugHooks();
 
 	foreach(o, objUpdates.get()) {
 		BaseObject* oPt = o->get();
