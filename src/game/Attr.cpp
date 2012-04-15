@@ -231,7 +231,6 @@ static StaticVar<ObjUpdates> objUpdates;
 static StaticVar<Mutex> objUpdatesMutex;
 
 static void pushObjAttrUpdate(BaseObject& obj) {
-	Mutex::ScopedLock lock(objUpdatesMutex.get());
 	objUpdates->push_back(obj.thisRef.obj);
 }
 
@@ -305,6 +304,7 @@ static void attrUpdateAddCallInfo(BaseObject& obj, const AttrDesc* attrDesc) {
 }
 
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
+	Mutex::ScopedLock lock(objUpdatesMutex.get());
 	attrUpdateAddCallInfo(obj, attrDesc);
 	if(obj.attrUpdates.empty())
 		pushObjAttrUpdate(obj);
