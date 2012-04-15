@@ -124,12 +124,12 @@ protected:
 
 	void			UpdateTransmitStatistics( int sentDataSize );
 	void			UpdateReceiveStatistics( int receivedDataSize );
+			
+public:
 
 	// Packets
 	std::list<CBytestream>	Messages;					// List of reliable messages to be sent
-			
-public:
-	
+
 	CChannel() { Clear(); }
 	virtual ~CChannel() { Clear(); };
 
