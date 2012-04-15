@@ -653,8 +653,18 @@ void CWorm::base_die() {
 		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
 	}
 	
+	// OLX code. based on CClient::InjureWorm
 	if(weOwnThis()) {
-		cServer->killWorm(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1, 0);
+		if(game.isServer())
+			cServer->killWorm(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1);
+		else {
+			w->Kill(false);
+			if( !NewNet::Active() )
+				w->clearInput();
+
+			// Let the server know that i am dead
+			cNetEngine->SendDeath(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1);
+		}
 	}
 	
 	cNinjaRope.write().remove();
