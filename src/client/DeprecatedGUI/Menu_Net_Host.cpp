@@ -1330,7 +1330,8 @@ void Menu_Net_HostLobbyShutdown()
 	// Recover the host type
 	iHostType = 0;
 
-	game.state = Game::S_Inactive;
+	if(game.state > Game::S_Inactive)
+		game.state = Game::S_Inactive;
 }
 
 
