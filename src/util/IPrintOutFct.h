@@ -9,5 +9,6 @@ struct PrintOutFct {
 };
 
 struct NullOut : PrintOutFct { void print(const std::string&) const {} };
+struct StdoutPrintFct : PrintOutFct { void print(const std::string& s) const; };
 
 #endif // OLX_IPRINTOUTFCT_H

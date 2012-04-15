@@ -75,13 +75,6 @@ void Logger::unlock() {
 	SDL_mutexV(mutex);
 }
 
-struct CoutPrint : PrintOutFct {
-	void print(const std::string& str) const {
-		// TODO: We have used std::cout here before but it doesn't seem to work after a while for some reason.
-		printf("%s", str.c_str());
-	}
-};
-
 template<int col>
 struct ConPrint : PrintOutFct {
 	void print(const std::string& str) const {
@@ -103,7 +96,7 @@ static bool logger_output(Logger& log, const std::string& buf) {
 	if((tLXOptions ? tLXOptions->iVerbosity : 0) >= log.minCoutVerb) {
 		SDL_mutexP(globalCoutMutex);
 		StdinCLI_StdoutScope stdoutScope;
-		ret = PrettyPrint(prefix, buf, CoutPrint(), log.lastWasNewline);
+		ret = PrettyPrint(prefix, buf, StdoutPrintFct(), log.lastWasNewline);
 		//std::cout.flush();
 		SDL_mutexV(globalCoutMutex);
 	}
@@ -138,4 +131,8 @@ Logger& Logger::flush() {
 	buffer = "";
 	unlock();
 	return *this;
+}
+
+void StdoutPrintFct::print(const std::string &s) const {
+	printf("%s", s.c_str());
 }
