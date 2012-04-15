@@ -608,7 +608,8 @@ void GameServer::SendGameStateUpdates() {
 			if(cl == firstNonlocalClientConnection()) bandwidthHitCounter.addData(1);
 			continue;
 		}
-		cClient->addHudDebugInfo("outgoing message queue: " + itoa(cl->getChannel()->Messages.size()));
+		if(cl->getChannel()->getBufferFull())
+			continue;
 
 		GameState& state = *cl->gameState;
 		GameStateUpdates updates;

@@ -394,6 +394,8 @@ void CClient::SendGameStateUpdates() {
 		return;
 	if(getServerVersion() < OLXBetaVersion(0,59,10))
 		return;
+	if(cNetChan->getBufferFull())
+		return;
 
 	GameState& state = *serverGameState;
 	GameStateUpdates updates;
