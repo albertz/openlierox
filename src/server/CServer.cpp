@@ -1394,6 +1394,10 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 		bs.writeByte(S2C_DROPPED);
 		bs.writeString(OldLxCompatibleString(cl_msg));
 		cl->getChannel()->AddReliablePacketToSend(bs);
+
+		// try to transmit immediatly
+		CBytestream bs;
+		cl->getChannel()->Transmit(&bs);
 	}	
 }
 
