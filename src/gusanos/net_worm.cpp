@@ -165,6 +165,12 @@ void CWorm::NetWorm_think()
 						size_t weapIndex = Encoding::decode(*data, m_weapons.size());
 						if ( weapIndex < m_weapons.size() && m_weapons[weapIndex] )
 							m_weapons[weapIndex]->recieveMessage( data );
+						else {
+							if(weapIndex >= m_weapons.size())
+								errors << "WeaponMessage: weapIndex " << weapIndex << " invalid, #slots: " << m_weapons.size() << endl;
+							else if(!m_weapons[weapIndex])
+								errors << "WeaponMessage: weapon slot " << weapIndex << " is unset" << endl;
+						}
 					}
 					break;
 					case SetWeapon:
@@ -201,6 +207,9 @@ void CWorm::NetWorm_think()
 							{
 								luaDelete(m_weapons[index]); m_weapons[index] = 0; 
 								m_weapons[index] = new Weapon(gusGame.weaponList[weapTypeIndex], this);
+							}
+							else {
+								errors << "NetWorm SYNC: #weapons: " << gusGame.weaponList.size() << ", weapIndex: " << weapTypeIndex << ", #weaponSlots: " << m_weapons.size() << ", index: " << index << "; sth is messed up" << endl;
 							}
 						}
 					}
