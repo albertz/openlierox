@@ -93,7 +93,7 @@ public:
 		return "INVALID STATE";
 	}
 
-	ATTR(Game, int, state, 1, { onUpdate = Game::onStateUpdate; })
+	ATTR(Game, int, state, 1, { defaultValue = (int)S_Inactive; onUpdate = Game::onStateUpdate; })
 
 	static const int FixedFPS = 100;
 	static const uint64_t FixedFrameTime = 1000 / FixedFPS;

@@ -74,7 +74,6 @@ Game::Game() {
 	thisRef.objId = 1;
 	m_isServer = false;
 	m_isLocalGame = false;
-	state = S_Inactive;
 	m_wpnRest = new CWpnRest();
 	gameStateUpdates = new GameStateUpdates;
 }
