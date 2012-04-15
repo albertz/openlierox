@@ -655,6 +655,17 @@ static TimeDiff simulationDelay() {
 bool Game::hasHighSimulationDelay() { return simulationDelay() > TimeDiff(100); }
 bool Game::hasSeriousHighSimulationDelay() { return simulationDelay() > TimeDiff(200); }
 
+struct GusSpeedScope {
+	std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
+	GusSpeedScope() {
+		scopedSpeeds.reserve( game.worms()->size() * 2 );
+		for_each_iterator(CWorm*, w, game.worms()) {
+			scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
+			scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(w->get()->cNinjaRope.write()) );
+		}
+	}
+};
+
 void Game::frame() {
 	SetCrashHandlerReturnPoint("main game loop");
 
@@ -884,14 +895,7 @@ void Game::frameInner()
 
 			// do lua/gus frames in all cases
 			{
-				// convert speed to lua if needed
-				std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
-				scopedSpeeds.reserve( game.worms()->size() * 2 );
-				for_each_iterator(CWorm*, w, game.worms()) {
-					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
-					scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(w->get()->cNinjaRope.write()) );
-				}
-
+				GusSpeedScope speedScope;
 				gusLogicFrame();
 			}
 
@@ -914,7 +918,10 @@ void Game::frameInner()
 
 	if(state > Game::S_Inactive) {
 		// Gusanos network
-		network.update();
+		{
+			GusSpeedScope speedScope;
+			network.update();
+		}
 
 		if(isClient() && state >= Game::S_Lobby) {
 			cClient->SendGameStateUpdates();
