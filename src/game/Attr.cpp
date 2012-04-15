@@ -182,6 +182,7 @@ ObjAttrRef ObjAttrRef::UpperLimit(ObjRef o) {
 }
 
 ScriptVar_t ObjAttrRef::get() const {
+	assert(obj.obj);
 	const BaseObject* oPt = obj.obj.get();
 	assert(oPt != NULL); // or should we return the attr default?
 	const AttrDesc* attrDesc = attr.getAttrDesc();
