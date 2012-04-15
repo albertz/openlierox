@@ -1,4 +1,2 @@
 # Define a list of attrib names.
 # When any of these are changed, the callstack is printed.
-
-iCurrentWeapon
