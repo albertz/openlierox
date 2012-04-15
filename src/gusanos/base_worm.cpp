@@ -628,24 +628,9 @@ void CWorm::dig( const Vec& digPos, Angle angle )
 
 void CWorm::base_die() {
 	if(game.gameScript()->gusEngineUsed()) {
-		// NetWorm code
-		if( weOwnThis() && m_node ) {
-			BitStream *data = new BitStream;
-			addEvent(data, Die);
-			if ( m_lastHurt )
-			{
-				data->addInt( static_cast<int>( m_lastHurt->getNodeID() ), 32 );
-			}
-			else
-			{
-				data->addInt( INVALID_NODE_ID, 32 );
-			}
-			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);			
-		}
-		
 		LUACALLBACK(wormDeath).call()(getLuaReference())();
 	}
-	
+
 	bAlive = false;
 	fTimeofDeath = tLX->currentTime;
 

@@ -781,7 +781,6 @@ public:
 	enum NetEvents
 	{
 		Dig,
-		Die,
 		ChangeWeapon,
 		WeaponMessage,
 		SetWeapon,

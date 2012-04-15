@@ -152,12 +152,6 @@ void CWorm::NetWorm_think()
 						CWorm::dig(digPos, digAngle);
 					}
 					break;
-					case Die:
-					{
-						m_lastHurt = gusGame.findPlayerWithID( data->getInt(32) );
-						CWorm::base_die();
-					}
-					break;
 					case ChangeWeapon:
 					{
 						//size_t weapIndex = data->getInt(Encoding::bitsOf(gusGame.weaponList.size() - 1));
