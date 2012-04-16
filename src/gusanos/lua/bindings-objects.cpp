@@ -172,12 +172,16 @@ namespace ParticleRep
 }
 
 int shootFromObject(lua_State* L, CGameObject* object)
-{
+{		
 	if(object == NULL) {
 		errors << "shootFromObject: object == NULL" << endl;
 		return 0;
 	}
-	
+
+	boost::shared_ptr<CGameObject::ScopedGusCompatibleSpeed> speedScope;
+	if(!object->gusSpeedScope)
+		speedScope.reset(new CGameObject::ScopedGusCompatibleSpeed(*object));
+
 	/*
 	void* typeP = lua_touserdata (L, 2);
 	if(!typeP)
