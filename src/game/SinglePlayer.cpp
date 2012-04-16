@@ -226,6 +226,7 @@ bool SinglePlayerGame::startGame() {
 		// we set the fallback gamemode
 		standardGameMode = gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
 		gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = this;
+		notes << "singlePlayer: special game mode " << standardGameMode->Name() << endl;
 	}
 	
 	game.cleanupCallbacks.connect(boost::bind(&SinglePlayer_CleanupAfterGameloopEnd));
