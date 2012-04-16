@@ -759,6 +759,7 @@ void Game::frameInner()
 			errors << "prepageGameloop: no error but not prepared" << endl;
 			return;
 		}
+		return; // skip to next frame to do stuff. also executes pending commands, etc.
 	}
 
 	// Check if user pressed screenshot key

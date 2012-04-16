@@ -77,6 +77,7 @@ void GameServer::setDefaultWeaponRestFile() { gameSettings.overwrite[FT_WeaponRe
 // Clear the server
 void GameServer::Clear()
 {
+	recheckGame = false;
 	cClients = NULL;
 	//cProjectiles = NULL;
 	lastClientSendData = 0;

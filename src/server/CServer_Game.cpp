@@ -166,6 +166,20 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 // Simulate the game stuff
 void GameServer::SimulateGame()
 {
+	if(recheckGame) {
+		if(game.state == Game::S_Preparing)
+			// Check if all the clients are ready
+			CheckReadyClient();
+
+		if(!game.gameOver && game.state == Game::S_Playing)
+			if(game.gameMode()->CheckGameOver())
+				GameOver();
+
+		for(int t = 0; t < game.gameMode()->GameTeams(); ++t) {
+			game.writeTeamScore(t) = game.gameMode()->TeamScores(t);
+		}
+	}
+
 	if(game.state != Game::S_Playing)
 		return;
 
@@ -492,17 +506,7 @@ void GameServer::gotoLobby()
 // Called iff game state has changed (e.g. player left etc.)
 void GameServer::RecheckGame()
 {
-	if(game.state == Game::S_Preparing)
-		// Check if all the clients are ready
-		CheckReadyClient();
-	
-	if(!game.gameOver && game.state == Game::S_Playing)
-		if(game.gameMode()->CheckGameOver())
-			GameOver();
-
-	for(int t = 0; t < game.gameMode()->GameTeams(); ++t) {
-		game.writeTeamScore(t) = game.gameMode()->TeamScores(t);
-	}
+	recheckGame = true;
 }
 
 

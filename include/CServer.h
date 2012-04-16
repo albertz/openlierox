@@ -89,7 +89,8 @@ private:
 	
 	// Simulation
 	int			lastClientSendData;
-	
+	bool		recheckGame;
+
 	AbsTime		fLastBonusTime;
 
 	int			iLastVictim;	// TODO: what is this good for
