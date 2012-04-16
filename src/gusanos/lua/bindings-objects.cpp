@@ -17,6 +17,7 @@
 #include "game/CMap.h"
 #include "game/Game.h"
 #include "game/Attr.h"
+#include "Timer.h"
 
 #include <cmath>
 #include <iostream>
@@ -171,16 +172,66 @@ namespace ParticleRep
 	};
 }
 
+/* Some Gus Lua code overwrote some gameobject's (e.g. worm's) pos/vel
+  to shoot from a specific pos with a specific vel. E.g. the Promode Lua
+  code does this in its weapon network syncing code (see putObject() in
+  promode/scripts/weaponsyncing.lua).
+  When we do this for another object where we don't have authority to
+  write pos/vel, the write is ignored.
+  Also, ScopedGusCompatibleSpeed doesn't work correctly because
+  it is not able to actually change the velocity.
+  This is a quite ugly hack where we remember such writes for one frame
+  and simulate the Lua environment as if we did the write.
+  */
+struct PosVelTempHack {
+	AbsTime lastTime;
+	std::map<WeakRef<BaseObject>, CVec> vel;
+	std::map<WeakRef<BaseObject>, CVec> pos;
+
+	void recheck() {
+		if(tLX->currentTime != lastTime) {
+			vel.clear();
+			pos.clear();
+			lastTime = tLX->currentTime;
+		}
+	}
+
+	CVec getPos(CGameObject* o) {
+		recheck();
+		if(o->weOwnThis()) return o->pos();
+		if(pos.find(o->thisRef.obj) != pos.end())
+			return pos[o->thisRef.obj];
+		return o->pos();
+	}
+
+	CVec getVel(CGameObject* o) {
+		recheck();
+		if(o->weOwnThis()) return o->getGusVel();
+		if(vel.find(o->thisRef.obj) != vel.end())
+			return vel[o->thisRef.obj];
+		return o->getGusVel();
+	}
+
+	void setPos(CGameObject* o, CVec v) {
+		recheck();
+		if(o->weOwnThis()) o->setPos(v);
+		else pos[o->thisRef.obj] = v;
+	}
+
+	void setVel(CGameObject* o, CVec v) {
+		recheck();
+		if(o->weOwnThis()) o->setGusVel(v);
+		else vel[o->thisRef.obj] = v;
+	}
+};
+static PosVelTempHack posVelTempHack;
+
 int shootFromObject(lua_State* L, CGameObject* object)
 {		
 	if(object == NULL) {
 		errors << "shootFromObject: object == NULL" << endl;
 		return 0;
 	}
-
-	boost::shared_ptr<CGameObject::ScopedGusCompatibleSpeed> speedScope;
-	if(!object->gusSpeedScope)
-		speedScope.reset(new CGameObject::ScopedGusCompatibleSpeed(*object));
 
 	/*
 	void* typeP = lua_touserdata (L, 2);
@@ -227,11 +278,11 @@ int shootFromObject(lua_State* L, CGameObject* object)
 		Vec spd(direction * (float)(speed + midrnd()*speedVariation));
 		if(motionInheritance)
 		{
-			spd += Vec(object->velocity()) * (float)motionInheritance;
+			spd += Vec(posVelTempHack.getVel(object)) * (float)motionInheritance;
 			angle = spd.getAngle(); // Need to recompute angle
 		}
 		//gusGame.insertParticle( new Particle( p, object->getPos() + direction * distanceOffset, spd, object->getDir(), object->getOwner(), angle ));
-		last = p->newParticle(p, Vec(object->pos()) + direction * (float)distanceOffset, spd, object->getDir(), object->getOwner(), angle);
+		last = p->newParticle(p, posVelTempHack.getPos(object) + direction * (float)distanceOffset, spd, object->getDir(), object->getOwner(), angle);
 	}
 	
 	if(last)
@@ -406,8 +457,8 @@ METHODC(CGameObject, baseObject_remove,  {
 */
 
 METHODC(CGameObject, baseObject_pos,  {
-	context.push(p->pos().get().x);
-	context.push(p->pos().get().y);
+	context.push(posVelTempHack.getPos(p).x);
+	context.push(posVelTempHack.getPos(p).y);
 	return 2;
 })
 
@@ -420,7 +471,7 @@ METHODC(CGameObject, baseObject_pos,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_setPos,  {
-	p->setPos(Vec((float)lua_tonumber(context, 2), (float)lua_tonumber(context, 3))); 
+	posVelTempHack.setPos(p, Vec((float)lua_tonumber(context, 2), (float)lua_tonumber(context, 3)));
 	return 0;
 })
 
@@ -433,14 +484,8 @@ METHODC(CGameObject, baseObject_setPos,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_spd,  {
-	if(p->gusSpeedScope) {
-		context.push(p->velocity().get().x);
-		context.push(p->velocity().get().y);
-	} else {
-		CGameObject::ScopedGusCompatibleSpeed speedScope(*p);
-		context.push(p->velocity().get().x);
-		context.push(p->velocity().get().y);
-	}
+	context.push(posVelTempHack.getVel(p).x);
+	context.push(posVelTempHack.getVel(p).y);
 	return 2;
 })
 
@@ -455,14 +500,7 @@ METHODC(CGameObject, baseObject_spd,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_setSpd, {
-	if(p->gusSpeedScope) {
-		p->velocity().write().x = (float)lua_tonumber(context, 2);
-		p->velocity().write().y = (float)lua_tonumber(context, 3);
-	} else {
-		CGameObject::ScopedGusCompatibleSpeed speedScope(*p);
-		p->velocity().write().x = (float)lua_tonumber(context, 2);
-		p->velocity().write().y = (float)lua_tonumber(context, 3);
-	}
+	posVelTempHack.setVel(p, Vec((float)lua_tonumber(context, 2), (float)lua_tonumber(context, 3)));
 	return 0;
 })
 
@@ -477,14 +515,8 @@ METHODC(CGameObject, baseObject_setSpd, {
 	</code>
 */
 METHODC(CGameObject, baseObject_push,  {
-	if(p->gusSpeedScope) {
-		p->velocity().write().x += (float)lua_tonumber(context, 2);
-		p->velocity().write().y += (float)lua_tonumber(context, 3);
-	} else {
-		CGameObject::ScopedGusCompatibleSpeed speedScope(*p);
-		p->velocity().write().x += (float)lua_tonumber(context, 2);
-		p->velocity().write().y += (float)lua_tonumber(context, 3);
-	}
+	Vec push((float)lua_tonumber(context, 2), (float)lua_tonumber(context, 3));
+	posVelTempHack.setVel(p, posVelTempHack.getVel(p) + push);
 	return 0;
 })
 
