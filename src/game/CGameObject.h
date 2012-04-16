@@ -152,6 +152,9 @@ public:
 		~ScopedLXCompatibleSpeed();
 	};
 
+	CVec getGusVel() const;
+	void setGusVel(CVec v);
+
 	LuaReference luaData;
 	
 	CGameObject* nextS_;

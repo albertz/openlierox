@@ -154,5 +154,19 @@ float convertAccel_GusToLX(float v) {
 	return (v / LX56PhysicsDT.seconds()) / LX56PhysicsDT.seconds();
 }
 
+CVec CGameObject::getGusVel() const {
+	if(gusSpeedScope) return getVelocity();
+	return CVec(convertSpeed_LXToGus(vVelocity.get().x),
+				convertSpeed_LXToGus(vVelocity.get().y));
+}
+
+void CGameObject::setGusVel(CVec v) {
+	if(gusSpeedScope) velocity() = v;
+	else {
+		ScopedGusCompatibleSpeed speedScope(*this);
+		velocity() = v;
+	}
+}
+
 
 REGISTER_CLASS(CGameObject, LuaID<CustomVar>::value)
