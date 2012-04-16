@@ -105,29 +105,37 @@ bool CGameObject::isInside(int x, int y) const {
 // LX56PhysicsDT.seconds() default is 1/84 ~= 0.0119.
 
 CGameObject::ScopedGusCompatibleSpeed::ScopedGusCompatibleSpeed(CGameObject& o) : obj(o) {
-	// we do this if we use the LX56 Physics simulation on worms
-	// Gusanos interprets the velocity in a different way, so we convert it while we are doing Gus stuff
-	assert(!obj.gusSpeedScope);
-	obj.velocity() *= LX56PhysicsDT.seconds();
-	obj.gusSpeedScope = true;
+	// Note: Instead of having asserts on obj.gusSpeedScope, we make it dynamic.
+	// This is because the Attr::write() fallback refers always to the same
+	// static object and thus we might get messed up, setting the scope twice
+	// or so on this static dummy object. But that doesn't realy matter anyway.
+	if(!obj.gusSpeedScope) {
+		// we do this if we use the LX56 Physics simulation on worms
+		// Gusanos interprets the velocity in a different way, so we convert it while we are doing Gus stuff
+		obj.velocity() *= LX56PhysicsDT.seconds();
+		obj.gusSpeedScope = true;
+	}
 }
 
 CGameObject::ScopedGusCompatibleSpeed::~ScopedGusCompatibleSpeed() {
-	assert(obj.gusSpeedScope);
-	obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
-	obj.gusSpeedScope = false;
+	if(obj.gusSpeedScope) {
+		obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
+		obj.gusSpeedScope = false;
+	}
 }
 
 CGameObject::ScopedLXCompatibleSpeed::ScopedLXCompatibleSpeed(CGameObject& o) : obj(o) {
-	assert(obj.gusSpeedScope);
-	obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
-	obj.gusSpeedScope = false;
+	if(obj.gusSpeedScope) {
+		obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
+		obj.gusSpeedScope = false;
+	}
 }
 
 CGameObject::ScopedLXCompatibleSpeed::~ScopedLXCompatibleSpeed() {
-	assert(!obj.gusSpeedScope);
-	obj.velocity() *= LX56PhysicsDT.seconds();
-	obj.gusSpeedScope = true;
+	if(!obj.gusSpeedScope) {
+		obj.velocity() *= LX56PhysicsDT.seconds();
+		obj.gusSpeedScope = true;
+	}
 }
 
 float convertSpeed_LXToGus(float v) {
