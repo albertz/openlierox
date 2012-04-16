@@ -20,8 +20,8 @@
 
 LuaReference CGameObject::metaTable;
 
-CGameObject::CGameObject() { gusInit(); }
-CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) { gusInit(owner, pos_, spd_); }
+CGameObject::CGameObject() { gusSpeedScope = false; gusInit(); }
+CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) { gusSpeedScope = false; gusInit(owner, pos_, spd_); }
 CGameObject::~CGameObject() { gusShutdown(); }
 
 
@@ -107,19 +107,27 @@ bool CGameObject::isInside(int x, int y) const {
 CGameObject::ScopedGusCompatibleSpeed::ScopedGusCompatibleSpeed(CGameObject& o) : obj(o) {
 	// we do this if we use the LX56 Physics simulation on worms
 	// Gusanos interprets the velocity in a different way, so we convert it while we are doing Gus stuff
+	assert(!obj.gusSpeedScope);
 	obj.velocity() *= LX56PhysicsDT.seconds();
+	obj.gusSpeedScope = true;
 }
 
 CGameObject::ScopedGusCompatibleSpeed::~ScopedGusCompatibleSpeed() {
+	assert(obj.gusSpeedScope);
 	obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
+	obj.gusSpeedScope = false;
 }
 
 CGameObject::ScopedLXCompatibleSpeed::ScopedLXCompatibleSpeed(CGameObject& o) : obj(o) {
+	assert(obj.gusSpeedScope);
 	obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
+	obj.gusSpeedScope = false;
 }
 
 CGameObject::ScopedLXCompatibleSpeed::~ScopedLXCompatibleSpeed() {
+	assert(!obj.gusSpeedScope);
 	obj.velocity() *= LX56PhysicsDT.seconds();
+	obj.gusSpeedScope = true;
 }
 
 float convertSpeed_LXToGus(float v) {

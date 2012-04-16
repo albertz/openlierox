@@ -126,6 +126,7 @@ Particle::Particle(PartType *type, Vec pos_, Vec spd_, int dir, CWormInputHandle
 		m_node(0),
 		interceptor(0)
 {
+	gusSpeedScope = true; // particles are gus-only. we are always in gusSpeedScope
 	m_type->touch();
 
 	m_angle.clamp();

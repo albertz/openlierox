@@ -429,8 +429,14 @@ METHODC(CGameObject, baseObject_setPos,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_spd,  {
-	context.push(p->velocity().get().x);
-	context.push(p->velocity().get().y);
+	if(p->gusSpeedScope) {
+		context.push(p->velocity().get().x);
+		context.push(p->velocity().get().y);
+	} else {
+		CGameObject::ScopedGusCompatibleSpeed speedScope(*p);
+		context.push(p->velocity().get().x);
+		context.push(p->velocity().get().y);
+	}
 	return 2;
 })
 
@@ -444,9 +450,15 @@ METHODC(CGameObject, baseObject_spd,  {
 	object:set_spd(10, 0) -- Makes the object move to the right
 	</code>
 */
-METHODC(CGameObject, baseObject_setSpd,  {
-	p->velocity().write().x = (float)lua_tonumber(context, 2);
-	p->velocity().write().y = (float)lua_tonumber(context, 3);
+METHODC(CGameObject, baseObject_setSpd, {
+	if(p->gusSpeedScope) {
+		p->velocity().write().x = (float)lua_tonumber(context, 2);
+		p->velocity().write().y = (float)lua_tonumber(context, 3);
+	} else {
+		CGameObject::ScopedGusCompatibleSpeed speedScope(*p);
+		p->velocity().write().x = (float)lua_tonumber(context, 2);
+		p->velocity().write().y = (float)lua_tonumber(context, 3);
+	}
 	return 0;
 })
 
@@ -461,8 +473,14 @@ METHODC(CGameObject, baseObject_setSpd,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_push,  {
-	p->velocity().write().x += (float)lua_tonumber(context, 2);
-	p->velocity().write().y += (float)lua_tonumber(context, 3);
+	if(p->gusSpeedScope) {
+		p->velocity().write().x += (float)lua_tonumber(context, 2);
+		p->velocity().write().y += (float)lua_tonumber(context, 3);
+	} else {
+		CGameObject::ScopedGusCompatibleSpeed speedScope(*p);
+		p->velocity().write().x += (float)lua_tonumber(context, 2);
+		p->velocity().write().y += (float)lua_tonumber(context, 3);
+	}
 	return 0;
 })
 

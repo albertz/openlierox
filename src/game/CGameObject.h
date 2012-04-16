@@ -135,6 +135,8 @@ public:
 		vVelocity += CVec(spd_.x, spd_.y);
 	}
 
+	bool gusSpeedScope;
+
 	// The object stores LX-velocity but you want to have a scope where
 	// the velocity is Gusanos-like.
 	struct ScopedGusCompatibleSpeed : DontCopyTag {
