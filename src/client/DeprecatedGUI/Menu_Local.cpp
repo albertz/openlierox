@@ -855,6 +855,8 @@ static bool Menu_LocalStartGame_CustomGame() {
 // Start a local game
 void Menu_LocalStartGame()
 {
+	game.startServer(/* localGame */ true);
+
 	bool ok = false;
 	if(tLXOptions->sLocalPlayGame == "")
 		ok = Menu_LocalStartGame_CustomGame();
@@ -862,8 +864,6 @@ void Menu_LocalStartGame()
 		ok = singlePlayerGame.startGame();
 
 	if(ok) {
-		game.startServer(/* localGame */ true);
-
 		// Tell the client to connect to the server
 		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 		
