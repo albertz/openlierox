@@ -64,7 +64,7 @@ struct SinglePlayerGame : CGameMode {
 	CGWRAPPER0v(PrepareGame);
 	CGWRAPPER0v(BeginMatch);
 	CGWRAPPER1v(PrepareWorm, CWorm*);
-	CGWRAPPER2(bool, Spawn, CWorm*, CVec);
+	CGWRAPPER2(bool, Spawn, CWorm*, CVec&);
 	CGWRAPPER2v(Kill, CWorm*, CWorm*);
 	CGWRAPPER1(bool, Shoot, CWorm*);
 	CGWRAPPER2v(hitFlag, CWorm*, Flag*);
