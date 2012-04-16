@@ -241,6 +241,7 @@ static void pushObjAttrUpdate(BaseObject& obj) {
 
 void realCopyVar(ScriptVar_t& var);
 
+#ifdef DEBUG
 struct CallInfo {
 	std::vector<void*> callstack;
 	ScriptVar_t oldValue;
@@ -259,6 +260,7 @@ struct CallInfos {
 };
 typedef std::map<ObjAttrRef, CallInfos> AttrUpdateCallinfos;
 static StaticVar<AttrUpdateCallinfos> attrUpdateCallinfos;
+#endif
 
 static void attrUpdateDebugHookPrint(ObjAttrRef a, const ScriptVar_t& oldValue, const ScriptVar_t& newValue, const std::vector<void*>& callstack) {
 	notes << "debugHook: <" << a.obj.description() << "> " << a.attr.getAttrDesc()->description() << ": update " << oldValue.toString() << " -> " << newValue.toString() << endl;
