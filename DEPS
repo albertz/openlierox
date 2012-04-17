@@ -60,6 +60,9 @@ tested versions: 1.1.0
 Debian: libvorbis-dev
 tested versions: 1.2.0
 
+-- libbfd
+Debian: binutils-dev
+
 ----
 
 Quick command for Debian/Ubuntu:
