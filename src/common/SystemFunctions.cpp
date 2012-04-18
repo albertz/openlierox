@@ -132,7 +132,7 @@ void setCurThreadName(const std::string& name)
 #endif
 
 #ifdef HAVE_PTHREAD_NAME
-	pthread_setname_np(name.c_str());
+	pthread_setname_np(pthread_self(), name.c_str());
 #endif
 }
 
