@@ -4,6 +4,7 @@
 //#include "game/CGameObject.h"
 #include <list>
 #include <vector>
+#include <cstring> // size_t
 
 static const int RENDER_LAYERS_AMMOUNT = 10;
 static const int COLLISION_LAYERS_AMMOUNT = 10;
