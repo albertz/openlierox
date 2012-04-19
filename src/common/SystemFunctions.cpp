@@ -132,7 +132,12 @@ void setCurThreadName(const std::string& name)
 #endif
 
 #ifdef HAVE_PTHREAD_NAME
+// http://stackoverflow.com/questions/2369738/can-i-set-the-name-of-a-thread-in-pthreads-linux/7989973#7989973
+#ifdef __APPLE__
+	pthread_setname_np(name.c_str());
+#else
 	pthread_setname_np(pthread_self(), name.c_str());
+#endif
 #endif
 }
 
