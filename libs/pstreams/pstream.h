@@ -1113,8 +1113,7 @@ namespace redi
               // parent can get error code from ck_exec pipe
               error_ = errno;
 
-              int ignoreme__stupid_wor_workaround = ::write(ck_exec[WR], &error_, sizeof(error_));
-              ignoreme__stupid_wor_workaround = 0; // again stupid workaround to ignore unused var
+              if(::write(ck_exec[WR], &error_, sizeof(error_)) < 0); // ignore error
               ::close(ck_exec[WR]);
               ::close(ck_exec[RD]);
 
