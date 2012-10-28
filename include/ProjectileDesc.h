@@ -96,6 +96,7 @@ struct proj_t {
 		Dampening = 0.0f;
 		Width = 1;
 		Height = 1;
+		WeaponName = "";
 	}
 	
 	std::string	filename;		// Compiler use (was 64b before)
@@ -146,6 +147,8 @@ struct proj_t {
 	// event proj spawning (if no specific spawnInfo is set in Proj_Action)
 	Proj_SpawnInfo GeneralSpawnInfo;
 	
+	//  What weapon spawned this projectile
+	std::string WeaponName;
 	
 	SDL_Surface * bmpImage;	// Read-only var, managed by game script, no need in smartpointer
 	SmartPointer<SDL_Surface> bmpShadow;  // Pre-generated projectile shadow
