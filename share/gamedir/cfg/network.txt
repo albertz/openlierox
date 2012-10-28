@@ -16,7 +16,7 @@ BannedYou = You have been banned
 YouQuit = You have quit
 YouTimed = You timed out
 
-Killed = <killer> killed <victim>
+Killed = <killer> killed <victim> with <weapon>
 CommitedSuicide = <player> commited suicide
 FirstBlood = <player> drew first blood
 TeamKill = <player> is an ugly teamkiller

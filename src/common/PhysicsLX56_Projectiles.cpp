@@ -36,6 +36,7 @@
 #include "Geometry.h"
 #include "ThreadPool.h" // for struct Action
 #include "Timer.h"
+#include <WeaponDesc.h>
 #include "sound/SoundsBase.h"
 #include "game/Game.h"
 
@@ -558,6 +559,17 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 	// Calculate the angle of the direction the projectile is heading
 	const float heading = Useangle ? parent.angle() : 0;
 	
+	// We figure out the weapon that created this projectile
+	if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
+		// The projectile came straight from a weapon(shot)
+		const weapon_t *wpn = game.gameScript()->GetWeapons() + parent.shot->nWeapon;
+		Proj->WeaponName = wpn->Name;
+	} else if(parent.type == Proj_SpawnParent::PSPT_PROJ) {
+		// Another projectile caused this projectile so the weapon that created that
+		// projectile is responsible for this one as well.
+		Proj->WeaponName = parent.proj->getProjInfo()->WeaponName;
+	}
+
 	for(int i = 0; i < Amount; i++) {
 		const CVec sprd = UseParentVelocityForSpread ?
 			(parent.velocity() * ParentVelSpreadFactor)
@@ -749,7 +761,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			
 			// Do we do a bounce-explosion (bouncy larpa uses this)
 			if(BounceExplode > 0)
-				cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)BounceExplode, false, prj->GetOwner());
+				cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)BounceExplode, false, prj->GetOwner(), prj->GetProjInfo()->WeaponName);
 			break;
 			
 		// Carve
@@ -787,7 +799,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		case PJ_INJUREWORM:
 			if(eventInfo.colType && eventInfo.colType->withWorm) {
 				CWorm* w = game.wormById(eventInfo.colType->wormId, false);
-				if(w) cClient->InjureWorm(w, (float)Damage, prj->GetOwner());
+				if(w) cClient->InjureWorm(w, (float)Damage, prj->GetOwner(), prj->GetProjInfo()->WeaponName);
 			}			
 			break;
 				
@@ -795,7 +807,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			if(eventInfo.colType && eventInfo.colType->withWorm) {
 				info->deleteAfter = true;
 				CWorm* w = game.wormById(eventInfo.colType->wormId, false);
-				if(w) cClient->InjureWorm(w, (float)Damage, prj->GetOwner());
+				if(w) cClient->InjureWorm(w, (float)Damage, prj->GetOwner(), prj->GetProjInfo()->WeaponName);
 				break;
 			}
 			
@@ -1090,7 +1102,7 @@ bool Proj_FallbackEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile*
 static void projectile_doExplode(CProjectile* const prj, int damage, int shake) {
 	// Explosion
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)damage, shake, prj->GetOwner(), prj->GetProjInfo()->WeaponName);
 }
 
 static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
@@ -1101,7 +1113,7 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 		damage = pi->PlyHit.Damage;
 	
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)damage, shake, prj->GetOwner(), prj->GetProjInfo()->WeaponName);
 }
 
 static void projectile_doMakeDirt(CProjectile* const prj) {

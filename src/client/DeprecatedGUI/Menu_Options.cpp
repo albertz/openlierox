@@ -785,9 +785,15 @@ void Menu_OptionsFrame()
 				case os_SoundVolume:
 					if(ev->iEventMsg == SLD_CHANGE) {
 						CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
-						tLXOptions->iSoundVolume = s->getValue();
-
-						SetSoundVolume( tLXOptions->iSoundVolume );
+						
+						if(tLXOptions->iSoundVolume != s->getValue()) {
+						  // Volume has been changed so set new volume
+						  tLXOptions->iSoundVolume = s->getValue();
+						  SetSoundVolume( tLXOptions->iSoundVolume );
+						  
+						  // We want the user to know how loud the new volume is
+						  PlaySoundSample(sfxGeneral.smpNotify);
+						}
 					}
 					break;
 

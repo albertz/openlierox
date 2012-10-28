@@ -308,7 +308,7 @@ bool CClient::InitializeBar(int number)  {
 		y = 430;
 		label_x = 163;
 		label_y = 425;
-		numforestates = numbgstates = 2;
+		numforestates = numbgstates = 3; //Shoot (0), loading (1) and cooldown (2)
 
 		break;
 
@@ -339,7 +339,7 @@ bool CClient::InitializeBar(int number)  {
 		y = 430;
 		label_x = 550;
 		label_y = 420;
-		numforestates = numbgstates = 2;
+		numforestates = numbgstates = 3; //Shoot (0), loading (1) and cooldown (2)
 
 		break;
 	default: return false;
@@ -1066,9 +1066,18 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 					WeaponBar->SetCurrentForeState(1);  // Loading state
 					WeaponBar->SetCurrentBgState(1);
 				} else {
-					WeaponBar->SetForeColor(Color(64,64,255));
-					WeaponBar->SetCurrentForeState(0);  // "Shooting" state
-					WeaponBar->SetCurrentBgState(0);
+					// Either ready to shoot or on cooldown
+					if(Slot->LastFire > 0 && Slot->weapon()->ROF > 0.2) {
+						// Set weapon on cooldown, don't do this for weapons with
+						// low ROF values to stop ammo bar from needlessly blinking
+						WeaponBar->SetForeColor(Color(255,161,66));
+						WeaponBar->SetCurrentForeState(2);  // "Cooldown" state
+						WeaponBar->SetCurrentBgState(2);
+					} else {
+						WeaponBar->SetForeColor(Color(64,64,255));
+						WeaponBar->SetCurrentForeState(0);  // "Shooting" state
+						WeaponBar->SetCurrentBgState(0);
+					}
 				}
 				WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
 				WeaponBar->Draw( bmpDest );

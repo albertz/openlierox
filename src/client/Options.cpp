@@ -713,7 +713,7 @@ bool NetworkTexts::LoadFromDisc()
 	ReadString (f, "NetworkTexts", "YouQuit",		  sYouQuit,			"You have quit");
 	ReadString (f, "NetworkTexts", "YouTimed",		  sYouTimed,		"You timed out");
 
-	ReadString (f, "NetworkTexts", "Killed",	      sKilled,			"<killer> killed <victim>");
+	ReadString (f, "NetworkTexts", "Killed",	      sKilled,			"<killer> killed <victim> with <weapon>");
 	ReadString (f, "NetworkTexts", "CommitedSuicide", sCommitedSuicide,	"<player> commited suicide");
 	ReadString (f, "NetworkTexts", "FirstBlood",	  sFirstBlood,		"<player> drew first blood");
 	ReadString (f, "NetworkTexts", "TeamKill",		  sTeamkill,		"<player> is an ugly teamkiller");
