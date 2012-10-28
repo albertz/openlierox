@@ -217,6 +217,7 @@ CWorm::CWorm() :
 	iLastCharge = 255;
 	iLastCurWeapon = 255;
 	fLastAirJumpTime = 0;
+	sLastWeaponHitBy = "";
 
 	bGotTarget = false;
 

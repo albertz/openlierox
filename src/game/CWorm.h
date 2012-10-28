@@ -285,6 +285,7 @@ protected:
 	CVec		vPreLastEstimatedVel;
 	int			iLastCharge;
 	int			iLastCurWeapon;
+	std::string	sLastWeaponHitBy;
 	
 	AbsTime		fSpawnTime;
 	ATTR(CWorm, bool,	bLobbyReady, 45, {serverside = false;}) // Lobby Ready state
@@ -520,6 +521,8 @@ public:
 	bool		canAirJump() const { return bCanAirJump; }
 	void		setLastAirJumpTime(AbsTime t) { fLastAirJumpTime = t; }
 	AbsTime		getLastAirJumpTime() { return fLastAirJumpTime; }
+	void		setLastWeaponHitBy(std::string weapon) { sLastWeaponHitBy = weapon; }
+	std::string	getLastWeaponHitBy() { return sLastWeaponHitBy; }
 	
 	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 

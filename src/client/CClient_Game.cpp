@@ -279,7 +279,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 
 ///////////////////
 // Explosion
-void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int owner)
+void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int owner, std::string weapon)
 {	
 	bool    gotDirt = false;
 	Color	DirtEntityColour;
@@ -379,7 +379,7 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 		CVec wPos = w->posRecordings.getBest((size_t)LX56PhysicsDT.milliseconds(), (size_t)(tLX->currentTime - time).milliseconds());		
 		if((pos - wPos).GetLength2() <= 25) {
 			// Injure him
-			InjureWorm(w, damage,owner);
+			InjureWorm(w, damage, owner, weapon);
 		}
 	}
 }
@@ -387,7 +387,7 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 
 ///////////////////
 // Injure a worm
-void CClient::InjureWorm(CWorm *w, float damage, int owner)
+void CClient::InjureWorm(CWorm *w, float damage, int owner, std::string weapon)
 {
 	if (!w->getAlive())  // Injuring a dead worm makes no sense
 		return;
@@ -395,6 +395,9 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	CWorm* ownerWorm = NULL;
 	if(owner >= 0 && owner < MAX_WORMS)
 		ownerWorm = game.wormById(owner, false);
+
+	if(damage > 0)
+		w->setLastWeaponHitBy(weapon);
 
 	bool me = ownerWorm && ownerWorm->getID() == w->getID();
 	if(ownerWorm)
@@ -1149,7 +1152,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 					if((p - (*w2)->getPos()).GetLength2() < wormsize*wormsize) {
 						int damage = wpn->Bm.PlyDamage;
 						if(wpn->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(wpn->Bm.PlyDamage); }
-						InjureWorm(*w2, (float)damage, shot->nWormID);
+						InjureWorm(*w2, (float)damage, shot->nWormID, wpn->Name);
 
 						goodWidthParts[j] = false;
 						worms.erase(w2);

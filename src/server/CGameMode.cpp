@@ -96,6 +96,14 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 			{
 				replacemax(networkTexts->sKilled, "<killer>", killer->getName(), buf, 1);
 				replacemax(buf, "<victim>", victim->getName(), buf, 1);
+				
+				// If we have info about the killing weapon, then show that as well
+				if (!victim->getLastWeaponHitBy().empty()) {
+				  replacemax(buf, "<weapon>", victim->getLastWeaponHitBy().c_str(), buf, 1);
+				}
+				else {
+				  replacemax(buf, "with <weapon>", "", buf, 1);
+				}			
 			}
 			killer->addKill();
 		}
