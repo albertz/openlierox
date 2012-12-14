@@ -11,6 +11,8 @@
 #include "util/macros.h"
 #include <vector>
 #include <string>
+#include <cstdio>
+#include <cstdlib>
 
 #ifndef HAVE_EXECINFO
 #	if defined(__linux__)
@@ -25,8 +27,6 @@
 #if HAVE_EXECINFO
 
 #include <execinfo.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #if HASBFD
 

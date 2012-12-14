@@ -382,7 +382,7 @@ void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 	sub_to_abs_coords(bmp, x2, y2);
 	if(bmp->surf->format->BitsPerPixel == 8) {
 		// currently, DrawRectFill cannot handle 8bit and/or allegcol_to_Col is wrong
-		SDL_Rect r = { x1, y1, x2-x1, y2-y1 };
+		SDL_Rect r = { (Sint16)x1, (Sint16)y1, (Uint16)(x2-x1), (Uint16)(y2-y1) };
 		SDL_FillRect(bmp->surf.get(), &r, color);
 	}
 	else
@@ -425,8 +425,8 @@ void dumpUsedColors(SDL_Surface* surf) {
 void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
 	sub_to_abs_coords(source, source_x, source_y);
 	sub_to_abs_coords(dest, dest_x, dest_y);
-	SDL_Rect srcrect = { source_x, source_y, width, height };
-	SDL_Rect dstrect = { dest_x, dest_y, width, height };
+	SDL_Rect srcrect = { (Sint16)source_x, (Sint16)source_y, (Uint16)width, (Uint16)height };
+	SDL_Rect dstrect = { (Sint16)dest_x, (Sint16)dest_y, (Uint16)width, (Uint16)height };
 	DrawImageAdv(dest->surf.get(), source->surf.get(), dstrect, srcrect);
 	// This doesn' work. We need colorkey handling:
 	// CopySurface(dest->surf.get(), source->surf.get(), source_x, source_y, dest_x, dest_y, width, height);
