@@ -275,7 +275,7 @@ bool OneSideClip(T1& c, T2& d, const T3 clip_c, const T4 clip_d)  {
 // Create a SDL rect
 INLINE SDL_Rect MakeRect(int x, int y, int w, int h)
 {
-	SDL_Rect r = {x, y, w, h};
+	SDL_Rect r = {(Sint16)x, (Sint16)y, (Uint16)w, (Uint16)h};
 	return r;
 }
 
@@ -408,8 +408,8 @@ INLINE void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> 
 //////////////
 // Draw the image with a huge amount of options
 INLINE void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
-	SDL_Rect r1 = { dx, dy, 0, 0 };
-	SDL_Rect r2 = { sx, sy, w, h };
+	SDL_Rect r1 = { (Sint16)dx, (Sint16)dy, 0, 0 };
+	SDL_Rect r2 = { (Sint16)sx, (Sint16)sy, (Uint16)w, (Uint16)h };
 	DrawImageAdv( bmpDest, bmpSrc, r1, r2);
 }
 INLINE void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
@@ -433,7 +433,7 @@ INLINE void DrawImage(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDe
 		errors << "DrawImage: bmpSrc == NULL" << endl;
 		return;
 	}
-	SDL_Rect rSource = { 0, 0, bmpSrc->w, bmpSrc->h };
+	SDL_Rect rSource = { 0, 0, (Uint16)bmpSrc->w, (Uint16)bmpSrc->h };
 	DrawImageAdv(bmpDest, bmpSrc, rDest, rSource);
 }
 INLINE void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, SDL_Rect& rDest) {
@@ -443,7 +443,7 @@ INLINE void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & b
 ///////////////
 // Simply draw the image
 INLINE void DrawImage(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int x, int y) {
-	SDL_Rect r = { x, y, 0, 0 };
+	SDL_Rect r = { (Sint16)x, (Sint16)y, 0, 0 };
 	DrawImage( bmpDest, bmpSrc, r);
 }
 INLINE void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int x, int y) {

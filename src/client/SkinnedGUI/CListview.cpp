@@ -104,7 +104,7 @@ CWidgetSubitem::~CWidgetSubitem()
 SDL_Rect CWidgetSubitem::getWidgetRect(int item_h)
 {
 	CItemStyle *style = getCurrentStyle();
-	SDL_Rect r = {style->cBorder.getLeftW(), 0, cWidget->getWidth(), cWidget->getHeight()};
+	SDL_Rect r = { (Sint16)style->cBorder.getLeftW(), 0, (Uint16)cWidget->getWidth(), (Uint16)cWidget->getHeight()};
 	switch (iVAlign)  {
 	case algTop:
 		r.y = style->cBorder.getTopW();
@@ -412,10 +412,10 @@ void CListviewColumn::Draw(SDL_Surface *bmpDest, int x, int y, int w, int h)
 	style->cBackground.Draw(bmpDest, x, y, w, h);
 
 	// Text
-	SDL_Rect r = {x + style->cBorder.getLeftW(), y + style->cBorder.getTopW(),
-		w - ((style->bmpSortArrow.get().get() && iSortDirection != sort_None) ? style->bmpSortArrow->w : 0) - 
-		style->cBorder.getLeftW() - style->cBorder.getRightW(), 
-		h -	style->cBorder.getTopW() - style->cBorder.getBottomW()};
+	SDL_Rect r = { (Sint16)(x + style->cBorder.getLeftW()), (Sint16)(y + style->cBorder.getTopW()),
+		(Uint16)(w - ((style->bmpSortArrow.get().get() && iSortDirection != sort_None) ? style->bmpSortArrow->w : 0) - 
+		style->cBorder.getLeftW() - style->cBorder.getRightW()),
+		(Uint16)(h -	style->cBorder.getTopW() - style->cBorder.getBottomW()) };
 
 	style->cText.tFontRect = &r;
 	DrawGameText(bmpDest, sText, style->cFont, style->cText);
