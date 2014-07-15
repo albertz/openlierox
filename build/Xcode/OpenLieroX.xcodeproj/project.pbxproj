@@ -101,7 +101,6 @@
 		2326B34410CF0F8500D3F035 /* CWormHuman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B34210CF0F8500D3F035 /* CWormHuman.cpp */; };
 		2326B57210CF9D6500D3F035 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B57110CF9D6500D3F035 /* Game.cpp */; };
 		2326B58B10CF9E2A00D3F035 /* gusgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B58910CF9E2A00D3F035 /* gusgame.cpp */; };
-		2326BAC910D29BCF00D3F035 /* PhysicsDummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */; };
 		232F590E14BA4BBD003D2E95 /* ClientConnectionRequestInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 232F590D14BA4BBC003D2E95 /* ClientConnectionRequestInfo.cpp */; };
 		23325A9112117E2200915252 /* SmartPointer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23325A9012117E2200915252 /* SmartPointer.cpp */; };
 		2334DB1614BB7D53003F21D4 /* CLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2334DB1514BB7D52003F21D4 /* CLabel.cpp */; };
@@ -155,6 +154,18 @@
 		238800E40E8B150100B94DC0 /* NotifyUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238800E30E8B150100B94DC0 /* NotifyUser.cpp */; };
 		238944600FC73598008F031D /* PhysicsLX56_Projectiles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */; settings = {COMPILER_FLAGS = "-O3"; }; };
 		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
+		238A90AB18706B4700E3895A /* Debug_AmIBeingDebugged.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A909E18706B4700E3895A /* Debug_AmIBeingDebugged.cpp */; };
+		238A90AC18706B4700E3895A /* Debug_DumpCallstack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A909F18706B4700E3895A /* Debug_DumpCallstack.cpp */; };
+		238A90AD18706B4700E3895A /* Debug_extended_backtrace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A018706B4700E3895A /* Debug_extended_backtrace.cpp */; };
+		238A90AE18706B4700E3895A /* Debug_GetCallstack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A118706B4700E3895A /* Debug_GetCallstack.cpp */; };
+		238A90AF18706B4700E3895A /* Debug_GetPCFromUContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A218706B4700E3895A /* Debug_GetPCFromUContext.cpp */; };
+		238A90B018706B4700E3895A /* Debug_RaiseDebugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A318706B4700E3895A /* Debug_RaiseDebugger.cpp */; };
+		238A90B118706B4700E3895A /* Debug_WriteCoreDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A418706B4700E3895A /* Debug_WriteCoreDump.cpp */; };
+		238A90B218706B4700E3895A /* MapLoader_CommanderKeen123.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A518706B4700E3895A /* MapLoader_CommanderKeen123.cpp */; };
+		238A90B318706B4700E3895A /* MapLoader_Gusanos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A718706B4700E3895A /* MapLoader_Gusanos.cpp */; };
+		238A90B418706B4700E3895A /* MapLoader_LieroX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A818706B4700E3895A /* MapLoader_LieroX.cpp */; };
+		238A90B518706B4700E3895A /* MapLoader_OrigLiero.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90A918706B4700E3895A /* MapLoader_OrigLiero.cpp */; };
+		238A90B618706B4700E3895A /* MapLoader_Teeworlds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238A90AA18706B4700E3895A /* MapLoader_Teeworlds.cpp */; };
 		238DA8DC0F388B2F00841FFF /* EventQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238DA8DB0F388B2F00841FFF /* EventQueue.cpp */; };
 		238F2E2D0F7418FF0016D617 /* FlagInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */; };
 		238F2E6A0F741B300016D617 /* CaptureTheFlag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F2E690F741B300016D617 /* CaptureTheFlag.cpp */; };
@@ -324,7 +335,6 @@
 		23C34F3210CC546200DABBD6 /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F2510CC546200DABBD6 /* log.cpp */; };
 		23C34F3310CC546200DABBD6 /* math_func.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F2810CC546200DABBD6 /* math_func.cpp */; };
 		23C34F3410CC546200DABBD6 /* text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F2C10CC546200DABBD6 /* text.cpp */; };
-		23C34F3510CC546200DABBD6 /* vec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F2F10CC546200DABBD6 /* vec.cpp */; };
 		23C34F3910CC549C00DABBD6 /* level_effect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F3710CC549C00DABBD6 /* level_effect.cpp */; };
 		23C34F4010CC54C800DABBD6 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F3E10CC54C800DABBD6 /* level.cpp */; };
 		23C34F7110CC557D00DABBD6 /* 2xsai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4410CC557D00DABBD6 /* 2xsai.cpp */; };
@@ -847,7 +857,6 @@
 		2326B58A10CF9E2A00D3F035 /* gusgame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusgame.h; sourceTree = "<group>"; };
 		2326B68110CFB34E00D3F035 /* LXMapFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LXMapFlags.h; sourceTree = "<group>"; };
 		2326BAC710D29BB200D3F035 /* PhysicsDummy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhysicsDummy.h; sourceTree = "<group>"; };
-		2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsDummy.cpp; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		232F590C14BA4BA4003D2E95 /* ClientConnectionRequestInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientConnectionRequestInfo.h; sourceTree = "<group>"; };
 		232F590D14BA4BBC003D2E95 /* ClientConnectionRequestInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientConnectionRequestInfo.cpp; sourceTree = "<group>"; };
@@ -957,6 +966,19 @@
 		2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCommand.h; sourceTree = "<group>"; };
 		2389FB200D2D4D5E00358F27 /* SmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartPointer.h; sourceTree = "<group>"; };
 		2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatCommand.cpp; sourceTree = "<group>"; };
+		238A909E18706B4700E3895A /* Debug_AmIBeingDebugged.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug_AmIBeingDebugged.cpp; sourceTree = "<group>"; };
+		238A909F18706B4700E3895A /* Debug_DumpCallstack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug_DumpCallstack.cpp; sourceTree = "<group>"; };
+		238A90A018706B4700E3895A /* Debug_extended_backtrace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug_extended_backtrace.cpp; sourceTree = "<group>"; };
+		238A90A118706B4700E3895A /* Debug_GetCallstack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug_GetCallstack.cpp; sourceTree = "<group>"; };
+		238A90A218706B4700E3895A /* Debug_GetPCFromUContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug_GetPCFromUContext.cpp; sourceTree = "<group>"; };
+		238A90A318706B4700E3895A /* Debug_RaiseDebugger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug_RaiseDebugger.cpp; sourceTree = "<group>"; };
+		238A90A418706B4700E3895A /* Debug_WriteCoreDump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug_WriteCoreDump.cpp; sourceTree = "<group>"; };
+		238A90A518706B4700E3895A /* MapLoader_CommanderKeen123.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader_CommanderKeen123.cpp; sourceTree = "<group>"; };
+		238A90A618706B4700E3895A /* MapLoader_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader_common.h; sourceTree = "<group>"; };
+		238A90A718706B4700E3895A /* MapLoader_Gusanos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader_Gusanos.cpp; sourceTree = "<group>"; };
+		238A90A818706B4700E3895A /* MapLoader_LieroX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader_LieroX.cpp; sourceTree = "<group>"; };
+		238A90A918706B4700E3895A /* MapLoader_OrigLiero.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader_OrigLiero.cpp; sourceTree = "<group>"; };
+		238A90AA18706B4700E3895A /* MapLoader_Teeworlds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader_Teeworlds.cpp; sourceTree = "<group>"; };
 		238DA8DA0F388B1E00841FFF /* EventQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventQueue.h; sourceTree = "<group>"; };
 		238DA8DB0F388B2F00841FFF /* EventQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventQueue.cpp; sourceTree = "<group>"; };
 		238F2DF20F74138C0016D617 /* FlagInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlagInfo.h; sourceTree = "<group>"; };
@@ -1237,8 +1259,6 @@
 		23C34F2C10CC546200DABBD6 /* text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = text.cpp; sourceTree = "<group>"; };
 		23C34F2D10CC546200DABBD6 /* text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = text.h; sourceTree = "<group>"; };
 		23C34F2E10CC546200DABBD6 /* trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace.h; sourceTree = "<group>"; };
-		23C34F2F10CC546200DABBD6 /* vec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec.cpp; sourceTree = "<group>"; };
-		23C34F3010CC546200DABBD6 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
 		23C34F3710CC549C00DABBD6 /* level_effect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = level_effect.cpp; sourceTree = "<group>"; };
 		23C34F3810CC549C00DABBD6 /* level_effect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level_effect.h; sourceTree = "<group>"; };
 		23C34F3E10CC54C800DABBD6 /* level.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = level.cpp; sourceTree = "<group>"; };
@@ -2333,8 +2353,6 @@
 				23C34F2C10CC546200DABBD6 /* text.cpp */,
 				23C34F2D10CC546200DABBD6 /* text.h */,
 				23C34F2E10CC546200DABBD6 /* trace.h */,
-				23C34F2F10CC546200DABBD6 /* vec.cpp */,
-				23C34F3010CC546200DABBD6 /* vec.h */,
 				23939B8810E7A10B0052FF1B /* FixedPointNumber.h */,
 				23BA8EE31129A79700963F72 /* Bitstream.h */,
 				23BA8EE41129A79700963F72 /* Bitstream.cpp */,
@@ -2770,7 +2788,19 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
-				2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */,
+				238A909E18706B4700E3895A /* Debug_AmIBeingDebugged.cpp */,
+				238A909F18706B4700E3895A /* Debug_DumpCallstack.cpp */,
+				238A90A018706B4700E3895A /* Debug_extended_backtrace.cpp */,
+				238A90A118706B4700E3895A /* Debug_GetCallstack.cpp */,
+				238A90A218706B4700E3895A /* Debug_GetPCFromUContext.cpp */,
+				238A90A318706B4700E3895A /* Debug_RaiseDebugger.cpp */,
+				238A90A418706B4700E3895A /* Debug_WriteCoreDump.cpp */,
+				238A90A518706B4700E3895A /* MapLoader_CommanderKeen123.cpp */,
+				238A90A618706B4700E3895A /* MapLoader_common.h */,
+				238A90A718706B4700E3895A /* MapLoader_Gusanos.cpp */,
+				238A90A818706B4700E3895A /* MapLoader_LieroX.cpp */,
+				238A90A918706B4700E3895A /* MapLoader_OrigLiero.cpp */,
+				238A90AA18706B4700E3895A /* MapLoader_Teeworlds.cpp */,
 				2326B34110CF0F8500D3F035 /* CWormBot.cpp */,
 				2326B34210CF0F8500D3F035 /* CWormHuman.cpp */,
 				23C174EC10BEF632003DBB09 /* GeoIPDatabase.cpp */,
@@ -3370,12 +3400,14 @@
 				EAD99F690C063ECA003BE563 /* CBanList.cpp in Sources */,
 				EAD99F6A0C063ECA003BE563 /* CBonus.cpp in Sources */,
 				EAD99F6E0C063ECA003BE563 /* CBytestream.cpp in Sources */,
+				238A90B218706B4700E3895A /* MapLoader_CommanderKeen123.cpp in Sources */,
 				EAD99F6F0C063ECA003BE563 /* CChannel.cpp in Sources */,
 				EAD99F700C063ECA003BE563 /* CChatBox.cpp in Sources */,
 				EAD99F730C063ECA003BE563 /* CClient_Draw.cpp in Sources */,
 				EAD99F740C063ECA003BE563 /* CClient_Game.cpp in Sources */,
 				EAD99F750C063ECA003BE563 /* CClient_Parse.cpp in Sources */,
 				EAD99F760C063ECA003BE563 /* CClient_Send.cpp in Sources */,
+				238A90B318706B4700E3895A /* MapLoader_Gusanos.cpp in Sources */,
 				EAD99F780C063ECA003BE563 /* CFont.cpp in Sources */,
 				EAD99F790C063ECA003BE563 /* CGameScript.cpp in Sources */,
 				EAD99F7C0C063ECA003BE563 /* CInput.cpp in Sources */,
@@ -3456,6 +3488,7 @@
 				239ACABD0E6AD45000C4216A /* Menu_Net_Join.cpp in Sources */,
 				239ACABE0E6AD45000C4216A /* Menu_Net_Lan.cpp in Sources */,
 				239ACABF0E6AD45000C4216A /* Menu_Net_Main.cpp in Sources */,
+				238A90B018706B4700E3895A /* Debug_RaiseDebugger.cpp in Sources */,
 				239ACAC00E6AD45000C4216A /* Menu_Net_News.cpp in Sources */,
 				239ACAC10E6AD45000C4216A /* Menu_Options.cpp in Sources */,
 				239ACAC20E6AD45000C4216A /* Menu_Player.cpp in Sources */,
@@ -3486,6 +3519,7 @@
 				239ACADB0E6AD45000C4216A /* CommonDialogs.cpp in Sources */,
 				239ACADC0E6AD45000C4216A /* CProgressbar.cpp in Sources */,
 				239ACADD0E6AD45000C4216A /* CScrollbar.cpp in Sources */,
+				238A90B518706B4700E3895A /* MapLoader_OrigLiero.cpp in Sources */,
 				239ACADE0E6AD45000C4216A /* CSlider.cpp in Sources */,
 				239ACADF0E6AD45000C4216A /* CTabControl.cpp in Sources */,
 				239ACAE00E6AD45000C4216A /* CTextbox.cpp in Sources */,
@@ -3518,9 +3552,11 @@
 				23099CCD0F60715A008E6C7F /* NewNetEngine.cpp in Sources */,
 				23099CCE0F60715A008E6C7F /* StackWalker.cpp in Sources */,
 				23CB83BA0F6D62C2006FE300 /* ConversationLogger.cpp in Sources */,
+				238A90AF18706B4700E3895A /* Debug_GetPCFromUContext.cpp in Sources */,
 				238F2E2D0F7418FF0016D617 /* FlagInfo.cpp in Sources */,
 				238F2E6A0F741B300016D617 /* CaptureTheFlag.cpp in Sources */,
 				238F337C0F756F730016D617 /* CGameSkin.cpp in Sources */,
+				238A90B418706B4700E3895A /* MapLoader_LieroX.cpp in Sources */,
 				2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */,
 				23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */,
 				23C5B0490FB67693005A36AE /* CRace.cpp in Sources */,
@@ -3578,9 +3614,11 @@
 				23C34EA010CC4AC400DABBD6 /* gfx.cpp in Sources */,
 				23C34EA110CC4AC400DABBD6 /* glua.cpp in Sources */,
 				23C34EA210CC4AC400DABBD6 /* material.cpp in Sources */,
+				238A90AE18706B4700E3895A /* Debug_GetCallstack.cpp in Sources */,
 				23C34EA310CC4AC400DABBD6 /* noise_line.cpp in Sources */,
 				23C34EA410CC4AC400DABBD6 /* parser.cpp in Sources */,
 				23C34EA510CC4AC400DABBD6 /* part_type.cpp in Sources */,
+				238A90AB18706B4700E3895A /* Debug_AmIBeingDebugged.cpp in Sources */,
 				23C34EA610CC4AC400DABBD6 /* particle.cpp in Sources */,
 				23C34EA710CC4AC400DABBD6 /* simple_particle.cpp in Sources */,
 				23C34EA810CC4AC400DABBD6 /* sprite.cpp in Sources */,
@@ -3600,12 +3638,13 @@
 				23C34F3210CC546200DABBD6 /* log.cpp in Sources */,
 				23C34F3310CC546200DABBD6 /* math_func.cpp in Sources */,
 				23C34F3410CC546200DABBD6 /* text.cpp in Sources */,
-				23C34F3510CC546200DABBD6 /* vec.cpp in Sources */,
 				23C34F3910CC549C00DABBD6 /* level_effect.cpp in Sources */,
 				23C34F4010CC54C800DABBD6 /* level.cpp in Sources */,
 				23C34F7110CC557D00DABBD6 /* 2xsai.cpp in Sources */,
+				238A90B618706B4700E3895A /* MapLoader_Teeworlds.cpp in Sources */,
 				23C34F7410CC557D00DABBD6 /* base_worm.cpp in Sources */,
 				23C34F7510CC557D00DABBD6 /* client.cpp in Sources */,
+				238A90B118706B4700E3895A /* Debug_WriteCoreDump.cpp in Sources */,
 				23C34F7610CC557D00DABBD6 /* liero.cpp in Sources */,
 				23C34F7810CC557D00DABBD6 /* losp.cpp in Sources */,
 				23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */,
@@ -3636,12 +3675,12 @@
 				231BE16310CE68BD0023780D /* Mod.cpp in Sources */,
 				231BE16610CE6B670023780D /* Level.cpp in Sources */,
 				2326B02910CE9F4300D3F035 /* gusanos.cpp in Sources */,
+				238A90AC18706B4700E3895A /* Debug_DumpCallstack.cpp in Sources */,
 				2326B29C10CF090A00D3F035 /* WormInputHandler.cpp in Sources */,
 				2326B34310CF0F8500D3F035 /* CWormBot.cpp in Sources */,
 				2326B34410CF0F8500D3F035 /* CWormHuman.cpp in Sources */,
 				2326B57210CF9D6500D3F035 /* Game.cpp in Sources */,
 				2326B58B10CF9E2A00D3F035 /* gusgame.cpp in Sources */,
-				2326BAC910D29BCF00D3F035 /* PhysicsDummy.cpp in Sources */,
 				2370EE151100D0C80097F7BA /* SinglePlayer.cpp in Sources */,
 				2370F6831106179A0097F7BA /* lapi.c in Sources */,
 				2370F6841106179A0097F7BA /* lauxlib.c in Sources */,
@@ -3708,6 +3747,7 @@
 				23CC9B501133FB8600185479 /* pathname_stripper.cc in Sources */,
 				23CC9B531133FB8600185479 /* process_state.cc in Sources */,
 				23CC9B551133FB8600185479 /* simple_symbol_supplier.cc in Sources */,
+				238A90AD18706B4700E3895A /* Debug_extended_backtrace.cpp in Sources */,
 				23CC9B561133FB8600185479 /* stackwalker.cc in Sources */,
 				23CC9B571133FB8600185479 /* stackwalker_amd64.cc in Sources */,
 				23CC9B581133FB8600185479 /* stackwalker_ppc.cc in Sources */,
