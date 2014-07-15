@@ -9,6 +9,7 @@ build/Xcode/build
 *.mode2v3
 *.pbxuser
 xcuserdata
+xcshareddata
 nbproject
 
 *.kdev*
