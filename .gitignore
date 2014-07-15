@@ -10,6 +10,10 @@ src/breakpad/external/src/*/*/build
 *.mode1v3
 *.mode2v3
 *.pbxuser
+*.user
+*.user.*
+xcuserdata
+xcshareddata
 
 *.kdev*
 Doxyfile
