@@ -228,6 +228,7 @@ if $COMPILER \
 	) \
 	$( [ "$BREAKPAD" != "1" ] && echo "-DNBREAKPAD" ) \
 	-lSDL_image -lSDL_mixer -lgd -pthread -lz -lcurl \
+	-std=c++0x \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	$( [ "$DEBUG" = "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
