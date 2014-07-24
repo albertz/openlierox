@@ -159,9 +159,9 @@ public:
 	CWpnRest* weaponRestrictions();
 	
 	// they will be called in prepareGameloop and cleaned up after that
-	boost::signal<void()> prepareCallbacks;
+	boost::signals2::signal<void()> prepareCallbacks;
 	// they will be called in cleanupAfterGameloopEnd and the slot will be cleaned after that
-	boost::signal<void()> cleanupCallbacks;
+	boost::signals2::signal<void()> cleanupCallbacks;
 	
 	Result loadMap();
 	Result loadMod();
