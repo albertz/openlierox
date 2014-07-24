@@ -11,6 +11,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+/*
+This is basically `shared_ptr<T*>`, wrapped with some common functions.
+This can be used as a base for a weak-pointer, but you need to do the logic
+of resetting it somewhere else - it's not integraded automatically to `T`.
+*/
 template<typename T>
 struct WeakRef {
 	typedef boost::shared_ptr<T*> SharedT;
