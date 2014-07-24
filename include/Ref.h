@@ -14,6 +14,9 @@
 /*
 	Intended to hold an object of an abstract class (interface).
 	The object is given and must live on the heap.
+	The `Ref` instance owns that `_Obj` instance.
+	When `Ref` gets deleted, it also deletes the `_Obj` instance.
+	
 	The `_Obj` type must support `_Obj* _Obj::copy()`, and when we
 	copy `Ref` instances, the object will also be copied.
 	(In that sense, the name "Ref" might be a bit missleading.)
