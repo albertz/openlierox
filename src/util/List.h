@@ -61,7 +61,7 @@ public:
 	virtual size_t size() const { return list.size(); }
 	virtual void resize(size_t s) { list.resize(s); }
 	virtual void writeGeneric(size_t i, const ScriptVar_t& v) { assert(i < size()); list[i] = v.castConst<T>(); }
-	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t::MaybeRef(list[i]); }
+	virtual ScriptVar_t getGeneric(size_t i) const { assert(i < size()); return ScriptVar_t::MaybeRef<T>(list[i]); }
 
 	ref_type write(size_t i) { assert(i < size()); return list[i]; }
 	constref_type get(size_t i) const { assert(i < size()); return list[i]; }
