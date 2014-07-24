@@ -385,9 +385,12 @@ public:
 	// Note: the difference to op=(ScriptVar) is that we keep the same type here
 	Result fromScriptVar(const ScriptVar_t& v, bool tryCast = false, bool assertSuccess = true);
 
-	// This is safe to use as long as `v` stays valid.
-	// In most cases, it is still a copy.
-	// But if it is a custom type, it will be a reference.
+	// Maybe return a ref, or a copy. In case of a ref, it will
+	// automatically reflect whether the original object is still valid.
+	// In most cases, it is a copy. So, don't expect it to be a ref!
+	// But if it is a custom type, it will be a `CustomVar::WeakRef`.
+	// Thus, this is always a safe-to-use `ScriptVar_t`, which however
+	// might be a resetted weak-ref at some later point.
 	template<typename T>
 	static ScriptVar_t MaybeRef(const T& v) {
 		return ScriptVar_t(GetType<T>::constRef(v));
