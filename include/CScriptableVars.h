@@ -126,6 +126,7 @@ template<> struct GetType<std::string> : _GetTypeSimple<std::string> { static co
 template<> struct GetType<Color> : _GetTypeSimple<Color> { static const ScriptVarType_t value = SVT_COLOR; };
 template<> struct GetType<CVec> : _GetTypeSimple<CVec> { static const ScriptVarType_t value = SVT_VEC2; };
 template<> struct GetType<CustomVar::Ref> {
+	// This type owns the `CustomVar` itself!
 	typedef CustomVar::Ref type;
 	static const ScriptVarType_t value = SVT_CUSTOM;
 	static type defaultValue() { return NullCustomVar().getRefCopy(); }
