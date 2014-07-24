@@ -108,7 +108,7 @@ static const ScriptVarType_t SVT_INVALID = ScriptVarType_t(-1);
 `GetType<T>::type` == `T`.
 `GetType<T>::value` is the `static const ScriptVarType_t`.
 `GetType<T>::defaultValue()` returns a new `type`.
-`GetType<T>::constRef(const type& v)` returns a const-reference-like type to `v`. XXX: why is this useful.
+`GetType<T>::constRef(const type& v)` returns a const-reference-like type to `v`. See `ScriptVar_t::MaybeRef` for an example.
 */
 template<typename T> struct GetType;
 
