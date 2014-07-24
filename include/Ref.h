@@ -1,7 +1,7 @@
 /*
 	OpenLieroX
 
-	various utilities
+	Ref class. various utilities
 
 	code under LGPL
 	created 01-05-2007
@@ -12,10 +12,14 @@
 #define __OLX__REF_H__
 
 /*
-	intended to hold an object of an abstract class (interface)
+	Intended to hold an object of an abstract class (interface).
+	The object is given and must live on the heap.
+	The `_Obj` type must support `_Obj* _Obj::copy()`, and when we
+	copy `Ref` instances, the object will also be copied.
+	(In that sense, the name "Ref" might be a bit missleading.)
 
-	Ref< Iterator<int> > is a typical example, because you normally
-	don't want to know about the specific implementation of Iterator
+	`Ref< Iterator<int> >` is a typical example, because you normally
+	don't want to know about the specific implementation of Iterator.
 */
 template < typename _Obj >
 class Ref {
