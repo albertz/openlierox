@@ -10,7 +10,7 @@
 #ifndef __OLX_GAME_H__
 #define __OLX_GAME_H__
 
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <boost/function.hpp>
 #include <vector>
 #include <list>

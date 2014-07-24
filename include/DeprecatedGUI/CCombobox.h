@@ -18,7 +18,7 @@
 #define __CCOMBOBOX_H__DEPRECATED_GUI__
 
 #include <list>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 
 #include "StringUtils.h"
 #include "InputEvents.h"
