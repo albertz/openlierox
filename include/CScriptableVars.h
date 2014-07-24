@@ -103,6 +103,13 @@ enum ScriptVarType_t
 static const ScriptVarType_t SVT_INVALID = ScriptVarType_t(-1);
 
 
+/*
+`GetType<T>` is supposed to provide some info about `T`.
+`GetType<T>::type` == `T`.
+`GetType<T>::value` is the `static const ScriptVarType_t`.
+`GetType<T>::defaultValue()` returns a new `type`.
+`GetType<T>::constRef(const type& v)` returns a const-reference-like type to `v`. XXX: why is this useful.
+*/
 template<typename T> struct GetType;
 
 template<typename T> struct _GetTypeSimple {
