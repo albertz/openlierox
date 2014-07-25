@@ -117,7 +117,7 @@ MouseButton SDLButtonToMouseButton(int sdlbut)
 
 
 
-SDLEvent sdlEvents[SDL_NUMEVENTS];
+std::map<SDL_EventType, SDLEvent> sdlEvents;
 
 Event<> onDummyEvent;
 
@@ -214,7 +214,7 @@ static void ResetCurrentEventStorage() {
 	if (tLX)
 		tLX->bVideoModeChanged = false;
 
-//	for(int k=0;k<SDLK_LAST;k++) {
+//	for(int k=0;k<SDL_NUM_SCANCODES;k++) {
 //		Keyboard.KeyUp[k] = false;
 //	}
 
@@ -403,7 +403,7 @@ static void EvHndl_UserEvent(SDL_Event* ev) {
 }
 
 void InitEventSystem() {	
-	for(int k = 0;k<SDLK_LAST;k++)
+	for(int k = 0;k<SDL_NUM_SCANCODES;k++)
 		GetKeyboard()->KeyUp[k] = false;
 
 	GetMouse()->Button = 0;
@@ -485,7 +485,7 @@ static void HandleKeyboardState() {
 	Keyboard.keys = SDL_GetKeyState(NULL);
 
 	// Update the key up's
-	for(int k=0;k<SDLK_LAST;k++) {
+	for(int k=0;k<SDL_NUM_SCANCODES;k++) {
 		Keyboard.KeyUp[k] = false;
 
 		if(!Keyboard.keys[k] && Keyboard.KeyDown[k]) // it is up now but it was down previously

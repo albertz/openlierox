@@ -501,7 +501,16 @@ int CInput::Setup(const std::string& string)
 		}
 		return true;
 	}
-
+	
+	{
+		SDL_Scancode scancode = SDL_GetScancodeFromName(string.c_str());
+		if(scancode != SDL_SCANCODE_UNKNOWN) {
+			Type = INP_KEYBOARD;
+			Data = scancode;
+			return true;
+		}
+	}
+	
 #ifdef HAVE_JOYSTICK
 	// Check if it's a joystick #1
 	// TODO: allow more joysticks
@@ -559,15 +568,7 @@ int CInput::Setup(const std::string& string)
 	// Go through the key list checking with piece of text it was
 	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
 		if(Keys[n].text == string) {
-			Data = Keys[n].value;
-			return true;
-		}
-	}
-
-	// Try if SDL knows the key
-	for(n=0; n < SDLK_LAST; n++)  {
-		if (string == SDL_GetKeyName((SDLKey)n))  {
-			Data = n;
+			Data = SDL_GetScancodeFromKey(Keys[n].value);
 			return true;
 		}
 	}

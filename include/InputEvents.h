@@ -57,8 +57,8 @@ struct MouseEvent {
 // KeyUp is like an event and will only be true once
 struct keyboard_t {
 	Uint8	*keys;
-	UnicodeChar	KeyUp[SDLK_LAST];
-	UnicodeChar	KeyDown[SDLK_LAST];
+	bool	KeyUp[SDL_NUM_SCANCODES];
+	bool	KeyDown[SDL_NUM_SCANCODES];
     int     queueLength;
     KeyboardEvent keyQueue[MAX_KEYQUEUE];
 };
@@ -102,7 +102,7 @@ typedef Event<SDL_Event*> SDLEvent;
 // not be needed in most cases.
 // If you want to add a user event, DON'T add the handler here. Use SendSDLUserEvent()
 // and your event will get called automatically. 
-extern SDLEvent sdlEvents[SDL_NUMEVENTS];
+extern std::map<SDL_EventType, SDLEvent> sdlEvents;
 
 extern bool processedEvent;
 
