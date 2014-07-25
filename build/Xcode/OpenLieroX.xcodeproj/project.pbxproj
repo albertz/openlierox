@@ -30,6 +30,8 @@
 		23099CCD0F60715A008E6C7F /* NewNetEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23099CCA0F60715A008E6C7F /* NewNetEngine.cpp */; };
 		23099CCE0F60715A008E6C7F /* StackWalker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23099CCB0F60715A008E6C7F /* StackWalker.cpp */; };
 		230D02240F0D80C000AFFFFF /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230D02230F0D80C000AFFFFF /* Debug.cpp */; };
+		230E1CFD19821DA100A66BF7 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 230E1CFB19821DA100A66BF7 /* SDL2_image.framework */; };
+		230E1CFE19821DA100A66BF7 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 230E1CFC19821DA100A66BF7 /* SDL2.framework */; };
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		231B8E5C11357FB500B572C0 /* GameMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231B8E5B11357FB500B572C0 /* GameMode.cpp */; };
 		231B8E5F1135804300B572C0 /* Settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231B8E5E1135804300B572C0 /* Settings.cpp */; };
@@ -476,9 +478,6 @@
 		23ECC0860E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ECC0850E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp */; };
 		23F6A3430FD6DF0300793B24 /* DynDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23F6A3420FD6DF0300793B24 /* DynDraw.cpp */; };
 		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
-		EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
-		EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
-		EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */; };
 		EABBC2590C5A5718003884A9 /* MacMain.m in Sources */ = {isa = PBXBuildFile; fileRef = EABBC2580C5A5718003884A9 /* MacMain.m */; };
 		EABBCCB40C5AA2D2003884A9 /* gamedir in Game files */ = {isa = PBXBuildFile; fileRef = EABBC3530C5AA2CE003884A9 /* gamedir */; };
 		EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */; };
@@ -491,8 +490,6 @@
 		EAD6E4CE0C47EF5900D6C836 /* OpenLieroX.64.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C50C47EF5900D6C836 /* OpenLieroX.64.png */; };
 		EAD6E4CF0C47EF5900D6C836 /* OpenLieroX.128.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C60C47EF5900D6C836 /* OpenLieroX.128.png */; };
 		EAD6E4D00C47EF5900D6C836 /* OpenLieroX.alt.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */; };
-		EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
-		EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
 		EAD6E50C0C4819D200D6C836 /* macosx.icns in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E50B0C4819CF00D6C836 /* macosx.icns */; };
 		EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */; };
 		EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */; };
@@ -596,9 +593,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */,
-				EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */,
-				EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */,
 			);
 			name = "Copy Frameworks into .app";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -723,6 +717,8 @@
 		230D02210F0D804C00AFFFFF /* PixelFunctors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PixelFunctors.h; sourceTree = "<group>"; };
 		230D02220F0D809B00AFFFFF /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
 		230D02230F0D80C000AFFFFF /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
+		230E1CFB19821DA100A66BF7 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../../../../Library/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
+		230E1CFC19821DA100A66BF7 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		230E9C4F0D8C406F00BFB500 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		230E9C500D8C407B00BFB500 /* Version.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Version.cpp; sourceTree = "<group>"; };
 		2313EEF40E928521007AB88B /* CServerNetEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CServerNetEngine.h; sourceTree = "<group>"; };
@@ -1593,8 +1589,6 @@
 		EA430DD20BEFEA8900C6547E /* libHawkNL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHawkNL.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IpToCountryDB.cpp; path = ../../src/common/IpToCountryDB.cpp; sourceTree = SOURCE_ROOT; };
 		EA430FF20BF8BA3100C6547E /* IpToCountryDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IpToCountryDB.h; path = ../../include/IpToCountryDB.h; sourceTree = SOURCE_ROOT; };
-		EABBC2400C5A021F003884A9 /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = /Library/Frameworks/SDL_image.framework; sourceTree = "<absolute>"; };
-		EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_mixer.framework; path = /Library/Frameworks/SDL_mixer.framework; sourceTree = "<absolute>"; };
 		EABBC2580C5A5718003884A9 /* MacMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MacMain.m; sourceTree = "<group>"; };
 		EABBC2900C5A89F5003884A9 /* Development */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Development; sourceTree = "<group>"; };
 		EABBC3530C5AA2CE003884A9 /* gamedir */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gamedir; path = ../../share/gamedir; sourceTree = SOURCE_ROOT; };
@@ -1608,7 +1602,6 @@
 		EAD6E4C50C47EF5900D6C836 /* OpenLieroX.64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.64.png; path = ../../share/OpenLieroX.64.png; sourceTree = SOURCE_ROOT; };
 		EAD6E4C60C47EF5900D6C836 /* OpenLieroX.128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.128.png; path = ../../share/OpenLieroX.128.png; sourceTree = SOURCE_ROOT; };
 		EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.alt.png; path = ../../share/OpenLieroX.alt.png; sourceTree = SOURCE_ROOT; };
-		EAD6E4D10C47EF7500D6C836 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		EAD6E50B0C4819CF00D6C836 /* macosx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = macosx.icns; path = ../../share/macosx.icns; sourceTree = SOURCE_ROOT; };
 		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenLieroX-Info.plist"; sourceTree = "<group>"; };
@@ -1651,6 +1644,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				230E1CFD19821DA100A66BF7 /* SDL2_image.framework in Frameworks */,
+				230E1CFE19821DA100A66BF7 /* SDL2.framework in Frameworks */,
 				23224FE814A6CC9700757A40 /* libvorbisfile.dylib in Frameworks */,
 				23224FE614A6CAF600757A40 /* libvorbis.dylib in Frameworks */,
 				23224FE414A6CAEB00757A40 /* libogg.dylib in Frameworks */,
@@ -1660,11 +1655,9 @@
 				23224FE014A6C9FC00757A40 /* libboost_system-mt.dylib in Frameworks */,
 				233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */,
 				23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */,
-				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
 				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
 				23ECBE7A0E894DC0007B8D55 /* libLibZip.a in Frameworks */,
 				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
-				EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */,
 				231BE15010CE603C0023780D /* libfreealut.a in Frameworks */,
 				231BE15810CE630A0023780D /* OpenAL.framework in Frameworks */,
 			);
@@ -3069,6 +3062,8 @@
 		EAD6E4BE0C47EF1F00D6C836 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				230E1CFB19821DA100A66BF7 /* SDL2_image.framework */,
+				230E1CFC19821DA100A66BF7 /* SDL2.framework */,
 				23224FE714A6CC9600757A40 /* libvorbisfile.dylib */,
 				23224FE514A6CAF500757A40 /* libvorbis.dylib */,
 				23224FE314A6CAEB00757A40 /* libogg.dylib */,
@@ -3079,9 +3074,6 @@
 				23C34CC410CC392100DABBD6 /* OpenAL.framework */,
 				233E2AB90D0DB10E00991914 /* OpenGL.framework */,
 				23CDBF900D0B06FD00920A5F /* Carbon.framework */,
-				EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */,
-				EABBC2400C5A021F003884A9 /* SDL_image.framework */,
-				EAD6E4D10C47EF7500D6C836 /* SDL.framework */,
 				EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */,
 			);
 			name = Frameworks;
@@ -3961,6 +3953,7 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
@@ -3983,8 +3976,8 @@
 					"$(SRCROOT)/../../libs/breakpad/src",
 					/usr/include/libxml2,
 					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL2.framework/Headers,
+					/Library/Frameworks/SDL2_image.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 					"$(SRCROOT)/include",
 					"$(SRCROOT)/freealut/include",
@@ -4084,6 +4077,7 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
@@ -4104,8 +4098,8 @@
 					"$(SRCROOT)/../../libs/breakpad/src",
 					/usr/include/libxml2,
 					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL2.framework/Headers,
+					/Library/Frameworks/SDL2_image.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 					"$(SRCROOT)/include",
 					"$(SRCROOT)/freealut/include",
@@ -4207,6 +4201,7 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
@@ -4227,8 +4222,8 @@
 					"$(SRCROOT)/../../libs/breakpad/src",
 					/usr/include/libxml2,
 					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL2.framework/Headers,
+					/Library/Frameworks/SDL2_image.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 					"$(SRCROOT)/include",
 					"$(SRCROOT)/freealut/include",
@@ -4438,6 +4433,7 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
@@ -4459,8 +4455,8 @@
 					"$(SRCROOT)/../../libs/breakpad/src",
 					/usr/include/libxml2,
 					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL2.framework/Headers,
+					/Library/Frameworks/SDL2_image.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 					"$(SRCROOT)/include",
 					"$(SRCROOT)/freealut/include",
@@ -4501,6 +4497,7 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_ENABLE_ASM_KEYWORD = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -4520,8 +4517,8 @@
 					"$(SRCROOT)/../../libs/breakpad/src",
 					/usr/include/libxml2,
 					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL2.framework/Headers,
+					/Library/Frameworks/SDL2_image.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 					"$(SRCROOT)/include",
 					"$(SRCROOT)/freealut/include",
