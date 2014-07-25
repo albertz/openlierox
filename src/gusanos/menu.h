@@ -116,7 +116,7 @@ class XMLFile
 public:
 	operator bool()
 	{
-		return f != NULL;
+		return (bool)f;
 	}
 	
 	std::ifstream f;
