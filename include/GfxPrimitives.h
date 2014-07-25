@@ -234,8 +234,8 @@ bool ClipRefRectWith(_Type& x, _Type& y, _TypeS& w, _TypeS& h, const _ClipRect& 
 
 template<typename _ClipRect>
 bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
-	RefRectBasic<Sint16,Uint16> refrect(rect.x, rect.y, rect.w, rect.h);
-	return OLXRect< RefRectBasic<Sint16,Uint16> >(refrect).clipWith(clip);
+	RefRectBasic<int,int> refrect(rect.x, rect.y, rect.w, rect.h);
+	return OLXRect< RefRectBasic<int,int> >(refrect).clipWith(clip);
 }
 
 
