@@ -166,11 +166,11 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 
     // Enable the system events
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
+	//SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE); // TODO: SDL2?
 
 	// Enable unicode and key repeat
-	SDL_EnableUNICODE(1);
-	SDL_EnableKeyRepeat(200,20);
+	//SDL_EnableUNICODE(1); // TODO: SDL2?
+	//SDL_EnableKeyRepeat(200,20); // TODO: SDL2?
 
 	
 	/*
@@ -779,44 +779,6 @@ public:
 
 };
 
-class StretchHalfPostProc : public BasicVideoPostProcessor {
-public:
-	static const int W = 320;
-	static const int H = 240;
-
-	StretchHalfPostProc() {
-		notes << "using StretchHalf video post processor" << endl;
-	}
-
-	virtual void processToScreen() {
-		DrawImageScaleHalf(SDL_GetVideoSurface(), m_videoBufferSurface);
-		//DrawImageResizedAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480, W, H);
-		//DrawImageResampledAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480, W, H);
-	}
-
-	virtual int screenWidth() { return W; }
-	virtual int screenHeight() { return H; }
-
-};
-
-class Scale2XPostProc : public BasicVideoPostProcessor {
-public:
-	static const int W = 640 * 2;
-	static const int H = 480 * 2;
-
-	Scale2XPostProc() {
-		notes << "using Scale2x video post processor" << endl;
-	}
-
-	virtual void processToScreen() {
-		DrawImageScale2x(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
-	}
-
-	virtual int screenWidth() { return W; }
-	virtual int screenHeight() { return H; }
-
-};
-
 
 
 
@@ -838,10 +800,6 @@ void VideoPostProcessor::init() {
 	TrimSpaces(vppName); stringlwr(vppName);
 	if(vppName == "stretchhalf")
 		instance = new StretchHalfPostProc();
-	else if(vppName == "scale2x")
-		instance = new Scale2XPostProc();
-	else if(vppName == "dummy")
-		instance = new DummyVideoPostProc();
 	else {
 		if(vppName != "")
 			notes << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
