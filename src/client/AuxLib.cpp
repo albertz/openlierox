@@ -581,8 +581,7 @@ void ProcessScreenshots()
 VideoPostProcessor voidVideoPostProcessor; // this one does nothing
 
 SDL_Surface* VideoPostProcessor::m_videoSurface = NULL;
-SDL_Surface* VideoPostProcessor::m_videoBufferSurface = NULL;
-VideoPostProcessor* VideoPostProcessor::instance = &voidVideoPostProcessor;
+VideoPostProcessor VideoPostProcessor::instance;
 
 ///////////////////
 // Flip the screen
@@ -601,53 +600,21 @@ void flipRealVideo() {
 		SDL_GL_SwapBuffers();
 }
 
-// base class for your video post processor
-// this base manages the video surface and its buffer
-class BasicVideoPostProcessor : public VideoPostProcessor {
-public:
-	SmartPointer<SDL_Surface> m_screenBuf[2];
-
-	virtual void resetVideo() {
-		// IMPORTANT: Don't reallocate if we already have the buffers.
-		// If we would do, the old surfaces would get deleted. This is bad
-		// because other threads could use it right now.
-		if(m_screenBuf[0].get()) return;
-		
-		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
-		{
-			m_screenBuf[0] = gfxCreateSurface(640, 480);
-			m_screenBuf[1] = gfxCreateSurface(640, 480);
-		}
-
-		m_videoSurface = m_screenBuf[0].get();
-		m_videoBufferSurface = m_screenBuf[1].get();
-	}
-};
-
-// There is one usage of this: If you want to let OLX manage the double buffering.
-// In this case, all the flipping and copying is done in the video thread.
-// Without a post processor, the flipping is done in the main thread.
-// There are some rare situations where the flipping of the screen surface is slow
-// and in this situations, it can be faster to use this dummy post processor.
-class DummyVideoPostProc : public BasicVideoPostProcessor {
-public:
-	DummyVideoPostProc() {
-		notes << "using Dummy video post processor" << endl;
-	}
-
-	virtual void processToScreen() {
-		DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
-	}
-
-};
-
+void VideoPostProcessor::resetVideo() {
+	// IMPORTANT: Don't reallocate if we already have the buffers.
+	// If we would do, the old surfaces would get deleted. This is bad
+	// because other threads could use it right now.
+	if(m_videoSurface.get()) return;
+	
+	m_videoSurface = gfxCreateSurface(640, 480);
+}
 
 
 
 // IMPORTANT: this has to be called from main thread!
 void VideoPostProcessor::process() {
 	ProcessScreenshots();
-	VideoPostProcessor::get()->processToScreen();
+	DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
 }
 
 void VideoPostProcessor::cloneBuffer() {
@@ -655,27 +622,7 @@ void VideoPostProcessor::cloneBuffer() {
 	DrawImageAdv(m_videoBufferSurface, m_videoSurface, 0, 0, 0, 0, 640, 480);
 }
 
-void VideoPostProcessor::init() {
-	notes << "VideoPostProcessor initialisation ... ";
-
-	std::string vppName = tLXOptions->sVideoPostProcessor;
-	TrimSpaces(vppName); stringlwr(vppName);
-	if(vppName == "stretchhalf")
-		instance = new StretchHalfPostProc();
-	else {
-		if(vppName != "")
-			notes << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
-		// notes << "none used, drawing directly on screen" << endl;
-		//instance = &voidVideoPostProcessor;
-		instance = new DummyVideoPostProc();
-	}
-}
-
 void VideoPostProcessor::uninit() {
-	if(instance != &voidVideoPostProcessor && instance != NULL)
-		delete instance;
-	instance = &voidVideoPostProcessor;
-
 	m_videoSurface = NULL; // should never be used before resetVideo() is called
 }
 

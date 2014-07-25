@@ -146,7 +146,6 @@ bool GameOptions::Init() {
 #endif
 		( tLXOptions->iColourDepth, "Video.ColourDepth", 32 )
 		( tLXOptions->sResolution, "Video.Resolution", "" )
-		( tLXOptions->sVideoPostProcessor, "Video.PostProcessor", "" )
 
 		( tLXOptions->iNetworkPort, "Network.Port", (int)LX_PORT )
 		( tLXOptions->iNetworkSpeed, "Network.Speed", (int)NST_LAN )

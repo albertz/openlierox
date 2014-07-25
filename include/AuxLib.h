@@ -75,8 +75,8 @@ void EnableSystemMouseCursor(bool enable = true);
 
 class VideoPostProcessor {
 protected:
-	static SDL_Surface* m_videoSurface;
-	static VideoPostProcessor* instance;
+	static SmartPointer<SDL_Surface> m_videoSurface;
+	static VideoPostProcessor instance;
 	
 public:
 	// IMPORTANT: only call these from the main thread
@@ -84,18 +84,15 @@ public:
 	static void cloneBuffer();
 	
 public:
-	virtual ~VideoPostProcessor() {}
-	static VideoPostProcessor* get() { return instance; }
-	static void init();
+	static VideoPostProcessor* get() { return &instance; }
 	static void uninit();
 
-	virtual void resetVideo() { m_videoSurface = m_videoBufferSurface = SDL_GetVideoSurface(); } // this dummy just uses the real video surface directly; it is called from SetVideoMode
-	virtual void processToScreen() {} // should process m_videoSurface to real video surface; this is run within an own thread
+	void resetVideo(); // this is called from SetVideoMode
 
-	virtual int screenWidth() { return 640; }
-	virtual int screenHeight() { return 480; }
+	int screenWidth() { return 640; }
+	int screenHeight() { return 480; }
 
-	static SDL_Surface* videoSurface() { return m_videoSurface; };
+	static SDL_Surface* videoSurface() { return m_videoSurface.get(); };
 	
 	static void transformCoordinates_ScreenToVideo( int& x, int& y );
 };
