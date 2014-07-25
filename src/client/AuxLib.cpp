@@ -87,14 +87,16 @@ SDL_Surface* videoSurface = NULL;
 
 SDL_PixelFormat defaultFallbackFormat =
 	{
+		 0, // format
          NULL, //SDL_Palette *palette;
          32, //Uint8  BitsPerPixel;
          4, //Uint8  BytesPerPixel;
+		 {0, 0}, // padding
+		 0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
          0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
          24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-         0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
-         0, //Uint32 colorkey;
-         255 //Uint8  alpha;
+		 0, // refcount
+		 NULL // next ref
 	};
 
 SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
@@ -417,61 +419,7 @@ setvideomode:
 	if (tLX)
 		tLX->bVideoModeChanged = true;
 	
-#ifdef REAL_OPENGL	
-	if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
-		static SDL_PixelFormat OGL_format32 =
-		{
-			NULL, //SDL_Palette *palette;
-			32, //Uint8  BitsPerPixel;
-			4, //Uint8  BytesPerPixel;
-			0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
-			0, 8, 16, 24, //Uint8  Rshift, Gshift, Bshift, Ashift;
-			0x000000FF,
-			0x0000FF00,
-			0x00FF0000,
-			0xFF000000,
-#else
-			24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-			0xFF000000,
-			0x00FF0000,
-			0x0000FF00,
-			0x000000FF,
-#endif
-			0, //Uint32 colorkey;
-			255 //Uint8  alpha;
-		};
-		// some GFX stuff in OLX seems very slow when this is used
-		// (probably the blit from alpha surf to this format is slow)
-	/*	static SDL_PixelFormat OGL_format24 =
-		{
-			NULL, //SDL_Palette *palette;
-			24, //Uint8  BitsPerPixel;
-			3, //Uint8  BytesPerPixel;
-			0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-			#if SDL_BYTEORDER == SDL_LIL_ENDIAN // OpenGL RGBA masks
-			0, 8, 16, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-			0x000000FF,
-			0x0000FF00,
-			0x00FF0000,
-			0x00000000,
-			#else
-			16, 8, 0, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-			0x00FF0000,
-			0x0000FF00,
-			0x000000FF,
-			0x00000000,
-			#endif
-			0, //Uint32 colorkey;
-			255 //Uint8  alpha;
-		}; */
-		//if(tLXOptions->iColourDepth == 32)
-			mainPixelFormat = &OGL_format32;
-		//else
-		//	mainPixelFormat = &OGL_format24;
-	} else
-#endif		
-		mainPixelFormat = SDL_GetVideoSurface()->format;
+	mainPixelFormat = SDL_GetVideoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
 	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
 		notes << "using doublebuffering" << endl;
