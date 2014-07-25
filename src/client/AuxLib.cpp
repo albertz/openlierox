@@ -27,9 +27,6 @@
 #define Font Font_Xlib // Hack to prevent name clash in precompiled header and system libs
 #include <SDL_syswm.h>
 #undef Font
-#ifdef REAL_OPENGL
-#include <SDL_opengl.h>
-#endif
 #include <cstdlib>
 #include <sstream>
 #include <cstring>
@@ -236,9 +233,6 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 }
 
 
-#ifdef REAL_OPENGL
-static void OGL_init();
-#endif
 
 ///////////////////
 // Set the video mode
@@ -313,9 +307,7 @@ bool SetVideoMode()
 
 	if (opengl) {
 		vidflags |= SDL_OPENGL;
-#ifndef REAL_OPENGL
 		vidflags |= SDL_OPENGLBLIT; // SDL will behave like normally
-#endif
 		// HINT: it seems that with OGL activated, SDL_SetVideoMode will already set the OGL depth size
 		// though this main pixel format of the screen surface was always 32 bit for me in OGL under MacOSX
 		//#ifndef MACOSX
@@ -485,11 +477,6 @@ setvideomode:
 		notes << "using doublebuffering" << endl;
 
 	// Correct the surface format according to SDL
-#ifdef REAL_OPENGL
-	if(((SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0)) {
-		iSurfaceFormat = SDL_SWSURFACE;
-	} else
-#endif	
 	if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
 		notes << "using hardware surfaces" << endl;
@@ -504,11 +491,7 @@ setvideomode:
 	if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
 		hints << "using OpenGL" << endl;
 		
-#ifdef REAL_OPENGL
-		OGL_init();
-#else
-		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));		
-#endif
+		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
 	}
 	else
 		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
@@ -590,107 +573,6 @@ void ProcessScreenshots()
 
 
 
-#ifdef REAL_OPENGL
-
-static GLuint OGL_createTexture() {
-	GLuint textureid;
-	
-	// create one texture name
-	glGenTextures(1, &textureid);
-
-	// tell opengl to use the generated texture name
-	glBindTexture(GL_TEXTURE_2D, textureid);
-
-	// these affect how this texture is drawn later on...
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-
-	return textureid;
-}
-
-static void OGL_setupScreenForSingleTexture(GLuint textureid, int w, int h) {
-
-	glPushAttrib(GL_ENABLE_BIT | GL_VIEWPORT_BIT | GL_POLYGON_BIT);
-	glDisable(GL_DEPTH_TEST);
-	glDisable (GL_LIGHTING);
-	glDisable (GL_LINE_SMOOTH);
-	glDisable (GL_CULL_FACE);
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glViewport(0, 0, w, h);
-	glMatrixMode (GL_PROJECTION);
-	glPushMatrix ();
-	glLoadIdentity ();
-	glOrtho (0, (GLdouble)w, 0, (GLdouble)h, -1, 1);
-	glMatrixMode (GL_MODELVIEW);
-	glPushMatrix ();
-	glLoadIdentity ();
-
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glBindTexture (GL_TEXTURE_2D, textureid);
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-	int x = 0, y = 0;
-	glPushMatrix ();
-	glTranslated (x, y, 0);
-	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-	
-	int realw = 1; while(realw < 640) realw <<= 1;
-	int realh = 1; while(realh < 480) realh <<= 1;
-	float texW = 640 / (float)realw;
-	float texH = 480 / (float)realh;
-	
-	glBegin(GL_QUADS);
-	{
-		glTexCoord2f (0, 0);
-		glVertex2i (0, h);
-		glTexCoord2f (texW, 0);
-		glVertex2i (w, h);
-		glTexCoord2f (texW, texH);
-		glVertex2i (w, 0);
-		glTexCoord2f (0, texH);
-		glVertex2i (0, 0);
-	}
-	glEnd();
-	
-	glPopMatrix ();
-
-	/* Leave "2D mode" */
-	glMatrixMode (GL_PROJECTION);
-	glPopMatrix ();
-	glMatrixMode (GL_MODELVIEW);
-	glPopMatrix();
-	glPopAttrib();
-
-}
-
-static GLuint OGL_screenBuf = 0;
-
-static void OGL_init() {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set black background
-
-	OGL_screenBuf = OGL_createTexture();
-}
-
-static void OGL_draw(SDL_Surface* src) {
-	// tell opengl to use the generated texture name
-	glBindTexture(GL_TEXTURE_2D, OGL_screenBuf);
-
-	int mode = 0; 
-	if(src->format->BytesPerPixel == 3)
-		mode = GL_RGB;
-	else
-		mode = GL_RGBA;
-	
-	// this reads from the sdl surface and puts it into an opengl texture
-	glTexImage2D(GL_TEXTURE_2D, 0, mode, src->w, src->h, 0, mode, GL_UNSIGNED_BYTE, src->pixels);
-
-	int w = VideoPostProcessor::get()->screenWidth();
-	int h = VideoPostProcessor::get()->screenHeight();
-	OGL_setupScreenForSingleTexture(OGL_screenBuf, w, h);
-}
-#endif
 
 
 
@@ -713,12 +595,7 @@ void flipRealVideo() {
 	//DrawLoadingAni(psScreen, 320, 260, 50, 50, Color(128,128,128), Color(128,128,128,128), LAT_CIRCLES);
 	//DrawLoadingAni(psScreen, 320, 260, 10, 10, Color(255,0,0), Color(0,255,0), LAT_CAKE);
 	
-#ifdef REAL_OPENGL	
-	if((psScreen->flags & SDL_OPENGL))
-		glFlush();
-	else
-#endif
-		SDL_Flip( psScreen );
+	SDL_Flip( psScreen );
 
 	if(psScreen->flags & SDL_OPENGL)
 		SDL_GL_SwapBuffers();
@@ -737,15 +614,6 @@ public:
 		if(m_screenBuf[0].get()) return;
 		
 		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
-#ifdef REAL_OPENGL
-		if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
-			// get smallest power-of-2 dimension which is bigger than src
-			int w = 1; while(w < 640) w <<= 1;
-			int h = 1; while(h < 480) h <<= 1;
-			m_screenBuf[0] = gfxCreateSurface(w, h);
-			m_screenBuf[1] = gfxCreateSurface(w, h);
-		} else
-#endif
 		{
 			m_screenBuf[0] = gfxCreateSurface(640, 480);
 			m_screenBuf[1] = gfxCreateSurface(640, 480);
@@ -768,13 +636,7 @@ public:
 	}
 
 	virtual void processToScreen() {
-#ifdef REAL_OPENGL
-		if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
-			OGL_draw(m_videoBufferSurface);
-		}
-		else
-#endif			
-			DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
+		DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
 	}
 
 };

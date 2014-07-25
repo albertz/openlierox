@@ -76,12 +76,10 @@ void EnableSystemMouseCursor(bool enable = true);
 class VideoPostProcessor {
 protected:
 	static SDL_Surface* m_videoSurface;
-	static SDL_Surface* m_videoBufferSurface;
 	static VideoPostProcessor* instance;
 	
 public:
 	// IMPORTANT: only call these from the main thread
-	static void flipBuffers() { SDL_Surface* tmp = m_videoSurface; m_videoSurface = m_videoBufferSurface; m_videoBufferSurface = tmp; }
 	static void process();
 	static void cloneBuffer();
 	
@@ -93,11 +91,11 @@ public:
 
 	virtual void resetVideo() { m_videoSurface = m_videoBufferSurface = SDL_GetVideoSurface(); } // this dummy just uses the real video surface directly; it is called from SetVideoMode
 	virtual void processToScreen() {} // should process m_videoSurface to real video surface; this is run within an own thread
+
 	virtual int screenWidth() { return 640; }
 	virtual int screenHeight() { return 480; }
 
 	static SDL_Surface* videoSurface() { return m_videoSurface; };
-	static SDL_Surface* videoBufferSurface() { return m_videoBufferSurface; };
 	
 	static void transformCoordinates_ScreenToVideo( int& x, int& y );
 };

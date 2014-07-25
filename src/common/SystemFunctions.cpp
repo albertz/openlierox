@@ -15,9 +15,6 @@
 #define Font Font_Xlib // Hack to prevent name clash in precompiled header
 #include <SDL_syswm.h>
 #undef Font
-#ifdef REAL_OPENGL
-#include <SDL_opengl.h>
-#endif
 #include <cstdlib>
 #include <sstream>
 #include <cstring>
