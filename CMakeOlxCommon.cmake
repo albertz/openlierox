@@ -32,7 +32,7 @@ OPTION(ADVASSERT "Advanced assert" No)
 OPTION(PYTHON_DED_EMBEDDED "Python embedded in dedicated server"  No)
 OPTION(OPTIM_PROJECTILES "Enable optimisations for projectiles" Yes)
 OPTION(MEMSTATS "Enable memory statistics and debugging" No)
-OPTION(BREAKPAD "Google Breakpad support" Yes)
+OPTION(BREAKPAD "Google Breakpad support" No)
 OPTION(DISABLE_JOYSTICK "Disable joystick support" No)
 
 IF (DEBUG)
