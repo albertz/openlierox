@@ -15,7 +15,6 @@
 
 #include <string>
 #include <SDL.h>
-#include "StaticAssert.h"
 #include "ProjAction.h"
 #include "Color.h"
 

@@ -45,7 +45,6 @@
 #include "TaskManager.h"
 #include "CGameMode.h"
 #include "ConversationLogger.h"
-#include "StaticAssert.h"
 #include "Command.h"
 
 #include "DeprecatedGUI/CBar.h"

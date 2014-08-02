@@ -24,7 +24,6 @@
 #include "CProjectile.h"
 #include "Version.h"
 #include "Color.h"
-#include "StaticAssert.h"
 #include "StringUtils.h"
 
 class IniReader;

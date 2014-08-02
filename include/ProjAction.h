@@ -28,7 +28,6 @@
 #include <vector>
 #include <limits.h>
 #include <cassert>
-#include "StaticAssert.h"
 #include "types.h"
 #include "CVec.h"
 

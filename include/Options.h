@@ -22,7 +22,6 @@
 #include <string>
 #include <cassert>
 #include "FeatureList.h"
-#include "StaticAssert.h"
 
 // Setup input id's
 enum {

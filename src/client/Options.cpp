@@ -28,7 +28,6 @@
 #include "Version.h"
 #include "Iterator.h"
 #include "CGameMode.h"
-#include "StaticAssert.h"
 #include "AuxLib.h"
 #include "CInput.h"
 

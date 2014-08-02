@@ -11,7 +11,6 @@
 #include "CScriptableVars.h"
 #include "Debug.h"
 #include "StringUtils.h"
-#include "StaticAssert.h"
 
 #include <sstream>
 
