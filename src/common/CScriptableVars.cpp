@@ -31,7 +31,7 @@ const char * GameInfoGroupDescriptions[][2] =
 {"Race", "Race gamemode settings"},
 };
 
-static_assert( sizeof(GameInfoGroupDescriptions) / (sizeof(char*) * 2) == GIG_Size, GIG_desc__sizecheck );
+static_assert( sizeof(GameInfoGroupDescriptions) / (sizeof(char*) * 2) == GIG_Size, "GIG_desc__sizecheck" );
 
 
 std::string AdvancedLevelDescription(AdvancedLevel l) {

@@ -114,7 +114,7 @@ Feature featureArray[] = {
 	Feature::Unset()
 };
 
-static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature) - 1, featureArray__sizecheck);
+static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature) - 1, "featureArray__sizecheck");
 
 
 
