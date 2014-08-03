@@ -212,7 +212,6 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 	if (result.get() != NULL)  {
 		// OpenGL strictly requires the surface to be cleared
 		SDL_FillRect(result.get(), NULL, SDL_MapRGBA(result.get()->format, 0, 0, 0, 255));
-		SDL_SetAlpha(result.get(), 0, 0); // Remove any alpha
 	}
 
 	#ifdef DEBUG
@@ -312,7 +311,7 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 void ResetAlpha(SDL_Surface * dst)
 {
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
-	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
+	SDL_SetSurfaceAlphaMod(dst, 255); // Remove the persurface-alpha
 
 	PixelPut& putter = getPixelPutFunc(dst);
 	PixelGet& getter = getPixelGetFunc(dst);

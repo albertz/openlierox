@@ -853,7 +853,7 @@ void	DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col
 //
 
 // sets alpha in a safe way for both non-alpha-surfaces and alpha-surfaces
-// for non-alpha surfaces, it uses SDL_SetAlpha
+// for non-alpha surfaces, it uses SDL_SetSurfaceAlphaMod
 // for real alphablended surfaces, that means this multiplies a/255 to each a-value
 void SetPerSurfaceAlpha(SDL_Surface * dst, Uint8 a);
 
