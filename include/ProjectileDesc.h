@@ -59,7 +59,7 @@ enum Proj_AttractiveType  {
 	ATT_QUADRATIC,  // The force fades out using the inverse quadratic function
 };
 
-static_assert(sizeof(Proj_GfxType) == sizeof(int), Proj_Type__SizeCheck);
+static_assert(sizeof(Proj_GfxType) == sizeof(int), "Proj_Type__SizeCheck");
 
 
 // Animation types
@@ -72,7 +72,7 @@ enum Proj_AnimType {
 	__ANI_UBOUND = INT_MAX,
 };
 
-static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
+static_assert(sizeof(Proj_AnimType) == sizeof(int), "Proj_AnimType__SizeCheck");
 
 
 

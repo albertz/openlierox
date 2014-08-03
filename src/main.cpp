@@ -182,12 +182,12 @@ struct StartupCLI : CmdLineIntf, CmdLineIntf::ExecScope {
 static void DoSystemChecks() {
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
-	static_assert(sizeof(char) == 1, sizeof_char__equals1);
-	static_assert(sizeof(short) == 2, sizeof_short__equals2);
-	static_assert(sizeof(int) == 4, sizeof_int__equals4);
-	static_assert(sizeof(float) == 4, sizeof_float__equals4);
+	static_assert(sizeof(char) == 1, "sizeof_char__equals1");
+	static_assert(sizeof(short) == 2, "sizeof_short__equals2");
+	static_assert(sizeof(int) == 4, "sizeof_int__equals4");
+	static_assert(sizeof(float) == 4, "sizeof_float__equals4");
 	// sometimes the return value of SendMessage is used as a pointer
-	static_assert(sizeof(DWORD) == sizeof(void*), sizeof_dword__equals_p);
+	static_assert(sizeof(DWORD) == sizeof(void*), "sizeof_dword__equals_p");
 }
 
 

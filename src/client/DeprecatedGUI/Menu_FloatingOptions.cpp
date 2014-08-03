@@ -137,7 +137,7 @@ std::string sFloatingOpt_InputNames[] = {
 };
 
 static const int sFloatingOpt_InputNames__size = sizeof(sFloatingOpt_InputNames) / sizeof(std::string);
-static_assert( sFloatingOpt_InputNames__size == __SIN_PLY_BOTTOM - 5, inputopts__sizecheck );
+static_assert( sFloatingOpt_InputNames__size == __SIN_PLY_BOTTOM - 5, "inputopts__sizecheck" );
 
 
 ///////////////////

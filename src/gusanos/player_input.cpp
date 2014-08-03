@@ -19,7 +19,7 @@
 #include <vector>
 #include <assert.h>
 
-static_assert( C_LocalPlayer_ActionCount == CWormHumanInputHandler::ACTION_COUNT, actioncount_mismatch );
+static_assert( C_LocalPlayer_ActionCount == CWormHumanInputHandler::ACTION_COUNT, "actioncount_mismatch" );
 
 std::string _event(size_t index, CWormHumanInputHandler::Actions action, bool start) {
 	using namespace boost::lambda;
@@ -71,7 +71,7 @@ void registerPlayerInput()
 		{
 			"_LEFT", "_RIGHT", "_UP", "_DOWN", "_FIRE", "_JUMP", "_CHANGE", "_NINJAROPE"
 		};
-		static_assert( sizeof(actionNames)/sizeof(char*) == CWormHumanInputHandler::ACTION_COUNT, actioncount_mismatch );
+		static_assert( sizeof(actionNames)/sizeof(char*) == CWormHumanInputHandler::ACTION_COUNT, "actioncount_mismatch" );
 		
 		for(int action = CWormHumanInputHandler::LEFT; action < CWormHumanInputHandler::ACTION_COUNT; ++action)
 		{
