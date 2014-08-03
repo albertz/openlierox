@@ -104,8 +104,8 @@ INLINE bool ClipLine(const SmartPointer<SDL_Surface> & bmp, int * x1, int * y1, 
 
 class SDLRectBasic : public SDL_Rect {
 public:
-	typedef Sint16 Type;
-	typedef Uint16 TypeS;
+	typedef int Type;
+	typedef int TypeS;
 	
 	SDLRectBasic() { this->SDL_Rect::x = this->SDL_Rect::y = this->SDL_Rect::w = this->SDL_Rect::h = 0; }
 	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {}
