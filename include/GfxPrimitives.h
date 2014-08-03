@@ -317,7 +317,7 @@ SmartPointer<SDL_Surface> LoadGameImage_unaltered(const std::string& _filename, 
 
 inline uint32_t Surface_GetColorKey(SDL_Surface* surf) {
 	uint32_t key = 0;
-	(void)SDL_GetColorKey(surf, key); // ignore return
+	(void)SDL_GetColorKey(surf, &key); // ignore return
 	return key;
 }
 
