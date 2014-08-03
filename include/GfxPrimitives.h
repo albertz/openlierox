@@ -315,19 +315,19 @@ SmartPointer<SDL_Surface> LoadGameImage_unaltered(const std::string& _filename, 
 
 
 
-inline uint32_t Surface_GetColorKey(SDL_Surface* surf) {
+inline uint32_t Surface_GetColorKey(const SDL_Surface* surf) {
 	uint32_t key = 0;
-	(void)SDL_GetColorKey(surf, &key); // ignore return
+	(void)SDL_GetColorKey((SDL_Surface*)surf, &key); // ignore return
 	return key;
 }
 
-inline bool Surface_HasColorKey(SDL_Surface* surf) {
-	return SDL_GetColorKey(surf, NULL) == 0;
+inline bool Surface_HasColorKey(const SDL_Surface* surf) {
+	return SDL_GetColorKey((SDL_Surface*)surf, NULL) == 0;
 }
 
-inline SDL_BlendMode Surface_GetBlendMode(SDL_Surface* surf) {
+inline SDL_BlendMode Surface_GetBlendMode(const SDL_Surface* surf) {
 	SDL_BlendMode mode = SDL_BLENDMODE_NONE;
-	(void)SDL_GetSurfaceBlendMode(surf, &mode); // ignore return
+	(void)SDL_GetSurfaceBlendMode((SDL_Surface*)surf, &mode); // ignore return
 	return mode;
 }
 
