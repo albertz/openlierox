@@ -391,8 +391,8 @@ INLINE void gfxFreeSurface(const SmartPointer<SDL_Surface> & surf)  {
 
 struct SurfaceCopyScope {
 	SDL_Surface* src;
-	bool HasAlpha;
 	Uint8 PerSurfaceAlpha;
+	SDL_BlendMode BlendMode;
 	bool HasColorkey;
 	Uint32 Colorkey;
 	SurfaceCopyScope(SDL_Surface* src_);

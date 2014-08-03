@@ -476,30 +476,30 @@ SurfaceCopyScope::SurfaceCopyScope(SDL_Surface *src_) : src(src_) {
 	// If the surface has alpha or colorkey set, we have to remove them and then put them back
 
 	// Save alpha values
-	HasAlpha = false;
 	PerSurfaceAlpha = SDL_ALPHA_OPAQUE;
-	if (src->flags & SDL_SRCALPHA)  {
-		HasAlpha = true;
-		PerSurfaceAlpha = src->format->alpha;
-	}
+	SDL_GetSurfaceAlphaMod(src, &PerSurfaceAlpha);
+	BlendMode = SDL_BLENDMODE_NONE;
+	SDL_GetSurfaceBlendMode(src, &BlendMode);
 
 	// Save colorkey values
-	HasColorkey = false;
+	HasColorkey = true;
 	Colorkey = 0;
-	if (Surface_HasColorKey(src))  {
-		HasColorkey = true;
-		Colorkey = Surface_GetColorKey(src);
+	if (SDL_GetColorKey(src, &Colorkey) != 0)  {
+		HasColorkey = false;
 	}
 
 	// Remove alpha and colorkey
-	SDL_SetAlpha(src, 0, 0);
+	SDL_SetSurfaceAlphaMod(src, SDL_ALPHA_OPAQUE);
+	SDL_SetSurfaceBlendMode(src, SDL_BLENDMODE_NONE);
 	SDL_SetColorKey(src, 0, 0);
 }
 
 SurfaceCopyScope::~SurfaceCopyScope() {
 	// Return back alpha and colorkey
-	if (HasAlpha)
-		SDL_SetAlpha(src, SDL_SRCALPHA, PerSurfaceAlpha);
+	if (PerSurfaceAlpha != SDL_ALPHA_OPAQUE)
+		SDL_SetSurfaceAlphaMod(src, 1, PerSurfaceAlpha);
+	if (BlendMode != SDL_BLENDMODE_NONE)
+		SDL_SetSurfaceBlendMode(src, BlendMode);
 	if (HasColorkey)
 		SDL_SetColorKey(src, 1, Colorkey);
 }
