@@ -112,9 +112,9 @@ static void SetColorKey_Alpha(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 // Set a pink color key
 void SetColorKey(SDL_Surface * dst)  {
 	// If there's already a colorkey set, don't set it again
-	if ((dst->flags & SDL_SRCCOLORKEY) &&
-		((dst->format->colorkey == SDL_MapRGB(dst->format, 255, 0, 255)) ||
-		(dst->format->colorkey == SDL_MapRGB(dst->format, 254, 0, 254))))
+	if (Surface_HasColorKey(dst) &&
+		((Surface_GetColorKey(dst) == SDL_MapRGB(dst->format, 255, 0, 255)) ||
+		(Surface_GetColorKey(dst) == SDL_MapRGB(dst->format, 254, 0, 254))))
 		return;
 
 	// Because some graphic editors (old Photoshop and GIMP and possibly more) contain a bug that rounds 255 to 254
@@ -142,9 +142,9 @@ void SetColorKey(SDL_Surface * dst)  {
 
 	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
 	if (bugged)
-		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, bugged_colorkey);
+		SDL_SetColorKey(dst, 1, bugged_colorkey);
 	else
-		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255));
+		SDL_SetColorKey(dst, 1, SDL_MapRGB(dst->format, 255, 0, 255));
 }
 
 void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
@@ -160,7 +160,7 @@ void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 		SetColorKey_Alpha(dst, r, g, b);
 
 	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
-	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, r, g, b));
+	SDL_SetColorKey(dst, 1, SDL_MapRGB(dst->format, r, g, b));
 }
 
 struct VideoFormat {
@@ -487,9 +487,9 @@ SurfaceCopyScope::SurfaceCopyScope(SDL_Surface *src_) : src(src_) {
 	// Save colorkey values
 	HasColorkey = false;
 	Colorkey = 0;
-	if (src->flags & SDL_SRCCOLORKEY)  {
+	if (Surface_HasColorKey(src))  {
 		HasColorkey = true;
-		Colorkey = src->format->colorkey;
+		Colorkey = Surface_GetColorKey(src);
 	}
 
 	// Remove alpha and colorkey
@@ -502,7 +502,7 @@ SurfaceCopyScope::~SurfaceCopyScope() {
 	if (HasAlpha)
 		SDL_SetAlpha(src, SDL_SRCALPHA, PerSurfaceAlpha);
 	if (HasColorkey)
-		SDL_SetColorKey(src, SDL_SRCCOLORKEY, Colorkey);
+		SDL_SetColorKey(src, 1, Colorkey);
 }
 
 ///////////////////////
@@ -536,8 +536,8 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 
 	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
 	
-	if(bmpSrc->flags & SDL_SRCCOLORKEY) {
-		Color colorkey = Color(bmpSrc->format, bmpSrc->format->colorkey);
+	if(Surface_HasColorKey(bmpSrc)) {
+		Color colorkey = Color(bmpSrc->format, Surface_GetColorKey(bmpSrc));
 		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
 	}
 	
@@ -566,8 +566,8 @@ SmartPointer<SDL_Surface> GetCopiedStretched2Image(SDL_Surface* bmpSrc) {
 
 	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h, true);
 
-	if(bmpSrc->flags & SDL_SRCCOLORKEY) {
-		Color colorkey = Color(bmpSrc->format, bmpSrc->format->colorkey);
+	if(Surface_HasColorKey(bmpSrc)) {
+		Color colorkey = Color(bmpSrc->format, Surface_GetColorKey(bmpSrc));
 		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
 	}
 
@@ -616,7 +616,7 @@ void _OperateOnSurfaces(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, 
 	int srcgap = bmpSrc->pitch - rDest.w * sbpp;
 	int dstgap = bmpDest->pitch - rDest.w * dbpp;
 	
-	Color key = Unpack_<src_hasalpha>(bmpSrc->format->colorkey, bmpSrc->format);
+	Color key = Unpack_<src_hasalpha>(Surface_GetColorKey(bmpSrc), bmpSrc->format);
 	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
 		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp) {
 			if(sameformat && !alphablend && !colorkeycheck) {
@@ -650,7 +650,7 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	const bool src_hasalpha = bmpSrc->format->Amask != 0;
 	const bool dst_hasalpha = bmpDest->format->Amask != 0;
 	const bool src_persurfacealpha = alphablend && (bmpSrc->format->alpha != 255);
-	const bool colorkeycheck = (bmpSrc->flags & SDL_SRCCOLORKEY) != 0;
+	const bool colorkeycheck = Surface_HasColorKey(bmpSrc->flags);
 	const bool sameformat = PixelFormatEqual(bmpSrc->format, bmpDest->format);
 	
 #define ____DO_OP(_sbpp, _dbpp, _salpha, _dalpha, _spersurfalpha, _colkeycheck, _sameformat) \
@@ -1690,7 +1690,7 @@ void DrawImageScaleHalfAdv(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, in
 	Uint8 *srcrow_2 = GetPixelAddr(bmpSrc, sx, sy + 1);
 	Uint8 *dstrow = GetPixelAddr(bmpDest, dx, dy);
 	PixelPutAlpha& put = getPixelAlphaPutFunc(bmpDest);
-	const bool usekey = (bmpSrc->flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY;
+	const bool usekey = Surface_HasColorKey(bmpSrc);
 
 	for(int y = sy + dh; y != sy; --y)  {
 		Uint8 *srcpx_1 = srcrow_1;
@@ -2705,7 +2705,7 @@ void DumpPixelFormat(const SDL_PixelFormat* format) {
 	<< (uint)format->Gloss << "/"
 	<< (uint)format->Bloss << "/"
 	<< (uint)format->Aloss << std::endl
-	<< "  Colorkey: " << std::hex << (uint)format->colorkey << ","
+	<< "  Colorkey: " << std::hex << Surface_GetColorKey(format) << ","
 	<< "  Alpha: " << std::dec << (int)format->alpha;
 	notes << str.str() << endl;
 }

@@ -313,9 +313,18 @@ SmartPointer<SDL_Surface> LoadGameImage_unaltered(const std::string& _filename, 
 #define		LOAD_IMAGE_WITHALPHA2(bmp,name1,name2)	{ if (!Load_Image_WithAlpha(bmp,name1) && !Load_Image_WithAlpha(bmp,name2)) return false; }
 #define		LOAD_IMAGE_WITHALPHA__OR(bmp,name,img)	{ if (!Load_Image_WithAlpha(bmp,name) && ((bmp = (img)).get() == NULL)) return false; }
 
-/////////////////
-// Gets the colorkey from the surface
-#define		COLORKEY(bmp) ((bmp)->format->colorkey)
+
+
+inline uint32_t Surface_GetColorKey(SDL_Surface* surf) {
+	uint32_t key = 0;
+	(void)SDL_GetColorKey(surf, key); // ignore return
+	return key;
+}
+
+inline bool Surface_HasColorKey(SDL_Surface* surf) {
+	return SDL_GetColorKey(surf, NULL) == 0;
+}
+
 
 
 /////////////////////
@@ -712,7 +721,7 @@ INLINE bool IsTransparent(SDL_Surface * surf, Uint32 color)  {
 		return true;
 
 	// TODO: should this check be done, if SDL_SRCALPHA was set? SDL/OpenGL possibly will ignore it
-	if((surf->flags & SDL_SRCCOLORKEY) && (EqualRGB(color, COLORKEY(surf), surf->format)))
+	if(Surface_HasColorKey(surf) && (EqualRGB(color, Surface_GetColorKey(surf), surf->format)))
 		return true;
 
 	return false;
@@ -792,8 +801,8 @@ INLINE void FillSurfaceTransparent(SDL_Surface * dst)  {
 	// check alpha first as it has priority (if set, colorkey is ignored)
 	if (dst->flags & SDL_SRCALPHA)
 		FillSurface(dst, SDL_MapRGBA(dst->format, 255, 0, 255, SDL_ALPHA_TRANSPARENT));
-	else if (dst->flags & SDL_SRCCOLORKEY)
-		FillSurface(dst, COLORKEY(dst));
+	else if (Surface_HasColorKey(dst))
+		FillSurface(dst, Surface_GetColorKey(dst));
 	else
 		warnings("There's no possibility to make this surface transparent!\n");
 }

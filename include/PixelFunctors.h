@@ -290,7 +290,7 @@ int dstbytespp
 >
 INLINE void PixelCopy_(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, Uint8 *dstaddr, const Uint8 *srcaddr) {
 	if(colorkeycheck) {
-		Color key = Unpack_<srchasalpha>(srcformat->colorkey, srcformat);
+		Color key = Unpack_<srchasalpha>(Surface_GetColorKey(srcformat), srcformat);
 		if(key == _GetPixel<srchasalpha,srcbytespp>(srcformat, srcaddr)) return;
 	}
 	if(issameformat && !alphablend) {

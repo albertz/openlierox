@@ -13,7 +13,7 @@ PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Surface *d
 {
 	const bool issameformat = PixelFormatEqual(source_surf->format, dest_surf->format);
 	const bool alphablend = (source_surf->flags & SDL_SRCALPHA) != 0;
-	const bool colorkeycheck = (source_surf->flags & SDL_SRCCOLORKEY) != 0;
+	const bool colorkeycheck = Surface_HasColorKey(source_surf);
 	const bool srchasalpha = source_surf->format->Amask != 0;
 	const bool dsthasalpha = dest_surf->format->Amask != 0;
 	const int srcbytespp = source_surf->format->BytesPerPixel;
