@@ -132,8 +132,8 @@ void SetColorKey(SDL_Surface * dst)  {
 
 
 	// Apply the colorkey
-	if (dst->flags & SDL_SRCALPHA) {
-		// see comment in other SetColorKey; the behaviour with SDL_SRCALPHA is different
+	if (Surface_HasBlendMode(dst)) {
+		// see comment in other SetColorKey; the behaviour with Surface_HasBlendMode is different
 		if (bugged)
 			SetColorKey_Alpha(dst, 254, 0, 254);
 		else
@@ -153,8 +153,8 @@ void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 		return;
 	}
 
-	if (dst->flags & SDL_SRCALPHA)
-		// HINT: The behaviour with SDL_SRCALPHA is different
+	if (Surface_HasBlendMode(dst))
+		// HINT: The behaviour with Surface_HasBlendMode is different
 		// and not as you would expect it. The problem is that while blitting to a surface with RGBA,
 		// the alpha channel of the destination is untouched (see manpage to SDL_SetAlpha).
 		SetColorKey_Alpha(dst, r, g, b);
@@ -208,11 +208,13 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
 			width, height,
 			fmt.bpp, fmt.rmask, fmt.gmask, fmt.bmask, fmt.amask);
+	if(!result) return NULL;
+	
+	// Force to ignore alpha.
+	SDL_SetSurfaceBlendMode(result.get(), SDL_BLENDMODE_NONE);
 
-	if (result.get() != NULL)  {
-		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect(result.get(), NULL, SDL_MapRGBA(result.get()->format, 0, 0, 0, 255));
-	}
+	// OpenGL strictly requires the surface to be cleared
+	SDL_FillRect(result.get(), NULL, SDL_MapRGBA(result.get()->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 
 	#ifdef DEBUG
 	//printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
@@ -290,18 +292,17 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 		return NULL;
 
 	const VideoFormat f = getMainAlphaVideoFormat();
+	assert(f.alpha != 0);
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-				SDL_SWSURFACE | SDL_SRCALPHA,
+				0,
 				width, height,
 				f.bpp, f.rmask, f.gmask, f.bmask, f.amask);
+	if(!result) return NULL;
 	
-	if (result.get() != NULL)
-		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
-
-	#ifdef DEBUG
-	//printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
-	#endif
+	// The surface will have SDL_BLENDMODE_BLEND by default with Amask != 0.
+	
+	// OpenGL strictly requires the surface to be cleared
+	SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
 
 	return result;
 }
@@ -311,7 +312,7 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 void ResetAlpha(SDL_Surface * dst)
 {
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
-	SDL_SetSurfaceAlphaMod(dst, 255); // Remove the persurface-alpha
+	SDL_SetSurfaceAlphaMod(dst, SDL_ALPHA_OPAQUE); // Remove the persurface-alpha
 
 	PixelPut& putter = getPixelPutFunc(dst);
 	PixelGet& getter = getPixelGetFunc(dst);
@@ -520,7 +521,7 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 	assert(bmpSrc != NULL);
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-															bmpSrc->flags,
+															0,
 															bmpSrc->w, bmpSrc->h,
 															bmpSrc->format->BitsPerPixel,
 															bmpSrc->format->Rmask,
@@ -529,19 +530,30 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 															bmpSrc->format->Amask);
 	if (result.get() == NULL) return NULL;
 
-	// reset flags.
-	// SDL_CreateRGBSurface doesn't really set the flags as we request them. e.g., it usually always sets SDL_SRCALPHA.
-	result->flags = bmpSrc->flags;
-
 	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
 	
+	// Colorkey.
 	if(Surface_HasColorKey(bmpSrc)) {
-		Color colorkey = Color(bmpSrc->format, Surface_GetColorKey(bmpSrc));
-		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
+		uint32_t colorkey = Surface_GetColorKey(bmpSrc);
+		SDL_SetColorKey(result.get(), 1, colorkey);
+	}
+	
+	// Per-surface alpha.
+	{
+		uint8_t alpha = SDL_ALPHA_OPAQUE;
+		(void)SDL_GetSurfaceAlphaMod(bmpSrc, &alpha);
+		if(alpha != SDL_ALPHA_OPAQUE) {
+			SDL_SetSurfaceAlphaMod(result.get(), alpha);
+		}
+	}
+	
+	// (Per-pixel) alpha blend mode.
+	{
+		SDL_BlendMode blendMode = Surface_GetBlendMode(bmpSrc);
+		SDL_SetSurfaceBlendMode(result.get(), blendMode);
 	}
 	
 	assert(PixelFormatEqual(bmpSrc->format, result->format));
-	assert(bmpSrc->flags == result->flags);
 
 	return result;
 }

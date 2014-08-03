@@ -325,6 +325,16 @@ inline bool Surface_HasColorKey(SDL_Surface* surf) {
 	return SDL_GetColorKey(surf, NULL) == 0;
 }
 
+inline SDL_BlendMode Surface_GetBlendMode(SDL_Surface* surf) {
+	SDL_BlendMode mode = SDL_BLENDMODE_NONE;
+	(void)SDL_GetSurfaceBlendMode(surf, &mode); // ignore return
+	return mode;
+}
+
+inline bool Surface_HasBlendMode(SDL_Surface* surf) {
+	return Surface_GetBlendMode(surf) != SDL_BLENDMODE_NONE;
+}
+
 
 
 /////////////////////
@@ -717,10 +727,10 @@ INLINE void GetColour3(Uint32 pixel, SDL_PixelFormat* format, Uint8 *r, Uint8 *g
 ////////////////
 // Returns true if the color is considered as (partly) transparent on the surface
 INLINE bool IsTransparent(SDL_Surface * surf, Uint32 color)  {
-	if((surf->flags & SDL_SRCALPHA) && ((color & surf->format->Amask) != surf->format->Amask))
+	if(Surface_HasBlendMode(surf) && ((color & surf->format->Amask) != surf->format->Amask))
 		return true;
 
-	// TODO: should this check be done, if SDL_SRCALPHA was set? SDL/OpenGL possibly will ignore it
+	// TODO: should this check be done, if Surface_HasBlendMode? SDL/OpenGL possibly will ignore it
 	if(Surface_HasColorKey(surf) && (EqualRGB(color, Surface_GetColorKey(surf), surf->format)))
 		return true;
 
@@ -799,7 +809,7 @@ INLINE void FillSurface(SDL_Surface * dst, Uint32 colour) {
 // Fills the whole surface with a transparent color
 INLINE void FillSurfaceTransparent(SDL_Surface * dst)  {
 	// check alpha first as it has priority (if set, colorkey is ignored)
-	if (dst->flags & SDL_SRCALPHA)
+	if (Surface_HasBlendMode(dst))
 		FillSurface(dst, SDL_MapRGBA(dst->format, 255, 0, 255, SDL_ALPHA_TRANSPARENT));
 	else if (Surface_HasColorKey(dst))
 		FillSurface(dst, Surface_GetColorKey(dst));

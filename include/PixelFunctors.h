@@ -24,6 +24,7 @@
 #include <SDL.h>
 #include "Color.h"
 #include "CodeAttributes.h"
+#include "GfxPrimitives.h"
 
 // Alpha blends two colors, both are considered semi-transparent, the comp_a value should be MIN(255, fg.a + bg.a)
 #define BLEND_CHANN_ALPHA(chann, bg, fg, comp_a) (((comp_a - fg.a) * bg.chann + fg.a * fg.chann) / comp_a)
@@ -388,7 +389,7 @@ INLINE PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf)  {
 	case 3:
 		return px24;	// 24-bit surfaces have no alpha
 	case 4:
-		if (surf->flags & SDL_SRCALPHA)
+		if (Surface_HasBlendMode(surf))
 			return px32_a;
 		return px32;
 	default:
