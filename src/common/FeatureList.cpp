@@ -17,7 +17,6 @@
 #include "game/SettingsPreset.h"
 #include "game/GameMode.h"
 #include "Consts.h"
-#include "StaticAssert.h"
 #include "Debug.h"
 
 

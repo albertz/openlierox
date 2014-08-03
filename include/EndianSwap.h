@@ -13,7 +13,6 @@
 #include <SDL.h>
 #include <cstdio>
 #include <algorithm>
-#include "StaticAssert.h"
 #include "CVec.h"
 
 #ifdef _MSC_VER

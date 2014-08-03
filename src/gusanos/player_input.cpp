@@ -18,7 +18,6 @@
 #include <list>
 #include <vector>
 #include <assert.h>
-#include "StaticAssert.h"
 
 static_assert( C_LocalPlayer_ActionCount == CWormHumanInputHandler::ACTION_COUNT, actioncount_mismatch );
 

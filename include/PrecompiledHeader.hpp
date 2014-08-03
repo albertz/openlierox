@@ -122,7 +122,6 @@
 #include "SmartPointer.h"
 #include "SMTP.h"
 #include "StackWalker.h"
-#include "StaticAssert.h"
 #include "StringBuf.h"
 #include "StringUtils.h"
 #include "StyleVar.h"

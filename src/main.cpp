@@ -46,7 +46,6 @@
 #include "TaskManager.h"
 #include "CGameMode.h"
 #include "ConversationLogger.h"
-#include "StaticAssert.h"
 #include "OLXCommand.h"
 #include "game/Mod.h"
 #include "gusanos/gusanos.h"

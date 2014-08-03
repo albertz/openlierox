@@ -12,7 +12,6 @@
 
 #include <string>
 #include <vector>
-#include "StaticAssert.h"
 #include "ProjAction.h"
 #include "Geometry.h"
 

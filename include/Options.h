@@ -22,7 +22,6 @@
 #include <string>
 #include <cassert>
 #include "game/Settings.h"
-#include "StaticAssert.h"
 #include "CodeAttributes.h"
 
 // Setup input id's

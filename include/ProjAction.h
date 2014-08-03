@@ -28,7 +28,6 @@
 #include <vector>
 #include <limits.h>
 #include <cassert>
-#include "StaticAssert.h"
 #include "olx-types.h"
 #include "CVec.h"
 

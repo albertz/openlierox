@@ -30,7 +30,6 @@
 #include "CVec.h"
 #include "util/WeakRef.h"
 #include "CodeAttributes.h"
-#include "StaticAssert.h"
 #include "util/PODForClass.h"
 #include "util/Result.h"
 
