@@ -78,7 +78,7 @@ void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 //////////////////////////
 // Set the per-surface alpha
 void SetPerSurfaceAlpha(SDL_Surface * dst, Uint8 a) {
-	SDL_SetAlpha(dst, SDL_SRCALPHA, a);
+	SDL_SetSurfaceAlphaMod(dst, a);
 }
 
 
