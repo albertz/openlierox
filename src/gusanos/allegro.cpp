@@ -105,7 +105,7 @@ SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {
 	bmask = 0xff,
 	amask = 0 /*0xff000000*/;
 	
-	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,amask);
+	return SDL_CreateRGBSurface(0, w, h, 32, rmask,gmask,bmask,amask);
 }
 
 SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename, bool stretch2) {

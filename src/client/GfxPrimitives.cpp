@@ -562,7 +562,7 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 SmartPointer<SDL_Surface> GetCopiedStretched2Image(SDL_Surface* bmpSrc) {
 	assert(bmpSrc != NULL);
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-															bmpSrc->flags,
+															0,
 															bmpSrc->w*2, bmpSrc->h*2,
 															bmpSrc->format->BitsPerPixel,
 															bmpSrc->format->Rmask,
@@ -571,19 +571,30 @@ SmartPointer<SDL_Surface> GetCopiedStretched2Image(SDL_Surface* bmpSrc) {
 															bmpSrc->format->Amask);
 	if (result.get() == NULL) return NULL;
 
-	// reset flags.
-	// SDL_CreateRGBSurface doesn't really set the flags as we request them. e.g., it usually always sets SDL_SRCALPHA.
-	result->flags = bmpSrc->flags;
-
 	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h, true);
 
+	// Colorkey.
 	if(Surface_HasColorKey(bmpSrc)) {
-		Color colorkey = Color(bmpSrc->format, Surface_GetColorKey(bmpSrc));
-		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
+		uint32_t colorkey = Surface_GetColorKey(bmpSrc);
+		SDL_SetColorKey(result.get(), 1, colorkey);
+	}
+	
+	// Per-surface alpha.
+	{
+		uint8_t alpha = SDL_ALPHA_OPAQUE;
+		(void)SDL_GetSurfaceAlphaMod(bmpSrc, &alpha);
+		if(alpha != SDL_ALPHA_OPAQUE) {
+			SDL_SetSurfaceAlphaMod(result.get(), alpha);
+		}
+	}
+	
+	// (Per-pixel) alpha blend mode.
+	{
+		SDL_BlendMode blendMode = Surface_GetBlendMode(bmpSrc);
+		SDL_SetSurfaceBlendMode(result.get(), blendMode);
 	}
 
 	assert(PixelFormatEqual(bmpSrc->format, result->format));
-	assert(bmpSrc->flags == result->flags);
 
 	return result;
 }
@@ -738,7 +749,7 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 		return;
 	}
 	
-	if(bmpSrc->flags & SDL_SRCALPHA)
+	if(Surface_HasBlendMode(bmpSrc))
 		// __ZL8DrawRGBAILb1EEvP11SDL_SurfaceS1_R8SDL_RectS3_
 		DrawRGBA<true>(bmpDest, bmpSrc, rDest, rSrc);
 	else
@@ -746,8 +757,8 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 
 	return; // TODO: for now. and if the above is fast enough anyway, we don't need the code below (which is buggy)
 	
-	bool src_isrgba = bmpSrc->format->Amask != 0 && (bmpSrc->flags & SDL_SRCALPHA);
-	bool dst_isrgba = bmpDest->format->Amask != 0 && (bmpDest->flags & SDL_SRCALPHA);
+	bool src_isrgba = bmpSrc->format->Amask != 0 && Surface_HasBlendMode(bmpSrc);
+	bool dst_isrgba = bmpDest->format->Amask != 0 && Surface_HasBlendMode(bmpDest);
 
 	// RGB -> RGB
 	// RGB -> RGBA
@@ -2876,9 +2887,12 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 #endif
 	if(!img.get()) return NULL;
 	
+	if(!withalpha)
+		// Force no blend mode.
+		SDL_SetSurfaceBlendMode(img.get(), SDL_BLENDMODE_NONE);
+	
 	const VideoFormat wantedFormat = getMainVideoFormat(withalpha);
-	const Uint32 wantedFlags = (withalpha ? SDL_SRCALPHA : 0) | SDL_SWSURFACE;
-	if(wantedFormat != VideoFormat(img->format) || img->flags != wantedFlags) {
+	if(wantedFormat != VideoFormat(img->format)) {
 		SmartPointer<SDL_Surface> converted;
 		if(bDedicated || !VideoPostProcessor::videoSurface()) {
 			if(!bDedicated)
@@ -2898,10 +2912,10 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 				CopySurface(converted.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);
 			} else {
 				SDL_PixelFormat fmt = *(getMainPixelFormat());
-				img.get()->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
-				img.get()->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
+				SDL_SetSurfaceBlendMode(img.get(), SDL_BLENDMODE_NONE); // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
+				SDL_SetColorKey(img.get(), 0, 0); // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
 				converted = SDL_ConvertSurface(img.get(), &fmt, iSurfaceFormat);
-				converted.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
+				SDL_SetSurfaceBlendMode(converted.get(), SDL_BLENDMODE_NONE); // we explicitly said that we don't want alpha, so remove it
 			}
 		}
 		

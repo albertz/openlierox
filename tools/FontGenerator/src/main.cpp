@@ -208,10 +208,7 @@ SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outli
 
 	// Create the surface
 	// NOTE: MUST be 32 bit, SDLSurface2GDSurface requires it!!!
-	Uint32 flags = SDL_SWSURFACE;
-	if (Antialiased)
-		flags |= SDL_SRCALPHA;
-	Result = SDL_CreateRGBSurface(SDL_SWSURFACE,SurfaceWidth,SurfaceHeight,32,RMASK,GMASK,BMASK,AMASK);
+	Result = SDL_CreateRGBSurface(0,SurfaceWidth,SurfaceHeight,32,RMASK,GMASK,BMASK,AMASK);
 	if (!Result)  {
 		Output << "Out of memory while creating the bitmap surface." << endl;
 		return NULL;
