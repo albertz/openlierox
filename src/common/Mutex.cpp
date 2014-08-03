@@ -76,7 +76,7 @@ void Mutex::test()
 	Mutex mtx;
 
 	// Lock in one thread and unlock in another one
-	SDL_Thread *rel = SDL_CreateThread(thread_release_main, &mtx);
+	SDL_Thread *rel = SDL_CreateThread(thread_release_main, "Mutex test", &mtx);
 	SDL_WaitThread(rel, NULL);
 	mtx.unlock();
 

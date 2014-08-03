@@ -151,7 +151,7 @@ void teeStdoutInit() {
 		teeStdoutInfo.pipestart = pipe_to_handler[0];
 		teeStdoutInfo.initPipeEnd(pipe_to_handler[1]);
 
-		teeStdoutInfo.thread = SDL_CreateThread(threadedTeeStdout, NULL);
+		teeStdoutInfo.thread = SDL_CreateThread(threadedTeeStdout, "tee stdout", NULL);
 		if(!teeStdoutInfo.thread) {
 			errors << "teeStdout: failed to create thread" << endl;
 			return;
