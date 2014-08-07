@@ -24,7 +24,7 @@ private:
 	SDL_mutex *m_mutex;
 
 #ifdef DEBUG
-	volatile Uint32 m_lockedThread;  // Thread that keeps the lock
+//	volatile Uint32 m_lockedThread;  // Thread that keeps the lock
 #endif
 
 public:
