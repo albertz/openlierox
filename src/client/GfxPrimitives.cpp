@@ -208,7 +208,7 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
 			width, height,
 			fmt.bpp, fmt.rmask, fmt.gmask, fmt.bmask, fmt.amask);
-	if(!result) return NULL;
+	if(!result.get()) return NULL;
 	
 	// Force to ignore alpha.
 	SDL_SetSurfaceBlendMode(result.get(), SDL_BLENDMODE_NONE);
