@@ -331,7 +331,7 @@ inline SDL_BlendMode Surface_GetBlendMode(const SDL_Surface* surf) {
 	return mode;
 }
 
-inline bool Surface_HasBlendMode(SDL_Surface* surf) {
+inline bool Surface_HasBlendMode(const SDL_Surface* surf) {
 	return Surface_GetBlendMode(surf) != SDL_BLENDMODE_NONE;
 }
 
