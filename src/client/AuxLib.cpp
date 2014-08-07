@@ -212,12 +212,10 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	srand((unsigned int)time(NULL));
 
 	if(!bDedicated) {
-		/*
-		TODO set app icon. maybe not needed? SDL_WM_SetIcon does not exist in SDL2
-		SmartPointer<SDL_Surface> bmpIcon = LoadGameImage("data/icon.png", true);
-		if(bmpIcon.get())
-			SDL_WM_SetIcon(bmpIcon.get(), NULL);
-		*/
+		//SmartPointer<SDL_Surface> bmpIcon = LoadGameImage("data/icon.png", true);
+		//if(bmpIcon.get())
+		// TODO use SDL_SetWindowIcon
+		//	SDL_SetWindowIcon(bmpIcon.get(), NULL);
 	}
 
 	InitEventQueue();
