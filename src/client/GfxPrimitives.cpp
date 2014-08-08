@@ -46,7 +46,6 @@
 #include "Cache.h"
 #include "CodeAttributes.h"
 
-int iSurfaceFormat = SDL_SWSURFACE;
 
 
 
@@ -2914,7 +2913,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 				SDL_PixelFormat fmt = *(getMainPixelFormat());
 				SDL_SetSurfaceBlendMode(img.get(), SDL_BLENDMODE_NONE); // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
 				SDL_SetColorKey(img.get(), 0, 0); // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
-				converted = SDL_ConvertSurface(img.get(), &fmt, iSurfaceFormat);
+				converted = SDL_ConvertSurface(img.get(), &fmt, 0);
 				SDL_SetSurfaceBlendMode(converted.get(), SDL_BLENDMODE_NONE); // we explicitly said that we don't want alpha, so remove it
 			}
 		}
@@ -2951,6 +2950,19 @@ template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 
 	SDL_FreeSurface(obj);
 }
+
+template <> void SmartPointer_ObjectDeinit<SDL_Texture> ( SDL_Texture * obj ) {
+	SDL_DestroyTexture(obj),
+}
+
+template <> void SmartPointer_ObjectDeinit<SDL_Renderer> ( SDL_Renderer * obj ) {
+	SDL_DestroyRenderer(obj);
+}
+
+template <> void SmartPointer_ObjectDeinit<SDL_Window> ( SDL_Window * obj ) {
+	SDL_DestroyWindow(obj);
+}
+
 
 
 

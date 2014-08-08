@@ -75,7 +75,10 @@ void EnableSystemMouseCursor(bool enable = true);
 
 class VideoPostProcessor {
 protected:
-	static SmartPointer<SDL_Surface> m_videoSurface;
+	SmartPointer<SDL_Window> m_window;
+	SmartPointer<SDL_Renderer> m_renderer;
+	SmartPointer<SDL_Texture> m_videoTexture;
+	SmartPointer<SDL_Surface> m_videoSurface;
 	static VideoPostProcessor instance;
 	
 public:
@@ -87,12 +90,13 @@ public:
 	static VideoPostProcessor* get() { return &instance; }
 	static void uninit();
 
+	bool initWindow();
 	void resetVideo(); // this is called from SetVideoMode
 
 	int screenWidth() { return 640; }
 	int screenHeight() { return 480; }
 
-	static SDL_Surface* videoSurface() { return m_videoSurface.get(); };
+	static SDL_Surface* videoSurface() { return get()->m_videoSurface.get(); };
 	
 	static void transformCoordinates_ScreenToVideo( int& x, int& y );
 };

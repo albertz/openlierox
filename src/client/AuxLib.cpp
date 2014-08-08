@@ -251,204 +251,7 @@ bool SetVideoMode()
 		return false;
 	}
 
-	bool resetting = false;
-
-	// Check if already running
-	if (VideoPostProcessor::videoSurface())  {
-		resetting = true;
-		notes << "resetting video mode" << endl;
-
-		// seems to be a win-only problem, it works without problems here under MacOSX
-#ifdef WIN32
-		// using hw surfaces?
-		if ((VideoPostProcessor::videoSurface()->flags & SDL_HWSURFACE) != 0) {
-			warnings << "cannot change video mode because current mode uses hardware surfaces" << endl;
-			// TODO: you would have to reset whole game, this is not enough!
-			// The problem is in all allocated surfaces - they are hardware and when you switch
-			// to window, you will most probably get software rendering
-			// Also, hardware surfaces are freed from the video memory when reseting video mode
-			// so you would first have to convert all surfaces to software and then perform this
-			// TODO: in menu_options, restart the game also for fullscreen-change if hw surfaces are currently used
-			return false;
-		}
-#endif
-	} else {
-		notes << "setting video mode" << endl;
-	}
-
-	// uninit first to ensure that the video thread is not running
-	VideoPostProcessor::uninit();
-
-	bool HardwareAcceleration = false;
-	int DoubleBuf = false;
-	int vidflags = 0;
-
-	// it is faster with doublebuffering in hardware accelerated mode
-	// also, it seems that it's possible that there are effects in hardware mode with double buf disabled
-	// Use doublebuf when hardware accelerated
-	if (HardwareAcceleration)
-		DoubleBuf = true;
-
-	// Check that the bpp is valid
-	switch (tLXOptions->iColourDepth) {
-	case 0:
-	case 16:
-	case 24:
-	case 32:
-		break;
-	default: tLXOptions->iColourDepth = 16;
-	}
-	notes << "ColorDepth: " << tLXOptions->iColourDepth << endl;
-
-	// BlueBeret's addition (2007): OpenGL support
-	bool opengl = tLXOptions->bOpenGL;
-
-	// Initialize the video
-	if(tLXOptions->bFullscreen)  {
-		vidflags |= SDL_FULLSCREEN;
-	}
-
-	if (opengl) {
-		vidflags |= SDL_OPENGL;
-		vidflags |= SDL_OPENGLBLIT; // SDL will behave like normally
-		// HINT: it seems that with OGL activated, SDL_SetVideoMode will already set the OGL depth size
-		// though this main pixel format of the screen surface was always 32 bit for me in OGL under MacOSX
-		//#ifndef MACOSX
-		/*
-		 short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
-		 SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
-		 SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
-		 SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
-		 SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
-		 //SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
-		 */
-		//#endif
-		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
-		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
-		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
-		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); // always use double buffering in OGL mode
-	}	
-
-	if(HardwareAcceleration)  {
-		vidflags |= SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL;
-		// Most (perhaps all) systems use software drawing for their stuff (windows etc.)
-		// Because of that we cannot have hardware accelerated support in window - OS screen
-		// is software surface. How would you make the window hardware, if it's on the screen?
-		// Anyway, SDL takes care of this by istelf and disables the flag when needed
-		iSurfaceFormat = SDL_HWSURFACE;
-	}
-	else  {
-		vidflags |= SDL_SWSURFACE;
-		iSurfaceFormat = SDL_SWSURFACE;
-	}
-
-	if(DoubleBuf && !opengl)
-		vidflags |= SDL_DOUBLEBUF;
-
-#ifdef WIN32
-	UnSubclassWindow();  // Unsubclass before doing anything with the window
-#endif
-
-
-#ifdef WIN32
-	// Reset the video subsystem under WIN32, else we get a "Could not reset OpenGL context" error when switching mode
-	if (opengl && tLX)  {  // Don't reset when we're setting up the mode for first time (OpenLieroX not yet initialized)
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		SDL_InitSubSystem(SDL_INIT_VIDEO);
-	}
-#endif
-
-	VideoPostProcessor::init();
-	int scrW = VideoPostProcessor::get()->screenWidth();
-	int scrH = VideoPostProcessor::get()->screenHeight();
-setvideomode:
-	if( SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL) {
-		if (resetting)  {
-			errors << "Failed to reset video mode"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " let's wait a bit and retry" << endl;
-			SDL_Delay(500);
-			resetting = false;
-			goto setvideomode;
-		}
-
-		if(tLXOptions->iColourDepth != 0) {
-			errors << "Failed to use " << tLXOptions->iColourDepth << " bpp"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying automatic bpp detection ..." << endl;
-			tLXOptions->iColourDepth = 0;
-			goto setvideomode;
-		}
-
-		if(vidflags & SDL_OPENGL) {
-			errors << "Failed to use OpenGL"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying without ..." << endl;
-			vidflags &= ~(SDL_OPENGL | SDL_OPENGLBLIT | SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL);
-			goto setvideomode;
-		}
-		
-		if(vidflags & SDL_FULLSCREEN) {
-			errors << "Failed to set full screen video mode "
-					<< scrW << "x" << scrH << "x" << tLXOptions->iColourDepth
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying window mode ..." << endl;
-			vidflags &= ~SDL_FULLSCREEN;
-			goto setvideomode;
-		}
-
-		SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
-		return false;
-	}
-
-	SDL_WM_SetCaption(GetGameVersion().asHumanString().c_str(),NULL);
-	SDL_ShowCursor(SDL_DISABLE);
-
-#ifdef WIN32
-	// Hint: Reset the mouse state - this should avoid the mouse staying pressed
-	GetMouse()->Button = 0;
-	GetMouse()->Down = 0;
-	GetMouse()->FirstDown = 0;
-	GetMouse()->Up = 0;
-
-	if (!tLXOptions->bFullscreen)  {
-		SubclassWindow();
-	}
-#endif
-
-	// Set the change mode flag
-	if (tLX)
-		tLX->bVideoModeChanged = true;
-	
-	mainPixelFormat = SDL_GetVideoSurface()->format;
-	DumpPixelFormat(mainPixelFormat);
-	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
-		notes << "using doublebuffering" << endl;
-
-	// Correct the surface format according to SDL
-	if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
-		iSurfaceFormat = SDL_HWSURFACE;
-		notes << "using hardware surfaces" << endl;
-	}
-	else {
-		iSurfaceFormat = SDL_SWSURFACE; // HINT: under MacOSX, it doesn't seem to make any difference in performance
-		if (HardwareAcceleration)
-			hints << "Unable to use hardware surfaces, falling back to software." << endl;
-		notes << "using software surfaces" << endl;
-	}
-
-	if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
-		hints << "using OpenGL" << endl;
-		
-		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
-	}
-	else
-		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
-	
-	VideoPostProcessor::get()->resetVideo();
-
-	notes << "video mode was set successfully" << endl;
-	return true;
+	return VideoPostProcessor::get()->initWindow();
 }
 
 #ifdef WIN32
@@ -529,7 +332,6 @@ void ProcessScreenshots()
 
 VideoPostProcessor voidVideoPostProcessor; // this one does nothing
 
-SDL_Surface* VideoPostProcessor::m_videoSurface = NULL;
 VideoPostProcessor VideoPostProcessor::instance;
 
 ///////////////////
@@ -549,13 +351,178 @@ void flipRealVideo() {
 		SDL_GL_SwapBuffers();
 }
 
+bool VideoPostProcessor::initWindow() {
+	bool resetting = false;
+	
+	// Check if already running
+	if (m_videoSurface.get())  {
+		resetting = true;
+		notes << "resetting video mode" << endl;
+	} else {
+		notes << "setting video mode" << endl;
+	}
+	
+	// uninit first to ensure that the video thread is not running
+	VideoPostProcessor::uninit();
+	
+	int DoubleBuf = false;
+	int vidflags = 0;
+	
+	// Check that the bpp is valid
+	switch (tLXOptions->iColourDepth) {
+		case 0:
+		case 16:
+		case 24:
+		case 32:
+			break;
+		default: tLXOptions->iColourDepth = 16;
+	}
+	notes << "ColorDepth: " << tLXOptions->iColourDepth << endl;
+	
+	// BlueBeret's addition (2007): OpenGL support
+	bool opengl = tLXOptions->bOpenGL;
+	
+	// Initialize the video
+	if(tLXOptions->bFullscreen)  {
+		//vidflags |= SDL_WINDOW_FULLSCREEN;
+		vidflags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	}
+	
+	if (opengl) {
+		vidflags |= SDL_WINDOW_OPENGL;
+		//#ifndef MACOSX
+		/*
+		 short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
+		 SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
+		 //SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
+		 */
+		//#endif
+		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
+		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
+		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
+		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); // always use double buffering in OGL mode
+	}
+	
+#ifdef WIN32
+	UnSubclassWindow();  // Unsubclass before doing anything with the window
+#endif
+	
+	
+#ifdef WIN32
+	// Reset the video subsystem under WIN32, else we get a "Could not reset OpenGL context" error when switching mode
+	if (opengl && tLX)  {  // Don't reset when we're setting up the mode for first time (OpenLieroX not yet initialized)
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+		SDL_InitSubSystem(SDL_INIT_VIDEO);
+	}
+#endif
+	
+	VideoPostProcessor::initWindow();
+	int scrW = VideoPostProcessor::get()->screenWidth();
+	int scrH = VideoPostProcessor::get()->screenHeight();
+setvideomode:
+	SDL_Window* window = SDL_CreateWindow(GetGameVersion().asHumanString().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0, 0, vidflags);
+	
+	if( window == NULL) {
+		if (resetting)  {
+			errors << "Failed to reset video mode"
+			<< " (ErrorMsg: " << SDL_GetError() << "),"
+			<< " let's wait a bit and retry" << endl;
+			SDL_Delay(500);
+			resetting = false;
+			goto setvideomode;
+		}
+		
+		if(tLXOptions->iColourDepth != 0) {
+			errors << "Failed to use " << tLXOptions->iColourDepth << " bpp"
+			<< " (ErrorMsg: " << SDL_GetError() << "),"
+			<< " trying automatic bpp detection ..." << endl;
+			tLXOptions->iColourDepth = 0;
+			goto setvideomode;
+		}
+		
+		if(vidflags & SDL_WINDOW_OPENGL) {
+			errors << "Failed to use OpenGL"
+			<< " (ErrorMsg: " << SDL_GetError() << "),"
+			<< " trying without ..." << endl;
+			vidflags &= ~SDL_WINDOW_OPENGL;
+			goto setvideomode;
+		}
+		
+		if(vidflags & SDL_WINDOW_FULLSCREEN) {
+			errors << "Failed to set full screen video mode "
+			<< scrW << "x" << scrH << "x" << tLXOptions->iColourDepth
+			<< " (ErrorMsg: " << SDL_GetError() << "),"
+			<< " trying window mode ..." << endl;
+			vidflags &= ~SDL_WINDOW_FULLSCREEN;
+			goto setvideomode;
+		}
+		
+		SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
+		return false;
+	}
+	
+	SDL_ShowCursor(SDL_DISABLE);
+	
+#ifdef WIN32
+	// Hint: Reset the mouse state - this should avoid the mouse staying pressed
+	GetMouse()->Button = 0;
+	GetMouse()->Down = 0;
+	GetMouse()->FirstDown = 0;
+	GetMouse()->Up = 0;
+	
+	if (!tLXOptions->bFullscreen)  {
+		SubclassWindow();
+	}
+#endif
+	
+	// Set the change mode flag
+	if (tLX)
+		tLX->bVideoModeChanged = true;
+	
+	mainPixelFormat = SDL_GetVideoSurface()->format;
+	DumpPixelFormat(mainPixelFormat);
+	
+	if(SDL_GetVideoSurface()->flags & SDL_WINDOW_OPENGL) {
+		hints << "using OpenGL" << endl;
+		
+		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
+	}
+	else
+		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
+	
+	VideoPostProcessor::get()->resetVideo();
+	
+	// Clear screen to blank
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
+	SDL_RenderPresent(renderer);
+	
+	notes << "video mode was set successfully" << endl;
+	
+}
+
 void VideoPostProcessor::resetVideo() {
 	// IMPORTANT: Don't reallocate if we already have the buffers.
 	// If we would do, the old surfaces would get deleted. This is bad
 	// because other threads could use it right now.
 	if(m_videoSurface.get()) return;
 	
-	m_videoSurface = gfxCreateSurface(640, 480);
+	m_renderer = SDL_CreateRenderer(m_window.get(), -1, 0);
+	
+	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
+	SDL_RenderSetLogicalSize(renderer.get(), screenWidth(), screenHeight());
+
+	m_videoTexture = SDL_CreateTexture
+	(
+		m_renderer.get(),
+		SDL_PIXELFORMAT_ARGB8888,
+		SDL_TEXTUREACCESS_STREAMING,
+		screenWidth(), screenHeight()
+	);
+	m_videoSurface = gfxCreateSurface(screenWidth(), screenHeight());
 }
 
 
@@ -572,7 +539,10 @@ void VideoPostProcessor::cloneBuffer() {
 }
 
 void VideoPostProcessor::uninit() {
-	m_videoSurface = NULL; // should never be used before resetVideo() is called
+	instance.m_videoSurface = NULL; // should never be used before resetVideo() is called
+	instance.m_videoTexture = NULL;
+	instance.m_renderer = NULL;
+	instance.m_window = NULL;
 }
 
 

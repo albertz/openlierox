@@ -37,8 +37,6 @@
 // Misc routines, defines and variables
 //
 
-// Flags used for screen and new surfaces
-extern	int		iSurfaceFormat;
 
 // Like in SDL_video.c in SDL_DisplayFormatAlpha
 #define ALPHASURFACE_RMASK 0x00ff0000
