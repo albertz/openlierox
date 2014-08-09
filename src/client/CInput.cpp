@@ -140,6 +140,7 @@ keys_t Keys[] = {
 	{ "num lk", SDLK_NUMLOCKCLEAR},
 	{ "caps", SDLK_CAPSLOCK},
 	{ "scr lk", SDLK_SCROLLLOCK},
+	{ "pause", SDLK_PAUSE},
 	{ "F1", SDLK_F1 },
 	{ "F2", SDLK_F2 },
 	{ "F3", SDLK_F3 },
@@ -151,7 +152,19 @@ keys_t Keys[] = {
 	{ "F9", SDLK_F9 },
 	{ "F10", SDLK_F10 },
 	{ "F11", SDLK_F11 },
-	{ "F12", SDLK_F12 }
+	{ "F12", SDLK_F12 },
+	{ "F13", SDLK_F13 },
+	{ "F14", SDLK_F14 },
+	{ "F15", SDLK_F15 },
+	{ "F16", SDLK_F16 },
+	{ "F17", SDLK_F17 },
+	{ "F18", SDLK_F18 },
+	{ "F19", SDLK_F19 },
+	{ "F20", SDLK_F20 },
+	{ "F21", SDLK_F21 },
+	{ "F22", SDLK_F22 },
+	{ "F23", SDLK_F23 },
+	{ "F24", SDLK_F24 }
 	};
 
 int keys_t::keySymFromName(const std::string & name)
