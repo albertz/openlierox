@@ -108,6 +108,7 @@
 		2334DB1614BB7D53003F21D4 /* CLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2334DB1514BB7D52003F21D4 /* CLabel.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2348933911806DA000FA821B /* ServerList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2348933811806DA000FA821B /* ServerList.cpp */; };
+		234F90B919990F420060B8DF /* MainLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90B719990F410060B8DF /* MainLoop.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
@@ -861,6 +862,8 @@
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2348933711806DA000FA821B /* ServerList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerList.h; sourceTree = "<group>"; };
 		2348933811806DA000FA821B /* ServerList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerList.cpp; sourceTree = "<group>"; };
+		234F90B719990F410060B8DF /* MainLoop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainLoop.cpp; sourceTree = "<group>"; };
+		234F90B819990F420060B8DF /* MainLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainLoop.h; sourceTree = "<group>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
 		2350DBF00F84DC5900DFAD78 /* WeaponDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponDesc.h; sourceTree = "<group>"; };
 		2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_SpeedTest.cpp; sourceTree = "<group>"; };
@@ -2712,6 +2715,10 @@
 		EA430BEC0BEFCEB400C6547E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				EABBC2580C5A5718003884A9 /* MacMain.m */,
+				EA430C3D0BEFCEB400C6547E /* main.cpp */,
+				234F90B719990F410060B8DF /* MainLoop.cpp */,
+				234F90B819990F420060B8DF /* MainLoop.h */,
 				2390D9E8116B5B4900E0CD3C /* cfg */,
 				23CC9E7211340BA000185479 /* gui */,
 				2326B68010CFB33200D3F035 /* level */,
@@ -2719,8 +2726,6 @@
 				23C34F1E10CC546200DABBD6 /* util */,
 				23C34D0A10CC3A4400DABBD6 /* gusanos */,
 				23C34BC610CC1CAE00DABBD6 /* sound */,
-				EABBC2580C5A5718003884A9 /* MacMain.m */,
-				EA430C3D0BEFCEB400C6547E /* main.cpp */,
 				EA430BED0BEFCEB400C6547E /* client */,
 				EA430C3E0BEFCEB400C6547E /* server */,
 				EA430C200BEFCEB400C6547E /* common */,
@@ -3395,6 +3400,7 @@
 				238A90B218706B4700E3895A /* MapLoader_CommanderKeen123.cpp in Sources */,
 				EAD99F6F0C063ECA003BE563 /* CChannel.cpp in Sources */,
 				EAD99F700C063ECA003BE563 /* CChatBox.cpp in Sources */,
+				234F90B919990F420060B8DF /* MainLoop.cpp in Sources */,
 				EAD99F730C063ECA003BE563 /* CClient_Draw.cpp in Sources */,
 				EAD99F740C063ECA003BE563 /* CClient_Game.cpp in Sources */,
 				EAD99F750C063ECA003BE563 /* CClient_Parse.cpp in Sources */,
