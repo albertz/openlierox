@@ -330,25 +330,8 @@ void ProcessScreenshots()
 
 // ---------------- VideoPostProcessor ---------------------------------------------------------
 
-VideoPostProcessor voidVideoPostProcessor; // this one does nothing
-
 VideoPostProcessor VideoPostProcessor::instance;
 
-///////////////////
-// Flip the screen
-void flipRealVideo() {
-	//TestCircleDrawing(psScreen);
-	//TestPolygonDrawing(psScreen);
-	//DrawLoadingAni(psScreen, 320, 260, 50, 50, Color(128,128,128), Color(128,128,128,128), LAT_CIRCLES);
-	//DrawLoadingAni(psScreen, 320, 260, 10, 10, Color(255,0,0), Color(0,255,0), LAT_CAKE);
-	
-	VideoPostProcessor::get()->render();
-}
-
-void VideoPostProcessor::render() {
-	if(!m_renderer.get()) return;
-	SDL_RenderPresent(m_renderer.get());
-}
 
 bool VideoPostProcessor::initWindow() {
 	bool resetting = false;
@@ -527,20 +510,49 @@ bool VideoPostProcessor::resetVideo() {
 		}
 	}
 	
+	// No need to reinit this.
+	if(!m_videoBufferSurface.get()) {
+		m_videoBufferSurface = gfxCreateSurface(screenWidth(), screenHeight());
+		if(!m_videoBufferSurface.get()) {
+			errors << "failed to init video backbuffer surface: " << SDL_GetError() << endl;
+			return false;
+		}
+	}
+	
 	return true;
 }
 
 
+void VideoPostProcessor::flipBuffers() {
+	std::swap(get()->m_videoBufferSurface, get()->m_videoSurface);
+}
+
 
 // IMPORTANT: this has to be called from main thread!
+
 void VideoPostProcessor::process() {
 	ProcessScreenshots();
-	DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
+	//DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
+	
+	void* pixels = get()->m_videoSurface->pixels;
+	SDL_UpdateTexture(get()->m_videoTexture.get(), NULL, pixels, get()->screenWidth() * sizeof (uint32_t));
+}
+
+void VideoPostProcessor::render() {
+	//TestCircleDrawing(psScreen);
+	//TestPolygonDrawing(psScreen);
+	//DrawLoadingAni(psScreen, 320, 260, 50, 50, Color(128,128,128), Color(128,128,128,128), LAT_CIRCLES);
+	//DrawLoadingAni(psScreen, 320, 260, 10, 10, Color(255,0,0), Color(0,255,0), LAT_CAKE);
+	
+	if(!get()->m_renderer.get()) return;
+	
+	SDL_RenderClear(get()->m_renderer.get());
+	SDL_RenderCopy(get()->m_renderer.get(), get()->m_videoTexture.get(), NULL, NULL);
+	SDL_RenderPresent(get()->m_renderer.get());
 }
 
 void VideoPostProcessor::cloneBuffer() {
-	// TODO: don't hardcode screen width/height here
-	DrawImageAdv(m_videoBufferSurface, m_videoSurface, 0, 0, 0, 0, 640, 480);
+	DrawImageAdv(get()->m_videoBufferSurface.get(), get()->m_videoSurface.get(), 0, 0, 0, 0, get()->m_videoSurface->w, get()->m_videoSurface->h);
 }
 
 void VideoPostProcessor::uninit() {

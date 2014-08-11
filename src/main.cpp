@@ -799,9 +799,7 @@ static void DrawLoading(byte percentage, const std::string &text)  {
 
 	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
 
-	// we are in the main thread, so we can call this directly
-	VideoPostProcessor::process();
-	flipRealVideo();
+	doVideoFrameInMainThread();
 }
 
 ////////////////////

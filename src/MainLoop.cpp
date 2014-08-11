@@ -21,7 +21,35 @@
 
 
 
+/*
+Notes:
 
+The following things need to be run on the main thread,
+because of implementation details on SDL & the underlying OS,
+so we cannot do much about it:
+- OpenGL stuff
+- SDL_Render*
+- SDL events
+
+So, this is exactly what we do in the main thread, and not much more.
+Check via isMainThread(), whether you are in the main thread.
+
+Then, there is the main game thread, where we run the game logic
+itself, and also do much of the software pixel drawing, and
+most other things.
+We call it the gameloop thread, because the game gameloop runs in it.
+Check via isGameloopThread(), whether you are in the gameloop thread.
+
+To be able to do the software drawing in the mainloop thread,
+and in parallel do the system screen drawing, we need to have two
+main screen surface, which are handled by the VideoPostProcessor.
+
+Then gameloop thread draws to the VideoPostProcessor::videoSurface().
+The main thread draws the VideoPostProcessor::m_videoBufferSurface
+to the screen.
+
+
+*/
 
 
 struct VideoHandler {
@@ -40,6 +68,7 @@ struct VideoHandler {
 		SDL_DestroyCond(sign); sign = NULL;
 	}
 
+	// Runs on the main thread.
 	void frame() {
 		{
 			ScopedLock lock(mutex);
@@ -50,9 +79,10 @@ struct VideoHandler {
 			VideoPostProcessor::process();
 		}
 
-		flipRealVideo();
+		VideoPostProcessor::render();
 	}
 
+	// Runs on the main thread.
 	void setVideoMode() {
 		bool makeFrame = false;
 		{
@@ -69,10 +99,13 @@ struct VideoHandler {
 		}
 
 		if(makeFrame)
-			flipRealVideo();
+			VideoPostProcessor::render();
 	}
 
+	// This must not be run on the main thread.
 	void pushFrame() {
+		assert(!isMainThread());
+		
 		// wait for current drawing
 		ScopedLock lock(mutex);
 
@@ -218,7 +251,8 @@ struct MainLoopTask : LoopTask {
 };
 
 
-
+// Runs on the video thread.
+// Returns false on quit.
 static bool handleSDLEvent(SDL_Event& ev) {
 	if(ev.type == SDL_USEREVENT) {
 		switch(ev.user.code) {
@@ -328,7 +362,7 @@ void doVideoFrameInMainThread() {
 	if(isMainThread()) {
 		VideoPostProcessor::flipBuffers();
 		VideoPostProcessor::process();
-		flipRealVideo();
+		VideoPostProcessor::render();
 	}
 	else
 		videoHandler.pushFrame();

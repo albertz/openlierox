@@ -67,7 +67,6 @@ void doSetVideoModeInMainThread();
 void doActionInMainThread(Action* act);
 void doVppOperation(Action* act);
 
-void flipRealVideo();
 
 // Asynchronously enable/disable mouse cursor in window manager, may be called from any thread
 // Use this function instead of SDL_ShowCursor()
@@ -79,20 +78,24 @@ protected:
 	SmartPointer<SDL_Renderer> m_renderer;
 	SmartPointer<SDL_Texture> m_videoTexture;
 	SmartPointer<SDL_Surface> m_videoSurface;
+	SmartPointer<SDL_Surface> m_videoBufferSurface;
 	static VideoPostProcessor instance;
 	
 public:
+	// IMPORTANT: Don't call this while anyone else calls/accesses anything else here.
+	static void flipBuffers();
+
 	// IMPORTANT: only call these from the main thread
 	static void process();
+	static void render();
 	static void cloneBuffer();
-	
+
 public:
 	static VideoPostProcessor* get() { return &instance; }
 	static void uninit();
 
 	bool initWindow();
 	bool resetVideo(); // this is called from SetVideoMode
-	void render();
 	
 	int screenWidth() { return 640; }
 	int screenHeight() { return 480; }
