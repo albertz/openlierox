@@ -364,7 +364,6 @@ bool VideoPostProcessor::initWindow() {
 	// uninit first to ensure that the video thread is not running
 	VideoPostProcessor::uninit();
 	
-	int DoubleBuf = false;
 	int vidflags = 0;
 	
 	// Check that the bpp is valid
@@ -418,9 +417,8 @@ bool VideoPostProcessor::initWindow() {
 	}
 #endif
 	
-	VideoPostProcessor::initWindow();
-	int scrW = VideoPostProcessor::get()->screenWidth();
-	int scrH = VideoPostProcessor::get()->screenHeight();
+	int scrW = screenWidth();
+	int scrH = screenHeight();
 setvideomode:
 	SDL_Window* window = SDL_CreateWindow(GetGameVersion().asHumanString().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0, 0, vidflags);
 	
@@ -480,39 +478,31 @@ setvideomode:
 	// Set the change mode flag
 	if (tLX)
 		tLX->bVideoModeChanged = true;
+
+	if(!VideoPostProcessor::get()->resetVideo())
+		return false;
 	
-	mainPixelFormat = SDL_GetVideoSurface()->format;
+	mainPixelFormat = m_videoSurface->format;
 	DumpPixelFormat(mainPixelFormat);
-	
-	if(SDL_GetVideoSurface()->flags & SDL_WINDOW_OPENGL) {
-		hints << "using OpenGL" << endl;
 		
-		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
-	}
-	else
-		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
-	
-	VideoPostProcessor::get()->resetVideo();
-	
 	// Clear screen to blank
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderClear(renderer);
-	SDL_RenderPresent(renderer);
+	SDL_SetRenderDrawColor(m_renderer.get(), 0, 0, 0, 255);
+	SDL_RenderClear(m_renderer.get());
+	SDL_RenderPresent(m_renderer.get());
 	
 	notes << "video mode was set successfully" << endl;
-	
+	return true;
 }
 
-void VideoPostProcessor::resetVideo() {
-	// IMPORTANT: Don't reallocate if we already have the buffers.
-	// If we would do, the old surfaces would get deleted. This is bad
-	// because other threads could use it right now.
-	if(m_videoSurface.get()) return;
-	
+bool VideoPostProcessor::resetVideo() {
 	m_renderer = SDL_CreateRenderer(m_window.get(), -1, 0);
+	if(!m_renderer.get()) {
+		errors << "failed to init renderer: " << SDL_GetError() << endl;
+		return false;
+	}
 	
 	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
-	SDL_RenderSetLogicalSize(renderer.get(), screenWidth(), screenHeight());
+	SDL_RenderSetLogicalSize(m_renderer.get(), screenWidth(), screenHeight());
 
 	m_videoTexture = SDL_CreateTexture
 	(
@@ -521,7 +511,23 @@ void VideoPostProcessor::resetVideo() {
 		SDL_TEXTUREACCESS_STREAMING,
 		screenWidth(), screenHeight()
 	);
-	m_videoSurface = gfxCreateSurface(screenWidth(), screenHeight());
+	if(!m_videoTexture.get()) {
+		errors << "failed to init video texture: " << SDL_GetError() << endl;
+		return false;
+	}
+	
+	// IMPORTANT: Don't reallocate if we already have the buffers.
+	// If we would do, the old surfaces would get deleted. This is bad
+	// because other threads could use it right now.
+	if(!m_videoSurface.get()) {
+		m_videoSurface = gfxCreateSurface(screenWidth(), screenHeight());
+		if(!m_videoSurface.get()) {
+			errors << "failed to init video surface: " << SDL_GetError() << endl;
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 

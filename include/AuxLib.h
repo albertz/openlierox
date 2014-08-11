@@ -91,7 +91,7 @@ public:
 	static void uninit();
 
 	bool initWindow();
-	void resetVideo(); // this is called from SetVideoMode
+	bool resetVideo(); // this is called from SetVideoMode
 	void render();
 	
 	int screenWidth() { return 640; }
