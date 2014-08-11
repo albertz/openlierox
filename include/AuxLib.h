@@ -92,7 +92,8 @@ public:
 
 	bool initWindow();
 	void resetVideo(); // this is called from SetVideoMode
-
+	void render();
+	
 	int screenWidth() { return 640; }
 	int screenHeight() { return 480; }
 

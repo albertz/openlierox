@@ -337,18 +337,17 @@ VideoPostProcessor VideoPostProcessor::instance;
 ///////////////////
 // Flip the screen
 void flipRealVideo() {
-	SDL_Surface* psScreen = SDL_GetVideoSurface();
-	if(psScreen == NULL) return;
-	
 	//TestCircleDrawing(psScreen);
 	//TestPolygonDrawing(psScreen);
 	//DrawLoadingAni(psScreen, 320, 260, 50, 50, Color(128,128,128), Color(128,128,128,128), LAT_CIRCLES);
 	//DrawLoadingAni(psScreen, 320, 260, 10, 10, Color(255,0,0), Color(0,255,0), LAT_CAKE);
 	
-	SDL_Flip( psScreen );
+	VideoPostProcessor::get()->render();
+}
 
-	if(psScreen->flags & SDL_OPENGL)
-		SDL_GL_SwapBuffers();
+void VideoPostProcessor::render() {
+	if(!m_renderer.get()) return;
+	SDL_RenderPresent(m_renderer.get());
 }
 
 bool VideoPostProcessor::initWindow() {
