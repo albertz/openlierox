@@ -199,7 +199,7 @@ bool allegro_init() {
 	
 	if(cfgUseSSE && SDL_HasSSE()) cpu_capabilities |= CPU_SSE;
 	if(cfgUseMMX && SDL_HasMMX()) cpu_capabilities |= CPU_MMX;
-	if(cfgUseMMXExt && SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS;
+	//if(cfgUseMMXExt && SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS; // TODO...?
 	
 	if(cpu_capabilities & CPU_SSE) notes << "SSE, "; else notes << "no SSE, ";
 	if(cpu_capabilities & CPU_MMX) notes << "MMX, "; else notes << "no MMX, ";
@@ -467,8 +467,8 @@ void clear_bitmap(ALLEGRO_BITMAP* bmp) { clear_to_color(bmp, 0); }
 
 
 
-unsigned long bmp_write_line(ALLEGRO_BITMAP *bmp, int line) {
-	return (unsigned long) bmp->line[line];
+uint8_t* bmp_write_line(ALLEGRO_BITMAP *bmp, int line) {
+	return bmp->line[line];
 }
 
 void bmp_unwrite_line(ALLEGRO_BITMAP* bmp) {}

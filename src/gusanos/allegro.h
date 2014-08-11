@@ -18,6 +18,7 @@
 
 #include <SDL.h>
 #include <cstdio>
+#include <stdint.h>
 #include <fstream>
 #include "SmartPointer.h"
 #include "FindFile.h"
@@ -297,7 +298,7 @@ AL_INLINE(void, bmp_write24, (unsigned char* addr, int c),
 
 #endif
 
-unsigned long bmp_write_line(ALLEGRO_BITMAP *bmp, int line);
+uint8_t* bmp_write_line(ALLEGRO_BITMAP *bmp, int line);
 void bmp_unwrite_line(ALLEGRO_BITMAP* bmp);
 
 
