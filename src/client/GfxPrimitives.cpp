@@ -2100,11 +2100,6 @@ INLINE void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, i
 // Draw horizontal line
 void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 
-	if (bmpDest->flags & SDL_HWSURFACE)  {
-		DrawRectFill(bmpDest, x, y, x2, y + 1, colour); // In hardware mode this is much faster, in software it is slower
-		return;
-	}
-
 	// Swap the ends if necessary
 	if (x2 < x)  {
 		int tmp;
@@ -2161,10 +2156,6 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 
 // Draw vertical line
 void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
-	if (bmpDest->flags & SDL_HWSURFACE)  {
-		DrawRectFill(bmpDest, x, y, x + 1, y2, colour); // In hardware mode this is much faster, in software it is slower
-		return;
-	}
 
 	// Swap the ends if necessary
 	if (y2 < y)  {
