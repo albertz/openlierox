@@ -354,9 +354,9 @@ static void initJoystick(int i, bool isTemp) {
 	assert(i == 0 || i == 1);
 	if(!bJoystickSupport) return;
 
-	if(joys[i] == NULL && SDL_NumJoysticks() > i && !SDL_JoystickOpened(i)) {
+	if(joys[i] == NULL && SDL_NumJoysticks() > i) {
 		notes << "opening joystick " << i << endl;
-		notes << " (\"" << SDL_JoystickName(i) << "\")" << endl;
+		notes << " (\"" << SDL_JoystickNameForIndex(i) << "\")" << endl;
 		joys[i] = SDL_JoystickOpen(i);
 		if(joys[i]) {
 			notes << "  Number of Axes: " << SDL_JoystickNumAxes(joys[i]) << endl;
@@ -384,7 +384,7 @@ void CInput::InitJoysticksTemp() {
 }
 
 static void uninitTempJoystick(int i) {
-	if(joysticks_inited_temp[i] && SDL_JoystickOpened(i)) {
+	if(joysticks_inited_temp[i]) {
 		notes << "Uninit temporary loaded joystick " << i << endl;
 		SDL_JoystickClose(joys[i]);
 		joys[i] = NULL;
