@@ -269,6 +269,9 @@ void CGuiSkin::SDL_OnMouseButtonDown(SDL_Event* ev) {
 	// Get the button
 	switch (ev->button.button)  {
 
+/*
+	// TODO: mouse wheel
+	
 	// HINT: mouse scroll up/down are reported as "clicks"
 	case SDL_BUTTON_WHEELDOWN:
 		cActiveLayout->DoMouseWheelDown(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
@@ -276,6 +279,7 @@ void CGuiSkin::SDL_OnMouseButtonDown(SDL_Event* ev) {
 	case SDL_BUTTON_WHEELUP:
 		cActiveLayout->DoMouseWheelUp(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
 	return;
+*/
 	
 	// Normal button
 	default:
@@ -286,8 +290,6 @@ void CGuiSkin::SDL_OnMouseButtonDown(SDL_Event* ev) {
 
 void CGuiSkin::SDL_OnMouseButtonUp(SDL_Event* ev) {
 	if(!cActiveLayout) return;
-	if (ev->button.button == SDL_BUTTON_WHEELDOWN || ev->button.button == SDL_BUTTON_WHEELUP)
-		return; // Wheel gets handled in mouse down event
 	cActiveLayout->DoMouseUp(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY,
 		SDLButtonToMouseButton(ev->button.button), *GetCurrentModstate());
 
