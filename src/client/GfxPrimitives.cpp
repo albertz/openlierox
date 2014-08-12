@@ -291,12 +291,12 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 		return NULL;
 
 	const VideoFormat f = getMainAlphaVideoFormat();
-	assert(f.alpha != 0);
+	assert(f.amask != 0);
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 				0,
 				width, height,
 				f.bpp, f.rmask, f.gmask, f.bmask, f.amask);
-	if(!result) return NULL;
+	if(!result.get()) return NULL;
 	
 	// The surface will have SDL_BLENDMODE_BLEND by default with Amask != 0.
 	
