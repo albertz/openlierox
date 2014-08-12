@@ -204,7 +204,7 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 	const VideoFormat fmt = getMainVideoFormat();
 
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
+			0,
 			width, height,
 			fmt.bpp, fmt.rmask, fmt.gmask, fmt.bmask, fmt.amask);
 	if(!result.get()) return NULL;
