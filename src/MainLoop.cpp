@@ -76,6 +76,21 @@ struct VideoHandler {
 			SDL_CondBroadcast(sign);
 			if(framesInQueue > 0) framesInQueue--;
 			else return;
+			// This must be done while locked because we don't want a flipBuffers meanwhile.
+			VideoPostProcessor::process();
+		}
+
+		// This can be done unlocked, because we only access it through the main thread.
+		VideoPostProcessor::render();
+	}
+
+	// Runs on the main thread.
+	void doSingleDirectFrame() {
+		assert(isMainThread());
+		
+		{
+			ScopedLock lock(mutex);
+			VideoPostProcessor::flipBuffers();
 			VideoPostProcessor::process();
 		}
 
@@ -94,11 +109,13 @@ struct VideoHandler {
 			if(framesInQueue > 0) {
 				framesInQueue = 0;
 				makeFrame = true;
+				// This must be done while locked because we don't want a flipBuffers meanwhile.
 				VideoPostProcessor::process();
 			}
 		}
 
 		if(makeFrame)
+			// This can be done unlocked, because we only access it through the main thread.
 			VideoPostProcessor::render();
 	}
 
@@ -359,11 +376,8 @@ void SetCrashHandlerReturnPoint(const char* name) {
 
 void doVideoFrameInMainThread() {
 	if(bDedicated) return;
-	if(isMainThread()) {
-		VideoPostProcessor::flipBuffers();
-		VideoPostProcessor::process();
-		VideoPostProcessor::render();
-	}
+	if(isMainThread())
+		videoHandler.doSingleDirectFrame();
 	else
 		videoHandler.pushFrame();
 }
