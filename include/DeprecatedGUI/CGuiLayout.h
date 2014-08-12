@@ -29,7 +29,7 @@ namespace DeprecatedGUI {
 
 
 // layout event structure
-class gui_event_t { public:
+struct gui_event_t {
 	int		iControlID;
 	int		iEventMsg;
 
