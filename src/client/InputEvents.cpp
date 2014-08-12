@@ -362,24 +362,20 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 static void EvHndl_MouseMotion(SDL_Event*) {}
 
 static void EvHndl_MouseButtonDown(SDL_Event* ev) {
-	switch(ev->button.button) {
-		case SDL_BUTTON_WHEELUP:
-			Mouse.WheelScrollUp = true;
-			break;
-		case SDL_BUTTON_WHEELDOWN:
-			Mouse.WheelScrollDown  = true;
-			break;
-	}  // switch
-
-	{
-		MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, true };
-		Mouse.mouseQueue.push_back( mev );
-	}
+	MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, true };
+	Mouse.mouseQueue.push_back( mev );
 }
 
 static void EvHndl_MouseButtonUp(SDL_Event* ev) {		
 	MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, false };
 	Mouse.mouseQueue.push_back( mev );
+}
+
+static void EvHndl_MouseWheel(SDL_Event* ev) {
+	if(ev->wheel.y < 0)
+		Mouse.WheelScrollUp = true;
+	else if(ev->wheel.y > 0)
+		Mouse.WheelScrollDown = true;
 }
 
 static void EvHndl_Quit(SDL_Event*) {
@@ -415,6 +411,7 @@ void InitEventSystem() {
 	sdlEvents[SDL_MOUSEMOTION].handler() = getEventHandler(&EvHndl_MouseMotion);
 	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() = getEventHandler(&EvHndl_MouseButtonDown);
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() = getEventHandler(&EvHndl_MouseButtonUp);
+	sdlEvents[SDL_MOUSEWHEEL].handler() = getEventHandler(&EvHndl_MouseWheel);
 	sdlEvents[SDL_QUIT].handler() = getEventHandler(&EvHndl_Quit);
 	//sdlEvents[SDL_SYSWMEVENT].handler() = getEventHandler(&EvHndl_SysWmEvent); // Should be done from main thread
 	sdlEvents[SDL_VIDEOEXPOSE].handler() = getEventHandler(&EvHndl_VideoExpose);
