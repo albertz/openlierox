@@ -36,6 +36,12 @@ struct gui_event_t {
 	CWidget	*cWidget;
 };
 
+enum {
+	gev_MouseWheel = -9999, // iControlID
+	gev_MouseWheelUp = 1, // iEventMsg
+	gev_MouseWheelDown = 2 // iEventMsg
+};
+
 // Errors
 enum {
 	ERR_OUTOFMEMORY=0,

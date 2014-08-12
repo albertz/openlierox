@@ -915,15 +915,15 @@ gui_event_t *CGuiLayout::Process()
 
 	// Non-widget wheel up
 	if(tMouse->WheelScrollUp)  {
-		tEvent->iControlID = -9999;
-		tEvent->iEventMsg = SDL_BUTTON_WHEELUP;
+		tEvent->iControlID = gev_MouseWheel;
+		tEvent->iEventMsg = gev_MouseWheelUp;
 		return tEvent;
 	}
 
 	// Non-widget wheel down
 	if(tMouse->WheelScrollDown)  {
-		tEvent->iControlID = -9999;
-		tEvent->iEventMsg = SDL_BUTTON_WHEELDOWN;
+		tEvent->iControlID = gev_MouseWheel;
+		tEvent->iEventMsg = gev_MouseWheelDown;
 		return tEvent;
 	}
 
