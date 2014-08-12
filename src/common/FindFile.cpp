@@ -275,13 +275,13 @@ size_t GetLastName(const std::string& fullname, const char** seperators)
 struct ExactFilenameCache {
 	struct simple_crc32_hasher {
 		size_t operator() (const std::string& str) const {			
-			Uint32 crc = crc32(0L, Z_NULL, 0);
+			uint32_t crc = (uint32_t) crc32(0, Z_NULL, 0);
 			for(std::string::const_iterator pos = str.begin(); pos != str.end(); pos++) {
 				uchar c = (uchar)tolower((uchar)*pos) & 0xf;
 				++pos;
 				if(pos == str.end()) break;
 				c += ((uchar)tolower((uchar)*pos) & 0xf) << 4;
-				crc = crc32(crc, (Byte*)&c, 1);
+				crc = (uint32_t) crc32(crc, (Byte*)&c, 1);
 			}
 			return crc;
 		}
