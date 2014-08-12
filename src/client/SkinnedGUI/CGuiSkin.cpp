@@ -261,7 +261,7 @@ void CGuiSkin::SDL_OnKeyUp(SDL_Event *ev) {
 void CGuiSkin::SDL_OnMouseMotion(SDL_Event* ev) {
 	if(!cActiveLayout) return;
 	cActiveLayout->DoMouseMove(ev->motion.x, ev->motion.y, ev->motion.xrel, ev->motion.yrel, 
-		ev->motion.state != 0, SDLButtonToMouseButton(ev->motion.state), *GetCurrentModstate());
+		ev->motion.state != 0, SDLButtonStateToMouseButton(ev->motion.state), *GetCurrentModstate());
 }
 
 void CGuiSkin::SDL_OnMouseButtonDown(SDL_Event* ev) {

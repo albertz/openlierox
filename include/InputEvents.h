@@ -85,6 +85,7 @@ enum MouseButton  {
 };
 
 MouseButton SDLButtonToMouseButton(int sdlbut);
+MouseButton SDLButtonStateToMouseButton(int sdlbut);
 
 typedef Event<SDL_Event*> SDLEvent;
 

@@ -94,25 +94,25 @@ bool IsWaitingForEvent() {
 // Converts SDL button to a mouse button
 MouseButton SDLButtonToMouseButton(int sdlbut)
 {
-	if (sdlbut & SDL_BUTTON_LEFT)
-		return mbLeft;
+	switch(sdlbut) {
+		case SDL_BUTTON_LEFT: return mbLeft;
+		case SDL_BUTTON_RIGHT: return mbRight;
+		case SDL_BUTTON_MIDDLE: return mbMiddle;
+		case SDL_BUTTON_X1: return mbExtra1;
+		case SDL_BUTTON_X2: return mbExtra2;
+		default: return mbLeft;
+	}
+}
 
-	if (sdlbut & SDL_BUTTON_RIGHT)
-		return mbRight;
-
-	if (sdlbut & SDL_BUTTON_MIDDLE)
-		return mbMiddle;
-
-// There is no SDL_BUTTON_X1 and SDL_BUTTON_X2 in my SDL headers, only SDL_BUTTON_WHEELUP/WHEELDOWN -
-// on Linux wheel up/down is emulated by 4th and 5th mouse buttons.
-/*
-	if (sdlbut & SDL_BUTTON_X1)
-		return mbExtra1;
-
-	if (sdlbut & SDL_BUTTON_X2)
-		return mbExtra2;
-*/
-	return mbLeft; // Default
+// Returns just a single (the most important) button.
+MouseButton SDLButtonStateToMouseButton(int sdlbut)
+{
+	if(sdlbut & SDL_BUTTON_LMASK) return mbLeft;
+	if(sdlbut & SDL_BUTTON_RMASK) return mbRight;
+	if(sdlbut & SDL_BUTTON_MMASK) return mbMiddle;
+	if(sdlbut & SDL_BUTTON_X1MASK) return mbExtra1;
+	if(sdlbut & SDL_BUTTON_X2MASK) return mbExtra2;
+	return mbLeft; // default
 }
 
 
