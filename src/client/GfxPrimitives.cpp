@@ -497,7 +497,7 @@ SurfaceCopyScope::SurfaceCopyScope(SDL_Surface *src_) : src(src_) {
 SurfaceCopyScope::~SurfaceCopyScope() {
 	// Return back alpha and colorkey
 	if (PerSurfaceAlpha != SDL_ALPHA_OPAQUE)
-		SDL_SetSurfaceAlphaMod(src, 1, PerSurfaceAlpha);
+		SDL_SetSurfaceAlphaMod(src, PerSurfaceAlpha);
 	if (BlendMode != SDL_BLENDMODE_NONE)
 		SDL_SetSurfaceBlendMode(src, BlendMode);
 	if (HasColorkey)
