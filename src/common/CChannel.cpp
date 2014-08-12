@@ -178,8 +178,8 @@ void CChannel_056b::Transmit( CBytestream *bs )
 
 	iOutgoingSequence++;
 
-	outpack.writeInt(r1,4);
-	outpack.writeInt(r2,4);
+	outpack.writeInt((uint)r1,4);
+	outpack.writeInt((uint)r2,4);
 
 
 	// If were sending a reliable message, send it first
@@ -208,7 +208,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	Socket->setRemoteAddress(RemoteAddr);
 	outpack.Send(Socket.get());
 
-	UpdateTransmitStatistics( outpack.GetLength() );
+	UpdateTransmitStatistics( (int)outpack.GetLength() );
 }
 
 
