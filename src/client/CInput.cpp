@@ -480,7 +480,7 @@ int CInput::Wait(std::string& strText)
 		// Our description is not enough, let's call SDL for help
 		// We use SDL only for the left unknown keys to stay backward and forward compatible.
 		if (kb->keyQueue[i].sym != SDLK_ESCAPE)  {
-			strText = SDL_GetKeyName((SDLKey)kb->keyQueue[i].sym);
+			strText = SDL_GetKeyName(kb->keyQueue[i].sym);
 			return true;
 		}
 	}
