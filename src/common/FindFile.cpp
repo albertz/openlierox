@@ -1082,7 +1082,7 @@ SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose)  {
 	return(rwops);
 
 #else
-	return SDL_RWFromFP(fp, (int)autoclose);
+	return SDL_RWFromFP(fp, (SDL_bool)autoclose);
 #endif
 }
 
