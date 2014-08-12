@@ -2943,7 +2943,7 @@ template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 }
 
 template <> void SmartPointer_ObjectDeinit<SDL_Texture> ( SDL_Texture * obj ) {
-	SDL_DestroyTexture(obj),
+	SDL_DestroyTexture(obj);
 }
 
 template <> void SmartPointer_ObjectDeinit<SDL_Renderer> ( SDL_Renderer * obj ) {
