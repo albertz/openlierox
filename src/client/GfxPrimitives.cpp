@@ -859,7 +859,7 @@ void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 
 	short bpp = bmpDest->format->BytesPerPixel;
 
-	register Uint8 *sp,*tp;
+	Uint8 *sp,*tp;
 	for(y = h; y; --y) {
 
 		sp = SrcPix;
