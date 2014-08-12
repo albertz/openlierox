@@ -933,6 +933,10 @@ int NetworkSocket::Write(const void* buffer, int nbytes) {
 		errors << "NetworkSocket::Write: cannot write on closed socket" << endl;
 		return NL_INVALID;
 	}
+	if(nbytes < 0) {
+		errors << "WriteSocket " << debugString() << ": nbytes < 0" << endl;
+		return NL_INVALID;
+	}
 	
 	ResetSocketError();
 	NLint ret = nlWrite(m_socket->sock, buffer, nbytes);
