@@ -706,6 +706,7 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 
 ///////////////////
 // Take a screenshot
+// This should run on the main thread.
 static void TakeScreenshot(const std::string& scr_path, const std::string& additional_data)
 {
 	if (scr_path.empty()) // Check
