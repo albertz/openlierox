@@ -77,8 +77,6 @@ struct mouse_t {
 	int		Down;
     int     FirstDown;
 
-	bool	WheelUp;
-	bool	WheelDown;
 	bool	WheelScrollUp;
 	bool	WheelScrollDown;
 	
