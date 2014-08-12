@@ -54,10 +54,8 @@
 #			include <tr1/unordered_set>
 #			define hash_set std::tr1::unordered_set
 #		else
-#			include <ext/hash_set>
-			using namespace __gnu_cxx;
-			namespace __gnu_debug_def {} // because it may be undefined
-			using namespace __gnu_debug_def;
+#			include <unordered_set>
+#			define hash_set std::unordered_set
 #		endif
 #	else // STLPORT
 #		include <hash_set>
