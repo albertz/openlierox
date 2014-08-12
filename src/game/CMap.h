@@ -253,8 +253,8 @@ private:
 			if(x < 0 || y < 0 || (size_t)x >= Width || (size_t)y >= Height) return;
 		}
 		else {
-			x = WrapAroundX(x);
-			y = WrapAroundY(y);			
+			x = WrapAroundX((int)x);
+			y = WrapAroundY((int)y);
 		}
 		unsafeSetPixelFlag(x, y, flag);
 	}
@@ -284,7 +284,7 @@ public:
 	}
 
 	uchar unsafeGetPixelFlag(long x, long y, bool wrapAround = false) const {
-		return unsafeGetMaterial(x, y).toLxFlags();
+		return unsafeGetMaterial((unsigned int)x, (unsigned int)y).toLxFlags();
 	}
 
 	uchar GetPixelFlag(long x, long y, bool wrapAround = false) const {
@@ -294,10 +294,10 @@ public:
 				return PX_ROCK;
 		}
 		else {
-			x = WrapAroundX(x);
-			y = WrapAroundY(y);
+			x = WrapAroundX((int)x);
+			y = WrapAroundY((int)y);
 		}
-		return unsafeGetMaterial(x, y).toLxFlags();
+		return unsafeGetMaterial((unsigned int)x, (unsigned int)y).toLxFlags();
 	}
 	uchar GetPixelFlag(const CVec& pos) const { return GetPixelFlag((long)pos.x, (long)pos.y); }
 
@@ -611,7 +611,7 @@ private:
 template<class PredT>
 INLINE bool CMap::trace(long x, long y, long destx, long desty, PredT predicate)
 {
-	if(!isInside(x, y))
+	if(!isInside((unsigned int)x, (unsigned int)y))
 	{
 		if(predicate(m_materialList[0]))
 			return true;
@@ -620,7 +620,7 @@ INLINE bool CMap::trace(long x, long y, long destx, long desty, PredT predicate)
 			return true; //TODO: Clip the beginning of the line instead of returning
 		}
 	}
-	if(!isInside(destx, desty))
+	if(!isInside((unsigned int)destx, (unsigned int)desty))
 	{
 		if(predicate(m_materialList[0]))
 			return true;
