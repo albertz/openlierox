@@ -90,6 +90,7 @@ CGuiSkin::CGuiSkin()
 	sdlEvents[SDL_MOUSEMOTION].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseMotion);
 	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonDown);
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonUp);
+	sdlEvents[SDL_MOUSEWHEEL].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseWheel);
 	
 	onAddWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnAddWidget);;
 	onDestroyWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnDestroyWidget);
@@ -104,6 +105,7 @@ CGuiSkin::~CGuiSkin()
 	sdlEvents[SDL_MOUSEMOTION].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnMouseMotion);
 	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonDown);
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonUp);
+	sdlEvents[SDL_MOUSEWHEEL].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnMouseWheel);
 
 	// No effects, just destroy
 	if (cActiveLayout)
@@ -266,33 +268,22 @@ void CGuiSkin::SDL_OnMouseMotion(SDL_Event* ev) {
 
 void CGuiSkin::SDL_OnMouseButtonDown(SDL_Event* ev) {
 	if(!cActiveLayout) return;
-	// Get the button
-	switch (ev->button.button)  {
-
-/*
-	// TODO: mouse wheel
-	
-	// HINT: mouse scroll up/down are reported as "clicks"
-	case SDL_BUTTON_WHEELDOWN:
-		cActiveLayout->DoMouseWheelDown(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
-	return;
-	case SDL_BUTTON_WHEELUP:
-		cActiveLayout->DoMouseWheelUp(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
-	return;
-*/
-	
-	// Normal button
-	default:
-		cActiveLayout->DoMouseDown(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY,
-			SDLButtonToMouseButton(ev->button.button), *GetCurrentModstate());
-	}
+	cActiveLayout->DoMouseDown(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY,
+		SDLButtonToMouseButton(ev->button.button), *GetCurrentModstate());
 }
 
 void CGuiSkin::SDL_OnMouseButtonUp(SDL_Event* ev) {
 	if(!cActiveLayout) return;
 	cActiveLayout->DoMouseUp(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY,
 		SDLButtonToMouseButton(ev->button.button), *GetCurrentModstate());
+}
 
+void CGuiSkin::SDL_OnMouseWheel(SDL_Event* ev) {
+	if(!cActiveLayout) return;
+	if(ev->wheel.y > 0)
+		cActiveLayout->DoMouseWheelDown(GetMouse()->X, GetMouse()->Y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
+	else if(ev->wheel.y < 0)
+		cActiveLayout->DoMouseWheelUp(GetMouse()->X, GetMouse()->Y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
 }
 
 void CGuiSkin::SDL_OnAddWidget(WidgetData ev) {
