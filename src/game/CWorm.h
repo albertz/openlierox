@@ -539,7 +539,7 @@ public:
 	}
 	int			getCurrentWeapon()		{
 		if(tWeapons.size() == 0) return 0;
-		return MIN(tWeapons.size() - 1, (size_t)iCurrentWeapon);
+		return (int)MIN(tWeapons.size() - 1, (size_t)iCurrentWeapon);
 	}
 	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = _w; }
 	const wpnslot_t	*getWeapon(int id)		{
