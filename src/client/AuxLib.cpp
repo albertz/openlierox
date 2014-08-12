@@ -532,9 +532,8 @@ void VideoPostProcessor::flipBuffers() {
 
 void VideoPostProcessor::process() {
 	ProcessScreenshots();
-	//DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
 	
-	void* pixels = get()->m_videoSurface->pixels;
+	void* pixels = get()->m_videoBufferSurface->pixels;
 	SDL_UpdateTexture(get()->m_videoTexture.get(), NULL, pixels, get()->screenWidth() * sizeof (uint32_t));
 }
 
