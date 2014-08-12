@@ -45,12 +45,6 @@ struct KeyboardEvent {
 	ModifiersState state;
 };
 
-struct MouseEvent {
-	int x, y;
-	int button;
-	bool down;
-};
-
 // Keyboard structure
 // HINT: KeyDown is the state of the keyboard
 // KeyUp is like an event and will only be true once
@@ -79,8 +73,7 @@ struct mouse_t {
 
 	bool	WheelScrollUp;
 	bool	WheelScrollDown;
-	
-	std::vector<MouseEvent> mouseQueue;
+		
 };
 
 enum MouseButton  {

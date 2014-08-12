@@ -208,7 +208,6 @@ static void ResetCurrentEventStorage() {
 	// Reset mouse wheel
 	Mouse.WheelScrollUp = false;
 	Mouse.WheelScrollDown = false;
-	Mouse.mouseQueue.clear();
 
 	// Reset the video mode changed flag here
 	if (tLX)
@@ -360,16 +359,8 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 }
 
 static void EvHndl_MouseMotion(SDL_Event*) {}
-
-static void EvHndl_MouseButtonDown(SDL_Event* ev) {
-	MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, true };
-	Mouse.mouseQueue.push_back( mev );
-}
-
-static void EvHndl_MouseButtonUp(SDL_Event* ev) {		
-	MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, false };
-	Mouse.mouseQueue.push_back( mev );
-}
+static void EvHndl_MouseButtonDown(SDL_Event* ev) {}
+static void EvHndl_MouseButtonUp(SDL_Event* ev) {}
 
 static void EvHndl_MouseWheel(SDL_Event* ev) {
 	if(ev->wheel.y < 0)
@@ -403,7 +394,6 @@ void InitEventSystem() {
 	GetMouse()->Down = 0;
 	GetMouse()->FirstDown = 0;
 	GetMouse()->Up = 0;
-	GetMouse()->mouseQueue.reserve(32); // just make space to avoid always reallocation
 
 	sdlEvents[SDL_ACTIVEEVENT].handler() = getEventHandler(&EvHndl_ActiveEvent);
 	sdlEvents[SDL_KEYDOWN].handler() = getEventHandler(&EvHndl_KeyDownUp);
