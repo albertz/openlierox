@@ -3872,7 +3872,6 @@
 					"-pthread",
 				);
 				STRIP_INSTALLED_PRODUCT = NO;
-				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
 		};
