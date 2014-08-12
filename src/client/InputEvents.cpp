@@ -271,16 +271,16 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 			case SDLK_END:
 				input = 3;
 				break;
-			case SDLK_KP0:
-			case SDLK_KP1:
-			case SDLK_KP2:
-			case SDLK_KP3:
-			case SDLK_KP4:
-			case SDLK_KP5:
-			case SDLK_KP6:
-			case SDLK_KP7:
-			case SDLK_KP8:
-			case SDLK_KP9:
+			case SDLK_KP_0:
+			case SDLK_KP_1:
+			case SDLK_KP_2:
+			case SDLK_KP_3:
+			case SDLK_KP_4:
+			case SDLK_KP_5:
+			case SDLK_KP_6:
+			case SDLK_KP_7:
+			case SDLK_KP_8:
+			case SDLK_KP_9:
 			case SDLK_KP_MULTIPLY:
 			case SDLK_KP_MINUS:
 			case SDLK_KP_PLUS:
@@ -336,12 +336,9 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		case SDLK_LSHIFT: case SDLK_RSHIFT:
 			evtModifiersState.bShift = kbev.down;
 			break;
-		case SDLK_LSUPER: case SDLK_RSUPER:
-			evtModifiersState.bSuper = kbev.down;
+		case SDLK_LGUI: case SDLK_RGUI:
+			evtModifiersState.bGui = kbev.down;
 			break;
-		case SDLK_LMETA: case SDLK_RMETA:
-			evtModifiersState.bMeta = kbev.down;
-			break;				
 		}
 
 		// copy it
