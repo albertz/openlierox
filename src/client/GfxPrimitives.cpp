@@ -461,7 +461,7 @@ INLINE void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy
 		+ (dy * dst_pitch) + (dx * dst->format->BytesPerPixel);
 
 	// Copy row by row
-	for (register int i = 0; i < h; ++i)  {
+	for (int i = 0; i < h; ++i)  {
 		memcpy(dstrow, srcrow, byte_bound);
 		dstrow += dst_pitch;
 		srcrow += src_pitch;
