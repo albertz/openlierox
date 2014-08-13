@@ -748,7 +748,6 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 	}
 	
 	if(Surface_HasBlendMode(bmpSrc))
-		// __ZL8DrawRGBAILb1EEvP11SDL_SurfaceS1_R8SDL_RectS3_
 		DrawRGBA<true>(bmpDest, bmpSrc, rDest, rSrc);
 	else
 		DrawRGBA<false>(bmpDest, bmpSrc, rDest, rSrc);
