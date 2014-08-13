@@ -77,7 +77,7 @@ int GetRandomInt(int max)
 
 unsigned long GetRandomLong(unsigned long max) {
 	float f = GetRandomPosNum()*(float(max)+1);
-	return MIN(f, max);
+	return MIN((unsigned long)f, max);
 }
 
 //////////////////

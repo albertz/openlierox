@@ -760,7 +760,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	// Load previous settings from profile
 	for(size_t i=0;i<m_worm->tWeapons.size();i++) {
-		m_worm->weaponSlots.write()[i].WeaponId = (int)game.gameScript()->FindWeaponId( m_worm->tProfile->getWeaponSlot(i) );
+		m_worm->weaponSlots.write()[i].WeaponId = (int)game.gameScript()->FindWeaponId( m_worm->tProfile->getWeaponSlot((int)i) );
 		
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
 		if( !m_worm->tWeapons[i].weapon() || !game.weaponRestrictions()->isEnabled( m_worm->tWeapons[i].weapon()->Name ) ) {

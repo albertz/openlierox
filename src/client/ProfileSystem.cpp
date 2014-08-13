@@ -317,7 +317,7 @@ int AddProfile(const SmartPointer<profile_t>& prof) {
 	}
 	else if(prof->iType == PRF_COMPUTER->toInt()) {
 		tProfiles.push_back(prof);
-		return tProfiles.size() - 1;
+		return (int)tProfiles.size() - 1;
 	}
 	else
 		errors << "AddProfile " << prof->sName << " with undefined type " << prof->iType << endl;

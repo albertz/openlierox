@@ -1130,7 +1130,7 @@ Result NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
 
 
 int GetSocketErrorNr() {
-	return nlGetError();
+	return (int)nlGetError();
 }
 
 std::string GetSocketErrorStr(int errnr) {
@@ -1324,7 +1324,7 @@ static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address
     {
         ((struct sockaddr_in *)address)->sin_family = AF_INET;
         ((struct sockaddr_in *)address)->sin_port = htons(port);
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = *(NLulong *)hostentry->h_addr_list[0];
+        ((struct sockaddr_in *)address)->sin_addr.s_addr = (uint32_t) *(NLulong *)hostentry->h_addr_list[0];
         address->valid = NL_TRUE;
     }
     else
