@@ -1884,7 +1884,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 		delete[] pDest;
 		return false;
 	}
-	destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
+	destsize = (uint32_t) lng_dsize; // will only get smaller
 
 	// Write out the details & the data
 	fwrite_endian_compat((destsize), sizeof(Uint32), 1, fp);
