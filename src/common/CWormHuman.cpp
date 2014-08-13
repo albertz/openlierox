@@ -104,7 +104,8 @@ void CWormHumanInputHandler::getInput() {
 		{
 			Result handle()
 			{
-				SDL_WarpMouse(640/2, 480/2); // Should be called from main thread, or you'll get race condition with libX11
+				// TODO: check current window, and window size
+				SDL_WarpMouseInWindow(NULL, 640/2, 480/2); // Should be called from main thread, or you'll get race condition with libX11
 				return true;
 			} 
 		};
