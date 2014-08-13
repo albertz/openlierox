@@ -2873,7 +2873,7 @@ SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool
 	gdImagePtr src = NULL;
 
 	if(ext == ".bmp") {
-		SDL_Surface* s = SDL_LoadBMP_RW(SDL_RWFromConstMem(&fileContent[0], fileContent.size()), true);
+		SDL_Surface* s = SDL_LoadBMP_RW(SDL_RWFromConstMem(&fileContent[0], (int)fileContent.size()), true);
 		if(s == NULL) {
 			errors << "LoadGameImage: cannot load bmp: " << _filename << endl;
 			return NULL;
@@ -2881,11 +2881,11 @@ SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool
 		return s;
 	}
 	else if(ext == ".jpg" || ext == ".jpeg")
-		src = gdImageCreateFromJpegPtr(fileContent.size(), &fileContent[0]);
+		src = gdImageCreateFromJpegPtr((int)fileContent.size(), &fileContent[0]);
 	else if(ext == ".png")
-		src = gdImageCreateFromPngPtr(fileContent.size(), &fileContent[0]);
+		src = gdImageCreateFromPngPtr((int)fileContent.size(), &fileContent[0]);
 	else if(ext == ".gif")
-		src = gdImageCreateFromGifPtr(fileContent.size(), &fileContent[0]);
+		src = gdImageCreateFromGifPtr((int)fileContent.size(), &fileContent[0]);
 	else {
 		errors << "LoadGameImage: file extension unknown: " << _filename << endl;
 		return NULL;
