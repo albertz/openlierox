@@ -1197,7 +1197,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 				bs.writeInt( packetSize, 2 );
 			};
 			packetIndex = it->idx;
-			packetSize = it->data.GetLength();
+			packetSize = (int) it->data.GetLength();
 			if( it->fragmented )
 				packetSize |= SEQUENCE_HIGHEST_BIT;
 
