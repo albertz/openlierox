@@ -1978,9 +1978,9 @@ void CMap::NewNet_RestoreFromMemory()
 			it != savedMapCoords.end(); it++ )
 	{
 		int startX = it->X*MAP_SAVE_CHUNK;
-		int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
+		int sizeX = (int) MIN( MAP_SAVE_CHUNK, Width - startX );
 		int startY = it->Y*MAP_SAVE_CHUNK;
-		int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
+		int sizeY = (int) MIN( MAP_SAVE_CHUNK, Height - startY  );
 
 		LOCK_OR_QUIT(bmpSavedImage);
 		lockFlags();
@@ -2045,9 +2045,9 @@ void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 				savedMapCoords.insert( SavedMapCoord_t( fx, fy ) );
 				
 				int startX = fx*MAP_SAVE_CHUNK;
-				int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
+				int sizeX = (int) MIN( MAP_SAVE_CHUNK, Width - startX );
 				int startY = fy*MAP_SAVE_CHUNK;
-				int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
+				int sizeY = (int) MIN( MAP_SAVE_CHUNK, Height - startY  );
 
 				LOCK_OR_QUIT(bmpSavedImage);
 				lockFlags();

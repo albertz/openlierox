@@ -38,7 +38,7 @@ template <class Iter> void SafeAdvance(Iter& it, size_t count, const Iter& end) 
 template <typename T>
 T& randomChoiceFrom(std::vector<T>& data) {
 	assert(data.size() > 0);
-	size_t i = (size_t)GetRandomInt(data.size() - 1);
+	size_t i = GetRandomLong(data.size() - 1);
 	return data[i];
 }
 

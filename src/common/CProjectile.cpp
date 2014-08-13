@@ -85,7 +85,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 		case PRJ_POLYGON: {
 			// Choose a colour
 			if(tProjInfo->Colour.size() > 0) {
-				int c = GetRandomInt(tProjInfo->Colour.size()-1);
+				int c = GetRandomInt((int)tProjInfo->Colour.size()-1);
 				iColour = tProjInfo->Colour[c];
 			}
 			else {

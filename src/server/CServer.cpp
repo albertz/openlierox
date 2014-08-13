@@ -1263,7 +1263,7 @@ void GameServer::CheckForFillWithBots() {
 	
 	// check if already too much players
 	if((int)game.worms()->size() > (int)gameSettings[FT_FillWithBotsTo] && getNumBots() > 0) {
-		int kickAmount = MIN(game.worms()->size() - (int)gameSettings[FT_FillWithBotsTo], getNumBots());
+		int kickAmount = (int) MIN(game.worms()->size() - (int)gameSettings[FT_FillWithBotsTo], getNumBots());
 		notes << "CheckForFillWithBots: removing " << kickAmount << " bots" << endl;
 		if(kickAmount > 0)
 			kickWorm(getLastBot(), "there are too many players, bot not needed anymore");
@@ -1283,7 +1283,7 @@ void GameServer::CheckForFillWithBots() {
 	
 	if((int)gameSettings[FT_FillWithBotsTo] > (int)game.worms()->size()) {
 		int fillUpTo = MIN(tLXOptions->iMaxPlayers, (int)gameSettings[FT_FillWithBotsTo]);
-		int fillNr = fillUpTo - game.worms()->size();
+		int fillNr = fillUpTo - (int)game.worms()->size();
 		SendGlobalText("Too few players: Adding " + itoa(fillNr) + " bot" + (fillNr > 1 ? "s" : "") + " to the server.", TXT_NETWORK);
 		notes << "CheckForFillWithBots: adding " << fillNr << " bots" << endl;
 		cClient->AddRandomBots(fillNr);
