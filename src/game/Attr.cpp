@@ -264,7 +264,7 @@ static StaticVar<AttrUpdateCallinfos> attrUpdateCallinfos;
 
 static void attrUpdateDebugHookPrint(ObjAttrRef a, const ScriptVar_t& oldValue, const ScriptVar_t& newValue, const std::vector<void*>& callstack) {
 	notes << "debugHook: <" << a.obj.description() << "> " << a.attr.getAttrDesc()->description() << ": update " << oldValue.toString() << " -> " << newValue.toString() << endl;
-	DumpCallstack(StdoutPrintFct(), &callstack[0], callstack.size());
+	DumpCallstack(StdoutPrintFct(), &callstack[0], (int)callstack.size());
 }
 
 static StaticVar<boost::shared_ptr<std::vector<std::string> > > debugAttrHookList;
@@ -322,7 +322,7 @@ static void attrUpdateAddCallInfo(BaseObject& obj, const AttrDesc* attrDesc) {
 	ScriptVar_t curValue = attrDesc->get(&obj);
 	realCopyVar(curValue);
 	std::vector<void*> callstack(128);
-	int c = GetCallstack(0, &callstack[0], callstack.size());
+	int c = GetCallstack(0, &callstack[0], (int)callstack.size());
 	if(c < 0) c = 0;
 	callstack.resize(c);
 	attrUpdateCallinfos.get()[ObjAttrRef(obj.thisRef, attrDesc)].push_back(callstack, curValue);
