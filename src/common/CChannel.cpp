@@ -643,7 +643,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 				bs.writeInt( packetSize, 2 );
 			};
 			packetIndex = it->second;
-			packetSize = it->first.GetLength();
+			packetSize = (int)it->first.GetLength();
 
 			firstPacket = false;
 			unreliableOnly = false;
