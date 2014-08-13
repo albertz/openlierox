@@ -233,28 +233,32 @@ bool WasKeyboardEventHappening(int sym, bool down) {
 typedef void (*EventHandlerFct) (SDL_Event* ev);
 
 
-static void EvHndl_ActiveEvent(SDL_Event* ev) {
-	if(ev->active.state & ~SDL_APPMOUSEFOCUS)  {
-		bool hadFocusBefore = nFocus;
-		nFocus = sdl_event.active.gain != 0;
-		bActivated = nFocus != 0;
-		bDeactivated = nFocus == 0;
-
-		// HINT: Reset the mouse state - this should avoid the mouse staying pressed
-		Mouse.Button = 0;
-		Mouse.Down = 0;
-		Mouse.FirstDown = 0;
-		Mouse.Up = 0;
-
-		if(!hadFocusBefore && nFocus) {
-			//notes << "OpenLieroX got the focus" << endl;
-			ClearUserNotify();
-		} else if(hadFocusBefore && !nFocus) {
-			//notes << "OpenLieroX lost the focus" << endl;
-		}
-
-		if(tLXOptions->bAutoFileCacheRefresh && bActivated)
-			updateFileListCaches();
+static void EvHndl_WindowEvent(SDL_Event* ev) {
+	switch(ev->window.event) {
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			bool hadFocusBefore = nFocus;
+			nFocus = ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED;
+			bActivated = nFocus != 0;
+			bDeactivated = nFocus == 0;
+			
+			// HINT: Reset the mouse state - this should avoid the mouse staying pressed
+			Mouse.Button = 0;
+			Mouse.Down = 0;
+			Mouse.FirstDown = 0;
+			Mouse.Up = 0;
+			
+			if(!hadFocusBefore && nFocus) {
+				//notes << "OpenLieroX got the focus" << endl;
+				ClearUserNotify();
+			} else if(hadFocusBefore && !nFocus) {
+				//notes << "OpenLieroX lost the focus" << endl;
+			}
+			
+			if(tLXOptions->bAutoFileCacheRefresh && bActivated)
+				updateFileListCaches();
+				
+			break;
 	}
 }
 
@@ -395,7 +399,7 @@ void InitEventSystem() {
 	GetMouse()->FirstDown = 0;
 	GetMouse()->Up = 0;
 
-	sdlEvents[SDL_ACTIVEEVENT].handler() = getEventHandler(&EvHndl_ActiveEvent);
+	sdlEvents[SDL_WINDOWEVENT].handler() = getEventHandler(&EvHndl_WindowEvent);
 	sdlEvents[SDL_KEYDOWN].handler() = getEventHandler(&EvHndl_KeyDownUp);
 	sdlEvents[SDL_KEYUP].handler() = getEventHandler(&EvHndl_KeyDownUp);
 	sdlEvents[SDL_MOUSEMOTION].handler() = getEventHandler(&EvHndl_MouseMotion);
