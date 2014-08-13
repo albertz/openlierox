@@ -773,7 +773,7 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 		
 	// RGBA -> RGB
 	} else if (src_isrgba && !dst_isrgba)  {
-		switch (bmpSrc->format->alpha)  {
+		switch (Surface_GetAlpha(bmpSrc))  {
 		case SDL_ALPHA_OPAQUE:
 			SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
 		break;
@@ -1658,20 +1658,22 @@ void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc) {
 
 }
 
-static Color HalfBlendPixelAdv(Uint32 s1, Uint32 s2, Uint32 s3, Uint32 s4, bool usekey, SDL_PixelFormat *src)
+static Color HalfBlendPixelAdv(Uint32 s1, Uint32 s2, Uint32 s3, Uint32 s4, bool usekey, const SDL_Surface *src)
 {
-	Color c1(src, s1);
-	Color c2(src, s2);
-	Color c3(src, s3);
-	Color c4(src, s4);
+	const SDL_PixelFormat *format = src->format;
+	Color c1(format, s1);
+	Color c2(format, s2);
+	Color c3(format, s3);
+	Color c4(format, s4);
 	if (usekey)  {
-		if (EqualRGB(s1, src->colorkey, src))
+		Uint32 colorkey = Surface_GetColorKey(src);
+		if (EqualRGB(s1, colorkey, format))
 			c1.a = 0;
-		if (EqualRGB(s2, src->colorkey, src))
+		if (EqualRGB(s2, colorkey, format))
 			c2.a = 0;
-		if (EqualRGB(s3, src->colorkey, src))
+		if (EqualRGB(s3, colorkey, format))
 			c3.a = 0;
-		if (EqualRGB(s4, src->colorkey, src))
+		if (EqualRGB(s4, colorkey, format))
 			c4.a = 0;
 	}
 
@@ -1726,7 +1728,7 @@ void DrawImageScaleHalfAdv(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, in
 			Uint32 px4 = GetPixelFromAddr(srcpx_2 + bpp, bpp);  // x + 1, y + 1
 			const Color pxBg(bmpDest->format, GetPixelFromAddr(dstpx, bpp));
 
-			put.put(dstpx, bmpDest->format, HalfBlendPixelAdv(px1, px2, px3, px4, usekey, bmpSrc->format));
+			put.put(dstpx, bmpDest->format, HalfBlendPixelAdv(px1, px2, px3, px4, usekey, bmpSrc));
 			//PutPixelToAddr(dstpx, HalfBlendPixel(px1, px2, px3, px4, bmpSrc->format), bpp);
 		}
 
