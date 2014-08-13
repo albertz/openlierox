@@ -121,9 +121,8 @@ private:
 	NetworkSocket m_internet, m_lan, m_foo;
 	char *m_buffer;
 
-	class NetworkAddrComp  {
-	public:
-		bool operator() (const NetworkAddr& a1, const NetworkAddr& a2)
+	struct NetworkAddrComp  {
+		bool operator() (const NetworkAddr& a1, const NetworkAddr& a2) const
 		{
 			return stringcasecmp(NetAddrToString(a1), NetAddrToString(a2)) < 0;  // TODO: inefficient
 		}
