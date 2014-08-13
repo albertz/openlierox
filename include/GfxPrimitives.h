@@ -648,7 +648,7 @@ INLINE void PutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 color) {
 // Get a pixel from an 8bit address
 // WARNING: passing invalid adress will cause a segfault
 // NOTE: the surface must be locked before calling this
-INLINE Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
+INLINE Uint32 GetPixelFromAddr(const Uint8* p, short bpp) {
 	Uint32 result;
 	result = 0;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -664,9 +664,9 @@ INLINE Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 // WARNING: passing invalid coordinates will cause a segfault
 // NOTE: bmpSrc must be locked before calling this
 // This function doesn't have "const SmartPointer<SDL_Surface> &" interface because it will slow it down
-INLINE Uint32 GetPixel(SDL_Surface * bmpSrc, int x, int y) {
+INLINE Uint32 GetPixel(const SDL_Surface * bmpSrc, int x, int y) {
 	return GetPixelFromAddr(
-			(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
+			(const Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
 			bmpSrc->format->BytesPerPixel);
 }
 

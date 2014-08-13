@@ -70,7 +70,7 @@ INLINE SDL_PixelFormat* getMainPixelFormat() {
 ///////////////
 // Returns true if the two colors are the same, ignoring the alpha
 // HINT: both colors have to be in the same pixelformat
-INLINE bool EqualRGB(Uint32 p1, Uint32 p2, SDL_PixelFormat* fmt) {
+INLINE bool EqualRGB(Uint32 p1, Uint32 p2, const SDL_PixelFormat* fmt) {
 	return ((p1&(fmt->Rmask|fmt->Gmask|fmt->Bmask)) == (p2&(fmt->Rmask|fmt->Gmask|fmt->Bmask)));
 }
 
