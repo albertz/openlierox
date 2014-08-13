@@ -50,7 +50,7 @@ void ListNode::render(Renderer* renderer, long& y)
 	
 	if(selected || list->m_MainSel == node_iter_t(this))
 	{
-		Rect r(list->getRect().x1 + 1, y, list->getRect().x2 - 1, y + List::rowHeight - 1);
+		Rect r(list->getRect().x1 + 1, (int)y, list->getRect().x2 - 1, (int)y + List::rowHeight - 1);
 		if(selected)
 		{
 			renderer->drawBox(
@@ -205,8 +205,6 @@ int ListNode::findOffsetTo(node_iter_t i, node_iter_t to)
 
 ListNode::node_iter_t ListNode::findRelative(node_iter_t i, int aIdx)
 {
-	node_iter_t parent = i->parent;
-
 	if(aIdx < 0)
 	{
 		while(++aIdx <= 0)

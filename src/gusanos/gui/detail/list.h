@@ -214,7 +214,7 @@ namespace OmfgGUI
 						if(offs < m_basePos)
 							setBase(i, offs);
 						else if(offs + i->visibleChildren >= m_basePos + visibleRows())
-							setBasePos(offs + i->visibleChildren - visibleRows() + 1);
+							setBasePos(offs + (int)i->visibleChildren - visibleRows() + 1);
 					}
 				}
 			}
@@ -222,7 +222,7 @@ namespace OmfgGUI
 			void scroll(long amount)
 			{
 				if(m_Base) {
-					node_iter_t i = ListNode::findRelative(m_Base, amount);
+					node_iter_t i = ListNode::findRelative(m_Base, (int)amount);
 					m_Base = i;
 				}
 			}
