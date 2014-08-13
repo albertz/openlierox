@@ -86,7 +86,7 @@ struct Parameters
 					if(dist < minDist)
 					{
 						minDist = dist;
-						minParam = i;
+						minParam = (int)i;
 					}
 				}
 			}

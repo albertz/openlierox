@@ -586,7 +586,7 @@ Result Game::prepareGameloop() {
 		}
 
 		// Start the game logging
-		cClient->StartLogging(game.worms()->size());
+		cClient->StartLogging((int)game.worms()->size());
 
 		if(!bDedicated)
 		{
