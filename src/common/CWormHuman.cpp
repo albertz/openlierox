@@ -760,7 +760,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	// Load previous settings from profile
 	for(size_t i=0;i<m_worm->tWeapons.size();i++) {
-		m_worm->weaponSlots.write()[i].WeaponId = game.gameScript()->FindWeaponId( m_worm->tProfile->getWeaponSlot(i) );
+		m_worm->weaponSlots.write()[i].WeaponId = (int)game.gameScript()->FindWeaponId( m_worm->tProfile->getWeaponSlot(i) );
 		
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
 		if( !m_worm->tWeapons[i].weapon() || !game.weaponRestrictions()->isEnabled( m_worm->tWeapons[i].weapon()->Name ) ) {
@@ -885,7 +885,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 
 	m_worm->tProfile->sWeaponSlots.resize(m_worm->tWeapons.size());
 	for(size_t i=0;i<m_worm->tWeapons.size();i++)
-		m_worm->tProfile->writeWeaponSlot(i) = m_worm->tWeapons[i].weapon() ? m_worm->tWeapons[i].weapon()->Name : "";
+		m_worm->tProfile->writeWeaponSlot((int)i) = m_worm->tWeapons[i].weapon() ? m_worm->tWeapons[i].weapon()->Name : "";
 	
 	// Note: The extra weapon slot is the 'done' button
 	if(m_worm->iCurrentWeapon == (int)m_worm->tWeapons.size()+1) {
