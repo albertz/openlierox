@@ -214,7 +214,7 @@ Distortion::Distortion(DistortionMap* map)
 {
 	m_map->compileMap();
 	width = m_map->width;
-	height = m_map->map.size() / m_map->width;
+	height = int(m_map->map.size() / m_map->width);
 	buffer = create_bitmap( width, height);
 }
 

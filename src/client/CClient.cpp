@@ -636,7 +636,7 @@ void CClient::FinishModDownloads()
 			if( fileInZip == NULL || fileWrite == NULL )
 				continue;
 			char buf[4096];
-			int readed;
+			ssize_t readed;
 			while( ( readed = zip_fread(fileInZip, buf, sizeof(buf)) ) > 0 )
 				fwrite( buf, 1, readed, fileWrite );
 			fclose(fileWrite);
@@ -1279,7 +1279,7 @@ void CClient::Reconnect() {
 	bytestr.writeInt(PROTOCOL_VERSION,1);
 	bytestr.writeInt(this->iChallenge,4);
 	bytestr.writeInt(this->iNetSpeed,1);
-	bytestr.writeInt(connectInfo->worms.size(), 1);
+	bytestr.writeInt((int)connectInfo->worms.size(), 1);
 	
 	// Send my worms info
     //

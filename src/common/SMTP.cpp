@@ -21,7 +21,6 @@ static bool SmtpClient_wait(NetworkSocket& sock, const std::string& expectedstar
 	char c = 0;
 	int r = 0;
 	std::string line;
-	AbsTime startTime = GetTime();
 	while((r = sock.Read(&c, 1)) >= 0) {
 		if(r == 0) {
 			SDL_Delay(10);
