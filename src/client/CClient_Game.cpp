@@ -1448,7 +1448,7 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
 
 	// Paste
 	if (input.ch == 22 ||
-		( input.sym == SDLK_v && ( input.state.bCtrl || input.state.bMeta ) ) || 
+		( input.sym == SDLK_v && ( input.state.bCtrl || input.state.bGui ) ) ||
 		( input.sym == SDLK_INSERT && input.state.bShift )) {
 		
 		size_t text_len = Utf8StringSize(sChat_Text);
