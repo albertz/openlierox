@@ -531,7 +531,7 @@ void CClient::SendCarve(CVec pos)
 	int x,y,n,px;
 
 	// Go through until we find dirt to throw around
-	y = MIN((int)pos.y,game.gameMap()->GetHeight()-1);
+	y = (int) MIN((int)pos.y, game.gameMap()->GetHeight()-1);
 	y = MAX(y,0);
 	px = (int)pos.x;
 
@@ -694,7 +694,7 @@ void CClient::DrawBeam(CWorm *w)
 	for(int i=0; i<Slot->weapon()->Bm.Length; ++i) {
 		{
 			int newWidth = int(float(Slot->weapon()->Bm.InitWidth) + Slot->weapon()->Bm.WidthIncrease * i);
-			newWidth = MIN( newWidth, MIN( game.gameMap()->GetWidth(), game.gameMap()->GetHeight() ) );
+			newWidth = (int) MIN( newWidth, MIN( game.gameMap()->GetWidth(), game.gameMap()->GetHeight() ) );
 			if(newWidth != width) {
 				goodWidthParts.resize(newWidth);
 				for(int j = width; j < newWidth; ++j) {
@@ -1091,7 +1091,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	for(int i=0; i<wpn->Bm.Length; ++i) {
 		{
 			int newWidth = int(float(wpn->Bm.InitWidth) + wpn->Bm.WidthIncrease * i);
-			newWidth = MIN( newWidth, MIN( game.gameMap()->GetWidth(), game.gameMap()->GetHeight() ) );
+			newWidth = (int) MIN( newWidth, MIN( game.gameMap()->GetWidth(), game.gameMap()->GetHeight() ) );
 			if(newWidth != width) {
 				goodWidthParts.resize(newWidth);
 				for(int j = width; j < newWidth; ++j) {
