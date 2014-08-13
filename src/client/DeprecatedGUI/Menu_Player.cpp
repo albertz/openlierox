@@ -319,7 +319,7 @@ void Menu_Player_ViewPlayerInit()
     Menu_Player_FillSkinCombo( (CCombobox *)cViewPlayers.getWidget(vp_PlySkin) );
 
     // Set the name of the first item in the list
-    int sel = cViewPlayers.SendMessage( vp_Players, LVM_GETCURINDEX,(DWORD)0,0);
+    int sel = (int)cViewPlayers.SendMessage( vp_Players, LVM_GETCURINDEX,(DWORD)0,0);
 	SmartPointer<profile_t> p = FindProfile(sel);
     if(p.get()) {
         cViewPlayers.SendMessage( vp_Name,    TXS_SETTEXT, p->sName,0);
@@ -403,7 +403,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 					// Add the profile
                     WormType* type = ( (int)cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0) == PRF_HUMAN->toInt() ) ? PRF_HUMAN : PRF_COMPUTER;
-                    int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
+                    int level = (int)cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
 
 					AddProfile(name, skin, "", "",r, g, b, type->toInt(), level);
 
@@ -421,7 +421,7 @@ void Menu_Player_NewPlayer(int mouse)
             case np_Type:
                 if(ev->iEventMsg == CMB_CHANGED) {
 
-                    int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
+                    int type = (int)cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
 
                     // Hide the AI stuff if it is a human type of player
                     cNewPlayer.getWidget(np_AIDiffLbl)->setEnabled(type == PRF_COMPUTER->toInt());
@@ -489,10 +489,10 @@ void Menu_Player_NewPlayer(int mouse)
 
 
     // Draw the difficulty level
-    int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
+    int type = (int)cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
     if( type == PRF_COMPUTER->toInt() ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
-        int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
+        int level = (int)cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
         tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 250,363,tLX->clNormalLabel,difflevels[level]);
 
     }
@@ -589,7 +589,7 @@ void Menu_Player_ViewPlayers(int mouse)
 						}
 
                         // Update the details
-                        int sel = cViewPlayers.SendMessage(vp_Players,LVM_GETCURINDEX,(DWORD)0,0);
+                        int sel = (int)cViewPlayers.SendMessage(vp_Players,LVM_GETCURINDEX,(DWORD)0,0);
 	                    p = FindProfile(sel);
                         if(p.get()) {
                             cViewPlayers.SendMessage( vp_Name,		TXS_SETTEXT,    p->sName,0);
@@ -624,7 +624,7 @@ void Menu_Player_ViewPlayers(int mouse)
             // Apply button
             case vp_Apply:
                 if( ev->iEventMsg == BTN_CLICKED ) {
-                    int sel = cViewPlayers.SendMessage(vp_Players, LVM_GETCURINDEX, (DWORD)0,0);
+                    int sel = (int)cViewPlayers.SendMessage(vp_Players, LVM_GETCURINDEX, (DWORD)0,0);
 	                SmartPointer<profile_t> p = FindProfile(sel);
 	                if(p.get()) {
 
@@ -649,7 +649,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         p->G = (Uint8)cViewPlayers.SendMessage(vp_Green,SLM_GETVALUE,(DWORD)0,0);
                         p->B = (Uint8)cViewPlayers.SendMessage(vp_Blue,SLM_GETVALUE,(DWORD)0,0);
                         p->iType = ((CCombobox *)cViewPlayers.getWidget(vp_Type))->getSelectedIndex();
-                        p->nDifficulty = cViewPlayers.SendMessage(vp_AIDiff, SLM_GETVALUE,(DWORD)0,0);
+                        p->nDifficulty = (int)cViewPlayers.SendMessage(vp_AIDiff, SLM_GETVALUE,(DWORD)0,0);
 
 						// Reload the graphics
 						std::string buf;
@@ -686,7 +686,7 @@ void Menu_Player_ViewPlayers(int mouse)
             // Player listbox
             case vp_Players:
                 if( ev->iEventMsg == LV_CHANGED ) {
-                    int sel = cViewPlayers.SendMessage(vp_Players,LVM_GETCURINDEX,(DWORD)0,0);
+                    int sel = (int)cViewPlayers.SendMessage(vp_Players,LVM_GETCURINDEX,(DWORD)0,0);
 	                SmartPointer<profile_t> p = FindProfile(sel);
                     if(p.get()) {
                         cViewPlayers.SendMessage( vp_Name,		TXS_SETTEXT,    p->sName,0);
@@ -711,7 +711,7 @@ void Menu_Player_ViewPlayers(int mouse)
             case vp_Type:
                 if( ev->iEventMsg == CMB_CHANGED ) {
 
-                    int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
+                    int type = (int)cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
 
                     // Hide the AI stuff if it is a human type of player
                     cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(type == PRF_COMPUTER->toInt());
@@ -788,10 +788,10 @@ void Menu_Player_ViewPlayers(int mouse)
 	}
 
     // Draw the difficulty level
-    int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
+    int type = (int)cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
     if( type == PRF_COMPUTER->toInt() ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
-        int level = (DWORD)CLAMP(cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0), (DWORD)0, (DWORD)3);
+        int level = (int)(DWORD)CLAMP(cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0), (DWORD)0, (DWORD)3);
         tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 530,313,tLX->clNormalLabel, difflevels[level]);
     }
 

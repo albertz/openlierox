@@ -141,7 +141,7 @@ void Menu_Net_FavouritesShutdown()
 
 			// Save the column widths
 			for (int i=0;i<6;i++)
-				tLXOptions->iFavouritesList[i] = cFavourites.SendMessage(mf_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+				tLXOptions->iFavouritesList[i] = (int)cFavourites.SendMessage(mf_ServerList,LVM_GETCOLUMNWIDTH,i,0);
 
 			// Save the sorting column
 			tLXOptions->iFavouritesSortColumn = ((CListview *)cFavourites.getWidget(mf_ServerList))->GetSortColumn();
@@ -229,7 +229,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 				if(ev->iEventMsg == BTN_CLICKED) {
 
 					addr = "";
-					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
 
@@ -254,7 +254,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 					// Just join for the moment
 					addr = "";
-					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
 						Menu_Net_FavouritesJoinServer(addr,sub->sText);
@@ -265,7 +265,7 @@ void Menu_Net_FavouritesFrame(int mouse)
                 // Right click
                 if( ev->iEventMsg == LV_RIGHTCLK ) {
                     addr = "";
-					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
                         // Display a menu
                         szFavouritesCurServer = addr;
@@ -286,7 +286,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 				if( ev->iEventMsg == LV_ENTER )  {
 					// Join
 					addr = "";
-					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
      					Menu_Net_FavouritesJoinServer(addr,sub->sText);
@@ -298,7 +298,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 				if( ev->iEventMsg == LV_DELETE )  {
 					//DrawImage(tMenu->bmpBuffer,VideoPostProcessor::videoSurface(),0,0);
 					addr = "";
-					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					server_t::Ptr sv = ServerList::get()->findServerStr(addr);
 					std::string buf;
 					if (sv)  {

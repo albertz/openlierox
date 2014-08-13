@@ -1597,7 +1597,7 @@ bool Menu_WeaponsRestrictions_Frame()
 	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Draw the list
-    int count = cWeaponsRest.SendMessage(wr_Scroll, SCM_GETVALUE,(DWORD)0,0);
+    int count = (int)cWeaponsRest.SendMessage(wr_Scroll, SCM_GETVALUE,(DWORD)0,0);
 
 	int w, j;
 	w = j = 0;
