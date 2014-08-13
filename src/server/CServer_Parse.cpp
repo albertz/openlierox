@@ -1560,7 +1560,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	
 	// remove bots if not wanted anymore
 	CheckForFillWithBots();
-	numworms = game.wormsOfClient(newcl)->size(); // it was earlier when also local client could reconnect - should have no effect anymore
+	numworms = (int)game.wormsOfClient(newcl)->size(); // it was earlier when also local client could reconnect - should have no effect anymore
 	net_socket->setRemoteAddress(adrFrom); // it could have been changed
 
 	{

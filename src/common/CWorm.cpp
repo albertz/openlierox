@@ -876,7 +876,7 @@ bool CWorm::shouldDoOwnWeaponSelection() {
 void CWorm::CloneWeaponsFrom(CWorm* w) {
 	weaponSlots.write().resize( w->weaponSlots.get().size() );
 	for(size_t i = 0; i < w->weaponSlots.get().size(); ++i) {
-		weaponSlots.write()[i].WeaponId = w->getWeapon(i)->WeaponId;
+		weaponSlots.write()[i].WeaponId = w->getWeapon((int)i)->WeaponId;
 		
 		weaponSlots.write()[i].Charge = 1.f;
 		weaponSlots.write()[i].Reloading = false;
