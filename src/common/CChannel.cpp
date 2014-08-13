@@ -84,7 +84,7 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 	// The messages are joined in Transmit() in one bigger packet, until it will hit bandwidth limit
 }
 
-void CChannel::UpdateTransmitStatistics( int sentDataSize )
+void CChannel::UpdateTransmitStatistics( size_t sentDataSize )
 {
 	// Update statistics
 	iOutgoingBytes += sentDataSize;
@@ -95,7 +95,7 @@ void CChannel::UpdateTransmitStatistics( int sentDataSize )
 	cOutgoingRate.addData( sentDataSize );
 }
 
-void CChannel::UpdateReceiveStatistics( int receivedDataSize )
+void CChannel::UpdateReceiveStatistics( size_t receivedDataSize )
 {
 	// Got a packet (good or bad), update the received time
 	fLastPckRecvd = tLX->currentTime;
@@ -208,7 +208,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	Socket->setRemoteAddress(RemoteAddr);
 	outpack.Send(Socket.get());
 
-	UpdateTransmitStatistics( (int)outpack.GetLength() );
+	UpdateTransmitStatistics( outpack.GetLength() );
 }
 
 
