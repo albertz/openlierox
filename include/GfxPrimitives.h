@@ -51,8 +51,9 @@ enum GradientDirection  {
 };
 
 
-void DumpSurface(SDL_Surface* s);
-void DumpPixelFormat(const SDL_PixelFormat* format);
+void DumpSurface(const SDL_Surface* s);
+void DumpSurfaceInfo(const SDL_Surface* s, const char* name = NULL, bool dumpAFewPixels = false);
+void DumpPixelFormat(const SDL_PixelFormat* format, const std::string& prefix = "");
 bool PixelFormatEqual(const SDL_PixelFormat* fm1, const SDL_PixelFormat* fm2);
 bool IsCorrectSurfaceFormat(const SDL_PixelFormat* format);
 

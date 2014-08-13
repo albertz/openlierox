@@ -2702,27 +2702,94 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 
 
 
-void DumpPixelFormat(const SDL_PixelFormat* format) {
+void DumpPixelFormat(const SDL_PixelFormat* format, const std::string& prefix) {
 	std::ostringstream str;
-	str << "PixelFormat:" << std::endl
+	str
+	<< prefix
+	<< "PixelFormat:" << std::endl
+	<< prefix
 	<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
 	<< "  BytesPerPixel: " << (int)format->BytesPerPixel << std::endl
+	<< prefix
 	<< "  R/G/B/A mask: " << std::hex
 	<< (uint)format->Rmask << "/"
 	<< (uint)format->Gmask << "/"
 	<< (uint)format->Bmask << "/"
 	<< (uint)format->Amask << std::endl
+	<< prefix
 	<< "  R/G/B/A loss: "
 	<< (uint)format->Rloss << "/"
 	<< (uint)format->Gloss << "/"
 	<< (uint)format->Bloss << "/"
-	<< (uint)format->Aloss << std::endl
-	<< "  Colorkey: " << std::hex << Surface_GetColorKey(format) << ","
-	<< "  Alpha: " << std::dec << (int)format->alpha;
+	<< (uint)format->Aloss << std::endl;
 	notes << str.str() << endl;
 }
 
-void DumpSurface(SDL_Surface* s) {
+void DumpSurfaceInfo(const SDL_Surface* s, const char* name, bool dumpAFewPixels) {
+	notes << "Surface";
+	if(name) notes << " '" << name << "'";
+	notes << " (" << s << ")" << endl;
+	if(!s) return;
+
+	notes << "  Size (WxH): " << s->w << " x " << s->h << endl;
+	notes << "  Pitch: " << s->pitch << endl;
+	
+	DumpPixelFormat(s->format, "  ");
+
+	std::ostringstream str;
+	str << "  ColorKey: ";
+	if(Surface_HasColorKey(s))
+		str << " yes, " << std::hex << Surface_GetColorKey(s);
+	else
+		str << " no";
+	str << endl;
+	
+	{
+		str << "  AlphaBlendMode: ";
+		SDL_BlendMode m;
+		int r = SDL_GetSurfaceBlendMode((SDL_Surface*)s, &m);
+		if(r != 0)
+			str << "ERROR: " << SDL_GetError();
+		else
+			switch(m) {
+				case SDL_BLENDMODE_NONE: str << "none"; break;
+				case SDL_BLENDMODE_ADD: str << "add"; break;
+				case SDL_BLENDMODE_BLEND: str << "blend"; break;
+				case SDL_BLENDMODE_MOD: str << "mod"; break;
+				default: str << "invalid"; break;
+			}
+		str << endl;
+	}
+	
+	{
+		str << "  AlphaMod: ";
+		Uint8 a = SDL_ALPHA_OPAQUE;
+		int r = SDL_GetSurfaceAlphaMod((SDL_Surface*)s, &a)
+		if(r != 0)
+			str << "ERROR: " << SDL_GetError();
+		else
+			str << std::dec << a;
+		str << endl;
+	}
+	
+	if(dumpAFewPixels) {
+		std::string pfmt = " %." + itoa(s->format->BytesPerPixel*2) + "X";
+		static constexpr int MaxY = 2, MaxX = 10;
+		for(int y = 0; y < MIN(MaxY, s->h); ++y) {
+			for(int x = 0; x < MIN(MaxX, s->w); ++x) {
+				char buffer[10];
+				snprintf(buffer, sizeof(buffer), pfmt.c_str(), GetPixel(s, x, y));
+				buffer[sizeof(buffer)-1] = 0;
+				notes << buffer;
+			}
+			if(MaxX < s->w) notes << " ...";
+			notes << endl;
+		}
+		if(MaxY < s->h) notes << "..." << endl;
+	}
+}
+
+void DumpSurface(const SDL_Surface* s) {
 	DumpPixelFormat(s->format);
 	std::string pfmt = " %." + itoa(s->format->BytesPerPixel*2) + "X";
 	for(int y = 0; y < MIN(10, s->h); ++y) {

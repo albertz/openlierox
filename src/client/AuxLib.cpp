@@ -466,8 +466,8 @@ setvideomode:
 		return false;
 	
 	mainPixelFormat = m_videoSurface->format;
-	DumpPixelFormat(mainPixelFormat);
-		
+	DumpSurfaceInfo(m_videoSurface, "main video surface");
+	
 	// Clear screen to blank
 	SDL_SetRenderDrawColor(m_renderer.get(), 0, 0, 0, 255);
 	SDL_RenderClear(m_renderer.get());
