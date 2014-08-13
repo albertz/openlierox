@@ -735,7 +735,6 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 
 /////////////////////
 // Draws the image
-// __Z12DrawImageAdvP11SDL_SurfaceS0_R8SDL_RectS2_
 void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
 {
 	if(!bmpSrc) {
