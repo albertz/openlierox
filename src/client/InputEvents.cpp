@@ -38,7 +38,7 @@ static mouse_t		Mouse;
 static SDL_Event	sdl_event;
 static ModifiersState evtModifiersState;
 
-static bool         nFocus = true;
+static bool         bHaveFocus = true;
 bool		bActivated = false;
 bool		bDeactivated = false;
 
@@ -237,10 +237,10 @@ static void EvHndl_WindowEvent(SDL_Event* ev) {
 	switch(ev->window.event) {
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-			bool hadFocusBefore = nFocus;
-			nFocus = ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED;
-			bActivated = nFocus != 0;
-			bDeactivated = nFocus == 0;
+			bool hadFocusBefore = bHaveFocus;
+			bHaveFocus = ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED;
+			bActivated = bHaveFocus;
+			bDeactivated = !bHaveFocus;
 			
 			// HINT: Reset the mouse state - this should avoid the mouse staying pressed
 			Mouse.Button = 0;
@@ -248,10 +248,10 @@ static void EvHndl_WindowEvent(SDL_Event* ev) {
 			Mouse.FirstDown = 0;
 			Mouse.Up = 0;
 			
-			if(!hadFocusBefore && nFocus) {
+			if(!hadFocusBefore && bHaveFocus) {
 				//notes << "OpenLieroX got the focus" << endl;
 				ClearUserNotify();
-			} else if(hadFocusBefore && !nFocus) {
+			} else if(hadFocusBefore && !bHaveFocus) {
 				//notes << "OpenLieroX lost the focus" << endl;
 			}
 			
@@ -547,7 +547,7 @@ void ProcessEvents()
 
 	if (!bDedicated) {
 		// If we don't have focus, don't update as often
-		if(!nFocus)
+		if(!bHaveFocus)
 			SDL_Delay(14);
 
 		HandleMouseState();
@@ -576,5 +576,5 @@ void WakeupIfNeeded() {
 
 bool ApplicationHasFocus()
 {
-	return nFocus;
+	return bHaveFocus;
 }
