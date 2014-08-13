@@ -322,7 +322,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	}
 
 	// Select all
-	if ((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_a) {
+	if ((modstate.bCtrl || modstate.bGui) && keysym == SDLK_a) {
 		iCurpos = Utf8StringSize(sText);
 		iSelStart = 0;
 		iSelLength = -((int)Utf8StringSize(sText));
@@ -340,21 +340,21 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	}
 
     // Ctrl-v or Super-v or Shift-Insert (paste)
-    if(((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_v ) ||
+    if(((modstate.bCtrl || modstate.bGui) && keysym == SDLK_v ) ||
 		( modstate.bShift && keysym == SDLK_INSERT )) {
         PasteText();
         return TXT_CHANGE;
     }
 
     // Ctrl-c or Super-c or Ctrl-insert (copy)
-    if(((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_c ) ||
-		( (modstate.bCtrl || modstate.bMeta) && keysym == SDLK_INSERT )) {
+    if(((modstate.bCtrl || modstate.bGui) && keysym == SDLK_c ) ||
+		( (modstate.bCtrl || modstate.bGui) && keysym == SDLK_INSERT )) {
         CopyText();
         return TXT_NONE;
     }
 
     // Ctrl-x or Super-x or Shift-Delete (cut)
-    if(((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_x ) ||
+    if(((modstate.bCtrl || modstate.bGui) && keysym == SDLK_x ) ||
 		( modstate.bShift && keysym == SDLK_DELETE )) {
         CopyText();
 		Delete();
