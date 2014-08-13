@@ -1637,9 +1637,9 @@ std::string CWorm::getCurWeaponName() const {
 // Note that this function becomes obsolete once we merge wpnslot_t and Weapon.
 int CWorm::getWeaponSlotsCount() const {
 	if(!game.gameScript() || !game.gameScript()->gusEngineUsed())
-		return tWeapons.size();
+		return (int)tWeapons.size();
 	else
-		return m_weapons.size();
+		return (int)m_weapons.size();
 }
 
 
