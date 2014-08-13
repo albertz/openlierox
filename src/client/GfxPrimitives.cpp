@@ -2746,7 +2746,7 @@ void DumpSurfaceInfo(const SDL_Surface* s, const char* name, bool dumpAFewPixels
 		str << " yes, " << std::hex << Surface_GetColorKey(s);
 	else
 		str << " no";
-	str << endl;
+	str << std::endl;
 	
 	{
 		str << "  AlphaBlendMode: ";
@@ -2762,18 +2762,18 @@ void DumpSurfaceInfo(const SDL_Surface* s, const char* name, bool dumpAFewPixels
 				case SDL_BLENDMODE_MOD: str << "mod"; break;
 				default: str << "invalid"; break;
 			}
-		str << endl;
+		str << std::endl;
 	}
 	
 	{
 		str << "  AlphaMod: ";
 		Uint8 a = SDL_ALPHA_OPAQUE;
-		int r = SDL_GetSurfaceAlphaMod((SDL_Surface*)s, &a)
+		int r = SDL_GetSurfaceAlphaMod((SDL_Surface*)s, &a);
 		if(r != 0)
 			str << "ERROR: " << SDL_GetError();
 		else
 			str << std::dec << a;
-		str << endl;
+		str << std::endl;
 	}
 	
 	if(dumpAFewPixels) {
