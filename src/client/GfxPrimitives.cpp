@@ -651,7 +651,7 @@ void _OperateOnSurfaces(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, 
 				if(colorkeycheck && c.r == key.r && c.g == key.g && c.b == key.b)  // Colorkey check
 					continue;
 				if(src_persurfacealpha)
-					c.a = ((int)c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
+					c.a = ((int)c.a * Surface_GetAlpha(bmpSrc)) / 255;  // Add the per-surface alpha to the source pixel alpha
 				_PutPixel<dst_hasalpha, alphablend, dbpp>(dstformat, dst, c);
 			}
 		}
@@ -670,8 +670,8 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	const int dbpp = bmpDest->format->BytesPerPixel;
 	const bool src_hasalpha = bmpSrc->format->Amask != 0;
 	const bool dst_hasalpha = bmpDest->format->Amask != 0;
-	const bool src_persurfacealpha = alphablend && (bmpSrc->format->alpha != 255);
-	const bool colorkeycheck = Surface_HasColorKey(bmpSrc->flags);
+	const bool src_persurfacealpha = alphablend && Surface_GetAlpha(bmpSrc) != SDL_ALPHA_OPAQUE;
+	const bool colorkeycheck = Surface_HasColorKey(bmpSrc);
 	const bool sameformat = PixelFormatEqual(bmpSrc->format, bmpDest->format);
 	
 #define ____DO_OP(_sbpp, _dbpp, _salpha, _dalpha, _spersurfalpha, _colkeycheck, _sameformat) \
@@ -746,6 +746,10 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 		errors << "DrawImageAdv: destination-image not set" << endl;
 		return;
 	}
+
+	SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
+
+	return; // XXX: for now. I hope that SDL2 is faster than our code... :P Also, I didn't checked our code with SDL2 yet
 	
 	if(Surface_HasBlendMode(bmpSrc))
 		DrawRGBA<true>(bmpDest, bmpSrc, rDest, rSrc);

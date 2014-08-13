@@ -334,6 +334,12 @@ inline bool Surface_HasBlendMode(const SDL_Surface* surf) {
 	return Surface_GetBlendMode(surf) != SDL_BLENDMODE_NONE;
 }
 
+inline uint8_t Surface_GetAlpha(const SDL_Surface* surf) {
+	uint8_t alpha = SDL_ALPHA_OPAQUE;
+	(void)SDL_GetSurfaceAlphaMod((SDL_Surface*)surf, &alpha); // ignore return
+	return alpha;
+}
+
 
 
 /////////////////////
