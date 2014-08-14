@@ -393,12 +393,12 @@ static void EvHndl_UserEvent(SDL_Event* ev) {
 
 void InitEventSystem() {	
 	for(int k = 0;k<SDL_NUM_SCANCODES;k++)
-		GetKeyboard()->KeyUp[k] = false;
+		Keyboard.KeyUp[k] = false;
 
-	GetMouse()->Button = 0;
-	GetMouse()->Down = 0;
-	GetMouse()->FirstDown = 0;
-	GetMouse()->Up = 0;
+	Mouse.Button = 0;
+	Mouse.Down = 0;
+	Mouse.FirstDown = 0;
+	Mouse.Up = 0;
 
 	sdlEvents[SDL_WINDOWEVENT].handler() = getEventHandler(&EvHndl_WindowEvent);
 	sdlEvents[SDL_KEYDOWN].handler() = getEventHandler(&EvHndl_KeyDownUp);
