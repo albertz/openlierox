@@ -1239,12 +1239,6 @@ void CClient::processChatter()
 				bChat_Typing = false;
 				sChat_Text = "";
 				clearHumanWormInputs();
-
-				// TODO: why are these needed? is this still up-to-date?
-				kb->keys[SDLK_ESCAPE] = false;
-				kb->KeyDown[SDLK_ESCAPE] = false;
-				kb->KeyUp[SDLK_ESCAPE] = false;
-
 				break;
 			}
 
