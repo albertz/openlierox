@@ -109,6 +109,12 @@
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2348933911806DA000FA821B /* ServerList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2348933811806DA000FA821B /* ServerList.cpp */; };
 		234F90B919990F420060B8DF /* MainLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90B719990F410060B8DF /* MainLoop.cpp */; };
+		234F90BD199D55190060B8DF /* LuaCallbacks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90BB199D55190060B8DF /* LuaCallbacks.cpp */; };
+		234F90C6199D55330060B8DF /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90C1199D55330060B8DF /* List.cpp */; };
+		234F90C7199D55330060B8DF /* StringConv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90C4199D55330060B8DF /* StringConv.cpp */; };
+		234F90CC199D55440060B8DF /* ClassInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90C8199D55440060B8DF /* ClassInfo.cpp */; };
+		234F90CD199D55440060B8DF /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90CA199D55440060B8DF /* GameState.cpp */; };
+		234F90D0199D55780060B8DF /* StdinCLISupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90CE199D55780060B8DF /* StdinCLISupport.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
@@ -864,6 +870,23 @@
 		2348933811806DA000FA821B /* ServerList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerList.cpp; sourceTree = "<group>"; };
 		234F90B719990F410060B8DF /* MainLoop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainLoop.cpp; sourceTree = "<group>"; };
 		234F90B819990F420060B8DF /* MainLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainLoop.h; sourceTree = "<group>"; };
+		234F90BA199D55190060B8DF /* AngleReplicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AngleReplicator.h; sourceTree = "<group>"; };
+		234F90BB199D55190060B8DF /* LuaCallbacks.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LuaCallbacks.cpp; sourceTree = "<group>"; };
+		234F90BC199D55190060B8DF /* LuaCallbacks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaCallbacks.h; sourceTree = "<group>"; };
+		234F90BE199D55330060B8DF /* Random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Random.h; sourceTree = "<group>"; };
+		234F90BF199D55330060B8DF /* List.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = List.h; sourceTree = "<group>"; };
+		234F90C0199D55330060B8DF /* IPrintOutFct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPrintOutFct.h; sourceTree = "<group>"; };
+		234F90C1199D55330060B8DF /* List.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = List.cpp; sourceTree = "<group>"; };
+		234F90C2199D55330060B8DF /* PODForClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PODForClass.h; sourceTree = "<group>"; };
+		234F90C3199D55330060B8DF /* StaticVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticVar.h; sourceTree = "<group>"; };
+		234F90C4199D55330060B8DF /* StringConv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringConv.cpp; sourceTree = "<group>"; };
+		234F90C5199D55330060B8DF /* StringConv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringConv.h; sourceTree = "<group>"; };
+		234F90C8199D55440060B8DF /* ClassInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassInfo.cpp; sourceTree = "<group>"; };
+		234F90C9199D55440060B8DF /* ClassInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassInfo.h; sourceTree = "<group>"; };
+		234F90CA199D55440060B8DF /* GameState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
+		234F90CB199D55440060B8DF /* GameState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameState.h; sourceTree = "<group>"; };
+		234F90CE199D55780060B8DF /* StdinCLISupport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StdinCLISupport.cpp; sourceTree = "<group>"; };
+		234F90CF199D55780060B8DF /* StdinCLISupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StdinCLISupport.h; sourceTree = "<group>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
 		2350DBF00F84DC5900DFAD78 /* WeaponDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponDesc.h; sourceTree = "<group>"; };
 		2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_SpeedTest.cpp; sourceTree = "<group>"; };
@@ -1823,6 +1846,10 @@
 		231BE16010CE68AD0023780D /* game */ = {
 			isa = PBXGroup;
 			children = (
+				234F90C8199D55440060B8DF /* ClassInfo.cpp */,
+				234F90C9199D55440060B8DF /* ClassInfo.h */,
+				234F90CA199D55440060B8DF /* GameState.cpp */,
+				234F90CB199D55440060B8DF /* GameState.h */,
 				236D813314CC390C0030BD88 /* CGameObject.h */,
 				23EA1B4014CC36F30098A4D4 /* CMap.h */,
 				23EA1B4114CC36F30098A4D4 /* CWorm.h */,
@@ -2142,6 +2169,9 @@
 		23C34D0A10CC3A4400DABBD6 /* gusanos */ = {
 			isa = PBXGroup;
 			children = (
+				234F90BA199D55190060B8DF /* AngleReplicator.h */,
+				234F90BB199D55190060B8DF /* LuaCallbacks.cpp */,
+				234F90BC199D55190060B8DF /* LuaCallbacks.h */,
 				2399A43714AB6A2F002DD09E /* gconsole.h */,
 				2370F6A1110617C70097F7BA /* luaapi */,
 				2326B58910CF9E2A00D3F035 /* gusgame.cpp */,
@@ -2333,6 +2363,14 @@
 		23C34F1E10CC546200DABBD6 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				234F90BE199D55330060B8DF /* Random.h */,
+				234F90BF199D55330060B8DF /* List.h */,
+				234F90C0199D55330060B8DF /* IPrintOutFct.h */,
+				234F90C1199D55330060B8DF /* List.cpp */,
+				234F90C2199D55330060B8DF /* PODForClass.h */,
+				234F90C3199D55330060B8DF /* StaticVar.h */,
+				234F90C4199D55330060B8DF /* StringConv.cpp */,
+				234F90C5199D55330060B8DF /* StringConv.h */,
 				23240F0414C570C100EC859C /* WeakRef.h */,
 				23C34F1F10CC546200DABBD6 /* angle.cpp */,
 				23C34F2010CC546200DABBD6 /* angle.h */,
@@ -2738,6 +2776,8 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				234F90CE199D55780060B8DF /* StdinCLISupport.cpp */,
+				234F90CF199D55780060B8DF /* StdinCLISupport.h */,
 				2390D9E4116B564F00E0CD3C /* gfx */,
 				238F337B0F756F730016D617 /* CGameSkin.cpp */,
 				23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */,
@@ -3413,6 +3453,7 @@
 				EAD99F830C063ECA003BE563 /* CNinjaRope.cpp in Sources */,
 				EAD99F840C063ECA003BE563 /* Command.cpp in Sources */,
 				EAD99F850C063ECA003BE563 /* ConfigHandler.cpp in Sources */,
+				234F90C7199D55330060B8DF /* StringConv.cpp in Sources */,
 				EAD99F860C063ECA003BE563 /* Console.cpp in Sources */,
 				EAD99F870C063ECA003BE563 /* CProjectile.cpp in Sources */,
 				EAD99F890C063ECA003BE563 /* CServer.cpp in Sources */,
@@ -3426,6 +3467,7 @@
 				EAD99F940C063ECA003BE563 /* CWeather.cpp in Sources */,
 				EAD99F970C063ECA003BE563 /* CWorm.cpp in Sources */,
 				EAD99F990C063ECA003BE563 /* CWorm_SendRecv.cpp in Sources */,
+				234F90D0199D55780060B8DF /* StdinCLISupport.cpp in Sources */,
 				EAD99F9B0C063ECA003BE563 /* CWpnRest.cpp in Sources */,
 				EAD99F9C0C063ECA003BE563 /* Entity.cpp in Sources */,
 				EAD99F9D0C063ECA003BE563 /* Error.cpp in Sources */,
@@ -3543,6 +3585,7 @@
 				23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */,
 				23EABF6E0F40CA8200CA55CF /* TaskManager.cpp in Sources */,
 				23EAC0970F4204DF00CA55CF /* Process.cpp in Sources */,
+				234F90BD199D55190060B8DF /* LuaCallbacks.cpp in Sources */,
 				2309937E0F4DA370008E6C7F /* CTag.cpp in Sources */,
 				2309968A0F5C4A46008E6C7F /* CGameMode.cpp in Sources */,
 				230997260F5C5F99008E6C7F /* CDemolitionsMatch.cpp in Sources */,
@@ -3614,6 +3657,7 @@
 				23C34EA210CC4AC400DABBD6 /* material.cpp in Sources */,
 				238A90AE18706B4700E3895A /* Debug_GetCallstack.cpp in Sources */,
 				23C34EA310CC4AC400DABBD6 /* noise_line.cpp in Sources */,
+				234F90CD199D55440060B8DF /* GameState.cpp in Sources */,
 				23C34EA410CC4AC400DABBD6 /* parser.cpp in Sources */,
 				23C34EA510CC4AC400DABBD6 /* part_type.cpp in Sources */,
 				238A90AB18706B4700E3895A /* Debug_AmIBeingDebugged.cpp in Sources */,
@@ -3712,6 +3756,7 @@
 				2370F6A01106179A0097F7BA /* print.c in Sources */,
 				2370F6A7110617C70097F7BA /* context.cpp in Sources */,
 				2370F7601106432C0097F7BA /* Sounds.cpp in Sources */,
+				234F90C6199D55330060B8DF /* List.cpp in Sources */,
 				2370F763110644320097F7BA /* Sounds.cpp in Sources */,
 				23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */,
 				23CC964C1131EAC400185479 /* DumpSyms_mac.mm in Sources */,
@@ -3785,6 +3830,7 @@
 				2322508614A6D7B500757A40 /* test_assembler.cc in Sources */,
 				2322508A14A6D8A800757A40 /* exploitability_win.cc in Sources */,
 				2322508B14A6D8A800757A40 /* exploitability.cc in Sources */,
+				234F90CC199D55440060B8DF /* ClassInfo.cpp in Sources */,
 				2322508E14A6D92500757A40 /* disassembler_x86.cc in Sources */,
 				232250BB14A6D93A00757A40 /* ia32_implicit.c in Sources */,
 				232250BC14A6D93A00757A40 /* ia32_insn.c in Sources */,
