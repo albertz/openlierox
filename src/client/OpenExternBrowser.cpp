@@ -16,6 +16,9 @@
 #include <Carbon/Carbon.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreServices/CoreServices.h>
+// This confused Boost. Comes from <AssertMacros.h>
+#undef check
+#undef __Check
 #endif
 
 #ifdef WIN32
