@@ -473,7 +473,7 @@ static void HandleKeyboardState() {
 	// KeyUp is like an event and will only be true once
 
 	// Keyboard
-	Keyboard.keys = SDL_GetKeyState(NULL);
+	Keyboard.keys = SDL_GetKeyboardState(NULL);
 
 	// Update the key up's
 	for(int k=0;k<SDL_NUM_SCANCODES;k++) {
