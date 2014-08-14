@@ -596,7 +596,6 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 	ProcessEvents();
 
 	
-	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(true) {
 		Menu_RedrawMouse(true);
 
