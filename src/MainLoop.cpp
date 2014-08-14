@@ -268,7 +268,7 @@ struct MainLoopTask : LoopTask {
 };
 
 
-// Runs on the video thread.
+// Runs on the main thread.
 // Returns false on quit.
 static bool handleSDLEvent(SDL_Event& ev) {
 	if(ev.type == SDL_USEREVENT) {
