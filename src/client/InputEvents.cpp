@@ -139,7 +139,7 @@ static void ResetCInputs() {
 	}
 }
 
-void HandleCInputs_KeyEvent(KeyboardEvent& ev) {
+void HandleCInputs_KeyEvent(const KeyboardEvent& ev) {
 	for(std::set<CInput*>::iterator it = cInputs.begin(); it != cInputs.end(); it++)
 		if((*it)->isKeyboard() && (*it)->getData() == ev.sym) {
 			if(ev.down) {
@@ -267,12 +267,28 @@ static void EvHndl_WindowEvent(SDL_Event* ev) {
 	}
 }
 
+static void pushKeyboardEv(const KeyboardEvent& kbev) {
+	// If we're going to over the queue length, shift the list down and remove the oldest key
+	if(Keyboard.queueLength+1 >= MAX_KEYQUEUE) {
+		for(int i=0; i<Keyboard.queueLength-1; i++)
+			Keyboard.keyQueue[i] = Keyboard.keyQueue[i+1];
+		Keyboard.queueLength--;
+		warnings << "Keyboard queue full" << endl;
+	}
+	
+	Keyboard.keyQueue[Keyboard.queueLength] = kbev;
+	Keyboard.queueLength++;
+
+	HandleCInputs_KeyEvent(kbev);
+}
+
 static void EvHndl_KeyDownUp(SDL_Event* ev) {
 	// Check the characters
 	if(ev->key.state == SDL_PRESSED || ev->key.state == SDL_RELEASED) {
-		UnicodeChar input = ev->key.keysym.unicode;
-		if (input == 0)
-			switch (ev->key.keysym.sym) {
+		UnicodeChar input = 0;
+		/*
+		// TODO: not sure about that...
+		switch (ev->key.keysym.sym) {
 			case SDLK_HOME:
 				input = 2;
 				break;
@@ -306,16 +322,9 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 				// nothing
 				break;
 		}  // switch
-
-		// If we're going to over the queue length, shift the list down and remove the oldest key
-		if(Keyboard.queueLength+1 >= MAX_KEYQUEUE) {
-			for(int i=0; i<Keyboard.queueLength-1; i++)
-				Keyboard.keyQueue[i] = Keyboard.keyQueue[i+1];
-			Keyboard.queueLength--;
-			warnings << "Keyboard queue full" << endl;
-		}
-
-		KeyboardEvent& kbev = Keyboard.keyQueue[Keyboard.queueLength];
+		 */
+		 
+		KeyboardEvent kbev;
 
 		// Key down
 		if(ev->type == SDL_KEYDOWN)
@@ -331,7 +340,6 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		// save info
 		kbev.ch = input;
 		kbev.sym = ev->key.keysym.sym;
-		Keyboard.queueLength++;
 
 		// handle modifier state
 		switch (kbev.sym)  {
@@ -352,19 +360,32 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		// copy it
 		kbev.state = evtModifiersState;
 
-		HandleCInputs_KeyEvent(kbev);
-
-		/*
-		if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
-			// I don't want to track keyrepeats here; but works only for special keys
-			notes << tLX->currentTime << ": pressed key " << kbev.sym << endl;
-		else if(!kbev.down)
-			notes << tLX->currentTime << ": released key " << kbev.sym << endl;
-		*/
+		pushKeyboardEv(kbev);
 		
 	} else
 		warnings << "Strange Event.key.state = " << ev->key.state << endl;
 
+}
+
+static void EvHndl_TextInput(SDL_Event* _ev) {
+	SDL_TextInputEvent& ev = _ev->text;
+	
+	auto p = ev.text;
+	auto end = p + sizeof(ev.text);
+	while(p != end) {
+		UnicodeChar ch = GetNextUnicodeFromUtf8(p, end);
+		if(ch == 0) continue; // I don't want zeros. No special reason.
+
+		// This is somewhat hacky. SDL1 only supported key events and all
+		// text input was via those. We keep the same interface and emulate
+		// our text input as key events, key-down + key-up, char by char.
+		KeyboardEvent kbev;
+		kbev.down = true;
+		kbev.ch = ch;
+		pushKeyboardEv(kbev);
+		kbev.down = false;
+		pushKeyboardEv(kbev);
+	}
 }
 
 static void EvHndl_MouseMotion(SDL_Event*) {}
@@ -382,8 +403,6 @@ static void EvHndl_Quit(SDL_Event*) {
 	game.state = Game::S_Quit;
 }
 
-static void EvHndl_VideoExpose(SDL_Event*) {}
-
 static void EvHndl_UserEvent(SDL_Event* ev) {
 	if(ev->user.code == UE_CustomEventHandler) {
 		((Action*)ev->user.data1)->handle();
@@ -400,6 +419,7 @@ void InitEventSystem() {
 	sdlEvents[SDL_WINDOWEVENT].handler() = getEventHandler(&EvHndl_WindowEvent);
 	sdlEvents[SDL_KEYDOWN].handler() = getEventHandler(&EvHndl_KeyDownUp);
 	sdlEvents[SDL_KEYUP].handler() = getEventHandler(&EvHndl_KeyDownUp);
+	sdlEvents[SDL_TEXTINPUT].handler() = getEventHandler(&EvHndl_TextInput);
 	sdlEvents[SDL_MOUSEMOTION].handler() = getEventHandler(&EvHndl_MouseMotion);
 	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() = getEventHandler(&EvHndl_MouseButtonDown);
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() = getEventHandler(&EvHndl_MouseButtonUp);

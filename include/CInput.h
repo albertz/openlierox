@@ -48,7 +48,7 @@ class CInput {
 	friend void HandleNextEvent();
 	friend void HandleCInputs_UpdateDownOnceForNonKeyboard();
 	friend void HandleCInputs_UpdateUpForNonKeyboard();
-	friend void HandleCInputs_KeyEvent(KeyboardEvent& ev);
+	friend void HandleCInputs_KeyEvent(const KeyboardEvent& ev);
 
 public:
 	CInput();
