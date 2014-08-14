@@ -428,7 +428,9 @@ void ShutdownEventSystem()
 // TODO: though the whole architecture has to be changed later
 // but then also GetEvent() has to be changed or removed
 void HandleNextEvent() {
-	sdlEvents[sdl_event.type].occurred(&sdl_event);
+	auto it = sdlEvents.find((SDL_EventType)sdl_event.type);
+	if(it != sdlEvents.end())
+		it->second.occurred(&sdl_event);
 }
 
 static void HandleMouseState() {
