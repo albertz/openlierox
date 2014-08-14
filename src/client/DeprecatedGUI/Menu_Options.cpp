@@ -908,7 +908,6 @@ void Menu_OptionsFrame()
 // ply=-1 : general ; ply>=0 : normal player
 void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 {
-	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
 
 	// Draw the back buffer
