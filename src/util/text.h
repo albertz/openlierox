@@ -8,8 +8,6 @@
 #include <iostream>
 #include "CodeAttributes.h"
 
-using std::cerr;
-using std::endl;
 
 template<typename T1, typename T2> 
 T1 cast(const T2 &t2)
@@ -261,6 +259,6 @@ std::string shellComplete(
 	return s;
 }
 
-int levenshteinDistance(std::string const& a, std::string const& b);
+size_t levenshteinDistance(std::string const& a, std::string const& b);
 
 #endif  // OMFGUTIL_TEXT_COMMON_H
