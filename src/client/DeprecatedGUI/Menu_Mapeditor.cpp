@@ -395,7 +395,6 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 
 
 	// Keyboard arrows
-	keyboard_t *kb = GetKeyboard();
 	int Scroll = 250 * (int)tLX->fDeltaTime.seconds();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	if(WasKeyboardEventHappening(SDLK_UP))
