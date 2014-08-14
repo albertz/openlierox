@@ -32,11 +32,23 @@ private:
 
 public:
 	Ref(_Obj* obj = NULL) : m_obj(obj) {}
-	Ref(const Ref& ref) { m_obj = ref->copy(); }
+	Ref(const Ref& ref) : m_obj(NULL) { *this = ref; }
 	~Ref() { clear(); }
 
-	Ref& operator=(_Obj* obj) { if(obj != m_obj) { clear(); m_obj = obj; } return *this; }
-	Ref& operator=(const Ref& ref) { if(ref.m_obj != m_obj) { clear(); m_obj = ref->copy(); } return *this; }
+	Ref& operator=(_Obj* obj) {
+		if(obj != m_obj) {
+			clear();
+			m_obj = obj;
+		}
+		return *this;
+	}
+	Ref& operator=(const Ref& ref) {
+		if(ref.m_obj != m_obj) {
+			clear();
+			m_obj = bool(ref) ? ref->copy() : NULL;
+		}
+		return *this;
+	}
 
 	operator bool() const { return isSet(); }
 	_Obj* operator->() { return m_obj; }
