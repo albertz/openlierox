@@ -501,6 +501,9 @@ void ProcessEvents()
 		bWaitingForEvent = true;
 		if(isMainThread())
 			handleSDLEvents(true);
+		// Note: We can only wait on the `mainQueue` if this is not the main thread.
+		// Otherwise, SDL events could come but no-one would forward them to `mainQueue`.
+		// If we are the main thread, we will at least poll the `mainQueue` below.
 		else if(mainQueue->wait(sdl_event)) {
 			bWaitingForEvent = false;
 			HandleNextEvent();
