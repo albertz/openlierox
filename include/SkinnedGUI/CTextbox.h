@@ -59,7 +59,7 @@ private:
 	StyleVar<bool>	bNoUnicode;
 	std::string	sSelectedText;
 
-	size_t	iMax;
+	int		iMax;
 
 	bool	bHolding;
 	AbsTime	fTimePushed;
