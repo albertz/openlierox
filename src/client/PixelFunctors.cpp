@@ -18,9 +18,12 @@ PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Surface *d
 	const bool dsthasalpha = dest_surf->format->Amask != 0;
 	const int srcbytespp = source_surf->format->BytesPerPixel;
 	const int dstbytespp = dest_surf->format->BytesPerPixel;
-
+	Color colorkey;
+	if(colorkeycheck)
+		colorkey = Color(source_surf->format, Surface_GetColorKey(source_surf));
+	
 #define _RET_PIXELCOPY(av1, av2, av3, av4, av5, av6, av7) \
-	return PixelCopy_Class<av1,av2,av3,av4,av5,av6,av7>::getInstance(source_surf->format, dest_surf->format);
+	return PixelCopy_Class<av1,av2,av3,av4,av5,av6,av7>::getInstance(source_surf->format, dest_surf->format, colorkey);
 
 #define _BRANCH7(av1, av2, av3, av4, av5, av6) \
 	{ \
@@ -73,5 +76,5 @@ PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Surface *d
 	_BRANCH1()
 	
 	// for stupid compilers
-	return PixelCopy_Class<false,false,false,false,false,1,1>::getInstance(source_surf->format, dest_surf->format);
+	return PixelCopy_Class<false,false,false,false,false,1,1>::getInstance(source_surf->format, dest_surf->format, colorkey);
 }

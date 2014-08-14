@@ -113,9 +113,10 @@ class PixelCopy  {
 protected:
 	SDL_PixelFormat *sfmt; // Source surface format
 	SDL_PixelFormat *dfmt; // Dest surface format
+	Color colorkey;
 public:
 	PixelCopy() : sfmt(NULL), dfmt(NULL) {}
-	void setformats(SDL_PixelFormat *srcf, SDL_PixelFormat *dstf) { sfmt = srcf; dfmt = dstf; }
+	void setformats(SDL_PixelFormat *srcf, SDL_PixelFormat *dstf, Color key) { sfmt = srcf; dfmt = dstf; colorkey = key; }
 	virtual void copy(Uint8 *dstaddr, const Uint8 *srcaddr) = 0;
 	virtual ~PixelCopy() {}
 };
@@ -289,10 +290,9 @@ bool dsthasalpha,
 int srcbytespp,
 int dstbytespp
 >
-INLINE void PixelCopy_(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, Uint8 *dstaddr, const Uint8 *srcaddr) {
+INLINE void PixelCopy_(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, Uint8 *dstaddr, const Uint8 *srcaddr, Color colorkey) {
 	if(colorkeycheck) {
-		Color key = Unpack_<srchasalpha>(Surface_GetColorKey(srcformat), srcformat);
-		if(key == _GetPixel<srchasalpha,srcbytespp>(srcformat, srcaddr)) return;
+		if(colorkey == _GetPixel<srchasalpha,srcbytespp>(srcformat, srcaddr)) return;
 	}
 	if(issameformat && !alphablend) {
 		assert(srchasalpha == dsthasalpha);
@@ -323,11 +323,11 @@ public:
 	void copy(Uint8 *dstaddr, const Uint8 *srcaddr) {
 		PixelCopy_<
 		issameformat,alphablend,colorkeycheck,srchasalpha,dsthasalpha,srcbytespp,dstbytespp
-		>(dfmt, sfmt, dstaddr, srcaddr);
+		>(dfmt, sfmt, dstaddr, srcaddr, colorkey);
 	}
-	static PixelCopy& getInstance(SDL_PixelFormat* sfmt, SDL_PixelFormat* dfmt) {
+	static PixelCopy& getInstance(SDL_PixelFormat* sfmt, SDL_PixelFormat* dfmt, Color colorkey) {
 		static PixelCopy_Class copier;
-		copier.setformats(sfmt, dfmt);
+		copier.setformats(sfmt, dfmt, colorkey);
 		return copier;
 	}
 };
