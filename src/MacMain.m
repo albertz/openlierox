@@ -18,6 +18,8 @@ SDLMain.m - main entry point for our Cocoa-ized SDL app
 
 #import "breakpad/ExtractInfo.h"
 
+extern int real_main(int argc, char *argv[]);
+
 @interface SDLMain : NSObject
 @end
 
@@ -311,7 +313,7 @@ static void CustomApplicationMain (int argc, char **argv)
 
     /* Hand off to main application code */
     gCalledAppMainline = TRUE;
-    status = SDL_main (gArgc, gArgv);
+    status = real_main (gArgc, gArgv);
 
     /* We're done, thank you for playing */
     exit(status);

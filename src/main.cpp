@@ -195,9 +195,19 @@ void setBinaryDirAndName(char* argv0);
 bool afterCrash = false;
 static bool afterCrashInformedUser = false;
 
+
+extern "C" int real_main(int argc, char *argv[]);
+
+#ifndef __APPLE__
+int main(int argc, char *argv[]) {
+	return real_main(argc, argv);
+}
+#endif
+
+
 ///////////////////
 // Main entry point
-int main(int argc, char *argv[])
+int real_main(int argc, char *argv[])
 {
 	if(DoCrashReport(argc, argv)) return 0;
 
