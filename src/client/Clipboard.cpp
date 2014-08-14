@@ -200,7 +200,7 @@ static std::string clipboard_string;
 static Mutex clipboardMainthreadMutex;
 static bool clipboardMainthreadCopyTo = false;
 
-void handle_system_event(const SDL_Event& event)
+void Clipboard_handleSysWmEvent(const SDL_Event& event)
 {
 	Mutex::ScopedLock lock( clipboardMainthreadMutex );
 
@@ -407,7 +407,7 @@ void copy_to_clipboard(const std::string& text)
 
 #define CLIPBOARD_FUNCS_DEFINED
 
-void handle_system_event(const SDL_Event& )
+void Clipboard_handleSysWmEvent(const SDL_Event& )
 {}
 
 void copy_to_clipboard(const std::string& text)
@@ -517,7 +517,7 @@ std::string copy_from_clipboard()
 	return mac__copy_from_clipboard();
 }
 
-void handle_system_event(const SDL_Event& event)
+void Clipboard_handleSysWmEvent(const SDL_Event& event)
 {
 }
 
@@ -536,7 +536,7 @@ std::string copy_from_clipboard()
 	return "";
 }
 
-void handle_system_event(const SDL_Event& event)
+void Clipboard_handleSysWmEvent(const SDL_Event& event)
 {
 }
 

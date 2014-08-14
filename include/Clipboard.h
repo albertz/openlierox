@@ -37,7 +37,7 @@ void copy_to_clipboard(const std::string& text);
 std::string copy_from_clipboard();
 
 // on X11 we will get an SDL_SYSWMEVENT when another application requests our text in clipboard
-void handle_system_event(const SDL_Event& ev);
+void Clipboard_handleSysWmEvent(const SDL_Event& ev);
 
 #endif
 

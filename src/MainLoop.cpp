@@ -18,6 +18,7 @@
 #include "CServer.h"
 #include "IRC.h"
 #include "CrashHandler.h"
+#include "Clipboard.h"
 
 
 
@@ -297,7 +298,7 @@ static bool handleSDLEvent(SDL_Event& ev) {
 		// At the moment: Callback for clipboard on X11, should be called every time new event arrived
 		// Must be called in the main thread.
 		// TODO: Move to SDL_CLIPBOARDUPDATE, and SDL for clipboard?
-		handle_system_event(ev);
+		Clipboard_handleSysWmEvent(ev);
 		return true;
 	}
 	mainQueue->push(ev);
