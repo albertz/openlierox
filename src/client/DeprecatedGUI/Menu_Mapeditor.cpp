@@ -398,13 +398,13 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 	keyboard_t *kb = GetKeyboard();
 	int Scroll = 250 * (int)tLX->fDeltaTime.seconds();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-	if(kb->keys[SDLK_UP])
+	if(WasKeyboardEventHappening(SDLK_UP))
 		cMapedView->SetWorldY( cMapedView->GetWorldY() - Scroll );
-	if(kb->keys[SDLK_DOWN])
+	if(WasKeyboardEventHappening(SDLK_DOWN))
 		cMapedView->SetWorldY( cMapedView->GetWorldY() + Scroll );
-	if(kb->keys[SDLK_LEFT])
+	if(WasKeyboardEventHappening(SDLK_LEFT))
 		cMapedView->SetWorldX( cMapedView->GetWorldX() - Scroll );
-	if(kb->keys[SDLK_RIGHT])
+	if(WasKeyboardEventHappening(SDLK_RIGHT))
 		cMapedView->SetWorldX( cMapedView->GetWorldX() + Scroll );
 
     // Grab the level & drag it
