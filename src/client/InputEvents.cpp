@@ -236,6 +236,10 @@ typedef void (*EventHandlerFct) (SDL_Event* ev);
 
 static void EvHndl_WindowEvent(SDL_Event* ev) {
 	switch(ev->window.event) {
+		case SDL_WINDOWEVENT_EXPOSED:
+			// We are redrawing anyway. (I hope.)
+			break;
+	
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 			bool hadFocusBefore = bHaveFocus;
@@ -404,7 +408,6 @@ void InitEventSystem() {
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() = getEventHandler(&EvHndl_MouseButtonUp);
 	sdlEvents[SDL_MOUSEWHEEL].handler() = getEventHandler(&EvHndl_MouseWheel);
 	sdlEvents[SDL_QUIT].handler() = getEventHandler(&EvHndl_Quit);
-	sdlEvents[SDL_VIDEOEXPOSE].handler() = getEventHandler(&EvHndl_VideoExpose);
 	sdlEvents[SDL_USEREVENT].handler() = getEventHandler(&EvHndl_UserEvent);
 	// Note: SDL_SYSWMEVENT is handled directly on the main thread by handleSDLEvents().
 	

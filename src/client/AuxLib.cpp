@@ -165,7 +165,7 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 
     // Enable the system events
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-	//SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE); // TODO: SDL2?
+	//SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE); // TODO: SDL2? it's SDL_WINDOWEVENT now
 
 	// Enable unicode and key repeat
 	//SDL_EnableUNICODE(1); // TODO: SDL2?
