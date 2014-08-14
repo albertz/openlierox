@@ -392,9 +392,6 @@ static void EvHndl_UserEvent(SDL_Event* ev) {
 }
 
 void InitEventSystem() {	
-	for(int k = 0;k<SDL_NUM_SCANCODES;k++)
-		Keyboard.KeyUp[k] = false;
-
 	Mouse.Button = 0;
 	Mouse.Down = 0;
 	Mouse.FirstDown = 0;
