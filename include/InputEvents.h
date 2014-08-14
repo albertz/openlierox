@@ -46,12 +46,7 @@ struct KeyboardEvent {
 };
 
 // Keyboard structure
-// HINT: KeyDown is the state of the keyboard
-// KeyUp is like an event and will only be true once
 struct keyboard_t {
-	Uint8	*keys;
-	bool	KeyUp[SDL_NUM_SCANCODES];
-	bool	KeyDown[SDL_NUM_SCANCODES];
     int     queueLength;
     KeyboardEvent keyQueue[MAX_KEYQUEUE];
 };

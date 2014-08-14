@@ -468,23 +468,6 @@ static void HandleMouseState() {
 	Mouse.Down = Mouse.Button;
 }
 
-static void HandleKeyboardState() {
-	// HINT: KeyDown is the state of the keyboard
-	// KeyUp is like an event and will only be true once
-
-	// Keyboard
-	Keyboard.keys = SDL_GetKeyboardState(NULL);
-
-	// Update the key up's
-	for(int k=0;k<SDL_NUM_SCANCODES;k++) {
-		Keyboard.KeyUp[k] = false;
-
-		if(!Keyboard.keys[k] && Keyboard.KeyDown[k]) // it is up now but it was down previously
-			Keyboard.KeyUp[k] = true;
-		Keyboard.KeyDown[k] = Keyboard.keys[k];
-	}
-}
-
 // Declared in CInput.cpp
 extern void updateAxisStates();
 
@@ -563,7 +546,6 @@ void ProcessEvents()
 			SDL_Delay(14);
 
 		HandleMouseState();
-		HandleKeyboardState();
 #ifndef DEDICATED_ONLY
 #ifndef DISABLE_JOYSTICK
 		if(bJoystickSupport)  {
