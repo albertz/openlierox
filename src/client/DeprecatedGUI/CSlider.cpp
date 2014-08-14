@@ -86,7 +86,7 @@ DWORD CSlider::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Set the value
 		case SLM_SETVALUE:
-			iValue = Param1;
+			iValue = (int)Param1;
 			break;
 
 	}
