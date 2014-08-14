@@ -946,8 +946,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		DrawCursor(VideoPostProcessor::videoSurface());
 
 		// Escape quits the wait for user input
-		// TODO: make this event-based (don't check GetKeyboard() directly)
-		if(kb->KeyUp[SDLK_ESCAPE])
+		if(WasKeyboardEventHappening(SDLK_ESCAPE))
 			break;
 
 		std::string tmp;
