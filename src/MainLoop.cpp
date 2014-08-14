@@ -133,7 +133,7 @@ struct VideoHandler {
 		SDL_Event ev;
 		ev.type = SDL_USEREVENT;
 		ev.user.code = UE_DoVideoFrame;
-		if(SDL_PushEvent(&ev) == 0) {
+		if(SDL_PushEvent(&ev) != 0) {
 			framesInQueue++;
 			VideoPostProcessor::flipBuffers();
 		} else
@@ -146,7 +146,7 @@ struct VideoHandler {
 		SDL_Event ev;
 		ev.type = SDL_USEREVENT;
 		ev.user.code = UE_DoSetVideoMode;
-		if(SDL_PushEvent(&ev) == 0) {
+		if(SDL_PushEvent(&ev) != 0) {
 			videoModeReady = false;
 			while(!videoModeReady)
 				SDL_CondWait(sign, mutex);
@@ -420,7 +420,7 @@ void doActionInMainThread(Action* act) {
 		ev.type = SDL_USEREVENT;
 		ev.user.code = UE_DoActionInMainThread;
 		ev.user.data1 = act;
-		if(SDL_PushEvent(&ev) != 0) {
+		if(SDL_PushEvent(&ev) == 0) {
 			errors << "failed to push custom action event" << endl;
 		}
 	}
@@ -472,7 +472,7 @@ Result MainLoopTask::handle_Quit() {
 	if(!isMainThread()) {
 		SDL_Event quitEv = QuitEventThreadEvent();
 		if(!bDedicated)
-			while(SDL_PushEvent(&quitEv) < 0) {}
+			while(SDL_PushEvent(&quitEv) == 0) {}
 	}
 	gameloopThreadId = (ThreadId)-1;
 	return "quit";
