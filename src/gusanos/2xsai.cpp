@@ -569,7 +569,7 @@ void SuperEagle_ex(uint8_t *src, uint32_t src_pitch, uint8_t *unused, ALLEGRO_BI
 
 			}
 			else if (color[3] == color[8] && color[7] == color[4]) {
-				register int r = 0;
+				int r = 0;
 
 				r += GET_RESULT(color[4], color[3], color[6], color[10]);
 				r += GET_RESULT(color[4], color[3], color[2], color[0]);

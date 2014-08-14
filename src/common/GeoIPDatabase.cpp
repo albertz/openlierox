@@ -376,7 +376,7 @@ GeoRecord GeoIPDatabase::extractRecordCity(unsigned int seekRecord) const
 	unsigned char *begin_record_buf = NULL;
 	double latitude = 0, longitude = 0;
 	int metroarea_combo = 0;
-	int bytes_read = 0;
+	size_t bytes_read = 0;
 	if (seekRecord == m_dbSegments[0])		
 		return record;
 

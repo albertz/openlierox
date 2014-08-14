@@ -719,7 +719,7 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
 
 		// Set some flags
 		case TXM_SETFLAGS:
-			iFlags = Param1;
+			iFlags = (int)Param1;
 			break;
 
 		// Set the max length
@@ -820,7 +820,7 @@ void CTextbox::PasteText()
 	txtlen = txtlen + newtxtlen;
 
     // If the text size is greater than the textbox size, scroll the text
-	while(tLX->cFont.GetWidth(Utf8SubStr(sText, iScrollPos, MAX<int>(0, iCurpos - iScrollPos))) > iWidth-5) {
+	while(tLX->cFont.GetWidth(Utf8SubStr(sText, iScrollPos, MAX<int>(0, (int)iCurpos - (int)iScrollPos))) > iWidth-5) {
 		iScrollPos++;
 	}
 }

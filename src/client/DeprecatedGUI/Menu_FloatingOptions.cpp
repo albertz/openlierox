@@ -463,7 +463,7 @@ void Menu_FloatingOptionsFrame()
 		ev = cFloatingOpt_Game.Process();
 		cFloatingOpt_Game.Draw(VideoPostProcessor::videoSurface());
 
-		val = cFloatingOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
+		val = (int)cFloatingOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
         DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 385,140, 385,140, 70,40);
 		tLX->cFont.Draw(VideoPostProcessor::videoSurface(),385, 148, tLX->clNormalLabel, itoa(val)+"%");
 
@@ -476,7 +476,7 @@ void Menu_FloatingOptionsFrame()
 				// Blood amount
 				case og_BloodAmount:
 					if(ev->iEventMsg == SLD_CHANGE) {
-						val = cFloatingOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
+						val = (int)cFloatingOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
 						tLXOptions->iBloodAmount = val;
 					}
 					break;
@@ -629,7 +629,7 @@ void Menu_FloatingOptionsFrame()
 
 
 		// Get the values
-		tLXOptions->iNetworkSpeed = cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
+		tLXOptions->iNetworkSpeed = (int)cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
 
 		cFloatingOpt_System.getWidget( os_NetworkUploadBandwidth )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
 		cFloatingOpt_System.getWidget( os_NetworkUploadBandwidthLabel )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
@@ -638,7 +638,7 @@ void Menu_FloatingOptionsFrame()
 		if( tLXOptions->iMaxUploadBandwidth <= 0 )
 			tLXOptions->iMaxUploadBandwidth = 20000;
 
-		tLXOptions->iScreenshotFormat = cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
+		tLXOptions->iScreenshotFormat = (int)cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
 
 		// Anti-aliasing and fullscreen
 

@@ -225,7 +225,7 @@ static int PrintRegister(const char *name, u_int32_t value, int sequence, std::o
 
 //=============================================================================
 static void PrintStack(const CallStack *stack, const string &cpu, std::ostream& out, std::ostream& err) {
-	int frame_count = stack->frames()->size();
+	int frame_count = (int)stack->frames()->size();
 	char buffer[1024];
 	for (int frame_index = 0; frame_index < frame_count; ++frame_index) {
 		const StackFrame *frame = stack->frames()->at(frame_index);
@@ -435,7 +435,7 @@ static void ProcessSingleReport(const std::string& minidump_file, std::ostream& 
 	}
 	
 	// Print all of the threads in the dump.
-	int thread_count = process_state.threads()->size();
+	int thread_count = (int)process_state.threads()->size();
 	//const std::vector<google_breakpad::MinidumpMemoryRegion*>
     //*thread_memory_regions = process_state.thread_memory_regions();
 	

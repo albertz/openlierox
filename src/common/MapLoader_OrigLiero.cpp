@@ -152,9 +152,9 @@ public:
 						p==104)
 					type = PX_ROCK;
 				
-				PutPixel2x2(m->bmpDrawImage.get(),(int)x*2,y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpDrawImage->format));
+				PutPixel2x2(m->bmpDrawImage.get(),(int)x*2,(int)y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpDrawImage->format));
 				if(type == PX_EMPTY)
-					PutPixel2x2(m->bmpBackImageHiRes.get(),(int)x*2,y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpBackImageHiRes->format));
+					PutPixel2x2(m->bmpBackImageHiRes.get(),(int)x*2,(int)y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpBackImageHiRes->format));
 				m->SetPixelFlag(x,y,type);
 				//}
 				n++;

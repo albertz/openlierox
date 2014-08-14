@@ -426,7 +426,7 @@ bool CMap::getPredefinedSpawnLocation(CWorm* worm, CVec* v) {
 		}
 		
 		if(alt > 0) {
-			int idx = rndInt(alt);
+			int idx = (int)rndInt(alt);
 			foreach(i, m_config->spawnPoints) {
 				if(canPlayerRespawn(worm, *i) && --idx < 0) {
 					*v = CVec(i->pos);
