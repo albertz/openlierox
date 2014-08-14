@@ -97,9 +97,9 @@ int DoCrashReport(int argc, char** argv) {
 	MinidumpExtractInfo(minidumpfile, crashinfo, crashinfoerror);
 
 	if(argc >= 6 && strcmp(argv[5], "-debug") == 0) {
-		std::cout << crashinfo << std::endl;
+		std::cout << crashinfo.str() << std::endl;
 		std::cout << "----" << std::endl;
-		std::cout << crashinfoerror << std::endl;
+		std::cout << crashinfoerror.str() << std::endl;
 		std::cout << "---- EOF" << std::endl;
 		return 1;
 	}
