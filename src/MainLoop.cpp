@@ -294,7 +294,9 @@ static bool handleSDLEvent(SDL_Event& ev) {
 		return true;
 	}
 	if( ev.type == SDL_SYSWMEVENT ) {
-		EvHndl_SysWmEvent_MainThread( &ev );
+		// At the moment: Callback for clipboard on X11, should be called every time new event arrived
+		// Must be called in the main thread.
+		handle_system_event(ev);
 		return true;
 	}
 	mainQueue->push(ev);

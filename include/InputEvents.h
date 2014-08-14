@@ -105,8 +105,6 @@ bool		EventSystemInited();
 bool		IsWaitingForEvent();
 void		WakeupIfNeeded();
 
-// Should be called on SDL_SYSWMEVENT from main thread
-void		EvHndl_SysWmEvent_MainThread(SDL_Event* ev);
 
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();

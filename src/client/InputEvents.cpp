@@ -378,10 +378,6 @@ static void EvHndl_Quit(SDL_Event*) {
 	game.state = Game::S_Quit;
 }
 
-void EvHndl_SysWmEvent_MainThread(SDL_Event* ev) {
-	handle_system_event(*ev); // Callback for clipboard on X11, should be called every time new event arrived
-}
-
 static void EvHndl_VideoExpose(SDL_Event*) {}
 
 static void EvHndl_UserEvent(SDL_Event* ev) {
@@ -408,10 +404,10 @@ void InitEventSystem() {
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() = getEventHandler(&EvHndl_MouseButtonUp);
 	sdlEvents[SDL_MOUSEWHEEL].handler() = getEventHandler(&EvHndl_MouseWheel);
 	sdlEvents[SDL_QUIT].handler() = getEventHandler(&EvHndl_Quit);
-	//sdlEvents[SDL_SYSWMEVENT].handler() = getEventHandler(&EvHndl_SysWmEvent); // Should be done from main thread
 	sdlEvents[SDL_VIDEOEXPOSE].handler() = getEventHandler(&EvHndl_VideoExpose);
 	sdlEvents[SDL_USEREVENT].handler() = getEventHandler(&EvHndl_UserEvent);
-
+	// Note: SDL_SYSWMEVENT is handled directly on the main thread by handleSDLEvents().
+	
 	bEventSystemInited = true;
 	bWaitingForEvent = false;
 }
