@@ -157,7 +157,11 @@ std::string getThreadName(ThreadId tid) {
 		}
 	}
 
-	return "";
+	return "<unknown thread>";
+}
+
+std::string getCurThreadName() {
+	return getThreadName(getCurrentThreadId());
 }
 
 void setCurThreadPriority(float p) {

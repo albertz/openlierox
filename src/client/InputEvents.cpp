@@ -85,6 +85,7 @@ bool EventSystemInited()
 	return bEventSystemInited;
 }
 
+// Whether the gameloop thread is currently waiting on an event.
 bool IsWaitingForEvent() {
 	return bWaitingForEvent;
 }
@@ -494,6 +495,13 @@ bool processedEvent = false;
 // Process the events
 void ProcessEvents()
 {
+	if(!isMainThread() && !isGameloopThread()) {
+		errors << "ProcessEvents called from thread " << getCurThreadName() << endl;
+		// Just ignore.
+		// We really should not poll any events here, because the mainloop/gameloop could otherwise be confused.
+		return;
+	}
+
 	ResetCurrentEventStorage();
 
 	bool ret = false;
