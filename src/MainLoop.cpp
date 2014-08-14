@@ -178,6 +178,7 @@ struct CoutPrint : PrintOutFct {
 void startMainLockDetector() {
 	if(!tLXOptions->bUseMainLockDetector) return;
 
+	// This checks the game loop thread, if it is working sanely.
 	struct MainLockDetector : Action {
 		bool wait(Uint32 time) {
 			if(!tLX) return false;
