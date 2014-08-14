@@ -77,9 +77,6 @@
 #include <SDL_main.h>
 #endif
 
-// TODO: i hate globals ...
-// we have to create a basic class Game or something
-keyboard_t	*kb = NULL;
 
 
 static bool enableStdinCLI = true;
@@ -295,7 +292,6 @@ startpoint:
 		return -1;
 	}
 	
-	kb = GetKeyboard();
 	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
 		SystemError("Could not find screen.");
 		return -1;
