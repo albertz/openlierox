@@ -495,8 +495,6 @@ int CInput::Wait(std::string& strText)
 // Setup
 int CInput::Setup(const std::string& string)
 {
-	unsigned int n;
-
 	m_EventName = string;
 	resetEachFrame = true;
 
@@ -541,8 +539,8 @@ int CInput::Setup(const std::string& string)
 		initJoystick(0, false);
 
 		// Go through the joystick list
-		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
-			if(Joysticks[n].text == string) {
+		for(uint32_t n=0; n<sizeof(Joysticks) / sizeof(joystick_t); n++) {
+			if(strcasecmp(Joysticks[n].text, string.c_str()) == 0) {
 				Data = Joysticks[n].value;
 				Extra = Joysticks[n].extra;
 				return true;
@@ -563,8 +561,8 @@ int CInput::Setup(const std::string& string)
 		initJoystick(1, false);
 
 		// Go through the joystick list
-		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
-			if(Joysticks[n].text == string) {
+		for(uint32_t n=0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
+			if(strcasecmp(Joysticks[n].text, string.c_str()) == 0) {
 				Data = Joysticks[n].value;
 				Extra = Joysticks[n].extra;
 				return true;
@@ -579,8 +577,8 @@ int CInput::Setup(const std::string& string)
 	Data = 0;
 
 	// Go through the key list checking with piece of text it was
-	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
-		if(Keys[n].text == string) {
+	for(uint32_t n=0; n < sizeof(Keys) / sizeof(keys_t); n++) {
+		if(strcasecmp(Keys[n].text, string.c_str()) == 0) {
 			Data = SDL_GetScancodeFromKey(Keys[n].value);
 			return true;
 		}
