@@ -33,7 +33,7 @@ private:
 	void clear() { if(m_obj) delete m_obj; m_obj = NULL; }
 
 public:
-	Ref(_Obj* obj = NULL) : m_obj(obj) {}
+	Ref(_Obj* obj) : m_obj(obj) { assert(obj); }
 	Ref(const Ref& ref) : m_obj(NULL) { *this = ref; }
 	~Ref() { clear(); }
 
