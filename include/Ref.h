@@ -11,6 +11,8 @@
 #ifndef __OLX__REF_H__
 #define __OLX__REF_H__
 
+#include <assert.h>
+
 /*
 	Intended to hold an object of an abstract class (interface).
 	The object is given and must live on the heap.
