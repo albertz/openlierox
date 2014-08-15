@@ -127,13 +127,6 @@ bool ReadString(const std::string& filename, const std::string& section, const s
 	value = defaultv;
 
 	return GetString(filename,section,key,value, abs_fn);
-
-	/*int result = GetString(filename,section,key,value);
-
-	if (strlen(value) <= 0)
-		strcpy(value,defaultv);
-
-	return result;*/
 }
 
 
