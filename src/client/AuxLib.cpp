@@ -395,9 +395,9 @@ bool VideoPostProcessor::initWindow() {
 	int scrW = screenWidth();
 	int scrH = screenHeight();
 setvideomode:
-	SDL_Window* window = SDL_CreateWindow(GetGameVersion().asHumanString().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0, 0, vidflags);
+	m_window = SDL_CreateWindow(GetGameVersion().asHumanString().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0, 0, vidflags);
 	
-	if( window == NULL) {
+	if(m_window.get() == NULL) {
 		if (resetting)  {
 			errors << "Failed to reset video mode"
 			<< " (ErrorMsg: " << SDL_GetError() << "),"
