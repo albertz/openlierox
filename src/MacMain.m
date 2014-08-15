@@ -78,10 +78,10 @@ static NSString *getApplicationName(void)
 @end
 #endif
 
-@interface SDLApplication : NSApplication
+@interface MyApplication : NSApplication
 @end
 
-@implementation SDLApplication
+@implementation MyApplication
 /* Invoked from the Quit menu item */
 - (void)terminate:(id)sender
 {
@@ -217,7 +217,7 @@ static void CustomApplicationMain (int argc, char **argv)
     SDLMain				*sdlMain;
 
     /* Ensure the application object is initialised */
-    [SDLApplication sharedApplication];
+    [MyApplication sharedApplication];
     
 #ifdef SDL_USE_CPS
     {
@@ -226,7 +226,7 @@ static void CustomApplicationMain (int argc, char **argv)
         if (!CPSGetCurrentProcess(&PSN))
             if (!CPSEnableForegroundOperation(&PSN,0x03,0x3C,0x2C,0x1103))
                 if (!CPSSetFrontProcess(&PSN))
-                    [SDLApplication sharedApplication];
+                    [MyApplication sharedApplication];
     }
 #endif /* SDL_USE_CPS */
 
@@ -390,7 +390,7 @@ int main (int argc, char **argv)
     }
 
 #if SDL_USE_NIB_FILE
-    [SDLApplication poseAsClass:[NSApplication class]];
+    [MyApplication poseAsClass:[NSApplication class]];
     NSApplicationMain (argc, argv);
 #else
     CustomApplicationMain (argc, argv);
