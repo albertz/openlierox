@@ -78,7 +78,7 @@
 Null null;	// Used in timer class
 
 // Config file
-std::string	ConfigFile;
+static std::string ConfigFile = "config.cfg";
 
 // Screen
 
@@ -104,7 +104,7 @@ SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
 
 ///////////////////
 // Initialize the standard Auxiliary Library
-int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
+bool InitializeAuxLib()
 {
 	// We have already loaded all options from the config file at this time.
 
@@ -112,8 +112,6 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	//XInitThreads();	// We should call this before any SDL video stuff and window creation
 #endif
 
-
-	ConfigFile=config;
 
 	if(getenv("SDL_VIDEODRIVER"))
 		notes << "SDL_VIDEODRIVER=" << getenv("SDL_VIDEODRIVER") << endl;

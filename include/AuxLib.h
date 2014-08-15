@@ -27,7 +27,7 @@
 
 
 // Routines
-int			InitializeAuxLib(const std::string& config, int bpp, int vidflags);
+bool		InitializeAuxLib();
 void		ShutdownAuxLib();
 bool		SetVideoMode(); // only call from main thread; use doSetVideoModeInMainThread elsewhere
 

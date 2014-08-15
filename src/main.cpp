@@ -601,7 +601,7 @@ bool InitializeLieroX()
 	LIBXML_TEST_VERSION;
 
 	// Initialize the aux library
-	if(!InitializeAuxLib("config.cfg",16,0)) {
+	if(!InitializeAuxLib()) {
         SystemError("strange problems with the aux library");
 		return false;
 	}
