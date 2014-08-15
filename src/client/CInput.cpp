@@ -426,7 +426,7 @@ int CInput::Load(const std::string& name, const std::string& section)
 {
 	std::string string;
 
-	if(!ReadString(GetConfigFile(),section,name,string,""))
+	if(!ReadString("config.cfg",section,name,string,""))
 		return false;
 
 	return Setup(string);

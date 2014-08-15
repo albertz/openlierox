@@ -77,8 +77,6 @@
 
 Null null;	// Used in timer class
 
-// Config file
-static std::string ConfigFile = "config.cfg";
 
 // Screen
 
@@ -605,13 +603,6 @@ void ShutdownAuxLib()
 
 
 
-
-///////////////////
-// Return the config filename
-std::string GetConfigFile()
-{
-	return ConfigFile;
-}
 
 
 //////////////////

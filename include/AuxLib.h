@@ -40,8 +40,6 @@ void		CapFPS();
 
 char*		GetAppPath();
 
-std::string GetConfigFile();
-
 
 void		PushScreenshot(const std::string& dir, const std::string& data);
 void		ProcessScreenshots();
