@@ -229,7 +229,6 @@ CWorm::CWorm() :
 
 	fPreLastPosUpdate = fLastPosUpdate = AbsTime();
 
-	//bUsesMouse = false;
 	fLastInputTime = tLX->currentTime;
 
 	bmpGibs = NULL;

@@ -680,13 +680,6 @@ void CWormHumanInputHandler::startGame() {
 // Setup the inputs
 void CWormHumanInputHandler::setupInputs(const PlyControls& Inputs)
 {
-	//bUsesMouse = false;
-	for (byte i=0;i<Inputs.ControlCount(); i++)
-		if (Inputs[i].find("ms"))  {
-			//bUsesMouse = true;
-			break;
-		}
-
 	cUp.Setup(		Inputs[SIN_UP] );
 	cDown.Setup(	Inputs[SIN_DOWN] );
 	cLeft.Setup(	Inputs[SIN_LEFT] );
