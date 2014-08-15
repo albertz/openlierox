@@ -193,7 +193,7 @@ protected:
 	bool            bPrepared;
 
 public:
-	ATTR(CWorm, int,	iTeam, 1, {serverside = true;})
+	ATTR(CWorm, int32_t,	iTeam, 1, {serverside = true;})
 	ATTR(CWorm, std::string,	sName, 2, {serverside = false;})
 
 	ATTR(CWorm, CGameSkin, cSkin, 3, {serverside = false;})
@@ -209,7 +209,7 @@ public:
 
 	// Arsenal
 	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false; onUpdate = onWeaponsReadyUpdate; })
-	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
+	ATTR(CWorm,	int32_t,	iCurrentWeapon,	21, {serverside = false;})
 	ATTR(CWorm, List<wpnslot_t>,	weaponSlots, 22, { serverside = false; defaultValue = List<wpnslot_t>(5).getRefCopy(); })
 
 	struct WeaponSlotWrapper {
@@ -243,8 +243,8 @@ protected:
 	Version		cClientVersion;
 
 	AbsTime		fTimeofDeath;
-	ATTR(CWorm, int /*DIR_TYPE*/,	iFaceDirectionSide, 24, {serverside = false;})
-	ATTR(CWorm, int /*DIR_TYPE*/,	iMoveDirectionSide, 25, {serverside = false;})
+	ATTR(CWorm, int32_t /*DIR_TYPE*/,	iFaceDirectionSide, 24, {serverside = false;})
+	ATTR(CWorm, int32_t /*DIR_TYPE*/,	iMoveDirectionSide, 25, {serverside = false;})
 	bool		bGotTarget;
 	ATTR(CWorm, float,	fAngle, 26, {serverside = false; serverCanUpdate = false;})
     float       fAngleSpeed;
@@ -266,7 +266,7 @@ protected:
 	ATTR(CWorm, bool,	bTagIT, 42, {})
 	TimeDiff	fTagTime;
 
-	ATTR(CWorm, int,	iDirtCount, 43, {})
+	ATTR(CWorm, int32_t,	iDirtCount, 43, {})
 
 	AbsTime		fLastBlood;
 
