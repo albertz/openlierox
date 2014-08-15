@@ -154,7 +154,7 @@ bool wpnslot_t::fromString(const std::string & str) {
 	const weapon_t* wpn = game.gameScript()->FindWeapon(str);
 	if(!wpn) return false;
 	reset();
-	WeaponId = wpn - game.gameScript()->GetWeapons();
+	WeaponId = int32_t(wpn - game.gameScript()->GetWeapons());
 	return false;
 }
 

@@ -309,7 +309,7 @@ void CWormHumanInputHandler::getInput() {
 		{
 			if( cWeapons[i].isDown() )
 			{
-				m_worm->iCurrentWeapon = i;
+				m_worm->iCurrentWeapon = (int32_t)i;
 				MOD(m_worm->iCurrentWeapon, m_worm->getWeaponSlotsCount());
 				// Let the weapon name show up for a short moment
 				m_worm->bForceWeapon_Name = true;

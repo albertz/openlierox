@@ -1467,7 +1467,7 @@ void CWormBotInputHandler::AI_Think()
 				// select disabled weapon (which should be replaced by bonus)
 				for(size_t i = 0; i < m_worm->tWeapons.size(); ++i)
 					if(!m_worm->tWeapons[i].weapon()) {
-						m_worm->iCurrentWeapon = i;
+						m_worm->iCurrentWeapon = (int32_t)i;
 						break;
 					}
 				return;
