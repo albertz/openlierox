@@ -78,10 +78,6 @@
 Null null;	// Used in timer class
 
 
-// Screen
-
-SDL_Surface* videoSurface = NULL;
-
 
 SDL_PixelFormat defaultFallbackFormat =
 	{
