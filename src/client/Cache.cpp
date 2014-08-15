@@ -65,8 +65,11 @@ void InitCacheDebug()
 
 void ShutdownCacheDebug()
 {
-	timer->stop();
-	delete timer;
+	if(timer) {
+		timer->stop();
+		delete timer;
+		timer = NULL;
+	}
 }
 #endif
 
