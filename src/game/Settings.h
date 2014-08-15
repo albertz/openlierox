@@ -95,8 +95,10 @@ struct Settings : BaseObject {
 		ScriptVar_t& operator[](FeatureIndex i) {
 			Settings& s = *__OLX_BASETHIS(Settings, overwrite);
 			assert(!s.layers.empty());
-			if(!s.layers.back()->isSet[i])
-				s.layers.back()->set(i) = s[i];
+			if(!s.layers.back()->isSet[i]) {
+				const auto& curValue = s[i];
+				s.layers.back()->set(i) = curValue;
+			}
 			return s.layers.back()->set(i);
 		}
 	};
