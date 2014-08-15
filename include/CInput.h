@@ -120,13 +120,8 @@ struct keys_t {
 
 
 // Joystick structure
-class joystick_t { public:
-#ifndef _MSC_VER
-	std::string	text;
-#else
-	// TODO: this is absolute no solution!
-	char text[16];
-#endif
+struct joystick_t {
+	char	text[16];	// Keep string local to speed up lookup.
 	int		value;
 	int		extra;
 	int		axis;
