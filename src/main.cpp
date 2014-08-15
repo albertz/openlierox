@@ -594,7 +594,7 @@ static void ParseArguments_AfterInit(int argc, char *argv[])
 
 ///////////////////
 // Initialize the game
-int InitializeLieroX()
+bool InitializeLieroX()
 {
 	notes << "Hello there, I am initializing me now..." << endl;
 
