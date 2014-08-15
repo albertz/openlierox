@@ -45,7 +45,8 @@ public:
 	Ref& operator=(const Ref& ref) {
 		if(ref.m_obj != m_obj) {
 			clear();
-			m_obj = bool(ref) ? ref->copy() : NULL;
+			assert(ref); // a copy is only valid if the source is set
+			m_obj = ref->copy();
 		}
 		return *this;
 	}
