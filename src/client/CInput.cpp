@@ -514,10 +514,10 @@ int CInput::Setup(const std::string& string)
 	}
 	
 	{
-		SDL_Scancode scancode = SDL_GetScancodeFromName(string.c_str());
-		if(scancode != SDL_SCANCODE_UNKNOWN) {
+		SDL_Keycode key = SDL_GetKeyFromName(string.c_str());
+		if(key != SDLK_UNKNOWN) {
 			Type = INP_KEYBOARD;
-			Data = scancode;
+			Data = key;
 			return true;
 		}
 	}
@@ -579,7 +579,7 @@ int CInput::Setup(const std::string& string)
 	// Go through the key list checking with piece of text it was
 	for(uint32_t n=0; n < sizeof(Keys) / sizeof(keys_t); n++) {
 		if(strcasecmp(Keys[n].text, string.c_str()) == 0) {
-			Data = SDL_GetScancodeFromKey(Keys[n].value);
+			Data = Keys[n].value;
 			return true;
 		}
 	}
