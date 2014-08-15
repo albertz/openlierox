@@ -392,10 +392,8 @@ bool VideoPostProcessor::initWindow() {
 	}
 #endif
 	
-	int scrW = screenWidth();
-	int scrH = screenHeight();
 setvideomode:
-	m_window = SDL_CreateWindow(GetGameVersion().asHumanString().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0, 0, vidflags);
+	m_window = SDL_CreateWindow(GetGameVersion().asHumanString().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth(), screenHeight(), vidflags);
 	
 	if(m_window.get() == NULL) {
 		if (resetting)  {
@@ -425,14 +423,14 @@ setvideomode:
 		
 		if(vidflags & SDL_WINDOW_FULLSCREEN) {
 			errors << "Failed to set full screen video mode "
-			<< scrW << "x" << scrH << "x" << tLXOptions->iColourDepth
+			<< screenWidth() << "x" << screenHeight() << "x" << tLXOptions->iColourDepth
 			<< " (ErrorMsg: " << SDL_GetError() << "),"
 			<< " trying window mode ..." << endl;
 			vidflags &= ~SDL_WINDOW_FULLSCREEN;
 			goto setvideomode;
 		}
 		
-		SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
+		SystemError("Failed to set the video mode " + itoa(screenWidth()) + "x" + itoa(screenHeight()) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
 		return false;
 	}
 	
