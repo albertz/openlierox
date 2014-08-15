@@ -454,10 +454,7 @@ setvideomode:
 
 	if(!VideoPostProcessor::get()->resetVideo())
 		return false;
-	
-	mainPixelFormat = m_videoSurface->format;
-	DumpSurfaceInfo(m_videoSurface.get(), "main video surface");
-	
+		
 	// Clear screen to blank
 	SDL_SetRenderDrawColor(m_renderer.get(), 0, 0, 0, 255);
 	SDL_RenderClear(m_renderer.get());
@@ -526,6 +523,7 @@ bool VideoPostProcessor::resetVideo() {
 			return false;
 		}
 	}
+	DumpSurfaceInfo(m_videoSurface.get(), "main video surface");
 	
 	// No need to reinit this.
 	if(!m_videoBufferSurface.get()) {
