@@ -79,21 +79,22 @@ Null null;	// Used in timer class
 
 
 
-SDL_PixelFormat defaultFallbackFormat =
+// TODO: is this the best format? why? comment that.
+// Maybe SDL_PIXELFORMAT_ARGB8888 is better? My OpenGL renderer lists that as native format.
+SDL_PixelFormat mainPixelFormat =
 	{
-		 0, // format
-         NULL, //SDL_Palette *palette;
-         32, //Uint8  BitsPerPixel;
-         4, //Uint8  BytesPerPixel;
-		 {0, 0}, // padding
-		 0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
-         0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-         24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-		 0, // refcount
-		 NULL // next ref
+		SDL_PIXELFORMAT_RGBA8888, // format
+		NULL, //SDL_Palette *palette;
+		32, //Uint8  BitsPerPixel;
+		4, //Uint8  BytesPerPixel;
+		{0, 0}, // padding
+		0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
+		0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
+		24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
+		0, // refcount
+		NULL // next ref
 	};
 
-SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
 
 
 ///////////////////
@@ -504,7 +505,7 @@ bool VideoPostProcessor::resetVideo() {
 	m_videoTexture = SDL_CreateTexture
 	(
 		m_renderer.get(),
-		SDL_PIXELFORMAT_ARGB8888,
+		getMainPixelFormat()->format,
 		SDL_TEXTUREACCESS_STREAMING,
 		screenWidth(), screenHeight()
 	);

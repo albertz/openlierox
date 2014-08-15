@@ -61,10 +61,10 @@ INLINE Uint8 GetA(Uint32 pixel, SDL_PixelFormat *fmt)  {
 			(((pixel & fmt->Amask) >> fmt->Ashift) >> (8 - (fmt->Aloss << 1))));
 }
 
-extern SDL_PixelFormat* mainPixelFormat;
+extern SDL_PixelFormat mainPixelFormat;
 
 INLINE SDL_PixelFormat* getMainPixelFormat() {
-	return mainPixelFormat;
+	return &mainPixelFormat;
 }
 
 ///////////////
