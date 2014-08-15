@@ -83,7 +83,7 @@ Result DynamicList::toBytestream(CBytestream* bs, const CustomVar* diffTo) const
 		assert(type() == diffToList->type());
 	}
 
-	bs->writeInt(size(), 4);
+	bs->writeInt((int)size(), 4);
 
 	size_t numChangesOld = 0;
 	size_t numChangesDefault = 0;
@@ -112,7 +112,7 @@ Result DynamicList::toBytestream(CBytestream* bs, const CustomVar* diffTo) const
 			}
 			if(value == otherVal) continue;
 
-			bs->writeInt(i, 4);
+			bs->writeInt((int)i, 4);
 			if(haveOtherVal && otherVal.isCustomType())
 				bs->writeVar(value, otherVal.customVar());
 			else
