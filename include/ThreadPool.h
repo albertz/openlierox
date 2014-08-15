@@ -83,6 +83,7 @@ extern ThreadId mainThreadId;
 bool isMainThread();
 extern ThreadId gameloopThreadId;
 bool isGameloopThread();
+bool isGameloopThreadRunning();
 ThreadId getCurrentThreadId();
 
 void getAllThreads(std::set<ThreadId>& ids);

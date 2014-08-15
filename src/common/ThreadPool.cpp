@@ -38,6 +38,10 @@ bool isGameloopThread() {
 	return gameloopThreadId == getCurrentThreadId();
 }
 
+bool isGameloopThreadRunning() {
+	return gameloopThreadId != (ThreadId)-1;
+}
+
 void getAllThreads(std::set<ThreadId>& ids) {
 	if(isThreadIdValid(mainThreadId))
 		ids.insert(mainThreadId);

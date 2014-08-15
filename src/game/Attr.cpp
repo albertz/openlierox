@@ -249,6 +249,14 @@ struct CallInfo {
 struct CallInfos {
 	std::vector<CallInfo> callInfos;
 	void push_back(const std::vector<void*>& callstack, ScriptVar_t curValue) {
+		// TODO: If we push an update from another thread, I think this is wrong,
+		// not sure...
+		// There is one bug at least! In attrUpdateDebugHooks(), we can have
+		// bool(a.obj.obj)==true, and then suddenly, bool(a.obj.obj)==false,
+		// which will most likely crash.
+		// The level background cache loader can trigger this, i.e.
+		// the LevelInfo attributes in infoForLevel().
+		//assert(!isGameloopThreadRunning() || isGameloopThread());
 		if(!callInfos.empty()) {
 			if(callInfos.back().oldValue == curValue)
 				callInfos.pop_back();
