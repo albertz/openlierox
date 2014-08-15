@@ -111,13 +111,8 @@ public:
 
 
 // Keyboard structure
-class keys_t { public:
-#ifndef _MSC_VER
-	std::string	text;
-#else
-	// TODO: this is absolute no solution!
-	char text[16];
-#endif
+struct keys_t {
+	char	text[16];	// Keep string local to speed up lookup.
 	int		value;
 	
 	static int keySymFromName(const std::string & name);
