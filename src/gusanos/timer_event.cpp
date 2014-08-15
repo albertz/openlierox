@@ -19,13 +19,13 @@ bool TimerEvent::State::tick()
 
 void TimerEvent::State::reset()
 {
-	count = event->delay + rndInt(event->delayVariation+1);
+	count = event->delay + (int)rndInt(event->delayVariation+1);
 }
 
 void TimerEvent::State::completeReset()
 {
 	if ( event->startDelay < 0 ) {
-		count = event->delay + rndInt(event->delayVariation+1);
+		count = event->delay + (int)rndInt(event->delayVariation+1);
 	} else {
 		count = event->startDelay;
 	}
@@ -36,7 +36,7 @@ TimerEvent::State TimerEvent::createState()
 {
 	int tmpCount;
 	if ( startDelay < 0 ) {
-		tmpCount = delay + rndInt(delayVariation+1);
+		tmpCount = delay + (int)rndInt(delayVariation+1);
 	} else {
 		tmpCount = startDelay;
 	}
