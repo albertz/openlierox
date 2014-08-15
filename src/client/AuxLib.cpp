@@ -467,6 +467,31 @@ setvideomode:
 	return true;
 }
 
+static void dumpRenderInfo(const SDL_RendererInfo& info) {
+	notes << "Renderer '" << info.name << "':" << endl;
+	notes << "  software fallback: " << bool(info.flags & SDL_RENDERER_SOFTWARE) << endl;
+	notes << "  hardware accelerated: " << bool(info.flags & SDL_RENDERER_ACCELERATED) << endl;
+	notes << "  vsync: " << bool(info.flags & SDL_RENDERER_PRESENTVSYNC) << endl;
+	notes << "  rendering to texture: " << bool(info.flags & SDL_RENDERER_TARGETTEXTURE) << endl;
+	notes << "  max texture size (WxH): " <<
+		info.max_texture_width << " x " << info.max_texture_height << endl;
+	notes << "  formats (" << info.num_texture_formats << "):" << endl;
+	for(uint32_t i = 0;
+		i < info.num_texture_formats &&
+		i < sizeof(info.texture_formats)/sizeof(info.texture_formats[0]);
+		++i) {
+		notes << "    " << i << ": " << SDL_GetPixelFormatName(info.texture_formats[i]) << endl;
+	}
+}
+
+static void dumpRenderInfo(SDL_Renderer* renderer) {
+	SDL_RendererInfo info;
+	if(SDL_GetRendererInfo(renderer, &info) != 0)
+		warnings << "Error getting renderer info: " << SDL_GetError() << endl;
+	else
+		dumpRenderInfo(info);
+}
+
 bool VideoPostProcessor::resetVideo() {
 	m_renderer = SDL_CreateRenderer(m_window.get(), -1, 0);
 	if(!m_renderer.get()) {
@@ -474,6 +499,8 @@ bool VideoPostProcessor::resetVideo() {
 		return false;
 	}
 	
+	dumpRenderInfo(m_renderer.get());
+		
 	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
 	SDL_RenderSetLogicalSize(m_renderer.get(), screenWidth(), screenHeight());
 
