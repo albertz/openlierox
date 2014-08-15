@@ -76,7 +76,6 @@ private:
 public:
 	// Methods
 
-	int		Load(const std::string& name, const std::string& section);
 	int		Setup(const std::string& text);
 	static void InitJoysticksTemp(); // call this if CInput::Wait shall recognise joystick events
 	static void UnInitJoysticksTemp();

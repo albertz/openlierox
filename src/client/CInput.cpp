@@ -420,18 +420,6 @@ CInput::~CInput() {
 }
 
 
-///////////////////
-// Load the input from a config file
-int CInput::Load(const std::string& name, const std::string& section)
-{
-	std::string string;
-
-	if(!ReadString("config.cfg",section,name,string,""))
-		return false;
-
-	return Setup(string);
-}
-
 
 ///////////////////
 // Waits for any input (used in a loop)
