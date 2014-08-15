@@ -223,7 +223,7 @@ static void ResetCurrentEventStorage() {
 }
 
 
-bool WasKeyboardEventHappening(int sym, bool down) {
+bool WasKeyboardEventHappening(SDL_Keycode sym, bool down) {
 	for(int i = 0; i < Keyboard.queueLength; i++)
 		if(Keyboard.keyQueue[i].sym == sym && Keyboard.keyQueue[i].down == down)
 			return true;

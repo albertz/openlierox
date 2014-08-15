@@ -39,7 +39,7 @@ struct ModifiersState  {
 };
 
 struct KeyboardEvent {
-	int sym;
+	SDL_Keycode sym;
     UnicodeChar ch;
 	bool down;
 	ModifiersState state;
@@ -106,7 +106,7 @@ mouse_t		*GetMouse();
 SDL_Event	*GetEvent();
 ModifiersState *GetCurrentModstate();
 
-bool		WasKeyboardEventHappening(int sym, bool down = true);
+bool		WasKeyboardEventHappening(SDL_Keycode key, bool down = true);
 
 
 class CInput;

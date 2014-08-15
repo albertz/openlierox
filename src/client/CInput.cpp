@@ -170,11 +170,11 @@ keys_t Keys[] = {
 int keys_t::keySymFromName(const std::string & name)
 {
 	for(uint n = 0; n<sizeof(Keys) / sizeof(keys_t); n++)
-		if( Keys[n].text == name )
+		if( strcasecmp(Keys[n].text, name.c_str()) == 0 )
 			return Keys[n].value;
 			
 	return 0;
-};
+}
 
 	
 	
