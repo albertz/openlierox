@@ -155,10 +155,8 @@ void CFont::Parse() {
 
 ///////////////////
 // Precalculate a font's colour
-void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Color colour) {
-	Uint32 pixel;
-	int x, y;
-
+void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Color colour)
+{
 	FillSurface(bmpSurf.get(), SDL_MapRGBA(bmpSurf.get()->format, 255, 0, 255, 0));
 
 	// Lock the surfaces
@@ -170,9 +168,9 @@ void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Color colour
 
 	// Outline font: replace white pixels with appropriate color, put black pixels
 	if (OutlineFont) {
-		for (y = 0; y < bmpSurf.get()->h; y++) {
-			for (x = 0; x < bmpSurf.get()->w; x++) {
-				pixel = GetPixel(bmpFont.get(), x, y);
+		for (int y = 0; y < bmpSurf.get()->h; y++) {
+			for (int x = 0; x < bmpSurf.get()->w; x++) {
+				Uint32 pixel = GetPixel(bmpFont.get(), x, y);
 				GetColour4(pixel, bmpFont.get()->format, &R, &G, &B, &A);
 
 				if (R == 255 && G == 255 && B == 255)    // White
@@ -185,9 +183,9 @@ void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Color colour
 		}
 	// Not outline: replace black pixels with appropriate color
 	} else {
-		for (y = 0; y < bmpSurf.get()->h; y++) {
-			for (x = 0; x < bmpSurf.get()->w; x++) {
-				pixel = GetPixel(bmpFont.get(), x, y);
+		for (int y = 0; y < bmpSurf.get()->h; y++) {
+			for (int x = 0; x < bmpSurf.get()->w; x++) {
+				Uint32 pixel = GetPixel(bmpFont.get(), x, y);
 				GetColour4(pixel, bmpFont.get()->format, &R, &G, &B, &A);
 
 				if (!R && !G && !B)   // Black
