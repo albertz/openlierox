@@ -246,18 +246,12 @@ void CGuiSkin::Frame()
 
 void CGuiSkin::SDL_OnKeyDown(SDL_Event *ev) {
 	if(!cActiveLayout) return;
-	// TODO: This is a hack and could not work later anymore. Please fix that.
-	// (Any event handler should *never* depend on a state, like GetKeyboard().)
-	const KeyboardEvent& key = GetKeyboard()->keyQueue[GetKeyboard()->queueLength - 1];
-	cActiveLayout->DoKeyDown(key.ch, key.sym, key.state);
+	cActiveLayout->DoKeyDown(0, ev->key.keysym.sym, ModifiersState()); // TODO ...
 }
 
 void CGuiSkin::SDL_OnKeyUp(SDL_Event *ev) {
 	if(!cActiveLayout) return;
-	// TODO: This is a hack and could not work later anymore. Please fix that.
-	// (Any event handler should *never* depend on a state, like GetKeyboard().)
-	const KeyboardEvent& key = GetKeyboard()->keyQueue[GetKeyboard()->queueLength - 1];
-	cActiveLayout->DoKeyUp(key.ch, key.sym, key.state);
+	cActiveLayout->DoKeyUp(0, ev->key.keysym.sym, ModifiersState()); // TODO ...
 }
 
 void CGuiSkin::SDL_OnMouseMotion(SDL_Event* ev) {
