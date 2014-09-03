@@ -38,12 +38,6 @@
 //
 
 
-// Like in SDL_video.c in SDL_DisplayFormatAlpha
-#define ALPHASURFACE_RMASK 0x00ff0000
-#define ALPHASURFACE_GMASK 0x0000ff00
-#define ALPHASURFACE_BMASK 0x000000ff
-#define ALPHASURFACE_AMASK 0xff000000
-
 // Gradient direction
 enum GradientDirection  {
 	grdHorizontal,
