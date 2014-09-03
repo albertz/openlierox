@@ -79,7 +79,7 @@ void CFont::Shutdown() {
 bool CFont::IsColumnFree(int x) {
 	// it's only completelly see through
 	for (int y = 0; y < bmpFont.get()->h; y++) {
-		if ((GetPixel(bmpFont.get(), x, y) & ALPHASURFACE_AMASK) != 0)
+		if ((GetPixel(bmpFont.get(), x, y) & bmpFont->format->Amask) != 0)
 			return false;
 	}
 
