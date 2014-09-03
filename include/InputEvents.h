@@ -24,7 +24,7 @@ extern	bool			bActivated;
 extern	bool			bDeactivated;
 
 
-#define     MAX_KEYQUEUE        32
+#define     MAX_KEYQUEUE        256
 #define     MAX_MOUSEBUTTONS    8 // SDL_GetMouseState returns UInt8 bitmask
 
 // State of modifier keys (ctrl, alt and shift)
