@@ -231,6 +231,7 @@ struct SkinAction_Colorize : Skin_Action {
 	SkinAction_Colorize(CGameSkin* s) : Skin_Action(s) {}
 	Result handle() {
 		skin->Colorize_Execute(breakSignal);
+		WakeupIfNeeded();
 		return true;
 	}
 };
