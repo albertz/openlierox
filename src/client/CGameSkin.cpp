@@ -294,6 +294,8 @@ void skin_load(const CGameSkin& skin) {
 
 	s.thread->removeActions__unsafe();
 
+	// TODO: wtf, why generatePreview = !colorized?
+	// TODO: cleanup the whole preview thing. why is it needed at all?
 	s.thread->pushAction__unsafe(new SkinAction_Load(&s, /* generatePreview = */ !s.bColorized));
 
 	if (s.bColorized)
