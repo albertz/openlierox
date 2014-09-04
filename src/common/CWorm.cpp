@@ -687,9 +687,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 	int x,y;
 	Uint32 pixel;
 
-	Color colour = cSkin.get().getColor();
-	if (team)
-		colour = tLX->clTeamColors[iTeam];
+	Color colour = getGameColour();
 
 	int ColR = colour.r;
 	int ColG = colour.g;
