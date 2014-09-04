@@ -1539,6 +1539,7 @@ Color CWorm::getGameColour()
 	}
 	return Color();
 }
+
 template<typename SettingsType>
 static void CWorm_addDamage(CWorm* This, float damage, CWorm* victim, const SettingsType& settings, const GameModeInfo* gameModeInfo)
 {
