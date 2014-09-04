@@ -666,20 +666,25 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 }
 
 void CGameSkin::Colorize(Color col) {
-	// TODO: this doesnt work on the first Colorize if the color was the same.
-	iColor = col;
+	if(iColor.get() != col || !bColorized) {
+		iColor = col;
+		bColorized = true;
+		
+		if (bDedicated) return;
+
+		{
+			Mutex::ScopedLock lock(thread->mutex);
+			
+			thread->pushActionUnique__unsafe(new SkinAction_Colorize(this));
+			thread->startThread__unsafe(this);
+		}
+	}
 }
 
 void CGameSkin::onColorUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, ScriptVar_t /*oldValue*/) {
-	if (bDedicated) return;
 	CGameSkin* s = dynamic_cast<CGameSkin*>(base);
 	assert(s != NULL);
-
-	Mutex::ScopedLock lock(s->thread->mutex);
-	s->bColorized = true;
-
-	s->thread->pushActionUnique__unsafe(new SkinAction_Colorize(s));
-	s->thread->startThread__unsafe(s);
+	s->Colorize(s->iColor);
 }
 
 ////////////////////////
