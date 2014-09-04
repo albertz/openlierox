@@ -375,7 +375,7 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 	notes << "<" << oPt->thisRef.description() << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
 }
 
-void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback) {
+void iterAttrUpdates() {
 	Mutex::ScopedLock lock(objUpdatesMutex.get());
 
 	attrUpdateDebugHooks();
@@ -394,8 +394,6 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 			if(oPt->thisRef) // if registered
 				game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
 
-			if(callback)
-				callback(oPt, attrDesc, oldValue);
 			if(attrDesc->onUpdate)
 				attrDesc->onUpdate(oPt, attrDesc, oldValue);
 

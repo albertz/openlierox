@@ -739,7 +739,7 @@ void Game::frameInner()
 	if(!gameWasPrepared && game.state >= Game::S_Preparing) {
 		if(game.state.ext.updated) {
 			// handle callbacks
-			iterAttrUpdates(NULL);
+			iterAttrUpdates();
 		}
 		Result r = prepareGameloop();
 		if(!r) {
@@ -752,7 +752,7 @@ void Game::frameInner()
 			else
 				game.state = Game::S_Lobby;
 			// handle callbacks and other stuff
-			iterAttrUpdates(NULL);
+			iterAttrUpdates();
 			return;
 		}
 		else if(!gameWasPrepared) {
@@ -912,7 +912,7 @@ void Game::frameInner()
 	}
 
 	const bool stateUpdated = state.ext.updated;
-	iterAttrUpdates(NULL);
+	iterAttrUpdates();
 
 	if(tLX && !stateUpdated && state >= Game::S_Preparing)
 		cClient->Draw(VideoPostProcessor::videoSurface());

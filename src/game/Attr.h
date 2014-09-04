@@ -132,7 +132,7 @@ struct AttrUpdateInfo {
 };
 
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc);
-void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
+void iterAttrUpdates();
 
 
 // Use these if you want to have certain attribs writeable.
