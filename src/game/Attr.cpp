@@ -330,15 +330,23 @@ static void attrUpdateAddCallInfo(BaseObject& obj, const AttrDesc* attrDesc) {
 }
 
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
-	if(!obj.isRegistered())
-		// Ignore. Note that this is also important with respect to multithreading.
-		// E.g. in attrUpdateDebugHooks(), we can have
-		// bool(a.obj.obj)==true, and then suddenly, bool(a.obj.obj)==false,
-		// which will most likely crash.
-		// The level background cache loader can trigger this, i.e.
-		// the LevelInfo attributes in infoForLevel().
-		//assert(!isGameloopThreadRunning() || isGameloopThread());
+	if(!obj.isRegistered() && !attrDesc->onUpdate)
+		// Ignore.
+		// The level background cache loader (and other background loaders)
+		// can trigger this, i.e. the LevelInfo attributes in infoForLevel().
+		// This is done in another thread, so we *must* not continue here.
+		// Note that iterAttrUpdates() might be desirable, e.g. for the
+		// onUpdate handler, so we must be a bit restrictive.
+		// This means, at the moment, we cannot update attributes with
+		// onUpdate handlers in other threads.
 		return;
+	// Note that this is also important with respect to multithreading.
+	// iterAttrUpdates() is always run on the main thread, and we do not
+	// want it to handle objects which are managed by other threads.
+	// E.g. in attrUpdateDebugHooks(), we can have
+	// bool(a.obj.obj)==true, and then suddenly, bool(a.obj.obj)==false,
+	// which will most likely crash.
+	assert(!isGameloopThreadRunning() || isGameloopThread());
 	
 	Mutex::ScopedLock lock(objUpdatesMutex.get());
 	attrUpdateAddCallInfo(obj, attrDesc);
