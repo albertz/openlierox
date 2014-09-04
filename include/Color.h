@@ -105,7 +105,6 @@ struct Color {
 	Uint8 b;
 	Uint8 a;
 
-	INLINE Uint32 get() const { return get(getMainPixelFormat()); }
 	INLINE Uint32 get(const SDL_PixelFormat *f) const { return SDL_MapRGBA(f, r, g, b, a); }
 	Uint32 getDefault() const { return (Uint32(r) << 24) | (Uint32(g) << 16) | (Uint32(b) << 8) | Uint32(a); }
 	Color derived(Sint16 _r, Sint16 _g, Sint16 _b, Sint16 _a) const {
