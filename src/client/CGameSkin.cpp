@@ -664,6 +664,7 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 }
 
 void CGameSkin::Colorize(Color col) {
+	// TODO: this doesnt work on the first Colorize if the color was the same.
 	iColor = col;
 }
 
@@ -674,7 +675,6 @@ void CGameSkin::onColorUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, Sc
 
 	Mutex::ScopedLock lock(s->thread->mutex);
 	s->bColorized = true;
-	if(!s->loaded) return;
 
 	s->thread->pushActionUnique__unsafe(new SkinAction_Colorize(s));
 	s->thread->startThread__unsafe(s);
@@ -684,6 +684,7 @@ void CGameSkin::onColorUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, Sc
 // Colorize the skin
 void CGameSkin::Colorize_Execute(bool& breakSignal)
 {
+	if(!loaded) return;
 	if (!bmpSurface.get() || !bmpNormal.get() || !bmpMirrored.get())
 		return;
 	if (bmpSurface->h < 2 * iFrameHeight)
