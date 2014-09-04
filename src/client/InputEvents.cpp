@@ -582,7 +582,9 @@ void WakeupIfNeeded() {
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_NopWakeup;
-	SDL_PushEvent(&ev);
+	// The main thread (SDL events) will just ignore it.
+	// The game thread will also ignore it, but do another redraw.
+	mainQueue->push(ev);
 }
 
 bool ApplicationHasFocus()
