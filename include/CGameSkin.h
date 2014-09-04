@@ -121,7 +121,6 @@ public:
 	std::string getFileName() const  { return sFileName; }
 	int getBotIcon() const	{ return iBotIcon; }
 	void setBotIcon(int _i) { iBotIcon = _i; }
-	Color getColor() const	{ return iColor; }
 	Color getDefaultColor() const	{ return iDefaultColor; }
 	void setDefaultColor(Color _c)	{ iDefaultColor = _c; }
 	int getFrameCount() const;

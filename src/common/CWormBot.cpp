@@ -3166,7 +3166,7 @@ void CWormBotInputHandler::AI_DrawPath()
 	if (!bmpDest.get())
 		return;
 
-	const Color NodeColour = m_worm->cSkin.getColor();
+	const Color NodeColour = m_worm->getGameColour();
 	const Color HighColour = Color(255, 0, 0);
 	const Color LineColour = tLX->clWhite;
 
