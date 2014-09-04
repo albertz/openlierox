@@ -432,7 +432,7 @@ public:
 	std::string getName()			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
 	Color		getGameColour() const;
-	void		setColour(Color c)			{ cSkin.write().Colorize(c); }
+	void		setColour(Color c);
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal() const			{ return bLocal; }

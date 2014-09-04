@@ -1527,6 +1527,10 @@ Color CWorm::getGameColour() const
 	return Color(128,128,128);
 }
 
+void CWorm::setColour(Color c) {
+	cSkin.write().Colorize(c);
+}
+
 template<typename SettingsType>
 static void CWorm_addDamage(CWorm* This, float damage, CWorm* victim, const SettingsType& settings, const GameModeInfo* gameModeInfo)
 {
