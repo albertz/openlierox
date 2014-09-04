@@ -1155,7 +1155,7 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	}
 
 	// Load the worm graphics
-	if(!w->ChangeGraphics(client->getGeneralGameType())) {
+	if(!w->ChangeGraphics()) {
         warnings << "CClientNetEngine::ParseWormInfo(): ChangeGraphics() failed" << endl;
 	}
 

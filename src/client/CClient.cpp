@@ -1774,7 +1774,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 		
 		w->setType(WormType::fromInt((*newWormProf)->iType));
 		w->setClientVersion(cClient->getClientVersion());
-		if(!w->ChangeGraphics(cClient->getGeneralGameType()))
+		if(!w->ChangeGraphics())
 			warnings << "updateAddedWorms: changegraphics for worm " << w->getID() << " failed" << endl;
 					
 		// gameready means that we had a preparegame package

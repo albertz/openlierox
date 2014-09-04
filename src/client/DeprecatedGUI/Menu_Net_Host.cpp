@@ -1371,7 +1371,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 	for_each_iterator(CWorm*, w_, game.worms()) {
 		CWorm* w = w_->get();
 
-		w->ChangeGraphics(game.gameMode()->GeneralGameType());
+		w->ChangeGraphics();
 
 		// Create and setup the command button
 		cmd_button = new CButton(0, gfxGUI.bmpCommandBtn);

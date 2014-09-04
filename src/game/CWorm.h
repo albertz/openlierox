@@ -373,9 +373,9 @@ public:
 	//
 	// Graphics
 	//
-	bool		ChangeGraphics(int generalgametype);
+	bool		ChangeGraphics();
 	void		FreeGraphics();
-	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, bool team);
+	SmartPointer<SDL_Surface> ColorizeImage(const std::string& filename) const;
 	void		Draw(SDL_Surface * bmpDest, CViewport *v);
     void        DrawShadow(SDL_Surface * bmpDest, CViewport *v);
 	void		UpdateDrawPos();
@@ -431,7 +431,7 @@ public:
 
 	std::string getName()			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
-	Color		getGameColour();
+	Color		getGameColour() const;
 	void		setColour(Color c)			{ cSkin.write().Colorize(c); }
 	void		setColour(Uint8 r, Uint8 g, Uint8 b) { setColour(Color(r,g,b)); }
 
