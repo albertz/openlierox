@@ -673,7 +673,9 @@ std::string ProcessSetColour(const std::vector<std::string>& params, int sender_
 	g = (Uint8) atoi(params[3]);
 	b = (Uint8) atoi(params[4]);
 
-	CWorm *worm = game.wormById(p_id);  // HINT: this is safe because CheckIDParams makes a range check
+	CWorm *worm = game.wormById(p_id);
+	if (!worm)
+		return "Cannot change colour of a non-existing worm";
 
 	// Set the colour
 	worm->setColour(r, g, b);
