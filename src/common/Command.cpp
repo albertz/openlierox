@@ -2111,7 +2111,7 @@ void Cmd_getWormPing::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 COMMAND(getWormSkin, "get worm skin", "id", 1, 1);
 void Cmd_getWormSkin::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
-	caller->pushReturnArg(itoa(w->getSkin().getDefaultColor().get()));
+	caller->pushReturnArg(itoa(w->getSkin().getDefaultColor().getDefault()));
 	caller->pushReturnArg(w->getSkin().getFileName());
 }
 
