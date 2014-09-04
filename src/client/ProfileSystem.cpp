@@ -421,7 +421,7 @@ SmartPointer<profile_t> profileFromWorm(CWorm* w) {
 	p->iTeam = w->getTeam();
 	p->cSkin.Change(w->getSkin().getFileName());
 	p->cSkin.setDefaultColor(w->getSkin().getDefaultColor());
-	p->cSkin.RemoveColorization();
+	p->cSkin.ColorizeDefault();
 	return p;
 }
 
@@ -436,7 +436,7 @@ SmartPointer<profile_t> profileFromWormJoinInfo(const WormJoinInfo& info) {
 	p->iTeam = info.iTeam;
 	p->cSkin.Change(info.skinFilename);
 	p->cSkin.setDefaultColor(Color(p->R, p->G, p->B));
-	p->cSkin.RemoveColorization();
+	p->cSkin.ColorizeDefault();
 	return p;
 }
 

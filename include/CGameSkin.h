@@ -114,7 +114,7 @@ public:
 	Color	renderColorAt(int x, int y, int frame, bool mirrored) const;
 	
 	void	Colorize(Color col);
-	void	RemoveColorization()	{ Colorize(iDefaultColor); }
+	void	ColorizeDefault()	{ Colorize(iDefaultColor); }
 	void	Change(const std::string& file);
 	SmartPointer<DynDrawIntf> getPreview();
 

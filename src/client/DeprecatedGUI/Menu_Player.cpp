@@ -290,7 +290,7 @@ void Menu_Player_NewPlayerInit()
     // Load the default skin
 	tMenu->cSkin.Change("default.png");
 	tMenu->cSkin.setDefaultColor(Color(128,128,128));
-	tMenu->cSkin.RemoveColorization();
+	tMenu->cSkin.ColorizeDefault();
 	fPlayerSkinFrame = 0;
     bPlayerSkinAnimation = false;
 }
@@ -439,7 +439,7 @@ void Menu_Player_NewPlayer(int mouse)
 
                     // Load the skin
 					tMenu->cSkin.Change(buf);
-					tMenu->cSkin.RemoveColorization();
+					tMenu->cSkin.ColorizeDefault();
                 }
                 break;
 		}
@@ -659,7 +659,7 @@ void Menu_Player_ViewPlayers(int mouse)
 						buf = ((CCombobox *)cViewPlayers.getWidget(vp_PlySkin))->getSelectedItem()->index();
 						p->cSkin.Change(buf);
 						p->cSkin.setDefaultColor(Color(p->R, p->G, p->B));
-						p->cSkin.RemoveColorization();
+						p->cSkin.ColorizeDefault();
 
                         // Update the item
                         lv_item_t *it = (lv_item_t *)cViewPlayers.SendMessage(vp_Players, LVM_GETCURITEM, (DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
@@ -732,7 +732,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
                     // Load the skin
 					tMenu->cSkin.Change(buf);
-					tMenu->cSkin.RemoveColorization();
+					tMenu->cSkin.ColorizeDefault();
                 }
                 break;
 		}
