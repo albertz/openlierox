@@ -274,9 +274,9 @@ void CGuiSkin::SDL_OnMouseButtonUp(SDL_Event* ev) {
 
 void CGuiSkin::SDL_OnMouseWheel(SDL_Event* ev) {
 	if(!cActiveLayout) return;
-	if(ev->wheel.y > 0)
+	if(ev->wheel.y < 0)
 		cActiveLayout->DoMouseWheelDown(GetMouse()->X, GetMouse()->Y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
-	else if(ev->wheel.y < 0)
+	else if(ev->wheel.y > 0)
 		cActiveLayout->DoMouseWheelUp(GetMouse()->X, GetMouse()->Y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
 }
 

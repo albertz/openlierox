@@ -393,9 +393,9 @@ static void EvHndl_MouseButtonDown(SDL_Event* ev) {}
 static void EvHndl_MouseButtonUp(SDL_Event* ev) {}
 
 static void EvHndl_MouseWheel(SDL_Event* ev) {
-	if(ev->wheel.y < 0)
+	if(ev->wheel.y > 0)
 		Mouse.WheelScrollUp = true;
-	else if(ev->wheel.y > 0)
+	else if(ev->wheel.y < 0)
 		Mouse.WheelScrollDown = true;
 }
 
