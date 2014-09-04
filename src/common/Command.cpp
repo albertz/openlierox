@@ -1481,7 +1481,7 @@ void Cmd_setWormColor::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	
 	// Set the colour
 	w->writeSkin().setDefaultColor(Color(r, g, b));
-	w->setColour(r, g, b);
+	w->setColour(Color(r, g, b));
 	
 	// Send the update
 	cServer->UpdateWorm(w);
