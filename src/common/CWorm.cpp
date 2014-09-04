@@ -1528,7 +1528,8 @@ Color CWorm::getGameColour() const
 }
 
 void CWorm::setColour(Color c) {
-	cSkin.write().Colorize(c);
+	writeSkin().setDefaultColor(c);
+	ChangeGraphics();
 }
 
 template<typename SettingsType>
