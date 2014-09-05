@@ -223,7 +223,9 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 		errors("CMap::New:: ERROR: cannot create surface\n");
 		return false;
 	}
-
+	
+	NumObjects = 0;
+	nTotalDirtCount = 0;
 	Created = true;
 	return true;
 }
@@ -257,9 +259,6 @@ bool CMap::MiniCreate(uint _width, uint _height, uint _minimap_w, uint _minimap_
 // Create a new map
 bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
 {
-	NumObjects = 0;
-    nTotalDirtCount = 0;
-
 	// Create the map
 	if (!Create(_width, _height, _theme, _minimap_w, _minimap_h))
 		return false;
