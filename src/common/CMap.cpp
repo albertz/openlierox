@@ -894,7 +894,7 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 	if (!hole.get())
 		return 0;
 
-	int nNumDirt = 0;
+	int nNumCarvedDirt = 0;
 	int w = hole.get()->w;
 	int h = hole.get()->h;
 	int map_x = (int)pos.x - w / 2;
@@ -952,8 +952,7 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 					// Set the flag to empty
 					if(CurrentPixel == tLX->clPink)
 					{
-						// Increase the dirt count
-						nNumDirt++;
+						nNumCarvedDirt++;
 						*PixelFlag = Material::indexFromLxFlag(PX_EMPTY);
 						copypixel_solid2x2(image, background, mapx2, mapy2);
 						putpixel2x2(lightmap, mapx2, mapy2, 0);
@@ -974,11 +973,11 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 
 	UnlockSurface(hole);
 
-	if(nNumDirt)  { // Update only when something has been carved
+	if(nNumCarvedDirt)  { // Update only when something has been carved
 		UpdateArea(map_x, map_y, w, h, true);
 	}
 
-    return nNumDirt;
+    return nNumCarvedDirt;
 }
 
 
