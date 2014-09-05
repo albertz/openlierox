@@ -78,7 +78,7 @@ namespace{
 		}		
 	}
 	
-	LevelConfig* loadConfig( std::string const& filename )
+	static LevelConfig* loadConfig( std::string const& filename )
 	{
 		std::ifstream fileStream;
 		OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
