@@ -9,7 +9,7 @@
 #endif
 #include "../script.h"
 
-struct VermesLevelLoader : ResourceLocator<CMap>::BaseLoader
+struct GusanosLevelLoader : ResourceLocator<CMap>::BaseLoader
 {
 	virtual bool canLoad(std::string const& path, std::string& name);
 	
@@ -19,11 +19,11 @@ struct VermesLevelLoader : ResourceLocator<CMap>::BaseLoader
 	virtual std::string format();
 	virtual std::string formatShort();
 	
-	static VermesLevelLoader instance;
+	static GusanosLevelLoader instance;
 };
 
 #ifndef DEDICATED_ONLY
-struct VermesFontLoader : ResourceLocator<Font>::BaseLoader
+struct GusanosFontLoader : ResourceLocator<Font>::BaseLoader
 {
 	virtual bool canLoad(std::string const& path, std::string& name);
 	
@@ -33,7 +33,7 @@ struct VermesFontLoader : ResourceLocator<Font>::BaseLoader
 	virtual std::string format();
 	virtual std::string formatShort();
 	
-	static VermesFontLoader instance;
+	static GusanosFontLoader instance;
 };
 
 struct XMLLoader : ResourceLocator<XMLFile, false, false>::BaseLoader

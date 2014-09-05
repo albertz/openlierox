@@ -208,7 +208,7 @@ END_LUA_CALLBACK()
 
 /*! console_register_command(name, function)
 
-	Registers the function //function// as a command in the Vermes console.
+	Registers the function //function// as a command in the Gusanos console.
 	When it is called, it will be passed each console parameter as a seperate parameter to the function.
 	The command will be removed automatically when a new map is loaded.
 */

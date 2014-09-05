@@ -62,7 +62,7 @@ class ML_LieroX;
 class ML_CommanderKeen123;
 struct ML_Gusanos;
 struct ML_Teeworlds;
-struct VermesLevelLoader;
+struct GusanosLevelLoader;
 
 class CMap {
 	friend class MapLoad;
@@ -71,7 +71,7 @@ class CMap {
 	friend class ML_CommanderKeen123;
 	friend struct ML_Gusanos;
 	friend struct ML_Teeworlds;
-	friend struct VermesLevelLoader;
+	friend struct GusanosLevelLoader;
 	
 private:
 	// just don't do that

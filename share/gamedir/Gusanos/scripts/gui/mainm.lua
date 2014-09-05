@@ -7,7 +7,7 @@ function mainm.init()
 	gui_load_gss("main-menu")
 	
 	local menu = gui_group({id = "menu", group = "main"})
-	local title = gui_button({id = "titlehax", label = "Vermes Menu"})
+	local title = gui_button({id = "titlehax", label = "Gusanos Menu"})
 	local continueBtn = gui_button({id = "continue", label = "X"})
 	local win = gui_window({id = "win"})
 	
@@ -70,7 +70,7 @@ function mainm.init()
 		elseif reason == EndReason.Kicked then
 			showStatus("You got kicked from the server")
 		elseif reason == EndReason.IncompatibleProtocol then
-			showStatus("Your version of vermes isn't compatible with the server's")
+			showStatus("Your version of Gusanos isn't compatible with the server's")
 		elseif reason == EndReason.IncompatibleData then
 			showStatus("Your data is incompatible with the server's")
 		end
