@@ -152,7 +152,7 @@ private:
 	size_t						 iActiveDownloads;
 
 	friend Result ManagerMain(void *param);
-	bool						bBreakThread;
+	volatile bool				bBreakThread;
 
 public:
 	void						ProcessDownloads();
