@@ -182,14 +182,6 @@ void CMapEditor::New(int width, int height, const std::string &theme)
 }
 
 //////////////////
-// Put some random holes, stones and misc
-void CMapEditor::Random()
-{
-	//cMap->ApplyRandom();
-	Repaint();
-}
-
-//////////////////
 // Load the map from a file
 void CMapEditor::Load(const std::string &path)
 {
