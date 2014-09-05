@@ -1101,7 +1101,7 @@ private:
 		
 		// Allocate the map
 	createMap:
-		if(!m->New(m->Width, m->Height, "dirt")) {
+		if(!m->Create(m->Width, m->Height, "dirt")) {
 			errors << "CMap::Load (" << filename << "): cannot allocate map" << endl;
 			if(cCache.GetEntryCount() > 0) {
 				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;

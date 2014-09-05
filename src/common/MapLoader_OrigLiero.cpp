@@ -55,7 +55,7 @@ public:
 		fseek(fp,0,SEEK_SET);
 		
 		// Default is a dirt theme for the background & dirtballs
-		if( !m->New(504,350,"dirt") ) {
+		if( !m->Create(504,350,"dirt") ) {
 			return false;
 		}
 		
