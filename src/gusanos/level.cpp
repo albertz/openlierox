@@ -441,6 +441,8 @@ bool CMap::getPredefinedSpawnLocation(CWorm* worm, CVec* v) {
 
 void CMap::loaderSucceeded()
 {
+	assert(image);
+	
 	m_water.clear();
 	for ( int y = 0; y < material->h; ++y )
 		for ( int x = 0; x < material->w; ++x ) {
