@@ -29,34 +29,7 @@ void CMinimap::Load(const std::string& level)
 	cMap->Shutdown();
 	cMap->SetMinimapDimensions(getWidth() - cBorder.getLeftW() - cBorder.getRightW(), getHeight() - cBorder.getTopW() - cBorder.getBottomW());
 	sFileName = level;
-	//getGameLobby()->sMapRandom.bUsed = false;
 
-	/*
-	if (level == "_random_")  {
-		if (cMap->New(504, 350, cMap->findRandomTheme()))  {
-			cMap->ApplyRandom();
-
-			// Free any old random map object list
-			if( getGameLobby()->sMapRandom.psObjects ) {
-				delete[] getGameLobby()->sMapRandom.psObjects;
-				getGameLobby()->sMapRandom.psObjects = NULL;
-			}
-
-			// Copy the layout
-			maprandom_t *psRand = cMap->getRandomLayout();
-			getGameLobby()->sMapRandom = *psRand;
-			getGameLobby()->sMapRandom.bUsed = true;
-
-			// Copy the objects, not link
-			getGameLobby()->sMapRandom.psObjects = new object_t[getGameLobby()->sMapRandom.nNumObjects];
-			if( getGameLobby()->sMapRandom.psObjects ) {
-				for( int i=0; i<getGameLobby()->sMapRandom.nNumObjects; i++ ) {
-					getGameLobby()->sMapRandom.psObjects[i] = psRand->psObjects[i];
-				}
-			}
-		}
-	} else {
-	*/
 	cMap->Load(level);		
 
 	Repaint();
