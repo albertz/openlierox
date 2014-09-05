@@ -282,7 +282,6 @@ bool CMap::MiniNew(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
 {
 	NumObjects = 0;
     nTotalDirtCount = 0;
-    //sRandomLayout.bUsed = false;
 	
 	// Create the map
 	if (!MiniCreate(_width, _height, _minimap_w, _minimap_h))
