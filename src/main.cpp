@@ -391,6 +391,7 @@ startpoint:
 	UnInitTaskManager();
 
 	if(bRestartGameAfterQuit) {
+		game.state = Game::S_Inactive; // reset this. otherwise, we would quit if it is still S_Quit.
 		bRestartGameAfterQuit = false;
 		hints << "-- Restarting game --" << endl;
 		goto startpoint;

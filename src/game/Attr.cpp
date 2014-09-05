@@ -26,6 +26,7 @@
 #include "CServerConnection.h"
 #include "Debug.h"
 #include "FindFile.h"
+#include "LieroX.h"
 
 static CServerConnection* attrUpdateByClientScope = NULL;
 static bool attrUpdateByServerScope = false;
@@ -73,7 +74,7 @@ void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
 bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
 	assert(base != NULL);
 	if(this == Game::state_Type::attrDesc()) { // small exception for game.state
-		if(game.state == Game::S_Quit) return false; // don't allow any changes anymore on game.state. just quit
+		if(game.state == Game::S_Quit && !bRestartGameAfterQuit) return false; // don't allow any changes anymore on game.state. just quit
 		return true; // just allow any changes. client might want to disconnect, so client must be allowed to write this :)
 	}
 	if(game.state <= Game::S_Inactive) return true;
