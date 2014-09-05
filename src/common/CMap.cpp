@@ -267,9 +267,10 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 		return false;
 
 	TileMap();
+	lxflagsToGusflags();
+
 	UpdateMiniMap();
     CalculateDirtCount();
-	lxflagsToGusflags();
 
 	return true;
 }
