@@ -754,7 +754,8 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 {
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
-	if(gusIsLoaded())		
+	if(gusIsLoaded())
+		// See CMap::gusDraw().
 		return;
 	
 	if(!cClient->getGameLobby()[FT_InfiniteMap]) {
