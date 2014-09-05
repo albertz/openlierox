@@ -278,8 +278,6 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
     // Calculate the grid
     calculateGrid();
 	*/
-	
-	Created = true;
 
 	return true;
 }

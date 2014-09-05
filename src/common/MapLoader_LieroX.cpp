@@ -437,7 +437,7 @@ class ML_LieroX : public MapLoad {
 		
 		
 		// Create a blank map
-		if(!m->New(Width, Height, Theme_Name, m->MinimapWidth, m->MinimapHeight)) {
+		if(!m->Create(Width, Height, Theme_Name, m->MinimapWidth, m->MinimapHeight)) {
 			errors << "CMap::Load (" << filename << "): cannot create map" << endl;
 			return false;
 		}
