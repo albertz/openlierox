@@ -330,7 +330,6 @@ bool CMap::LoadTheme(const std::string& _theme)
 		const std::string thmfile = thmdir + "/theme.txt";
 		
 		Theme.name = _theme;
-		//sRandomLayout.szTheme = _theme;
 
 		LOAD_IMAGE(Theme.bmpBacktile, thmdir + "/Backtile.png");
 		LOAD_IMAGE(Theme.bmpFronttile, thmdir + "/Fronttile.png");
