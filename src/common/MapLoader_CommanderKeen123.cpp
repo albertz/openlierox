@@ -1110,6 +1110,7 @@ private:
 			}
 			return false;
 		}
+		m->TileMap();		
 		
 		LOCK_OR_FAIL(m->bmpBackImageHiRes);
 		LOCK_OR_FAIL(m->bmpDrawImage);

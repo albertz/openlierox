@@ -58,7 +58,8 @@ public:
 		if( !m->Create(504,350,"dirt") ) {
 			return false;
 		}
-		
+		m->TileMap();
+
 		// Image type of map
 		m->Type = MPT_IMAGE;
 		

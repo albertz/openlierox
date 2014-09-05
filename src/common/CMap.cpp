@@ -257,27 +257,19 @@ bool CMap::MiniCreate(uint _width, uint _height, uint _minimap_w, uint _minimap_
 
 ///////////////////
 // Create a new map
+// This map is ready to be used (for playing, drawing, etc.).
+// Currently, this is only used for the map editor.
+// Otherwise, in map loading code, we just use CMap::Create().
 bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
 {
 	// Create the map
 	if (!Create(_width, _height, _theme, _minimap_w, _minimap_h))
 		return false;
 
-	// Place default tiles
 	TileMap();
-
-	// TODO: does that make sense? we haven't loaded anything yet...
-	
-	/*
-	// Update the mini map
 	UpdateMiniMap();
-
-    // Calculate the total dirt count
     CalculateDirtCount();
-
-    // Calculate the grid
-    calculateGrid();
-	*/
+	lxflagsToGusflags();
 
 	return true;
 }

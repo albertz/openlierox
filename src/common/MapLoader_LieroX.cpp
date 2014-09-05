@@ -441,6 +441,7 @@ class ML_LieroX : public MapLoad {
 			errors << "CMap::Load (" << filename << "): cannot create map" << endl;
 			return false;
 		}
+		m->TileMap();
 		
 		SmartPointer<SDL_Surface> bmpImage = gfxCreateSurface(Width, Height);
 		SmartPointer<SDL_Surface> bmpBackImage = gfxCreateSurface(Width, Height);
