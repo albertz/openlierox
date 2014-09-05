@@ -210,10 +210,8 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 			level->bmpForeground = LoadGameImage(path + "/foreground.png", true);
 			if(!level->config()->doubleRes && level->bmpForeground.get())
 				level->bmpForeground = GetCopiedStretched2Image(level->bmpForeground);
-			
-			std::string lightmapPath = path + "/lightmap";
-		
-			ALLEGRO_BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str(), false, !level->config()->doubleRes);
+					
+			ALLEGRO_BITMAP* tempLightmap = gfx.loadBitmap(path + "/lightmap", false, !level->config()->doubleRes);
 			
 			if ( tempLightmap )
 			{
