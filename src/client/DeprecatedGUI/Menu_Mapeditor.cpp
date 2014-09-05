@@ -78,6 +78,7 @@ bool Menu_MapEdInitialize()
 	if(cMap) delete cMap;
 	cMap = new CMap();
 	cMap->New(504,350,"dirt");
+	// TODO: sth like this is missing: cMap->lxflagsToGusflags(); ... clean-up this mess...
 	if(cMapedView) delete cMapedView;
 	cMapedView = new CViewport();
 	cMapedView->Setup(22,148, 596,310,0);
