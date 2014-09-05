@@ -1225,7 +1225,6 @@
 		23C34E7A10CC4AC400DABBD6 /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx.cpp; sourceTree = "<group>"; };
 		23C34E7B10CC4AC400DABBD6 /* gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gfx.h; sourceTree = "<group>"; };
 		23C34E7C10CC4AC400DABBD6 /* glua.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glua.cpp; sourceTree = "<group>"; };
-		23C34E7D10CC4AC400DABBD6 /* glua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glua.h; sourceTree = "<group>"; };
 		23C34E7E10CC4AC400DABBD6 /* material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = material.cpp; sourceTree = "<group>"; };
 		23C34E7F10CC4AC400DABBD6 /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = material.h; sourceTree = "<group>"; };
 		23C34E8010CC4AC400DABBD6 /* noise_line.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = noise_line.cpp; sourceTree = "<group>"; };
@@ -2242,7 +2241,6 @@
 				23C34E7A10CC4AC400DABBD6 /* gfx.cpp */,
 				23C34E7B10CC4AC400DABBD6 /* gfx.h */,
 				23C34E7C10CC4AC400DABBD6 /* glua.cpp */,
-				23C34E7D10CC4AC400DABBD6 /* glua.h */,
 				23C34E7E10CC4AC400DABBD6 /* material.cpp */,
 				23C34E7F10CC4AC400DABBD6 /* material.h */,
 				23C34E8010CC4AC400DABBD6 /* noise_line.cpp */,
