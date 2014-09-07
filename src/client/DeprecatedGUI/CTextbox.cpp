@@ -406,11 +406,8 @@ int CTextbox::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 			// Convert the code
 			bool fail = false;
-#if _MSC_VER <= 1200
-			UnicodeChar in = (UnicodeChar)from_string<int>(sAltKey, fail);  // MSVC cannot convert string to UnicodeChar
-#else
-			UnicodeChar in = from_string<UnicodeChar>(sAltKey, fail);
-#endif
+			UnicodeChar in = (UnicodeChar)from_string<int>(sAltKey, fail);
+			
 			// Insert
 			if (!fail)
 				Insert(in);
