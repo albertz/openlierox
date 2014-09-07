@@ -513,14 +513,16 @@ void Con_Process(TimeDiff dt)
 {
 	if(tLX && tLX->cConsoleToggle.isDownOnce())
 		Con_Toggle();
-	
+
 	keyboard_t *kb = GetKeyboard();
-
-	// Process the input
-	for(int i = 0; i < kb->queueLength; i++) {
-		Con_ProcessCharacter(kb->keyQueue[i]);
+	
+	if(!tLX->cConsoleToggle.isDown()) {
+		// Process the input
+		for(int i = 0; i < kb->queueLength; i++) {
+			Con_ProcessCharacter(kb->keyQueue[i]);
+		}
 	}
-
+	
 	// Skip the first frame (because of high dt in menu)
 	if (kb->queueLength)
 		return;
