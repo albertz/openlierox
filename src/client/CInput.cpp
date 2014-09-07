@@ -34,7 +34,6 @@
 
 
 keys_t Keys[] = {
-	{ "", 0 },
 	{ "a", SDLK_a },
 	{ "b", SDLK_b },
 	{ "c", SDLK_c },
@@ -445,6 +444,7 @@ int CInput::Wait(std::string& strText)
 	// Keyboard
 	for(int i = 0; i < kb->queueLength; ++i) {
 		if(kb->keyQueue[i].down) continue;
+		if(kb->keyQueue[i].sym == 0) continue;
 		
 		for(uint n = 0; n<sizeof(Keys) / sizeof(keys_t); n++) {
 			if(kb->keyQueue[i].sym == Keys[n].value) {
