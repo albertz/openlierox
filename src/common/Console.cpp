@@ -67,7 +67,7 @@ struct console_t {
 	size_t		iCurpos;
 	conline_t	Line[MAX_CONLINES];
 	
-	int			iBlinkState; // 1 - displayed, 0 - hidden
+	bool		bBlinkState; // true = displayed
 	AbsTime		fBlinkTime;
 	
 	SmartPointer<SDL_Surface> bmpConPic;
@@ -450,7 +450,7 @@ int Con_Initialize()
 	Console->iLastchar = 0;
 	Console->iCurpos = 0;
 	Console->fBlinkTime = 0;
-	Console->iBlinkState = 1;
+	Console->bBlinkState = true;
 
 	for(n=0;n<MAX_CONLINES;n++) {
 		Console->Line[n].strText = "";
@@ -474,7 +474,7 @@ void Con_Toggle()
 {
 	// Update the cursor blink state
 	Console->fBlinkTime = 0;
-	Console->iBlinkState = 1;
+	Console->bBlinkState = true;
 
 	con_timer->start();
 
@@ -500,7 +500,7 @@ void Con_Hide()
 	Console->iState = CON_HIDDEN;
 	Console->fPosition = 1;
 	Console->fBlinkTime = 0;
-	Console->iBlinkState = 1;
+	Console->bBlinkState = true;
 }
 
 
@@ -554,6 +554,8 @@ void Con_Process(TimeDiff dt)
 static void Con_ProcessCharacter(const KeyboardEvent& input)
 {
 	if(!input.down) return;
+	Console->fBlinkTime = 0;
+	Console->bBlinkState = true;
 	
 	if( input.sym == SDLK_ESCAPE ) {
 		if (Console->iState != CON_HIDING && Console->iState != CON_HIDDEN)
@@ -629,6 +631,9 @@ void Con_Draw(SDL_Surface * bmpDest)
 		input = ingameConsole.input;
 	}
 
+	Console->fBlinkTime += tLX->fDeltaTime;
+	Console->bBlinkState = Console->fBlinkTime.milliseconds() % 1000 < 500;
+
 	// Draw the lines of text
 	for(int n = 0; n < MAX_CONLINES; n++, texty -= 15) {
 		std::string buf = "";
@@ -638,14 +643,7 @@ void Con_Draw(SDL_Surface * bmpDest)
 		else
 			buf = Console->Line[n].strText;
 
-		Console->fBlinkTime += tLX->fDeltaTime;
-		if (Console->fBlinkTime > AbsTime(10.0f)) {
-			Console->iBlinkState = !Console->iBlinkState;
-			Console->fBlinkTime = 0;
-		}
-
-		// looks nicer without blinking, doesn't it?
-		if(n==0 /*&& Console->iBlinkState*/)  {
+		if(n==0 && Console->bBlinkState)  {
 			DrawVLine(
 				bmpDest,
 				texty, texty + tLX->cFont.GetHeight(),

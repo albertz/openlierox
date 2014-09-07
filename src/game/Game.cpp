@@ -1346,6 +1346,10 @@ bool Game::allowedToSleepForEvent() {
 		// Again, LX GUI code sucks. It needs some refresh right at startup.
 		return false;
 
+	if(Con_IsVisible())
+		// cursor blinking in console
+		return false;
+
 	return true;
 }
 
