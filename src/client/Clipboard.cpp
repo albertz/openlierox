@@ -27,6 +27,7 @@
    See the COPYING file for more details.
 */
 
+// TODO: maybe this is all not needed anymore with SDL2 ?
 
 #include <algorithm>
 
@@ -35,6 +36,7 @@
 #include "Debug.h"
 
 #if !defined(DEDICATED_ONLY) && defined(X11) && !defined(__APPLE__)
+#if 0 // TODO SDL2...
 
 #define CLIPBOARD_FUNCS_DEFINED
 
@@ -399,6 +401,7 @@ void copy_to_clipboard(const std::string& text)
 	clipboardMainthreadCopyTo = true;
 }
 
+#endif
 #endif
 
 #if !defined(DEDICATED_ONLY) && defined(WIN32)
