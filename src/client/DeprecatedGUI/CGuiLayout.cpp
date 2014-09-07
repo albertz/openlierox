@@ -30,6 +30,7 @@
 #include "DeprecatedGUI/CSlider.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "XMLutils.h"
+#include "OLXConsole.h"
 
 
 // XML parsing library
@@ -660,7 +661,7 @@ gui_event_t *CGuiLayout::Process()
 	// Parse keyboard events to the focused widget
 	// Make sure a key event happened
 	keyboard_t *Keyboard = GetKeyboard();
-	if(Keyboard->queueLength > 0) {
+	if(!Con_IsVisible() && Keyboard->queueLength > 0) {
 
 
 		// If we don't have any focused widget, get the first textbox
