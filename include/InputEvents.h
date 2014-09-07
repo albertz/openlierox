@@ -43,6 +43,7 @@ struct KeyboardEvent {
     UnicodeChar ch;
 	bool down;
 	ModifiersState state;
+	KeyboardEvent() : sym(0), ch(0), down(false) {}
 };
 
 // Keyboard structure
