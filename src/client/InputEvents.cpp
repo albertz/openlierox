@@ -370,11 +370,11 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 static void EvHndl_TextInput(SDL_Event* _ev) {
 	SDL_TextInputEvent& ev = _ev->text;
 	
-	auto p = ev.text;
+	auto p = ev.text; // 0-terminated utf8
 	auto end = p + sizeof(ev.text);
 	while(p != end) {
 		UnicodeChar ch = GetNextUnicodeFromUtf8(p, end);
-		if(ch == 0) continue; // I don't want zeros. No special reason.
+		if(ch == 0) break;
 
 		// This is somewhat hacky. SDL1 only supported key events and all
 		// text input was via those. We keep the same interface and emulate
