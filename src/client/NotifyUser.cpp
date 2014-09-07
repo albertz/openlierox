@@ -24,7 +24,7 @@ void ClearUserNotify() {}
 	#include <windows.h>
 	#include <SDL.h>
 	#include <SDL_syswm.h>
-#elif defined(X11)
+#elif 0 // defined(X11) // TODO SDL2 support ...
 	#define Font Font_Xlib // Hack to prevent name clash in precompiled header and system libs
 	#include <X11/Xlib.h>
 	#undef Font
