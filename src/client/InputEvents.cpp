@@ -286,43 +286,19 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 	// Check the characters
 	if(ev->key.state == SDL_PRESSED || ev->key.state == SDL_RELEASED) {
 		UnicodeChar input = 0;
-		/*
-		// TODO: not sure about that...
 		switch (ev->key.keysym.sym) {
-			case SDLK_HOME:
-				input = 2;
-				break;
-			case SDLK_END:
-				input = 3;
-				break;
-			case SDLK_KP_0:
-			case SDLK_KP_1:
-			case SDLK_KP_2:
-			case SDLK_KP_3:
-			case SDLK_KP_4:
-			case SDLK_KP_5:
-			case SDLK_KP_6:
-			case SDLK_KP_7:
-			case SDLK_KP_8:
-			case SDLK_KP_9:
-			case SDLK_KP_MULTIPLY:
-			case SDLK_KP_MINUS:
-			case SDLK_KP_PLUS:
-			case SDLK_KP_EQUALS:
-				input = (uchar) (ev->key.keysym.sym - 208);
-				break;
-			case SDLK_KP_PERIOD:
-			case SDLK_KP_DIVIDE:
-				input = (uchar) (ev->key.keysym.sym - 220);
-				break;
+			case SDLK_RETURN:
+			case SDLK_RETURN2:
 			case SDLK_KP_ENTER:
 				input = '\r';
+				break;
+			case SDLK_TAB:
+				input = '\t';
 				break;
 			default:
 				// nothing
 				break;
 		}  // switch
-		 */
 		 
 		KeyboardEvent kbev;
 
