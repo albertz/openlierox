@@ -295,7 +295,13 @@ static void attrUpdateDebugHook(ObjAttrRef a, const ScriptVar_t& oldValue, const
 
 static void attrUpdateDebugHooks() {
 #ifdef DEBUG
-	foreach(ci, attrUpdateCallinfos.get()) {
+	AttrUpdateCallinfos updates;
+	{
+		Mutex::ScopedLock lock(objUpdatesMutex.get());		
+		std::swap(updates, attrUpdateCallinfos.get());
+	}
+	
+	foreach(ci, updates) {
 		ObjAttrRef a = ci->first;
 		const ScriptVar_t* lastValue = NULL;
 		const std::vector<void*>* lastCallstack = NULL;
@@ -314,7 +320,6 @@ static void attrUpdateDebugHooks() {
 				attrUpdateDebugHook(a, *lastValue, a.get(), *lastCallstack);
 		}
 	}
-	attrUpdateCallinfos.get().clear();
 #endif
 }
 
@@ -399,6 +404,9 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 
 void iterAttrUpdates() {
 
+	// We must do certain thinks outside of the objUpdatesMutex lock.
+	// See also pushObjAttrUpdate() for reference.
+	
 	struct UpdateCallInfo {
 		BaseObject* obj;
 		const AttrDesc* attrDesc;
@@ -408,10 +416,10 @@ void iterAttrUpdates() {
 	};
 	std::vector<UpdateCallInfo> updateCallbacks;
 
+	attrUpdateDebugHooks();
+
 	{
 		Mutex::ScopedLock lock(objUpdatesMutex.get());
-
-		attrUpdateDebugHooks();
 
 		foreach(o, objUpdates.get()) {
 			BaseObject* oPt = o->get();
@@ -441,7 +449,7 @@ void iterAttrUpdates() {
 
 		objUpdates->clear();
 	}
-	
+		
 	// Now call the onUpdate callbacks.
 	for(UpdateCallInfo& update : updateCallbacks) {
 		update.attrDesc->onUpdate(update.obj, update.attrDesc, update.oldValue);
