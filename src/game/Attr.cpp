@@ -349,23 +349,28 @@ void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
 	// which will most likely crash.
 	assert(!isGameloopThreadRunning() || isGameloopThread());
 	
-	Mutex::ScopedLock lock(objUpdatesMutex.get());
-	// XXX TODO: The lock is problematic.
+	// Note: The lock is problematic.
 	// Even a ScriptVar_t copy can issue a new call into here.
-	// Not sure about the fix. We could make objUpdatesMutex a recursive mutex.
-	// Or we minimalize the lock-duration, which complicates the code here,
-	// and maybe even causes slowdowns.
+	// Thus, we need to do certain things outside of the lock.
 	attrUpdateAddCallInfo(obj, attrDesc);
-	if(obj.attrUpdates.empty())
-		pushObjAttrUpdate(obj);
-	AttrExt& ext = attrDesc->getAttrExt(&obj);
-	if(!ext.updated || obj.attrUpdates.empty()) {
-		AttrUpdateInfo info;
-		info.attrDesc = attrDesc;
-		info.oldValue = attrDesc->get(&obj);
-		realCopyVar(info.oldValue);
-		obj.attrUpdates.push_back(info);
-		ext.updated = true;
+	AttrUpdateInfo* updateInfo = NULL;
+
+	{
+		Mutex::ScopedLock lock(objUpdatesMutex.get());
+		if(obj.attrUpdates.empty())
+			pushObjAttrUpdate(obj);
+		AttrExt& ext = attrDesc->getAttrExt(&obj);
+		if(!ext.updated || obj.attrUpdates.empty()) {
+			obj.attrUpdates.push_back(AttrUpdateInfo());
+			ext.updated = true;
+			updateInfo = &obj.attrUpdates.back();
+		}
+	}
+
+	if(updateInfo) {
+		updateInfo->attrDesc = attrDesc;
+		updateInfo->oldValue = attrDesc->get(&obj);
+		realCopyVar(updateInfo->oldValue);
 	}
 }
 
