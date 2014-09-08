@@ -290,7 +290,7 @@ void CGameSkin::Change(const std::string &file)
 void skin_load(const CGameSkin& skin) {
 	CGameSkin& s = (CGameSkin&) skin; // cast away constness. this is safe when we get here... i know, it's hacky, sorry...
 
-	Mutex::ScopedLock lock(s.thread->mutex);
+	// We expect that we already hold the s.thread->mutex here.
 
 	s.thread->removeActions__unsafe();
 
