@@ -158,6 +158,15 @@ template<typename T> struct GetType : _SelectType<sizeof(_selectType((T*)NULL, *
 
 
 
+template<typename T>
+inline static
+int _compare(const T& a, const T& b) {
+	if(a == b) return 0;
+	if(a < b) return -1;
+	return 1;
+}
+
+
 template<typename T> T* PtrFromScriptVar(ScriptVar_t& v, T* dummy = NULL);
 template<typename T> T CastScriptVarConst(const ScriptVar_t& s);
 
@@ -302,53 +311,34 @@ public:
 		return type == SVT_CUSTOM || type == SVT_CustomWeakRefToStatic;
 	}
 
-	bool operator==(const ScriptVar_t& var) const {
-		if(isNumeric() && var.isNumeric()) return getNumber() == var.getNumber();
+	bool compare(const ScriptVar_t& var) const {
+		if(isNumeric() && var.isNumeric()) return _compare(getNumber(), var.getNumber());
 		if(isCustomType() && var.isCustomType()) {
 			if(customVar() == NULL || var.customVar() == NULL)
-				return customVar() == var.customVar();
-			return *customVar() == *var.customVar();
+				return _compare(customVar(), var.customVar());
+			return _compare(*customVar(), *var.customVar());
 		}
-		if(var.type != type) return false;
+		if(var.type != type) return _compare(type, var.type);
 		switch(type) {
-		case SVT_BOOL: return b == var.b;
-		case SVT_INT32: return i == var.i;
-		case SVT_UINT64: return i_uint64 == var.i_uint64;
-		case SVT_FLOAT: return f == var.f;
-		case SVT_STRING: return str == var.str;
-		case SVT_COLOR: return col == var.col;
-		case SVT_VEC2: return vec2 == var.vec2;
-		case SVT_CUSTOM:
-		case SVT_CustomWeakRefToStatic:
-		case SVT_CALLBACK:
-		case SVT_DYNAMIC: assert(false);
+			case SVT_BOOL: return _compare(b, var.b);
+			case SVT_INT32: return _compare(i, var.i);
+			case SVT_UINT64: return _compare(i_uint64, var.i_uint64);
+			case SVT_FLOAT: return _compare(f, var.f);
+			case SVT_STRING: return _compare(str, var.str);
+			case SVT_COLOR: return _compare(col, var.col);
+			case SVT_VEC2: return _compare(vec2, var.vec2);
+			case SVT_CUSTOM: // covered above
+			case SVT_CustomWeakRefToStatic:
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
+			default: assert(false);
 		}
-		return false;
+		return 0;
 	}
-	bool operator!=(const ScriptVar_t& var) const { return !(*this == var); }
-	bool operator<(const ScriptVar_t& var) const {
-		if(isNumeric() && var.isNumeric()) return getNumber() < var.getNumber();
-		if(isCustomType() && var.isCustomType()) {
-			if(customVar() == NULL || var.customVar() == NULL)
-				return customVar() < var.customVar();
-			return *customVar() < *var.customVar();
-		}
-		if(var.type != type) return type < var.type;
-		switch(type) {
-		case SVT_BOOL: return b < var.b;
-		case SVT_INT32: return i < var.i;
-		case SVT_UINT64: return i_uint64 < var.i_uint64;
-		case SVT_FLOAT: return f < var.f;
-		case SVT_STRING: return str < var.str;
-		case SVT_COLOR: return col < var.col;
-		case SVT_VEC2: return vec2 < var.vec2;
-		case SVT_CUSTOM:
-		case SVT_CustomWeakRefToStatic:
-		case SVT_CALLBACK:
-		case SVT_DYNAMIC: assert(false);
-		}
-		return false;
-	}
+
+	bool operator==(const ScriptVar_t& var) const { return compare(var) == 0; }
+	bool operator!=(const ScriptVar_t& var) const { return compare(var) != 0; }
+	bool operator<(const ScriptVar_t& var) const { return compare(var) < 0; }
 	
 	bool isNumeric() const { return type == SVT_INT32 || type == SVT_UINT64 || type == SVT_FLOAT; }
 	// TODO: float has the same size as int, so we should convert to double here to avoid data loss with big ints
