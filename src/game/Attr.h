@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <utility>
 #include <boost/function.hpp>
 #include "util/WeakRef.h"
 #include "CScriptableVars.h"
@@ -129,6 +130,9 @@ const AttrDesc* findAttrDescByName(const std::string& name, ClassId classId, boo
 struct AttrUpdateInfo {
 	const AttrDesc* attrDesc;
 	ScriptVar_t oldValue;
+	AttrUpdateInfo() : attrDesc(NULL) {}
+	AttrUpdateInfo(AttrUpdateInfo&& other)
+	: attrDesc(other.attrDesc), oldValue(std::move(other.oldValue)) {}
 };
 
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc);

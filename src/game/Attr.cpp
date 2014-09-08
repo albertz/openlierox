@@ -361,6 +361,9 @@ void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
 			pushObjAttrUpdate(obj);
 		AttrExt& ext = attrDesc->getAttrExt(&obj);
 		if(!ext.updated || obj.attrUpdates.empty()) {
+			// Note that the move constructor of ScriptVar_t is important
+			// here because attrUpdates is a vector which might issue
+			// a copy.
 			obj.attrUpdates.push_back(AttrUpdateInfo());
 			ext.updated = true;
 			updateInfo = &obj.attrUpdates.back();
