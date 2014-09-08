@@ -25,6 +25,11 @@ private:
 
 #ifdef DEBUG
 	volatile unsigned long m_lockedThread;  // Thread that keeps the lock
+	
+	void _lock_pre();
+	void _lock_post();
+	void _unlock_pre();
+	void _unlock_post();
 #endif
 
 public:
