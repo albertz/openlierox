@@ -430,7 +430,12 @@ void iterAttrUpdates() {
 				ScriptVar_t& oldValue = u->oldValue;
 
 				attrDesc->getAttrExt(oPt).updated = false;
-				if(oldValue == attrDesc->get(oPt)) continue; // TODO: this causes a copy, cannot be done locked
+				// Note: In most cases, the attrib is static and this will not create
+				// any temporary ScriptVar_t copy.
+				// If it would, that would be dangerous because that can have many
+				// side effects which might again access the object attrib system
+				// - but we have te objUpdatesMutex locked here.
+				if(attrDesc->compare(oPt, oldValue) == 0) continue;
 
 				if(oPt->thisRef) // if registered
 					game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
