@@ -430,7 +430,7 @@ void iterAttrUpdates() {
 				ScriptVar_t& oldValue = u->oldValue;
 
 				attrDesc->getAttrExt(oPt).updated = false;
-				if(oldValue == attrDesc->get(oPt)) continue;
+				if(oldValue == attrDesc->get(oPt)) continue; // TODO: this causes a copy, cannot be done locked
 
 				if(oPt->thisRef) // if registered
 					game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
