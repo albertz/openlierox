@@ -385,34 +385,54 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 }
 
 void iterAttrUpdates() {
-	Mutex::ScopedLock lock(objUpdatesMutex.get());
 
-	attrUpdateDebugHooks();
+	struct UpdateCallInfo {
+		BaseObject* obj;
+		const AttrDesc* attrDesc;
+		ScriptVar_t oldValue;
+		UpdateCallInfo(BaseObject* _o, const AttrDesc* _a, const ScriptVar_t& _v)
+		: obj(_o), attrDesc(_a), oldValue(_v) {}
+	};
+	std::vector<UpdateCallInfo> updateCallbacks;
 
-	foreach(o, objUpdates.get()) {
-		BaseObject* oPt = o->get();
-		if(oPt == NULL) continue;
+	{
+		Mutex::ScopedLock lock(objUpdatesMutex.get());
 
-		foreach(u, oPt->attrUpdates) {
-			const AttrDesc* const attrDesc = u->attrDesc;
-			ScriptVar_t& oldValue = u->oldValue;
+		attrUpdateDebugHooks();
 
-			attrDesc->getAttrExt(oPt).updated = false;
-			if(oldValue == attrDesc->get(oPt)) continue;
+		foreach(o, objUpdates.get()) {
+			BaseObject* oPt = o->get();
+			if(oPt == NULL) continue;
 
-			if(oPt->thisRef) // if registered
-				game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
+			foreach(u, oPt->attrUpdates) {
+				const AttrDesc* const attrDesc = u->attrDesc;
+				ScriptVar_t& oldValue = u->oldValue;
 
-			if(attrDesc->onUpdate)
-				attrDesc->onUpdate(oPt, attrDesc, oldValue);
+				attrDesc->getAttrExt(oPt).updated = false;
+				if(oldValue == attrDesc->get(oPt)) continue;
 
-			handleAttrUpdateLogging(oPt, attrDesc, oldValue);
+				if(oPt->thisRef) // if registered
+					game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
+
+				if(attrDesc->onUpdate)
+					// We cannot call them here directly because we hold the objUpdatesMutex
+					// (and must keep the hold), and the callbacks can likely access other
+					// object attributes.
+					updateCallbacks.push_back(UpdateCallInfo(oPt, attrDesc, oldValue));
+				
+				handleAttrUpdateLogging(oPt, attrDesc, oldValue);
+			}
+
+			oPt->attrUpdates.clear();
 		}
 
-		oPt->attrUpdates.clear();
+		objUpdates->clear();
 	}
-
-	objUpdates->clear();
+	
+	// Now call the onUpdate callbacks.
+	for(UpdateCallInfo& update : updateCallbacks) {
+		update.attrDesc->onUpdate(update.obj, update.attrDesc, update.oldValue);
+	}
 }
 
 
