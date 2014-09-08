@@ -103,7 +103,7 @@ void NotifyUserOnEvent()
 	flash.dwTimeout = 0;
 	FlashWindowEx( &flash );
 
-#elif defined(X11)
+#elif 0 // defined(X11) // TODO
 
 	struct SetDemandsAttentionAction: public Action
 	{
@@ -128,7 +128,7 @@ void ClearUserNotify() {
 #if defined(__APPLE__)
 	mac__ClearUserNotify();
 #elif defined(WIN32)
-#elif defined(X11)
+#elif 0 // defined(X11) // TODO
 	struct ClearDemandsAttentionAction: public Action
 	{
 		Result handle()
