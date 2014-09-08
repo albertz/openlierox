@@ -161,6 +161,11 @@ inline static constexpr bool isNumericType(ScriptVarType_t type) {
 	return type == SVT_INT32 || type == SVT_UINT64 || type == SVT_FLOAT;
 }
 
+inline static constexpr bool isCustomType(ScriptVarType_t type) {
+	return type == SVT_CUSTOM || type == SVT_CustomWeakRefToStatic;
+}
+
+
 template<typename T>
 inline static
 int _compare(const T& a, const T& b) {
@@ -311,7 +316,7 @@ public:
 		return NULL;
 	}
 	bool isCustomType() const {
-		return type == SVT_CUSTOM || type == SVT_CustomWeakRefToStatic;
+		return ::isCustomType(type);
 	}
 
 	int compare(const ScriptVar_t& var) const {
@@ -580,6 +585,32 @@ struct ScriptVarPtr_t
 		else return ptr.dynVar->type();
 	}
 	
+	int valueCompare(const ScriptVar_t& var) const {
+		if(ptr.b == NULL) return _compare<const ScriptVar_t*>(NULL, &var);
+		if(isNumericType(type) && var.isNumeric()) return _compare(getNumberValue(), var.getNumber());
+		if(isCustomType(type) && var.isCustomType()) {
+			if(customVar() == NULL || var.customVar() == NULL)
+				return _compare<const CustomVar*>(customVar(), var.customVar());
+			return _compare(*customVar(), *var.customVar());
+		}
+		if(type != var.type) return _compare(type, var.type);
+		switch(type) {
+			case SVT_BOOL: return _compare(*ptr.b, (bool)var);
+			case SVT_INT32: return _compare(*ptr.i, (int32_t)var);
+			case SVT_UINT64: return _compare(*ptr.i_uint64, (uint64_t)var);
+			case SVT_FLOAT: return _compare(*ptr.f, (float)var);
+			case SVT_STRING: return _compare(*ptr.s, (std::string)var);
+			case SVT_COLOR: return _compare(*ptr.cl, (Color)var);
+			case SVT_VEC2: return _compare(*ptr.vec2, (CVec)var);
+			case SVT_CUSTOM: // covered above
+			case SVT_CustomWeakRefToStatic:
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
+		}
+		assert(false);
+		return 0;
+	}
+	
 	// These funcs will assert() if you try to call them on Callback varptr
 	std::string toString() const;
 	bool fromString( const std::string & str) const; // const 'cause we don't change pointer itself, only data it points to
@@ -591,12 +622,21 @@ struct ScriptVarPtr_t
 	void fromScriptVar(const ScriptVar_t&) const;
 
 	CustomVar* customVar() const {
+		if(ptr.custom == NULL) return NULL;
 		switch(type) {
 		case SVT_CUSTOM: return &ptr.custom->get();
 		case SVT_CustomWeakRefToStatic: return ptr.customRef;
 		default: assert(false);
 		}
 		return NULL;
+	}
+	
+	float getNumberValue() const {
+		if(ptr.b == NULL) return 0.0f;
+		if(type == SVT_INT32) return (float)*ptr.i;
+		if(type == SVT_UINT64) return (float)*ptr.i_uint64;
+		if(type == SVT_FLOAT) return *ptr.f;
+		return 0.0f;
 	}
 	
 };
