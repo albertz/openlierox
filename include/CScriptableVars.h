@@ -157,6 +157,9 @@ template<typename T> static _SelectType<2,T> _selectType(T*, char[]) { return NU
 template<typename T> struct GetType : _SelectType<sizeof(_selectType((T*)NULL, *(T*)NULL).array), T>::type {};
 
 
+inline static constexpr bool isNumericType(ScriptVarType_t type) {
+	return type == SVT_INT32 || type == SVT_UINT64 || type == SVT_FLOAT;
+}
 
 template<typename T>
 inline static
@@ -311,7 +314,7 @@ public:
 		return type == SVT_CUSTOM || type == SVT_CustomWeakRefToStatic;
 	}
 
-	bool compare(const ScriptVar_t& var) const {
+	int compare(const ScriptVar_t& var) const {
 		if(isNumeric() && var.isNumeric()) return _compare(getNumber(), var.getNumber());
 		if(isCustomType() && var.isCustomType()) {
 			if(customVar() == NULL || var.customVar() == NULL)
@@ -335,12 +338,29 @@ public:
 		}
 		return 0;
 	}
-
+	
+	int compare(const CustomVar& other) const {
+		if(isCustomType()) {
+			if(customVar() == NULL) return _compare<const CustomVar*>(NULL, &other);
+			return _compare(*customVar(), other);
+		}
+		return _compare(type, SVT_CUSTOM);
+	}
+	
+	template<typename T>
+	int compare(const T& other) const {
+		if(isNumeric() && isNumericType(GetType<T>::value)) {
+			return _compare(getNumber(), decltype(getNumber()) (other));
+		}
+		if(type != GetType<T>::value) return _compare(type, GetType<T>::value);
+		return _compare((T) *this, other);
+	}
+	
 	bool operator==(const ScriptVar_t& var) const { return compare(var) == 0; }
 	bool operator!=(const ScriptVar_t& var) const { return compare(var) != 0; }
 	bool operator<(const ScriptVar_t& var) const { return compare(var) < 0; }
 	
-	bool isNumeric() const { return type == SVT_INT32 || type == SVT_UINT64 || type == SVT_FLOAT; }
+	bool isNumeric() const { return isNumericType(type); }
 	// TODO: float has the same size as int, so we should convert to double here to avoid data loss with big ints
 	float getNumber() const {
 		if(type == SVT_INT32) return (float)i;
