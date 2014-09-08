@@ -350,6 +350,11 @@ void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
 	assert(!isGameloopThreadRunning() || isGameloopThread());
 	
 	Mutex::ScopedLock lock(objUpdatesMutex.get());
+	// XXX TODO: The lock is problematic.
+	// Even a ScriptVar_t copy can issue a new call into here.
+	// Not sure about the fix. We could make objUpdatesMutex a recursive mutex.
+	// Or we minimalize the lock-duration, which complicates the code here,
+	// and maybe even causes slowdowns.
 	attrUpdateAddCallInfo(obj, attrDesc);
 	if(obj.attrUpdates.empty())
 		pushObjAttrUpdate(obj);
