@@ -14,9 +14,6 @@
 
 #ifdef DEBUG
 
-// TODO: This code is threadsafe and thus not very usable.
-
-/*
 Mutex::Mutex()
 {
 	m_mutex = SDL_CreateMutex(); 
@@ -38,7 +35,7 @@ void Mutex::lock()
 {
 	// Get the current thread ID, if the thread ID is the same as the one already set, we've called
 	// lock() twice from the same thread
-	Uint32 id = SDL_ThreadID();
+	SDL_threadID id = SDL_ThreadID();
 	if (m_lockedThread == id)  {
 		errors << "Called mutex lock twice from the same thread, this will cause a deadlock" << endl;
 		assert(false);
@@ -59,7 +56,6 @@ void Mutex::unlock()
 
 	SDL_UnlockMutex(m_mutex); 
 }
-*/
 
 // Testing stuff
 /*

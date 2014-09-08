@@ -24,23 +24,23 @@ private:
 	SDL_mutex *m_mutex;
 
 #ifdef DEBUG
-//	volatile Uint32 m_lockedThread;  // Thread that keeps the lock
+	volatile unsigned long m_lockedThread;  // Thread that keeps the lock
 #endif
 
 public:
-/*#ifdef DEBUG
+#ifdef DEBUG
 	Mutex();
 	~Mutex();
 	void lock();
 	void unlock();
 
 	static void test();
-#else */
+#else
 	Mutex()			{ m_mutex = SDL_CreateMutex(); }
 	~Mutex()		{ if(m_mutex) SDL_DestroyMutex(m_mutex); }
 	void lock()		{ SDL_LockMutex(m_mutex); }
 	void unlock()	{ SDL_UnlockMutex(m_mutex); }
-//#endif
+#endif
 	
 	struct ScopedLock : DontCopyTag {
 		Mutex& mutex;
