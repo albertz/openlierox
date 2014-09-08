@@ -18,6 +18,7 @@
 #include <list>
 #include <cassert>
 #include <iostream>
+#include <utility>
 #include <boost/typeof/typeof.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/type_traits.hpp>
@@ -203,11 +204,27 @@ public:
 		case SVT_STRING: str.init(v.str.get()); break;
 		case SVT_COLOR: col.init(v.col.get()); break;
 		case SVT_VEC2: vec2.init(v.vec2.get()); break;
-		case SVT_CUSTOM: custom.init(v.custom); break;
-		case SVT_CustomWeakRefToStatic: customRef.init(v.customRef); break;
+		case SVT_CUSTOM: custom.init(v.custom.get()); break;
+		case SVT_CustomWeakRefToStatic: customRef.init(v.customRef.get()); break;
 		case SVT_CALLBACK:
 		case SVT_DYNAMIC: assert(false);
 		}
+	}
+	
+	ScriptVar_t(ScriptVar_t&& v) : type(v.type), isUnsigned(v.isUnsigned) {
+		switch(v.type) {
+		case SVT_BOOL: b = v.b; break;
+		case SVT_INT32: i = v.i; break;
+		case SVT_UINT64: i_uint64 = v.i_uint64; break;
+		case SVT_FLOAT: f = v.f; break;
+		case SVT_STRING: str.init(std::move(v.str.get())); break;
+		case SVT_COLOR: col.init(std::move(v.col.get())); break;
+		case SVT_VEC2: vec2.init(std::move(v.vec2.get())); break;
+		case SVT_CUSTOM: custom.init(std::move(v.custom.get())); break;
+		case SVT_CustomWeakRefToStatic: customRef.init(std::move(v.customRef.get())); break;
+		case SVT_CALLBACK:
+		case SVT_DYNAMIC: assert(false);
+		}		
 	}
 
 	static ScriptVar_t FromType(ScriptVarType_t t) {
@@ -372,6 +389,12 @@ public:
 	ScriptVar_t& operator=(const ScriptVar_t& v) {
 		this -> ~ScriptVar_t(); // uninit
 		new (this) ScriptVar_t(v); // init again
+		return *this;
+	}
+
+	ScriptVar_t& operator=(ScriptVar_t&& v) {
+		this -> ~ScriptVar_t(); // uninit
+		new (this) ScriptVar_t(std::forward<ScriptVar_t>(v)); // init again
 		return *this;
 	}
 

@@ -27,6 +27,7 @@ struct PODForClass {
 	operator const T&() const { return get(); }
 	void init() { new (&get()) T; }
 	void init(const T& v) { new (&get()) T(v); }
+	void init(T&& v) { new (&get()) T(std::forward<T>(v)); }
 	void uninit() { get().~T(); }
 	bool operator==(const T& o) const { return get() == o; }
 	bool operator<(const T& o) const { return get() < o; }

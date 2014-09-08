@@ -35,6 +35,7 @@ private:
 public:
 	Ref(_Obj* obj) : m_obj(obj) { assert(obj); }
 	Ref(const Ref& ref) : m_obj(NULL) { *this = ref; }
+	Ref(Ref&& ref) : m_obj(NULL) { *this = std::forward<Ref>(ref); }
 	~Ref() { clear(); }
 
 	Ref& operator=(_Obj* obj) {
@@ -49,6 +50,13 @@ public:
 			clear();
 			assert(ref); // a copy is only valid if the source is set
 			m_obj = ref->copy();
+		}
+		return *this;
+	}
+	Ref& operator=(Ref&& ref) {
+		if(ref.m_obj != m_obj) {
+			clear();
+			std::swap(m_obj, ref.m_obj);
 		}
 		return *this;
 	}
