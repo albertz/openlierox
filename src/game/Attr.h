@@ -194,6 +194,15 @@ struct Attr {
 		return value;
 	}
 	Attr& operator=(const T& v) {
+		// Short path check.
+		// Because this doesn't call any of the attrib update handling,
+		// this can be much faster.
+		// Note that this is also important, because this gets called
+		// in some cases where we copy some default constructed object,
+		// from inside iterAttrUpdates(), and we are not allowed to
+		// access the attrib updates from there because it holds a lock.
+		if(get() == v) return *this;
+		// Write and push attrib update.
 		write() = v;
 		return *this;
 	}
