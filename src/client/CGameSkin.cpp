@@ -188,6 +188,13 @@ CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
 CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 {
 	if (this != &oth)  { // Check for self-assignment
+		// TODO: This is called very often, via the attrib update
+		// handling code. We are creating quite a few temporary
+		// instances of this object.
+		// All of this is too heavy - it should be stripped down.
+		// Maybe more lazily.
+		// Also, this issues again attrib updates.
+	
 		// we must do this because we could need surfaces of different width
 		uninit();
 
