@@ -72,6 +72,13 @@ struct AttrDesc {
 		else
 			return dynGetValue(base, this);
 	}
+	int compare(const BaseObject* base, const ScriptVar_t& otherValue) const {
+		if(isStatic)
+			// the const-cast is safe because ScriptVarPtr_t.asScriptVar doesn't modify it
+			return getValueScriptPtr((BaseObject*)base).valueCompare(otherValue);
+		else
+			return dynGetValue(base, this).compare(otherValue);
+	}
 	void set(BaseObject* base, const ScriptVar_t& v) const;
 
 	bool authorizedToWrite(const BaseObject* base) const;
