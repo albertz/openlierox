@@ -423,7 +423,7 @@ void iterAttrUpdates() {
 
 		foreach(o, objUpdates.get()) {
 			BaseObject* oPt = o->get();
-			if(oPt == NULL) continue;
+			if(oPt == NULL) continue; // object was deleted in the meanwhile
 
 			foreach(u, oPt->attrUpdates) {
 				const AttrDesc* const attrDesc = u->attrDesc;
