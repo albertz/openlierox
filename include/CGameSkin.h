@@ -42,8 +42,10 @@ struct SkinAction_Load;
 
 class CGameSkin : public CustomVar {
 public:
-	CGameSkin() : thread(NULL) { *this = WormSkin(); }
-	CGameSkin(int fw, int fh, int fs, int sw, int sh);
+	CGameSkin(bool graphical = true) : isGraphical(graphical), thread(NULL) { *this = WormSkin(); }
+	CGameSkin(int fw, int fh, int fs, int sw, int sh, bool graphical);
+	CGameSkin(const CGameSkin& skin);
+	CGameSkin(const CGameSkin& skin, bool graphical);
 	~CGameSkin();
 
 	static CGameSkin WormSkin() {
@@ -51,16 +53,17 @@ public:
 					   WORM_SKIN_FRAME_HEIGHT,
 					   WORM_SKIN_FRAME_SPACING,
 					   WORM_SKIN_WIDTH,
-					   WORM_SKIN_HEIGHT);
+					   WORM_SKIN_HEIGHT,
+					   false);
 		return skin;
 	}
 
-	CGameSkin(const CGameSkin& skin);
 	CGameSkin& operator=(const CGameSkin& oth);
 
 	virtual BaseObject* parentObject() const;
 
 private:
+	bool isGraphical; // if false, we don't do any loading
 	bool loaded;
 	SmartPointer<SDL_Surface>	bmpSurface;
 	SmartPointer<SDL_Surface>	bmpNormal;
@@ -129,7 +132,7 @@ public:
 
 	// --- CustomVar ---
 
-	virtual CustomVar* copy() const { return new CGameSkin(*this); }
+	virtual CustomVar* copy() const;
 	virtual bool operator==(const CustomVar& o) const;
 	virtual bool operator<(const CustomVar& o) const;
 	virtual std::string toString() const;

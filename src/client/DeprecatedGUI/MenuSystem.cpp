@@ -95,7 +95,7 @@ static bool Menu_InitSockets() {
 	return true;
 }
 
-menu_t::menu_t() : cSkin(CGameSkin::WormSkin()) {}
+menu_t::menu_t() : cSkin(CGameSkin::WormSkin(), true) {}
 
 ///////////////////
 // Initialize the menu system

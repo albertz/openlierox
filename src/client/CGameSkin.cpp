@@ -162,7 +162,10 @@ void CGameSkin::init(int fw, int fh, int fs, int sw, int sh) {
 	iSkinWidth = sw;
 	iSkinHeight = sh;
 	
-	thread = new Thread(this);	
+	if(isGraphical)
+		thread = new Thread(this);
+	else
+		thread = NULL;
 }
 
 void CGameSkin::uninit() {
@@ -170,16 +173,36 @@ void CGameSkin::uninit() {
 		delete thread;
 		thread = NULL;
 	}
-	// all other stuff have its own destructors
+	
+	bmpSurface = NULL;
+	bmpMirrored = NULL;
+	bmpShadow = NULL;
+	bmpMirroredShadow = NULL;
+	bmpPreview = NULL;
+	bmpNormal = NULL;
 }
 
-CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh) : thread(NULL)
+CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh, bool graphical)
+: isGraphical(graphical), thread(NULL)
 {
 	thisRef.classId = LuaID<CGameSkin>::value;
 	init(fw,fh,fs,sw,sh);
 }
 
-CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
+CGameSkin::CGameSkin(const CGameSkin& skin, bool graphical)
+: isGraphical(graphical), thread(NULL)
+{
+	// we will init the thread also there
+	operator=(skin);
+}
+
+CGameSkin::CGameSkin(const CGameSkin& skin)
+// Note: Non-graphical copy, because this is most likely a temporary copy,
+// e.g. in the attrib update system, where we create a copy of this via
+// a ScriptVar_t copy.
+// This is not really clean, but it works good for all our use cases
+// (which is only ScriptVar_t copying).
+: isGraphical(false), thread(NULL)
 {
 	// we will init the thread also there
 	operator=(skin);
@@ -188,13 +211,6 @@ CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
 CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 {
 	if (this != &oth)  { // Check for self-assignment
-		// TODO: This is called very often, via the attrib update
-		// handling code. We are creating quite a few temporary
-		// instances of this object.
-		// All of this is too heavy - it should be stripped down.
-		// Maybe more lazily.
-		// Also, this issues again attrib updates.
-	
 		// we must do this because we could need surfaces of different width
 		uninit();
 
@@ -215,6 +231,11 @@ CGameSkin::~CGameSkin()
 {
 	uninit();
 }
+
+CustomVar* CGameSkin::copy() const {
+	return new CGameSkin(*this);
+}
+
 
 
 struct SkinAction_Load : Skin_Action {
@@ -315,7 +336,8 @@ void CGameSkin::onFilenameUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/,
 	if(bDedicated) return;
 	CGameSkin* s = dynamic_cast<CGameSkin*>(base);
 	assert(s != NULL);
-
+	if(!s->isGraphical) return;
+	
 	Mutex::ScopedLock lock(s->thread->mutex);
 	s->loaded = false;
 	s->thread->removeActions__unsafe();
@@ -387,7 +409,7 @@ void CGameSkin::GenerateMirroredImage()
 bool CGameSkin::PreparePreviewSurface()
 {
 	// No surfaces in dedicated mode
-	if (bDedicated)
+	if (bDedicated || !isGraphical)
 		return false;
 
 	// Allocate
@@ -677,7 +699,8 @@ void CGameSkin::Colorize(Color col) {
 		iColor = col;
 		bColorized = true;
 		
-		if (bDedicated) return;
+		if(bDedicated) return;
+		if(!isGraphical) return;
 
 		{
 			Mutex::ScopedLock lock(thread->mutex);
