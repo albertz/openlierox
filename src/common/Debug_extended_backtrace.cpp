@@ -75,6 +75,7 @@
 #include <dlfcn.h>
 #include <mach-o/dyld.h>
 #else
+#include <ansidecl.h>
 #include <bfd.h>
 #define HAVE_DECL_BASENAME 1
 #include <libiberty.h>
