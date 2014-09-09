@@ -358,7 +358,6 @@ bool VideoPostProcessor::initWindow() {
 	
 	// Initialize the video
 	if(tLXOptions->bFullscreen)  {
-		//vidflags |= SDL_WINDOW_FULLSCREEN;
 		vidflags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
 	
@@ -376,8 +375,9 @@ bool VideoPostProcessor::initWindow() {
 		//#endif
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
-		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
-		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); // always use double buffering in OGL mode
+		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);		
+		//needed?
+		//SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); // always use double buffering in OGL mode
 	}
 	
 #ifdef WIN32
@@ -422,12 +422,12 @@ setvideomode:
 			goto setvideomode;
 		}
 		
-		if(vidflags & SDL_WINDOW_FULLSCREEN) {
+		if(vidflags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
 			errors << "Failed to set full screen video mode "
 			<< screenWidth() << "x" << screenHeight() << "x" << tLXOptions->iColourDepth
 			<< " (ErrorMsg: " << SDL_GetError() << "),"
 			<< " trying window mode ..." << endl;
-			vidflags &= ~SDL_WINDOW_FULLSCREEN;
+			vidflags &= SDL_WINDOW_FULLSCREEN_DESKTOP;
 			goto setvideomode;
 		}
 		
@@ -498,10 +498,10 @@ bool VideoPostProcessor::resetVideo() {
 	}
 	
 	dumpRenderInfo(m_renderer.get());
-		
-	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
+	
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");  // make the scaled rendering look smoother.
 	SDL_RenderSetLogicalSize(m_renderer.get(), screenWidth(), screenHeight());
-
+	
 	m_videoTexture = SDL_CreateTexture
 	(
 		m_renderer.get(),
@@ -578,11 +578,6 @@ void VideoPostProcessor::uninit() {
 }
 
 
-
-void VideoPostProcessor::transformCoordinates_ScreenToVideo( int& x, int& y ) {
-	x = (int)((float)x * 640.0f / (float)get()->screenWidth());
-	y = (int)((float)y * 480.0f / (float)get()->screenHeight());
-}
 
 
 // ---------------------------------------------------------------------------------------------

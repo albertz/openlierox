@@ -241,7 +241,7 @@ static void EvHndl_WindowEvent(SDL_Event* ev) {
 			break;
 	
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-		case SDL_WINDOWEVENT_FOCUS_LOST:
+		case SDL_WINDOWEVENT_FOCUS_LOST: {
 			bool hadFocusBefore = bHaveFocus;
 			bHaveFocus = ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED;
 			bActivated = bHaveFocus;
@@ -264,6 +264,7 @@ static void EvHndl_WindowEvent(SDL_Event* ev) {
 				updateFileListCaches();
 				
 			break;
+		}
 	}
 }
 
@@ -364,7 +365,15 @@ static void EvHndl_TextInput(SDL_Event* _ev) {
 	}
 }
 
-static void EvHndl_MouseMotion(SDL_Event*) {}
+static int mouseX, mouseY;
+
+static void EvHndl_MouseMotion(SDL_Event* ev) {
+/*	mouseX = CLAMP(mouseX, 0, VideoPostProcessor::get()->screenWidth());
+	mouseY = CLAMP(mouseY, 0, VideoPostProcessor::get()->screenHeight());*/
+	mouseX = ev->motion.x;
+	mouseY = ev->motion.y;
+}
+
 static void EvHndl_MouseButtonDown(SDL_Event* ev) {}
 static void EvHndl_MouseButtonUp(SDL_Event* ev) {}
 
@@ -431,11 +440,22 @@ static void HandleMouseState() {
 		// Mouse
 		int oldX = Mouse.X;
 		int oldY = Mouse.Y;
-		Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y); // Doesn't call libX11 funcs, so it's safe to call not from video thread
 
-		// TODO: is that needed and does it make sense?
-		//VideoPostProcessor::transformCoordinates_ScreenToVideo(Mouse.X, Mouse.Y);
-
+		// We don't use the coordinates from SDL_GetMouseState because
+		// it ignores the render logical size via SDL_RenderSetLogicalSize().
+		// The mouse coordinates are only translated in the mouse events.
+		// That is why we track the coordinates in there.
+		// However, that still has the problem that the mouse coordinates
+		// can be in the letterbocking (black) area, i.e. outside
+		// our logical screen.
+		// SDL_SetRelativeMouseMode is also not really an option
+		// because it is somewhat buggy (seems like the mouse is captured)
+		// and it grabs the mouse in window mode which we don't want.
+		
+		Mouse.Button = SDL_GetMouseState(NULL,NULL); // Doesn't call libX11 funcs, so it's safe to call not from video thread
+		Mouse.X = mouseX;
+		Mouse.Y = mouseY;
+		
 		Mouse.deltaX = Mouse.X-oldX;
 		Mouse.deltaY = Mouse.Y-oldY;
 		Mouse.Up = 0;

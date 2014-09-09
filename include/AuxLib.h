@@ -101,7 +101,6 @@ public:
 	static SDL_Surface* videoSurface() { return get()->m_videoSurface.get(); };
 	static SDL_Surface* videoBufferSurface() { return get()->m_videoBufferSurface.get(); };
 	
-	static void transformCoordinates_ScreenToVideo( int& x, int& y );
 };
 
 
