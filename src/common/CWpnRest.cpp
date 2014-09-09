@@ -293,7 +293,7 @@ Iterator<wpnrest_t>::Ref CWpnRest::getList()
 // Return the number of weapons
 int CWpnRest::getNumWeapons() const
 {
-    return m_psWeaponList.size();
+    return (int)m_psWeaponList.size();
 }
 
 

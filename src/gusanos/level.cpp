@@ -426,7 +426,7 @@ bool CMap::getPredefinedSpawnLocation(CWorm* worm, CVec* v) {
 		}
 		
 		if(alt > 0) {
-			int idx = rndInt(alt);
+			int idx = (int)rndInt(alt);
 			foreach(i, m_config->spawnPoints) {
 				if(canPlayerRespawn(worm, *i) && --idx < 0) {
 					*v = CVec(i->pos);
@@ -441,6 +441,8 @@ bool CMap::getPredefinedSpawnLocation(CWorm* worm, CVec* v) {
 
 void CMap::loaderSucceeded()
 {
+	assert(image);
+	
 	m_water.clear();
 	for ( int y = 0; y < material->h; ++y )
 		for ( int x = 0; x < material->w; ++x ) {

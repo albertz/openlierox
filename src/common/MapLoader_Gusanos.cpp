@@ -10,7 +10,7 @@
 #include <string>
 #include "MapLoader.h"
 #include "MapLoader_common.h"
-#include "gusanos/loaders/vermes.h"
+#include "gusanos/loaders/gusanos.h"
 #include "gusanos/level.h"
 #include "gusanos/gusgame.h"
 #include "game/CMap.h"

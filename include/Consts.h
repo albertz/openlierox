@@ -31,17 +31,16 @@ INLINE const char* NetStateString(ClientNetState state) {
 }
 
 // Misc constants
-enum {	
-	LX_PORT = 23400, 
-	SPAWN_HOLESIZE = 4,
-	MAX_WORMS = 32,
-	MAX_CLIENTS = 32,
-	MAX_PLAYERS	= 32,
-	MAX_TEAMS = 4,
-	MAX_CHATLINES = 8,
-	NUM_VIEWPORTS = 3,
-	GAMEOVER_WAIT = 3
-};
+static constexpr int MAX_WORMS = 32;
+static constexpr int LX_PORT = 23400;
+static constexpr int SPAWN_HOLESIZE = 4;
+static constexpr int MAX_CLIENTS = 32;
+static constexpr int MAX_PLAYERS = 32;
+static constexpr int MAX_TEAMS = 4;
+static constexpr int MAX_CHATLINES = 8;
+static constexpr int NUM_VIEWPORTS = 3;
+static constexpr int GAMEOVER_WAIT = 3;
+
 
 static const float LX_ENDWAIT = 9.0f;
 

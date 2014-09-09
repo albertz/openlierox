@@ -18,6 +18,8 @@ SDLMain.m - main entry point for our Cocoa-ized SDL app
 
 #import "breakpad/ExtractInfo.h"
 
+extern int real_main(int argc, char *argv[]);
+
 @interface SDLMain : NSObject
 @end
 
@@ -76,10 +78,10 @@ static NSString *getApplicationName(void)
 @end
 #endif
 
-@interface SDLApplication : NSApplication
+@interface MyApplication : NSApplication
 @end
 
-@implementation SDLApplication
+@implementation MyApplication
 /* Invoked from the Quit menu item */
 - (void)terminate:(id)sender
 {
@@ -215,7 +217,7 @@ static void CustomApplicationMain (int argc, char **argv)
     SDLMain				*sdlMain;
 
     /* Ensure the application object is initialised */
-    [SDLApplication sharedApplication];
+    [MyApplication sharedApplication];
     
 #ifdef SDL_USE_CPS
     {
@@ -224,7 +226,7 @@ static void CustomApplicationMain (int argc, char **argv)
         if (!CPSGetCurrentProcess(&PSN))
             if (!CPSEnableForegroundOperation(&PSN,0x03,0x3C,0x2C,0x1103))
                 if (!CPSSetFrontProcess(&PSN))
-                    [SDLApplication sharedApplication];
+                    [MyApplication sharedApplication];
     }
 #endif /* SDL_USE_CPS */
 
@@ -311,7 +313,7 @@ static void CustomApplicationMain (int argc, char **argv)
 
     /* Hand off to main application code */
     gCalledAppMainline = TRUE;
-    status = SDL_main (gArgc, gArgv);
+    status = real_main (gArgc, gArgv);
 
     /* We're done, thank you for playing */
     exit(status);
@@ -323,9 +325,9 @@ static void CustomApplicationMain (int argc, char **argv)
 
 - (NSString *)stringByReplacingRange:(NSRange)aRange with:(NSString *)aString
 {
-    unsigned int bufferSize;
-    unsigned int selfLen = [self length];
-    unsigned int aStringLen = [aString length];
+    unsigned long bufferSize;
+    unsigned long selfLen = [self length];
+    unsigned long aStringLen = [aString length];
     unichar *buffer;
     NSRange localRange;
     NSString *result;
@@ -388,7 +390,7 @@ int main (int argc, char **argv)
     }
 
 #if SDL_USE_NIB_FILE
-    [SDLApplication poseAsClass:[NSApplication class]];
+    [MyApplication poseAsClass:[NSApplication class]];
     NSApplicationMain (argc, argv);
 #else
     CustomApplicationMain (argc, argv);

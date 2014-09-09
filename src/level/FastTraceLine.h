@@ -51,8 +51,8 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 	
 	int start_x = (int)start.x;
 	int start_y = (int)start.y;
-	register int x = 0;
-	register int y = 0;
+	int x = 0;
+	int y = 0;
 	while(true) {
 		if(dom != Y_DOM) { // X_DOM
 			y = (int)(quot*(float)x);

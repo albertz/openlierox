@@ -1597,7 +1597,7 @@ bool Menu_WeaponsRestrictions_Frame()
 	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Draw the list
-    int count = cWeaponsRest.SendMessage(wr_Scroll, SCM_GETVALUE,(DWORD)0,0);
+    int count = (int)cWeaponsRest.SendMessage(wr_Scroll, SCM_GETVALUE,(DWORD)0,0);
 
 	int w, j;
 	w = j = 0;
@@ -1654,18 +1654,20 @@ bool Menu_WeaponsRestrictions_Frame()
 
 	if(ev) {
 
-		if(ev->iEventMsg == SDL_BUTTON_WHEELUP)  {
-			CScrollbar *tScrollbar = (CScrollbar *)cWeaponsRest.getWidget(wr_Scroll);
-			tScrollbar->MouseWheelUp(NULL);
-		}
-
-		if(ev->iEventMsg == SDL_BUTTON_WHEELDOWN)  {
-			CScrollbar *tScrollbar = (CScrollbar *)cWeaponsRest.getWidget(wr_Scroll);
-			tScrollbar->MouseWheelDown(NULL);
-		}
-
 
 		switch(ev->iControlID) {
+
+			case gev_MouseWheel:
+				if(ev->iEventMsg == gev_MouseWheelUp)  {
+					CScrollbar *tScrollbar = (CScrollbar *)cWeaponsRest.getWidget(wr_Scroll);
+					tScrollbar->MouseWheelUp(NULL);
+				}
+				
+				if(ev->iEventMsg == gev_MouseWheelDown)  {
+					CScrollbar *tScrollbar = (CScrollbar *)cWeaponsRest.getWidget(wr_Scroll);
+					tScrollbar->MouseWheelDown(NULL);
+				}
+				break;
 
 			// OK, done
 			case wr_Ok:

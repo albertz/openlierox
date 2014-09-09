@@ -863,15 +863,15 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	}
 
     // Ctrl-c or Super-c or Ctrl-Insert (copy)
-    if (((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_c ) ||
-		(((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_INSERT ))) {
+    if (((modstate.bCtrl || modstate.bGui) && keysym == SDLK_c ) ||
+		(((modstate.bCtrl || modstate.bGui) && keysym == SDLK_INSERT ))) {
 		if (!IsSelectionEmpty())
 			copy_to_clipboard(GetSelectedText());
         return BRW_KEY_PROCESSED;
     }
 
     // Ctrl-a or Super-a (select all)
-    if ((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_a) {
+    if ((modstate.bCtrl || modstate.bGui) && keysym == SDLK_a) {
 		iSelectionStartLine = 0;
 		iSelectionStartColumn = 0;
 		if (tLines.size())  {

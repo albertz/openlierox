@@ -66,6 +66,7 @@ public:
 	void SDL_OnMouseMotion(SDL_Event* ev);
 	void SDL_OnMouseButtonDown(SDL_Event* ev);
 	void SDL_OnMouseButtonUp(SDL_Event* ev);
+	void SDL_OnMouseWheel(SDL_Event* ev);
 	void SDL_OnAddWidget(WidgetData ev);
 	void SDL_OnDestroyWidget(WidgetData ev);
 

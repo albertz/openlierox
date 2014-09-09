@@ -71,8 +71,13 @@ float GetRandomPosNum() {
 int GetRandomInt(int max)
 {
 	assert(max >= 0);
-	float f = GetRandomPosNum()*(float)(max+1);
+	float f = GetRandomPosNum()*(float(max)+1);
 	return CLAMP((int)f, 0, max);
+}
+
+unsigned long GetRandomLong(unsigned long max) {
+	float f = GetRandomPosNum()*(float(max)+1);
+	return MIN((unsigned long)f, max);
 }
 
 //////////////////

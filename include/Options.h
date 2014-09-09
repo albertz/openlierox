@@ -22,7 +22,6 @@
 #include <string>
 #include <cassert>
 #include "game/Settings.h"
-#include "StaticAssert.h"
 #include "CodeAttributes.h"
 
 // Setup input id's
@@ -222,7 +221,6 @@ public:
 	bool	bShowFPS;
 	bool	bOpenGL;
 	std::string	sResolution;
-	std::string sVideoPostProcessor;
 	int		iColourDepth;
 
 	// Network

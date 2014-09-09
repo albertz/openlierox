@@ -28,7 +28,6 @@
 #include <vector>
 #include <limits.h>
 #include <cassert>
-#include "StaticAssert.h"
 #include "olx-types.h"
 #include "CVec.h"
 
@@ -126,7 +125,7 @@ enum Proj_TrailType {
 	__TRL_UBOUND = INT_MAX // force enum to be of size int
 };
 
-static_assert(sizeof(Proj_TrailType) == sizeof(int), Proj_TrailType__SizeCheck);
+static_assert(sizeof(Proj_TrailType) == sizeof(int), "Proj_TrailType__SizeCheck");
 
 
 struct Proj_Trail {
@@ -177,7 +176,7 @@ enum Proj_ActionType {
 	__PJ_UBOUND = INT_MAX // force enum to be of size int
 };
 
-static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck);
+static_assert(sizeof(Proj_ActionType) == sizeof(int), "Proj_ActionType__SizeCheck");
 
 
 struct ProjCollisionType;
@@ -380,7 +379,7 @@ struct Proj_Event {
 		__PET_LBOUND = INT_MIN,
 		__PET_UBOUND = INT_MAX
 	} type;
-	static_assert(sizeof(Type) == sizeof(int), Proj_Event_Type__SizeCheck);
+	static_assert(sizeof(Type) == sizeof(int), "Proj_Event_Type__SizeCheck");
 	
 	Proj_Event(Type t = PET_UNSET) : type(t) {}
 	Proj_TimerEvent timer;

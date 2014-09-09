@@ -30,6 +30,7 @@
 #include "DeprecatedGUI/CSlider.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "XMLutils.h"
+#include "OLXConsole.h"
 
 
 // XML parsing library
@@ -648,24 +649,6 @@ gui_event_t *CGuiLayout::Process()
 		return NULL;
 	}
 
-	// Switch between window and fullscreen mode (only for menu)
-	// Switch only if delta time is low enough. This is because when the game does not
-	// respond for >30secs and the user presses cSwitchMode in the meantime, the mainlock-detector
-	// would switch to window and here we would switch again to fullscreen which is stupid.
-	// TODO: move this out of here
-	if( tLX && tLX->cSwitchMode.isUp() && game.state <= Game::S_Lobby && tLX->fRealDeltaTime < 1.0f )  {
-		// Set to fullscreen
-		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
-
-		// Set the new video mode
-		doSetVideoModeInMainThread();
-
-		// Redraw the mouse
-		Menu_RedrawMouse(true);
-
-		tLX->cSwitchMode.reset();
-	}
-
 	// Put it here, so the mouse will never display
 	
 	EnableSystemMouseCursor(false);
@@ -678,7 +661,7 @@ gui_event_t *CGuiLayout::Process()
 	// Parse keyboard events to the focused widget
 	// Make sure a key event happened
 	keyboard_t *Keyboard = GetKeyboard();
-	if(Keyboard->queueLength > 0) {
+	if(!Con_IsVisible() && Keyboard->queueLength > 0) {
 
 
 		// If we don't have any focused widget, get the first textbox
@@ -915,15 +898,15 @@ gui_event_t *CGuiLayout::Process()
 
 	// Non-widget wheel up
 	if(tMouse->WheelScrollUp)  {
-		tEvent->iControlID = -9999;
-		tEvent->iEventMsg = SDL_BUTTON_WHEELUP;
+		tEvent->iControlID = gev_MouseWheel;
+		tEvent->iEventMsg = gev_MouseWheelUp;
 		return tEvent;
 	}
 
 	// Non-widget wheel down
 	if(tMouse->WheelScrollDown)  {
-		tEvent->iControlID = -9999;
-		tEvent->iEventMsg = SDL_BUTTON_WHEELDOWN;
+		tEvent->iControlID = gev_MouseWheel;
+		tEvent->iEventMsg = gev_MouseWheelDown;
 		return tEvent;
 	}
 

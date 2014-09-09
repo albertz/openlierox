@@ -223,7 +223,9 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 		errors("CMap::New:: ERROR: cannot create surface\n");
 		return false;
 	}
-
+	
+	NumObjects = 0;
+	nTotalDirtCount = 0;
 	Created = true;
 	return true;
 }
@@ -255,33 +257,20 @@ bool CMap::MiniCreate(uint _width, uint _height, uint _minimap_w, uint _minimap_
 
 ///////////////////
 // Create a new map
+// This map is ready to be used (for playing, drawing, etc.).
+// Currently, this is only used for the map editor.
+// Otherwise, in map loading code, we just use CMap::Create().
 bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
 {
-	NumObjects = 0;
-    nTotalDirtCount = 0;
-    //sRandomLayout.bUsed = false;
-
 	// Create the map
 	if (!Create(_width, _height, _theme, _minimap_w, _minimap_h))
 		return false;
 
-	// Place default tiles
 	TileMap();
+	lxflagsToGusflags();
 
-	// TODO: does that make sense? we haven't loaded anything yet...
-	
-	/*
-	// Update the mini map
 	UpdateMiniMap();
-
-    // Calculate the total dirt count
     CalculateDirtCount();
-
-    // Calculate the grid
-    calculateGrid();
-	*/
-	
-	Created = true;
 
 	return true;
 }
@@ -293,7 +282,6 @@ bool CMap::MiniNew(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
 {
 	NumObjects = 0;
     nTotalDirtCount = 0;
-    //sRandomLayout.bUsed = false;
 	
 	// Create the map
 	if (!MiniCreate(_width, _height, _minimap_w, _minimap_h))
@@ -330,7 +318,6 @@ bool CMap::LoadTheme(const std::string& _theme)
 		const std::string thmfile = thmdir + "/theme.txt";
 		
 		Theme.name = _theme;
-		//sRandomLayout.szTheme = _theme;
 
 		LOAD_IMAGE(Theme.bmpBacktile, thmdir + "/Backtile.png");
 		LOAD_IMAGE(Theme.bmpFronttile, thmdir + "/Fronttile.png");
@@ -755,7 +742,8 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 {
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
-	if(gusIsLoaded())		
+	if(gusIsLoaded())
+		// See CMap::gusDraw().
 		return;
 	
 	if(!cClient->getGameLobby()[FT_InfiniteMap]) {
@@ -894,7 +882,7 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 	if (!hole.get())
 		return 0;
 
-	int nNumDirt = 0;
+	int nNumCarvedDirt = 0;
 	int w = hole.get()->w;
 	int h = hole.get()->h;
 	int map_x = (int)pos.x - w / 2;
@@ -952,8 +940,7 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 					// Set the flag to empty
 					if(CurrentPixel == tLX->clPink)
 					{
-						// Increase the dirt count
-						nNumDirt++;
+						nNumCarvedDirt++;
 						*PixelFlag = Material::indexFromLxFlag(PX_EMPTY);
 						copypixel_solid2x2(image, background, mapx2, mapy2);
 						putpixel2x2(lightmap, mapx2, mapy2, 0);
@@ -974,11 +961,11 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 
 	UnlockSurface(hole);
 
-	if(nNumDirt)  { // Update only when something has been carved
+	if(nNumCarvedDirt)  { // Update only when something has been carved
 		UpdateArea(map_x, map_y, w, h, true);
 	}
 
-    return nNumDirt;
+    return nNumCarvedDirt;
 }
 
 
@@ -1884,7 +1871,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 		delete[] pDest;
 		return false;
 	}
-	destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
+	destsize = (uint32_t) lng_dsize; // will only get smaller
 
 	// Write out the details & the data
 	fwrite_endian_compat((destsize), sizeof(Uint32), 1, fp);
@@ -1978,9 +1965,9 @@ void CMap::NewNet_RestoreFromMemory()
 			it != savedMapCoords.end(); it++ )
 	{
 		int startX = it->X*MAP_SAVE_CHUNK;
-		int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
+		int sizeX = (int) MIN( MAP_SAVE_CHUNK, Width - startX );
 		int startY = it->Y*MAP_SAVE_CHUNK;
-		int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
+		int sizeY = (int) MIN( MAP_SAVE_CHUNK, Height - startY  );
 
 		LOCK_OR_QUIT(bmpSavedImage);
 		lockFlags();
@@ -2045,9 +2032,9 @@ void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 				savedMapCoords.insert( SavedMapCoord_t( fx, fy ) );
 				
 				int startX = fx*MAP_SAVE_CHUNK;
-				int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
+				int sizeX = (int) MIN( MAP_SAVE_CHUNK, Width - startX );
 				int startY = fy*MAP_SAVE_CHUNK;
-				int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
+				int sizeY = (int) MIN( MAP_SAVE_CHUNK, Height - startY  );
 
 				LOCK_OR_QUIT(bmpSavedImage);
 				lockFlags();

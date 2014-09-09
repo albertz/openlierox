@@ -319,7 +319,7 @@ INLINE Pixel blendColorsAllegro_16(Pixel x, Pixel y, int n)
 
    result = ((x - y) * n / 32 + y) & 0x7E0F81F;
 
-   return ((result & 0xFFFF) | (result >> 16));
+   return Pixel((result & 0xFFFF) | (result >> 16));
 }
 
 INLINE Pixel blend_mask_16_2(Pixel dest, Pixel src)

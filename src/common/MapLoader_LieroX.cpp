@@ -93,7 +93,7 @@ class ML_LieroX : public MapLoad {
 			delete[] pDest;
 			return false;
 		}
-		destsize = lng_dsize;
+		destsize = (uint32_t) lng_dsize; // can only get smaller
 		if( destsize < Uint32(head.width * head.height * 3 * 2) )
 		{
 			errors("CMap::LoadImageFormat(): image too small for Width*Height");
@@ -252,7 +252,7 @@ class ML_LieroX : public MapLoad {
 			warnings << "CMap::LoadLevelConfig(): failed to load hi-res image, using low-res image" << endl;
 			lng_dsize = 0;
 		}
-		destsize = lng_dsize;
+		destsize = (uint32_t) lng_dsize; // can only get smaller
 		
 		// Fill up additional data
 		m->AdditionalData.clear();
@@ -437,10 +437,11 @@ class ML_LieroX : public MapLoad {
 		
 		
 		// Create a blank map
-		if(!m->New(Width, Height, Theme_Name, m->MinimapWidth, m->MinimapHeight)) {
+		if(!m->Create(Width, Height, Theme_Name, m->MinimapWidth, m->MinimapHeight)) {
 			errors << "CMap::Load (" << filename << "): cannot create map" << endl;
 			return false;
 		}
+		m->TileMap();
 		
 		SmartPointer<SDL_Surface> bmpImage = gfxCreateSurface(Width, Height);
 		SmartPointer<SDL_Surface> bmpBackImage = gfxCreateSurface(Width, Height);

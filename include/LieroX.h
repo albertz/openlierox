@@ -204,7 +204,7 @@ extern FileListCacheIntf* settingsPresetList;
 void updateFileListCaches();
 
 // Main Routines
-int		InitializeLieroX();
+bool	InitializeLieroX();
 void	ShutdownLieroX();
 void	GameLoopFrame();
 void	GotoLocalMenu();

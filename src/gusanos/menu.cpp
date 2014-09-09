@@ -143,17 +143,17 @@ std::string cmdFocus(std::list<std::string> const& args)
 	return "GUI_FOCUS <WINDOW ID> : FOCUSES A WINDOW";
 }
 
-int VermesSpriteSet::getFrameCount() const
+int GusanosSpriteSet::getFrameCount() const
 {
 	return spriteSet->getFramesWidth();
 }
 
-ulong VermesSpriteSet::getFrameWidth(int frame, int angle) const
+ulong GusanosSpriteSet::getFrameWidth(int frame, int angle) const
 {
 	return spriteSet->getSprite(frame)->getWidth();
 }
 
-ulong VermesSpriteSet::getFrameHeight(int frame, int angle) const
+ulong GusanosSpriteSet::getFrameHeight(int frame, int angle) const
 {
 	return spriteSet->getSprite(frame)->getHeight();
 }
@@ -203,7 +203,7 @@ BaseFont* GContext::loadFont(std::string const& name)
 	Font* f = fontLocator.load(name);
 	if(!f)
 		return 0;
-	return new VermesFont(f);
+	return new GusanosFont(f);
 }
 
 BaseSpriteSet* GContext::loadSpriteSet(std::string const& name)
@@ -211,7 +211,7 @@ BaseSpriteSet* GContext::loadSpriteSet(std::string const& name)
 	SpriteSet *s = spriteList.load(name);
 	if(!s)
 		return 0;
-	return new VermesSpriteSet(s);
+	return new GusanosSpriteSet(s);
 }
 
 void GContext::loadGSSFile(std::string const& name, bool passive)
@@ -291,7 +291,7 @@ void AllegroRenderer::drawText(BaseFont const& font, std::string const& str, ulo
 {
 	const int spacing = 0;
 
-	if(VermesFont const* f = dynamic_cast<VermesFont const*>(&font))
+	if(GusanosFont const* f = dynamic_cast<GusanosFont const*>(&font))
 	{
 		if(flags & (BaseFont::CenterH | BaseFont::CenterV))
 		{
@@ -309,7 +309,7 @@ void AllegroRenderer::drawText(BaseFont const& font, std::string const& str, ulo
 
 std::pair<int, int> AllegroRenderer::getTextDimensions(BaseFont const& font, std::string::const_iterator b, std::string::const_iterator e)
 {
-	if(VermesFont const* f = dynamic_cast<VermesFont const*>(&font))
+	if(GusanosFont const* f = dynamic_cast<GusanosFont const*>(&font))
 	{
 		return f->font->getDimensions(b, e);
 	}
@@ -318,7 +318,7 @@ std::pair<int, int> AllegroRenderer::getTextDimensions(BaseFont const& font, std
 
 int AllegroRenderer::getTextCoordToIndex(BaseFont const& font, std::string::const_iterator b, std::string::const_iterator e, int x)
 {
-	if(VermesFont const* f = dynamic_cast<VermesFont const*>(&font))
+	if(GusanosFont const* f = dynamic_cast<GusanosFont const*>(&font))
 	{
 		return f->font->getTextCoordToIndex(b, e, x);
 	}
@@ -327,7 +327,7 @@ int AllegroRenderer::getTextCoordToIndex(BaseFont const& font, std::string::cons
 
 void AllegroRenderer::drawSprite(BaseSpriteSet const& spriteSet, int frame, ulong x, ulong y)
 {
-	if(VermesSpriteSet const* s = dynamic_cast<VermesSpriteSet const*>(&spriteSet))
+	if(GusanosSpriteSet const* s = dynamic_cast<GusanosSpriteSet const*>(&spriteSet))
 	{
 		s->spriteSet->getSprite(frame)->draw(gfx.buffer, x, y, blitter);
 		//s->spriteSet->getSprite(frame)->drawCut(gfx.buffer, x, y, 0, 0, 0, 0, 0);
@@ -336,7 +336,7 @@ void AllegroRenderer::drawSprite(BaseSpriteSet const& spriteSet, int frame, ulon
 
 void AllegroRenderer::drawSprite(BaseSpriteSet const& spriteSet, int frame, ulong x, ulong y, ulong left, ulong top, ulong bottom, ulong right)
 {
-	if(VermesSpriteSet const* s = dynamic_cast<VermesSpriteSet const*>(&spriteSet))
+	if(GusanosSpriteSet const* s = dynamic_cast<GusanosSpriteSet const*>(&spriteSet))
 	{
 		s->spriteSet->getSprite(frame)->drawCut(gfx.buffer, x, y, blitter, 0, left, top, bottom, right);
 	}
@@ -376,7 +376,7 @@ void AllegroRenderer::resetBlending()
 
 void AllegroRenderer::drawSkinnedBox(BaseSpriteSet const& skin, Rect const& rect, RGB const& backgroundColor)
 {
-	if(VermesSpriteSet const* s = dynamic_cast<VermesSpriteSet const*>(&skin))
+	if(GusanosSpriteSet const* s = dynamic_cast<GusanosSpriteSet const*>(&skin))
 	{
 		s->spriteSet->drawSkinnedBox(gfx.buffer, blitter, rect, allegroColor(backgroundColor));
 		/*

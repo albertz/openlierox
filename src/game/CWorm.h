@@ -193,7 +193,7 @@ protected:
 	bool            bPrepared;
 
 public:
-	ATTR(CWorm, int,	iTeam, 1, {serverside = true;})
+	ATTR(CWorm, int32_t,	iTeam, 1, {serverside = true;})
 	ATTR(CWorm, std::string,	sName, 2, {serverside = false;})
 
 	ATTR(CWorm, CGameSkin, cSkin, 3, {serverside = false;})
@@ -209,7 +209,7 @@ public:
 
 	// Arsenal
 	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false; onUpdate = onWeaponsReadyUpdate; })
-	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
+	ATTR(CWorm,	int32_t,	iCurrentWeapon,	21, {serverside = false;})
 	ATTR(CWorm, List<wpnslot_t>,	weaponSlots, 22, { serverside = false; defaultValue = List<wpnslot_t>(5).getRefCopy(); })
 
 	struct WeaponSlotWrapper {
@@ -243,8 +243,8 @@ protected:
 	Version		cClientVersion;
 
 	AbsTime		fTimeofDeath;
-	ATTR(CWorm, int /*DIR_TYPE*/,	iFaceDirectionSide, 24, {serverside = false;})
-	ATTR(CWorm, int /*DIR_TYPE*/,	iMoveDirectionSide, 25, {serverside = false;})
+	ATTR(CWorm, int32_t /*DIR_TYPE*/,	iFaceDirectionSide, 24, {serverside = false;})
+	ATTR(CWorm, int32_t /*DIR_TYPE*/,	iMoveDirectionSide, 25, {serverside = false;})
 	bool		bGotTarget;
 	ATTR(CWorm, float,	fAngle, 26, {serverside = false; serverCanUpdate = false;})
     float       fAngleSpeed;
@@ -266,7 +266,7 @@ protected:
 	ATTR(CWorm, bool,	bTagIT, 42, {})
 	TimeDiff	fTagTime;
 
-	ATTR(CWorm, int,	iDirtCount, 43, {})
+	ATTR(CWorm, int32_t,	iDirtCount, 43, {})
 
 	AbsTime		fLastBlood;
 
@@ -373,9 +373,9 @@ public:
 	//
 	// Graphics
 	//
-	bool		ChangeGraphics(int generalgametype);
+	bool		ChangeGraphics();
 	void		FreeGraphics();
-	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, bool team);
+	SmartPointer<SDL_Surface> ColorizeImage(const std::string& filename) const;
 	void		Draw(SDL_Surface * bmpDest, CViewport *v);
     void        DrawShadow(SDL_Surface * bmpDest, CViewport *v);
 	void		UpdateDrawPos();
@@ -431,9 +431,8 @@ public:
 
 	std::string getName()			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
-	Color		getGameColour();
-	void		setColour(Color c)			{ cSkin.write().Colorize(c); }
-	void		setColour(Uint8 r, Uint8 g, Uint8 b) { setColour(Color(r,g,b)); }
+	Color		getGameColour() const;
+	void		setColour(Color c);
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal() const			{ return bLocal; }
@@ -539,7 +538,7 @@ public:
 	}
 	int			getCurrentWeapon()		{
 		if(tWeapons.size() == 0) return 0;
-		return MIN(tWeapons.size() - 1, (size_t)iCurrentWeapon);
+		return (int)MIN(tWeapons.size() - 1, (size_t)iCurrentWeapon);
 	}
 	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = _w; }
 	const wpnslot_t	*getWeapon(int id)		{

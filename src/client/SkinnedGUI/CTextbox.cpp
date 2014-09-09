@@ -404,7 +404,7 @@ int CTextbox::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modstat
 	}
 
 	// Select all
-	if ((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_a) {
+	if ((modstate.bCtrl || modstate.bGui) && keysym == SDLK_a) {
 		iCurpos = Utf8StringSize(sText);
 		iSelStart = 0;
 		iSelLength = -((int)Utf8StringSize(sText));
@@ -430,7 +430,7 @@ int CTextbox::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modstat
 	}
 
     // Ctrl-v or Super-v (paste)
-    if((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_v) {
+    if((modstate.bCtrl || modstate.bGui) && keysym == SDLK_v) {
         PasteText();
         
 		CWidget::DoKeyUp(c, keysym, modstate);
@@ -438,7 +438,7 @@ int CTextbox::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modstat
     }
 
     // Ctrl-c or Super-c (copy)
-    if((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_c) {
+    if((modstate.bCtrl || modstate.bGui) && keysym == SDLK_c) {
         CopyText();
 
 		CWidget::DoKeyUp(c, keysym, modstate);
@@ -446,7 +446,7 @@ int CTextbox::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modstat
     }
 
     // Ctrl-x or Super-x (cut)
-    if((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_x) {
+    if((modstate.bCtrl || modstate.bGui) && keysym == SDLK_x) {
         CopyText();
 		Delete();
 

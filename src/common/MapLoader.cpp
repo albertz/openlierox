@@ -10,7 +10,7 @@
 #include "MapLoader.h"
 #include "MapLoader_common.h"
 #include "game/CMap.h"
-#include "gusanos/loaders/vermes.h" // for ...::canLoad
+#include "gusanos/loaders/gusanos.h" // for ...::canLoad
 #include "FindFile.h"
 
 
@@ -52,8 +52,8 @@ MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool prin
 	if(IsDirectory(filename, abs_filename)) {
 		// TODO: abs filename
 		std::string name;
-		if(VermesLevelLoader::instance.canLoad(filename, name))
-			return (createMapLoad_Gusanos(&VermesLevelLoader::instance, name)) -> Set(filename, abs_filename, NULL) -> parseHeaderAndCheck(printErrors);;
+		if(GusanosLevelLoader::instance.canLoad(filename, name))
+			return (createMapLoad_Gusanos(&GusanosLevelLoader::instance, name)) -> Set(filename, abs_filename, NULL) -> parseHeaderAndCheck(printErrors);;
 	}
 	else { // regular file
 		FILE *fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");

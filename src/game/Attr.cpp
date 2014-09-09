@@ -26,6 +26,7 @@
 #include "CServerConnection.h"
 #include "Debug.h"
 #include "FindFile.h"
+#include "LieroX.h"
 
 static CServerConnection* attrUpdateByClientScope = NULL;
 static bool attrUpdateByServerScope = false;
@@ -73,7 +74,7 @@ void AttrDesc::set(BaseObject* base, const ScriptVar_t& v) const {
 bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
 	assert(base != NULL);
 	if(this == Game::state_Type::attrDesc()) { // small exception for game.state
-		if(game.state == Game::S_Quit) return false; // don't allow any changes anymore on game.state. just quit
+		if(game.state == Game::S_Quit && !bRestartGameAfterQuit) return false; // don't allow any changes anymore on game.state. just quit
 		return true; // just allow any changes. client might want to disconnect, so client must be allowed to write this :)
 	}
 	if(game.state <= Game::S_Inactive) return true;
@@ -264,7 +265,7 @@ static StaticVar<AttrUpdateCallinfos> attrUpdateCallinfos;
 
 static void attrUpdateDebugHookPrint(ObjAttrRef a, const ScriptVar_t& oldValue, const ScriptVar_t& newValue, const std::vector<void*>& callstack) {
 	notes << "debugHook: <" << a.obj.description() << "> " << a.attr.getAttrDesc()->description() << ": update " << oldValue.toString() << " -> " << newValue.toString() << endl;
-	DumpCallstack(StdoutPrintFct(), &callstack[0], callstack.size());
+	DumpCallstack(StdoutPrintFct(), &callstack[0], (int)callstack.size());
 }
 
 static StaticVar<boost::shared_ptr<std::vector<std::string> > > debugAttrHookList;
@@ -294,7 +295,13 @@ static void attrUpdateDebugHook(ObjAttrRef a, const ScriptVar_t& oldValue, const
 
 static void attrUpdateDebugHooks() {
 #ifdef DEBUG
-	foreach(ci, attrUpdateCallinfos.get()) {
+	AttrUpdateCallinfos updates;
+	{
+		Mutex::ScopedLock lock(objUpdatesMutex.get());		
+		std::swap(updates, attrUpdateCallinfos.get());
+	}
+	
+	foreach(ci, updates) {
 		ObjAttrRef a = ci->first;
 		const ScriptVar_t* lastValue = NULL;
 		const std::vector<void*>* lastCallstack = NULL;
@@ -313,7 +320,6 @@ static void attrUpdateDebugHooks() {
 				attrUpdateDebugHook(a, *lastValue, a.get(), *lastCallstack);
 		}
 	}
-	attrUpdateCallinfos.get().clear();
 #endif
 }
 
@@ -322,7 +328,7 @@ static void attrUpdateAddCallInfo(BaseObject& obj, const AttrDesc* attrDesc) {
 	ScriptVar_t curValue = attrDesc->get(&obj);
 	realCopyVar(curValue);
 	std::vector<void*> callstack(128);
-	int c = GetCallstack(0, &callstack[0], callstack.size());
+	int c = GetCallstack(0, &callstack[0], (int)callstack.size());
 	if(c < 0) c = 0;
 	callstack.resize(c);
 	attrUpdateCallinfos.get()[ObjAttrRef(obj.thisRef, attrDesc)].push_back(callstack, curValue);
@@ -330,18 +336,49 @@ static void attrUpdateAddCallInfo(BaseObject& obj, const AttrDesc* attrDesc) {
 }
 
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc) {
-	Mutex::ScopedLock lock(objUpdatesMutex.get());
+	if(!obj.isRegistered() && !attrDesc->onUpdate)
+		// Ignore.
+		// The level background cache loader (and other background loaders)
+		// can trigger this, i.e. the LevelInfo attributes in infoForLevel().
+		// This is done in another thread, so we *must* not continue here.
+		// Note that iterAttrUpdates() might be desirable, e.g. for the
+		// onUpdate handler, so we must be a bit restrictive.
+		// This means, at the moment, we cannot update attributes with
+		// onUpdate handlers in other threads.
+		return;
+	// Note that this is also important with respect to multithreading.
+	// iterAttrUpdates() is always run on the main thread, and we do not
+	// want it to handle objects which are managed by other threads.
+	// E.g. in attrUpdateDebugHooks(), we can have
+	// bool(a.obj.obj)==true, and then suddenly, bool(a.obj.obj)==false,
+	// which will most likely crash.
+	assert(!isGameloopThreadRunning() || isGameloopThread());
+	
+	// Note: The lock is problematic.
+	// Even a ScriptVar_t copy can issue a new call into here.
+	// Thus, we need to do certain things outside of the lock.
 	attrUpdateAddCallInfo(obj, attrDesc);
-	if(obj.attrUpdates.empty())
-		pushObjAttrUpdate(obj);
-	AttrExt& ext = attrDesc->getAttrExt(&obj);
-	if(!ext.updated || obj.attrUpdates.empty()) {
-		AttrUpdateInfo info;
-		info.attrDesc = attrDesc;
-		info.oldValue = attrDesc->get(&obj);
-		realCopyVar(info.oldValue);
-		obj.attrUpdates.push_back(info);
-		ext.updated = true;
+	AttrUpdateInfo* updateInfo = NULL;
+
+	{
+		Mutex::ScopedLock lock(objUpdatesMutex.get());
+		if(obj.attrUpdates.empty())
+			pushObjAttrUpdate(obj);
+		AttrExt& ext = attrDesc->getAttrExt(&obj);
+		if(!ext.updated || obj.attrUpdates.empty()) {
+			// Note that the move constructor of ScriptVar_t is important
+			// here because attrUpdates is a vector which might issue
+			// a copy.
+			obj.attrUpdates.push_back(AttrUpdateInfo());
+			ext.updated = true;
+			updateInfo = &obj.attrUpdates.back();
+		}
+	}
+
+	if(updateInfo) {
+		updateInfo->attrDesc = attrDesc;
+		updateInfo->oldValue = attrDesc->get(&obj);
+		realCopyVar(updateInfo->oldValue);
 	}
 }
 
@@ -365,37 +402,63 @@ static void handleAttrUpdateLogging(BaseObject* oPt, const AttrDesc* attrDesc, S
 	notes << "<" << oPt->thisRef.description() << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
 }
 
-void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback) {
-	Mutex::ScopedLock lock(objUpdatesMutex.get());
+void iterAttrUpdates() {
+
+	// We must do certain thinks outside of the objUpdatesMutex lock.
+	// See also pushObjAttrUpdate() for reference.
+	
+	struct UpdateCallInfo {
+		BaseObject* obj;
+		const AttrDesc* attrDesc;
+		ScriptVar_t oldValue;
+		UpdateCallInfo(BaseObject* _o, const AttrDesc* _a, const ScriptVar_t& _v)
+		: obj(_o), attrDesc(_a), oldValue(_v) {}
+	};
+	std::vector<UpdateCallInfo> updateCallbacks;
 
 	attrUpdateDebugHooks();
 
-	foreach(o, objUpdates.get()) {
-		BaseObject* oPt = o->get();
-		if(oPt == NULL) continue;
+	{
+		Mutex::ScopedLock lock(objUpdatesMutex.get());
 
-		foreach(u, oPt->attrUpdates) {
-			const AttrDesc* const attrDesc = u->attrDesc;
-			ScriptVar_t& oldValue = u->oldValue;
+		foreach(o, objUpdates.get()) {
+			BaseObject* oPt = o->get();
+			if(oPt == NULL) continue; // object was deleted in the meanwhile
 
-			attrDesc->getAttrExt(oPt).updated = false;
-			if(oldValue == attrDesc->get(oPt)) continue;
+			foreach(u, oPt->attrUpdates) {
+				const AttrDesc* const attrDesc = u->attrDesc;
+				ScriptVar_t& oldValue = u->oldValue;
 
-			if(oPt->thisRef) // if registered
-				game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
+				attrDesc->getAttrExt(oPt).updated = false;
+				// Note: In most cases, the attrib is static and this will not create
+				// any temporary ScriptVar_t copy.
+				// If it would, that would be dangerous because that can have many
+				// side effects which might again access the object attrib system
+				// - but we have te objUpdatesMutex locked here.
+				if(attrDesc->compare(oPt, oldValue) == 0) continue;
 
-			if(callback)
-				callback(oPt, attrDesc, oldValue);
-			if(attrDesc->onUpdate)
-				attrDesc->onUpdate(oPt, attrDesc, oldValue);
+				if(oPt->thisRef) // if registered
+					game.gameStateUpdates->pushObjAttrUpdate(ObjAttrRef(oPt->thisRef, attrDesc));
 
-			handleAttrUpdateLogging(oPt, attrDesc, oldValue);
+				if(attrDesc->onUpdate)
+					// We cannot call them here directly because we hold the objUpdatesMutex
+					// (and must keep the hold), and the callbacks can likely access other
+					// object attributes.
+					updateCallbacks.push_back(UpdateCallInfo(oPt, attrDesc, oldValue));
+				
+				handleAttrUpdateLogging(oPt, attrDesc, oldValue);
+			}
+
+			oPt->attrUpdates.clear();
 		}
 
-		oPt->attrUpdates.clear();
+		objUpdates->clear();
 	}
-
-	objUpdates->clear();
+		
+	// Now call the onUpdate callbacks.
+	for(UpdateCallInfo& update : updateCallbacks) {
+		update.attrDesc->onUpdate(update.obj, update.attrDesc, update.oldValue);
+	}
 }
 
 

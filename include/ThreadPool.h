@@ -83,10 +83,12 @@ extern ThreadId mainThreadId;
 bool isMainThread();
 extern ThreadId gameloopThreadId;
 bool isGameloopThread();
+bool isGameloopThreadRunning();
 ThreadId getCurrentThreadId();
 
 void getAllThreads(std::set<ThreadId>& ids);
-std::string getThreadName(ThreadId t);
+std::string getThreadName(ThreadId t); // Note: somewhat slow, use only for debugging
+std::string getCurThreadName();
 
 template<typename _T>
 struct _ThreadFuncWrapper {

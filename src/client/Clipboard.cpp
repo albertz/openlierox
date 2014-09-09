@@ -27,6 +27,7 @@
    See the COPYING file for more details.
 */
 
+// TODO: maybe this is all not needed anymore with SDL2 ?
 
 #include <algorithm>
 
@@ -35,6 +36,7 @@
 #include "Debug.h"
 
 #if !defined(DEDICATED_ONLY) && defined(X11) && !defined(__APPLE__)
+#if 0 // TODO SDL2...
 
 #define CLIPBOARD_FUNCS_DEFINED
 
@@ -200,7 +202,7 @@ static std::string clipboard_string;
 static Mutex clipboardMainthreadMutex;
 static bool clipboardMainthreadCopyTo = false;
 
-void handle_system_event(const SDL_Event& event)
+void Clipboard_handleSysWmEvent(const SDL_Event& event)
 {
 	Mutex::ScopedLock lock( clipboardMainthreadMutex );
 
@@ -400,6 +402,7 @@ void copy_to_clipboard(const std::string& text)
 }
 
 #endif
+#endif
 
 #if !defined(DEDICATED_ONLY) && defined(WIN32)
 #include <windows.h>
@@ -407,7 +410,7 @@ void copy_to_clipboard(const std::string& text)
 
 #define CLIPBOARD_FUNCS_DEFINED
 
-void handle_system_event(const SDL_Event& )
+void Clipboard_handleSysWmEvent(const SDL_Event& )
 {}
 
 void copy_to_clipboard(const std::string& text)
@@ -517,7 +520,7 @@ std::string copy_from_clipboard()
 	return mac__copy_from_clipboard();
 }
 
-void handle_system_event(const SDL_Event& event)
+void Clipboard_handleSysWmEvent(const SDL_Event& event)
 {
 }
 
@@ -536,7 +539,7 @@ std::string copy_from_clipboard()
 	return "";
 }
 
-void handle_system_event(const SDL_Event& event)
+void Clipboard_handleSysWmEvent(const SDL_Event& event)
 {
 }
 

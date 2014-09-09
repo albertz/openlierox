@@ -32,7 +32,7 @@
 #include "script.h"
 #include "hash_table.h"
 
-#include "loaders/vermes.h"
+#include "loaders/gusanos.h"
 #include "loaders/liero.h"
 #include "loaders/losp.h"
 #include "LuaCallbacks.h"
@@ -215,7 +215,7 @@ bool GusGame::init()
 	if(!allegro_init()) return false;
 	
 #ifndef DEDICATED_ONLY
-	fontLocator.registerLoader(&VermesFontLoader::instance);
+	fontLocator.registerLoader(&GusanosFontLoader::instance);
 	fontLocator.registerLoader(&LOSPFontLoader::instance);
 	fontLocator.registerLoader(&LieroFontLoader::instance);
 	

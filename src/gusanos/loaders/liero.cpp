@@ -32,7 +32,7 @@ bool LieroFontLoader::load(Font* font, std::string const& path)
 		
 	long bitmapWidth = 7, bitmapHeight = 250 * 8;
 
-	ALLEGRO_BITMAP* fontBitmap = create_bitmap_ex(8, bitmapWidth, bitmapHeight);
+	ALLEGRO_BITMAP* fontBitmap = create_bitmap_ex(8, (int)bitmapWidth, (int)bitmapHeight);
 	if(!fontBitmap)
 		return false;
 		

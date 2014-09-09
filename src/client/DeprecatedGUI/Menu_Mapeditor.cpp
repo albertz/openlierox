@@ -96,8 +96,8 @@ bool Menu_MapEdInitialize()
 	grabbed = false;
 
 	// Add the controls
-	cMaped.Add( new CButton(BUT_NEW, tMenu->bmpButtons),	map_new,	 230,110, 50,15);
-	cMaped.Add( new CButton(BUT_RANDOM, tMenu->bmpButtons), map_random,  300,110, 80,15);
+	cMaped.Add( new CButton(BUT_NEW, tMenu->bmpButtons),	map_new,	 320,110, 50,15);
+	//cMaped.Add( new CButton(BUT_RANDOM, tMenu->bmpButtons), map_random,  300,110, 80,15);
 	cMaped.Add( new CButton(BUT_LOAD, tMenu->bmpButtons),   map_load,	 400,110, 50,15);
 	cMaped.Add( new CButton(BUT_SAVE, tMenu->bmpButtons),   map_save,	 480,110, 50,15);
 	cMaped.Add( new CButton(BUT_QUIT, tMenu->bmpButtons),   map_quit,	 550,110, 50,15);
@@ -361,7 +361,7 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 
 			// Random
 			case map_random:
-				if(ev->iEventMsg == BTN_CLICKED)
+				//if(ev->iEventMsg == BTN_CLICKED)
 					//cMap->ApplyRandom();
 				break;
 
@@ -395,16 +395,15 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 
 
 	// Keyboard arrows
-	keyboard_t *kb = GetKeyboard();
 	int Scroll = 250 * (int)tLX->fDeltaTime.seconds();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-	if(kb->keys[SDLK_UP])
+	if(WasKeyboardEventHappening(SDLK_UP))
 		cMapedView->SetWorldY( cMapedView->GetWorldY() - Scroll );
-	if(kb->keys[SDLK_DOWN])
+	if(WasKeyboardEventHappening(SDLK_DOWN))
 		cMapedView->SetWorldY( cMapedView->GetWorldY() + Scroll );
-	if(kb->keys[SDLK_LEFT])
+	if(WasKeyboardEventHappening(SDLK_LEFT))
 		cMapedView->SetWorldX( cMapedView->GetWorldX() - Scroll );
-	if(kb->keys[SDLK_RIGHT])
+	if(WasKeyboardEventHappening(SDLK_RIGHT))
 		cMapedView->SetWorldX( cMapedView->GetWorldX() + Scroll );
 
     // Grab the level & drag it

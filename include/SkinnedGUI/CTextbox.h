@@ -119,8 +119,8 @@ public:
 	bool	isPassword()						{ return bPassword; }
 	void	setNoUnicode(bool _u)				{ bNoUnicode.set(_u, HIGHEST_PRIORITY); }
 	bool	getNoUnicode()						{ return bNoUnicode; }
-	void	setMax(int _m)  { iMax = _m; }
-	int		getMax()		{ return iMax; }
+	void	setMax(size_t _m)  { iMax = _m; }
+	size_t		getMax()		{ return iMax; }
 
     void    PasteText();
 	void	CopyText();

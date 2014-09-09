@@ -38,8 +38,8 @@ CGuiSkinnedLayout::CGuiSkinnedLayout() : CContainerWidget("_TopLayout", NULL) {
 	bFullRepaint = false;
 	cSkin = NULL;
 
-	if (SDL_GetVideoSurface())
-		Resize(0, 0, SDL_GetVideoSurface()->w, SDL_GetVideoSurface()->h);
+	if (VideoPostProcessor::videoSurface())
+		Resize(0, 0, VideoPostProcessor::videoSurface()->w, VideoPostProcessor::videoSurface()->h);
 }
 
 CGuiSkinnedLayout::CGuiSkinnedLayout(COMMON_PARAMS) : CContainerWidget(name, parent)

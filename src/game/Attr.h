@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <utility>
 #include <boost/function.hpp>
 #include "util/WeakRef.h"
 #include "CScriptableVars.h"
@@ -71,6 +72,13 @@ struct AttrDesc {
 		else
 			return dynGetValue(base, this);
 	}
+	int compare(const BaseObject* base, const ScriptVar_t& otherValue) const {
+		if(isStatic)
+			// the const-cast is safe because ScriptVarPtr_t.asScriptVar doesn't modify it
+			return getValueScriptPtr((BaseObject*)base).valueCompare(otherValue);
+		else
+			return dynGetValue(base, this).compare(otherValue);
+	}
 	void set(BaseObject* base, const ScriptVar_t& v) const;
 
 	bool authorizedToWrite(const BaseObject* base) const;
@@ -129,10 +137,13 @@ const AttrDesc* findAttrDescByName(const std::string& name, ClassId classId, boo
 struct AttrUpdateInfo {
 	const AttrDesc* attrDesc;
 	ScriptVar_t oldValue;
+	AttrUpdateInfo() : attrDesc(NULL) {}
+	AttrUpdateInfo(AttrUpdateInfo&& other)
+	: attrDesc(other.attrDesc), oldValue(std::move(other.oldValue)) {}
 };
 
 void pushObjAttrUpdate(BaseObject& obj, const AttrDesc* attrDesc);
-void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
+void iterAttrUpdates();
 
 
 // Use these if you want to have certain attribs writeable.
@@ -183,6 +194,15 @@ struct Attr {
 		return value;
 	}
 	Attr& operator=(const T& v) {
+		// Short path check.
+		// Because this doesn't call any of the attrib update handling,
+		// this can be much faster.
+		// Note that this is also important, because this gets called
+		// in some cases where we copy some default constructed object,
+		// from inside iterAttrUpdates(), and we are not allowed to
+		// access the attrib updates from there because it holds a lock.
+		if(get() == v) return *this;
+		// Write and push attrib update.
 		write() = v;
 		return *this;
 	}

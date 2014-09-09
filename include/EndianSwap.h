@@ -13,7 +13,6 @@
 #include <SDL.h>
 #include <cstdio>
 #include <algorithm>
-#include "StaticAssert.h"
 #include "CVec.h"
 
 #ifdef _MSC_VER
@@ -23,7 +22,7 @@
 
 template <int n>
 void ByteSwap(unsigned char * b) {
-	static_assert(n == 1 || n % 2 == 0, n_must_be_equal);
+	static_assert(n == 1 || n % 2 == 0, "n_must_be_equal");
 	for(int i = 0; i < n/2; ++i) {
 		std::swap(b[i], b[n - i - 1]);
 	}
@@ -57,8 +56,8 @@ void ByteSwap5(T& x) {
 
 template <int size, int nmemb, typename T>
 static size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
-	static_assert(nmemb == 1, nmemb__equals1);
-	static_assert(size == sizeof(T), size__mismatch);
+	static_assert(nmemb == 1, "nmemb__equals1");
+	static_assert(size == sizeof(T), "size__mismatch");
 	EndianSwap(d);
 	return fwrite(&d, sizeof(T), 1, stream);
 }
@@ -69,8 +68,8 @@ static size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
 
 template <int size, int nmemb, typename T>
 static size_t fread_compat_wrapper(FILE* stream, T& d) {
-	static_assert(nmemb == 1, nmemb__equals1);
-	static_assert(size == sizeof(T), size__mismatch);
+	static_assert(nmemb == 1, "nmemb__equals1");
+	static_assert(size == sizeof(T), "size__mismatch");
 	return fread(&d, sizeof(T), 1, stream);	
 }
 
@@ -96,7 +95,7 @@ static size_t fread_endian(FILE* stream, _D& d) {
 
 template <typename T, typename PtrT>
 static T pread_endian(PtrT& p, PtrT end) {
-	static_assert(sizeof(*(PtrT())) == 1, PtrT_of_8bit);
+	static_assert(sizeof(*(PtrT())) == 1, "PtrT_of_8bit");
 	T data = T();
 	if(p + sizeof(T) <= end) {
 		data = *(T*)p;

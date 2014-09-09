@@ -154,7 +154,7 @@ Result initStdinCLISupport() {
 
 	linenoiseSetCompletionCallback(linenoiseCompletionCallbackFunc);
 
-	stdinHandleThread = SDL_CreateThread(handleStdin, NULL);
+	stdinHandleThread = SDL_CreateThread(handleStdin, "stdin", NULL);
 	if(stdinHandleThread == NULL)
 		return "couldn't create thread";
 

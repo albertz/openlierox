@@ -582,7 +582,7 @@ bool GameServer::SendUpdate()
 					network.getNetControl()->olxSendNodeUpdates(NetConnID_conn(cl), maxBytes);
 			}
 			
-			lastClientSendData = cl - cServer->getClients();
+			lastClientSendData = int(cl - cServer->getClients());
 		}		
 	}
 
@@ -625,7 +625,7 @@ void GameServer::SendGameStateUpdates() {
 
 		cl->gameState->updateToCurrent();
 
-		lastClientSendData = cl - cServer->getClients();
+		lastClientSendData = int(cl - cServer->getClients());
 		if(cl == firstNonlocalClientConnection()) counter.addData(1);
 	}
 
@@ -743,7 +743,7 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 }
 
 void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs, const Version& compatVer) {
-	int ftC = featureArrayLen();
+	size_t ftC = featureArrayLen();
 	assert(ftC < 256*256);
 	CBytestream bs1;
 	int sendCount = 0;
@@ -1080,7 +1080,7 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 	{
 		if( i != (size_t)curWeapon )
 		{
-			Worm->setCurrentWeapon(i);
+			Worm->setCurrentWeapon((int)i);
 			bs.writeByte( S2C_UPDATESTATS );
 			bs.writeByte( game.wormsOfClient(cl)->size() );
 			for_each_iterator(CWorm*, w, game.wormsOfClient(cl) )

@@ -25,8 +25,6 @@ void BitStream::growIfNeeded(size_t addBits)
 	m_data.reserve(m_data.size() + addBits);
 }
 
-static const unsigned char bitMasks[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
-
 void BitStream::writeBits(const std::vector<bool>& bits)
 {
 	growIfNeeded(bits.size());

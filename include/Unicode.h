@@ -101,9 +101,56 @@ INLINE std::string::iterator Utf8PositionToIterator(std::string& str, size_t pos
 ////////////////////////
 // Reads next unicode character from a UTF8 encoded string
 // the iterator shows at the next character after this operation
-UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last, size_t& num_skipped);
-INLINE UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator& it, const std::string::const_iterator& last)  {
-	size_t tmp;	return GetNextUnicodeFromUtf8(it, last, tmp); }
+
+////////////////////
+// Convert UTF8 to unicode (takes iterator pointing to the first UTF8-encoded character)
+template<typename It1, typename It2>
+inline UnicodeChar GetNextUnicodeFromUtf8(It1 &it, const It2& last, size_t& num_skipped) {
+	num_skipped = 0;
+	if(it == last) return 0;
+	
+	unsigned char ch = *it;
+	UnicodeChar res = ch;
+	if ( ch >= 0xFC ) {
+		res  =  (ch&0x01) << 30; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 24; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 18; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++;  num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F);
+	} else
+	if ( ch >= 0xF8 ) {
+		res  =  (ch&0x03) << 24; num_skipped++; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 18; num_skipped++; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; num_skipped++; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6;  num_skipped++; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F);
+	} else
+	if ( ch >= 0xF0 ) {
+		res  =  (ch&0x07) << 18; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++;  num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F);
+	} else
+	if ( ch >= 0xE0 ) {
+		res  =  (ch&0x0F) << 12; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F);
+	} else
+	if ( ch >= 0xC0 ) {
+		res  =  (ch&0x1F) << 6; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F);
+	}
+
+	it++; num_skipped++;
+	return res;
+}
+
+template<typename It1, typename It2>
+inline UnicodeChar GetNextUnicodeFromUtf8(It1& it, const It2& last) {
+	size_t tmp;
+	return GetNextUnicodeFromUtf8(it, last, tmp);
+}
 
 INLINE UnicodeChar GetUnicodeFromUtf8(const std::string& str, size_t pos) {
 	std::string::const_iterator it = Utf8PositionToIterator(str, pos);

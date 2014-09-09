@@ -933,6 +933,10 @@ int NetworkSocket::Write(const void* buffer, int nbytes) {
 		errors << "NetworkSocket::Write: cannot write on closed socket" << endl;
 		return NL_INVALID;
 	}
+	if(nbytes < 0) {
+		errors << "WriteSocket " << debugString() << ": nbytes < 0" << endl;
+		return NL_INVALID;
+	}
 	
 	ResetSocketError();
 	NLint ret = nlWrite(m_socket->sock, buffer, nbytes);
@@ -1126,7 +1130,7 @@ Result NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
 
 
 int GetSocketErrorNr() {
-	return nlGetError();
+	return (int)nlGetError();
 }
 
 std::string GetSocketErrorStr(int errnr) {
@@ -1320,7 +1324,7 @@ static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address
     {
         ((struct sockaddr_in *)address)->sin_family = AF_INET;
         ((struct sockaddr_in *)address)->sin_port = htons(port);
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = *(NLulong *)hostentry->h_addr_list[0];
+        ((struct sockaddr_in *)address)->sin_addr.s_addr = (uint32_t) *(NLulong *)hostentry->h_addr_list[0];
         address->valid = NL_TRUE;
     }
     else

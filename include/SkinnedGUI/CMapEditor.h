@@ -81,7 +81,6 @@ public:
 	int		getPenSize()		{ return iPenSize; ChangeCursor(); }
 
 	void	New(int width, int height, const std::string& theme);
-	void	Random();
 	void	Load(const std::string& path);
 	void	Save(const std::string&name, const std::string& path);
 

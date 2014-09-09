@@ -18,12 +18,13 @@
 #include <list>
 #include <vector>
 #include <assert.h>
-#include "StaticAssert.h"
 
-static_assert( C_LocalPlayer_ActionCount == CWormHumanInputHandler::ACTION_COUNT, actioncount_mismatch );
+static_assert( C_LocalPlayer_ActionCount == CWormHumanInputHandler::ACTION_COUNT, "actioncount_mismatch" );
 
 std::string _event(size_t index, CWormHumanInputHandler::Actions action, bool start) {
 	using namespace boost::lambda;
+	using boost::lambda::_1;
+	using boost::lambda::_2;
 
 	assert((int)action >= 0 && (int)action < CWormHumanInputHandler::ACTION_COUNT);
 
@@ -65,6 +66,7 @@ std::string eventStop(size_t index, CWormHumanInputHandler::Actions action, std:
 void registerPlayerInput()
 {
 	using namespace boost::lambda;
+	using boost::lambda::_1;
 
 	for ( size_t i = 0; i < GusGame::MAX_LOCAL_PLAYERS; ++i)
 	{
@@ -72,7 +74,7 @@ void registerPlayerInput()
 		{
 			"_LEFT", "_RIGHT", "_UP", "_DOWN", "_FIRE", "_JUMP", "_CHANGE", "_NINJAROPE"
 		};
-		static_assert( sizeof(actionNames)/sizeof(char*) == CWormHumanInputHandler::ACTION_COUNT, actioncount_mismatch );
+		static_assert( sizeof(actionNames)/sizeof(char*) == CWormHumanInputHandler::ACTION_COUNT, "actioncount_mismatch" );
 		
 		for(int action = CWormHumanInputHandler::LEFT; action < CWormHumanInputHandler::ACTION_COUNT; ++action)
 		{

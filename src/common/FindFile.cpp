@@ -54,10 +54,8 @@
 #			include <tr1/unordered_set>
 #			define hash_set std::tr1::unordered_set
 #		else
-#			include <ext/hash_set>
-			using namespace __gnu_cxx;
-			namespace __gnu_debug_def {} // because it may be undefined
-			using namespace __gnu_debug_def;
+#			include <unordered_set>
+#			define hash_set std::unordered_set
 #		endif
 #	else // STLPORT
 #		include <hash_set>
@@ -275,13 +273,13 @@ size_t GetLastName(const std::string& fullname, const char** seperators)
 struct ExactFilenameCache {
 	struct simple_crc32_hasher {
 		size_t operator() (const std::string& str) const {			
-			Uint32 crc = crc32(0L, Z_NULL, 0);
+			uint32_t crc = (uint32_t) crc32(0, Z_NULL, 0);
 			for(std::string::const_iterator pos = str.begin(); pos != str.end(); pos++) {
 				uchar c = (uchar)tolower((uchar)*pos) & 0xf;
 				++pos;
 				if(pos == str.end()) break;
 				c += ((uchar)tolower((uchar)*pos) & 0xf) << 4;
-				crc = crc32(crc, (Byte*)&c, 1);
+				crc = (uint32_t) crc32(crc, (Byte*)&c, 1);
 			}
 			return crc;
 		}
@@ -1082,7 +1080,7 @@ SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose)  {
 	return(rwops);
 
 #else
-	return SDL_RWFromFP(fp, (int)autoclose);
+	return SDL_RWFromFP(fp, (SDL_bool)autoclose);
 #endif
 }
 

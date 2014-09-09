@@ -46,7 +46,6 @@
 #include "TaskManager.h"
 #include "CGameMode.h"
 #include "ConversationLogger.h"
-#include "StaticAssert.h"
 #include "OLXCommand.h"
 #include "game/Mod.h"
 #include "gusanos/gusanos.h"
@@ -78,9 +77,6 @@
 #include <SDL_main.h>
 #endif
 
-// TODO: i hate globals ...
-// we have to create a basic class Game or something
-keyboard_t	*kb = NULL;
 
 
 static bool enableStdinCLI = true;
@@ -183,12 +179,12 @@ struct StartupCLI : CmdLineIntf, CmdLineIntf::ExecScope {
 static void DoSystemChecks() {
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
-	static_assert(sizeof(char) == 1, sizeof_char__equals1);
-	static_assert(sizeof(short) == 2, sizeof_short__equals2);
-	static_assert(sizeof(int) == 4, sizeof_int__equals4);
-	static_assert(sizeof(float) == 4, sizeof_float__equals4);
+	static_assert(sizeof(char) == 1, "sizeof_char__equals1");
+	static_assert(sizeof(short) == 2, "sizeof_short__equals2");
+	static_assert(sizeof(int) == 4, "sizeof_int__equals4");
+	static_assert(sizeof(float) == 4, "sizeof_float__equals4");
 	// sometimes the return value of SendMessage is used as a pointer
-	static_assert(sizeof(DWORD) == sizeof(void*), sizeof_dword__equals_p);
+	static_assert(sizeof(DWORD) == sizeof(void*), "sizeof_dword__equals_p");
 }
 
 
@@ -199,9 +195,19 @@ void setBinaryDirAndName(char* argv0);
 bool afterCrash = false;
 static bool afterCrashInformedUser = false;
 
+
+extern "C" int real_main(int argc, char *argv[]);
+
+#ifndef __APPLE__
+int main(int argc, char *argv[]) {
+	return real_main(argc, argv);
+}
+#endif
+
+
 ///////////////////
 // Main entry point
-int main(int argc, char *argv[])
+int real_main(int argc, char *argv[])
 {
 	if(DoCrashReport(argc, argv)) return 0;
 
@@ -296,7 +302,6 @@ startpoint:
 		return -1;
 	}
 	
-	kb = GetKeyboard();
 	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
 		SystemError("Could not find screen.");
 		return -1;
@@ -386,6 +391,7 @@ startpoint:
 	UnInitTaskManager();
 
 	if(bRestartGameAfterQuit) {
+		game.state = Game::S_Inactive; // reset this. otherwise, we would quit if it is still S_Quit.
 		bRestartGameAfterQuit = false;
 		hints << "-- Restarting game --" << endl;
 		goto startpoint;
@@ -589,14 +595,14 @@ static void ParseArguments_AfterInit(int argc, char *argv[])
 
 ///////////////////
 // Initialize the game
-int InitializeLieroX()
+bool InitializeLieroX()
 {
 	notes << "Hello there, I am initializing me now..." << endl;
 
 	LIBXML_TEST_VERSION;
 
 	// Initialize the aux library
-	if(!InitializeAuxLib("config.cfg",16,0)) {
+	if(!InitializeAuxLib()) {
         SystemError("strange problems with the aux library");
 		return false;
 	}
@@ -800,10 +806,7 @@ static void DrawLoading(byte percentage, const std::string &text)  {
 
 	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
 
-	// we are in the main thread, so we can call this directly
-	VideoPostProcessor::flipBuffers();
-	VideoPostProcessor::process();
-	flipRealVideo();
+	doVideoFrameInMainThread();
 }
 
 ////////////////////

@@ -4,6 +4,7 @@
 #include <stack>
 #include <algorithm>
 #include <stdint.h>
+#include <cstdlib>
 #include "util/rect.h"
 
 #ifdef max
@@ -340,7 +341,7 @@ struct Culler
 	
 	int64_t getYOffset(int64_t y)
 	{
-		return abs(y - orgY);
+		return std::abs(y - orgY);
 	}
 	
 	void cullOmni(int64_t x, int64_t y)

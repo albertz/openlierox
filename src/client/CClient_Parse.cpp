@@ -211,7 +211,7 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 	bytestr.writeInt(PROTOCOL_VERSION,1);
 	bytestr.writeInt(client->iChallenge,4);
 	bytestr.writeInt(client->iNetSpeed,1);
-	bytestr.writeInt(client->connectInfo->worms.size(), 1);
+	bytestr.writeInt((int)client->connectInfo->worms.size(), 1);
 
 	// Send my worms info
     //
@@ -1155,7 +1155,7 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	}
 
 	// Load the worm graphics
-	if(!w->ChangeGraphics(client->getGeneralGameType())) {
+	if(!w->ChangeGraphics()) {
         warnings << "CClientNetEngine::ParseWormInfo(): ChangeGraphics() failed" << endl;
 	}
 

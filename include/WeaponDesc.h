@@ -15,7 +15,6 @@
 
 #include <string>
 #include <SDL.h>
-#include "StaticAssert.h"
 #include "ProjAction.h"
 #include "Color.h"
 
@@ -34,7 +33,7 @@ enum Wpn_Class {
 	__WCL_UBOUND = INT_MAX,
 };
 
-static_assert(sizeof(Wpn_Class) == sizeof(int), Wpn_Class__SizeCheck);
+static_assert(sizeof(Wpn_Class) == sizeof(int), "Wpn_Class__SizeCheck");
 
 // Weapon types
 enum Wpn_Type {
@@ -46,7 +45,7 @@ enum Wpn_Type {
 	__WPN_UBOUND = INT_MAX
 };
 
-static_assert(sizeof(Wpn_Type) == sizeof(int), Wpn_Type__SizeCheck);
+static_assert(sizeof(Wpn_Type) == sizeof(int), "Wpn_Type__SizeCheck");
 
 
 // Special Weapons
@@ -58,7 +57,7 @@ enum Wpn_Special {
 	__SPC_UBOUND = INT_MAX
 };
 
-static_assert(sizeof(Wpn_Special) == sizeof(int), Wpn_Special__SizeCheck);
+static_assert(sizeof(Wpn_Special) == sizeof(int), "Wpn_Special__SizeCheck");
 
 
 

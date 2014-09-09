@@ -80,7 +80,7 @@ namespace
 
 		void index(std::string const& name)
 		{
-			int idx = events.size() + 1;
+			size_t idx = events.size() + 1;
 			MapT::iterator i = stringToEvent.find(name);
 			if(i != stringToEvent.end()) {
 				i->second->idx = idx;
@@ -104,7 +104,7 @@ namespace
 
 		void encode(BitStream* data)
 		{
-			data->addInt(events.size(), 8);
+			data->addInt((uint32_t)events.size(), 8);
 			foreach(i, events) {
 				DLOG("Encoding lua event: " << (*i)->name);
 				data->addString((*i)->name.c_str());

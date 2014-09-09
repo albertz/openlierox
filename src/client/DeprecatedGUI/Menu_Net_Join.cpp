@@ -696,7 +696,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		for_each_iterator(CWorm*, w_, game.worms()) {
 			CWorm* w = w_->get();
 
-			w->ChangeGraphics(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType);
+			w->ChangeGraphics();
 
 			// Add the item
 			player_list->AddItem(w->getName(), w->getID(), tLX->clNormalLabel);

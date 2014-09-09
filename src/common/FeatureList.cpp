@@ -17,7 +17,6 @@
 #include "game/SettingsPreset.h"
 #include "game/GameMode.h"
 #include "Consts.h"
-#include "StaticAssert.h"
 #include "Debug.h"
 
 
@@ -224,7 +223,7 @@ Feature(77, "RopeCanAttachWorm", "Rope can attach worm", "when false, you cannot
 			15.0f, 15.0f,			Version(),				GIG_Race,	ALT_VeryAdvanced, 5.0f, 100.f, true, true),
 };
 
-static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature), featureArray__sizecheck);
+static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature), "featureArray__sizecheck");
 
 
 

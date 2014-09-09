@@ -122,8 +122,8 @@ protected:
 	size_t			iOutgoingBytes;
 	size_t			iIncomingBytes;
 
-	void			UpdateTransmitStatistics( int sentDataSize );
-	void			UpdateReceiveStatistics( int receivedDataSize );
+	void			UpdateTransmitStatistics( size_t sentDataSize );
+	void			UpdateReceiveStatistics( size_t receivedDataSize );
 			
 public:
 

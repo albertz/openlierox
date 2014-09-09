@@ -11,6 +11,8 @@
 #ifndef __OLX__REF_H__
 #define __OLX__REF_H__
 
+#include <assert.h>
+
 /*
 	Intended to hold an object of an abstract class (interface).
 	The object is given and must live on the heap.
@@ -31,12 +33,33 @@ private:
 	void clear() { if(m_obj) delete m_obj; m_obj = NULL; }
 
 public:
-	Ref(_Obj* obj = NULL) : m_obj(obj) {}
-	Ref(const Ref& ref) { m_obj = ref->copy(); }
+	Ref(_Obj* obj) : m_obj(obj) { assert(obj); }
+	Ref(const Ref& ref) : m_obj(NULL) { *this = ref; }
+	Ref(Ref&& ref) : m_obj(NULL) { *this = std::forward<Ref>(ref); }
 	~Ref() { clear(); }
 
-	Ref& operator=(_Obj* obj) { if(obj != m_obj) { clear(); m_obj = obj; } return *this; }
-	Ref& operator=(const Ref& ref) { if(ref.m_obj != m_obj) { clear(); m_obj = ref->copy(); } return *this; }
+	Ref& operator=(_Obj* obj) {
+		if(obj != m_obj) {
+			clear();
+			m_obj = obj;
+		}
+		return *this;
+	}
+	Ref& operator=(const Ref& ref) {
+		if(ref.m_obj != m_obj) {
+			clear();
+			assert(ref); // a copy is only valid if the source is set
+			m_obj = ref->copy();
+		}
+		return *this;
+	}
+	Ref& operator=(Ref&& ref) {
+		if(ref.m_obj != m_obj) {
+			clear();
+			std::swap(m_obj, ref.m_obj);
+		}
+		return *this;
+	}
 
 	operator bool() const { return isSet(); }
 	_Obj* operator->() { return m_obj; }

@@ -24,6 +24,7 @@
 #include <SDL.h>
 #include "Color.h"
 #include "CodeAttributes.h"
+#include "GfxPrimitives.h"
 
 // Alpha blends two colors, both are considered semi-transparent, the comp_a value should be MIN(255, fg.a + bg.a)
 #define BLEND_CHANN_ALPHA(chann, bg, fg, comp_a) (((comp_a - fg.a) * bg.chann + fg.a * fg.chann) / comp_a)
@@ -112,9 +113,10 @@ class PixelCopy  {
 protected:
 	SDL_PixelFormat *sfmt; // Source surface format
 	SDL_PixelFormat *dfmt; // Dest surface format
+	Color colorkey;
 public:
 	PixelCopy() : sfmt(NULL), dfmt(NULL) {}
-	void setformats(SDL_PixelFormat *srcf, SDL_PixelFormat *dstf) { sfmt = srcf; dfmt = dstf; }
+	void setformats(SDL_PixelFormat *srcf, SDL_PixelFormat *dstf, Color key) { sfmt = srcf; dfmt = dstf; colorkey = key; }
 	virtual void copy(Uint8 *dstaddr, const Uint8 *srcaddr) = 0;
 	virtual ~PixelCopy() {}
 };
@@ -288,10 +290,9 @@ bool dsthasalpha,
 int srcbytespp,
 int dstbytespp
 >
-INLINE void PixelCopy_(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, Uint8 *dstaddr, const Uint8 *srcaddr) {
+INLINE void PixelCopy_(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, Uint8 *dstaddr, const Uint8 *srcaddr, Color colorkey) {
 	if(colorkeycheck) {
-		Color key = Unpack_<srchasalpha>(srcformat->colorkey, srcformat);
-		if(key == _GetPixel<srchasalpha,srcbytespp>(srcformat, srcaddr)) return;
+		if(colorkey == _GetPixel<srchasalpha,srcbytespp>(srcformat, srcaddr)) return;
 	}
 	if(issameformat && !alphablend) {
 		assert(srchasalpha == dsthasalpha);
@@ -322,11 +323,11 @@ public:
 	void copy(Uint8 *dstaddr, const Uint8 *srcaddr) {
 		PixelCopy_<
 		issameformat,alphablend,colorkeycheck,srchasalpha,dsthasalpha,srcbytespp,dstbytespp
-		>(dfmt, sfmt, dstaddr, srcaddr);
+		>(dfmt, sfmt, dstaddr, srcaddr, colorkey);
 	}
-	static PixelCopy& getInstance(SDL_PixelFormat* sfmt, SDL_PixelFormat* dfmt) {
+	static PixelCopy& getInstance(SDL_PixelFormat* sfmt, SDL_PixelFormat* dfmt, Color colorkey) {
 		static PixelCopy_Class copier;
-		copier.setformats(sfmt, dfmt);
+		copier.setformats(sfmt, dfmt, colorkey);
 		return copier;
 	}
 };
@@ -388,7 +389,7 @@ INLINE PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf)  {
 	case 3:
 		return px24;	// 24-bit surfaces have no alpha
 	case 4:
-		if (surf->flags & SDL_SRCALPHA)
+		if (Surface_HasBlendMode(surf))
 			return px32_a;
 		return px32;
 	default:

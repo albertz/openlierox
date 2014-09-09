@@ -408,7 +408,7 @@ void Super2xSaI_ex(uint8_t *src, uint32_t src_pitch, uint8_t *unused, ALLEGRO_BI
 		
 		/* Write the 2 lines, if not already done so */
 		if (v) {
-			Uint32 dst_addr;
+			uint8_t* dst_addr;
 		
 			dst_addr = bmp_write_line(dest, y * 2);
 			for (j = 0; j < dest->w * sbpp; (j += sizeof(Uint32)), (dst_addr += sizeof(Uint32)))
@@ -569,7 +569,7 @@ void SuperEagle_ex(uint8_t *src, uint32_t src_pitch, uint8_t *unused, ALLEGRO_BI
 
 			}
 			else if (color[3] == color[8] && color[7] == color[4]) {
-				register int r = 0;
+				int r = 0;
 
 				r += GET_RESULT(color[4], color[3], color[6], color[10]);
 				r += GET_RESULT(color[4], color[3], color[2], color[0]);
@@ -676,7 +676,7 @@ void SuperEagle_ex(uint8_t *src, uint32_t src_pitch, uint8_t *unused, ALLEGRO_BI
 
 		/* Write the 2 lines, if not already done so */
 		if (v) {
-			Uint32 dst_addr;
+			uint8_t* dst_addr;
 		
 			dst_addr = bmp_write_line(dest, y * 2);
 			for (j = 0; j < dest->w * sbpp; j += sizeof(Uint32))

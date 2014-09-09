@@ -729,7 +729,7 @@ public:
 		if(layers.size() == 0)
 			return iterator();
 			
-		return iterator(*this, 0, 1, layers.size());
+		return iterator(*this, 0, 1, (int)layers.size());
 	}
 	
 	iterator beginColLayer(int layer)

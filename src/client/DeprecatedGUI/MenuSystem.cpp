@@ -95,7 +95,7 @@ static bool Menu_InitSockets() {
 	return true;
 }
 
-menu_t::menu_t() : cSkin(CGameSkin::WormSkin()) {}
+menu_t::menu_t() : cSkin(CGameSkin::WormSkin(), true) {}
 
 ///////////////////
 // Initialize the menu system
@@ -596,7 +596,6 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 	ProcessEvents();
 
 	
-	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(true) {
 		Menu_RedrawMouse(true);
 
@@ -1548,7 +1547,7 @@ void TaskManager::renderTasksStatus(SDL_Surface* s) {
 		static const int StatusLeft = 30;
 		static const int StatusTop = 5;
 		const int StatusHeight = tLX->cFont.GetHeight() + 5;
-		DrawRectFill(s, 0, 0, s->w, StatusTop + StatusHeight * statusTxts.size(), Color(42,73,145,180));
+		DrawRectFill(s, 0, 0, s->w, StatusTop + StatusHeight * (int)statusTxts.size(), Color(42,73,145,180));
 		
 		int y = StatusTop;
 		for(std::list<std::string>::iterator i = statusTxts.begin(); i != statusTxts.end(); ++i) {
@@ -1557,6 +1556,6 @@ void TaskManager::renderTasksStatus(SDL_Surface* s) {
 		}
 	
 		static const int StatusLoadingSize = 9;
-		DrawLoadingAni(s, StatusLoadingLeft + StatusLoadingSize, StatusHeight * statusTxts.size() - StatusLoadingSize, StatusLoadingSize, StatusLoadingSize, Color(255,255,255), Color(128,128,128), LAT_CIRCLES);
+		DrawLoadingAni(s, StatusLoadingLeft + StatusLoadingSize, StatusHeight * (int)statusTxts.size() - StatusLoadingSize, StatusLoadingSize, StatusLoadingSize, Color(255,255,255), Color(128,128,128), LAT_CIRCLES);
 	}
 }

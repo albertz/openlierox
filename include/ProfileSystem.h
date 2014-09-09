@@ -61,7 +61,7 @@ struct profile_t {
 	profile_t() :
 		iType(PRF_HUMAN->toInt()), nDifficulty(AI_EASY),
 		R(0), G(0), B(0), iTeam(0),
-		cSkin(CGameSkin::WormSkin()) {}
+		cSkin(CGameSkin::WormSkin(), true) {}
 
 	int				iType;
 	std::string		sName;

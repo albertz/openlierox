@@ -18,10 +18,39 @@
 #include "CServer.h"
 #include "IRC.h"
 #include "CrashHandler.h"
+#include "Clipboard.h"
 
 
 
+/*
+Notes:
 
+The following things need to be run on the main thread,
+because of implementation details on SDL & the underlying OS,
+so we cannot do much about it:
+- OpenGL stuff
+- SDL_Render*
+- SDL events
+
+So, this is exactly what we do in the main thread, and not much more.
+Check via isMainThread(), whether you are in the main thread.
+
+Then, there is the main game thread, where we run the game logic
+itself, and also do much of the software pixel drawing, and
+most other things.
+We call it the gameloop thread, because the game gameloop runs in it.
+Check via isGameloopThread(), whether you are in the gameloop thread.
+
+To be able to do the software drawing in the mainloop thread,
+and in parallel do the system screen drawing, we need to have two
+main screen surface, which are handled by the VideoPostProcessor.
+
+Then gameloop thread draws to the VideoPostProcessor::videoSurface().
+The main thread draws the VideoPostProcessor::m_videoBufferSurface
+to the screen.
+
+
+*/
 
 
 struct VideoHandler {
@@ -40,6 +69,7 @@ struct VideoHandler {
 		SDL_DestroyCond(sign); sign = NULL;
 	}
 
+	// Runs on the main thread.
 	void frame() {
 		{
 			ScopedLock lock(mutex);
@@ -47,12 +77,28 @@ struct VideoHandler {
 			SDL_CondBroadcast(sign);
 			if(framesInQueue > 0) framesInQueue--;
 			else return;
+			// This must be done while locked because we don't want a flipBuffers meanwhile.
 			VideoPostProcessor::process();
 		}
 
-		flipRealVideo();
+		// This can be done unlocked, because we only access it through the main thread.
+		VideoPostProcessor::render();
 	}
 
+	// Runs on the main thread.
+	void doSingleDirectFrame() {
+		assert(isMainThread());
+		
+		{
+			ScopedLock lock(mutex);
+			VideoPostProcessor::flipBuffers();
+			VideoPostProcessor::process();
+		}
+
+		VideoPostProcessor::render();
+	}
+
+	// Runs on the main thread.
 	void setVideoMode() {
 		bool makeFrame = false;
 		{
@@ -64,15 +110,20 @@ struct VideoHandler {
 			if(framesInQueue > 0) {
 				framesInQueue = 0;
 				makeFrame = true;
+				// This must be done while locked because we don't want a flipBuffers meanwhile.
 				VideoPostProcessor::process();
 			}
 		}
 
 		if(makeFrame)
-			flipRealVideo();
+			// This can be done unlocked, because we only access it through the main thread.
+			VideoPostProcessor::render();
 	}
 
+	// This must not be run on the main thread.
 	void pushFrame() {
+		assert(!isMainThread());
+		
 		// wait for current drawing
 		ScopedLock lock(mutex);
 
@@ -82,7 +133,7 @@ struct VideoHandler {
 		SDL_Event ev;
 		ev.type = SDL_USEREVENT;
 		ev.user.code = UE_DoVideoFrame;
-		if(SDL_PushEvent(&ev) == 0) {
+		if(SDL_PushEvent(&ev) != 0) {
 			framesInQueue++;
 			VideoPostProcessor::flipBuffers();
 		} else
@@ -95,7 +146,7 @@ struct VideoHandler {
 		SDL_Event ev;
 		ev.type = SDL_USEREVENT;
 		ev.user.code = UE_DoSetVideoMode;
-		if(SDL_PushEvent(&ev) == 0) {
+		if(SDL_PushEvent(&ev) != 0) {
 			videoModeReady = false;
 			while(!videoModeReady)
 				SDL_CondWait(sign, mutex);
@@ -127,7 +178,12 @@ struct CoutPrint : PrintOutFct {
 
 void startMainLockDetector() {
 	if(!tLXOptions->bUseMainLockDetector) return;
-
+	// When debugging, DumpAllThreadsCallstack doesn't work that well in many cases
+	// because the debugger catches SIGUSR2. Also, when debugging, the developer
+	// maybe want to pause manually. So we don't use the automatic main lock detector.
+	if(AmIBeingDebugged()) return;
+	
+	// This checks the game loop thread, if it is working sanely.
 	struct MainLockDetector : Action {
 		bool wait(Uint32 time) {
 			if(!tLX) return false;
@@ -218,7 +274,8 @@ struct MainLoopTask : LoopTask {
 };
 
 
-
+// Runs on the main thread.
+// Returns false on quit.
 static bool handleSDLEvent(SDL_Event& ev) {
 	if(ev.type == SDL_USEREVENT) {
 		switch(ev.user.code) {
@@ -242,7 +299,10 @@ static bool handleSDLEvent(SDL_Event& ev) {
 		return true;
 	}
 	if( ev.type == SDL_SYSWMEVENT ) {
-		EvHndl_SysWmEvent_MainThread( &ev );
+		// At the moment: Callback for clipboard on X11, should be called every time new event arrived
+		// Must be called in the main thread.
+		// TODO: Move to SDL_CLIPBOARDUPDATE, and SDL for clipboard?
+		Clipboard_handleSysWmEvent(ev);
 		return true;
 	}
 	mainQueue->push(ev);
@@ -325,11 +385,8 @@ void SetCrashHandlerReturnPoint(const char* name) {
 
 void doVideoFrameInMainThread() {
 	if(bDedicated) return;
-	if(isMainThread()) {
-		VideoPostProcessor::flipBuffers();
-		VideoPostProcessor::process();
-		flipRealVideo();
-	}
+	if(isMainThread())
+		videoHandler.doSingleDirectFrame();
 	else
 		videoHandler.pushFrame();
 }
@@ -367,7 +424,7 @@ void doActionInMainThread(Action* act) {
 		ev.type = SDL_USEREVENT;
 		ev.user.code = UE_DoActionInMainThread;
 		ev.user.data1 = act;
-		if(SDL_PushEvent(&ev) != 0) {
+		if(SDL_PushEvent(&ev) == 0) {
 			errors << "failed to push custom action event" << endl;
 		}
 	}
@@ -419,7 +476,7 @@ Result MainLoopTask::handle_Quit() {
 	if(!isMainThread()) {
 		SDL_Event quitEv = QuitEventThreadEvent();
 		if(!bDedicated)
-			while(SDL_PushEvent(&quitEv) < 0) {}
+			while(SDL_PushEvent(&quitEv) == 0) {}
 	}
 	gameloopThreadId = (ThreadId)-1;
 	return "quit";

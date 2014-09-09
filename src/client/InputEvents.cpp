@@ -38,7 +38,7 @@ static mouse_t		Mouse;
 static SDL_Event	sdl_event;
 static ModifiersState evtModifiersState;
 
-static bool         nFocus = true;
+static bool         bHaveFocus = true;
 bool		bActivated = false;
 bool		bDeactivated = false;
 
@@ -85,6 +85,7 @@ bool EventSystemInited()
 	return bEventSystemInited;
 }
 
+// Whether the gameloop thread is currently waiting on an event.
 bool IsWaitingForEvent() {
 	return bWaitingForEvent;
 }
@@ -94,30 +95,30 @@ bool IsWaitingForEvent() {
 // Converts SDL button to a mouse button
 MouseButton SDLButtonToMouseButton(int sdlbut)
 {
-	if (sdlbut & SDL_BUTTON_LEFT)
-		return mbLeft;
+	switch(sdlbut) {
+		case SDL_BUTTON_LEFT: return mbLeft;
+		case SDL_BUTTON_RIGHT: return mbRight;
+		case SDL_BUTTON_MIDDLE: return mbMiddle;
+		case SDL_BUTTON_X1: return mbExtra1;
+		case SDL_BUTTON_X2: return mbExtra2;
+		default: return mbLeft;
+	}
+}
 
-	if (sdlbut & SDL_BUTTON_RIGHT)
-		return mbRight;
-
-	if (sdlbut & SDL_BUTTON_MIDDLE)
-		return mbMiddle;
-
-// There is no SDL_BUTTON_X1 and SDL_BUTTON_X2 in my SDL headers, only SDL_BUTTON_WHEELUP/WHEELDOWN -
-// on Linux wheel up/down is emulated by 4th and 5th mouse buttons.
-/*
-	if (sdlbut & SDL_BUTTON_X1)
-		return mbExtra1;
-
-	if (sdlbut & SDL_BUTTON_X2)
-		return mbExtra2;
-*/
-	return mbLeft; // Default
+// Returns just a single (the most important) button.
+MouseButton SDLButtonStateToMouseButton(int sdlbut)
+{
+	if(sdlbut & SDL_BUTTON_LMASK) return mbLeft;
+	if(sdlbut & SDL_BUTTON_RMASK) return mbRight;
+	if(sdlbut & SDL_BUTTON_MMASK) return mbMiddle;
+	if(sdlbut & SDL_BUTTON_X1MASK) return mbExtra1;
+	if(sdlbut & SDL_BUTTON_X2MASK) return mbExtra2;
+	return mbLeft; // default
 }
 
 
 
-SDLEvent sdlEvents[SDL_NUMEVENTS];
+std::map<SDL_EventType, SDLEvent> sdlEvents;
 
 Event<> onDummyEvent;
 
@@ -138,7 +139,7 @@ static void ResetCInputs() {
 	}
 }
 
-void HandleCInputs_KeyEvent(KeyboardEvent& ev) {
+void HandleCInputs_KeyEvent(const KeyboardEvent& ev) {
 	for(std::set<CInput*>::iterator it = cInputs.begin(); it != cInputs.end(); it++)
 		if((*it)->isKeyboard() && (*it)->getData() == ev.sym) {
 			if(ev.down) {
@@ -208,13 +209,12 @@ static void ResetCurrentEventStorage() {
 	// Reset mouse wheel
 	Mouse.WheelScrollUp = false;
 	Mouse.WheelScrollDown = false;
-	Mouse.mouseQueue.clear();
 
 	// Reset the video mode changed flag here
 	if (tLX)
 		tLX->bVideoModeChanged = false;
 
-//	for(int k=0;k<SDLK_LAST;k++) {
+//	for(int k=0;k<SDL_NUM_SCANCODES;k++) {
 //		Keyboard.KeyUp[k] = false;
 //	}
 
@@ -223,7 +223,7 @@ static void ResetCurrentEventStorage() {
 }
 
 
-bool WasKeyboardEventHappening(int sym, bool down) {
+bool WasKeyboardEventHappening(SDL_Keycode sym, bool down) {
 	for(int i = 0; i < Keyboard.queueLength; i++)
 		if(Keyboard.keyQueue[i].sym == sym && Keyboard.keyQueue[i].down == down)
 			return true;
@@ -234,80 +234,74 @@ bool WasKeyboardEventHappening(int sym, bool down) {
 typedef void (*EventHandlerFct) (SDL_Event* ev);
 
 
-static void EvHndl_ActiveEvent(SDL_Event* ev) {
-	if(ev->active.state & ~SDL_APPMOUSEFOCUS)  {
-		bool hadFocusBefore = nFocus;
-		nFocus = sdl_event.active.gain != 0;
-		bActivated = nFocus != 0;
-		bDeactivated = nFocus == 0;
-
-		// HINT: Reset the mouse state - this should avoid the mouse staying pressed
-		Mouse.Button = 0;
-		Mouse.Down = 0;
-		Mouse.FirstDown = 0;
-		Mouse.Up = 0;
-
-		if(!hadFocusBefore && nFocus) {
-			//notes << "OpenLieroX got the focus" << endl;
-			ClearUserNotify();
-		} else if(hadFocusBefore && !nFocus) {
-			//notes << "OpenLieroX lost the focus" << endl;
+static void EvHndl_WindowEvent(SDL_Event* ev) {
+	switch(ev->window.event) {
+		case SDL_WINDOWEVENT_EXPOSED:
+			// We are redrawing anyway. (I hope.)
+			break;
+	
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+		case SDL_WINDOWEVENT_FOCUS_LOST: {
+			bool hadFocusBefore = bHaveFocus;
+			bHaveFocus = ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED;
+			bActivated = bHaveFocus;
+			bDeactivated = !bHaveFocus;
+			
+			// HINT: Reset the mouse state - this should avoid the mouse staying pressed
+			Mouse.Button = 0;
+			Mouse.Down = 0;
+			Mouse.FirstDown = 0;
+			Mouse.Up = 0;
+			
+			if(!hadFocusBefore && bHaveFocus) {
+				//notes << "OpenLieroX got the focus" << endl;
+				ClearUserNotify();
+			} else if(hadFocusBefore && !bHaveFocus) {
+				//notes << "OpenLieroX lost the focus" << endl;
+			}
+			
+			if(tLXOptions->bAutoFileCacheRefresh && bActivated)
+				updateFileListCaches();
+				
+			break;
 		}
-
-		if(tLXOptions->bAutoFileCacheRefresh && bActivated)
-			updateFileListCaches();
 	}
+}
+
+static void pushKeyboardEv(const KeyboardEvent& kbev) {
+	// If we're going to over the queue length, shift the list down and remove the oldest key
+	if(Keyboard.queueLength+1 >= MAX_KEYQUEUE) {
+		for(int i=0; i<Keyboard.queueLength-1; i++)
+			Keyboard.keyQueue[i] = Keyboard.keyQueue[i+1];
+		Keyboard.queueLength--;
+		warnings << "Keyboard queue full" << endl;
+	}
+	
+	Keyboard.keyQueue[Keyboard.queueLength] = kbev;
+	Keyboard.queueLength++;
+
+	HandleCInputs_KeyEvent(kbev);
 }
 
 static void EvHndl_KeyDownUp(SDL_Event* ev) {
 	// Check the characters
 	if(ev->key.state == SDL_PRESSED || ev->key.state == SDL_RELEASED) {
-		UnicodeChar input = ev->key.keysym.unicode;
-		if (input == 0)
-			switch (ev->key.keysym.sym) {
-			case SDLK_HOME:
-				input = 2;
-				break;
-			case SDLK_END:
-				input = 3;
-				break;
-			case SDLK_KP0:
-			case SDLK_KP1:
-			case SDLK_KP2:
-			case SDLK_KP3:
-			case SDLK_KP4:
-			case SDLK_KP5:
-			case SDLK_KP6:
-			case SDLK_KP7:
-			case SDLK_KP8:
-			case SDLK_KP9:
-			case SDLK_KP_MULTIPLY:
-			case SDLK_KP_MINUS:
-			case SDLK_KP_PLUS:
-			case SDLK_KP_EQUALS:
-				input = (uchar) (ev->key.keysym.sym - 208);
-				break;
-			case SDLK_KP_PERIOD:
-			case SDLK_KP_DIVIDE:
-				input = (uchar) (ev->key.keysym.sym - 220);
-				break;
+		UnicodeChar input = 0;
+		switch (ev->key.keysym.sym) {
+			case SDLK_RETURN:
+			case SDLK_RETURN2:
 			case SDLK_KP_ENTER:
 				input = '\r';
+				break;
+			case SDLK_TAB:
+				input = '\t';
 				break;
 			default:
 				// nothing
 				break;
 		}  // switch
-
-		// If we're going to over the queue length, shift the list down and remove the oldest key
-		if(Keyboard.queueLength+1 >= MAX_KEYQUEUE) {
-			for(int i=0; i<Keyboard.queueLength-1; i++)
-				Keyboard.keyQueue[i] = Keyboard.keyQueue[i+1];
-			Keyboard.queueLength--;
-			warnings << "Keyboard queue full" << endl;
-		}
-
-		KeyboardEvent& kbev = Keyboard.keyQueue[Keyboard.queueLength];
+		 
+		KeyboardEvent kbev;
 
 		// Key down
 		if(ev->type == SDL_KEYDOWN)
@@ -323,7 +317,6 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		// save info
 		kbev.ch = input;
 		kbev.sym = ev->key.keysym.sym;
-		Keyboard.queueLength++;
 
 		// handle modifier state
 		switch (kbev.sym)  {
@@ -336,64 +329,64 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		case SDLK_LSHIFT: case SDLK_RSHIFT:
 			evtModifiersState.bShift = kbev.down;
 			break;
-		case SDLK_LSUPER: case SDLK_RSUPER:
-			evtModifiersState.bSuper = kbev.down;
+		case SDLK_LGUI: case SDLK_RGUI:
+			evtModifiersState.bGui = kbev.down;
 			break;
-		case SDLK_LMETA: case SDLK_RMETA:
-			evtModifiersState.bMeta = kbev.down;
-			break;				
 		}
 
 		// copy it
 		kbev.state = evtModifiersState;
 
-		HandleCInputs_KeyEvent(kbev);
-
-		/*
-		if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
-			// I don't want to track keyrepeats here; but works only for special keys
-			notes << tLX->currentTime << ": pressed key " << kbev.sym << endl;
-		else if(!kbev.down)
-			notes << tLX->currentTime << ": released key " << kbev.sym << endl;
-		*/
+		pushKeyboardEv(kbev);
 		
 	} else
 		warnings << "Strange Event.key.state = " << ev->key.state << endl;
 
 }
 
-static void EvHndl_MouseMotion(SDL_Event*) {}
+static void EvHndl_TextInput(SDL_Event* _ev) {
+	SDL_TextInputEvent& ev = _ev->text;
+	
+	auto p = ev.text; // 0-terminated utf8
+	auto end = p + sizeof(ev.text);
+	while(p != end) {
+		UnicodeChar ch = GetNextUnicodeFromUtf8(p, end);
+		if(ch == 0) break;
 
-static void EvHndl_MouseButtonDown(SDL_Event* ev) {
-	switch(ev->button.button) {
-		case SDL_BUTTON_WHEELUP:
-			Mouse.WheelScrollUp = true;
-			break;
-		case SDL_BUTTON_WHEELDOWN:
-			Mouse.WheelScrollDown  = true;
-			break;
-	}  // switch
-
-	{
-		MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, true };
-		Mouse.mouseQueue.push_back( mev );
+		// This is somewhat hacky. SDL1 only supported key events and all
+		// text input was via those. We keep the same interface and emulate
+		// our text input as key events, key-down + key-up, char by char.
+		KeyboardEvent kbev;
+		kbev.down = true;
+		kbev.ch = ch;
+		pushKeyboardEv(kbev);
+		kbev.down = false;
+		pushKeyboardEv(kbev);
 	}
 }
 
-static void EvHndl_MouseButtonUp(SDL_Event* ev) {		
-	MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, false };
-	Mouse.mouseQueue.push_back( mev );
+static int mouseX, mouseY;
+
+static void EvHndl_MouseMotion(SDL_Event* ev) {
+/*	mouseX = CLAMP(mouseX, 0, VideoPostProcessor::get()->screenWidth());
+	mouseY = CLAMP(mouseY, 0, VideoPostProcessor::get()->screenHeight());*/
+	mouseX = ev->motion.x;
+	mouseY = ev->motion.y;
+}
+
+static void EvHndl_MouseButtonDown(SDL_Event* ev) {}
+static void EvHndl_MouseButtonUp(SDL_Event* ev) {}
+
+static void EvHndl_MouseWheel(SDL_Event* ev) {
+	if(ev->wheel.y > 0)
+		Mouse.WheelScrollUp = true;
+	else if(ev->wheel.y < 0)
+		Mouse.WheelScrollDown = true;
 }
 
 static void EvHndl_Quit(SDL_Event*) {
 	game.state = Game::S_Quit;
 }
-
-void EvHndl_SysWmEvent_MainThread(SDL_Event* ev) {
-	handle_system_event(*ev); // Callback for clipboard on X11, should be called every time new event arrived
-}
-
-static void EvHndl_VideoExpose(SDL_Event*) {}
 
 static void EvHndl_UserEvent(SDL_Event* ev) {
 	if(ev->user.code == UE_CustomEventHandler) {
@@ -403,26 +396,23 @@ static void EvHndl_UserEvent(SDL_Event* ev) {
 }
 
 void InitEventSystem() {	
-	for(int k = 0;k<SDLK_LAST;k++)
-		GetKeyboard()->KeyUp[k] = false;
+	Mouse.Button = 0;
+	Mouse.Down = 0;
+	Mouse.FirstDown = 0;
+	Mouse.Up = 0;
 
-	GetMouse()->Button = 0;
-	GetMouse()->Down = 0;
-	GetMouse()->FirstDown = 0;
-	GetMouse()->Up = 0;
-	GetMouse()->mouseQueue.reserve(32); // just make space to avoid always reallocation
-
-	sdlEvents[SDL_ACTIVEEVENT].handler() = getEventHandler(&EvHndl_ActiveEvent);
+	sdlEvents[SDL_WINDOWEVENT].handler() = getEventHandler(&EvHndl_WindowEvent);
 	sdlEvents[SDL_KEYDOWN].handler() = getEventHandler(&EvHndl_KeyDownUp);
 	sdlEvents[SDL_KEYUP].handler() = getEventHandler(&EvHndl_KeyDownUp);
+	sdlEvents[SDL_TEXTINPUT].handler() = getEventHandler(&EvHndl_TextInput);
 	sdlEvents[SDL_MOUSEMOTION].handler() = getEventHandler(&EvHndl_MouseMotion);
 	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() = getEventHandler(&EvHndl_MouseButtonDown);
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() = getEventHandler(&EvHndl_MouseButtonUp);
+	sdlEvents[SDL_MOUSEWHEEL].handler() = getEventHandler(&EvHndl_MouseWheel);
 	sdlEvents[SDL_QUIT].handler() = getEventHandler(&EvHndl_Quit);
-	//sdlEvents[SDL_SYSWMEVENT].handler() = getEventHandler(&EvHndl_SysWmEvent); // Should be done from main thread
-	sdlEvents[SDL_VIDEOEXPOSE].handler() = getEventHandler(&EvHndl_VideoExpose);
 	sdlEvents[SDL_USEREVENT].handler() = getEventHandler(&EvHndl_UserEvent);
-
+	// Note: SDL_SYSWMEVENT is handled directly on the main thread by handleSDLEvents().
+	
 	bEventSystemInited = true;
 	bWaitingForEvent = false;
 }
@@ -440,7 +430,9 @@ void ShutdownEventSystem()
 // TODO: though the whole architecture has to be changed later
 // but then also GetEvent() has to be changed or removed
 void HandleNextEvent() {
-	sdlEvents[sdl_event.type].occurred(&sdl_event);
+	auto it = sdlEvents.find((SDL_EventType)sdl_event.type);
+	if(it != sdlEvents.end())
+		it->second.occurred(&sdl_event);
 }
 
 static void HandleMouseState() {
@@ -448,10 +440,22 @@ static void HandleMouseState() {
 		// Mouse
 		int oldX = Mouse.X;
 		int oldY = Mouse.Y;
-		Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y); // Doesn't call libX11 funcs, so it's safe to call not from video thread
 
-		VideoPostProcessor::transformCoordinates_ScreenToVideo(Mouse.X, Mouse.Y);
-
+		// We don't use the coordinates from SDL_GetMouseState because
+		// it ignores the render logical size via SDL_RenderSetLogicalSize().
+		// The mouse coordinates are only translated in the mouse events.
+		// That is why we track the coordinates in there.
+		// However, that still has the problem that the mouse coordinates
+		// can be in the letterbocking (black) area, i.e. outside
+		// our logical screen.
+		// SDL_SetRelativeMouseMode is also not really an option
+		// because it is somewhat buggy (seems like the mouse is captured)
+		// and it grabs the mouse in window mode which we don't want.
+		
+		Mouse.Button = SDL_GetMouseState(NULL,NULL); // Doesn't call libX11 funcs, so it's safe to call not from video thread
+		Mouse.X = mouseX;
+		Mouse.Y = mouseY;
+		
 		Mouse.deltaX = Mouse.X-oldX;
 		Mouse.deltaY = Mouse.Y-oldY;
 		Mouse.Up = 0;
@@ -477,23 +481,6 @@ static void HandleMouseState() {
 	Mouse.Down = Mouse.Button;
 }
 
-static void HandleKeyboardState() {
-	// HINT: KeyDown is the state of the keyboard
-	// KeyUp is like an event and will only be true once
-
-	// Keyboard
-	Keyboard.keys = SDL_GetKeyState(NULL);
-
-	// Update the key up's
-	for(int k=0;k<SDLK_LAST;k++) {
-		Keyboard.KeyUp[k] = false;
-
-		if(!Keyboard.keys[k] && Keyboard.KeyDown[k]) // it is up now but it was down previously
-			Keyboard.KeyUp[k] = true;
-		Keyboard.KeyDown[k] = Keyboard.keys[k];
-	}
-}
-
 // Declared in CInput.cpp
 extern void updateAxisStates();
 
@@ -503,6 +490,13 @@ bool processedEvent = false;
 // Process the events
 void ProcessEvents()
 {
+	if(!isMainThread() && !isGameloopThread()) {
+		errors << "ProcessEvents called from thread " << getCurThreadName() << endl;
+		// Just ignore.
+		// We really should not poll any events here, because the mainloop/gameloop could otherwise be confused.
+		return;
+	}
+
 	ResetCurrentEventStorage();
 
 	bool ret = false;
@@ -510,6 +504,9 @@ void ProcessEvents()
 		bWaitingForEvent = true;
 		if(isMainThread())
 			handleSDLEvents(true);
+		// Note: We can only wait on the `mainQueue` if this is not the main thread.
+		// Otherwise, SDL events could come but no-one would forward them to `mainQueue`.
+		// If we are the main thread, we will at least poll the `mainQueue` below.
 		else if(mainQueue->wait(sdl_event)) {
 			bWaitingForEvent = false;
 			HandleNextEvent();
@@ -558,11 +555,10 @@ void ProcessEvents()
 
 	if (!bDedicated) {
 		// If we don't have focus, don't update as often
-		if(!nFocus)
+		if(!bHaveFocus)
 			SDL_Delay(14);
 
 		HandleMouseState();
-		HandleKeyboardState();
 #ifndef DEDICATED_ONLY
 #ifndef DISABLE_JOYSTICK
 		if(bJoystickSupport)  {
@@ -582,10 +578,12 @@ void WakeupIfNeeded() {
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_NopWakeup;
-	SDL_PushEvent(&ev);
+	// The main thread (SDL events) will just ignore it.
+	// The game thread will also ignore it, but do another redraw.
+	mainQueue->push(ev);
 }
 
 bool ApplicationHasFocus()
 {
-	return nFocus;
+	return bHaveFocus;
 }

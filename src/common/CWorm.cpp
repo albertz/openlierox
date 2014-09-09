@@ -154,7 +154,7 @@ bool wpnslot_t::fromString(const std::string & str) {
 	const weapon_t* wpn = game.gameScript()->FindWeapon(str);
 	if(!wpn) return false;
 	reset();
-	WeaponId = wpn - game.gameScript()->GetWeapons();
+	WeaponId = int32_t(wpn - game.gameScript()->GetWeapons());
 	return false;
 }
 
@@ -229,7 +229,6 @@ CWorm::CWorm() :
 
 	fPreLastPosUpdate = fLastPosUpdate = AbsTime();
 
-	//bUsesMouse = false;
 	fLastInputTime = tLX->currentTime;
 
 	bmpGibs = NULL;
@@ -632,34 +631,23 @@ void CWorm::Spawn(CVec position) {
 
 ///////////////////
 // Load the graphics
-bool CWorm::ChangeGraphics(int generalgametype)
+bool CWorm::ChangeGraphics()
 {
-	// TODO: create some good way to allow custom colors
-
-	bool team = false;
-
-	Color colour = cSkin.get().getDefaultColor();
-	// If we are in a team game, use the team colours
-	if(generalgametype == GMT_TEAMS) {
-		team = true;
-		colour = tLX->clTeamColors[CLAMP(iTeam.get(),0,3)];
-	}
-
 	// Use the colours set on the network
 	// Profile or team colours will override this
 
 	// Colourise the giblets
-	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
+	bmpGibs = ColorizeImage("data/gfx/giblets.png");
 
 	// Colourise the skin
-	cSkin.write().Colorize(colour);
+	cSkin.write().Colorize(getGameColour());
 
 	return bmpGibs.get() != NULL;
 }
 
 ///////////////////
 // Change the graphics of an image
-SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, bool team)
+SmartPointer<SDL_Surface> CWorm::ColorizeImage(const std::string& filename) const
 {	
 	SmartPointer<SDL_Surface> img;
 	SmartPointer<SDL_Surface> loaded;
@@ -668,13 +656,13 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 	loaded = LoadGameImage(filename);
 	if(loaded.get() == NULL) {
 		// Error: Couldn't load image
-		errors << "CWorm::ChangeGraphics: Could not load image " << filename << endl;
+		errors << "CWorm::ColorizeImage: Could not load image " << filename << endl;
 		return NULL;
 	}
 
 	img = gfxCreateSurface(loaded.get()->w,loaded.get()->h);
 	if (img.get() == NULL)  {
-		errors << "CWorm::ChangeGraphics: Not enough of memory." << endl;
+		errors << "CWorm::ColorizeImage: Not enough of memory." << endl;
 		return NULL;
 	}
 	DrawImage(img.get(),loaded,0,0); // Blit to the new surface
@@ -688,9 +676,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 	int x,y;
 	Uint32 pixel;
 
-	Color colour = cSkin.get().getColor();
-	if (team)
-		colour = tLX->clTeamColors[iTeam];
+	Color colour = getGameColour();
 
 	int ColR = colour.r;
 	int ColG = colour.g;
@@ -876,7 +862,7 @@ bool CWorm::shouldDoOwnWeaponSelection() {
 void CWorm::CloneWeaponsFrom(CWorm* w) {
 	weaponSlots.write().resize( w->weaponSlots.get().size() );
 	for(size_t i = 0; i < w->weaponSlots.get().size(); ++i) {
-		weaponSlots.write()[i].WeaponId = w->getWeapon(i)->WeaponId;
+		weaponSlots.write()[i].WeaponId = w->getWeapon((int)i)->WeaponId;
 		
 		weaponSlots.write()[i].Charge = 1.f;
 		weaponSlots.write()[i].Reloading = false;
@@ -1530,7 +1516,7 @@ void CWorm::setTagIT(bool _t)
 	bTagIT = _t; 
 }
 
-Color CWorm::getGameColour()
+Color CWorm::getGameColour() const
 {
 	switch(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType) {
 		case GMT_TEAMS:
@@ -1538,8 +1524,14 @@ Color CWorm::getGameColour()
 		default:
 			return cSkin.get().getDefaultColor();
 	}
-	return Color();
+	return Color(128,128,128);
 }
+
+void CWorm::setColour(Color c) {
+	writeSkin().setDefaultColor(c);
+	ChangeGraphics();
+}
+
 template<typename SettingsType>
 static void CWorm_addDamage(CWorm* This, float damage, CWorm* victim, const SettingsType& settings, const GameModeInfo* gameModeInfo)
 {
@@ -1637,9 +1629,9 @@ std::string CWorm::getCurWeaponName() const {
 // Note that this function becomes obsolete once we merge wpnslot_t and Weapon.
 int CWorm::getWeaponSlotsCount() const {
 	if(!game.gameScript() || !game.gameScript()->gusEngineUsed())
-		return tWeapons.size();
+		return (int)tWeapons.size();
 	else
-		return m_weapons.size();
+		return (int)m_weapons.size();
 }
 
 

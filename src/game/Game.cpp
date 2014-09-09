@@ -586,7 +586,7 @@ Result Game::prepareGameloop() {
 		}
 
 		// Start the game logging
-		cClient->StartLogging(game.worms()->size());
+		cClient->StartLogging((int)game.worms()->size());
 
 		if(!bDedicated)
 		{
@@ -739,7 +739,7 @@ void Game::frameInner()
 	if(!gameWasPrepared && game.state >= Game::S_Preparing) {
 		if(game.state.ext.updated) {
 			// handle callbacks
-			iterAttrUpdates(NULL);
+			iterAttrUpdates();
 		}
 		Result r = prepareGameloop();
 		if(!r) {
@@ -752,7 +752,7 @@ void Game::frameInner()
 			else
 				game.state = Game::S_Lobby;
 			// handle callbacks and other stuff
-			iterAttrUpdates(NULL);
+			iterAttrUpdates();
 			return;
 		}
 		else if(!gameWasPrepared) {
@@ -827,7 +827,7 @@ void Game::frameInner()
 			// We do this again because we've only just found out what type of game it is
 			// Team games require changing worm colours to match the team colour
 			// Inefficient, but i'm not going to redesign stuff for a simple gametype
-			w->get()->ChangeGraphics(cClient->getGeneralGameType());
+			w->get()->ChangeGraphics();
 
 			w->get()->Prepare();
 
@@ -912,7 +912,7 @@ void Game::frameInner()
 	}
 
 	const bool stateUpdated = state.ext.updated;
-	iterAttrUpdates(NULL);
+	iterAttrUpdates();
 
 	if(tLX && !stateUpdated && state >= Game::S_Preparing)
 		cClient->Draw(VideoPostProcessor::videoSurface());
@@ -1344,6 +1344,10 @@ bool Game::allowedToSleepForEvent() {
 
 	if(menuFrame < 2)
 		// Again, LX GUI code sucks. It needs some refresh right at startup.
+		return false;
+
+	if(Con_IsVisible())
+		// cursor blinking in console
 		return false;
 
 	return true;

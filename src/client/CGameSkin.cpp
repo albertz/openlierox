@@ -162,7 +162,10 @@ void CGameSkin::init(int fw, int fh, int fs, int sw, int sh) {
 	iSkinWidth = sw;
 	iSkinHeight = sh;
 	
-	thread = new Thread(this);	
+	if(isGraphical)
+		thread = new Thread(this);
+	else
+		thread = NULL;
 }
 
 void CGameSkin::uninit() {
@@ -170,16 +173,36 @@ void CGameSkin::uninit() {
 		delete thread;
 		thread = NULL;
 	}
-	// all other stuff have its own destructors
+	
+	bmpSurface = NULL;
+	bmpMirrored = NULL;
+	bmpShadow = NULL;
+	bmpMirroredShadow = NULL;
+	bmpPreview = NULL;
+	bmpNormal = NULL;
 }
 
-CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh) : thread(NULL)
+CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh, bool graphical)
+: isGraphical(graphical), thread(NULL)
 {
 	thisRef.classId = LuaID<CGameSkin>::value;
 	init(fw,fh,fs,sw,sh);
 }
 
-CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
+CGameSkin::CGameSkin(const CGameSkin& skin, bool graphical)
+: isGraphical(graphical), thread(NULL)
+{
+	// we will init the thread also there
+	operator=(skin);
+}
+
+CGameSkin::CGameSkin(const CGameSkin& skin)
+// Note: Non-graphical copy, because this is most likely a temporary copy,
+// e.g. in the attrib update system, where we create a copy of this via
+// a ScriptVar_t copy.
+// This is not really clean, but it works good for all our use cases
+// (which is only ScriptVar_t copying).
+: isGraphical(false), thread(NULL)
 {
 	// we will init the thread also there
 	operator=(skin);
@@ -209,6 +232,11 @@ CGameSkin::~CGameSkin()
 	uninit();
 }
 
+CustomVar* CGameSkin::copy() const {
+	return new CGameSkin(*this);
+}
+
+
 
 struct SkinAction_Load : Skin_Action {
 	bool genPreview;
@@ -231,6 +259,7 @@ struct SkinAction_Colorize : Skin_Action {
 	SkinAction_Colorize(CGameSkin* s) : Skin_Action(s) {}
 	Result handle() {
 		skin->Colorize_Execute(breakSignal);
+		WakeupIfNeeded();
 		return true;
 	}
 };
@@ -289,10 +318,12 @@ void CGameSkin::Change(const std::string &file)
 void skin_load(const CGameSkin& skin) {
 	CGameSkin& s = (CGameSkin&) skin; // cast away constness. this is safe when we get here... i know, it's hacky, sorry...
 
-	Mutex::ScopedLock lock(s.thread->mutex);
+	// We expect that we already hold the s.thread->mutex here.
 
 	s.thread->removeActions__unsafe();
 
+	// TODO: wtf, why generatePreview = !colorized?
+	// TODO: cleanup the whole preview thing. why is it needed at all?
 	s.thread->pushAction__unsafe(new SkinAction_Load(&s, /* generatePreview = */ !s.bColorized));
 
 	if (s.bColorized)
@@ -305,7 +336,8 @@ void CGameSkin::onFilenameUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/,
 	if(bDedicated) return;
 	CGameSkin* s = dynamic_cast<CGameSkin*>(base);
 	assert(s != NULL);
-
+	if(!s->isGraphical) return;
+	
 	Mutex::ScopedLock lock(s->thread->mutex);
 	s->loaded = false;
 	s->thread->removeActions__unsafe();
@@ -377,7 +409,7 @@ void CGameSkin::GenerateMirroredImage()
 bool CGameSkin::PreparePreviewSurface()
 {
 	// No surfaces in dedicated mode
-	if (bDedicated)
+	if (bDedicated || !isGraphical)
 		return false;
 
 	// Allocate
@@ -663,26 +695,33 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 }
 
 void CGameSkin::Colorize(Color col) {
-	iColor = col;
+	if(iColor.get() != col || !bColorized) {
+		iColor = col;
+		bColorized = true;
+		
+		if(bDedicated) return;
+		if(!isGraphical) return;
+
+		{
+			Mutex::ScopedLock lock(thread->mutex);
+			
+			thread->pushActionUnique__unsafe(new SkinAction_Colorize(this));
+			thread->startThread__unsafe(this);
+		}
+	}
 }
 
 void CGameSkin::onColorUpdate(BaseObject* base, const AttrDesc* /*attrDesc*/, ScriptVar_t /*oldValue*/) {
-	if (bDedicated) return;
 	CGameSkin* s = dynamic_cast<CGameSkin*>(base);
 	assert(s != NULL);
-
-	Mutex::ScopedLock lock(s->thread->mutex);
-	s->bColorized = true;
-	if(!s->loaded) return;
-
-	s->thread->pushActionUnique__unsafe(new SkinAction_Colorize(s));
-	s->thread->startThread__unsafe(s);
+	s->Colorize(s->iColor);
 }
 
 ////////////////////////
 // Colorize the skin
 void CGameSkin::Colorize_Execute(bool& breakSignal)
 {
+	if(!loaded) return;
 	if (!bmpSurface.get() || !bmpNormal.get() || !bmpMirrored.get())
 		return;
 	if (bmpSurface->h < 2 * iFrameHeight)

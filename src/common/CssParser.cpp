@@ -582,7 +582,7 @@ bool CSSParser::parse(const std::string &css, const std::string& path)
 /////////////////////
 // Parses the part inside the given selector, for example:
 // <tag style="the css here will be parsed with this function">
-bool CSSParser::parseInSelector(CSSParser::Selector &sel, const std::string &css, size_t priority)
+bool CSSParser::parseInSelector(CSSParser::Selector &sel, const std::string &css, uint32_t priority)
 {
 	// Read the attributes and add them to all the selectors we've read
 	StringBuf attributes = css;

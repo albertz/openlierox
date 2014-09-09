@@ -34,7 +34,7 @@ bool Edit::render()
 	
 	assertCaretVisibility(renderer);
 	
-	int xoff = 5 - m_hscroll;
+	int xoff = 5 - (int)m_hscroll;
 	
 	if(m_active)
 	{
@@ -84,7 +84,7 @@ void Edit::assertCaretVisibility(Renderer* renderer)
 {
 	std::pair<int, int> dim = renderer->getTextDimensions(*m_font, m_text.begin(), m_text.begin() + m_caretPos);
 	
-	int relCaretPos = dim.first - m_hscroll;
+	int relCaretPos = dim.first - (int)m_hscroll;
 	if(relCaretPos > getRect().getWidth())
 	{
 		m_hscroll += relCaretPos - getRect().getWidth() + 5;

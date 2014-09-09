@@ -34,7 +34,6 @@
 
 
 keys_t Keys[] = {
-	{ "", 0 },
 	{ "a", SDLK_a },
 	{ "b", SDLK_b },
 	{ "c", SDLK_c },
@@ -71,16 +70,16 @@ keys_t Keys[] = {
 	{ "8", SDLK_8 },
 	{ "9", SDLK_9 },
 	{ "0", SDLK_0 },
-	{ "kp 0", SDLK_KP0},
-	{ "kp 1", SDLK_KP1},
-	{ "kp 2", SDLK_KP2},
-	{ "kp 3", SDLK_KP3},
-	{ "kp 4", SDLK_KP4},
-	{ "kp 5", SDLK_KP5},
-	{ "kp 6", SDLK_KP6},
-	{ "kp 7", SDLK_KP7},
-	{ "kp 8", SDLK_KP8},
-	{ "kp 9", SDLK_KP9},
+	{ "kp 0", SDLK_KP_0},
+	{ "kp 1", SDLK_KP_1},
+	{ "kp 2", SDLK_KP_2},
+	{ "kp 3", SDLK_KP_3},
+	{ "kp 4", SDLK_KP_4},
+	{ "kp 5", SDLK_KP_5},
+	{ "kp 6", SDLK_KP_6},
+	{ "kp 7", SDLK_KP_7},
+	{ "kp 8", SDLK_KP_8},
+	{ "kp 9", SDLK_KP_9},
 	{ "kp .",SDLK_KP_PERIOD },
 	{ "kp enter",SDLK_KP_ENTER },
 	{ "kp /",SDLK_KP_DIVIDE },
@@ -98,10 +97,22 @@ keys_t Keys[] = {
 	{ "=", SDLK_EQUALS},
 	{ ">", SDLK_GREATER},
 	{ "?", SDLK_QUESTION},
+	{ "@", SDLK_AT},
+	{ "(", SDLK_LEFTPAREN},
+	{ ")", SDLK_RIGHTPAREN},
+	{ "*", SDLK_ASTERISK},
+	{ "+", SDLK_PLUS},
 	{ "-", SDLK_MINUS},
 	{ "'", SDLK_QUOTE},
 	{ ",", SDLK_COMMA},
 	{ ".", SDLK_PERIOD},
+	{ "#", SDLK_HASH},
+	{ "%", SDLK_PERCENT},
+	{ "$", SDLK_DOLLAR},
+	{ "&", SDLK_AMPERSAND},
+	{ "\"", SDLK_QUOTEDBL},
+	{ "`", SDLK_BACKQUOTE},
+	{ "^", SDLK_CARET},
 	{ "enter", SDLK_RETURN},
 	{ "tab", SDLK_TAB},
 	{ "space",SDLK_SPACE },
@@ -112,22 +123,23 @@ keys_t Keys[] = {
 	{ "lctrl",SDLK_LCTRL },
 	{ "lshift",SDLK_LSHIFT },
 	{ "lalt",SDLK_LALT },
-	{ "lmeta",SDLK_LMETA },
-	{ "lsuper",SDLK_LSUPER },
+	{ "lmeta",SDLK_LGUI },
+	{ "lsuper",SDLK_LGUI },
 	{ "rctrl",SDLK_RCTRL },
 	{ "rshift",SDLK_RSHIFT },
 	{ "ralt",SDLK_RALT },
-	{ "rmeta",SDLK_RMETA },
-	{ "rsuper",SDLK_RSUPER },
+	{ "rmeta",SDLK_RGUI },
+	{ "rsuper",SDLK_RGUI },
 	{ "insert", SDLK_INSERT},
 	{ "home", SDLK_HOME},
 	{ "pg up", SDLK_PAGEUP},
 	{ "end", SDLK_END},
 	{ "pg Dn", SDLK_PAGEDOWN},
 	{ "delete", SDLK_DELETE},
-	{ "num lk", SDLK_NUMLOCK},
+	{ "num lk", SDLK_NUMLOCKCLEAR},
 	{ "caps", SDLK_CAPSLOCK},
-	{ "scr lk", SDLK_SCROLLOCK},
+	{ "scr lk", SDLK_SCROLLLOCK},
+	{ "pause", SDLK_PAUSE},
 	{ "F1", SDLK_F1 },
 	{ "F2", SDLK_F2 },
 	{ "F3", SDLK_F3 },
@@ -139,17 +151,29 @@ keys_t Keys[] = {
 	{ "F9", SDLK_F9 },
 	{ "F10", SDLK_F10 },
 	{ "F11", SDLK_F11 },
-	{ "F12", SDLK_F12 }
+	{ "F12", SDLK_F12 },
+	{ "F13", SDLK_F13 },
+	{ "F14", SDLK_F14 },
+	{ "F15", SDLK_F15 },
+	{ "F16", SDLK_F16 },
+	{ "F17", SDLK_F17 },
+	{ "F18", SDLK_F18 },
+	{ "F19", SDLK_F19 },
+	{ "F20", SDLK_F20 },
+	{ "F21", SDLK_F21 },
+	{ "F22", SDLK_F22 },
+	{ "F23", SDLK_F23 },
+	{ "F24", SDLK_F24 }
 	};
 
 int keys_t::keySymFromName(const std::string & name)
 {
 	for(uint n = 0; n<sizeof(Keys) / sizeof(keys_t); n++)
-		if( Keys[n].text == name )
+		if( strcasecmp(Keys[n].text, name.c_str()) == 0 )
 			return Keys[n].value;
 			
 	return 0;
-};
+}
 
 	
 	
@@ -329,9 +353,9 @@ static void initJoystick(int i, bool isTemp) {
 	assert(i == 0 || i == 1);
 	if(!bJoystickSupport) return;
 
-	if(joys[i] == NULL && SDL_NumJoysticks() > i && !SDL_JoystickOpened(i)) {
+	if(joys[i] == NULL && SDL_NumJoysticks() > i) {
 		notes << "opening joystick " << i << endl;
-		notes << " (\"" << SDL_JoystickName(i) << "\")" << endl;
+		notes << " (\"" << SDL_JoystickNameForIndex(i) << "\")" << endl;
 		joys[i] = SDL_JoystickOpen(i);
 		if(joys[i]) {
 			notes << "  Number of Axes: " << SDL_JoystickNumAxes(joys[i]) << endl;
@@ -359,7 +383,7 @@ void CInput::InitJoysticksTemp() {
 }
 
 static void uninitTempJoystick(int i) {
-	if(joysticks_inited_temp[i] && SDL_JoystickOpened(i)) {
+	if(joysticks_inited_temp[i]) {
 		notes << "Uninit temporary loaded joystick " << i << endl;
 		SDL_JoystickClose(joys[i]);
 		joys[i] = NULL;
@@ -395,18 +419,6 @@ CInput::~CInput() {
 }
 
 
-///////////////////
-// Load the input from a config file
-int CInput::Load(const std::string& name, const std::string& section)
-{
-	std::string string;
-
-	if(!ReadString(GetConfigFile(),section,name,string,""))
-		return false;
-
-	return Setup(string);
-}
-
 
 ///////////////////
 // Waits for any input (used in a loop)
@@ -432,6 +444,7 @@ int CInput::Wait(std::string& strText)
 	// Keyboard
 	for(int i = 0; i < kb->queueLength; ++i) {
 		if(kb->keyQueue[i].down) continue;
+		if(kb->keyQueue[i].sym == 0) continue;
 		
 		for(uint n = 0; n<sizeof(Keys) / sizeof(keys_t); n++) {
 			if(kb->keyQueue[i].sym == Keys[n].value) {
@@ -455,7 +468,7 @@ int CInput::Wait(std::string& strText)
 		// Our description is not enough, let's call SDL for help
 		// We use SDL only for the left unknown keys to stay backward and forward compatible.
 		if (kb->keyQueue[i].sym != SDLK_ESCAPE)  {
-			strText = SDL_GetKeyName((SDLKey)kb->keyQueue[i].sym);
+			strText = SDL_GetKeyName(kb->keyQueue[i].sym);
 			return true;
 		}
 	}
@@ -482,8 +495,6 @@ int CInput::Wait(std::string& strText)
 // Setup
 int CInput::Setup(const std::string& string)
 {
-	unsigned int n;
-
 	m_EventName = string;
 	resetEachFrame = true;
 
@@ -501,7 +512,16 @@ int CInput::Setup(const std::string& string)
 		}
 		return true;
 	}
-
+	
+	{
+		SDL_Keycode key = SDL_GetKeyFromName(string.c_str());
+		if(key != SDLK_UNKNOWN) {
+			Type = INP_KEYBOARD;
+			Data = key;
+			return true;
+		}
+	}
+	
 #ifdef HAVE_JOYSTICK
 	// Check if it's a joystick #1
 	// TODO: allow more joysticks
@@ -519,8 +539,8 @@ int CInput::Setup(const std::string& string)
 		initJoystick(0, false);
 
 		// Go through the joystick list
-		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
-			if(Joysticks[n].text == string) {
+		for(uint32_t n=0; n<sizeof(Joysticks) / sizeof(joystick_t); n++) {
+			if(strcasecmp(Joysticks[n].text, string.c_str()) == 0) {
 				Data = Joysticks[n].value;
 				Extra = Joysticks[n].extra;
 				return true;
@@ -541,8 +561,8 @@ int CInput::Setup(const std::string& string)
 		initJoystick(1, false);
 
 		// Go through the joystick list
-		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
-			if(Joysticks[n].text == string) {
+		for(uint32_t n=0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
+			if(strcasecmp(Joysticks[n].text, string.c_str()) == 0) {
 				Data = Joysticks[n].value;
 				Extra = Joysticks[n].extra;
 				return true;
@@ -557,17 +577,9 @@ int CInput::Setup(const std::string& string)
 	Data = 0;
 
 	// Go through the key list checking with piece of text it was
-	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
-		if(Keys[n].text == string) {
+	for(uint32_t n=0; n < sizeof(Keys) / sizeof(keys_t); n++) {
+		if(strcasecmp(Keys[n].text, string.c_str()) == 0) {
 			Data = Keys[n].value;
-			return true;
-		}
-	}
-
-	// Try if SDL knows the key
-	for(n=0; n < SDLK_LAST; n++)  {
-		if (string == SDL_GetKeyName((SDLKey)n))  {
-			Data = n;
 			return true;
 		}
 	}

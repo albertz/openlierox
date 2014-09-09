@@ -91,6 +91,8 @@ CServerConnection* BaseObject::ownerClient() const {
 	return cServer->localClientConnection();
 }
 
+// Note: Currently, we do the registering (objId assignment) manually.
+// (Atm only fixed (game|settings).objId == 1 and worm.objId == wormId.)
 bool BaseObject::isRegistered() const {
 	if(thisRef.objId != ObjId(-1)) return true;
 	if(parentObject()) return parentObject()->isRegistered();

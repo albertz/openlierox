@@ -38,6 +38,10 @@ bool isGameloopThread() {
 	return gameloopThreadId == getCurrentThreadId();
 }
 
+bool isGameloopThreadRunning() {
+	return gameloopThreadId != (ThreadId)-1;
+}
+
 void getAllThreads(std::set<ThreadId>& ids) {
 	if(isThreadIdValid(mainThreadId))
 		ids.insert(mainThreadId);
@@ -103,7 +107,7 @@ void ThreadPool::prepareNewThread() {
 	t->working = false;
 	availableThreads.insert(t);
 	t->nativeThreadId = 0;
-	t->thread = SDL_CreateThread(threadWrapper, t);
+	t->thread = SDL_CreateThread(threadWrapper, "ThreadPool worker", t);
 }
 
 int ThreadPool::threadWrapper(void* param) {

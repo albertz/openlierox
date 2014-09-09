@@ -59,7 +59,7 @@ public:
 	}
 
 public:
-	void setColor(const Color& cl, size_t prio = HIGHEST_PRIORITY)	{ clMain.set(cl, prio); }
+	void setColor(const Color& cl, uint32_t prio = HIGHEST_PRIORITY)	{ clMain.set(cl, prio); }
 	Color getColor()							{ return clMain; }
 
 	void setGradient(const Color& cl1, const Color& cl2)	{ clGradient1.set(cl1, HIGHEST_PRIORITY); clGradient2.set(cl2, HIGHEST_PRIORITY); bUseGradient.set(true, HIGHEST_PRIORITY); }

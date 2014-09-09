@@ -73,7 +73,7 @@ static bool LoadOGG(const char *fileName, vector<char> &buffer, ALenum &format, 
     // end if
 	
     // The frequency of the sampling rate
-    freq = pInfo->rate;
+    freq = (ALsizei) pInfo->rate;
 	
     // Keep reading until all is read
     do

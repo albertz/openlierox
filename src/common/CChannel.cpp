@@ -84,7 +84,7 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 	// The messages are joined in Transmit() in one bigger packet, until it will hit bandwidth limit
 }
 
-void CChannel::UpdateTransmitStatistics( int sentDataSize )
+void CChannel::UpdateTransmitStatistics( size_t sentDataSize )
 {
 	// Update statistics
 	iOutgoingBytes += sentDataSize;
@@ -95,7 +95,7 @@ void CChannel::UpdateTransmitStatistics( int sentDataSize )
 	cOutgoingRate.addData( sentDataSize );
 }
 
-void CChannel::UpdateReceiveStatistics( int receivedDataSize )
+void CChannel::UpdateReceiveStatistics( size_t receivedDataSize )
 {
 	// Got a packet (good or bad), update the received time
 	fLastPckRecvd = tLX->currentTime;
@@ -178,8 +178,8 @@ void CChannel_056b::Transmit( CBytestream *bs )
 
 	iOutgoingSequence++;
 
-	outpack.writeInt(r1,4);
-	outpack.writeInt(r2,4);
+	outpack.writeInt((uint)r1,4);
+	outpack.writeInt((uint)r2,4);
 
 
 	// If were sending a reliable message, send it first
@@ -643,7 +643,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 				bs.writeInt( packetSize, 2 );
 			};
 			packetIndex = it->second;
-			packetSize = it->first.GetLength();
+			packetSize = (int)it->first.GetLength();
 
 			firstPacket = false;
 			unreliableOnly = false;
@@ -1197,7 +1197,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 				bs.writeInt( packetSize, 2 );
 			};
 			packetIndex = it->idx;
-			packetSize = it->data.GetLength();
+			packetSize = (int) it->data.GetLength();
 			if( it->fragmented )
 				packetSize |= SEQUENCE_HIGHEST_BIT;
 

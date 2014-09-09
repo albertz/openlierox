@@ -30,6 +30,8 @@
 		23099CCD0F60715A008E6C7F /* NewNetEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23099CCA0F60715A008E6C7F /* NewNetEngine.cpp */; };
 		23099CCE0F60715A008E6C7F /* StackWalker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23099CCB0F60715A008E6C7F /* StackWalker.cpp */; };
 		230D02240F0D80C000AFFFFF /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230D02230F0D80C000AFFFFF /* Debug.cpp */; };
+		230E1CFD19821DA100A66BF7 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 230E1CFB19821DA100A66BF7 /* SDL2_image.framework */; };
+		230E1CFE19821DA100A66BF7 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 230E1CFC19821DA100A66BF7 /* SDL2.framework */; };
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		231B8E5C11357FB500B572C0 /* GameMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231B8E5B11357FB500B572C0 /* GameMode.cpp */; };
 		231B8E5F1135804300B572C0 /* Settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231B8E5E1135804300B572C0 /* Settings.cpp */; };
@@ -106,6 +108,13 @@
 		2334DB1614BB7D53003F21D4 /* CLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2334DB1514BB7D52003F21D4 /* CLabel.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2348933911806DA000FA821B /* ServerList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2348933811806DA000FA821B /* ServerList.cpp */; };
+		234F90B919990F420060B8DF /* MainLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90B719990F410060B8DF /* MainLoop.cpp */; };
+		234F90BD199D55190060B8DF /* LuaCallbacks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90BB199D55190060B8DF /* LuaCallbacks.cpp */; };
+		234F90C6199D55330060B8DF /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90C1199D55330060B8DF /* List.cpp */; };
+		234F90C7199D55330060B8DF /* StringConv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90C4199D55330060B8DF /* StringConv.cpp */; };
+		234F90CC199D55440060B8DF /* ClassInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90C8199D55440060B8DF /* ClassInfo.cpp */; };
+		234F90CD199D55440060B8DF /* GameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90CA199D55440060B8DF /* GameState.cpp */; };
+		234F90D0199D55780060B8DF /* StdinCLISupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 234F90CE199D55780060B8DF /* StdinCLISupport.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
@@ -342,7 +351,7 @@
 		23C34F7510CC557D00DABBD6 /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4C10CC557D00DABBD6 /* client.cpp */; };
 		23C34F7610CC557D00DABBD6 /* liero.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4F10CC557D00DABBD6 /* liero.cpp */; };
 		23C34F7810CC557D00DABBD6 /* losp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5310CC557D00DABBD6 /* losp.cpp */; };
-		23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5510CC557D00DABBD6 /* vermes.cpp */; };
+		23C34F7910CC557D00DABBD6 /* gusanos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5510CC557D00DABBD6 /* gusanos.cpp */; };
 		23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5810CC557D00DABBD6 /* net_worm.cpp */; };
 		23C34F7B10CC557D00DABBD6 /* ninjarope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */; };
 		23C34F7E10CC557D00DABBD6 /* player_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6010CC557D00DABBD6 /* player_input.cpp */; };
@@ -476,9 +485,6 @@
 		23ECC0860E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ECC0850E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp */; };
 		23F6A3430FD6DF0300793B24 /* DynDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23F6A3420FD6DF0300793B24 /* DynDraw.cpp */; };
 		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
-		EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
-		EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
-		EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */; };
 		EABBC2590C5A5718003884A9 /* MacMain.m in Sources */ = {isa = PBXBuildFile; fileRef = EABBC2580C5A5718003884A9 /* MacMain.m */; };
 		EABBCCB40C5AA2D2003884A9 /* gamedir in Game files */ = {isa = PBXBuildFile; fileRef = EABBC3530C5AA2CE003884A9 /* gamedir */; };
 		EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */; };
@@ -491,8 +497,6 @@
 		EAD6E4CE0C47EF5900D6C836 /* OpenLieroX.64.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C50C47EF5900D6C836 /* OpenLieroX.64.png */; };
 		EAD6E4CF0C47EF5900D6C836 /* OpenLieroX.128.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C60C47EF5900D6C836 /* OpenLieroX.128.png */; };
 		EAD6E4D00C47EF5900D6C836 /* OpenLieroX.alt.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */; };
-		EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
-		EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
 		EAD6E50C0C4819D200D6C836 /* macosx.icns in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E50B0C4819CF00D6C836 /* macosx.icns */; };
 		EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */; };
 		EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */; };
@@ -596,9 +600,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */,
-				EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */,
-				EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */,
 			);
 			name = "Copy Frameworks into .app";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -723,6 +724,8 @@
 		230D02210F0D804C00AFFFFF /* PixelFunctors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PixelFunctors.h; sourceTree = "<group>"; };
 		230D02220F0D809B00AFFFFF /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
 		230D02230F0D80C000AFFFFF /* Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug.cpp; sourceTree = "<group>"; };
+		230E1CFB19821DA100A66BF7 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../../../../Library/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
+		230E1CFC19821DA100A66BF7 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		230E9C4F0D8C406F00BFB500 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		230E9C500D8C407B00BFB500 /* Version.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Version.cpp; sourceTree = "<group>"; };
 		2313EEF40E928521007AB88B /* CServerNetEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CServerNetEngine.h; sourceTree = "<group>"; };
@@ -865,6 +868,25 @@
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2348933711806DA000FA821B /* ServerList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerList.h; sourceTree = "<group>"; };
 		2348933811806DA000FA821B /* ServerList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerList.cpp; sourceTree = "<group>"; };
+		234F90B719990F410060B8DF /* MainLoop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainLoop.cpp; sourceTree = "<group>"; };
+		234F90B819990F420060B8DF /* MainLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainLoop.h; sourceTree = "<group>"; };
+		234F90BA199D55190060B8DF /* AngleReplicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AngleReplicator.h; sourceTree = "<group>"; };
+		234F90BB199D55190060B8DF /* LuaCallbacks.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LuaCallbacks.cpp; sourceTree = "<group>"; };
+		234F90BC199D55190060B8DF /* LuaCallbacks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaCallbacks.h; sourceTree = "<group>"; };
+		234F90BE199D55330060B8DF /* Random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Random.h; sourceTree = "<group>"; };
+		234F90BF199D55330060B8DF /* List.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = List.h; sourceTree = "<group>"; };
+		234F90C0199D55330060B8DF /* IPrintOutFct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPrintOutFct.h; sourceTree = "<group>"; };
+		234F90C1199D55330060B8DF /* List.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = List.cpp; sourceTree = "<group>"; };
+		234F90C2199D55330060B8DF /* PODForClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PODForClass.h; sourceTree = "<group>"; };
+		234F90C3199D55330060B8DF /* StaticVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticVar.h; sourceTree = "<group>"; };
+		234F90C4199D55330060B8DF /* StringConv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringConv.cpp; sourceTree = "<group>"; };
+		234F90C5199D55330060B8DF /* StringConv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringConv.h; sourceTree = "<group>"; };
+		234F90C8199D55440060B8DF /* ClassInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassInfo.cpp; sourceTree = "<group>"; };
+		234F90C9199D55440060B8DF /* ClassInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassInfo.h; sourceTree = "<group>"; };
+		234F90CA199D55440060B8DF /* GameState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameState.cpp; sourceTree = "<group>"; };
+		234F90CB199D55440060B8DF /* GameState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameState.h; sourceTree = "<group>"; };
+		234F90CE199D55780060B8DF /* StdinCLISupport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StdinCLISupport.cpp; sourceTree = "<group>"; };
+		234F90CF199D55780060B8DF /* StdinCLISupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StdinCLISupport.h; sourceTree = "<group>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
 		2350DBF00F84DC5900DFAD78 /* WeaponDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponDesc.h; sourceTree = "<group>"; };
 		2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_SpeedTest.cpp; sourceTree = "<group>"; };
@@ -1203,7 +1225,6 @@
 		23C34E7A10CC4AC400DABBD6 /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx.cpp; sourceTree = "<group>"; };
 		23C34E7B10CC4AC400DABBD6 /* gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gfx.h; sourceTree = "<group>"; };
 		23C34E7C10CC4AC400DABBD6 /* glua.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glua.cpp; sourceTree = "<group>"; };
-		23C34E7D10CC4AC400DABBD6 /* glua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glua.h; sourceTree = "<group>"; };
 		23C34E7E10CC4AC400DABBD6 /* material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = material.cpp; sourceTree = "<group>"; };
 		23C34E7F10CC4AC400DABBD6 /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = material.h; sourceTree = "<group>"; };
 		23C34E8010CC4AC400DABBD6 /* noise_line.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = noise_line.cpp; sourceTree = "<group>"; };
@@ -1272,8 +1293,8 @@
 		23C34F5010CC557D00DABBD6 /* liero.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = liero.h; sourceTree = "<group>"; };
 		23C34F5310CC557D00DABBD6 /* losp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = losp.cpp; sourceTree = "<group>"; };
 		23C34F5410CC557D00DABBD6 /* losp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = losp.h; sourceTree = "<group>"; };
-		23C34F5510CC557D00DABBD6 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
-		23C34F5610CC557D00DABBD6 /* vermes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vermes.h; sourceTree = "<group>"; };
+		23C34F5510CC557D00DABBD6 /* gusanos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusanos.cpp; sourceTree = "<group>"; };
+		23C34F5610CC557D00DABBD6 /* gusanos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusanos.h; sourceTree = "<group>"; };
 		23C34F5810CC557D00DABBD6 /* net_worm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_worm.cpp; sourceTree = "<group>"; };
 		23C34F5910CC557D00DABBD6 /* net_worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_worm.h; sourceTree = "<group>"; };
 		23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ninjarope.cpp; sourceTree = "<group>"; };
@@ -1593,8 +1614,6 @@
 		EA430DD20BEFEA8900C6547E /* libHawkNL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHawkNL.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IpToCountryDB.cpp; path = ../../src/common/IpToCountryDB.cpp; sourceTree = SOURCE_ROOT; };
 		EA430FF20BF8BA3100C6547E /* IpToCountryDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IpToCountryDB.h; path = ../../include/IpToCountryDB.h; sourceTree = SOURCE_ROOT; };
-		EABBC2400C5A021F003884A9 /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = /Library/Frameworks/SDL_image.framework; sourceTree = "<absolute>"; };
-		EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_mixer.framework; path = /Library/Frameworks/SDL_mixer.framework; sourceTree = "<absolute>"; };
 		EABBC2580C5A5718003884A9 /* MacMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MacMain.m; sourceTree = "<group>"; };
 		EABBC2900C5A89F5003884A9 /* Development */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Development; sourceTree = "<group>"; };
 		EABBC3530C5AA2CE003884A9 /* gamedir */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gamedir; path = ../../share/gamedir; sourceTree = SOURCE_ROOT; };
@@ -1608,7 +1627,6 @@
 		EAD6E4C50C47EF5900D6C836 /* OpenLieroX.64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.64.png; path = ../../share/OpenLieroX.64.png; sourceTree = SOURCE_ROOT; };
 		EAD6E4C60C47EF5900D6C836 /* OpenLieroX.128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.128.png; path = ../../share/OpenLieroX.128.png; sourceTree = SOURCE_ROOT; };
 		EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.alt.png; path = ../../share/OpenLieroX.alt.png; sourceTree = SOURCE_ROOT; };
-		EAD6E4D10C47EF7500D6C836 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		EAD6E50B0C4819CF00D6C836 /* macosx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = macosx.icns; path = ../../share/macosx.icns; sourceTree = SOURCE_ROOT; };
 		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenLieroX-Info.plist"; sourceTree = "<group>"; };
@@ -1651,6 +1669,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				230E1CFD19821DA100A66BF7 /* SDL2_image.framework in Frameworks */,
+				230E1CFE19821DA100A66BF7 /* SDL2.framework in Frameworks */,
 				23224FE814A6CC9700757A40 /* libvorbisfile.dylib in Frameworks */,
 				23224FE614A6CAF600757A40 /* libvorbis.dylib in Frameworks */,
 				23224FE414A6CAEB00757A40 /* libogg.dylib in Frameworks */,
@@ -1660,11 +1680,9 @@
 				23224FE014A6C9FC00757A40 /* libboost_system-mt.dylib in Frameworks */,
 				233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */,
 				23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */,
-				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
 				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
 				23ECBE7A0E894DC0007B8D55 /* libLibZip.a in Frameworks */,
 				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
-				EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */,
 				231BE15010CE603C0023780D /* libfreealut.a in Frameworks */,
 				231BE15810CE630A0023780D /* OpenAL.framework in Frameworks */,
 			);
@@ -1827,6 +1845,10 @@
 		231BE16010CE68AD0023780D /* game */ = {
 			isa = PBXGroup;
 			children = (
+				234F90C8199D55440060B8DF /* ClassInfo.cpp */,
+				234F90C9199D55440060B8DF /* ClassInfo.h */,
+				234F90CA199D55440060B8DF /* GameState.cpp */,
+				234F90CB199D55440060B8DF /* GameState.h */,
 				236D813314CC390C0030BD88 /* CGameObject.h */,
 				23EA1B4014CC36F30098A4D4 /* CMap.h */,
 				23EA1B4114CC36F30098A4D4 /* CWorm.h */,
@@ -2146,6 +2168,9 @@
 		23C34D0A10CC3A4400DABBD6 /* gusanos */ = {
 			isa = PBXGroup;
 			children = (
+				234F90BA199D55190060B8DF /* AngleReplicator.h */,
+				234F90BB199D55190060B8DF /* LuaCallbacks.cpp */,
+				234F90BC199D55190060B8DF /* LuaCallbacks.h */,
 				2399A43714AB6A2F002DD09E /* gconsole.h */,
 				2370F6A1110617C70097F7BA /* luaapi */,
 				2326B58910CF9E2A00D3F035 /* gusgame.cpp */,
@@ -2216,7 +2241,6 @@
 				23C34E7A10CC4AC400DABBD6 /* gfx.cpp */,
 				23C34E7B10CC4AC400DABBD6 /* gfx.h */,
 				23C34E7C10CC4AC400DABBD6 /* glua.cpp */,
-				23C34E7D10CC4AC400DABBD6 /* glua.h */,
 				23C34E7E10CC4AC400DABBD6 /* material.cpp */,
 				23C34E7F10CC4AC400DABBD6 /* material.h */,
 				23C34E8010CC4AC400DABBD6 /* noise_line.cpp */,
@@ -2337,6 +2361,14 @@
 		23C34F1E10CC546200DABBD6 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				234F90BE199D55330060B8DF /* Random.h */,
+				234F90BF199D55330060B8DF /* List.h */,
+				234F90C0199D55330060B8DF /* IPrintOutFct.h */,
+				234F90C1199D55330060B8DF /* List.cpp */,
+				234F90C2199D55330060B8DF /* PODForClass.h */,
+				234F90C3199D55330060B8DF /* StaticVar.h */,
+				234F90C4199D55330060B8DF /* StringConv.cpp */,
+				234F90C5199D55330060B8DF /* StringConv.h */,
 				23240F0414C570C100EC859C /* WeakRef.h */,
 				23C34F1F10CC546200DABBD6 /* angle.cpp */,
 				23C34F2010CC546200DABBD6 /* angle.h */,
@@ -2374,8 +2406,8 @@
 				23C34F5010CC557D00DABBD6 /* liero.h */,
 				23C34F5310CC557D00DABBD6 /* losp.cpp */,
 				23C34F5410CC557D00DABBD6 /* losp.h */,
-				23C34F5510CC557D00DABBD6 /* vermes.cpp */,
-				23C34F5610CC557D00DABBD6 /* vermes.h */,
+				23C34F5510CC557D00DABBD6 /* gusanos.cpp */,
+				23C34F5610CC557D00DABBD6 /* gusanos.h */,
 			);
 			path = loaders;
 			sourceTree = "<group>";
@@ -2719,6 +2751,10 @@
 		EA430BEC0BEFCEB400C6547E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				EABBC2580C5A5718003884A9 /* MacMain.m */,
+				EA430C3D0BEFCEB400C6547E /* main.cpp */,
+				234F90B719990F410060B8DF /* MainLoop.cpp */,
+				234F90B819990F420060B8DF /* MainLoop.h */,
 				2390D9E8116B5B4900E0CD3C /* cfg */,
 				23CC9E7211340BA000185479 /* gui */,
 				2326B68010CFB33200D3F035 /* level */,
@@ -2726,8 +2762,6 @@
 				23C34F1E10CC546200DABBD6 /* util */,
 				23C34D0A10CC3A4400DABBD6 /* gusanos */,
 				23C34BC610CC1CAE00DABBD6 /* sound */,
-				EABBC2580C5A5718003884A9 /* MacMain.m */,
-				EA430C3D0BEFCEB400C6547E /* main.cpp */,
 				EA430BED0BEFCEB400C6547E /* client */,
 				EA430C3E0BEFCEB400C6547E /* server */,
 				EA430C200BEFCEB400C6547E /* common */,
@@ -2740,6 +2774,8 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				234F90CE199D55780060B8DF /* StdinCLISupport.cpp */,
+				234F90CF199D55780060B8DF /* StdinCLISupport.h */,
 				2390D9E4116B564F00E0CD3C /* gfx */,
 				238F337B0F756F730016D617 /* CGameSkin.cpp */,
 				23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */,
@@ -3069,6 +3105,8 @@
 		EAD6E4BE0C47EF1F00D6C836 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				230E1CFB19821DA100A66BF7 /* SDL2_image.framework */,
+				230E1CFC19821DA100A66BF7 /* SDL2.framework */,
 				23224FE714A6CC9600757A40 /* libvorbisfile.dylib */,
 				23224FE514A6CAF500757A40 /* libvorbis.dylib */,
 				23224FE314A6CAEB00757A40 /* libogg.dylib */,
@@ -3079,9 +3117,6 @@
 				23C34CC410CC392100DABBD6 /* OpenAL.framework */,
 				233E2AB90D0DB10E00991914 /* OpenGL.framework */,
 				23CDBF900D0B06FD00920A5F /* Carbon.framework */,
-				EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */,
-				EABBC2400C5A021F003884A9 /* SDL_image.framework */,
-				EAD6E4D10C47EF7500D6C836 /* SDL.framework */,
 				EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */,
 			);
 			name = Frameworks;
@@ -3234,7 +3269,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0510;
 			};
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "OpenLieroX" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -3403,6 +3438,7 @@
 				238A90B218706B4700E3895A /* MapLoader_CommanderKeen123.cpp in Sources */,
 				EAD99F6F0C063ECA003BE563 /* CChannel.cpp in Sources */,
 				EAD99F700C063ECA003BE563 /* CChatBox.cpp in Sources */,
+				234F90B919990F420060B8DF /* MainLoop.cpp in Sources */,
 				EAD99F730C063ECA003BE563 /* CClient_Draw.cpp in Sources */,
 				EAD99F740C063ECA003BE563 /* CClient_Game.cpp in Sources */,
 				EAD99F750C063ECA003BE563 /* CClient_Parse.cpp in Sources */,
@@ -3415,6 +3451,7 @@
 				EAD99F830C063ECA003BE563 /* CNinjaRope.cpp in Sources */,
 				EAD99F840C063ECA003BE563 /* Command.cpp in Sources */,
 				EAD99F850C063ECA003BE563 /* ConfigHandler.cpp in Sources */,
+				234F90C7199D55330060B8DF /* StringConv.cpp in Sources */,
 				EAD99F860C063ECA003BE563 /* Console.cpp in Sources */,
 				EAD99F870C063ECA003BE563 /* CProjectile.cpp in Sources */,
 				EAD99F890C063ECA003BE563 /* CServer.cpp in Sources */,
@@ -3428,6 +3465,7 @@
 				EAD99F940C063ECA003BE563 /* CWeather.cpp in Sources */,
 				EAD99F970C063ECA003BE563 /* CWorm.cpp in Sources */,
 				EAD99F990C063ECA003BE563 /* CWorm_SendRecv.cpp in Sources */,
+				234F90D0199D55780060B8DF /* StdinCLISupport.cpp in Sources */,
 				EAD99F9B0C063ECA003BE563 /* CWpnRest.cpp in Sources */,
 				EAD99F9C0C063ECA003BE563 /* Entity.cpp in Sources */,
 				EAD99F9D0C063ECA003BE563 /* Error.cpp in Sources */,
@@ -3545,6 +3583,7 @@
 				23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */,
 				23EABF6E0F40CA8200CA55CF /* TaskManager.cpp in Sources */,
 				23EAC0970F4204DF00CA55CF /* Process.cpp in Sources */,
+				234F90BD199D55190060B8DF /* LuaCallbacks.cpp in Sources */,
 				2309937E0F4DA370008E6C7F /* CTag.cpp in Sources */,
 				2309968A0F5C4A46008E6C7F /* CGameMode.cpp in Sources */,
 				230997260F5C5F99008E6C7F /* CDemolitionsMatch.cpp in Sources */,
@@ -3616,6 +3655,7 @@
 				23C34EA210CC4AC400DABBD6 /* material.cpp in Sources */,
 				238A90AE18706B4700E3895A /* Debug_GetCallstack.cpp in Sources */,
 				23C34EA310CC4AC400DABBD6 /* noise_line.cpp in Sources */,
+				234F90CD199D55440060B8DF /* GameState.cpp in Sources */,
 				23C34EA410CC4AC400DABBD6 /* parser.cpp in Sources */,
 				23C34EA510CC4AC400DABBD6 /* part_type.cpp in Sources */,
 				238A90AB18706B4700E3895A /* Debug_AmIBeingDebugged.cpp in Sources */,
@@ -3647,7 +3687,7 @@
 				238A90B118706B4700E3895A /* Debug_WriteCoreDump.cpp in Sources */,
 				23C34F7610CC557D00DABBD6 /* liero.cpp in Sources */,
 				23C34F7810CC557D00DABBD6 /* losp.cpp in Sources */,
-				23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */,
+				23C34F7910CC557D00DABBD6 /* gusanos.cpp in Sources */,
 				23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */,
 				23C34F7B10CC557D00DABBD6 /* ninjarope.cpp in Sources */,
 				23C34F7E10CC557D00DABBD6 /* player_input.cpp in Sources */,
@@ -3714,6 +3754,7 @@
 				2370F6A01106179A0097F7BA /* print.c in Sources */,
 				2370F6A7110617C70097F7BA /* context.cpp in Sources */,
 				2370F7601106432C0097F7BA /* Sounds.cpp in Sources */,
+				234F90C6199D55330060B8DF /* List.cpp in Sources */,
 				2370F763110644320097F7BA /* Sounds.cpp in Sources */,
 				23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */,
 				23CC964C1131EAC400185479 /* DumpSyms_mac.mm in Sources */,
@@ -3787,6 +3828,7 @@
 				2322508614A6D7B500757A40 /* test_assembler.cc in Sources */,
 				2322508A14A6D8A800757A40 /* exploitability_win.cc in Sources */,
 				2322508B14A6D8A800757A40 /* exploitability.cc in Sources */,
+				234F90CC199D55440060B8DF /* ClassInfo.cpp in Sources */,
 				2322508E14A6D92500757A40 /* disassembler_x86.cc in Sources */,
 				232250BB14A6D93A00757A40 /* ia32_implicit.c in Sources */,
 				232250BC14A6D93A00757A40 /* ia32_insn.c in Sources */,
@@ -3840,13 +3882,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_ENABLE_CPP_RTTI = YES;
 				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_STRICT_ALIASING = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
@@ -3856,18 +3903,19 @@
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DMACOSX",
 					"-pthread",
 				);
 				STRIP_INSTALLED_PRODUCT = NO;
-				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
 		};
@@ -3875,14 +3923,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_ENABLE_CPP_RTTI = YES;
 				GCC_UNROLL_LOOPS = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				OTHER_CFLAGS = (
 					"-DMACOSX",
 					"-pthread",
@@ -3890,377 +3944,6 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
-		};
-		231DAFFA0F94BE7C004824FF /* Debug for ppc */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = ppc;
-				COPY_PHASE_STRIP = NO;
-				GCC_ENABLE_CPP_RTTI = YES;
-				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
-				GCC_WARN_PEDANTIC = NO;
-				GCC_WARN_SHADOW = NO;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = NO;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = NO;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_CFLAGS = (
-					"-DMACOSX",
-					"-pthread",
-				);
-				STRIP_INSTALLED_PRODUCT = NO;
-				WARNING_CFLAGS = "-Wall";
-			};
-			name = "Debug for ppc";
-		};
-		231DAFFB0F94BE7C004824FF /* Debug for ppc */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = LibZip;
-				ZERO_LINK = YES;
-			};
-			name = "Debug for ppc";
-		};
-		231DAFFC0F94BE7D004824FF /* Debug for ppc */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = HawkNL;
-				ZERO_LINK = YES;
-			};
-			name = "Debug for ppc";
-		};
-		231DAFFD0F94BE7D004824FF /* Debug for ppc */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_ASM_KEYWORD = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = s;
-				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
-				GCC_UNROLL_LOOPS = YES;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GENERATE_PROFILING_CODE = NO;
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../include",
-					"$(SRCROOT)/../../src",
-					"$(SRCROOT)/../../libs/lua",
-					"$(SRCROOT)/../../libs/hawknl/include",
-					"$(SRCROOT)/../../libs/libzip",
-					"$(SRCROOT)/../../libs/pstreams",
-					"$(SRCROOT)/../../libs/coredumper/src",
-					"$(SRCROOT)/../../libs/breakpad/src",
-					/usr/include/libxml2,
-					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
-					/Library/Frameworks/GD.framework/Headers,
-					"$(SRCROOT)/include",
-					"$(SRCROOT)/freealut/include",
-				);
-				INFOPLIST_FILE = "OpenLieroX-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
-				);
-				OTHER_CFLAGS = (
-					"-DMACOSX",
-					"-DDEBUG",
-					"-pthread",
-				);
-				OTHER_LDFLAGS = (
-					"-lcrypto",
-					"-lz",
-					"-lxml2",
-					"-lcurl",
-				);
-				PRODUCT_NAME = OpenLieroX;
-				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				STRIP_INSTALLED_PRODUCT = NO;
-				WRAPPER_EXTENSION = app;
-			};
-			name = "Debug for ppc";
-		};
-		232D59E80E9BCC0200366F81 /* Debug with Fuzzy S2C */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				GCC_ENABLE_CPP_RTTI = YES;
-				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
-				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
-				GCC_WARN_PEDANTIC = YES;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = NO;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_CFLAGS = (
-					"-DMACOSX",
-					"-pthread",
-				);
-				STRIP_INSTALLED_PRODUCT = NO;
-			};
-			name = "Debug with Fuzzy S2C";
-		};
-		232D59E90E9BCC0200366F81 /* Debug with Fuzzy S2C */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = LibZip;
-				ZERO_LINK = YES;
-			};
-			name = "Debug with Fuzzy S2C";
-		};
-		232D59EA0E9BCC0200366F81 /* Debug with Fuzzy S2C */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = HawkNL;
-				ZERO_LINK = YES;
-			};
-			name = "Debug with Fuzzy S2C";
-		};
-		232D59EB0E9BCC0200366F81 /* Debug with Fuzzy S2C */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_ASM_KEYWORD = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GENERATE_PROFILING_CODE = NO;
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../include",
-					"$(SRCROOT)/../../src",
-					"$(SRCROOT)/../../libs/lua",
-					"$(SRCROOT)/../../libs/hawknl/include",
-					"$(SRCROOT)/../../libs/libzip",
-					"$(SRCROOT)/../../libs/pstreams",
-					"$(SRCROOT)/../../libs/coredumper/src",
-					"$(SRCROOT)/../../libs/breakpad/src",
-					/usr/include/libxml2,
-					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
-					/Library/Frameworks/GD.framework/Headers,
-					"$(SRCROOT)/include",
-					"$(SRCROOT)/freealut/include",
-				);
-				INFOPLIST_FILE = "OpenLieroX-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
-				);
-				OTHER_CFLAGS = (
-					"-DMACOSX",
-					"-DDEBUG",
-					"-DFUZZY_ERROR_TESTING",
-					"-DFUZZY_ERROR_TESTING_S2C",
-					"-pthread",
-				);
-				OTHER_LDFLAGS = (
-					"-lcrypto",
-					"-lz",
-					"-lxml2",
-					"-lcurl",
-				);
-				PRODUCT_NAME = OpenLieroX;
-				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				STRIP_INSTALLED_PRODUCT = NO;
-				WRAPPER_EXTENSION = app;
-			};
-			name = "Debug with Fuzzy S2C";
-		};
-		232D5A8A0E9BD94A00366F81 /* Debug with Fuzzy C2S */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				GCC_ENABLE_CPP_RTTI = YES;
-				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
-				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
-				GCC_WARN_PEDANTIC = YES;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = NO;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_CFLAGS = (
-					"-DMACOSX",
-					"-pthread",
-				);
-				STRIP_INSTALLED_PRODUCT = NO;
-			};
-			name = "Debug with Fuzzy C2S";
-		};
-		232D5A8B0E9BD94A00366F81 /* Debug with Fuzzy C2S */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = LibZip;
-				ZERO_LINK = YES;
-			};
-			name = "Debug with Fuzzy C2S";
-		};
-		232D5A8C0E9BD94A00366F81 /* Debug with Fuzzy C2S */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = HawkNL;
-				ZERO_LINK = YES;
-			};
-			name = "Debug with Fuzzy C2S";
-		};
-		232D5A8D0E9BD94A00366F81 /* Debug with Fuzzy C2S */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = i386;
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_ASM_KEYWORD = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
-				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GENERATE_PROFILING_CODE = NO;
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../include",
-					"$(SRCROOT)/../../src",
-					"$(SRCROOT)/../../libs/lua",
-					"$(SRCROOT)/../../libs/hawknl/include",
-					"$(SRCROOT)/../../libs/libzip",
-					"$(SRCROOT)/../../libs/pstreams",
-					"$(SRCROOT)/../../libs/coredumper/src",
-					"$(SRCROOT)/../../libs/breakpad/src",
-					/usr/include/libxml2,
-					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
-					/Library/Frameworks/GD.framework/Headers,
-					"$(SRCROOT)/include",
-					"$(SRCROOT)/freealut/include",
-				);
-				INFOPLIST_FILE = "OpenLieroX-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
-				);
-				OTHER_CFLAGS = (
-					"-DMACOSX",
-					"-DDEBUG",
-					"-DFUZZY_ERROR_TESTING",
-					"-DFUZZY_ERROR_TESTING_C2S",
-					"-pthread",
-				);
-				OTHER_LDFLAGS = (
-					"-lcrypto",
-					"-lz",
-					"-lxml2",
-					"-lcurl",
-				);
-				PRODUCT_NAME = OpenLieroX;
-				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				STRIP_INSTALLED_PRODUCT = NO;
-				WRAPPER_EXTENSION = app;
-			};
-			name = "Debug with Fuzzy C2S";
 		};
 		237885421050248700195629 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -4273,36 +3956,6 @@
 				PRODUCT_NAME = memstats_test;
 			};
 			name = Debug;
-		};
-		237885431050248700195629 /* Debug for ppc */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREFIX_HEADER = "$(SRCROOT)/../../optional-includes/memdebug/memstats.h";
-				PRODUCT_NAME = memstats_test;
-			};
-			name = "Debug for ppc";
-		};
-		237885441050248700195629 /* Debug with Fuzzy S2C */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREFIX_HEADER = "$(SRCROOT)/../../optional-includes/memdebug/memstats.h";
-				PRODUCT_NAME = memstats_test;
-			};
-			name = "Debug with Fuzzy S2C";
-		};
-		237885451050248700195629 /* Debug with Fuzzy C2S */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PREFIX_HEADER = "$(SRCROOT)/../../optional-includes/memdebug/memstats.h";
-				PRODUCT_NAME = memstats_test;
-			};
-			name = "Debug with Fuzzy C2S";
 		};
 		237885461050248700195629 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -4328,42 +3981,6 @@
 				PRODUCT_NAME = freealut;
 			};
 			name = Debug;
-		};
-		23C34C0C10CC207000DABBD6 /* Debug for ppc */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/freealut/include",
-					"$(SRCROOT)/include",
-				);
-				PRODUCT_NAME = freealut;
-			};
-			name = "Debug for ppc";
-		};
-		23C34C0D10CC207000DABBD6 /* Debug with Fuzzy S2C */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/freealut/include",
-					"$(SRCROOT)/include",
-				);
-				PRODUCT_NAME = freealut;
-			};
-			name = "Debug with Fuzzy S2C";
-		};
-		23C34C0E10CC207000DABBD6 /* Debug with Fuzzy C2S */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/freealut/include",
-					"$(SRCROOT)/include",
-				);
-				PRODUCT_NAME = freealut;
-			};
-			name = "Debug with Fuzzy C2S";
 		};
 		23C34C0F10CC207000DABBD6 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -4432,12 +4049,15 @@
 		EAD99F650C063CAA003BE563 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
@@ -4459,8 +4079,8 @@
 					"$(SRCROOT)/../../libs/breakpad/src",
 					/usr/include/libxml2,
 					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL2.framework/Headers,
+					/Library/Frameworks/SDL2_image.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 					"$(SRCROOT)/include",
 					"$(SRCROOT)/freealut/include",
@@ -4469,10 +4089,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
+					/usr/local/lib,
 				);
 				OTHER_CFLAGS = (
 					"-DMACOSX",
@@ -4495,12 +4112,15 @@
 		EAD99F660C063CAA003BE563 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_ENABLE_ASM_KEYWORD = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -4520,21 +4140,14 @@
 					"$(SRCROOT)/../../libs/breakpad/src",
 					/usr/include/libxml2,
 					/usr/local/include,
-					/Library/Frameworks/SDL.framework/Headers,
-					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL2.framework/Headers,
+					/Library/Frameworks/SDL2_image.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 					"$(SRCROOT)/include",
 					"$(SRCROOT)/freealut/include",
 				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
-					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
-				);
 				OTHER_LDFLAGS = (
 					"-lcrypto",
 					"-lz",
@@ -4555,9 +4168,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
-				231DAFFA0F94BE7C004824FF /* Debug for ppc */,
-				232D59E80E9BCC0200366F81 /* Debug with Fuzzy S2C */,
-				232D5A8A0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				1DEB923708733DC60010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -4567,9 +4177,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				237885421050248700195629 /* Debug */,
-				237885431050248700195629 /* Debug for ppc */,
-				237885441050248700195629 /* Debug with Fuzzy S2C */,
-				237885451050248700195629 /* Debug with Fuzzy C2S */,
 				237885461050248700195629 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -4579,9 +4186,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				23C34C0B10CC207000DABBD6 /* Debug */,
-				23C34C0C10CC207000DABBD6 /* Debug for ppc */,
-				23C34C0D10CC207000DABBD6 /* Debug with Fuzzy S2C */,
-				23C34C0E10CC207000DABBD6 /* Debug with Fuzzy C2S */,
 				23C34C0F10CC207000DABBD6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -4591,9 +4195,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				23ECBE3A0E894D1C007B8D55 /* Debug */,
-				231DAFFB0F94BE7C004824FF /* Debug for ppc */,
-				232D59E90E9BCC0200366F81 /* Debug with Fuzzy S2C */,
-				232D5A8B0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				23ECBE3B0E894D1C007B8D55 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -4603,9 +4204,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EA430DD40BEFEAA800C6547E /* Debug */,
-				231DAFFC0F94BE7D004824FF /* Debug for ppc */,
-				232D59EA0E9BCC0200366F81 /* Debug with Fuzzy S2C */,
-				232D5A8C0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				EA430DD50BEFEAA800C6547E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -4615,9 +4213,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EAD99F650C063CAA003BE563 /* Debug */,
-				231DAFFD0F94BE7D004824FF /* Debug for ppc */,
-				232D59EB0E9BCC0200366F81 /* Debug with Fuzzy S2C */,
-				232D5A8D0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				EAD99F660C063CAA003BE563 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;

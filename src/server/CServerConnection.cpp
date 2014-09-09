@@ -114,7 +114,7 @@ int CServerConnection::getConnectionArrayIndex() {
 		return -1;
 	}
 	
-	return this - &server->getClients()[0];
+	return int(this - &server->getClients()[0]);
 }
 
 

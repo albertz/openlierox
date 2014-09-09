@@ -596,7 +596,7 @@ static void simulateNinjarope(float dt, CWorm* owner) {
 		MOD(wrappedHookPos.x, (long)game.gameMap()->GetWidth());
 		MOD(wrappedHookPos.y, (long)game.gameMap()->GetHeight());
 
-		const Material& px = game.gameMap()->getMaterial(wrappedHookPos.x, wrappedHookPos.y);
+		const Material& px = game.gameMap()->getMaterial((uint)wrappedHookPos.x, (uint)wrappedHookPos.y);
 		if(!px.particle_pass || outsideMap) {
 			if(!outsideMap && !px.can_hook) {
 				rope->hookVelocity() = CVec(0,0);

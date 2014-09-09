@@ -65,8 +65,11 @@ void InitCacheDebug()
 
 void ShutdownCacheDebug()
 {
-	timer->stop();
-	delete timer;
+	if(timer) {
+		timer->stop();
+		delete timer;
+		timer = NULL;
+	}
 }
 #endif
 
@@ -314,7 +317,7 @@ void CCache::ClearExtraEntries()
 {
 	static const int estimatedCacheEntrySize = 1024*300;
 	size_t availableMem = GetFreeSysMemory() + GetCacheSize();
-	int estimatedMaxPossibleEntries = availableMem / estimatedCacheEntrySize;
+	int estimatedMaxPossibleEntries = int(availableMem / estimatedCacheEntrySize);
 	if(estimatedMaxPossibleEntries < tLXOptions->iMaxCachedEntries) {
 		warnings << "The estimated possible max entry count in cache (" << estimatedMaxPossibleEntries << ") ";
 		warnings << "is lower than the current set maximum (" << tLXOptions->iMaxCachedEntries << ")" << endl;
@@ -337,7 +340,7 @@ void CCache::ClearExtraEntries()
 				count ++;
 		}
 		{
-			int clearCount = MIN( count, MapCache.size() - tLXOptions->iMaxCachedEntries / 50 );
+			int clearCount = (int)MIN( (size_t)count, MapCache.size() - tLXOptions->iMaxCachedEntries / 50 );
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{
@@ -363,7 +366,7 @@ void CCache::ClearExtraEntries()
 				count ++;
 		}
 		{
-			int clearCount = MIN( count, ModCache.size() - tLXOptions->iMaxCachedEntries / 50 );
+			int clearCount = (int)MIN( (size_t)count, ModCache.size() - tLXOptions->iMaxCachedEntries / 50 );
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{
@@ -388,7 +391,7 @@ void CCache::ClearExtraEntries()
 				count ++;
 		}
 		{
-			int clearCount = MIN( count, ImageCache.size() - tLXOptions->iMaxCachedEntries );
+			int clearCount = (int)MIN( (size_t)count, ImageCache.size() - tLXOptions->iMaxCachedEntries );
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++ )
 			{
@@ -413,7 +416,7 @@ void CCache::ClearExtraEntries()
 				count ++;
 		}
 		{
-			int clearCount = MIN( count, SoundCache.size() - tLXOptions->iMaxCachedEntries );
+			int clearCount = (int)MIN( (size_t)count, SoundCache.size() - tLXOptions->iMaxCachedEntries );
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{

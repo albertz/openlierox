@@ -1146,7 +1146,7 @@ bool FileChecksum( const std::string & path, size_t * _checksum, size_t * _files
 	while( ! feof( ff ) )
 	{
 		size_t read = fread( buf, 1, sizeof(buf), ff );
-		checksum = adler32( checksum, (const Bytef *)buf, read);
+		checksum = adler32( checksum, (const Bytef *)buf, (unsigned int)read);
 		size += read;
 	};
 	fclose( ff );
@@ -1200,7 +1200,7 @@ std::string Base64Decode(const std::string &src)
     if(src[length+equalsTerm] == '=')
       equalsTerm++;
   }
-  numQuantums = (length + equalsTerm) / 4;
+  numQuantums = int((length + equalsTerm) / 4);
 
   /* Don't allocate a buffer if the decoded length is 0 */
   if(numQuantums <= 0)

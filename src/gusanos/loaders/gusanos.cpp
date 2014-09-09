@@ -1,4 +1,4 @@
-#include "vermes.h"
+#include "gusanos.h"
 #include "../gfx.h"
 #include "../blitters/types.h"
 #include "../luaapi/context.h"
@@ -19,9 +19,9 @@
 #include <iostream>
 using namespace std;
 
-VermesLevelLoader VermesLevelLoader::instance;
+GusanosLevelLoader GusanosLevelLoader::instance;
 
-bool VermesLevelLoader::canLoad(std::string const& path, std::string& name)
+bool GusanosLevelLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(IsFileAvailable(path + "/config.cfg"))
 	{
@@ -78,7 +78,7 @@ namespace{
 		}		
 	}
 	
-	LevelConfig* loadConfig( std::string const& filename )
+	static LevelConfig* loadConfig( std::string const& filename )
 	{
 		std::ifstream fileStream;
 		OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
@@ -170,7 +170,7 @@ namespace{
 	
 }
 
-bool VermesLevelLoader::load(CMap* level, std::string const& path)
+bool GusanosLevelLoader::load(CMap* level, std::string const& path)
 {
 	std::string materialPath = path + "/material";
 	
@@ -193,7 +193,7 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 			}
 		}
 		else
-			errors << "VermesLevelLoader::load: config structure not loaded" << endl;
+			errors << "GusanosLevelLoader::load: config structure not loaded" << endl;
 		
 #ifndef DEDICATED_ONLY
 		std::string imagePath = path + "/level";
@@ -210,10 +210,8 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 			level->bmpForeground = LoadGameImage(path + "/foreground.png", true);
 			if(!level->config()->doubleRes && level->bmpForeground.get())
 				level->bmpForeground = GetCopiedStretched2Image(level->bmpForeground);
-			
-			std::string lightmapPath = path + "/lightmap";
-		
-			ALLEGRO_BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str(), false, !level->config()->doubleRes);
+					
+			ALLEGRO_BITMAP* tempLightmap = gfx.loadBitmap(path + "/lightmap", false, !level->config()->doubleRes);
 			
 			if ( tempLightmap )
 			{
@@ -248,25 +246,25 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 		return true;
 	}
 	
-	errors << "VermesLevelLoader: none of " << materialPath << "{.bmp,.png,''} found" << endl;
+	errors << "GusanosLevelLoader: none of " << materialPath << "{.bmp,.png,''} found" << endl;
 	
 	level->gusShutdown();
 	return false;
 }
 
-const char* VermesLevelLoader::getName()
+const char* GusanosLevelLoader::getName()
 {
-	return "Vermes 0.9 level loader";
+	return "Gusanos 0.9 level loader";
 }
 
-std::string VermesLevelLoader::format() { return "Gusanos 0.9 level"; }
-std::string VermesLevelLoader::formatShort() { return "Gus"; }
+std::string GusanosLevelLoader::format() { return "Gusanos 0.9 level"; }
+std::string GusanosLevelLoader::formatShort() { return "Gus"; }
 
 
 #ifndef DEDICATED_ONLY
-VermesFontLoader VermesFontLoader::instance;
+GusanosFontLoader GusanosFontLoader::instance;
 
-bool VermesFontLoader::canLoad(std::string const& path, std::string& name)
+bool GusanosFontLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(GetFileExtensionWithDot(path) == ".bmp" || GetFileExtensionWithDot(path) == ".png")
 	{
@@ -276,7 +274,7 @@ bool VermesFontLoader::canLoad(std::string const& path, std::string& name)
 	return false;
 }
 	
-bool VermesFontLoader::load(Font* font, std::string const& path)
+bool GusanosFontLoader::load(Font* font, std::string const& path)
 {
 	font->free();
 	
@@ -337,13 +335,13 @@ bool VermesFontLoader::load(Font* font, std::string const& path)
 	return false;*/
 }
 
-const char* VermesFontLoader::getName()
+const char* GusanosFontLoader::getName()
 {
-	return "Vermes 0.9 font loader";
+	return "Gusanos 0.9 font loader";
 }
 
-std::string VermesFontLoader::format() { return "Gusanos 0.9 font"; }
-std::string VermesFontLoader::formatShort() { return "Gus"; }
+std::string GusanosFontLoader::format() { return "Gusanos 0.9 font"; }
+std::string GusanosFontLoader::formatShort() { return "Gus"; }
 
 XMLLoader XMLLoader::instance;
 
@@ -369,7 +367,7 @@ bool XMLLoader::load(XMLFile* xml, std::string const& path)
 
 const char* XMLLoader::getName()
 {
-	return "XML loader";
+	return "Gusanos XML loader";
 }
 
 std::string XMLLoader::format() { return "Gusanos XML"; }
@@ -466,9 +464,9 @@ std::string LuaLoader::formatShort() { return "Lua"; }
 
 
 /*
-VermesParticleLoader VermesParticleLoader::instance;
+GusanosParticleLoader GusanosParticleLoader::instance;
 
-bool VermesParticleLoader::canLoad(std::string const& path, std::string& name)
+bool GusanosParticleLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(GetFileExtensionWithDot(path) == ".obj")
 	{

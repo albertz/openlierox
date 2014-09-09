@@ -148,7 +148,7 @@ public:
 	
 	bool isReady() const;
 	int Write(const void* buffer, int nbytes);
-	int Write(const std::string& buffer) { return Write(buffer.data(), buffer.size()); }
+	int Write(const std::string& buffer) { return Write(buffer.data(), (int)buffer.size()); }
 	int Read(void* buffer, int nbytes);
 	
 	bool isDataAvailable(); // Slow!

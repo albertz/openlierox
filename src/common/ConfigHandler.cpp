@@ -127,13 +127,6 @@ bool ReadString(const std::string& filename, const std::string& section, const s
 	value = defaultv;
 
 	return GetString(filename,section,key,value, abs_fn);
-
-	/*int result = GetString(filename,section,key,value);
-
-	if (strlen(value) <= 0)
-		strcpy(value,defaultv);
-
-	return result;*/
 }
 
 
@@ -179,7 +172,7 @@ bool ReadIntArray(const std::string& filename, const std::string& section, const
 		return false;
 
 	std::vector<std::string> arr = explode(string,",");
-	for (register int i=0; i<MIN(num_items,(int)arr.size()); i++)
+	for (int i=0; i<MIN(num_items,(int)arr.size()); i++)
 		array[i] = from_string<int>(arr[i]);
 
 	return num_items == (int)arr.size();

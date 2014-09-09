@@ -1066,7 +1066,7 @@ Result TWImage::read(ML_Teeworlds *l, char *p, char *end) {
 		if(data.size() != (size_t) width * height * 4)
 			return "raw image data size invalid. expected: " + itoa(width*height*4) + ", got: " + itoa(data.size());
 		image = SDL_CreateRGBSurface(
-					SDL_SWSURFACE | SDL_SRCALPHA,
+					0,
 					width, height,
 					32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 		LockSurface(image);

@@ -1751,7 +1751,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			cmd_button->setEnabled(game.isServer());  // Disable for client games
 
 			// Add the player
-			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+			lv->AddItem(p->getName(), (int)i, tLX->clNormalLabel);
 
 			// Add the command button
 			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);
@@ -1811,7 +1811,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			cmd_button->setEnabled(game.isServer());  // Disable for client games
 
 			// Add the player
-			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+			lv->AddItem(p->getName(), (int)i, tLX->clNormalLabel);
 
 			// Add the command button
 			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);
@@ -1861,9 +1861,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			cmd_button->setEnabled(game.isServer());  // Disable for client games
 
 			if(p->getTagIT())
-				lv->AddItem(p->getName(), i, tLX->clTagHighlight);
+				lv->AddItem(p->getName(), (int)i, tLX->clTagHighlight);
 			else
-				lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+				lv->AddItem(p->getName(), (int)i, tLX->clNormalLabel);
 
 			// Add the command button
 			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);
@@ -2298,9 +2298,9 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
 				DeprecatedGUI::CCombobox *v2Target = (DeprecatedGUI::CCombobox *)ViewportMgr.getWidget(v2_Target);
 
                 // Grab settings
-                int a_type = ViewportMgr.SendMessage(v1_Type, DeprecatedGUI::CBM_GETCURINDEX, (DWORD)0,0);
-                int b_on = ViewportMgr.SendMessage(v2_On, DeprecatedGUI::CKM_GETCHECK, (DWORD)0,0);
-                int b_type = ViewportMgr.SendMessage(v2_Type, DeprecatedGUI::CBM_GETCURINDEX, (DWORD)0,0);
+                int a_type = (int) ViewportMgr.SendMessage(v1_Type, DeprecatedGUI::CBM_GETCURINDEX, (DWORD)0,0);
+                int b_on = (int) ViewportMgr.SendMessage(v2_On, DeprecatedGUI::CKM_GETCHECK, (DWORD)0,0);
+                int b_type = (int) ViewportMgr.SendMessage(v2_Type, DeprecatedGUI::CBM_GETCURINDEX, (DWORD)0,0);
 				if (!v1Target->getSelectedItem().get() || !v2Target->getSelectedItem().get())
 					return;
 
@@ -2626,9 +2626,9 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 			iColor = tLX->clNormalLabel;
 
         // Add the player and if this player is local & human, highlight it
-		lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+		lv->AddItem(p->getName(), (int)i, tLX->clNormalLabel);
 		if (p->getLocal() && (p->getType() != PRF_COMPUTER || game.isClient()))  {
-			DeprecatedGUI::lv_item_t *it = lv->getItem(i);
+			DeprecatedGUI::lv_item_t *it = lv->getItem((int)i);
 			it->iBgColour = tLX->clScoreHighlight;
 			it->iBgColour.a = 64;
 		}

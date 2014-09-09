@@ -55,7 +55,7 @@ bool LOSPFontLoader::load(Font* font, std::string const& path)
 		full = true;
 	}
 
-	font->m_bitmap = create_bitmap_ex(8, bitmapWidth, bitmapHeight);
+	font->m_bitmap = create_bitmap_ex(8, (int)bitmapWidth, (int)bitmapHeight);
 	if(!font->m_bitmap)
 		return false;
 		

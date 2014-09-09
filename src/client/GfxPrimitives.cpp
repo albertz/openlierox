@@ -46,7 +46,6 @@
 #include "Cache.h"
 #include "CodeAttributes.h"
 
-int iSurfaceFormat = SDL_SWSURFACE;
 
 
 
@@ -78,7 +77,7 @@ void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 //////////////////////////
 // Set the per-surface alpha
 void SetPerSurfaceAlpha(SDL_Surface * dst, Uint8 a) {
-	SDL_SetAlpha(dst, SDL_SRCALPHA, a);
+	SDL_SetSurfaceAlphaMod(dst, a);
 }
 
 
@@ -112,9 +111,9 @@ static void SetColorKey_Alpha(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 // Set a pink color key
 void SetColorKey(SDL_Surface * dst)  {
 	// If there's already a colorkey set, don't set it again
-	if ((dst->flags & SDL_SRCCOLORKEY) &&
-		((dst->format->colorkey == SDL_MapRGB(dst->format, 255, 0, 255)) ||
-		(dst->format->colorkey == SDL_MapRGB(dst->format, 254, 0, 254))))
+	if (Surface_HasColorKey(dst) &&
+		((Surface_GetColorKey(dst) == SDL_MapRGB(dst->format, 255, 0, 255)) ||
+		(Surface_GetColorKey(dst) == SDL_MapRGB(dst->format, 254, 0, 254))))
 		return;
 
 	// Because some graphic editors (old Photoshop and GIMP and possibly more) contain a bug that rounds 255 to 254
@@ -132,8 +131,8 @@ void SetColorKey(SDL_Surface * dst)  {
 
 
 	// Apply the colorkey
-	if (dst->flags & SDL_SRCALPHA) {
-		// see comment in other SetColorKey; the behaviour with SDL_SRCALPHA is different
+	if (Surface_HasBlendMode(dst)) {
+		// see comment in other SetColorKey; the behaviour with Surface_HasBlendMode is different
 		if (bugged)
 			SetColorKey_Alpha(dst, 254, 0, 254);
 		else
@@ -142,9 +141,9 @@ void SetColorKey(SDL_Surface * dst)  {
 
 	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
 	if (bugged)
-		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, bugged_colorkey);
+		SDL_SetColorKey(dst, 1, bugged_colorkey);
 	else
-		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255));
+		SDL_SetColorKey(dst, 1, SDL_MapRGB(dst->format, 255, 0, 255));
 }
 
 void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
@@ -153,14 +152,14 @@ void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 		return;
 	}
 
-	if (dst->flags & SDL_SRCALPHA)
-		// HINT: The behaviour with SDL_SRCALPHA is different
+	if (Surface_HasBlendMode(dst))
+		// HINT: The behaviour with Surface_HasBlendMode is different
 		// and not as you would expect it. The problem is that while blitting to a surface with RGBA,
 		// the alpha channel of the destination is untouched (see manpage to SDL_SetAlpha).
 		SetColorKey_Alpha(dst, r, g, b);
 
 	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
-	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, r, g, b));
+	SDL_SetColorKey(dst, 1, SDL_MapRGB(dst->format, r, g, b));
 }
 
 struct VideoFormat {
@@ -205,15 +204,16 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 	const VideoFormat fmt = getMainVideoFormat();
 
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
+			0,
 			width, height,
 			fmt.bpp, fmt.rmask, fmt.gmask, fmt.bmask, fmt.amask);
+	if(!result.get()) return NULL;
+	
+	// Force to ignore alpha.
+	SDL_SetSurfaceBlendMode(result.get(), SDL_BLENDMODE_NONE);
 
-	if (result.get() != NULL)  {
-		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect(result.get(), NULL, SDL_MapRGBA(result.get()->format, 0, 0, 0, 255));
-		SDL_SetAlpha(result.get(), 0, 0); // Remove any alpha
-	}
+	// OpenGL strictly requires the surface to be cleared
+	SDL_FillRect(result.get(), NULL, SDL_MapRGBA(result.get()->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 
 	#ifdef DEBUG
 	//printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
@@ -291,18 +291,17 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 		return NULL;
 
 	const VideoFormat f = getMainAlphaVideoFormat();
+	assert(f.amask != 0);
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-				SDL_SWSURFACE | SDL_SRCALPHA,
+				0,
 				width, height,
 				f.bpp, f.rmask, f.gmask, f.bmask, f.amask);
+	if(!result.get()) return NULL;
 	
-	if (result.get() != NULL)
-		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
-
-	#ifdef DEBUG
-	//printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
-	#endif
+	// The surface will have SDL_BLENDMODE_BLEND by default with Amask != 0.
+	
+	// OpenGL strictly requires the surface to be cleared
+	SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
 
 	return result;
 }
@@ -312,7 +311,7 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 void ResetAlpha(SDL_Surface * dst)
 {
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
-	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
+	SDL_SetSurfaceAlphaMod(dst, SDL_ALPHA_OPAQUE); // Remove the persurface-alpha
 
 	PixelPut& putter = getPixelPutFunc(dst);
 	PixelGet& getter = getPixelGetFunc(dst);
@@ -462,7 +461,7 @@ INLINE void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy
 		+ (dy * dst_pitch) + (dx * dst->format->BytesPerPixel);
 
 	// Copy row by row
-	for (register int i = 0; i < h; ++i)  {
+	for (int i = 0; i < h; ++i)  {
 		memcpy(dstrow, srcrow, byte_bound);
 		dstrow += dst_pitch;
 		srcrow += src_pitch;
@@ -477,32 +476,32 @@ SurfaceCopyScope::SurfaceCopyScope(SDL_Surface *src_) : src(src_) {
 	// If the surface has alpha or colorkey set, we have to remove them and then put them back
 
 	// Save alpha values
-	HasAlpha = false;
 	PerSurfaceAlpha = SDL_ALPHA_OPAQUE;
-	if (src->flags & SDL_SRCALPHA)  {
-		HasAlpha = true;
-		PerSurfaceAlpha = src->format->alpha;
-	}
+	SDL_GetSurfaceAlphaMod(src, &PerSurfaceAlpha);
+	BlendMode = SDL_BLENDMODE_NONE;
+	SDL_GetSurfaceBlendMode(src, &BlendMode);
 
 	// Save colorkey values
-	HasColorkey = false;
+	HasColorkey = true;
 	Colorkey = 0;
-	if (src->flags & SDL_SRCCOLORKEY)  {
-		HasColorkey = true;
-		Colorkey = src->format->colorkey;
+	if (SDL_GetColorKey(src, &Colorkey) != 0)  {
+		HasColorkey = false;
 	}
 
 	// Remove alpha and colorkey
-	SDL_SetAlpha(src, 0, 0);
+	SDL_SetSurfaceAlphaMod(src, SDL_ALPHA_OPAQUE);
+	SDL_SetSurfaceBlendMode(src, SDL_BLENDMODE_NONE);
 	SDL_SetColorKey(src, 0, 0);
 }
 
 SurfaceCopyScope::~SurfaceCopyScope() {
 	// Return back alpha and colorkey
-	if (HasAlpha)
-		SDL_SetAlpha(src, SDL_SRCALPHA, PerSurfaceAlpha);
+	if (PerSurfaceAlpha != SDL_ALPHA_OPAQUE)
+		SDL_SetSurfaceAlphaMod(src, PerSurfaceAlpha);
+	if (BlendMode != SDL_BLENDMODE_NONE)
+		SDL_SetSurfaceBlendMode(src, BlendMode);
 	if (HasColorkey)
-		SDL_SetColorKey(src, SDL_SRCCOLORKEY, Colorkey);
+		SDL_SetColorKey(src, 1, Colorkey);
 }
 
 ///////////////////////
@@ -521,7 +520,7 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 	assert(bmpSrc != NULL);
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-															bmpSrc->flags,
+															0,
 															bmpSrc->w, bmpSrc->h,
 															bmpSrc->format->BitsPerPixel,
 															bmpSrc->format->Rmask,
@@ -530,19 +529,30 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 															bmpSrc->format->Amask);
 	if (result.get() == NULL) return NULL;
 
-	// reset flags.
-	// SDL_CreateRGBSurface doesn't really set the flags as we request them. e.g., it usually always sets SDL_SRCALPHA.
-	result->flags = bmpSrc->flags;
-
 	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
 	
-	if(bmpSrc->flags & SDL_SRCCOLORKEY) {
-		Color colorkey = Color(bmpSrc->format, bmpSrc->format->colorkey);
-		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
+	// Colorkey.
+	if(Surface_HasColorKey(bmpSrc)) {
+		uint32_t colorkey = Surface_GetColorKey(bmpSrc);
+		SDL_SetColorKey(result.get(), 1, colorkey);
+	}
+	
+	// Per-surface alpha.
+	{
+		uint8_t alpha = SDL_ALPHA_OPAQUE;
+		(void)SDL_GetSurfaceAlphaMod(bmpSrc, &alpha);
+		if(alpha != SDL_ALPHA_OPAQUE) {
+			SDL_SetSurfaceAlphaMod(result.get(), alpha);
+		}
+	}
+	
+	// (Per-pixel) alpha blend mode.
+	{
+		SDL_BlendMode blendMode = Surface_GetBlendMode(bmpSrc);
+		SDL_SetSurfaceBlendMode(result.get(), blendMode);
 	}
 	
 	assert(PixelFormatEqual(bmpSrc->format, result->format));
-	assert(bmpSrc->flags == result->flags);
 
 	return result;
 }
@@ -551,7 +561,7 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 SmartPointer<SDL_Surface> GetCopiedStretched2Image(SDL_Surface* bmpSrc) {
 	assert(bmpSrc != NULL);
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-															bmpSrc->flags,
+															0,
 															bmpSrc->w*2, bmpSrc->h*2,
 															bmpSrc->format->BitsPerPixel,
 															bmpSrc->format->Rmask,
@@ -560,19 +570,30 @@ SmartPointer<SDL_Surface> GetCopiedStretched2Image(SDL_Surface* bmpSrc) {
 															bmpSrc->format->Amask);
 	if (result.get() == NULL) return NULL;
 
-	// reset flags.
-	// SDL_CreateRGBSurface doesn't really set the flags as we request them. e.g., it usually always sets SDL_SRCALPHA.
-	result->flags = bmpSrc->flags;
-
 	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h, true);
 
-	if(bmpSrc->flags & SDL_SRCCOLORKEY) {
-		Color colorkey = Color(bmpSrc->format, bmpSrc->format->colorkey);
-		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
+	// Colorkey.
+	if(Surface_HasColorKey(bmpSrc)) {
+		uint32_t colorkey = Surface_GetColorKey(bmpSrc);
+		SDL_SetColorKey(result.get(), 1, colorkey);
+	}
+	
+	// Per-surface alpha.
+	{
+		uint8_t alpha = SDL_ALPHA_OPAQUE;
+		(void)SDL_GetSurfaceAlphaMod(bmpSrc, &alpha);
+		if(alpha != SDL_ALPHA_OPAQUE) {
+			SDL_SetSurfaceAlphaMod(result.get(), alpha);
+		}
+	}
+	
+	// (Per-pixel) alpha blend mode.
+	{
+		SDL_BlendMode blendMode = Surface_GetBlendMode(bmpSrc);
+		SDL_SetSurfaceBlendMode(result.get(), blendMode);
 	}
 
 	assert(PixelFormatEqual(bmpSrc->format, result->format));
-	assert(bmpSrc->flags == result->flags);
 
 	return result;
 }
@@ -616,7 +637,7 @@ void _OperateOnSurfaces(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, 
 	int srcgap = bmpSrc->pitch - rDest.w * sbpp;
 	int dstgap = bmpDest->pitch - rDest.w * dbpp;
 	
-	Color key = Unpack_<src_hasalpha>(bmpSrc->format->colorkey, bmpSrc->format);
+	Color key = Unpack_<src_hasalpha>(Surface_GetColorKey(bmpSrc), bmpSrc->format);
 	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
 		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp) {
 			if(sameformat && !alphablend && !colorkeycheck) {
@@ -630,7 +651,7 @@ void _OperateOnSurfaces(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, 
 				if(colorkeycheck && c.r == key.r && c.g == key.g && c.b == key.b)  // Colorkey check
 					continue;
 				if(src_persurfacealpha)
-					c.a = ((int)c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
+					c.a = ((int)c.a * Surface_GetAlpha(bmpSrc)) / 255;  // Add the per-surface alpha to the source pixel alpha
 				_PutPixel<dst_hasalpha, alphablend, dbpp>(dstformat, dst, c);
 			}
 		}
@@ -649,8 +670,8 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	const int dbpp = bmpDest->format->BytesPerPixel;
 	const bool src_hasalpha = bmpSrc->format->Amask != 0;
 	const bool dst_hasalpha = bmpDest->format->Amask != 0;
-	const bool src_persurfacealpha = alphablend && (bmpSrc->format->alpha != 255);
-	const bool colorkeycheck = (bmpSrc->flags & SDL_SRCCOLORKEY) != 0;
+	const bool src_persurfacealpha = alphablend && Surface_GetAlpha(bmpSrc) != SDL_ALPHA_OPAQUE;
+	const bool colorkeycheck = Surface_HasColorKey(bmpSrc);
 	const bool sameformat = PixelFormatEqual(bmpSrc->format, bmpDest->format);
 	
 #define ____DO_OP(_sbpp, _dbpp, _salpha, _dalpha, _spersurfalpha, _colkeycheck, _sameformat) \
@@ -714,7 +735,6 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 
 /////////////////////
 // Draws the image
-// __Z12DrawImageAdvP11SDL_SurfaceS0_R8SDL_RectS2_
 void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
 {
 	if(!bmpSrc) {
@@ -726,17 +746,20 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 		errors << "DrawImageAdv: destination-image not set" << endl;
 		return;
 	}
+
+	SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
+
+	return; // XXX: for now. I hope that SDL2 is faster than our code... :P Also, I didn't checked our code with SDL2 yet
 	
-	if(bmpSrc->flags & SDL_SRCALPHA)
-		// __ZL8DrawRGBAILb1EEvP11SDL_SurfaceS1_R8SDL_RectS3_
+	if(Surface_HasBlendMode(bmpSrc))
 		DrawRGBA<true>(bmpDest, bmpSrc, rDest, rSrc);
 	else
 		DrawRGBA<false>(bmpDest, bmpSrc, rDest, rSrc);
 
 	return; // TODO: for now. and if the above is fast enough anyway, we don't need the code below (which is buggy)
 	
-	bool src_isrgba = bmpSrc->format->Amask != 0 && (bmpSrc->flags & SDL_SRCALPHA);
-	bool dst_isrgba = bmpDest->format->Amask != 0 && (bmpDest->flags & SDL_SRCALPHA);
+	bool src_isrgba = bmpSrc->format->Amask != 0 && Surface_HasBlendMode(bmpSrc);
+	bool dst_isrgba = bmpDest->format->Amask != 0 && Surface_HasBlendMode(bmpDest);
 
 	// RGB -> RGB
 	// RGB -> RGBA
@@ -750,7 +773,7 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 		
 	// RGBA -> RGB
 	} else if (src_isrgba && !dst_isrgba)  {
-		switch (bmpSrc->format->alpha)  {
+		switch (Surface_GetAlpha(bmpSrc))  {
 		case SDL_ALPHA_OPAQUE:
 			SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
 		break;
@@ -838,7 +861,7 @@ void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 
 	short bpp = bmpDest->format->BytesPerPixel;
 
-	register Uint8 *sp,*tp;
+	Uint8 *sp,*tp;
 	for(y = h; y; --y) {
 
 		sp = SrcPix;
@@ -1635,20 +1658,22 @@ void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc) {
 
 }
 
-static Color HalfBlendPixelAdv(Uint32 s1, Uint32 s2, Uint32 s3, Uint32 s4, bool usekey, SDL_PixelFormat *src)
+static Color HalfBlendPixelAdv(Uint32 s1, Uint32 s2, Uint32 s3, Uint32 s4, bool usekey, const SDL_Surface *src)
 {
-	Color c1(src, s1);
-	Color c2(src, s2);
-	Color c3(src, s3);
-	Color c4(src, s4);
+	const SDL_PixelFormat *format = src->format;
+	Color c1(format, s1);
+	Color c2(format, s2);
+	Color c3(format, s3);
+	Color c4(format, s4);
 	if (usekey)  {
-		if (EqualRGB(s1, src->colorkey, src))
+		Uint32 colorkey = Surface_GetColorKey(src);
+		if (EqualRGB(s1, colorkey, format))
 			c1.a = 0;
-		if (EqualRGB(s2, src->colorkey, src))
+		if (EqualRGB(s2, colorkey, format))
 			c2.a = 0;
-		if (EqualRGB(s3, src->colorkey, src))
+		if (EqualRGB(s3, colorkey, format))
 			c3.a = 0;
-		if (EqualRGB(s4, src->colorkey, src))
+		if (EqualRGB(s4, colorkey, format))
 			c4.a = 0;
 	}
 
@@ -1690,7 +1715,7 @@ void DrawImageScaleHalfAdv(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, in
 	Uint8 *srcrow_2 = GetPixelAddr(bmpSrc, sx, sy + 1);
 	Uint8 *dstrow = GetPixelAddr(bmpDest, dx, dy);
 	PixelPutAlpha& put = getPixelAlphaPutFunc(bmpDest);
-	const bool usekey = (bmpSrc->flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY;
+	const bool usekey = Surface_HasColorKey(bmpSrc);
 
 	for(int y = sy + dh; y != sy; --y)  {
 		Uint8 *srcpx_1 = srcrow_1;
@@ -1703,7 +1728,7 @@ void DrawImageScaleHalfAdv(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, in
 			Uint32 px4 = GetPixelFromAddr(srcpx_2 + bpp, bpp);  // x + 1, y + 1
 			const Color pxBg(bmpDest->format, GetPixelFromAddr(dstpx, bpp));
 
-			put.put(dstpx, bmpDest->format, HalfBlendPixelAdv(px1, px2, px3, px4, usekey, bmpSrc->format));
+			put.put(dstpx, bmpDest->format, HalfBlendPixelAdv(px1, px2, px3, px4, usekey, bmpSrc));
 			//PutPixelToAddr(dstpx, HalfBlendPixel(px1, px2, px3, px4, bmpSrc->format), bpp);
 		}
 
@@ -2079,11 +2104,6 @@ INLINE void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, i
 // Draw horizontal line
 void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 
-	if (bmpDest->flags & SDL_HWSURFACE)  {
-		DrawRectFill(bmpDest, x, y, x2, y + 1, colour); // In hardware mode this is much faster, in software it is slower
-		return;
-	}
-
 	// Swap the ends if necessary
 	if (x2 < x)  {
 		int tmp;
@@ -2140,10 +2160,6 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 
 // Draw vertical line
 void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
-	if (bmpDest->flags & SDL_HWSURFACE)  {
-		DrawRectFill(bmpDest, x, y, x + 1, y2, colour); // In hardware mode this is much faster, in software it is slower
-		return;
-	}
 
 	// Swap the ends if necessary
 	if (y2 < y)  {
@@ -2690,27 +2706,94 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 
 
 
-void DumpPixelFormat(const SDL_PixelFormat* format) {
+void DumpPixelFormat(const SDL_PixelFormat* format, const std::string& prefix) {
 	std::ostringstream str;
-	str << "PixelFormat:" << std::endl
+	str
+	<< prefix
+	<< "PixelFormat:" << std::endl
+	<< prefix
 	<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
 	<< "  BytesPerPixel: " << (int)format->BytesPerPixel << std::endl
+	<< prefix
 	<< "  R/G/B/A mask: " << std::hex
 	<< (uint)format->Rmask << "/"
 	<< (uint)format->Gmask << "/"
 	<< (uint)format->Bmask << "/"
 	<< (uint)format->Amask << std::endl
+	<< prefix
 	<< "  R/G/B/A loss: "
 	<< (uint)format->Rloss << "/"
 	<< (uint)format->Gloss << "/"
 	<< (uint)format->Bloss << "/"
-	<< (uint)format->Aloss << std::endl
-	<< "  Colorkey: " << std::hex << (uint)format->colorkey << ","
-	<< "  Alpha: " << std::dec << (int)format->alpha;
+	<< (uint)format->Aloss << std::endl;
 	notes << str.str() << endl;
 }
 
-void DumpSurface(SDL_Surface* s) {
+void DumpSurfaceInfo(const SDL_Surface* s, const char* name, bool dumpAFewPixels) {
+	notes << "Surface";
+	if(name) notes << " '" << name << "'";
+	notes << " (" << s << ")" << endl;
+	if(!s) return;
+
+	notes << "  Size (WxH): " << s->w << " x " << s->h << endl;
+	notes << "  Pitch: " << s->pitch << endl;
+	
+	DumpPixelFormat(s->format, "  ");
+
+	std::ostringstream str;
+	str << "  ColorKey: ";
+	if(Surface_HasColorKey(s))
+		str << " yes, " << std::hex << Surface_GetColorKey(s);
+	else
+		str << " no";
+	str << std::endl;
+	
+	{
+		str << "  AlphaBlendMode: ";
+		SDL_BlendMode m;
+		int r = SDL_GetSurfaceBlendMode((SDL_Surface*)s, &m);
+		if(r != 0)
+			str << "ERROR: " << SDL_GetError();
+		else
+			switch(m) {
+				case SDL_BLENDMODE_NONE: str << "none"; break;
+				case SDL_BLENDMODE_ADD: str << "add"; break;
+				case SDL_BLENDMODE_BLEND: str << "blend"; break;
+				case SDL_BLENDMODE_MOD: str << "mod"; break;
+				default: str << "invalid"; break;
+			}
+		str << std::endl;
+	}
+	
+	{
+		str << "  AlphaMod: ";
+		Uint8 a = SDL_ALPHA_OPAQUE;
+		int r = SDL_GetSurfaceAlphaMod((SDL_Surface*)s, &a);
+		if(r != 0)
+			str << "ERROR: " << SDL_GetError();
+		else
+			str << std::dec << a;
+		str << std::endl;
+	}
+	
+	if(dumpAFewPixels) {
+		std::string pfmt = " %." + itoa(s->format->BytesPerPixel*2) + "X";
+		static constexpr int MaxY = 2, MaxX = 10;
+		for(int y = 0; y < MIN(MaxY, s->h); ++y) {
+			for(int x = 0; x < MIN(MaxX, s->w); ++x) {
+				char buffer[10];
+				snprintf(buffer, sizeof(buffer), pfmt.c_str(), GetPixel(s, x, y));
+				buffer[sizeof(buffer)-1] = 0;
+				notes << buffer;
+			}
+			if(MaxX < s->w) notes << " ...";
+			notes << endl;
+		}
+		if(MaxY < s->h) notes << "..." << endl;
+	}
+}
+
+void DumpSurface(const SDL_Surface* s) {
 	DumpPixelFormat(s->format);
 	std::string pfmt = " %." + itoa(s->format->BytesPerPixel*2) + "X";
 	for(int y = 0; y < MIN(10, s->h); ++y) {
@@ -2790,7 +2873,7 @@ SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool
 	gdImagePtr src = NULL;
 
 	if(ext == ".bmp") {
-		SDL_Surface* s = SDL_LoadBMP_RW(SDL_RWFromConstMem(&fileContent[0], fileContent.size()), true);
+		SDL_Surface* s = SDL_LoadBMP_RW(SDL_RWFromConstMem(&fileContent[0], (int)fileContent.size()), true);
 		if(s == NULL) {
 			errors << "LoadGameImage: cannot load bmp: " << _filename << endl;
 			return NULL;
@@ -2798,11 +2881,11 @@ SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool
 		return s;
 	}
 	else if(ext == ".jpg" || ext == ".jpeg")
-		src = gdImageCreateFromJpegPtr(fileContent.size(), &fileContent[0]);
+		src = gdImageCreateFromJpegPtr((int)fileContent.size(), &fileContent[0]);
 	else if(ext == ".png")
-		src = gdImageCreateFromPngPtr(fileContent.size(), &fileContent[0]);
+		src = gdImageCreateFromPngPtr((int)fileContent.size(), &fileContent[0]);
 	else if(ext == ".gif")
-		src = gdImageCreateFromGifPtr(fileContent.size(), &fileContent[0]);
+		src = gdImageCreateFromGifPtr((int)fileContent.size(), &fileContent[0]);
 	else {
 		errors << "LoadGameImage: file extension unknown: " << _filename << endl;
 		return NULL;
@@ -2865,9 +2948,12 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 #endif
 	if(!img.get()) return NULL;
 	
+	if(!withalpha)
+		// Force no blend mode.
+		SDL_SetSurfaceBlendMode(img.get(), SDL_BLENDMODE_NONE);
+	
 	const VideoFormat wantedFormat = getMainVideoFormat(withalpha);
-	const Uint32 wantedFlags = (withalpha ? SDL_SRCALPHA : 0) | SDL_SWSURFACE;
-	if(wantedFormat != VideoFormat(img->format) || img->flags != wantedFlags) {
+	if(wantedFormat != VideoFormat(img->format)) {
 		SmartPointer<SDL_Surface> converted;
 		if(bDedicated || !VideoPostProcessor::videoSurface()) {
 			if(!bDedicated)
@@ -2887,10 +2973,10 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 				CopySurface(converted.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);
 			} else {
 				SDL_PixelFormat fmt = *(getMainPixelFormat());
-				img.get()->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
-				img.get()->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
-				converted = SDL_ConvertSurface(img.get(), &fmt, iSurfaceFormat);
-				converted.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
+				SDL_SetSurfaceBlendMode(img.get(), SDL_BLENDMODE_NONE); // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
+				SDL_SetColorKey(img.get(), 0, 0); // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
+				converted = SDL_ConvertSurface(img.get(), &fmt, 0);
+				SDL_SetSurfaceBlendMode(converted.get(), SDL_BLENDMODE_NONE); // we explicitly said that we don't want alpha, so remove it
 			}
 		}
 		
@@ -2926,6 +3012,19 @@ template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 
 	SDL_FreeSurface(obj);
 }
+
+template <> void SmartPointer_ObjectDeinit<SDL_Texture> ( SDL_Texture * obj ) {
+	SDL_DestroyTexture(obj);
+}
+
+template <> void SmartPointer_ObjectDeinit<SDL_Renderer> ( SDL_Renderer * obj ) {
+	SDL_DestroyRenderer(obj);
+}
+
+template <> void SmartPointer_ObjectDeinit<SDL_Window> ( SDL_Window * obj ) {
+	SDL_DestroyWindow(obj);
+}
+
 
 
 

@@ -24,7 +24,7 @@ void ClearUserNotify() {}
 	#include <windows.h>
 	#include <SDL.h>
 	#include <SDL_syswm.h>
-#elif defined(X11)
+#elif 0 // defined(X11) // TODO SDL2 support ...
 	#define Font Font_Xlib // Hack to prevent name clash in precompiled header and system libs
 	#include <X11/Xlib.h>
 	#undef Font
@@ -103,7 +103,7 @@ void NotifyUserOnEvent()
 	flash.dwTimeout = 0;
 	FlashWindowEx( &flash );
 
-#elif defined(X11)
+#elif 0 // defined(X11) // TODO
 
 	struct SetDemandsAttentionAction: public Action
 	{
@@ -128,7 +128,7 @@ void ClearUserNotify() {
 #if defined(__APPLE__)
 	mac__ClearUserNotify();
 #elif defined(WIN32)
-#elif defined(X11)
+#elif 0 // defined(X11) // TODO
 	struct ClearDemandsAttentionAction: public Action
 	{
 		Result handle()

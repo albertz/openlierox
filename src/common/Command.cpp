@@ -1480,8 +1480,7 @@ void Cmd_setWormColor::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	b = (Uint8) atoi(params[3]);
 	
 	// Set the colour
-	w->writeSkin().setDefaultColor(Color(r, g, b));
-	w->setColour(r, g, b);
+	w->setColour(Color(r, g, b));
 	
 	// Send the update
 	cServer->UpdateWorm(w);
@@ -2111,7 +2110,7 @@ void Cmd_getWormPing::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 COMMAND(getWormSkin, "get worm skin", "id", 1, 1);
 void Cmd_getWormSkin::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
-	caller->pushReturnArg(itoa(w->getSkin().getDefaultColor().get()));
+	caller->pushReturnArg(itoa(w->getSkin().getDefaultColor().getDefault()));
 	caller->pushReturnArg(w->getSkin().getFileName());
 }
 

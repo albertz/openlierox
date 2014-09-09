@@ -128,7 +128,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
 
 	enum { GO_RIGHT=1, GO_DOWN=2, GO_LEFT=4, GO_UP=8 }; short dir;
 	unsigned short col;
-	register int x=0, y=0;
+	int x=0, y=0;
 
 	// loop over all directions until there is some obstacle
 	col = 0; dir = 1;
@@ -227,7 +227,7 @@ NEW_ai_node_t* createNewAiNode(const VectorD2<int>& p) {
 // HINT: don't lock the flags here (it's done in the caller)
 INLINE bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
 	boost::array<Material,256>& materials = game.gameMap()->materialArray();
-	register unsigned char** pxflags = game.gameMap()->material->line;
+	unsigned char** pxflags = game.gameMap()->material->line;
 	if (!pxflags)  {  // The map has been probably shut down
 		warnings << "simpleTraceLine with pxflags==NULL" << endl;
 		return false;
@@ -242,7 +242,7 @@ INLINE bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar check
 		}
 		if(start.x < 0 || (uint)(start.x + dist.x) >= map_w || start.y < 0 || (uint)start.y >= map_h)
 			return false;
-		for(register int x = 0; x <= dist.x; x++) {
+		for(int x = 0; x <= dist.x; x++) {
 			if(materials[pxflags[start.y][start.x + x]].toLxFlags() & checkflag)
 				return false;
 		}
@@ -253,7 +253,7 @@ INLINE bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar check
 		}
 		if(start.y < 0 || (uint)(start.y + dist.y) >= map_h || start.x < 0 || (uint)start.x >= map_w)
 			return false;
-		for(register int y = 0; y <= dist.y; y++) {
+		for(int y = 0; y <= dist.y; y++) {
 			if(materials[pxflags[start.y+y][start.x]].toLxFlags() & checkflag)
 				return false;
 		}
@@ -1467,7 +1467,7 @@ void CWormBotInputHandler::AI_Think()
 				// select disabled weapon (which should be replaced by bonus)
 				for(size_t i = 0; i < m_worm->tWeapons.size(); ++i)
 					if(!m_worm->tWeapons[i].weapon()) {
-						m_worm->iCurrentWeapon = i;
+						m_worm->iCurrentWeapon = (int32_t)i;
 						break;
 					}
 				return;
@@ -1805,14 +1805,14 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 			// Nothing explosive or dirty
 			if (type != PJ_DIRT && type != PJ_GREENDIRT && type != PJ_BOUNCE)
 				if(!m_worm->tWeapons[i].Reloading)
-					return i;
+					return (int)i;
 		}
 	}
 
 	// accept also beam-weapons as a second choice
 	for (size_t i=0; i<m_worm->tWeapons.size(); i++)
 		if(m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
-			return i;
+			return (int)i;
 
     // No suitable weapons
     return -1;
@@ -2502,7 +2502,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE)
 					if (m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type == PJ_EXPLODE)
-						return i;
+						return (int)i;
     }
 
 
@@ -2521,7 +2521,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (size_t i=0; i<m_worm->tWeapons.size(); i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
-					return i;
+					return (int)i;
 
 		// If beam not available, try projectile
 		for (size_t i=0; i<m_worm->tWeapons.size(); i++)
@@ -2530,7 +2530,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 					if( m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_DIRT
 					&& m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 					//if (tWeapons[i].Weapon->Proj.Proj->Type == PRJ_PIXEL)
-					return i;
+					return (int)i;
 
  		// don't return here, try selection by other, not optimal fitting cases
    }
@@ -2545,7 +2545,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (size_t i=0; i<m_worm->tWeapons.size(); i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
-					return i;
+					return (int)i;
 
 		// If beam not available, try projectile
 		for (size_t i=0; i<m_worm->tWeapons.size(); i++)
@@ -2554,7 +2554,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 					if( m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_DIRT
 					&& m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 					/*if (tWeapons[i].Weapon->Proj.Proj->Type == PRJ_PIXEL || tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_BOUNCE)*/
-						return i;
+						return (int)i;
 
 		// don't return here, try selection by other, not optimal fitting cases
     }
@@ -2570,17 +2570,17 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE)
 					if( m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_DIRT
 					&& m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type != PJ_GREENDIRT)
-						return i;
+						return (int)i;
 
 		// If projectile not available, try beam
 		for (size_t i=0; i<m_worm->tWeapons.size(); i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
-					return i;
+					return (int)i;
 
 		// If everything fails, try some random weapons
 		for (size_t i=0; i<m_worm->tWeapons.size(); i++) {
-			int num = GetRandomInt(m_worm->tWeapons.size()-1);
+			int num = GetRandomInt((int)m_worm->tWeapons.size()-1);
 			if (!m_worm->tWeapons[num].Reloading && m_worm->tWeapons[num].weapon())
 				return num;
 		}
@@ -2607,7 +2607,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (size_t i=0; i<m_worm->tWeapons.size(); i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_PROJECTILE)
 				if (m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type == PJ_EXPLODE || m_worm->tWeapons[i].weapon()->Proj.Proj->Hit.Type == PJ_BOUNCE)
-					return i;
+					return (int)i;
 
     }
 
@@ -2619,11 +2619,11 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     // Shoot a beam (we cant suicide with that)
 	for (size_t i=0; i<m_worm->tWeapons.size(); i++)
 		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].weapon() && m_worm->tWeapons[i].weapon()->Type == WPN_BEAM)
-			return i;
+			return (int)i;
 
 	// If everything fails, try some random weapons
 	for (size_t i=0; i<m_worm->tWeapons.size(); i++) {
-		int num = GetRandomInt(m_worm->tWeapons.size()-1);
+		int num = GetRandomInt((int)m_worm->tWeapons.size()-1);
 		if (!m_worm->tWeapons[num].Reloading && m_worm->tWeapons[num].weapon())
 			return num;
 	}
@@ -2631,7 +2631,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 	// If everything fails, try all weapons
 	for (size_t i=0; i<m_worm->tWeapons.size(); i++)
 		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].weapon())
-			return i;
+			return (int)i;
 
     return -1;
 }
@@ -2849,7 +2849,7 @@ int traceWormLine(CVec target, CVec start, CVec* collision)
 	NormalizeVector(&dir);
 	set_col_and_break action = set_col_and_break(start - dir*(wormsize-1)/2, collision);
 	target -= dir*(wormsize-1)/2;
-	for(register unsigned short i = 0; i < wormsize; i++, action.start += dir, target += dir)
+	for(unsigned short i = 0; i < wormsize; i++, action.start += dir, target += dir)
 		fastTraceLine(target, action.start, (uchar)PX_ROCK, action);
 
 	return !action.hit;
@@ -3166,7 +3166,7 @@ void CWormBotInputHandler::AI_DrawPath()
 	if (!bmpDest.get())
 		return;
 
-	const Color NodeColour = m_worm->cSkin.getColor();
+	const Color NodeColour = m_worm->getGameColour();
 	const Color HighColour = Color(255, 0, 0);
 	const Color LineColour = tLX->clWhite;
 
@@ -3524,15 +3524,15 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		// Shoot the rope
 		fireNinja = true;
 
+		/*
 		// We want to move away
 		CVec desired_dir = -psHeadingProjectile->getVelocity();
 
 		// Choose some point and find the best rope spot to it
 		desired_dir = desired_dir.Normalize() * 40.0f;
 		CVec cAimPos = AI_GetBestRopeSpot(m_worm->vPos+desired_dir);
-
+		
 		// Aim it
-		/*
 		// TODO: why isn't this used any more?
 		fireNinja = AI_SetAim(cAimPos);
 

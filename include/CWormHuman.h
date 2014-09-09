@@ -41,7 +41,6 @@ protected:
 	CInput		cUp, cDown, cLeft, cRight,
 	cShoot, cJump, cSelWeapon, cInpRope,
 	cStrafe, cWeapons[5];
-	//bool		bUsesMouse;
 	
 	// for oldschool rope handling
 	bool		bRopeDown;

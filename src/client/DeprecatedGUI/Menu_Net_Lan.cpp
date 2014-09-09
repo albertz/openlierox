@@ -135,7 +135,7 @@ void Menu_Net_LANShutdown()
 		if (iNetMode == net_lan)  {
 			// Save the column widths
 			for (int i=0;i<6;i++)
-				tLXOptions->iLANList[i] = cLan.SendMessage(nl_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+				tLXOptions->iLANList[i] = (int)cLan.SendMessage(nl_ServerList,LVM_GETCOLUMNWIDTH,i,0);
 
 			// Save the sorting column
 			tLXOptions->iLANSortColumn = ((CListview *)cLan.getWidget(nl_ServerList))->GetSortColumn();
@@ -210,7 +210,7 @@ void Menu_Net_LANFrame(int mouse)
 				if(ev->iEventMsg == BTN_CLICKED) {
 
 					addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result != -1 && addr != "") {
 
 						// Click!
@@ -237,7 +237,7 @@ void Menu_Net_LANFrame(int mouse)
 
 					// Just join for the moment
 					addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
 						Menu_Net_LANJoinServer(addr,sub->sText);
@@ -248,7 +248,7 @@ void Menu_Net_LANFrame(int mouse)
                 // Right click
                 if( ev->iEventMsg == LV_RIGHTCLK ) {
                     addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
                         // Display a menu
                         szLanCurServer = addr;
@@ -269,7 +269,7 @@ void Menu_Net_LANFrame(int mouse)
 				if( ev->iEventMsg == LV_ENTER )  {
 					// Join
 					addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
 						Menu_Net_LANJoinServer(addr,sub->sText);
@@ -280,7 +280,7 @@ void Menu_Net_LANFrame(int mouse)
 				// Delete
 				if( ev->iEventMsg == LV_DELETE )  {
 					addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
 						ServerList::get()->removeServer(addr);
 						// Re-Fill the server list

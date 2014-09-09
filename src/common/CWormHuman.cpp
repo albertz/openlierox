@@ -104,7 +104,8 @@ void CWormHumanInputHandler::getInput() {
 		{
 			Result handle()
 			{
-				SDL_WarpMouse(640/2, 480/2); // Should be called from main thread, or you'll get race condition with libX11
+				// TODO: check current window, and window size
+				SDL_WarpMouseInWindow(NULL, 640/2, 480/2); // Should be called from main thread, or you'll get race condition with libX11
 				return true;
 			} 
 		};
@@ -308,7 +309,7 @@ void CWormHumanInputHandler::getInput() {
 		{
 			if( cWeapons[i].isDown() )
 			{
-				m_worm->iCurrentWeapon = i;
+				m_worm->iCurrentWeapon = (int32_t)i;
 				MOD(m_worm->iCurrentWeapon, m_worm->getWeaponSlotsCount());
 				// Let the weapon name show up for a short moment
 				m_worm->bForceWeapon_Name = true;
@@ -679,13 +680,6 @@ void CWormHumanInputHandler::startGame() {
 // Setup the inputs
 void CWormHumanInputHandler::setupInputs(const PlyControls& Inputs)
 {
-	//bUsesMouse = false;
-	for (byte i=0;i<Inputs.ControlCount(); i++)
-		if (Inputs[i].find("ms"))  {
-			//bUsesMouse = true;
-			break;
-		}
-
 	cUp.Setup(		Inputs[SIN_UP] );
 	cDown.Setup(	Inputs[SIN_DOWN] );
 	cLeft.Setup(	Inputs[SIN_LEFT] );
@@ -759,7 +753,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	// Load previous settings from profile
 	for(size_t i=0;i<m_worm->tWeapons.size();i++) {
-		m_worm->weaponSlots.write()[i].WeaponId = game.gameScript()->FindWeaponId( m_worm->tProfile->getWeaponSlot(i) );
+		m_worm->weaponSlots.write()[i].WeaponId = (int)game.gameScript()->FindWeaponId( m_worm->tProfile->getWeaponSlot((int)i) );
 		
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
 		if( !m_worm->tWeapons[i].weapon() || !game.weaponRestrictions()->isEnabled( m_worm->tWeapons[i].weapon()->Name ) ) {
@@ -884,7 +878,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 
 	m_worm->tProfile->sWeaponSlots.resize(m_worm->tWeapons.size());
 	for(size_t i=0;i<m_worm->tWeapons.size();i++)
-		m_worm->tProfile->writeWeaponSlot(i) = m_worm->tWeapons[i].weapon() ? m_worm->tWeapons[i].weapon()->Name : "";
+		m_worm->tProfile->writeWeaponSlot((int)i) = m_worm->tWeapons[i].weapon() ? m_worm->tWeapons[i].weapon()->Name : "";
 	
 	// Note: The extra weapon slot is the 'done' button
 	if(m_worm->iCurrentWeapon == (int)m_worm->tWeapons.size()+1) {

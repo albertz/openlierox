@@ -317,7 +317,7 @@ int AddProfile(const SmartPointer<profile_t>& prof) {
 	}
 	else if(prof->iType == PRF_COMPUTER->toInt()) {
 		tProfiles.push_back(prof);
-		return tProfiles.size() - 1;
+		return (int)tProfiles.size() - 1;
 	}
 	else
 		errors << "AddProfile " << prof->sName << " with undefined type " << prof->iType << endl;
@@ -421,7 +421,7 @@ SmartPointer<profile_t> profileFromWorm(CWorm* w) {
 	p->iTeam = w->getTeam();
 	p->cSkin.Change(w->getSkin().getFileName());
 	p->cSkin.setDefaultColor(w->getSkin().getDefaultColor());
-	p->cSkin.Colorize(p->cSkin.getDefaultColor());
+	p->cSkin.ColorizeDefault();
 	return p;
 }
 
@@ -435,6 +435,8 @@ SmartPointer<profile_t> profileFromWormJoinInfo(const WormJoinInfo& info) {
 	p->B = info.skinColor.b;
 	p->iTeam = info.iTeam;
 	p->cSkin.Change(info.skinFilename);
+	p->cSkin.setDefaultColor(Color(p->R, p->G, p->B));
+	p->cSkin.ColorizeDefault();
 	return p;
 }
 

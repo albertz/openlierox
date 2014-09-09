@@ -37,14 +37,6 @@
 // Misc routines, defines and variables
 //
 
-// Flags used for screen and new surfaces
-extern	int		iSurfaceFormat;
-
-// Like in SDL_video.c in SDL_DisplayFormatAlpha
-#define ALPHASURFACE_RMASK 0x00ff0000
-#define ALPHASURFACE_GMASK 0x0000ff00
-#define ALPHASURFACE_BMASK 0x000000ff
-#define ALPHASURFACE_AMASK 0xff000000
 
 // Gradient direction
 enum GradientDirection  {
@@ -53,8 +45,9 @@ enum GradientDirection  {
 };
 
 
-void DumpSurface(SDL_Surface* s);
-void DumpPixelFormat(const SDL_PixelFormat* format);
+void DumpSurface(const SDL_Surface* s);
+void DumpSurfaceInfo(const SDL_Surface* s, const char* name = NULL, bool dumpAFewPixels = false);
+void DumpPixelFormat(const SDL_PixelFormat* format, const std::string& prefix = "");
 bool PixelFormatEqual(const SDL_PixelFormat* fm1, const SDL_PixelFormat* fm2);
 bool IsCorrectSurfaceFormat(const SDL_PixelFormat* format);
 
@@ -104,8 +97,8 @@ INLINE bool ClipLine(const SmartPointer<SDL_Surface> & bmp, int * x1, int * y1, 
 
 class SDLRectBasic : public SDL_Rect {
 public:
-	typedef Sint16 Type;
-	typedef Uint16 TypeS;
+	typedef int Type;
+	typedef int TypeS;
 	
 	SDLRectBasic() { this->SDL_Rect::x = this->SDL_Rect::y = this->SDL_Rect::w = this->SDL_Rect::h = 0; }
 	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {}
@@ -234,8 +227,8 @@ bool ClipRefRectWith(_Type& x, _Type& y, _TypeS& w, _TypeS& h, const _ClipRect& 
 
 template<typename _ClipRect>
 bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
-	RefRectBasic<Sint16,Uint16> refrect(rect.x, rect.y, rect.w, rect.h);
-	return OLXRect< RefRectBasic<Sint16,Uint16> >(refrect).clipWith(clip);
+	RefRectBasic<int,int> refrect(rect.x, rect.y, rect.w, rect.h);
+	return OLXRect< RefRectBasic<int,int> >(refrect).clipWith(clip);
 }
 
 
@@ -313,9 +306,34 @@ SmartPointer<SDL_Surface> LoadGameImage_unaltered(const std::string& _filename, 
 #define		LOAD_IMAGE_WITHALPHA2(bmp,name1,name2)	{ if (!Load_Image_WithAlpha(bmp,name1) && !Load_Image_WithAlpha(bmp,name2)) return false; }
 #define		LOAD_IMAGE_WITHALPHA__OR(bmp,name,img)	{ if (!Load_Image_WithAlpha(bmp,name) && ((bmp = (img)).get() == NULL)) return false; }
 
-/////////////////
-// Gets the colorkey from the surface
-#define		COLORKEY(bmp) ((bmp)->format->colorkey)
+
+
+inline uint32_t Surface_GetColorKey(const SDL_Surface* surf) {
+	uint32_t key = 0;
+	(void)SDL_GetColorKey((SDL_Surface*)surf, &key); // ignore return
+	return key;
+}
+
+inline bool Surface_HasColorKey(const SDL_Surface* surf) {
+	return SDL_GetColorKey((SDL_Surface*)surf, NULL) == 0;
+}
+
+inline SDL_BlendMode Surface_GetBlendMode(const SDL_Surface* surf) {
+	SDL_BlendMode mode = SDL_BLENDMODE_NONE;
+	(void)SDL_GetSurfaceBlendMode((SDL_Surface*)surf, &mode); // ignore return
+	return mode;
+}
+
+inline bool Surface_HasBlendMode(const SDL_Surface* surf) {
+	return Surface_GetBlendMode(surf) != SDL_BLENDMODE_NONE;
+}
+
+inline uint8_t Surface_GetAlpha(const SDL_Surface* surf) {
+	uint8_t alpha = SDL_ALPHA_OPAQUE;
+	(void)SDL_GetSurfaceAlphaMod((SDL_Surface*)surf, &alpha); // ignore return
+	return alpha;
+}
+
 
 
 /////////////////////
@@ -382,8 +400,8 @@ INLINE void gfxFreeSurface(const SmartPointer<SDL_Surface> & surf)  {
 
 struct SurfaceCopyScope {
 	SDL_Surface* src;
-	bool HasAlpha;
 	Uint8 PerSurfaceAlpha;
+	SDL_BlendMode BlendMode;
 	bool HasColorkey;
 	Uint32 Colorkey;
 	SurfaceCopyScope(SDL_Surface* src_);
@@ -624,7 +642,7 @@ INLINE void PutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 color) {
 // Get a pixel from an 8bit address
 // WARNING: passing invalid adress will cause a segfault
 // NOTE: the surface must be locked before calling this
-INLINE Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
+INLINE Uint32 GetPixelFromAddr(const Uint8* p, short bpp) {
 	Uint32 result;
 	result = 0;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -640,9 +658,9 @@ INLINE Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 // WARNING: passing invalid coordinates will cause a segfault
 // NOTE: bmpSrc must be locked before calling this
 // This function doesn't have "const SmartPointer<SDL_Surface> &" interface because it will slow it down
-INLINE Uint32 GetPixel(SDL_Surface * bmpSrc, int x, int y) {
+INLINE Uint32 GetPixel(const SDL_Surface * bmpSrc, int x, int y) {
 	return GetPixelFromAddr(
-			(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
+			(const Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
 			bmpSrc->format->BytesPerPixel);
 }
 
@@ -708,11 +726,11 @@ INLINE void GetColour3(Uint32 pixel, SDL_PixelFormat* format, Uint8 *r, Uint8 *g
 ////////////////
 // Returns true if the color is considered as (partly) transparent on the surface
 INLINE bool IsTransparent(SDL_Surface * surf, Uint32 color)  {
-	if((surf->flags & SDL_SRCALPHA) && ((color & surf->format->Amask) != surf->format->Amask))
+	if(Surface_HasBlendMode(surf) && ((color & surf->format->Amask) != surf->format->Amask))
 		return true;
 
-	// TODO: should this check be done, if SDL_SRCALPHA was set? SDL/OpenGL possibly will ignore it
-	if((surf->flags & SDL_SRCCOLORKEY) && (EqualRGB(color, COLORKEY(surf), surf->format)))
+	// TODO: should this check be done, if Surface_HasBlendMode? SDL/OpenGL possibly will ignore it
+	if(Surface_HasColorKey(surf) && (EqualRGB(color, Surface_GetColorKey(surf), surf->format)))
 		return true;
 
 	return false;
@@ -790,10 +808,10 @@ INLINE void FillSurface(SDL_Surface * dst, Uint32 colour) {
 // Fills the whole surface with a transparent color
 INLINE void FillSurfaceTransparent(SDL_Surface * dst)  {
 	// check alpha first as it has priority (if set, colorkey is ignored)
-	if (dst->flags & SDL_SRCALPHA)
+	if (Surface_HasBlendMode(dst))
 		FillSurface(dst, SDL_MapRGBA(dst->format, 255, 0, 255, SDL_ALPHA_TRANSPARENT));
-	else if (dst->flags & SDL_SRCCOLORKEY)
-		FillSurface(dst, COLORKEY(dst));
+	else if (Surface_HasColorKey(dst))
+		FillSurface(dst, Surface_GetColorKey(dst));
 	else
 		warnings("There's no possibility to make this surface transparent!\n");
 }
@@ -844,7 +862,7 @@ void	DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col
 //
 
 // sets alpha in a safe way for both non-alpha-surfaces and alpha-surfaces
-// for non-alpha surfaces, it uses SDL_SetAlpha
+// for non-alpha surfaces, it uses SDL_SetSurfaceAlphaMod
 // for real alphablended surfaces, that means this multiplies a/255 to each a-value
 void SetPerSurfaceAlpha(SDL_Surface * dst, Uint8 a);
 

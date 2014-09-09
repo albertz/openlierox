@@ -17,18 +17,18 @@ struct ALLEGRO_BITMAP;
 namespace OmfgGUI
 {
 	
-struct VermesFont : public BaseFont
+struct GusanosFont : public BaseFont
 {
-	VermesFont(Font* font_)
+	GusanosFont(Font* font_)
 	: font(font_)
 	{}
 	
 	Font *font;
 };
 
-struct VermesSpriteSet : public BaseSpriteSet
+struct GusanosSpriteSet : public BaseSpriteSet
 {
-	VermesSpriteSet(SpriteSet* spriteSet_)
+	GusanosSpriteSet(SpriteSet* spriteSet_)
 	: spriteSet(spriteSet_)
 	{}
 	
@@ -116,7 +116,7 @@ class XMLFile
 public:
 	operator bool()
 	{
-		return f != NULL;
+		return (bool)f;
 	}
 	
 	std::ifstream f;

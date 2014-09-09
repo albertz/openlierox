@@ -29,11 +29,17 @@ namespace DeprecatedGUI {
 
 
 // layout event structure
-class gui_event_t { public:
+struct gui_event_t {
 	int		iControlID;
 	int		iEventMsg;
 
 	CWidget	*cWidget;
+};
+
+enum {
+	gev_MouseWheel = -9999, // iControlID
+	gev_MouseWheelUp = 1, // iEventMsg
+	gev_MouseWheelDown = 2 // iEventMsg
 };
 
 // Errors

@@ -48,7 +48,7 @@ class CInput {
 	friend void HandleNextEvent();
 	friend void HandleCInputs_UpdateDownOnceForNonKeyboard();
 	friend void HandleCInputs_UpdateUpForNonKeyboard();
-	friend void HandleCInputs_KeyEvent(KeyboardEvent& ev);
+	friend void HandleCInputs_KeyEvent(const KeyboardEvent& ev);
 
 public:
 	CInput();
@@ -76,7 +76,6 @@ private:
 public:
 	// Methods
 
-	int		Load(const std::string& name, const std::string& section);
 	int		Setup(const std::string& text);
 	static void InitJoysticksTemp(); // call this if CInput::Wait shall recognise joystick events
 	static void UnInitJoysticksTemp();
@@ -112,13 +111,8 @@ public:
 
 
 // Keyboard structure
-class keys_t { public:
-#ifndef _MSC_VER
-	std::string	text;
-#else
-	// TODO: this is absolute no solution!
-	char text[16];
-#endif
+struct keys_t {
+	char	text[16];	// Keep string local to speed up lookup.
 	int		value;
 	
 	static int keySymFromName(const std::string & name);
@@ -126,13 +120,8 @@ class keys_t { public:
 
 
 // Joystick structure
-class joystick_t { public:
-#ifndef _MSC_VER
-	std::string	text;
-#else
-	// TODO: this is absolute no solution!
-	char text[16];
-#endif
+struct joystick_t {
+	char	text[16];	// Keep string local to speed up lookup.
 	int		value;
 	int		extra;
 	int		axis;

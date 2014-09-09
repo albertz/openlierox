@@ -24,7 +24,6 @@
 #include "CProjectile.h"
 #include "Version.h"
 #include "Color.h"
-#include "StaticAssert.h"
 #include "StringUtils.h"
 #include "game/Settings.h"
 
@@ -41,7 +40,7 @@ static const Version GS_MinLxVersion[] = {
 // current most recent version
 #define		GS_VERSION		8
 
-static_assert(GS_VERSION - GS_FIRST_SUPPORTED_VERSION + 1 == sizeof(GS_MinLxVersion)/sizeof(Version), GS_MinLxVersion__sizecheck);
+static_assert(GS_VERSION - GS_FIRST_SUPPORTED_VERSION + 1 == sizeof(GS_MinLxVersion)/sizeof(Version), "GS_MinLxVersion__sizecheck");
 
 // Error codes
 #define		GSE_OK			1

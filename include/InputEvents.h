@@ -24,41 +24,30 @@ extern	bool			bActivated;
 extern	bool			bDeactivated;
 
 
-#define     MAX_KEYQUEUE        32
+#define     MAX_KEYQUEUE        256
 #define     MAX_MOUSEBUTTONS    8 // SDL_GetMouseState returns UInt8 bitmask
 
 // State of modifier keys (ctrl, alt and shift)
 struct ModifiersState  { 
 	ModifiersState() { clear(); }
-	void clear()  { bShift = bCtrl = bAlt = bSuper = bMeta = false; }
+	void clear()  { bShift = bCtrl = bAlt = bGui = false; }
 
 	bool bShift;
 	bool bCtrl;
 	bool bAlt;
-	bool bSuper;
-	bool bMeta;
+	bool bGui;
 };
 
 struct KeyboardEvent {
-	int sym;
+	SDL_Keycode sym;
     UnicodeChar ch;
 	bool down;
 	ModifiersState state;
-};
-
-struct MouseEvent {
-	int x, y;
-	int button;
-	bool down;
+	KeyboardEvent() : sym(0), ch(0), down(false) {}
 };
 
 // Keyboard structure
-// HINT: KeyDown is the state of the keyboard
-// KeyUp is like an event and will only be true once
 struct keyboard_t {
-	Uint8	*keys;
-	UnicodeChar	KeyUp[SDLK_LAST];
-	UnicodeChar	KeyDown[SDLK_LAST];
     int     queueLength;
     KeyboardEvent keyQueue[MAX_KEYQUEUE];
 };
@@ -78,12 +67,9 @@ struct mouse_t {
 	int		Down;
     int     FirstDown;
 
-	bool	WheelUp;
-	bool	WheelDown;
 	bool	WheelScrollUp;
 	bool	WheelScrollDown;
-	
-	std::vector<MouseEvent> mouseQueue;
+		
 };
 
 enum MouseButton  {
@@ -95,6 +81,7 @@ enum MouseButton  {
 };
 
 MouseButton SDLButtonToMouseButton(int sdlbut);
+MouseButton SDLButtonStateToMouseButton(int sdlbut);
 
 typedef Event<SDL_Event*> SDLEvent;
 
@@ -102,7 +89,7 @@ typedef Event<SDL_Event*> SDLEvent;
 // not be needed in most cases.
 // If you want to add a user event, DON'T add the handler here. Use SendSDLUserEvent()
 // and your event will get called automatically. 
-extern SDLEvent sdlEvents[SDL_NUMEVENTS];
+extern std::map<SDL_EventType, SDLEvent> sdlEvents;
 
 extern bool processedEvent;
 
@@ -114,15 +101,13 @@ bool		EventSystemInited();
 bool		IsWaitingForEvent();
 void		WakeupIfNeeded();
 
-// Should be called on SDL_SYSWMEVENT from main thread
-void		EvHndl_SysWmEvent_MainThread(SDL_Event* ev);
 
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();
 SDL_Event	*GetEvent();
 ModifiersState *GetCurrentModstate();
 
-bool		WasKeyboardEventHappening(int sym, bool down = true);
+bool		WasKeyboardEventHappening(SDL_Keycode key, bool down = true);
 
 
 class CInput;

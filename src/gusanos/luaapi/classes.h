@@ -19,7 +19,7 @@ template<> struct LuaClassInfo<id_> { \
 	static const char* name(uint32_t id2_) { \
 		if(id_ == id2_) return name(); \
 		else if(id2_ > id_) { assert(false); return NULL; } \
-		else return LuaClassInfo<id_-1>::name(id2_); \
+		else return LuaClassInfo<ClassId(id_-1)>::name(id2_); \
 	} \
 }
 

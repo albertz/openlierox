@@ -244,7 +244,7 @@ void Menu_Net_NETFrame(int mouse)
                 if(ev->iEventMsg == BTN_CLICKED) {
 
 					addr = "";
-					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result != -1 && addr != "") {
 
                         // Save the list
@@ -276,7 +276,7 @@ void Menu_Net_NETFrame(int mouse)
 
 					// Just join for the moment
 					addr = "";
-					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
                         // Save the list
@@ -290,7 +290,7 @@ void Menu_Net_NETFrame(int mouse)
                 // Right click
                 if( ev->iEventMsg == LV_RIGHTCLK ) {
                     addr = "";
-					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
                         // Display a menu
                         szNetCurServer = addr;
@@ -312,7 +312,7 @@ void Menu_Net_NETFrame(int mouse)
 				if( ev->iEventMsg == LV_ENTER )  {
 					// Join
 					addr = "";
-					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
                         // Save the list
@@ -326,7 +326,7 @@ void Menu_Net_NETFrame(int mouse)
 				// Delete
 				if( ev->iEventMsg == LV_DELETE )  {
 					addr = "";
-					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					int result = (int)cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
 						ServerList::get()->removeServer(addr);
 						// Re-Fill the server list

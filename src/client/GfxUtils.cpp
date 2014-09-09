@@ -76,6 +76,7 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 #endif
 
 	data = new Data();
+	
 	struct Animator : Action {
 		int x, y, rx, ry;
 		LoadingAniType type;

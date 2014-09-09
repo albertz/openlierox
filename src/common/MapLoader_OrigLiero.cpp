@@ -55,10 +55,11 @@ public:
 		fseek(fp,0,SEEK_SET);
 		
 		// Default is a dirt theme for the background & dirtballs
-		if( !m->New(504,350,"dirt") ) {
+		if( !m->Create(504,350,"dirt") ) {
 			return false;
 		}
-		
+		m->TileMap();
+
 		// Image type of map
 		m->Type = MPT_IMAGE;
 		
@@ -152,9 +153,9 @@ public:
 						p==104)
 					type = PX_ROCK;
 				
-				PutPixel2x2(m->bmpDrawImage.get(),x*2,y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpDrawImage->format));
+				PutPixel2x2(m->bmpDrawImage.get(),(int)x*2,(int)y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpDrawImage->format));
 				if(type == PX_EMPTY)
-					PutPixel2x2(m->bmpBackImageHiRes.get(),x*2,y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpBackImageHiRes->format));
+					PutPixel2x2(m->bmpBackImageHiRes.get(),(int)x*2,(int)y*2, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpBackImageHiRes->format));
 				m->SetPixelFlag(x,y,type);
 				//}
 				n++;

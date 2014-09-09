@@ -27,9 +27,6 @@
 #define Font Font_Xlib // Hack to prevent name clash in precompiled header and system libs
 #include <SDL_syswm.h>
 #undef Font
-#ifdef REAL_OPENGL
-#include <SDL_opengl.h>
-#endif
 #include <cstdlib>
 #include <sstream>
 #include <cstring>
@@ -80,32 +77,29 @@
 
 Null null;	// Used in timer class
 
-// Config file
-std::string	ConfigFile;
-
-// Screen
-
-SDL_Surface* videoSurface = NULL;
 
 
-SDL_PixelFormat defaultFallbackFormat =
+// TODO: is this the best format? why? comment that.
+// Maybe SDL_PIXELFORMAT_ARGB8888 is better? My OpenGL renderer lists that as native format.
+SDL_PixelFormat mainPixelFormat =
 	{
-         NULL, //SDL_Palette *palette;
-         32, //Uint8  BitsPerPixel;
-         4, //Uint8  BytesPerPixel;
-         0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-         24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-         0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
-         0, //Uint32 colorkey;
-         255 //Uint8  alpha;
+		SDL_PIXELFORMAT_RGBA8888, // format
+		NULL, //SDL_Palette *palette;
+		32, //Uint8  BitsPerPixel;
+		4, //Uint8  BytesPerPixel;
+		{0, 0}, // padding
+		0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
+		0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
+		24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
+		0, // refcount
+		NULL // next ref
 	};
 
-SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
 
 
 ///////////////////
 // Initialize the standard Auxiliary Library
-int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
+bool InitializeAuxLib()
 {
 	// We have already loaded all options from the config file at this time.
 
@@ -113,8 +107,6 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	//XInitThreads();	// We should call this before any SDL video stuff and window creation
 #endif
 
-
-	ConfigFile=config;
 
 	if(getenv("SDL_VIDEODRIVER"))
 		notes << "SDL_VIDEODRIVER=" << getenv("SDL_VIDEODRIVER") << endl;
@@ -166,11 +158,11 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 
     // Enable the system events
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
+	//SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE); // TODO: SDL2? it's SDL_WINDOWEVENT now
 
 	// Enable unicode and key repeat
-	SDL_EnableUNICODE(1);
-	SDL_EnableKeyRepeat(200,20);
+	//SDL_EnableUNICODE(1); // TODO: SDL2?
+	//SDL_EnableKeyRepeat(200,20); // TODO: SDL2?
 
 	
 	/*
@@ -213,9 +205,10 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	srand((unsigned int)time(NULL));
 
 	if(!bDedicated) {
-		SmartPointer<SDL_Surface> bmpIcon = LoadGameImage("data/icon.png", true);
-		if(bmpIcon.get())
-			SDL_WM_SetIcon(bmpIcon.get(), NULL);
+		//SmartPointer<SDL_Surface> bmpIcon = LoadGameImage("data/icon.png", true);
+		//if(bmpIcon.get())
+		// TODO use SDL_SetWindowIcon
+		//	SDL_SetWindowIcon(bmpIcon.get(), NULL);
 	}
 
 	InitEventQueue();
@@ -236,9 +229,6 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 }
 
 
-#ifdef REAL_OPENGL
-static void OGL_init();
-#endif
 
 ///////////////////
 // Set the video mode
@@ -254,269 +244,7 @@ bool SetVideoMode()
 		return false;
 	}
 
-	bool resetting = false;
-
-	// Check if already running
-	if (VideoPostProcessor::videoSurface())  {
-		resetting = true;
-		notes << "resetting video mode" << endl;
-
-		// seems to be a win-only problem, it works without problems here under MacOSX
-#ifdef WIN32
-		// using hw surfaces?
-		if ((VideoPostProcessor::videoSurface()->flags & SDL_HWSURFACE) != 0) {
-			warnings << "cannot change video mode because current mode uses hardware surfaces" << endl;
-			// TODO: you would have to reset whole game, this is not enough!
-			// The problem is in all allocated surfaces - they are hardware and when you switch
-			// to window, you will most probably get software rendering
-			// Also, hardware surfaces are freed from the video memory when reseting video mode
-			// so you would first have to convert all surfaces to software and then perform this
-			// TODO: in menu_options, restart the game also for fullscreen-change if hw surfaces are currently used
-			return false;
-		}
-#endif
-	} else {
-		notes << "setting video mode" << endl;
-	}
-
-	// uninit first to ensure that the video thread is not running
-	VideoPostProcessor::uninit();
-
-	bool HardwareAcceleration = false;
-	int DoubleBuf = false;
-	int vidflags = 0;
-
-	// it is faster with doublebuffering in hardware accelerated mode
-	// also, it seems that it's possible that there are effects in hardware mode with double buf disabled
-	// Use doublebuf when hardware accelerated
-	if (HardwareAcceleration)
-		DoubleBuf = true;
-
-	// Check that the bpp is valid
-	switch (tLXOptions->iColourDepth) {
-	case 0:
-	case 16:
-	case 24:
-	case 32:
-		break;
-	default: tLXOptions->iColourDepth = 16;
-	}
-	notes << "ColorDepth: " << tLXOptions->iColourDepth << endl;
-
-	// BlueBeret's addition (2007): OpenGL support
-	bool opengl = tLXOptions->bOpenGL;
-
-	// Initialize the video
-	if(tLXOptions->bFullscreen)  {
-		vidflags |= SDL_FULLSCREEN;
-	}
-
-	if (opengl) {
-		vidflags |= SDL_OPENGL;
-#ifndef REAL_OPENGL
-		vidflags |= SDL_OPENGLBLIT; // SDL will behave like normally
-#endif
-		// HINT: it seems that with OGL activated, SDL_SetVideoMode will already set the OGL depth size
-		// though this main pixel format of the screen surface was always 32 bit for me in OGL under MacOSX
-		//#ifndef MACOSX
-		/*
-		 short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
-		 SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
-		 SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
-		 SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
-		 SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
-		 //SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
-		 */
-		//#endif
-		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
-		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
-		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
-		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); // always use double buffering in OGL mode
-	}	
-
-	if(HardwareAcceleration)  {
-		vidflags |= SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL;
-		// Most (perhaps all) systems use software drawing for their stuff (windows etc.)
-		// Because of that we cannot have hardware accelerated support in window - OS screen
-		// is software surface. How would you make the window hardware, if it's on the screen?
-		// Anyway, SDL takes care of this by istelf and disables the flag when needed
-		iSurfaceFormat = SDL_HWSURFACE;
-	}
-	else  {
-		vidflags |= SDL_SWSURFACE;
-		iSurfaceFormat = SDL_SWSURFACE;
-	}
-
-	if(DoubleBuf && !opengl)
-		vidflags |= SDL_DOUBLEBUF;
-
-#ifdef WIN32
-	UnSubclassWindow();  // Unsubclass before doing anything with the window
-#endif
-
-
-#ifdef WIN32
-	// Reset the video subsystem under WIN32, else we get a "Could not reset OpenGL context" error when switching mode
-	if (opengl && tLX)  {  // Don't reset when we're setting up the mode for first time (OpenLieroX not yet initialized)
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		SDL_InitSubSystem(SDL_INIT_VIDEO);
-	}
-#endif
-
-	VideoPostProcessor::init();
-	int scrW = VideoPostProcessor::get()->screenWidth();
-	int scrH = VideoPostProcessor::get()->screenHeight();
-setvideomode:
-	if( SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL) {
-		if (resetting)  {
-			errors << "Failed to reset video mode"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " let's wait a bit and retry" << endl;
-			SDL_Delay(500);
-			resetting = false;
-			goto setvideomode;
-		}
-
-		if(tLXOptions->iColourDepth != 0) {
-			errors << "Failed to use " << tLXOptions->iColourDepth << " bpp"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying automatic bpp detection ..." << endl;
-			tLXOptions->iColourDepth = 0;
-			goto setvideomode;
-		}
-
-		if(vidflags & SDL_OPENGL) {
-			errors << "Failed to use OpenGL"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying without ..." << endl;
-			vidflags &= ~(SDL_OPENGL | SDL_OPENGLBLIT | SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL);
-			goto setvideomode;
-		}
-		
-		if(vidflags & SDL_FULLSCREEN) {
-			errors << "Failed to set full screen video mode "
-					<< scrW << "x" << scrH << "x" << tLXOptions->iColourDepth
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying window mode ..." << endl;
-			vidflags &= ~SDL_FULLSCREEN;
-			goto setvideomode;
-		}
-
-		SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
-		return false;
-	}
-
-	SDL_WM_SetCaption(GetGameVersion().asHumanString().c_str(),NULL);
-	SDL_ShowCursor(SDL_DISABLE);
-
-#ifdef WIN32
-	// Hint: Reset the mouse state - this should avoid the mouse staying pressed
-	GetMouse()->Button = 0;
-	GetMouse()->Down = 0;
-	GetMouse()->FirstDown = 0;
-	GetMouse()->Up = 0;
-
-	if (!tLXOptions->bFullscreen)  {
-		SubclassWindow();
-	}
-#endif
-
-	// Set the change mode flag
-	if (tLX)
-		tLX->bVideoModeChanged = true;
-	
-#ifdef REAL_OPENGL	
-	if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
-		static SDL_PixelFormat OGL_format32 =
-		{
-			NULL, //SDL_Palette *palette;
-			32, //Uint8  BitsPerPixel;
-			4, //Uint8  BytesPerPixel;
-			0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
-			0, 8, 16, 24, //Uint8  Rshift, Gshift, Bshift, Ashift;
-			0x000000FF,
-			0x0000FF00,
-			0x00FF0000,
-			0xFF000000,
-#else
-			24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-			0xFF000000,
-			0x00FF0000,
-			0x0000FF00,
-			0x000000FF,
-#endif
-			0, //Uint32 colorkey;
-			255 //Uint8  alpha;
-		};
-		// some GFX stuff in OLX seems very slow when this is used
-		// (probably the blit from alpha surf to this format is slow)
-	/*	static SDL_PixelFormat OGL_format24 =
-		{
-			NULL, //SDL_Palette *palette;
-			24, //Uint8  BitsPerPixel;
-			3, //Uint8  BytesPerPixel;
-			0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-			#if SDL_BYTEORDER == SDL_LIL_ENDIAN // OpenGL RGBA masks
-			0, 8, 16, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-			0x000000FF,
-			0x0000FF00,
-			0x00FF0000,
-			0x00000000,
-			#else
-			16, 8, 0, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-			0x00FF0000,
-			0x0000FF00,
-			0x000000FF,
-			0x00000000,
-			#endif
-			0, //Uint32 colorkey;
-			255 //Uint8  alpha;
-		}; */
-		//if(tLXOptions->iColourDepth == 32)
-			mainPixelFormat = &OGL_format32;
-		//else
-		//	mainPixelFormat = &OGL_format24;
-	} else
-#endif		
-		mainPixelFormat = SDL_GetVideoSurface()->format;
-	DumpPixelFormat(mainPixelFormat);
-	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
-		notes << "using doublebuffering" << endl;
-
-	// Correct the surface format according to SDL
-#ifdef REAL_OPENGL
-	if(((SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0)) {
-		iSurfaceFormat = SDL_SWSURFACE;
-	} else
-#endif	
-	if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
-		iSurfaceFormat = SDL_HWSURFACE;
-		notes << "using hardware surfaces" << endl;
-	}
-	else {
-		iSurfaceFormat = SDL_SWSURFACE; // HINT: under MacOSX, it doesn't seem to make any difference in performance
-		if (HardwareAcceleration)
-			hints << "Unable to use hardware surfaces, falling back to software." << endl;
-		notes << "using software surfaces" << endl;
-	}
-
-	if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
-		hints << "using OpenGL" << endl;
-		
-#ifdef REAL_OPENGL
-		OGL_init();
-#else
-		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));		
-#endif
-	}
-	else
-		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
-	
-	VideoPostProcessor::get()->resetVideo();
-
-	notes << "video mode was set successfully" << endl;
-	return true;
+	return VideoPostProcessor::get()->initWindow();
 }
 
 #ifdef WIN32
@@ -590,281 +318,266 @@ void ProcessScreenshots()
 
 
 
-#ifdef REAL_OPENGL
-
-static GLuint OGL_createTexture() {
-	GLuint textureid;
-	
-	// create one texture name
-	glGenTextures(1, &textureid);
-
-	// tell opengl to use the generated texture name
-	glBindTexture(GL_TEXTURE_2D, textureid);
-
-	// these affect how this texture is drawn later on...
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-
-	return textureid;
-}
-
-static void OGL_setupScreenForSingleTexture(GLuint textureid, int w, int h) {
-
-	glPushAttrib(GL_ENABLE_BIT | GL_VIEWPORT_BIT | GL_POLYGON_BIT);
-	glDisable(GL_DEPTH_TEST);
-	glDisable (GL_LIGHTING);
-	glDisable (GL_LINE_SMOOTH);
-	glDisable (GL_CULL_FACE);
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glViewport(0, 0, w, h);
-	glMatrixMode (GL_PROJECTION);
-	glPushMatrix ();
-	glLoadIdentity ();
-	glOrtho (0, (GLdouble)w, 0, (GLdouble)h, -1, 1);
-	glMatrixMode (GL_MODELVIEW);
-	glPushMatrix ();
-	glLoadIdentity ();
-
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glBindTexture (GL_TEXTURE_2D, textureid);
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-	int x = 0, y = 0;
-	glPushMatrix ();
-	glTranslated (x, y, 0);
-	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-	
-	int realw = 1; while(realw < 640) realw <<= 1;
-	int realh = 1; while(realh < 480) realh <<= 1;
-	float texW = 640 / (float)realw;
-	float texH = 480 / (float)realh;
-	
-	glBegin(GL_QUADS);
-	{
-		glTexCoord2f (0, 0);
-		glVertex2i (0, h);
-		glTexCoord2f (texW, 0);
-		glVertex2i (w, h);
-		glTexCoord2f (texW, texH);
-		glVertex2i (w, 0);
-		glTexCoord2f (0, texH);
-		glVertex2i (0, 0);
-	}
-	glEnd();
-	
-	glPopMatrix ();
-
-	/* Leave "2D mode" */
-	glMatrixMode (GL_PROJECTION);
-	glPopMatrix ();
-	glMatrixMode (GL_MODELVIEW);
-	glPopMatrix();
-	glPopAttrib();
-
-}
-
-static GLuint OGL_screenBuf = 0;
-
-static void OGL_init() {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set black background
-
-	OGL_screenBuf = OGL_createTexture();
-}
-
-static void OGL_draw(SDL_Surface* src) {
-	// tell opengl to use the generated texture name
-	glBindTexture(GL_TEXTURE_2D, OGL_screenBuf);
-
-	int mode = 0; 
-	if(src->format->BytesPerPixel == 3)
-		mode = GL_RGB;
-	else
-		mode = GL_RGBA;
-	
-	// this reads from the sdl surface and puts it into an opengl texture
-	glTexImage2D(GL_TEXTURE_2D, 0, mode, src->w, src->h, 0, mode, GL_UNSIGNED_BYTE, src->pixels);
-
-	int w = VideoPostProcessor::get()->screenWidth();
-	int h = VideoPostProcessor::get()->screenHeight();
-	OGL_setupScreenForSingleTexture(OGL_screenBuf, w, h);
-}
-#endif
 
 
 
 // ---------------- VideoPostProcessor ---------------------------------------------------------
 
-VideoPostProcessor voidVideoPostProcessor; // this one does nothing
+VideoPostProcessor VideoPostProcessor::instance;
 
-SDL_Surface* VideoPostProcessor::m_videoSurface = NULL;
-SDL_Surface* VideoPostProcessor::m_videoBufferSurface = NULL;
-VideoPostProcessor* VideoPostProcessor::instance = &voidVideoPostProcessor;
 
-///////////////////
-// Flip the screen
-void flipRealVideo() {
-	SDL_Surface* psScreen = SDL_GetVideoSurface();
-	if(psScreen == NULL) return;
+bool VideoPostProcessor::initWindow() {
+	bool resetting = false;
 	
+	// Check if already running
+	if (m_videoSurface.get())  {
+		resetting = true;
+		notes << "resetting video mode" << endl;
+	} else {
+		notes << "setting video mode" << endl;
+	}
+	
+	// uninit first to ensure that the video thread is not running
+	VideoPostProcessor::uninit();
+	
+	int vidflags = 0;
+	
+	// Check that the bpp is valid
+	switch (tLXOptions->iColourDepth) {
+		case 0:
+		case 16:
+		case 24:
+		case 32:
+			break;
+		default: tLXOptions->iColourDepth = 16;
+	}
+	notes << "ColorDepth: " << tLXOptions->iColourDepth << endl;
+	
+	// BlueBeret's addition (2007): OpenGL support
+	bool opengl = tLXOptions->bOpenGL;
+	
+	// Initialize the video
+	if(tLXOptions->bFullscreen)  {
+		vidflags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	}
+	
+	if (opengl) {
+		vidflags |= SDL_WINDOW_OPENGL;
+		//#ifndef MACOSX
+		/*
+		 short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
+		 SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
+		 //SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
+		 */
+		//#endif
+		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
+		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
+		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);		
+		//needed?
+		//SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); // always use double buffering in OGL mode
+	}
+	
+#ifdef WIN32
+	UnSubclassWindow();  // Unsubclass before doing anything with the window
+#endif
+	
+	
+#ifdef WIN32
+	// Reset the video subsystem under WIN32, else we get a "Could not reset OpenGL context" error when switching mode
+	if (opengl && tLX)  {  // Don't reset when we're setting up the mode for first time (OpenLieroX not yet initialized)
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+		SDL_InitSubSystem(SDL_INIT_VIDEO);
+	}
+#endif
+	
+setvideomode:
+	m_window = SDL_CreateWindow(GetGameVersion().asHumanString().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth(), screenHeight(), vidflags);
+	
+	if(m_window.get() == NULL) {
+		if (resetting)  {
+			errors << "Failed to reset video mode"
+			<< " (ErrorMsg: " << SDL_GetError() << "),"
+			<< " let's wait a bit and retry" << endl;
+			SDL_Delay(500);
+			resetting = false;
+			goto setvideomode;
+		}
+		
+		if(tLXOptions->iColourDepth != 0) {
+			errors << "Failed to use " << tLXOptions->iColourDepth << " bpp"
+			<< " (ErrorMsg: " << SDL_GetError() << "),"
+			<< " trying automatic bpp detection ..." << endl;
+			tLXOptions->iColourDepth = 0;
+			goto setvideomode;
+		}
+		
+		if(vidflags & SDL_WINDOW_OPENGL) {
+			errors << "Failed to use OpenGL"
+			<< " (ErrorMsg: " << SDL_GetError() << "),"
+			<< " trying without ..." << endl;
+			vidflags &= ~SDL_WINDOW_OPENGL;
+			goto setvideomode;
+		}
+		
+		if(vidflags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+			errors << "Failed to set full screen video mode "
+			<< screenWidth() << "x" << screenHeight() << "x" << tLXOptions->iColourDepth
+			<< " (ErrorMsg: " << SDL_GetError() << "),"
+			<< " trying window mode ..." << endl;
+			vidflags &= SDL_WINDOW_FULLSCREEN_DESKTOP;
+			goto setvideomode;
+		}
+		
+		SystemError("Failed to set the video mode " + itoa(screenWidth()) + "x" + itoa(screenHeight()) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
+		return false;
+	}
+	
+	SDL_ShowCursor(SDL_DISABLE);
+	
+#ifdef WIN32
+	// Hint: Reset the mouse state - this should avoid the mouse staying pressed
+	GetMouse()->Button = 0;
+	GetMouse()->Down = 0;
+	GetMouse()->FirstDown = 0;
+	GetMouse()->Up = 0;
+	
+	if (!tLXOptions->bFullscreen)  {
+		SubclassWindow();
+	}
+#endif
+	
+	// Set the change mode flag
+	if (tLX)
+		tLX->bVideoModeChanged = true;
+
+	if(!VideoPostProcessor::get()->resetVideo())
+		return false;
+		
+	// Clear screen to blank
+	SDL_SetRenderDrawColor(m_renderer.get(), 0, 0, 0, 255);
+	SDL_RenderClear(m_renderer.get());
+	SDL_RenderPresent(m_renderer.get());
+	
+	notes << "video mode was set successfully" << endl;
+	return true;
+}
+
+static void dumpRenderInfo(const SDL_RendererInfo& info) {
+	notes << "Renderer '" << info.name << "':" << endl;
+	notes << "  software fallback: " << bool(info.flags & SDL_RENDERER_SOFTWARE) << endl;
+	notes << "  hardware accelerated: " << bool(info.flags & SDL_RENDERER_ACCELERATED) << endl;
+	notes << "  vsync: " << bool(info.flags & SDL_RENDERER_PRESENTVSYNC) << endl;
+	notes << "  rendering to texture: " << bool(info.flags & SDL_RENDERER_TARGETTEXTURE) << endl;
+	notes << "  max texture size (WxH): " <<
+		info.max_texture_width << " x " << info.max_texture_height << endl;
+	notes << "  formats (" << info.num_texture_formats << "):" << endl;
+	for(uint32_t i = 0;
+		i < info.num_texture_formats &&
+		i < sizeof(info.texture_formats)/sizeof(info.texture_formats[0]);
+		++i) {
+		notes << "    " << i << ": " << SDL_GetPixelFormatName(info.texture_formats[i]) << endl;
+	}
+}
+
+static void dumpRenderInfo(SDL_Renderer* renderer) {
+	SDL_RendererInfo info;
+	if(SDL_GetRendererInfo(renderer, &info) != 0)
+		warnings << "Error getting renderer info: " << SDL_GetError() << endl;
+	else
+		dumpRenderInfo(info);
+}
+
+bool VideoPostProcessor::resetVideo() {
+	m_renderer = SDL_CreateRenderer(m_window.get(), -1, 0);
+	if(!m_renderer.get()) {
+		errors << "failed to init renderer: " << SDL_GetError() << endl;
+		return false;
+	}
+	
+	dumpRenderInfo(m_renderer.get());
+	
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");  // make the scaled rendering look smoother.
+	SDL_RenderSetLogicalSize(m_renderer.get(), screenWidth(), screenHeight());
+	
+	m_videoTexture = SDL_CreateTexture
+	(
+		m_renderer.get(),
+		getMainPixelFormat()->format,
+		SDL_TEXTUREACCESS_STREAMING,
+		screenWidth(), screenHeight()
+	);
+	if(!m_videoTexture.get()) {
+		errors << "failed to init video texture: " << SDL_GetError() << endl;
+		return false;
+	}
+	
+	// IMPORTANT: Don't reallocate if we already have the buffers.
+	// If we would do, the old surfaces would get deleted. This is bad
+	// because other threads could use it right now.
+	if(!m_videoSurface.get()) {
+		m_videoSurface = gfxCreateSurface(screenWidth(), screenHeight());
+		if(!m_videoSurface.get()) {
+			errors << "failed to init video surface: " << SDL_GetError() << endl;
+			return false;
+		}
+	}
+	DumpSurfaceInfo(m_videoSurface.get(), "main video surface");
+	
+	// No need to reinit this.
+	if(!m_videoBufferSurface.get()) {
+		m_videoBufferSurface = gfxCreateSurface(screenWidth(), screenHeight());
+		if(!m_videoBufferSurface.get()) {
+			errors << "failed to init video backbuffer surface: " << SDL_GetError() << endl;
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+
+void VideoPostProcessor::flipBuffers() {
+	std::swap(get()->m_videoBufferSurface, get()->m_videoSurface);
+}
+
+
+// IMPORTANT: this has to be called from main thread!
+
+void VideoPostProcessor::process() {
+	ProcessScreenshots();
+	
+	void* pixels = get()->m_videoBufferSurface->pixels;
+	SDL_UpdateTexture(get()->m_videoTexture.get(), NULL, pixels, get()->screenWidth() * sizeof (uint32_t));
+}
+
+void VideoPostProcessor::render() {
 	//TestCircleDrawing(psScreen);
 	//TestPolygonDrawing(psScreen);
 	//DrawLoadingAni(psScreen, 320, 260, 50, 50, Color(128,128,128), Color(128,128,128,128), LAT_CIRCLES);
 	//DrawLoadingAni(psScreen, 320, 260, 10, 10, Color(255,0,0), Color(0,255,0), LAT_CAKE);
 	
-#ifdef REAL_OPENGL	
-	if((psScreen->flags & SDL_OPENGL))
-		glFlush();
-	else
-#endif
-		SDL_Flip( psScreen );
-
-	if(psScreen->flags & SDL_OPENGL)
-		SDL_GL_SwapBuffers();
-}
-
-// base class for your video post processor
-// this base manages the video surface and its buffer
-class BasicVideoPostProcessor : public VideoPostProcessor {
-public:
-	SmartPointer<SDL_Surface> m_screenBuf[2];
-
-	virtual void resetVideo() {
-		// IMPORTANT: Don't reallocate if we already have the buffers.
-		// If we would do, the old surfaces would get deleted. This is bad
-		// because other threads could use it right now.
-		if(m_screenBuf[0].get()) return;
-		
-		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
-#ifdef REAL_OPENGL
-		if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
-			// get smallest power-of-2 dimension which is bigger than src
-			int w = 1; while(w < 640) w <<= 1;
-			int h = 1; while(h < 480) h <<= 1;
-			m_screenBuf[0] = gfxCreateSurface(w, h);
-			m_screenBuf[1] = gfxCreateSurface(w, h);
-		} else
-#endif
-		{
-			m_screenBuf[0] = gfxCreateSurface(640, 480);
-			m_screenBuf[1] = gfxCreateSurface(640, 480);
-		}
-
-		m_videoSurface = m_screenBuf[0].get();
-		m_videoBufferSurface = m_screenBuf[1].get();
-	}
-};
-
-// There is one usage of this: If you want to let OLX manage the double buffering.
-// In this case, all the flipping and copying is done in the video thread.
-// Without a post processor, the flipping is done in the main thread.
-// There are some rare situations where the flipping of the screen surface is slow
-// and in this situations, it can be faster to use this dummy post processor.
-class DummyVideoPostProc : public BasicVideoPostProcessor {
-public:
-	DummyVideoPostProc() {
-		notes << "using Dummy video post processor" << endl;
-	}
-
-	virtual void processToScreen() {
-#ifdef REAL_OPENGL
-		if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
-			OGL_draw(m_videoBufferSurface);
-		}
-		else
-#endif			
-			DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
-	}
-
-};
-
-class StretchHalfPostProc : public BasicVideoPostProcessor {
-public:
-	static const int W = 320;
-	static const int H = 240;
-
-	StretchHalfPostProc() {
-		notes << "using StretchHalf video post processor" << endl;
-	}
-
-	virtual void processToScreen() {
-		DrawImageScaleHalf(SDL_GetVideoSurface(), m_videoBufferSurface);
-		//DrawImageResizedAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480, W, H);
-		//DrawImageResampledAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480, W, H);
-	}
-
-	virtual int screenWidth() { return W; }
-	virtual int screenHeight() { return H; }
-
-};
-
-class Scale2XPostProc : public BasicVideoPostProcessor {
-public:
-	static const int W = 640 * 2;
-	static const int H = 480 * 2;
-
-	Scale2XPostProc() {
-		notes << "using Scale2x video post processor" << endl;
-	}
-
-	virtual void processToScreen() {
-		DrawImageScale2x(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
-	}
-
-	virtual int screenWidth() { return W; }
-	virtual int screenHeight() { return H; }
-
-};
-
-
-
-
-// IMPORTANT: this has to be called from main thread!
-void VideoPostProcessor::process() {
-	ProcessScreenshots();
-	VideoPostProcessor::get()->processToScreen();
+	if(!get()->m_renderer.get()) return;
+	
+	SDL_RenderClear(get()->m_renderer.get());
+	SDL_RenderCopy(get()->m_renderer.get(), get()->m_videoTexture.get(), NULL, NULL);
+	SDL_RenderPresent(get()->m_renderer.get());
 }
 
 void VideoPostProcessor::cloneBuffer() {
-	// TODO: don't hardcode screen width/height here
-	DrawImageAdv(m_videoBufferSurface, m_videoSurface, 0, 0, 0, 0, 640, 480);
-}
-
-void VideoPostProcessor::init() {
-	notes << "VideoPostProcessor initialisation ... ";
-
-	std::string vppName = tLXOptions->sVideoPostProcessor;
-	TrimSpaces(vppName); stringlwr(vppName);
-	if(vppName == "stretchhalf")
-		instance = new StretchHalfPostProc();
-	else if(vppName == "scale2x")
-		instance = new Scale2XPostProc();
-	else if(vppName == "dummy")
-		instance = new DummyVideoPostProc();
-	else {
-		if(vppName != "")
-			notes << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
-		// notes << "none used, drawing directly on screen" << endl;
-		//instance = &voidVideoPostProcessor;
-		instance = new DummyVideoPostProc();
-	}
+	DrawImageAdv(get()->m_videoBufferSurface.get(), get()->m_videoSurface.get(), 0, 0, 0, 0, get()->m_videoSurface->w, get()->m_videoSurface->h);
 }
 
 void VideoPostProcessor::uninit() {
-	if(instance != &voidVideoPostProcessor && instance != NULL)
-		delete instance;
-	instance = &voidVideoPostProcessor;
-
-	m_videoSurface = NULL; // should never be used before resetVideo() is called
+	instance.m_videoSurface = NULL; // should never be used before resetVideo() is called
+	instance.m_videoTexture = NULL;
+	instance.m_renderer = NULL;
+	instance.m_window = NULL;
 }
 
 
-
-void VideoPostProcessor::transformCoordinates_ScreenToVideo( int& x, int& y ) {
-	x = (int)((float)x * 640.0f / (float)get()->screenWidth());
-	y = (int)((float)y * 480.0f / (float)get()->screenHeight());
-}
 
 
 // ---------------------------------------------------------------------------------------------
@@ -905,13 +618,6 @@ void ShutdownAuxLib()
 
 
 
-
-///////////////////
-// Return the config filename
-std::string GetConfigFile()
-{
-	return ConfigFile;
-}
 
 
 //////////////////
@@ -1004,6 +710,7 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 
 ///////////////////
 // Take a screenshot
+// This should run on the main thread.
 static void TakeScreenshot(const std::string& scr_path, const std::string& additional_data)
 {
 	if (scr_path.empty()) // Check

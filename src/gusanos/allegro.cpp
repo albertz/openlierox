@@ -105,7 +105,7 @@ SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {
 	bmask = 0xff,
 	amask = 0 /*0xff000000*/;
 	
-	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,amask);
+	return SDL_CreateRGBSurface(0, w, h, 32, rmask,gmask,bmask,amask);
 }
 
 SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename, bool stretch2) {
@@ -199,7 +199,7 @@ bool allegro_init() {
 	
 	if(cfgUseSSE && SDL_HasSSE()) cpu_capabilities |= CPU_SSE;
 	if(cfgUseMMX && SDL_HasMMX()) cpu_capabilities |= CPU_MMX;
-	if(cfgUseMMXExt && SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS;
+	//if(cfgUseMMXExt && SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS; // TODO...?
 	
 	if(cpu_capabilities & CPU_SSE) notes << "SSE, "; else notes << "no SSE, ";
 	if(cpu_capabilities & CPU_MMX) notes << "MMX, "; else notes << "no MMX, ";
@@ -467,8 +467,8 @@ void clear_bitmap(ALLEGRO_BITMAP* bmp) { clear_to_color(bmp, 0); }
 
 
 
-unsigned long bmp_write_line(ALLEGRO_BITMAP *bmp, int line) {
-	return (unsigned long) bmp->line[line];
+uint8_t* bmp_write_line(ALLEGRO_BITMAP *bmp, int line) {
+	return bmp->line[line];
 }
 
 void bmp_unwrite_line(ALLEGRO_BITMAP* bmp) {}
