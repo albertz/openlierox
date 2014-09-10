@@ -9,6 +9,8 @@
 #ifndef __OpenLieroX__SurfaceTexture__
 #define __OpenLieroX__SurfaceTexture__
 
+#include "CodeAttributes.h"
+
 struct SDL_Renderer;
 struct SDL_Texture;
 struct SDL_Surface;
@@ -21,7 +23,7 @@ which is backed up by a surface.
 So, you can update the surface, and then you need to upload the modified
 area back into the texture by updateArea().
 */
-class SurfaceTexture {
+class SurfaceTexture : DontCopyTag {
 	SDL_Surface* m_surface;
 	SDL_Texture* m_texture;
 
