@@ -262,6 +262,7 @@
 		23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */; };
 		23B7BC3714B1570A00B5E8EC /* Game_loadMod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B7BC3614B1570A00B5E8EC /* Game_loadMod.cpp */; };
 		23B7BC3A14B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B7BC3914B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp */; };
+		23B9FE8519C0A86D0058349A /* SurfaceTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B9FE8319C0A86D0058349A /* SurfaceTexture.cpp */; };
 		23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23BA8EE41129A79700963F72 /* Bitstream.cpp */; };
 		23C17092108B7E420083A2BF /* ExtractInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17091108B7E420083A2BF /* ExtractInfo.cpp */; };
 		23C17124108B87F40083A2BF /* on_demand_symbol_supplier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17122108B87F40083A2BF /* on_demand_symbol_supplier.cpp */; };
@@ -1108,6 +1109,8 @@
 		23B7BC3614B1570A00B5E8EC /* Game_loadMod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game_loadMod.cpp; sourceTree = "<group>"; };
 		23B7BC3814B15CC400B5E8EC /* Result.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Result.h; sourceTree = "<group>"; };
 		23B7BC3914B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game_loadWeaponRestrictions.cpp; sourceTree = "<group>"; };
+		23B9FE8319C0A86D0058349A /* SurfaceTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceTexture.cpp; sourceTree = "<group>"; };
+		23B9FE8419C0A86D0058349A /* SurfaceTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SurfaceTexture.h; sourceTree = "<group>"; };
 		23BA8C1110F3918400053EF0 /* netstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netstream.h; sourceTree = "<group>"; };
 		23BA8EE31129A79700963F72 /* Bitstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bitstream.h; sourceTree = "<group>"; };
 		23BA8EE41129A79700963F72 /* Bitstream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bitstream.cpp; sourceTree = "<group>"; };
@@ -2816,6 +2819,8 @@
 				236C181A14ABD1B700251191 /* PixelFunctors.cpp */,
 				232F590C14BA4BA4003D2E95 /* ClientConnectionRequestInfo.h */,
 				232F590D14BA4BBC003D2E95 /* ClientConnectionRequestInfo.cpp */,
+				23B9FE8319C0A86D0058349A /* SurfaceTexture.cpp */,
+				23B9FE8419C0A86D0058349A /* SurfaceTexture.h */,
 			);
 			name = client;
 			path = ../../src/client;
@@ -3449,6 +3454,7 @@
 				EAD99F7C0C063ECA003BE563 /* CInput.cpp in Sources */,
 				EAD99F7F0C063ECA003BE563 /* CMap.cpp in Sources */,
 				EAD99F830C063ECA003BE563 /* CNinjaRope.cpp in Sources */,
+				23B9FE8519C0A86D0058349A /* SurfaceTexture.cpp in Sources */,
 				EAD99F840C063ECA003BE563 /* Command.cpp in Sources */,
 				EAD99F850C063ECA003BE563 /* ConfigHandler.cpp in Sources */,
 				234F90C7199D55330060B8DF /* StringConv.cpp in Sources */,
