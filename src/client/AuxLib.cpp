@@ -466,17 +466,10 @@ setvideomode:
 	
 	notes << "video mode was set successfully" << endl;
 	
-	// SDL seems to apply fullscreen only once we handled
-	// out-standing events.
-	// The wait-for-event seems to be important.
-	handleSDLEvents(true);
-
-	// SDL seems to apply the rescaling only once we handled
-	// more out-standing events.
-	// Very strange.
+	// SDL 2.0.3 and earlier seems to apply fullscreen + rescaling only
+	// once we handled a few out-standing events.
+	// This is fixed in SDL 2.0.4, so we wont do any workarounds here.
 	// https://forums.libsdl.org/viewtopic.php?t=10688
-	// The wait-for-event seems to be important.
-	handleSDLEvents(true);
 	
 	return true;
 }
