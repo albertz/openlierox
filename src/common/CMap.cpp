@@ -477,6 +477,132 @@ bool CMap::CreateSurface()
 	return true;
 }
 
+/*
+
+// keep for reference, until we recoded it:
+
+///////////////////
+// Apply a shadow to an area
+void CMap::ApplyShadow(int sx, int sy, int w, int h)
+{
+	if(bDedicated) return;
+	// Draw shadows?
+	if(!tLXOptions->bShadows) return;
+	if(gusIsLoaded()) return;
+	if(!bmpShadowMap.get()) return;
+	
+	int x, y, n;
+	uint ox,oy;
+	Uint32 offset;
+
+	Uint8 *pixel,*src;
+
+	int screenbpp = getMainPixelFormat()->BytesPerPixel;
+
+	LOCK_OR_QUIT(bmpShadowMap);
+
+	lockFlags();
+
+	int clip_y = MAX(sy, (int)0);
+	int clip_x = MAX(sx, (int)0);
+	int clip_h = MIN(sy + h, Height);
+	int clip_w = MIN(sx + w, Width);
+
+	if( bmpBackImageHiRes.get() ) // Hi-res image
+	{
+		LOCK_OR_QUIT(bmpDrawImage);
+		int DrawImagePitch = bmpDrawImage.get()->pitch;
+		int ShadowMapPitch = bmpShadowMap.get()->pitch;
+		for(y = clip_y; y < clip_h; y++) 
+		{
+			uchar* px = &material->line[y][clip_x];
+			for(x = clip_x; x < clip_w; x++) 
+			{
+				uchar flag = m_materialList[*(uchar *)px].toLxFlags();
+				// Edge hack
+				//if(x==0 || y==0 || x==Width-1 || y==Height-1)
+					//flag = PX_EMPTY;
+				if(!(flag & PX_EMPTY)) 
+				{
+					ox = x+1; oy = y+1;
+					// Draw the shadow
+					for(n = 0; n < SHADOW_DROP; n++) 
+					{
+						// Clipping
+						if(ox >= Width) break;
+						if(oy >= Height) break;
+
+						if(!( unsafeGetPixelFlag(ox, oy) & PX_EMPTY))
+							break;
+
+						pixel = (Uint8*)bmpDrawImage.get()->pixels + oy*2*DrawImagePitch + ox*2*screenbpp;
+						src = (Uint8*)bmpShadowMap.get()->pixels + oy*ShadowMapPitch + ox*screenbpp;
+						memcpy(pixel, src, screenbpp);
+						memcpy(pixel+screenbpp, src, screenbpp);
+						memcpy(pixel+DrawImagePitch, src, screenbpp);
+						memcpy(pixel+DrawImagePitch+screenbpp, src, screenbpp);
+
+						ox++; oy++;
+					}
+				}
+
+				px++;
+			}
+		}
+		UnlockSurface(bmpDrawImage);
+	}
+	else // Low-res image
+	{
+		LOCK_OR_QUIT(bmpImage);
+		for(y = clip_y; y < clip_h; y++) {
+
+			uchar* px = &material->line[y][clip_x];
+
+			for(x = clip_x; x < clip_w; x++) {
+
+				uchar flag = m_materialList[*(uchar *)px].toLxFlags();
+
+				// Edge hack
+				//if(x==0 || y==0 || x==Width-1 || y==Height-1)
+					//flag = PX_EMPTY;
+
+				if(!(flag & PX_EMPTY)) {
+					ox = x+1; oy = y+1;
+
+					// Draw the shadow
+					for(n = 0; n < SHADOW_DROP; n++) {
+
+						// Clipping
+						if(ox >= Width) break;
+						if(oy >= Height) break;
+
+						if(!( unsafeGetPixelFlag(ox, oy) & PX_EMPTY))
+							break;
+
+                        offset = oy*bmpImage.get()->pitch + ox*screenbpp;
+                        pixel = (Uint8*)bmpImage.get()->pixels + offset;
+                        src = (Uint8*)bmpShadowMap.get()->pixels + offset;
+						memcpy(pixel, src, screenbpp);
+
+						ox++; oy++;
+					}
+				}
+
+				px++;
+			}
+		}
+		UnlockSurface(bmpImage);
+	}
+
+	unlockFlags();
+
+	UnlockSurface(bmpShadowMap);
+
+	bMiniMapDirty = true;
+}
+
+*/
+
 ////////////////////
 // Updates an area according to pixel flags, recalculates minimap, draw image, pixel flags and shadow
 void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
