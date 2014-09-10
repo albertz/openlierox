@@ -73,6 +73,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "Geometry.h"
+#include "MainLoop.h"
 
 
 Null null;	// Used in timer class
@@ -327,6 +328,8 @@ VideoPostProcessor VideoPostProcessor::instance;
 
 
 bool VideoPostProcessor::initWindow() {
+	assert(isMainThread());
+
 	bool resetting = false;
 	
 	// Check if already running
@@ -462,6 +465,11 @@ setvideomode:
 	SDL_RenderPresent(m_renderer.get());
 	
 	notes << "video mode was set successfully" << endl;
+	
+	// SDL seems to apply fullscreen only once we handled
+	// out-standing events.
+	handleSDLEvents(false);
+	
 	return true;
 }
 

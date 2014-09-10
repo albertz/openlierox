@@ -305,7 +305,9 @@ static bool handleSDLEvent(SDL_Event& ev) {
 		Clipboard_handleSysWmEvent(ev);
 		return true;
 	}
-	mainQueue->push(ev);
+	// mainQueue could be unset at very early or late calls here
+	if(mainQueue)
+		mainQueue->push(ev);
 	return true;
 }
 
