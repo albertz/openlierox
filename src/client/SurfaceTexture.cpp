@@ -57,13 +57,20 @@ void SurfaceTexture::_init() {
 		if(vertIdx < numTexturesVert - 1) textureHeight = maxTextureHeight;
 		else textureHeight = w % maxTextureHeight;
 		
-		m_textures[i] = SDL_CreateTexture
+		SDL_Texture* texture = SDL_CreateTexture
 		(
 			m_renderer.get(),
 			m_surface->format->format,
 			SDL_TEXTUREACCESS_STREAMING,
 			textureWidth, textureHeight
 		);
+		if(!texture) {
+			errors << "SurfaceTexture: could not create texture: " << SDL_GetError() << endl;
+			return;
+		}
+		
+		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+		m_textures[i] = texture;
 	}
 }
 
@@ -71,8 +78,48 @@ SurfaceTexture::~SurfaceTexture() {
 	// all are automatically freed via SmartPointer
 }
 
-void SurfaceTexture::updateArea(const SDL_Rect* rect) {
+void SurfaceTexture::updateArea(const SDL_Rect* _rect) {
+	SDL_Rect rect;
+	if(_rect) rect = *_rect;
+	else {
+		// full area
+		rect.x = rect.y = 0;
+		rect.w = w;
+		rect.h = h;
+	}
 	
+	int vertIdx = rect.y / maxTextureHeight;
+	SDL_Rect sub;
+	sub.y = rect.y;
+	sub.h = (vertIdx + 1) * maxTextureHeight - rect.y;
+	while(vertIdx < numTexturesVert) {
+		if(sub.y + sub.h > rect.y + rect.h) sub.h = rect.y + rect.h - sub.y;
+		if(sub.h <= 0) break;
+		
+		int horizIdx = rect.x / maxTextureWidth;
+		sub.x = rect.x;
+		sub.w = (horizIdx + 1) * maxTextureWidth - rect.x;
+		while(horizIdx < numTexturesHoriz) {
+			if(sub.x + sub.w > rect.x + rect.w) sub.w = rect.x + rect.w - sub.x;
+			if(sub.w <= 0) break;
+			
+			int idx = vertIdx * numTexturesHoriz + horizIdx;
+			SDL_Rect srcRect;
+			srcRect.x = sub.x - horizIdx * maxTextureWidth;
+			srcRect.y = sub.y - vertIdx * maxTextureHeight;
+			srcRect.w = sub.w;
+			srcRect.h = sub.h;
+			SDL_RenderCopy(m_renderer.get(), m_textures[idx].get(), &srcRect, &sub);
+			
+			horizIdx++;
+			sub.x = horizIdx * maxTextureWidth;
+			sub.w = maxTextureWidth;
+		}
+		
+		vertIdx++;
+		sub.y = vertIdx * maxTextureHeight;
+		sub.h = maxTextureHeight;
+	}
 }
 
 void SurfaceTexture::render(const SDL_Rect * srcrect, const SDL_Rect * dstrect) {
