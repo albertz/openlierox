@@ -946,7 +946,7 @@ struct ML_Teeworlds : MapLoad {
 				uint8_t curAlpha = Color(map->bmpForeground->format, GetPixel(map->bmpForeground.get(), x*2 + dx, y*2 + dy)).a;
 				if(curAlpha > alpha)
 					alpha = curAlpha;
-				if(alpha == 255)
+				if(alpha >= 200)
 					// this seems too much. return sth less
 					return 200;
 			}
@@ -965,7 +965,9 @@ struct ML_Teeworlds : MapLoad {
 				bool haveAlpha = false;
 				for(short dy = 0; dy < 2; ++dy)
 				for(short dx = 0; dx < 2; ++dx) {
-					if(Color(map->bmpForeground->format, GetPixel(map->bmpForeground.get(), x*2 + dx, y*2 + dy)).a <= alphaThreshold)
+					uint8_t a1 = Color(map->bmpForeground->format, GetPixel(map->bmpForeground.get(), x*2 + dx, y*2 + dy)).a;
+					uint8_t a2 = Color(map->bmpDrawImage->format, GetPixel(map->bmpDrawImage.get(), x*2 + dx, y*2 + dy)).a;
+					if(a1 <= alphaThreshold && a2 <= alphaThreshold)
 						haveAlpha = true;
 				}
 				if(haveAlpha)
