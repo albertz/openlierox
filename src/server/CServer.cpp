@@ -345,6 +345,7 @@ int GameServer::PrepareGame(std::string* errMsg)
 
 	if(game.state <= Game::S_Lobby) {
 		errors << "server prepare game: current game state " << game.state << " is invalid" << endl;
+		if(errMsg) *errMsg = "Invalid game state";
 		return false;
 	}	
 	
