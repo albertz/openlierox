@@ -179,7 +179,6 @@
 		238F2E2D0F7418FF0016D617 /* FlagInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */; };
 		238F2E6A0F741B300016D617 /* CaptureTheFlag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F2E690F741B300016D617 /* CaptureTheFlag.cpp */; };
 		238F337C0F756F730016D617 /* CGameSkin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F337B0F756F730016D617 /* CGameSkin.cpp */; };
-		2390D9E7116B567D00E0CD3C /* raytracing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2390D9E6116B567D00E0CD3C /* raytracing.cpp */; };
 		2390D9EB116B5B7400E0CD3C /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2390D9EA116B5B7400E0CD3C /* client.cpp */; };
 		2395E4610ECB7F9600E8D04E /* Menu_Net_Chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4600ECB7F9600E8D04E /* Menu_Net_Chat.cpp */; };
 		2395E4650ECB7FA900E8D04E /* IRC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4630ECB7FA900E8D04E /* IRC.cpp */; };
@@ -1009,8 +1008,6 @@
 		238F2E690F741B300016D617 /* CaptureTheFlag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CaptureTheFlag.cpp; sourceTree = "<group>"; };
 		238F337A0F756F650016D617 /* CGameSkin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGameSkin.h; sourceTree = "<group>"; };
 		238F337B0F756F730016D617 /* CGameSkin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = CGameSkin.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		2390D9E5116B567D00E0CD3C /* raytracing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = raytracing.h; sourceTree = "<group>"; };
-		2390D9E6116B567D00E0CD3C /* raytracing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = raytracing.cpp; sourceTree = "<group>"; };
 		2390D9E9116B5B7400E0CD3C /* client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = client.h; sourceTree = "<group>"; };
 		2390D9EA116B5B7400E0CD3C /* client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = client.cpp; sourceTree = "<group>"; };
 		2393240A0DFB0D3500049723 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
@@ -2010,15 +2007,6 @@
 			name = optional;
 			sourceTree = "<group>";
 		};
-		2390D9E4116B564F00E0CD3C /* gfx */ = {
-			isa = PBXGroup;
-			children = (
-				2390D9E5116B567D00E0CD3C /* raytracing.h */,
-				2390D9E6116B567D00E0CD3C /* raytracing.cpp */,
-			);
-			path = gfx;
-			sourceTree = "<group>";
-		};
 		2390D9E8116B5B4900E0CD3C /* cfg */ = {
 			isa = PBXGroup;
 			children = (
@@ -2779,7 +2767,6 @@
 			children = (
 				234F90CE199D55780060B8DF /* StdinCLISupport.cpp */,
 				234F90CF199D55780060B8DF /* StdinCLISupport.h */,
-				2390D9E4116B564F00E0CD3C /* gfx */,
 				238F337B0F756F730016D617 /* CGameSkin.cpp */,
 				23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */,
 				2395E4630ECB7FA900E8D04E /* IRC.cpp */,
@@ -3806,7 +3793,6 @@
 				231B8E5F1135804300B572C0 /* Settings.cpp in Sources */,
 				231B8E67113581C000B572C0 /* SettingsPreset.cpp in Sources */,
 				231B8F341135BC9100B572C0 /* CustomVar.cpp in Sources */,
-				2390D9E7116B567D00E0CD3C /* raytracing.cpp in Sources */,
 				2390D9EB116B5B7400E0CD3C /* client.cpp in Sources */,
 				23A4B3EC1178CB2500D4FF96 /* VecTimeRecorder.cpp in Sources */,
 				2348933911806DA000FA821B /* ServerList.cpp in Sources */,
