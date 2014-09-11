@@ -772,19 +772,6 @@ static bool Menu_LocalStartGame_CustomGame() {
 	//
 	// Players
 	//
-	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
-	
-	if (lv_playing->getItemCount() == 0) {
-		Menu_MessageBox("Too few players", "You have to select at least one player.");
-		return false;
-	}
-	
-	if(lv_playing->getItemCount() > MAX_PLAYERS) {
-		Menu_MessageBox("Too many players",
-						"You have selected " + itoa(lv_playing->getItemCount()) + " players "
-						"but only " + itoa(MAX_PLAYERS) + " players are possible.");
-		return false;
-	}
 		
 	if(! cClient->Initialize() )
 	{
@@ -815,7 +802,7 @@ static bool Menu_LocalStartGame_CustomGame() {
 	if(cClient->connectInfo->worms.size() == 0) {
 		errors << "Menu_LocalStartGame_CustomGame: strange, tMenu->sLocalPlayers is empty but playing list is not" << endl;
 		// try to refill
-		lv_playing->Clear();
+		((CListview *)cLocalMenu.getWidget(ml_Playing))->Clear();
 		Menu_LocalAddProfiles();
 		return false;
 	}
@@ -855,10 +842,28 @@ static bool Menu_LocalStartGame_CustomGame() {
 // Start a local game
 void Menu_LocalStartGame()
 {
+	bool doSPG = tLXOptions->sLocalPlayGame != "";
+
+	if(!doSPG) {
+		CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
+		
+		if (lv_playing->getItemCount() == 0) {
+			Menu_MessageBox("Too few players", "You have to select at least one player.");
+			return;
+		}
+		
+		if(lv_playing->getItemCount() > MAX_PLAYERS) {
+			Menu_MessageBox("Too many players",
+							"You have selected " + itoa(lv_playing->getItemCount()) + " players "
+							"but only " + itoa(MAX_PLAYERS) + " players are possible.");
+			return;
+		}
+	}
+	
 	game.startServer(/* localGame */ true);
 
 	bool ok = false;
-	if(tLXOptions->sLocalPlayGame == "")
+	if(!doSPG)
 		ok = Menu_LocalStartGame_CustomGame();
 	else
 		ok = singlePlayerGame.startGame();
@@ -867,8 +872,10 @@ void Menu_LocalStartGame()
 		// Tell the client to connect to the server
 		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 		
-		cLocalMenu.Shutdown();	
+		cLocalMenu.Shutdown();
 	}
+	else
+		game.state = Game::S_Inactive;
 }
 
 ///////////////////
