@@ -20,8 +20,6 @@
 #include "FeatureList.h"
 
 enum ClientSettingIndex {
-	CS_Raytracing,
-	
 	__CS_BOTTOM
 };
 
