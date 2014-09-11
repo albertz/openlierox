@@ -59,7 +59,6 @@
 #include "gusanos/luaapi/context.h"
 #include "game/SinglePlayer.h"
 #include "gusanos/network.h"
-#include "cfg/client.h"
 #include "CodeAttributes.h"
 #include "CGameScript.h"
 #include "CWormHuman.h"

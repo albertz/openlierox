@@ -32,7 +32,6 @@
 #include "CInput.h"
 #include "game/Settings.h"
 #include "game/GameMode.h"
-#include "cfg/client.h"
 
 
 GameOptions	*tLXOptions = NULL;
@@ -264,12 +263,6 @@ bool GameOptions::Init() {
 		( &gameSettings.wrappers[featureArrayIndex(f->get())], f->get()->name, f->get()->defaultValue,
 			f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->unsignedValue, f->get()->minValue, f->get()->maxValue );
 	}
-
-	for_each_iterator( Feature*, f, ArrayRef(ClientSettingsArray,ClientSettingsArrayLen) ) {
-		CScriptableVars::RegisterVars("GameOptions")
-		( clientSettings[f->get()], f->get()->name, f->get()->defaultValue, 
-		 f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->unsignedValue, f->get()->minValue, f->get()->maxValue );
-	}	
 	
 	
 	// We still use the old ReadKeyword&co functions, they need this.
