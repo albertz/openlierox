@@ -432,6 +432,13 @@ void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source
 	// CopySurface(dest->surf.get(), source->surf.get(), source_x, source_y, dest_x, dest_y, width, height);
 }
 
+void blit(SDL_Surface* source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+	sub_to_abs_coords(dest, dest_x, dest_y);
+	SDL_Rect srcrect = { (Sint16)source_x, (Sint16)source_y, (Uint16)width, (Uint16)height };
+	SDL_Rect dstrect = { (Sint16)dest_x, (Sint16)dest_y, (Uint16)width, (Uint16)height };
+	DrawImageAdv(dest->surf.get(), source, dstrect, srcrect);
+}
+
 void blit_stretch2(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int swidth, int sheight) {
 	sub_to_abs_coords(source, source_x, source_y);
 	sub_to_abs_coords(dest, dest_x, dest_y);

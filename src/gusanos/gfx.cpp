@@ -14,6 +14,7 @@
 using namespace boost::assign;
 
 #include "gusanos/allegro.h"
+#include "GfxPrimitives.h"
 
 #include <string>
 #include <algorithm>
@@ -133,7 +134,7 @@ ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha , bool s
 	
 	LocalSetColorConversion cc(flags);
 	
-	if ( gusExists( filename.c_str() ) )
+	if ( gusExists( filename ) )
 	{
 		returnValue = load_bitmap(filename, stretch2);
 	}
@@ -171,6 +172,24 @@ ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha , bool s
 	}
 #endif
 	return returnValue;
+}
+
+SmartPointer<SDL_Surface> Gfx::loadBitmapSDL(const std::string& _filename, bool keepAlpha, bool stretch2) {
+	std::string filename;
+	if(IsFileAvailable(_filename)) filename = _filename;
+	else if(IsFileAvailable(_filename + ".png")) filename = _filename + ".png";
+	else if(IsFileAvailable(_filename + ".bmp")) filename = _filename + ".bmp";
+	else return NULL;
+	
+	SmartPointer<SDL_Surface> img = load_bitmap__allegroformat(filename, stretch2);
+	if(!img.get()) return NULL;
+	
+	if(!keepAlpha)
+		// TODO: That is not exactly the same as above.
+		// It probably does nothing if Amask = 0.
+		ResetAlpha(img.get());
+
+	return img;	
 }
 
 bool Gfx::saveBitmap( const string &filename,ALLEGRO_BITMAP* image)

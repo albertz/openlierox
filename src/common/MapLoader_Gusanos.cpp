@@ -79,10 +79,10 @@ public:
 			return false;
 		}		
 		
-		if(!m->material || !m->image)
+		if(!m->material || !m->bmpDrawImage.get())
 			return false;
 		
-		SetColorKey(m->image->surf.get());
+		SetColorKey(m->bmpDrawImage.get());
 		
 		curMap = NULL;
 		return true;

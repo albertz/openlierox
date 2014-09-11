@@ -83,8 +83,6 @@ bool CMap::NewFrom(CMap* map)
 	
 	m_gusLoaded = map->m_gusLoaded;
 	
-	image = create_copy_bitmap(map->image);
-	background = create_copy_bitmap(map->background);
 	paralax = create_copy_bitmap(map->paralax);
 	lightmap = create_copy_bitmap(map->lightmap);
 	watermap = create_copy_bitmap(map->watermap);
@@ -178,6 +176,10 @@ size_t CMap::GetMemorySize()
 	if( bmpBackImageHiRes.get() )
 		res += GetSurfaceMemorySize(bmpBackImageHiRes.get());
 	return res;
+}
+
+bool CMap::isLoaded() {
+	return material && bmpDrawImage.get();	
 }
 
 ///////////////////
@@ -1068,7 +1070,9 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 					{
 						nNumCarvedDirt++;
 						*PixelFlag = Material::indexFromLxFlag(PX_EMPTY);
-						copypixel_solid2x2(image, background, mapx2, mapy2);
+						CopyPixel2x2_SameFormat(
+							bmpDrawImage.get(), bmpBackImageHiRes.get(),
+							mapx2, mapy2);
 						putpixel2x2(lightmap, mapx2, mapy2, 0);
 					}
 					else if(CurrentPixel != tLX->clBlack) // Put pixels that are not black/pink (eg, brown)

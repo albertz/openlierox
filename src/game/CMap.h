@@ -134,9 +134,9 @@ private:
 
 	bool		Created;
 	
+public:
 	SmartPointer<SDL_Surface> bmpDrawImage;
 	SmartPointer<SDL_Surface> bmpBackImageHiRes;
-public:
 	SmartPointer<SDL_Surface> bmpForeground;
 private:
 	SmartPointer<SDL_Surface> bmpMiniMap;
@@ -201,7 +201,7 @@ public:
 	bool		SaveImageFormat(FILE *fp);
 
 	void		Clear();
-	bool		isLoaded()	{ return material && image; }
+	bool		isLoaded();
 	
 	std::string getName()			{ return Name; }
 	std::string getFilename()		{ return FileName; }
@@ -562,8 +562,8 @@ private:
 public:
 
 #ifndef DEDICATED_ONLY
-	ALLEGRO_BITMAP* image;
-	ALLEGRO_BITMAP* background;
+	//ALLEGRO_BITMAP* image; -> bmpDrawImage
+	//ALLEGRO_BITMAP* background; -> bmpBackImageHiRes
 	ALLEGRO_BITMAP* paralax;
 	ALLEGRO_BITMAP* lightmap; // This has to be 8 bit.
 	ALLEGRO_BITMAP* watermap; // How water looks in each pixel of the map

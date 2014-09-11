@@ -2427,8 +2427,8 @@ void Cmd_exportLevel::exec(CmdLineIntf *caller, const std::vector<std::string>& 
 	}
 
 	SaveSurface(m->material->surf, filename + "/material.png", FMT_PNG, "");
-	SaveSurface(m->image->surf, filename + "/level.png", FMT_PNG, "");
-	SaveSurface(m->background->surf, filename + "/background.png", FMT_PNG, "");
+	SaveSurface(m->bmpDrawImage, filename + "/level.png", FMT_PNG, "");
+	SaveSurface(m->bmpBackImageHiRes, filename + "/background.png", FMT_PNG, "");
 	if(m->paralax)
 		SaveSurface(m->paralax->surf, filename + "/paralax.png", FMT_PNG, "");
 	if(m->bmpForeground.get())

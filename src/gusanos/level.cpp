@@ -84,9 +84,6 @@ void CMap::gusInit()
 	m_config = 0;
 
 #ifndef DEDICATED_ONLY
-
-	image = NULL;
-	background = NULL;
 	paralax = NULL;
 	lightmap = NULL;
 	watermap = NULL;
@@ -166,11 +163,6 @@ void CMap::gusShutdown()
 	}
 	
 #ifndef DEDICATED_ONLY
-
-	destroy_bitmap(image);
-	image = NULL;
-	destroy_bitmap(background);
-	background = NULL;
 	destroy_bitmap(paralax);
 	paralax = NULL;
 	destroy_bitmap(lightmap);
@@ -222,17 +214,17 @@ void CMap::gusThink()
 #ifndef DEDICATED_ONLY
 	foreach_delete( wp, m_water ) {
 		if ( getMaterialIndex( wp->x, wp->y ) != wp->mat ) {
-			copypixel_solid2x2(image, background, wp->x*2, wp->y*2);
+			CopyPixel2x2_SameFormat(bmpDrawImage.get(), bmpBackImageHiRes.get(), wp->x*2, wp->y*2);
 			m_water.erase(wp);
 		} else
 			if ( rnd() > WaterSkipFactor ) {
 				unsigned char mat = getMaterialIndex( wp->x, wp->y+1 );
 				if ( m_materialList[mat].particle_pass && !m_materialList[mat].flows) {
 					checkWBorders( wp->x, wp->y  );
-					copypixel_solid2x2(image, background, wp->x*2, wp->y*2);
+					CopyPixel2x2_SameFormat(bmpDrawImage.get(), bmpBackImageHiRes.get(), wp->x*2, wp->y*2);
 					putMaterial( 1, wp->x, wp->y );
 					++wp->y;
-					copypixel_solid2x2(image, watermap, wp->x*2, wp->y*2);
+					CopyPixel2x2_SameFormat(bmpDrawImage.get(), watermap->surf.get(), wp->x*2, wp->y*2);
 					putMaterial( wp->mat, wp->x, wp->y );
 					wp->count = 0; // Reset stagnation counter because it moved
 				} else {
@@ -245,10 +237,10 @@ void CMap::gusThink()
 					mat = getMaterialIndex( wp->x+dir, wp->y );
 					if ( m_materialList[mat].particle_pass && !m_materialList[mat].flows ) {
 						checkWBorders( wp->x, wp->y );
-						copypixel_solid2x2(image, background, wp->x*2, wp->y*2);
+						CopyPixel2x2_SameFormat(bmpDrawImage.get(), bmpBackImageHiRes.get(), wp->x*2, wp->y*2);
 						putMaterial( 1, wp->x, wp->y );
 						wp->x += dir;
-						copypixel_solid2x2(image, watermap, wp->x*2, wp->y*2);
+						CopyPixel2x2_SameFormat(bmpDrawImage.get(), watermap->surf.get(), wp->x*2, wp->y*2);
 						putMaterial( wp->mat, wp->x, wp->y );
 						wp->count = 0;
 						// Reset stagnation counter because it moved
@@ -259,7 +251,7 @@ void CMap::gusThink()
 							mat = getMaterialIndex( wp->x-dir, wp->y );
 							if ( !m_materialList[mat].particle_pass || m_materialList[mat].flows ) {
 								putMaterial( wp->mat+1, wp->x, wp->y );
-								putpixel_solid(image, wp->x, wp->y, getpixel(watermap, wp->x, wp->y) );
+								CopyPixel2x2_SameFormat(bmpDrawImage.get(), watermap->surf.get(), wp->x*2, wp->y*2);
 								m_water.erase(wp);
 							}
 						}
@@ -273,21 +265,21 @@ void CMap::gusThink()
 #ifndef DEDICATED_ONLY
 void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 {
-	if (image) {
-		if (!paralax) {
-			blit(image,where,x*2,y*2,0,0,where->w,where->h);
-		} else {
-			int px = int(x * (paralax->w - where->w) / float( image->w - where->w ));
-			int py = int(y * (paralax->h - where->h) / float( image->h - where->h ));
-			blit(paralax,where,px*2,py*2,0,0,where->w,where->h);
-			masked_blit(image,where,x*2,y*2,0,0,where->w,where->h);
-		}
+	if(!bmpDrawImage.get()) return;
 
-		if ( gusGame.options.showMapDebug ) {
-			foreach( s, m_config->spawnPoints ) {
-				int c = (s->team == 0 ? makecol( 255,0,0 ) : makecol( 0, 255, 0 ));
-				circle( where, (int)(s->pos.x - x) * 2, (int)(s->pos.y - y) * 2, 8, c );
-			}
+	if (!paralax) {
+		blit(bmpDrawImage.get(),where,x*2,y*2,0,0,where->w,where->h);
+	} else {
+		int px = int(x * (paralax->w - where->w) / float( bmpDrawImage->w - where->w ));
+		int py = int(y * (paralax->h - where->h) / float( bmpDrawImage->h - where->h ));
+		blit(paralax,where,px*2,py*2,0,0,where->w,where->h);
+		blit(bmpDrawImage.get(),where,x*2,y*2,0,0,where->w,where->h);
+	}
+
+	if ( gusGame.options.showMapDebug ) {
+		foreach( s, m_config->spawnPoints ) {
+			int c = (s->team == 0 ? makecol( 255,0,0 ) : makecol( 0, 255, 0 ));
+			circle( where, (int)(s->pos.x - x) * 2, (int)(s->pos.y - y) * 2, 8, c );
 		}
 	}
 }
@@ -394,7 +386,7 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 #ifndef DEDICATED_ONLY
 					// note that these are needed to be 2x2 as long as material is singleRes, i.e. putMaterialDoubleRes is also 2x2.
 					// otherwise we would miss some in the next line
-					copypixel_solid2x2(image, background, drawX+x, drawY+y);
+					CopyPixel2x2_SameFormat(bmpDrawImage.get(), bmpBackImageHiRes.get(), drawX+x, drawY+y);
 					putpixel2x2(lightmap, drawX+x, drawY+y, 0);
 #endif
 				}
@@ -441,7 +433,7 @@ bool CMap::getPredefinedSpawnLocation(CWorm* worm, CVec* v) {
 
 void CMap::loaderSucceeded()
 {
-	assert(image);
+	assert(bmpDrawImage.get());
 	
 	m_water.clear();
 	for ( int y = 0; y < material->h; ++y )
@@ -469,15 +461,15 @@ void CMap::loaderSucceeded()
 			}
 	}
 
-	if(!background) {
-		background = create_bitmap_from_sdl(GetCopiedImage(image->surf));
+	if(!bmpBackImageHiRes.get()) {
+		bmpBackImageHiRes = GetCopiedImage(bmpDrawImage);
 		// Does this make sense? In CMap::applyEffect, we replace every pixel from image by it.
-		//DrawRectFill(background->surf.get(), 0, 0, background->w, background->h, Color(0,0,0,120));
+		//DrawRectFill(bmpBackImageHiRes, 0, 0, bmpBackImageHiRes->w, bmpBackImageHiRes->h, Color(0,0,0,120));
 	}
 
 	if ( !watermap ) {
-		watermap = create_bitmap( image->w, image->h );
-		blit( background, watermap, 0,0,0,0,image->w, image->h );
+		watermap = create_bitmap( bmpDrawImage->w, bmpDrawImage->h );
+		blit( bmpBackImageHiRes.get(), watermap, 0,0,0,0,watermap->w, watermap->h );
 		gfx.setBlender(ALPHA, 150);
 		rectfill( watermap, 0,0,watermap->w, watermap->h, makecol( 0, 0, 200 ) );
 		solid_mode();
@@ -491,10 +483,7 @@ void CMap::loaderSucceeded()
 	//cerr << "vectorEncoding: " << vectorEncoding.totalBits() << endl;
 
 	if(!m_config)
-		m_config = new LevelConfig(); // Default config
-	
-	bmpDrawImage = image->surf;
-	bmpBackImageHiRes = background->surf;
+		m_config = new LevelConfig(); // Default config	
 }
 
 
@@ -539,6 +528,6 @@ void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPo
 }
 
 void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
-	gusUpdateMinimap(bmpMiniMap, bmpForeground, image->surf, paralax ? paralax->surf : NULL, x, y, w, h, 0.5f);
+	gusUpdateMinimap(bmpMiniMap, bmpForeground, bmpDrawImage, paralax ? paralax->surf : NULL, x, y, w, h, 0.5f);
 }
 

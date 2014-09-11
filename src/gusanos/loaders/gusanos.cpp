@@ -195,17 +195,19 @@ bool GusanosLevelLoader::load(CMap* level, std::string const& path)
 		else
 			errors << "GusanosLevelLoader::load: config structure not loaded" << endl;
 		
-#ifndef DEDICATED_ONLY
-		std::string imagePath = path + "/level";
-		
-		level->image = gfx.loadBitmap(imagePath.c_str(), false, /*stretch2*/ !level->config()->doubleRes);
-		if (level->image)
+#ifndef DEDICATED_ONLY		
+		level->bmpDrawImage = gfx.loadBitmapSDL(path + "/level", false, /*stretch2*/ !level->config()->doubleRes);
+		if (level->bmpDrawImage.get())
 		{			
-			level->background = gfx.loadBitmap(path + "/background", false, !level->config()->doubleRes);
+			level->bmpBackImageHiRes = gfx.loadBitmapSDL(path + "/background", false, !level->config()->doubleRes);
 			level->paralax = gfx.loadBitmap(path + "/paralax", false, !level->config()->doubleRes);
 
 			if(!level->paralax)
 				notes << "Paralax not loaded" << endl;
+			else
+				// We earlier used masked_blit() in CMap::gusDraw().
+				// This is like blit() but with the colorkey set.
+				SetColorKey(level->bmpDrawImage.get());
 
 			level->bmpForeground = LoadGameImage(path + "/foreground.png", true);
 			if(!level->config()->doubleRes && level->bmpForeground.get())

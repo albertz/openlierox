@@ -1,10 +1,8 @@
 #ifndef GFX_H
 #define GFX_H
 
-#include "gusanos/allegro.h"
-
 #include <string>
-//#include <list>
+#include "gusanos/allegro.h"
 
 enum Blenders
 {
@@ -54,15 +52,12 @@ public:
 	}
 	
 	ALLEGRO_BITMAP* loadBitmap(const std::string &filename, bool keepAlpha = false, bool stretch2 = true);
+	SmartPointer<SDL_Surface> loadBitmapSDL(const std::string &filename, bool keepAlpha = false, bool stretch2 = true);
 	bool saveBitmap(const std::string &filename, ALLEGRO_BITMAP* image);
 	
 	operator bool(); // Returns true if it's safe to use this object
 
 };
-
-#ifndef DEDICATED_ONLY
-//std::string screenShot(const std::list<std::string> &args);
-#endif
 
 extern Gfx gfx;
 
