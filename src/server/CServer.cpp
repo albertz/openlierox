@@ -334,7 +334,13 @@ void GameServer::SetSocketWithEvents(bool v) {
 ///////////////////
 // Start the game (prepare it for weapon selection, BeginMatch is the actual start)
 int GameServer::PrepareGame(std::string* errMsg)
-{	
+{
+	if(!cClients) {
+		errors << "GameServer::PrepareGame: cClients == NULL" << endl;
+		if(errMsg) *errMsg = "Not correctly initialized";
+		return false;
+	}
+
 	if(errMsg) *errMsg = "Unknown problem, please ask in forum";
 
 	if(game.state <= Game::S_Lobby) {
