@@ -73,16 +73,6 @@ INLINE bool operator<=(const Version& ver1, const Version& ver2) { return ver1 <
 INLINE bool operator>=(const Version& ver1, const Version& ver2) { return ver2 < ver1 || ver1 == ver2; }
 INLINE bool operator!=(const Version& ver1, const Version& ver2) { return ! (ver1 == ver2); }
 
-INLINE Version OLXBetaVersion(int betaversion) {
-	Version v;
-	v.gamename = fullGameName;
-	v.num = 0;
-	v.subnum = 57;
-	v.subsubnum = betaversion;
-	v.releasetype = Version::RT_BETA;
-	return v;
-}
-
 INLINE Version OLXBetaVersion(int num, int subnum, int betaversion) {
 	Version v;
 	v.gamename = fullGameName;

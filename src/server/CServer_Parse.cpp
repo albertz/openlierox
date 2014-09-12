@@ -744,7 +744,7 @@ void CServerNetEngineBeta7::ParseAFK(CBytestream *bs) {
 	CServerConnection *cl1;
 	int i;
 	for( i=0, cl1=server->cClients; i < MAX_CLIENTS; i++, cl1++ )
-		if( cl1->getStatus() == NET_CONNECTED && cl1->getClientVersion() >= OLXBetaVersion(7) )
+		if( cl1->getStatus() == NET_CONNECTED && cl1->getClientVersion() >= OLXBetaVersion(0,57,7) )
 			cl1->getNetEngine()->SendPacket( &bs1 );
 }
 
@@ -1584,7 +1584,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	}
 
 	// If we now the client version already, we can avoid this for newer clients.
-	if(newcl->getClientVersion() <= OLXBetaVersion(4)) {
+	if(newcl->getClientVersion() <= OLXBetaVersion(0,57,4)) {
 		// Let them know our version
 		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);

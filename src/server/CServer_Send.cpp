@@ -105,7 +105,7 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 		// have to send this.
 	//}
 
-	if ((receiver && receiver->getClientVersion() >= OLXBetaVersion(8)) || game.wormsOfClient(cl)->size() <= 2)  {
+	if ((receiver && receiver->getClientVersion() >= OLXBetaVersion(0,57,8)) || game.wormsOfClient(cl)->size() <= 2)  {
 		CBytestream bytes;
 		bytes.writeByte(S2C_CLREADY);
 		bytes.writeByte(game.wormsOfClient(cl)->size());
@@ -184,7 +184,7 @@ void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm, bool show, bool im
 			bs.writeByte(0);  // Weapon
 
 			// Velocity
-			if(cl->getClientVersion() >= OLXBetaVersion(5)) {
+			if(cl->getClientVersion() >= OLXBetaVersion(0,57,5)) {
 				bs.writeInt16(0);
 				bs.writeInt16(0);
 			}

@@ -126,7 +126,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd.find("lx::openbeta") == 0)  {
 		if (cmd.size() > 12)  {
 			int betaver = MAX(0, atoi(cmd.substr(12)));
-			Version version = OLXBetaVersion(betaver);
+			Version version = OLXBetaVersion(0,57,betaver);
 			if(client->cServerVersion < version) {
 				client->cServerVersion = version;
 				notes << "host is at least using OLX Beta3" << endl;

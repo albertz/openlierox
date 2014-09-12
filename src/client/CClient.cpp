@@ -738,7 +738,7 @@ void CClient::ProcessMapDownloads()
 			}
 
 			// HTTP failed, let's try UDP
-			if( getServerVersion() > OLXBetaVersion(4) )
+			if( getServerVersion() > OLXBetaVersion(0,57,4) )
 			{
 				iDownloadMethod = DL_UDP;
 				bDownloadingMap = true;
@@ -767,7 +767,7 @@ void CClient::ProcessMapDownloads()
 	}
 
   	// UDP file download used for maps and mods - we can download map via HTTP and mod via UDP from host
-	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
+	if( getServerVersion() < OLXBetaVersion(0,57,4) || iNetStatus == NET_DISCONNECTED )  {
 		if (tMapDlCallback && bDownloadingMap)  {
 			bDownloadingMap = false;
 			tMapDlCallback();
@@ -874,7 +874,7 @@ void CClient::ProcessModDownloads()
 			}
 
 			// HTTP failed, let's try UDP
-			if( getServerVersion() > OLXBetaVersion(4) )
+			if( getServerVersion() > OLXBetaVersion(0,57,4) )
 			{
 				iDownloadMethod = DL_UDP;
 				bDownloadingMod = true;
@@ -903,7 +903,7 @@ void CClient::ProcessModDownloads()
 		return;
 
   	// Can we download anything at all?
-	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
+	if( getServerVersion() < OLXBetaVersion(0,57,4) || iNetStatus == NET_DISCONNECTED )  {
 		if (tModDlCallback)  {
 			bDownloadingMod = false;
 			tModDlCallback();
@@ -1129,7 +1129,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 			// TODO: move this out here
 			ping.Clear();
 			ping.writeInt(-1,4);
-			if(cServerVersion >= OLXBetaVersion(8))
+			if(cServerVersion >= OLXBetaVersion(0,57,8))
 				ping.writeString("lx::time"); // request for servertime
 			else
 				ping.writeString("lx::ping");
@@ -2145,7 +2145,7 @@ CChannel * CClient::createChannel(const Version& v)
 		delete cNetChan;
 	if( v >= OLXBetaVersion(0,58,1) )
 		cNetChan = new CChannel3();
-	else if( v >= OLXBetaVersion(6) )
+	else if( v >= OLXBetaVersion(0,57,6) )
 		cNetChan = new CChannel2();
 	else
 		cNetChan = new CChannel_056b();
@@ -2157,7 +2157,7 @@ void CClient::setNetEngineFromServerVersion()
 	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
 	if( getServerVersion() >= OLXBetaVersion(0,58,1) )
 		cNetEngine = new CClientNetEngineBeta9(this);
-	else if( getServerVersion() >= OLXBetaVersion(7) )
+	else if( getServerVersion() >= OLXBetaVersion(0,57,7) )
 		cNetEngine = new CClientNetEngineBeta7(this);
 	else
 		cNetEngine = new CClientNetEngine(this);

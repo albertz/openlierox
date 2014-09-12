@@ -183,13 +183,13 @@ void CServerConnection::setNetEngineFromClientVersion()
 	
 	if( getClientVersion() >= OLXBetaVersion(0,58,1) )
 		cNetEngine = new CServerNetEngineBeta9( server, this );
-	else if( getClientVersion() >= OLXBetaVersion(8) )
+	else if( getClientVersion() >= OLXBetaVersion(0,57,8) )
 		cNetEngine = new CServerNetEngineBeta8( server, this );
-	else if( getClientVersion() >= OLXBetaVersion(7) )
+	else if( getClientVersion() >= OLXBetaVersion(0,57,7) )
 		cNetEngine = new CServerNetEngineBeta7( server, this );
-	else if( getClientVersion() >= OLXBetaVersion(5) )
+	else if( getClientVersion() >= OLXBetaVersion(0,57,5) )
 		cNetEngine = new CServerNetEngineBeta5( server, this );
-	else if( getClientVersion() >= OLXBetaVersion(3) )
+	else if( getClientVersion() >= OLXBetaVersion(0,57,3) )
 		cNetEngine = new CServerNetEngineBeta3( server, this );
 	else
 		cNetEngine = new CServerNetEngine( server, this );
@@ -201,7 +201,7 @@ CChannel * CServerConnection::createChannel(const Version& v)
 		delete cNetChan;
 	if( v >= OLXBetaVersion(0,58,1) )
 		cNetChan = new CChannel3();
-	else if( v >= OLXBetaVersion(6) )
+	else if( v >= OLXBetaVersion(0,57,6) )
 		cNetChan = new CChannel2();
 	else
 		cNetChan = new CChannel_056b();

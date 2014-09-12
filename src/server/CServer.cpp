@@ -1548,12 +1548,12 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 		}
 	}
 	
-	if(serverChoosesWeapons() && ver < OLXBetaVersion(7)) {
+	if(serverChoosesWeapons() && ver < OLXBetaVersion(0,57,7)) {
 		if(incompReason) *incompReason = "server chooses the weapons";
 		return false;
 	}
 	
-	if(serverAllowsConnectDuringGame() && ver < OLXBetaVersion(8)) {
+	if(serverAllowsConnectDuringGame() && ver < OLXBetaVersion(0,57,8)) {
 		if(incompReason) *incompReason = "connecting during game is allowed";
 		return false;
 	}

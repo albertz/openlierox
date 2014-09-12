@@ -92,14 +92,14 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 
 	// Velocity
 	const Version& versionOfReceiver = fromServer ? receiver->getClientVersion() : cClient->getServerVersion();
-	if(tState.get().bShoot || versionOfReceiver >= OLXBetaVersion(5)) {
+	if(tState.get().bShoot || versionOfReceiver >= OLXBetaVersion(0,57,5)) {
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );
 		bs->writeInt16( (Sint16)v.y );
 	}
 	
 	// client (>=beta8) sends also current server time
-	if(!fromServer && versionOfReceiver >= OLXBetaVersion(8)) {
+	if(!fromServer && versionOfReceiver >= OLXBetaVersion(0,57,8)) {
 		bs->writeFloat( (float)game.serverTime().seconds() );
 	}
 
@@ -287,7 +287,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 
 bool CWorm::hasOwnServerTime() {
 	if(!getClient()) return false;
-	return getClient()->getClientVersion() >= OLXBetaVersion(8);
+	return getClient()->getClientVersion() >= OLXBetaVersion(0,57,8);
 }
 
 ///////////////////
@@ -325,14 +325,14 @@ void CWorm::readPacket(CBytestream *bs)
 
 	// Velocity
 	const Version& versionOfSender = getClient()->getClientVersion();
-	if(tState.get().bShoot || versionOfSender >= OLXBetaVersion(5)) {
+	if(tState.get().bShoot || versionOfSender >= OLXBetaVersion(0,57,5)) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
 
 	// client (>=beta8) sends also what it thinks what the server time is (was)
-	if(versionOfSender >= OLXBetaVersion(8)) {
+	if(versionOfSender >= OLXBetaVersion(0,57,8)) {
 		fServertime = bs->readFloat();
 		if(fServertime < game.serverTime())
 			fServertime = game.serverTime();
@@ -361,7 +361,7 @@ bool CWorm::skipPacketState(CBytestream *bs)
 	bool shooting = (bits & 0x20) != 0; 
 
 	const Version& versionOfSender = cClient->getServerVersion();
-	bool gotVelocity = shooting || versionOfSender >= OLXBetaVersion(5);
+	bool gotVelocity = shooting || versionOfSender >= OLXBetaVersion(0,57,5);
 		
 	// Velocity
 	if(gotVelocity) {
@@ -390,13 +390,13 @@ bool CWorm::skipPacket(CBytestream *bs)
 
 	// Velocity
 	const Version& versionOfSender = getClient()->getClientVersion();
-	if(shooting || versionOfSender >= OLXBetaVersion(5)) {
+	if(shooting || versionOfSender >= OLXBetaVersion(0,57,5)) {
 		bs->readInt16();
 		bs->readInt16();
 	}
 	
 	// client (>=beta8) sends also what it thinks what the server time is (was)
-	if(versionOfSender >= OLXBetaVersion(8)) {
+	if(versionOfSender >= OLXBetaVersion(0,57,8)) {
 		bs->readFloat();
 	}
 	
@@ -462,7 +462,7 @@ void CWorm::readPacketState(CBytestream *bs)
 	}
 
 	const Version& versionOfSender = cClient->getServerVersion();
-	bool gotVelocity = tState.get().bShoot || versionOfSender >= OLXBetaVersion(5);
+	bool gotVelocity = tState.get().bShoot || versionOfSender >= OLXBetaVersion(0,57,5);
 
 	// Update the position
 	CVec oldPos = vPos;

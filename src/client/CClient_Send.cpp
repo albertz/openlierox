@@ -153,7 +153,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 	}
 
 	// We can safely send long messages to servers >= beta8
-	if (client->getServerVersion() >= OLXBetaVersion(8))  {
+	if (client->getServerVersion() >= OLXBetaVersion(0,57,8))  {
 
 		// HTML support since beta 8
 		SendTextInternal(OldLxCompatibleString(sText), sWormName);
@@ -163,7 +163,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 	} else {
 
 		if (chat_command &&
-			client->getServerVersion() < OLXBetaVersion(3) && // <beta3 clients don't have chat command support
+			client->getServerVersion() < OLXBetaVersion(0,57,3) && // <beta3 clients don't have chat command support
 			sText.find("/me ") != 0) // Ignores "/me" special command
 		{
 			// Try if we can execute the same command in console (mainly for "/suicide" command to work on all servers)
@@ -175,7 +175,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 			return;
 
 		} else if (chat_command &&
-				   client->getServerVersion() >= OLXBetaVersion(3)) {
+				   client->getServerVersion() >= OLXBetaVersion(0,57,3)) {
 			// we don't have to split chat commands
 			// "/me ..." is also save, because server uses SendGlobalText for sending and it splits the text there
 			SendTextInternal(OldLxCompatibleString(sText), sWormName);
@@ -212,7 +212,7 @@ void CClientNetEngineBeta7::SendChatCommandCompletionRequest(const std::string& 
 }
 
 void CClientNetEngineBeta7::SendAFK(int wormid, AFK_TYPE afkType, const std::string & message ) {
-	if( client->getServerVersion() < OLXBetaVersion(7) )
+	if( client->getServerVersion() < OLXBetaVersion(0,57,7) )
 		return;
 	
 	std::string msg = message;

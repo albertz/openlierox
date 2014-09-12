@@ -179,7 +179,7 @@ const Version& GetGameVersion() {
 
 
 bool Version::isBanned() const {
-	if(*this == OLXBetaVersion(9)) return true; // too much different games with this branding around
+	if(*this == OLXBetaVersion(0,57,9)) return true; // too much different games with this branding around
 	if(*this == OLXBetaVersion(0,58,1)) return true; // TODO: ehm, what was it again?
 	if(releasetype == RT_ALPHA || releasetype == RT_BETA)
 		if(*this < GetGameVersion()) return true; // another earlier beta - dont trust it

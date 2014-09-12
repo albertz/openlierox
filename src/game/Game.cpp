@@ -1032,7 +1032,7 @@ void Game::cleanupAfterGameloopEnd() {
 				CServerConnection *cl;
 				int i;
 				for( i=0, cl=cServer->getClients(); i < MAX_CLIENTS; i++, cl++ )
-					if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() >= OLXBetaVersion(7) )
+					if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() >= OLXBetaVersion(0,57,7) )
 						cl->getNetEngine()->SendPacket(&bs);
 			}
 		}

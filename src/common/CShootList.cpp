@@ -735,7 +735,7 @@ AbsTime shoot_t::spawnTime() {
 
 	AbsTime time = fSpawnTime;
 	// HINT: Since Beta8 though, we have a good synchronisation of fServertime and we can actually use the provided sh->fTime
-	if(cClient->getServerVersion() >= OLXBetaVersion(8))
+	if(cClient->getServerVersion() >= OLXBetaVersion(0,57,8))
 		if(this->fTime <= game.serverTime()) // just a security check
 			time = tLX->currentTime - (game.serverTime() - this->fTime);
 	
