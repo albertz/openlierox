@@ -581,14 +581,8 @@ public:
 		bool operator()(Material const& m) { return m.blocks_light; }
 	};
 
-	void setEvents( LevelConfig* events )
-	{
-		delete m_config;
-		m_config = events;
-	}
-	
 	LevelConfig* config()
-	{ return m_config; }
+	{ return &m_config; }
 	
 	Material& materialForIndex(uchar index) { return m_materialList[index]; }
 	array<Material,256>& materialArray() { return m_materialList; }
@@ -599,7 +593,7 @@ private:
 	
 	array<Material, 256> m_materialList;
 	
-	LevelConfig *m_config;
+	LevelConfig m_config;
 	bool m_firstFrame;
 	bool m_gusLoaded;
 	

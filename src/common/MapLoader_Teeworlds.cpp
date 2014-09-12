@@ -983,7 +983,7 @@ struct ML_Teeworlds : MapLoad {
 
 		m->Name = head.name;
 		m->Type = MPT_IMAGE;
-		if(!map->m_config) map->m_config = new LevelConfig();
+		m->m_config = LevelConfig();
 
 		if(teeHeader.m_NumItemTypes < 0)
 			return "invalid numItemTypes";

@@ -81,7 +81,6 @@ void CMap::gusInit()
 {
 	m_gusLoaded = false;
 	m_firstFrame = true;
-	m_config = 0;
 
 #ifndef DEDICATED_ONLY
 	lightmap = NULL;
@@ -155,11 +154,6 @@ void CMap::gusShutdown()
 {
 	m_gusLoaded = false;
 	m_firstFrame = true;
-
-	if(m_config) {
-		delete m_config;
-		m_config = 0;
-	}
 	
 #ifndef DEDICATED_ONLY
 	destroy_bitmap(lightmap);
@@ -205,8 +199,8 @@ void CMap::gusThink()
 
 	if( m_firstFrame ) {
 		m_firstFrame = false;
-		if ( m_config && m_config->gameStart )
-			m_config->gameStart->run(0,0,0,0);
+		if ( m_config.gameStart )
+			m_config.gameStart->run(0,0,0,0);
 	}
 #ifndef DEDICATED_ONLY
 	foreach_delete( wp, m_water ) {
@@ -274,7 +268,7 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 	}
 
 	if ( gusGame.options.showMapDebug ) {
-		foreach( s, m_config->spawnPoints ) {
+		foreach( s, m_config.spawnPoints ) {
 			int c = (s->team == 0 ? makecol( 255,0,0 ) : makecol( 0, 255, 0 ));
 			circle( where, (int)(s->pos.x - x) * 2, (int)(s->pos.y - y) * 2, 8, c );
 		}
@@ -407,20 +401,18 @@ namespace
 }
 
 bool CMap::getPredefinedSpawnLocation(CWorm* worm, CVec* v) {
-	if(m_config) {
-		int alt = 0;
-		foreach(i, m_config->spawnPoints) {
-			if(canPlayerRespawn(worm, *i))
-				++alt;
-		}
-		
-		if(alt > 0) {
-			int idx = (int)rndInt(alt);
-			foreach(i, m_config->spawnPoints) {
-				if(canPlayerRespawn(worm, *i) && --idx < 0) {
-					*v = CVec(i->pos);
-					return true;
-				}
+	int alt = 0;
+	foreach(i, m_config.spawnPoints) {
+		if(canPlayerRespawn(worm, *i))
+			++alt;
+	}
+	
+	if(alt > 0) {
+		int idx = (int)rndInt(alt);
+		foreach(i, m_config.spawnPoints) {
+			if(canPlayerRespawn(worm, *i) && --idx < 0) {
+				*v = CVec(i->pos);
+				return true;
 			}
 		}
 	}
@@ -478,9 +470,6 @@ void CMap::loaderSucceeded()
 	intVectorEncoding = Encoding::VectorEncoding(Rect(-1, -1, Width + 1, Height + 1), 1);
 	diffVectorEncoding = Encoding::DiffVectorEncoding(1024);
 	//cerr << "vectorEncoding: " << vectorEncoding.totalBits() << endl;
-
-	if(!m_config)
-		m_config = new LevelConfig(); // Default config	
 }
 
 

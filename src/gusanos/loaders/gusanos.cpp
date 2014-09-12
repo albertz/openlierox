@@ -78,13 +78,13 @@ namespace{
 		}		
 	}
 	
-	static LevelConfig* loadConfig( std::string const& filename )
+	static bool loadConfig( std::string const& filename, LevelConfig& cfg )
 	{
 		std::ifstream fileStream;
 		OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
 		if (!fileStream )
-			return NULL;
+			return false;
 		
 		OmfgScript::Parser parser(fileStream, gameActions, filename);
 		
@@ -94,16 +94,16 @@ namespace{
 		if(!parser.run())
 		{
 			parser.error("Trailing garbage");
-			return NULL;
+			return false;
 		}
 		
 		LevelConfig* returnConf = new LevelConfig;
 		
-		fillSpawnPointList(parser, "spawnpoints", returnConf->spawnPoints);
-		fillSpawnPointList(parser, "teambases", returnConf->teamBases);
+		fillSpawnPointList(parser, "spawnpoints", cfg.spawnPoints);
+		fillSpawnPointList(parser, "teambases", cfg.teamBases);
 		
-		returnConf->darkMode = parser.getBool("dark_mode");
-		returnConf->doubleRes = parser.getBool("double_res");
+		cfg.darkMode = parser.getBool("dark_mode");
+		cfg.doubleRes = parser.getBool("double_res");
 
 		OmfgScript::Parser::GameEventIter i(parser);
 		for(; i; ++i)
@@ -112,15 +112,15 @@ namespace{
 			switch(i.type())
 			{
 				case GameStart:
-					returnConf->gameStart = boost::shared_ptr<GameEvent>( new GameEvent(i.actions()) );
+					cfg.gameStart = boost::shared_ptr<GameEvent>( new GameEvent(i.actions()) );
 				break;
 				
 				case GameEnd:
-					returnConf->gameEnd = boost::shared_ptr<GameEvent>( new GameEvent(i.actions()) );
+					cfg.gameEnd = boost::shared_ptr<GameEvent>( new GameEvent(i.actions()) );
 				break;
 			}
 		}
-		return returnConf;
+		return true;
 	}
 
 	void parseCtfBasesFromLua(const std::string& filename, LevelConfig* config) {
@@ -183,7 +183,8 @@ bool GusanosLevelLoader::load(CMap* level, std::string const& path)
 	
 	if (level->material)
 	{
-		level->setEvents( loadConfig( path + "/config.cfg" ) );
+		level->m_config = LevelConfig();
+		loadConfig( path + "/config.cfg", level->m_config );
 		
 		if(level->config()) {
 			if(level->config()->teamBases.size() == 0) {

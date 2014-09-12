@@ -94,7 +94,7 @@ bool CMap::NewFrom(CMap* map)
 	diffVectorEncoding = map->diffVectorEncoding;
 	
 	m_materialList = map->m_materialList;
-	m_config = map->m_config ? new LevelConfig(*map->m_config) : NULL;
+	m_config = map->m_config;
 	m_firstFrame = true;
 	
 	m_water = map->m_water;	
@@ -216,6 +216,7 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 		return false;
 	}
 	
+	m_config = LevelConfig();
 	NumObjects = 0;
 	nTotalDirtCount = 0;
 	Created = true;
@@ -234,7 +235,7 @@ bool CMap::MiniCreate(uint _width, uint _height, uint _minimap_w, uint _minimap_
 	fBlinkTime = 0;
 	
 	Objects = NULL;
-			
+	
 	bmpMiniMap = gfxCreateSurface(MinimapWidth, MinimapHeight);
 	if(bmpMiniMap.get() == NULL) {
 		SetError("CMap::MiniCreate(): bmpMiniMap creation failed, perhaps out of memory");
@@ -269,7 +270,9 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 
 
 ///////////////////
-// Create a new map with minimal settings (used for Gusanos)
+// Create a new map with minimal settings (used for Gusanos/Teeworlds)
+// This is usually called *after* we already loaded the level,
+// to fill in some remaining LX stuff.
 bool CMap::MiniNew(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
 {
 	NumObjects = 0;
