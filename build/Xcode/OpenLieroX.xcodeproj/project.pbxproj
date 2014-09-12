@@ -367,7 +367,6 @@
 		23C34FDA10CC57FB00DABBD6 /* group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FC010CC57FB00DABBD6 /* group.cpp */; };
 		23C34FDD10CC57FB00DABBD6 /* label.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FC510CC57FB00DABBD6 /* label.cpp */; };
 		23C34FDE10CC57FB00DABBD6 /* list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FC710CC57FB00DABBD6 /* list.cpp */; };
-		23C34FDF10CC57FB00DABBD6 /* renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FCA10CC57FB00DABBD6 /* renderer.cpp */; };
 		23C34FE010CC57FB00DABBD6 /* wnd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FCC10CC57FB00DABBD6 /* wnd.cpp */; };
 		23C34FE110CC57FB00DABBD6 /* xml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FCF10CC57FB00DABBD6 /* xml.cpp */; };
 		23C34FE210CC57FB00DABBD6 /* bindings-gui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FD210CC57FB00DABBD6 /* bindings-gui.cpp */; };
@@ -1321,8 +1320,6 @@
 		23C34FC710CC57FB00DABBD6 /* list.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = list.cpp; sourceTree = "<group>"; };
 		23C34FC810CC57FB00DABBD6 /* list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = list.h; sourceTree = "<group>"; };
 		23C34FC910CC57FB00DABBD6 /* llist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llist.h; sourceTree = "<group>"; };
-		23C34FCA10CC57FB00DABBD6 /* renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer.cpp; sourceTree = "<group>"; };
-		23C34FCB10CC57FB00DABBD6 /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer.h; sourceTree = "<group>"; };
 		23C34FCC10CC57FB00DABBD6 /* wnd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wnd.cpp; sourceTree = "<group>"; };
 		23C34FCD10CC57FB00DABBD6 /* wnd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wnd.h; sourceTree = "<group>"; };
 		23C34FCE10CC57FB00DABBD6 /* xml-grammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xml-grammar.h"; sourceTree = "<group>"; };
@@ -2415,8 +2412,6 @@
 				23C34FC710CC57FB00DABBD6 /* list.cpp */,
 				23C34FC810CC57FB00DABBD6 /* list.h */,
 				23C34FC910CC57FB00DABBD6 /* llist.h */,
-				23C34FCA10CC57FB00DABBD6 /* renderer.cpp */,
-				23C34FCB10CC57FB00DABBD6 /* renderer.h */,
 				23C34FCC10CC57FB00DABBD6 /* wnd.cpp */,
 				23C34FCD10CC57FB00DABBD6 /* wnd.h */,
 				23C34FCE10CC57FB00DABBD6 /* xml-grammar.h */,
@@ -3675,7 +3670,6 @@
 				23C34FDA10CC57FB00DABBD6 /* group.cpp in Sources */,
 				23C34FDD10CC57FB00DABBD6 /* label.cpp in Sources */,
 				23C34FDE10CC57FB00DABBD6 /* list.cpp in Sources */,
-				23C34FDF10CC57FB00DABBD6 /* renderer.cpp in Sources */,
 				23C34FE010CC57FB00DABBD6 /* wnd.cpp in Sources */,
 				23C34FE110CC57FB00DABBD6 /* xml.cpp in Sources */,
 				23C34FE210CC57FB00DABBD6 /* bindings-gui.cpp in Sources */,
