@@ -49,66 +49,6 @@ Wnd::~Wnd()
 	delete m_font;
 }
 
-void Wnd::getCoord(int& dx, int& dy, int x, int y)
-{
-	if(!m_parent)
-	{
-		dx = x;
-		dy = y;
-		return;
-	}
-	
-	if(x >= 0)
-		dx = m_parent->getRect().x1 + x;
-	else
-		dx = m_parent->getRect().x2 + x;
-		
-	if(y >= 0)
-		dy = m_parent->getRect().y1 + y;
-	else
-		dy = m_parent->getRect().y2 + y;
-		
-	return;
-}
-
-void Wnd::getCoordX(int& dx, int x)
-{
-	if(!m_parent)
-	{
-		if(x >= 0)
-			dx = x;
-		else
-			dx = 320 + x; //TODO: Get the real viewport height
-		return;
-	}
-	
-	if(x >= 0)
-		dx = m_parent->getRect().x1 + x;
-	else
-		dx = m_parent->getRect().x2 + x;
-
-	return;
-}
-
-void Wnd::getCoordY(int& dy, int y)
-{
-	if(!m_parent)
-	{
-		if(y >= 0)
-			dy = y;
-		else
-			dy = 240 + y; //TODO: Get the real viewport width
-		return;
-	}
-	
-	if(y >= 0)
-		dy = m_parent->getRect().y1 + y;
-	else
-		dy = m_parent->getRect().y2 + y;
-
-	return;
-}
-
 static int fromHex(char h)
 {
 	if(h >= '0' && h <= '9')
@@ -175,146 +115,6 @@ bool Wnd::readSkin(BaseSpriteSet*& dest, std::string const& str)
 	}
 	
 	return true;
-}
-
-void Wnd::updatePlacement()
-{
-	switch(m_formatting.flags & (Formatting::HasLeft | Formatting::HasRight))
-	{
-		case 0:
-		{
-			//m_rect.x1 = formatting.x;
-			if(m_parent)
-			{
-				m_parent->allocateSpace(m_rect.x1, m_rect.y1, m_formatting.width, m_formatting.height);
-				m_rect.x2 = m_rect.x1 + m_formatting.width;
-				m_rect.y2 = m_rect.y1 + m_formatting.height;
-			}
-			else
-			{
-				m_rect = Rect(0, 0, 320-1, 240-1); //TODO: Replace with real dimensions
-			}
-		}
-		break;
-		
-		case Formatting::HasLeft:
-		{
-			getCoordX(m_rect.x1, m_formatting.rect.x1);
-			m_rect.x2 = m_rect.x1 + m_formatting.width;
-		}
-		break;
-		
-		case Formatting::HasRight:
-		{
-			getCoordX(m_rect.x2, m_formatting.rect.x2);
-			m_rect.x1 = m_rect.x2 - m_formatting.width;
-		}
-		break;
-		
-		default:
-		{
-			getCoordX(m_rect.x1, m_formatting.rect.x1);
-			getCoordX(m_rect.x2, m_formatting.rect.x2);
-		}
-	}
-	
-	switch(m_formatting.flags & (Formatting::HasTop | Formatting::HasBottom))
-	{
-		case 0:
-		{
-			//m_rect.y1 = windows.top().curY;
-		}
-		break;
-		
-		case Formatting::HasTop:
-		{
-			getCoordY(m_rect.y1, m_formatting.rect.y1);
-			m_rect.y2 = m_rect.y1 + m_formatting.height;
-		}
-		break;
-		
-		case Formatting::HasBottom:
-		{
-			getCoordY(m_rect.y2, m_formatting.rect.y2);
-			m_rect.y1 = m_rect.y2 - m_formatting.height;
-		}
-		break;
-		
-		default:
-		{
-			getCoordY(m_rect.y1, m_formatting.rect.y1);
-			getCoordY(m_rect.y2, m_formatting.rect.y2);
-		}
-	}
-	
-	m_freeNextX = m_freeRect.x1 = m_rect.x1 + m_formatting.padding;
-	m_freeNextY = m_freeRect.y1 = m_rect.y1 + m_formatting.padding;
-	m_freeRect.x2 = m_rect.x2 - m_formatting.padding;
-	m_freeRect.y2 = m_rect.y2 - m_formatting.padding;
-
-}
-
-void Wnd::allocateSpace(int& x, int& y, int width, int height)
-{
-	if(m_freeNextX + width > m_freeRect.x2)
-	{
-		m_freeRect.y1 = m_freeNextY;
-		m_freeNextX = m_freeRect.x1;
-	}
-	
-	x = m_freeNextX;
-	y = m_freeRect.y1;
-	
-	m_freeNextX += width + m_formatting.spacing;
-	
-	int bottom = m_freeRect.y1 + height + m_formatting.spacing;
-	if(bottom > m_freeNextY)
-		m_freeNextY = bottom;
-}
-
-Wnd* Wnd::findClosestChild(Wnd* org, Dir direction)
-{
-	std::list<Wnd *>::iterator i = m_children.begin(), e = m_children.end();
-	
-	long  minDist = 0x7FFFFFFF;
-	Wnd  *minWnd = 0;
-	
-	int orgx = org->getRect().centerX();
-	int orgy = org->getRect().centerY();
-	
-	for(; i != e; ++i)
-	{
-		if(*i != org && (*i)->m_focusable && (*i)->m_visible)
-		{
-			Dir thisDir;
-			int x = (*i)->getRect().centerX() - orgx;
-			int y = (*i)->getRect().centerY() - orgy;
-			if(x > 0)
-			{
-				if(y < -x) thisDir = Up;
-				else if(y >= x) thisDir = Down;
-				else thisDir = Right;
-			}
-			else
-			{
-				if(y <= x) thisDir = Up;
-				else if(y > -x) thisDir = Down;
-				else thisDir = Left;
-			}
-			
-			if(thisDir == direction)
-			{
-				int dist = x*x + y*y;
-				if(dist < minDist)
-				{
-					minWnd = *i;
-					minDist = dist;
-				}
-			}
-		}
-	}
-	
-	return minWnd;
 }
 
 void Wnd::setActivation(bool active)
@@ -384,25 +184,11 @@ bool Wnd::getAttrib(std::string const& name, std::string& dest)
 	return true;
 }
 
-void Wnd::doUpdateGSS()
-{
-	m_formatting = Formatting(); // Reset formatting to default
-	updatePlacement(); // Place window
-	
-	std::list<Wnd *>::iterator i = m_children.begin(), e = m_children.end();
-	
-	// Update GSS for children
-	for(; i != e; ++i)
-		(*i)->doUpdateGSS();
-}
-
 void Wnd::setContext_(Context* context)
 {
 	m_context = context;
 	m_context->registerWindow(this);
-	
-	updatePlacement();
-	
+		
 	std::list<Wnd *>::iterator i = m_children.begin(), e = m_children.end();
 	
 	for(; i != e; ++i)

@@ -101,11 +101,6 @@ namespace OmfgGUI
 				return m_text;
 			}
 
-			Rect const& getRect()
-			{
-				return m_rect;
-			}
-
 			Wnd* getParent()
 			{
 				return m_parent;
@@ -117,18 +112,6 @@ namespace OmfgGUI
 			}
 
 			bool getAttrib(std::string const& name, std::string& dest);
-
-			void getCoord(int& dx, int& dy, int x, int y);
-			void getCoordX(int& dx, int x);
-			void getCoordY(int& dy, int y);
-
-			void updatePlacement();
-
-			void allocateSpace(int& x, int& y, int width, int height);
-
-			Wnd* findClosestChild(Wnd* org, Dir direction);
-
-			void doUpdateGSS();
 
 			virtual int classID();
 

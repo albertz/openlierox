@@ -522,19 +522,13 @@ LMETHODC(OmfgGUI::List, gui_list_sort,  {
 })
 
 LMETHODC(OmfgGUI::List, gui_list_selection,  {
-	if(!p->getMainSel())
-		return 0;
-		
-	int c = 0;
-	const_foreach(i, p->getMainSel()->getFields())
-	{
-		context.push(*i); ++c;
-	}
-	return c;
+	// Nothing can be selected in our dummy virtual list.
+	return 0;
 })
 
 LMETHODC(OmfgGUI::List, gui_list_main_selection,  {
-	if(OmfgGUI::ListNode* n = p->getMainSel())
+	// Note: There is no main selection, but just return the first node.
+	if(OmfgGUI::ListNode* n = p->getFirstNode())
 	{
 		context.push(n->luaReference);
 		return 1;
@@ -543,7 +537,7 @@ LMETHODC(OmfgGUI::List, gui_list_main_selection,  {
 })
 
 LMETHODC(OmfgGUI::List, gui_list_scroll_bottom,  {
-	p->scrollBottom();
+	// Ignore.
 	return 0;
 })
 

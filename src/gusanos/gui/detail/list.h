@@ -133,9 +133,6 @@ namespace OmfgGUI
 					: 
 					Wnd(parent, attributes, "list"),
 					m_RootNode("root"),
-					m_Base(0),
-					m_basePos(0),
-					m_MainSel(0),
 					m_totalWidthFactor(0.0),
 					m_visibleChildren(0)
 
@@ -159,11 +156,6 @@ namespace OmfgGUI
 				node_iter_t i(node);
 				i->parent = 0;
 
-				if(!m_Base)
-					m_Base = i;
-				if(!m_MainSel)
-					m_MainSel = i;
-
 				return i;
 			}
 
@@ -176,47 +168,8 @@ namespace OmfgGUI
 				return i;
 			}
 
-			void expand(node_iter_t i)
-			{
-				if(i->children.begin()) {
-					if(i->expanded) {
-						i->expanded = false;
-						if(i->parent)
-							i->parent->changeChildrenCount(-i->visibleChildren);
-						else
-							m_visibleChildren -= i->visibleChildren;
-
-						setBase(m_Base);
-					} else {
-						i->expanded = true;
-						if(i->parent)
-							i->parent->changeChildrenCount(i->visibleChildren);
-						else
-							m_visibleChildren += i->visibleChildren;
-
-						setBase(m_Base);
-
-						int offs = ListNode::findOffsetTo(m_RootNode.children.begin(), i);
-
-						if(offs < m_basePos)
-							setBase(i, offs);
-						else if(offs + i->visibleChildren >= m_basePos + visibleRows())
-							setBasePos(offs + (int)i->visibleChildren - visibleRows() + 1);
-					}
-				}
-			}
-
-			void scroll(long amount)
-			{
-				if(m_Base) {
-					node_iter_t i = ListNode::findRelative(m_Base, (int)amount);
-					m_Base = i;
-				}
-			}
-
 			void clear()
 			{
-				m_MainSel = m_Base = node_iter_t(0);
 				m_visibleChildren = 0;
 				m_RootNode.children.clear();
 			}
@@ -240,9 +193,6 @@ namespace OmfgGUI
 			{
 				NumericLT criteria(byColumn);
 				m_RootNode.children.sort(criteria);
-
-				m_basePos = 0;
-				m_Base = m_RootNode.children.begin();
 			}
 
 			struct LuaLT
@@ -259,65 +209,6 @@ namespace OmfgGUI
 
 			void sortLua(LuaReference comparer);
 
-			bool isValid()
-			{
-				return false;
-			}
-
-			void setMainSel(node_iter_t iter);
-
-			bool checkSelection();
-
-			node_iter_t getMainSel()
-			{
-				return m_MainSel;
-			}
-
-			void updateBase()
-			{
-				m_Base = ListNode::findRelative(m_RootNode.children.begin(), m_basePos);
-			}
-
-			void scrollBottom();
-
-			void setBasePos(int pos)
-			{
-				if(pos > m_visibleChildren - visibleRows())
-					pos = m_visibleChildren - visibleRows();
-				if(pos < 0)
-					pos = 0;
-				m_basePos = pos;
-				updateBase();
-			}
-
-			void setBase(node_iter_t i)
-			{
-				int pos = ListNode::findOffsetTo(m_RootNode.children.begin(), i);
-				setBase(i, pos);
-			}
-
-			// This assumes that pos is the position of i !
-			// Don't use it unless you know this is the case.
-			void setBase(node_iter_t i, int pos)
-			{
-				m_basePos = pos;
-				if(pos > m_visibleChildren - visibleRows())
-					pos = m_visibleChildren - visibleRows();
-				if(pos < 0)
-					pos = 0;
-
-				if(pos != m_basePos) {
-					m_basePos = pos;
-					updateBase();
-				} else
-					m_Base = i;
-			}
-
-			int visibleRows()
-			{
-				return getRect().getHeight() / rowHeight - 1;
-			}
-
 			node_iter_t getFirstNode()
 			{
 				return m_RootNode.children.begin();
@@ -329,9 +220,6 @@ namespace OmfgGUI
 			bool verify_(node_iter_t i, node_iter_t n);
 
 			ListNode         m_RootNode;
-			node_iter_t      m_Base;
-			int              m_basePos;
-			node_iter_t      m_MainSel;
 			std::vector<ColumnHeader> m_columnHeaders;
 			double           m_totalWidthFactor;
 			int m_visibleChildren;

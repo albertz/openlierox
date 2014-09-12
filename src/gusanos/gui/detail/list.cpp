@@ -147,39 +147,6 @@ void List::addColumn(ColumnHeader const& column)
 	m_totalWidthFactor += column.widthFactor;
 }
 
-void List::setMainSel(node_iter_t iter)
-{
-	if(!iter)
-		return;
-	m_MainSel = iter;
-	
-	int offs = ListNode::findOffsetTo(m_RootNode.children.begin(), iter);
-
-	if(offs < m_basePos)
-		setBasePos(offs);
-	else if(offs >= m_basePos + visibleRows())
-	{
-		setBasePos(offs - visibleRows() + 1);
-	}
-}
-
-void List::scrollBottom()
-{
-	setBasePos(m_visibleChildren - visibleRows() + 1);
-}
-
-bool List::checkSelection()
-{
-	if(!m_MainSel)
-	{
-		if(m_RootNode.children.begin())
-			setMainSel(m_RootNode.children.begin());
-		return false;
-	}
-	
-	return true;
-}
-
 bool List::verify_(node_iter_t i, node_iter_t n)
 {
 	if(i == n)
@@ -206,9 +173,6 @@ void List::sortLua(LuaReference comparer)
 {
 	LuaLT criteria(luaIngame, comparer);
 	m_RootNode.children.sort(criteria);
-	
-	m_basePos = 0;
-	m_Base = m_RootNode.children.begin();
 }
 
 int List::classID()
