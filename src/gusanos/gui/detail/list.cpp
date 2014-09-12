@@ -32,18 +32,6 @@ void ListNode::resizeColumns(size_t s)
 	}
 }
 
-void ListNode::changeChildrenCount(long change)
-{
-	if(expanded)
-	{
-		if(parent)
-			parent->changeChildrenCount(change);
-		else
-			list->m_visibleChildren += change;
-	}
-	visibleChildren += change;
-}
-
 List::node_iter_t ListNode::getPrevVisible(node_iter_t i)
 {
 	node_iter_t parent = i->parent;
@@ -144,7 +132,6 @@ void List::addColumn(ColumnHeader const& column)
 	m_columnHeaders.push_back(column);
 	
 	m_RootNode.resizeColumns(m_columnHeaders.size());
-	m_totalWidthFactor += column.widthFactor;
 }
 
 bool List::verify_(node_iter_t i, node_iter_t n)

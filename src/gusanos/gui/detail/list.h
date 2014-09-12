@@ -27,7 +27,7 @@ namespace OmfgGUI
 
 		ListNode(std::string const& text)
 				: selected(false), expanded(true)
-				, parent(0), visibleChildren(0), level(0)
+				, parent(0), level(0)
 				, list(0)
 		{
 			columns.push_back(text);
@@ -42,7 +42,6 @@ namespace OmfgGUI
 
 			node->level = level + 1;
 			node->parent = this;
-			changeChildrenCount(1);
 
 			return node_iter_t(node);
 		}
@@ -90,16 +89,12 @@ namespace OmfgGUI
 			return columns;
 		}
 
-		void changeChildrenCount(long change);
-
 		void clearSelections();
 
-		//std::string text;
 		std::vector<std::string> columns;
 		bool        selected;
 		bool        expanded;
 		ListNode*   parent;
-		long        visibleChildren;
 		long        level;
 		List*       list;
 		list_t      children;
@@ -132,10 +127,7 @@ namespace OmfgGUI
 			List(Wnd* parent, std::map<std::string, std::string> const& attributes)
 					: 
 					Wnd(parent, attributes, "list"),
-					m_RootNode("root"),
-					m_totalWidthFactor(0.0),
-					m_visibleChildren(0)
-
+					m_RootNode("root")
 			{
 				assert(!m_RootNode.parent);
 				m_RootNode.list = this;
@@ -152,7 +144,6 @@ namespace OmfgGUI
 				node->list = this;
 				node->columns.resize(m_columnHeaders.size());
 				m_RootNode.children.insert(node);
-				++m_visibleChildren;
 				node_iter_t i(node);
 				i->parent = 0;
 
@@ -170,7 +161,6 @@ namespace OmfgGUI
 
 			void clear()
 			{
-				m_visibleChildren = 0;
 				m_RootNode.children.clear();
 			}
 
@@ -221,8 +211,6 @@ namespace OmfgGUI
 
 			ListNode         m_RootNode;
 			std::vector<ColumnHeader> m_columnHeaders;
-			double           m_totalWidthFactor;
-			int m_visibleChildren;
 	};
 
 }
