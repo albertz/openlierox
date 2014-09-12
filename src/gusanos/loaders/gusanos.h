@@ -48,19 +48,6 @@ struct XMLLoader : ResourceLocator<XMLFile, false, false>::BaseLoader
 	
 	static XMLLoader instance;
 };
-
-struct GSSLoader : ResourceLocator<GSSFile>::BaseLoader
-{
-	virtual bool canLoad(std::string const& path, std::string& name);
-	
-	virtual bool load(GSSFile*, std::string const& path);
-	
-	virtual const char* getName();
-	virtual std::string format();
-	virtual std::string formatShort();
-	
-	static GSSLoader instance;
-};
 #endif
 
 struct LuaLoader : ResourceLocator<Script>::BaseLoader

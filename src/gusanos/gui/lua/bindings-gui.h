@@ -13,8 +13,6 @@ class Context;
 namespace LuaBindings
 {
 	void initGUI(OmfgGUI::Context& gui, LuaContext& context);
-
-	//extern std::vector<LuaReference> guiWndMetaTable;
 }
 
 #endif //LUA_BINDINGS_GUI_H

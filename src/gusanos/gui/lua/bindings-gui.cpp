@@ -147,27 +147,6 @@ int l_gui_loadgss(lua_State* L)
 	// we ignore that for now
 	// Gusanos menu not used.
 	return 0;
-	
-	OmfgGUI::Context& gui = *static_cast<OmfgGUI::Context *>(lua_touserdata(L, lua_upvalueindex(1)));
-	
-	bool passive = false;
-	
-	int params = lua_gettop(L);
-	
-	if(params > 0)
-	{
-		char const* name = lua_tostring(L, 1);
-		
-		if(!name)
-			return 1;
-		
-		if(params > 1)
-			passive = lua_toboolean(L, 2) != 0;
-			
-		gui.loadGSSFile(name, passive);
-	}
-	
-	return 0;
 }
 
 /*! gui_find(name)

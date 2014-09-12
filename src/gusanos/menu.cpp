@@ -20,7 +20,6 @@ using std::cout;
 using std::endl;
 
 ResourceLocator<XMLFile, false, false> xmlLocator;
-ResourceLocator<GSSFile> gssLocator;
 
 namespace OmfgGUI
 {
@@ -30,8 +29,9 @@ GContext menu(&renderer);
 
 std::string cmdLoadXML(std::list<std::string> const& args)
 {
-	return ""; // ignore without error
-
+	// Not really used. We don't draw anything of it.
+	// However, we load to trick old Gusanos mods.
+	
 	if(args.size() > 0)
 	{
 		std::string ret;
@@ -62,93 +62,20 @@ std::string cmdLoadXML(std::list<std::string> const& args)
 
 std::string cmdLoadGSS(std::list<std::string> const& args)
 {
-	return ""; // ignore without error
-	
-	if(args.size() > 0)
-	{
-		std::string ret;
-				
-		std::list<std::string>::const_iterator i = args.begin();
-		std::string path = *i++;
-		
-		bool passive = false;
-		for(; i != args.end(); ++i)
-		{
-			if(*i == "passive")
-				passive = true;
-		}
-		
-		
-		if(GSSFile* f = gssLocator.load(path))
-		{
-			if(!f->loaded)
-			{
-				f->loaded = true;
-				if(!passive)
-					menu.updateGSS();
-			}
-			return "";
-		}
-		else
-			return "ERROR LOADING \"" + path + '"';
-	}
-	
-	return "GUI_LOADGSS <FILE> : LOADS A GSS FILE";
+	// Ignore without error.
+	// This were old Gusanos style cheets for Gusanos menu,
+	// which is not used (except dummy compatibility code).
+	return "";
 }
 
 std::string cmdGSS(std::list<std::string> const& args)
 {
-	return ""; // ignore without error
-
-	if(args.size() > 0)
-	{
-		std::string ret;
-				
-		std::list<std::string>::const_iterator i = args.begin();
-		std::string gss = *i++;
-		
-		bool passive = false;
-		for(; i != args.end(); ++i)
-		{
-			if(*i == "passive")
-				passive = true;
-		}
-		
-
-		std::istringstream f(gss);
-
-		menu.loadGSS(f, "<internal>");
-		if(!passive) menu.updateGSS();
-		
-		return "";
-	}
-	
-	return "GUI_GSS <GSS> : LOADS INLINED GSS";
+	return ""; // ignore without error. see cmdLoadGSS()
 }
 
 std::string cmdFocus(std::list<std::string> const& args)
 {
 	return ""; // ignore without error
-
-	if(args.size() > 0)
-	{
-		std::string ret;
-				
-		std::list<std::string>::const_iterator i = args.begin();
-		std::string const& name = *i++;
-
-		Wnd* newFocus = menu.findNamedWindow(name);
-
-		if(newFocus)
-		{
-			menu.setFocus(newFocus);
-			return "";
-		}
-		else
-			return "NO WINDOW WITH ID \"" + name + '"';
-	}
-	
-	return "GUI_FOCUS <WINDOW ID> : FOCUSES A WINDOW";
 }
 
 int GusanosSpriteSet::getFrameCount() const
@@ -192,16 +119,7 @@ void GContext::clear()
 
 	// Gusanos menu not used.
 	// However, create dummy root wnd so that some old Gusanos mods work.
-	
-	/*
-	std::istringstream rootGSS(
-		"window { left: 0 ; top: 0 ; bottom : -1 ; right: -1; }"
-		"edit { background: #FFFFFF ; border: #666666; border-bottom: #A0A0A0 ; border-right: #A0A0A0 ;"
-		" width: 100 ; height: 15 ; font-family: big }");
-			
-	loadGSS(rootGSS, "default");
-	*/
-	
+		
 	std::map<std::string, std::string> attributes;
 	attributes["id"] = "root";
 	Wnd* root = lua_new(Wnd, (0, attributes), luaIngame);
@@ -222,19 +140,6 @@ BaseSpriteSet* GContext::loadSpriteSet(std::string const& name)
 	if(!s)
 		return 0;
 	return new GusanosSpriteSet(s);
-}
-
-void GContext::loadGSSFile(std::string const& name, bool passive)
-{
-	if(GSSFile* f = gssLocator.load(name))
-	{
-		if(!f->loaded)
-		{
-			f->loaded = true;
-			if(!passive)
-				updateGSS();
-		}
-	}
 }
 
 Wnd* GContext::loadXMLFile(std::string const& name, Wnd* loadTo)

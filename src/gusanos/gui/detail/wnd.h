@@ -21,7 +21,6 @@ namespace OmfgGUI
 	{
 		public:
 			friend class Context;
-			friend struct Context::GSSselector;
 
 			static LuaReference metaTable;
 
@@ -139,16 +138,6 @@ namespace OmfgGUI
 
 			static bool readColor(RGB& dest, std::string const& str);
 
-			void applyGSSreally(Context::GSSselectors const& style);
-			//void applyGSSstate(Context::GSSselectors const& style, std::string const& state);
-			virtual void applyGSS(Context::GSSselectors const&);
-
-			void applyGSS()
-			{
-				applyGSS(m_context->m_gss);
-			}
-
-			virtual void applyFormatting(Context::GSSpropertyMap const&);
 			void updatePlacement();
 
 			void allocateSpace(int& x, int& y, int width, int height);

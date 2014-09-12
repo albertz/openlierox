@@ -40,12 +40,6 @@ void Context::setRoot_(Wnd* wnd)
 		m_rootWnd->setContext_(this);
 }
 
-void Context::updateGSS()
-{
-	if(m_rootWnd)
-		m_rootWnd->doUpdateGSS();
-}
-
 void Context::setFocus(Wnd* aWnd)
 {
 	if(aWnd)
@@ -59,12 +53,7 @@ void Context::setFocus(Wnd* aWnd)
 	if(aWnd == m_keyboardFocusWnd)
 		return;
 	
-	Wnd* oldFocus = m_keyboardFocusWnd;
 	m_keyboardFocusWnd = aWnd;
-	if(oldFocus)
-		oldFocus->applyGSS(m_gss);
-	if(m_keyboardFocusWnd)
-		m_keyboardFocusWnd->applyGSS(m_gss);
 	
 	if(aWnd)
 	{
@@ -115,49 +104,6 @@ void Context::deregisterWindow(Wnd* wnd)
 		if(i->second == wnd)
 			m_namedWindows.erase(i);
 	}
-}
-
-int Context::GSSselector::matchesWindow(Wnd* w) const
-{
-	int matchLevel = 1;
-	
-	for (std::list<Condition>::const_iterator c = cond.begin(); c != cond.end(); c++)
-	{
-		switch(c->type)
-		{
-			case Condition::Tag:
-				if(w->m_tagLabel != c->v)
-					return 0;
-				matchLevel += 1;
-			break;
-
-			case Condition::Class:
-				if(w->m_className != c->v)
-					return 0;
-				matchLevel += 2;
-			break;
-			
-			case Condition::ID:
-				if(w->m_id != c->v)
-					return 0;
-				matchLevel += 4;
-			break;
-			
-			case Condition::State:
-				if(w->m_state != c->v)
-					return 0;
-				matchLevel += 8;
-			break;
-			
-			case Condition::Group:
-				if(w->m_group != c->v)
-					return 0;
-				matchLevel += 16;
-			break;
-		}
-	}
-		
-	return matchLevel;
 }
 
 

@@ -23,7 +23,6 @@ typedef int KeyType;
 class Context
 {
 public:
-	friend struct GSSHandler;
 	friend class Wnd; //TEMP
 	
 	enum
@@ -45,76 +44,7 @@ public:
 			Middle
 		};
 	};
-
-	typedef std::list<std::pair<std::string, std::list<std::string> > > GSSpropertyMap;
-	
-	struct GSSselector
-	{
-		struct Condition
-		{
-			enum Type
-			{
-				Tag = 0,
-				Class,
-				ID,
-				State,
-				Group
-			};
-			
-			Condition(Type type, std::string v)
-			: type(type), v(v)
-			{
-			}
-			
-			Type type;
-			std::string v;
-		};
 		
-		void addTag(std::string const& name)
-		{
-			cond.push_back(Condition(Condition::Tag, name)); 
-		}
-
-		void addClass(std::string const& name)
-		{
-			cond.push_back(Condition(Condition::Class, name)); 
-		}
-		
-		void addID(std::string const& name)
-		{
-			cond.push_back(Condition(Condition::ID, name)); 
-		}
-		
-		void addState(std::string const& name)
-		{
-			cond.push_back(Condition(Condition::State, name)); 
-		}
-		
-		void addGroup(std::string const& name)
-		{
-			cond.push_back(Condition(Condition::Group, name)); 
-		}
-		
-		int matchesWindow(Wnd*) const;
-		
-		std::list<std::string>& addProperty(std::string const& name)
-		{
-			props.push_back(std::pair<std::string, std::list<std::string> >(name, std::list<std::string>()));
-			return props.back().second;
-		}
-		
-		std::list<Condition> cond;
-		GSSpropertyMap props;
-	};
-	
-	GSSselector& addSelector()
-	{
-		m_gss.push_back(GSSselector());
-		return m_gss.back();
-	}
-	
-	typedef std::list<GSSselector> GSSselectors;	
-	
 	Context(Renderer* renderer)
 	: m_mouseCaptureWnd(0), m_rootWnd(0), m_keyboardFocusWnd(0)
 	, m_mouseFocusWnd(0), m_renderer(renderer)
@@ -125,9 +55,7 @@ public:
 	virtual ~Context()
 	{
 	}
-	
-	void updateGSS();
-		
+			
 	void captureMouse(Wnd* aWnd)
 	{
 		m_mouseCaptureWnd = aWnd;
@@ -159,12 +87,8 @@ public:
 	
 	void render();
 	
-	virtual void loadGSSFile(std::string const&, bool passive) = 0;
 	virtual Wnd* loadXMLFile(std::string const&, Wnd* loadTo) = 0;
-	
-	// This is defined in gss.cpp
-	void loadGSS(std::istream& s, std::string const& fileName);
-	
+		
 	// This is defined in xml.cpp
 	Wnd* buildFromXML(std::istream& s, Wnd* dest);
 		
@@ -214,8 +138,6 @@ protected:
 
 	std::map<std::string, Wnd*> m_namedWindows;
 	
-	GSSselectors m_gss;
-
 	long m_cursorX;
 	long m_cursorY;
 };

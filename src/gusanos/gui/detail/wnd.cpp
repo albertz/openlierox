@@ -191,228 +191,6 @@ bool Wnd::readSkin(BaseSpriteSet*& dest, std::string const& str)
 	return true;
 }
 
-void Wnd::applyGSSreally(Context::GSSselectors const& style)
-{
-	std::multimap<int, Context::GSSpropertyMap const*> clauses;
-	
-	const_foreach(i, style)
-	{
-		if(int level = i->matchesWindow(this))
-		{
-			clauses.insert(std::make_pair(level, &i->props));
-		}
-	}
-	
-	// Activate from lowest specifity
-	foreach(i, clauses)
-	{
-		applyFormatting(*(i->second));
-	}
-}
-
-/*
-void Wnd::applyGSSstate(Context::GSSselectors const& style, std::string const& state)
-{
-	applyGSSnoState(style);
-}
-*/
-
-void Wnd::applyGSS(Context::GSSselectors const& style)
-{
-	//cout << "Context: " << m_context << endl;
-	if(m_active)
-		m_state = "active";
-	else if(isFocused())
-		m_state = "focused";
-	else
-		m_state = "";
-	
-	applyGSSreally(style);
-	
-		
-	//updateFormatting();
-}
-
-void Wnd::applyFormatting(Context::GSSpropertyMap const& f)
-{
-	#define EACH_VALUE(i_) for(std::list<std::string>::const_iterator i_ = i->second.begin(); i_ != i->second.end(); ++i_)
-	
-	for(Context::GSSpropertyMap::const_iterator i = f.begin(); i != f.end(); ++i)
-	{
-		//cout << "Applying to " << m_id << ": " << i->first << endl;
-		if(i->first == "background")
-		{
-			EACH_VALUE(v)
-			{
-				readColor(m_formatting.background.color, *v);
-			}
-		}
-		else if(i->first == "color" || i->first == "colour")
-		{
-			EACH_VALUE(v)
-			{
-				readColor(m_formatting.fontColor, *v);
-			}
-		}
-		else if(i->first == "background-image")
-		{
-			EACH_VALUE(v)
-			{
-				if(readSpriteSet(m_formatting.background.spriteSet, *v))
-					break;
-			}
-		}
-		else if(i->first == "background-invisible")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.background.invisible = (*v != "0");
-			}
-		}
-		else if(i->first == "skin")
-		{
-			EACH_VALUE(v)
-			{
-				if(readSkin(m_formatting.background.skin, *v))
-					break;
-			}
-		}
-		else if(i->first == "border")
-		{
-			RGB color;
-			EACH_VALUE(v)
-			{
-				readColor(color, *v);
-			}
-			
-			m_formatting.borders[0].color = color;
-			m_formatting.borders[1].color = color;
-			m_formatting.borders[2].color = color;
-			m_formatting.borders[3].color = color;
-		}
-		else if(i->first == "border-left")
-		{
-			EACH_VALUE(v)
-			{
-				readColor(m_formatting.borders[0].color, *v);
-			}
-		}
-		else if(i->first == "border-top")
-		{
-			EACH_VALUE(v)
-			{
-				readColor(m_formatting.borders[1].color, *v);
-			}
-		}
-		else if(i->first == "border-right")
-		{
-			EACH_VALUE(v)
-			{
-				readColor(m_formatting.borders[2].color, *v);
-			}
-		}
-		else if(i->first == "border-bottom")
-		{
-			EACH_VALUE(v)
-			{
-				readColor(m_formatting.borders[3].color, *v);
-			}
-		}
-		else if(i->first == "left")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.rect.x1 = lexical_cast<int>(*v);
-			}
-			m_formatting.flags |= Formatting::HasLeft;
-		}
-		else if(i->first == "right")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.rect.x2 = lexical_cast<int>(*v);
-			}
-			m_formatting.flags |= Formatting::HasRight;
-		}
-		else if(i->first == "top")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.rect.y1 = lexical_cast<int>(*v);
-			}
-			m_formatting.flags |= Formatting::HasTop;
-		}
-		else if(i->first == "bottom")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.rect.y2 = lexical_cast<int>(*v);
-			}
-			m_formatting.flags |= Formatting::HasBottom;
-		}
-		else if(i->first == "width")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.width = lexical_cast<int>(*v);
-			}
-		}
-		else if(i->first == "height")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.height = lexical_cast<int>(*v);
-			}
-		}
-		else if(i->first == "spacing")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.spacing = lexical_cast<int>(*v);
-			}
-		}
-		else if(i->first == "padding")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.padding = lexical_cast<int>(*v);
-			}
-		}
-		else if(i->first == "font-family")
-		{
-			delete m_font;
-			
-			EACH_VALUE(v)
-			{
-				m_font = m_context->loadFont(*v);
-				if(m_font)
-					break;
-			}
-		}
-		else if(i->first == "alpha")
-		{
-			EACH_VALUE(v)
-			{
-				m_formatting.alpha = lexical_cast<int>(*v);
-			}
-		}
-		else if(i->first == "blender")
-		{
-			EACH_VALUE(v)
-			{
-				if(*v == "add")
-					m_formatting.blender = Formatting::Add;
-				else if(*v == "alpha")
-					m_formatting.blender = Formatting::Alpha;
-				else if(*v == "none")
-					m_formatting.blender = Formatting::None;
-			}
-		}
-	}
-	
-	#undef EACH_VALUE
-}
-
 void Wnd::updatePlacement()
 {
 	switch(m_formatting.flags & (Formatting::HasLeft | Formatting::HasRight))
@@ -636,7 +414,6 @@ void Wnd::doSetActivation(bool active)
 		}
 		setActivation(active);
 		m_active = active;
-		applyGSS(m_context->m_gss);
 	}
 }
 
@@ -729,7 +506,6 @@ bool Wnd::getAttrib(std::string const& name, std::string& dest)
 void Wnd::doUpdateGSS()
 {
 	m_formatting = Formatting(); // Reset formatting to default
-	applyGSS(m_context->m_gss); // Apply GSS
 	updatePlacement(); // Place window
 	
 	std::list<Wnd *>::iterator i = m_children.begin(), e = m_children.end();
@@ -744,7 +520,6 @@ void Wnd::setContext_(Context* context)
 	m_context = context;
 	m_context->registerWindow(this);
 	
-	applyGSS();
 	updatePlacement();
 	
 	std::list<Wnd *>::iterator i = m_children.begin(), e = m_children.end();

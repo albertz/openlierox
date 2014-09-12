@@ -103,7 +103,6 @@ public:
 	virtual BaseFont* loadFont(std::string const& name);
 	virtual BaseSpriteSet* loadSpriteSet(std::string const& name);
 	
-	virtual void loadGSSFile(std::string const& name, bool passive);
 	virtual Wnd* loadXMLFile(std::string const& name, Wnd* loadTo);
 };
 
@@ -124,21 +123,5 @@ public:
 
 extern ResourceLocator<XMLFile, false, false> xmlLocator;
 
-class GSSFile
-{
-public:
-	GSSFile()
-	: loaded(false)
-	{}
-	
-	operator bool()
-	{
-		return loaded;
-	}
-		
-	bool loaded;
-};
-
-extern ResourceLocator<GSSFile> gssLocator;
 
 #endif //VERMES_MENU_H

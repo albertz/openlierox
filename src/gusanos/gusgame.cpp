@@ -547,7 +547,6 @@ void GusGame::unload()
 #ifndef DEDICATED_ONLY
 	fontLocator.clear();
 	xmlLocator.clear();
-	gssLocator.clear();
 #endif
 	scriptLocator.clear();
 
@@ -582,10 +581,6 @@ void GusGame::refreshResources(std::string const& levelPath)
 	xmlLocator.addPath(C_DefaultModPath + "/gui");
 	xmlLocator.addPath(std::string(nextMod) + "/gui");
 	xmlLocator.refresh();
-	
-	gssLocator.addPath(C_DefaultModPath + "/gui");
-	gssLocator.addPath(std::string(nextMod) + "/gui");
-	gssLocator.refresh();
 #endif
 	
 	scriptLocator.addPath(levelPath + "/scripts");

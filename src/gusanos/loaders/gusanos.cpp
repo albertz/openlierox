@@ -374,44 +374,6 @@ const char* XMLLoader::getName()
 std::string XMLLoader::format() { return "Gusanos XML"; }
 std::string XMLLoader::formatShort() { return "GusXML"; }
 
-
-
-GSSLoader GSSLoader::instance;
-
-bool GSSLoader::canLoad(std::string const& path, std::string& name)
-{
-	if(GetFileExtensionWithDot(path) == ".gss")
-	{
-		name = GetBaseFilenameWithoutExt(path);
-		return true;
-	}
-	return false;
-}
-	
-bool GSSLoader::load(GSSFile* gss, std::string const& path)
-{
-	return false; // Gusanos menu not used
-	
-	std::ifstream f;
-	OpenGameFileR(f, path, std::ios::binary);
-	
-	if(!f)
-		return false;
-	
-	OmfgGUI::menu.loadGSS(f, path);
-		
-	return true;
-}
-
-const char* GSSLoader::getName()
-{
-	return "GSS loader";
-}
-
-std::string GSSLoader::format() { return "Gusanos GSS"; }
-std::string GSSLoader::formatShort() { return "GSS"; }
-
-
 #endif
 
 LuaLoader LuaLoader::instance;
