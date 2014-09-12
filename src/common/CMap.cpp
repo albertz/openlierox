@@ -67,7 +67,7 @@ bool CMap::NewFrom(CMap* map)
 	bMiniMapDirty = map->bMiniMapDirty;
 	NumObjects = map->NumObjects;
 	
-	bmpGreenMask = map->bmpGreenMask.get() ? GetCopiedImage(map->bmpGreenMask) : NULL;
+	bmpGreenMask = map->bmpGreenMask;
 
 	if(map->gusIsLoaded()) {
 		if (!MiniCreate(Width, Height, MinimapWidth, MinimapHeight))
@@ -1276,7 +1276,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 		int DrawImagePitch = bmpDrawImage.get()->pitch;
 		for(y = green_clip_y, dy=clip_y; dy < clip_h; y++, dy++) {
 
-			Uint8* p = (Uint8*)bmpGreenMask.get()->pixels
+			const Uint8* p = (Uint8*)bmpGreenMask.get()->pixels
 				+ y * bmpGreenMask.get()->pitch
 				+ green_clip_x * bmpGreenMask.get()->format->BytesPerPixel;
 			uchar* px = &material->line[dy][clip_x];
