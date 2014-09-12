@@ -15,24 +15,6 @@ void Context::destroy()
 	delete m_rootWnd; m_rootWnd = 0;
 }
 
-void Context::render()
-{
-	if(m_rootWnd)
-	{
-		Rect oldClip(renderer()->getClip());
-		m_rootWnd->doRender(renderer()->getViewportRect());
-		renderer()->setClip(oldClip);
-		renderer()->resetBlending();
-	}       
-}
-
-void Context::process()
-{
-	if(m_rootWnd)
-		m_rootWnd->doProcess();
-}
-	
-
 void Context::setRoot_(Wnd* wnd)
 {
 	m_rootWnd = wnd;

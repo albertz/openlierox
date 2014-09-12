@@ -42,9 +42,7 @@ public:
 	}
 	
 	virtual void setText(std::string const& aStr);
-		
-	void assertCaretVisibility(Renderer* renderer);
-		
+				
 	virtual int classID();
 	
 protected:

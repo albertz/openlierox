@@ -45,16 +45,11 @@ public:
 		};
 	};
 		
-	Context(Renderer* renderer)
+	Context()
 	: m_mouseCaptureWnd(0), m_rootWnd(0), m_keyboardFocusWnd(0)
-	, m_mouseFocusWnd(0), m_renderer(renderer)
-	{
-
-	}
-	
-	virtual ~Context()
-	{
-	}
+	, m_mouseFocusWnd(0)
+	{}
+	virtual ~Context() {}
 			
 	void captureMouse(Wnd* aWnd)
 	{
@@ -82,11 +77,7 @@ public:
 	}
 	
 	void setActive(Wnd* wnd);
-	
-	void process();
-	
-	void render();
-	
+		
 	virtual Wnd* loadXMLFile(std::string const&, Wnd* loadTo) = 0;
 		
 	// This is defined in xml.cpp
@@ -119,9 +110,6 @@ public:
 
 	void destroy();
 	
-	Renderer* renderer()
-	{ return m_renderer; }
-	
 	virtual BaseFont* loadFont(std::string const& name) = 0;
 	virtual BaseSpriteSet* loadSpriteSet(std::string const& name) = 0;
 	
@@ -134,7 +122,6 @@ protected:
 	Wnd* m_keyboardFocusWnd;
 	Wnd* m_activeWnd;
 	Wnd* m_mouseFocusWnd;
-	Renderer* m_renderer;
 
 	std::map<std::string, Wnd*> m_namedWindows;
 	

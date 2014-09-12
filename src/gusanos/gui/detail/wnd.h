@@ -86,17 +86,6 @@ namespace OmfgGUI
 				return space;
 			}
 
-			bool doRender(Rect const& clip);
-
-			void doProcess();
-
-			/*
-				returns: true if anything was rendered, false otherwise
-			*/
-			virtual bool render();
-
-			virtual void process();
-
 			virtual void setActivation(bool active);
 
 			void doSetActivation(bool active);

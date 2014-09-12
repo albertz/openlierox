@@ -40,60 +40,10 @@ struct GusanosSpriteSet : public BaseSpriteSet
 	SpriteSet *spriteSet;
 };
 
-struct AllegroRenderer : public Renderer
-{
-	AllegroRenderer()
-	{
-	}
-	
-	// Draws a box
-	virtual void drawBox(
-		Rect const& rect,
-		RGB const& color,
-		RGB const& borderLeftColor,
-		RGB const& borderTopColor,
-		RGB const& borderRightColor,
-		RGB const& borderBottomColor);
-		
-	virtual void drawFrame(
-		Rect const& rect,
-		RGB const& color);
-		
-	virtual void drawBox(
-		Rect const& rect,
-		RGB const& color);
-		
-	virtual void drawVLine(ulong x, ulong y1, ulong y2, RGB const& color);
-	
-	// Draws text
-	virtual void drawText(BaseFont const& font, std::string const& str, ulong flags, ulong x, ulong y, RGB const& aColor);
-	
-	virtual std::pair<int, int> getTextDimensions(BaseFont const& font, std::string::const_iterator b, std::string::const_iterator e);
-	virtual int getTextCoordToIndex(BaseFont const& font, std::string::const_iterator b, std::string::const_iterator e, int x);
-	
-	virtual void drawSprite(BaseSpriteSet const& spriteSet, int frame, ulong x, ulong y);
-	virtual void drawSprite(BaseSpriteSet const& spriteSet, int frame, ulong x, ulong y, ulong left, ulong top, ulong bottom, ulong right);
-
-	virtual void setClip(Rect const& rect);
-	virtual Rect const& getClip();
-	virtual Rect const& getViewportRect();
-	
-	virtual void setAddBlender(int alpha);
-	virtual void setAlphaBlender(int alpha);
-	virtual void resetBlending();
-	
-	void drawSkinnedBox(BaseSpriteSet const& skin, Rect const& rect, RGB const& backgroundColor);
-	
-private:
-	Rect clipRect;
-	Rect screenRect;
-	BlitterContext blitter;
-};
-
 class GContext : public Context
 {
 public:
-	GContext(Renderer* renderer);
+	GContext();
 	
 	void init();
 	void clear();
