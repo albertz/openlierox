@@ -45,20 +45,6 @@ Wnd::~Wnd()
 		delete (*i);
 		i = next;
 	}
-	
-	delete m_font;
-}
-
-static int fromHex(char h)
-{
-	if(h >= '0' && h <= '9')
-		return h - '0';
-	else if(h >= 'a' && h <= 'f')
-		return h - 'a' + 10;
-	else if(h >= 'A' && h <= 'F')
-		return h - 'A' + 10;
-	else
-		return -1;
 }
 
 bool Wnd::readSpriteSet(BaseSpriteSet*& dest, std::string const& str)

@@ -16,15 +16,6 @@ struct ALLEGRO_BITMAP;
 
 namespace OmfgGUI
 {
-	
-struct GusanosFont : public BaseFont
-{
-	GusanosFont(Font* font_)
-	: font(font_)
-	{}
-	
-	Font *font;
-};
 
 struct GusanosSpriteSet : public BaseSpriteSet
 {
@@ -50,7 +41,6 @@ public:
 	
 	virtual LuaContext& luaContext();
 	
-	virtual BaseFont* loadFont(std::string const& name);
 	virtual BaseSpriteSet* loadSpriteSet(std::string const& name);
 	
 	virtual Wnd* loadXMLFile(std::string const& name, Wnd* loadTo);

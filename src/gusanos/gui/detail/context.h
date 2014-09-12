@@ -102,7 +102,6 @@ public:
 
 	void destroy();
 	
-	virtual BaseFont* loadFont(std::string const& name) = 0;
 	virtual BaseSpriteSet* loadSpriteSet(std::string const& name) = 0;
 	
 		

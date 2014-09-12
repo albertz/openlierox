@@ -125,14 +125,6 @@ void GContext::clear()
 	setRoot(root);
 }
 
-BaseFont* GContext::loadFont(std::string const& name)
-{
-	Font* f = fontLocator.load(name);
-	if(!f)
-		return 0;
-	return new GusanosFont(f);
-}
-
 BaseSpriteSet* GContext::loadSpriteSet(std::string const& name)
 {
 	SpriteSet *s = spriteList.load(name);

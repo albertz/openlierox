@@ -46,7 +46,6 @@ namespace OmfgGUI
 					m_parent(0),
 					m_lastChildFocus(0),
 					m_context(0),
-					m_font(0),
 					m_tagLabel(tagLabel),
 					m_attributes(attributes),
 					m_visible(true),
@@ -210,7 +209,6 @@ namespace OmfgGUI
 			Wnd                 *m_parent;
 			Wnd                 *m_lastChildFocus;
 			Context             *m_context;
-			BaseFont            *m_font;
 
 			std::string          m_tagLabel;
 			std::string          m_className;

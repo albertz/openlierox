@@ -31,18 +31,6 @@ struct BaseSpriteSet
 	{}
 };
 
-struct BaseFont
-{
-	enum Flags
-	{
-		CenterH = 1 << 0,
-		CenterV = 1 << 1
-	};
-	
-	virtual ~BaseFont()
-	{}
-};
-
 }
 
 #endif //OMFG_GUI_RENDERER_H
