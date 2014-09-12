@@ -621,6 +621,9 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 	lockFlags();
 
 	// Update the bmpImage according to pixel flags
+	// XXX: Code is buggy. If different format, it doesnt work.
+	// Also, why is this needed?
+	/*
 	if (update_image && bmpBackImageHiRes.get())  {
 
 		// Update
@@ -659,6 +662,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 			UnlockSurface(bmpBackImageHiRes);
 		}
 	}
+	*/
 
 	unlockFlags();
 
