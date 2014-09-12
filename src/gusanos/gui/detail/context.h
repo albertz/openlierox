@@ -62,15 +62,7 @@ public:
 	}
 	
 	virtual void setFocus(Wnd* aWnd);
-	
-	// Called by a window if it has focus and
-	// is being hidden.
-	virtual void hiddenFocus() {}
-	
-	// Called by a window if it has focus and
-	// is turned visible again.
-	virtual void shownFocus() {}
-		
+			
 	Wnd* getFocus()
 	{
 		return m_keyboardFocusWnd;

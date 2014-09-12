@@ -176,15 +176,7 @@ namespace OmfgGUI
 			void setVisibility(bool v)
 			{
 				m_visible = v;
-				if(!v)
-					notifyHide();
-				else
-					notifyShow();
 			}
-
-			void notifyHide();
-
-			void notifyShow();
 
 			bool isVisibile();
 
