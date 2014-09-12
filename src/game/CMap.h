@@ -138,6 +138,7 @@ public:
 	SmartPointer<SDL_Surface> bmpDrawImage;
 	SmartPointer<SDL_Surface> bmpBackImageHiRes;
 	SmartPointer<SDL_Surface> bmpForeground;
+	SmartPointer<SDL_Surface> bmpParalax;
 private:
 	SmartPointer<SDL_Surface> bmpMiniMap;
     SmartPointer<SDL_Surface> bmpGreenMask;
@@ -564,7 +565,7 @@ public:
 #ifndef DEDICATED_ONLY
 	//ALLEGRO_BITMAP* image; -> bmpDrawImage
 	//ALLEGRO_BITMAP* background; -> bmpBackImageHiRes
-	ALLEGRO_BITMAP* paralax;
+	//ALLEGRO_BITMAP* paralax; -> bmpParalax
 	ALLEGRO_BITMAP* lightmap; // This has to be 8 bit.
 	ALLEGRO_BITMAP* watermap; // How water looks in each pixel of the map
 #endif

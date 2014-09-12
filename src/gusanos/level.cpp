@@ -84,7 +84,6 @@ void CMap::gusInit()
 	m_config = 0;
 
 #ifndef DEDICATED_ONLY
-	paralax = NULL;
 	lightmap = NULL;
 	watermap = NULL;
 #endif
@@ -163,8 +162,6 @@ void CMap::gusShutdown()
 	}
 	
 #ifndef DEDICATED_ONLY
-	destroy_bitmap(paralax);
-	paralax = NULL;
 	destroy_bitmap(lightmap);
 	lightmap = NULL;
 	destroy_bitmap(watermap);
@@ -267,12 +264,12 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 {
 	if(!bmpDrawImage.get()) return;
 
-	if (!paralax) {
+	if (!bmpParalax.get()) {
 		blit(bmpDrawImage.get(),where,x*2,y*2,0,0,where->w,where->h);
 	} else {
-		int px = int(x * (paralax->w - where->w) / float( bmpDrawImage->w - where->w ));
-		int py = int(y * (paralax->h - where->h) / float( bmpDrawImage->h - where->h ));
-		blit(paralax,where,px*2,py*2,0,0,where->w,where->h);
+		int px = int(x * (bmpParalax->w - where->w) / float( bmpDrawImage->w - where->w ));
+		int py = int(y * (bmpParalax->h - where->h) / float( bmpDrawImage->h - where->h ));
+		blit(bmpParalax.get(),where,px*2,py*2,0,0,where->w,where->h);
 		blit(bmpDrawImage.get(),where,x*2,y*2,0,0,where->w,where->h);
 	}
 
@@ -528,6 +525,6 @@ void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPo
 }
 
 void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
-	gusUpdateMinimap(bmpMiniMap, bmpForeground, bmpDrawImage, paralax ? paralax->surf : NULL, x, y, w, h, 0.5f);
+	gusUpdateMinimap(bmpMiniMap, bmpForeground, bmpDrawImage, bmpParalax, x, y, w, h, 0.5f);
 }
 

@@ -33,6 +33,7 @@ public:
 	SmartPointer<SDL_Surface> getMinimap() {
 		if(minimap.get()) return minimap;
 		
+		// TODO: in the real loader code, we also check for bmp files...
 		// We use the allegro loader function because that assures that we don't have alpha - because alpha makes problem for the blitting functions.
 		SmartPointer<SDL_Surface> image = load_bitmap__allegroformat(filename + "/level.png", false);
 		if(!image.get()) {

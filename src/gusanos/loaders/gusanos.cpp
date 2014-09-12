@@ -200,9 +200,9 @@ bool GusanosLevelLoader::load(CMap* level, std::string const& path)
 		if (level->bmpDrawImage.get())
 		{			
 			level->bmpBackImageHiRes = gfx.loadBitmapSDL(path + "/background", false, !level->config()->doubleRes);
-			level->paralax = gfx.loadBitmap(path + "/paralax", false, !level->config()->doubleRes);
+			level->bmpParalax = gfx.loadBitmapSDL(path + "/paralax", false, !level->config()->doubleRes);
 
-			if(!level->paralax)
+			if(!level->bmpParalax.get())
 				notes << "Paralax not loaded" << endl;
 			else
 				// We earlier used masked_blit() in CMap::gusDraw().
