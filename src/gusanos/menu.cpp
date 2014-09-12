@@ -186,11 +186,8 @@ void GContext::clear()
 		"window { left: 0 ; top: 0 ; bottom : -1 ; right: -1; }"
 		"edit { background: #FFFFFF ; border: #666666; border-bottom: #A0A0A0 ; border-right: #A0A0A0 ;"
 		" width: 100 ; height: 15 ; font-family: big }");
-		
-	//std::istringstream rootXML("<window id=\"root\" />");
-	
+			
 	loadGSS(rootGSS, "default");
-	//buildFromXML(rootXML, 0);
 	
 	std::map<std::string, std::string> attributes;
 	attributes["id"] = "root";
@@ -253,7 +250,6 @@ void AllegroRenderer::drawBox(
 	RGB const& borderBottomColor)
 {
 	blitter.rectfill(gfx.buffer, rect.x1, rect.y1, rect.x2, rect.y2, allegroColor(color));
-	//rectfill(gfx.buffer, rect.x1, rect.y1, rect.x2, rect.y2, allegroColor(color));
 	hline(gfx.buffer, rect.x1, rect.y2, rect.x2, allegroColor(borderBottomColor));
 	vline(gfx.buffer, rect.x2, rect.y1, rect.y2, allegroColor(borderRightColor));
 	vline(gfx.buffer, rect.x1, rect.y1, rect.y2, allegroColor(borderLeftColor));
@@ -277,8 +273,6 @@ void AllegroRenderer::drawBox(
 	RGB const& color)
 {
 	blitter.rectfill(gfx.buffer, rect.x1, rect.y1, rect.x2, rect.y2, allegroColor(color));
-	
-	//rectfill(gfx.buffer, rect.x1, rect.y1, rect.x2, rect.y2, allegroColor(color));
 }
 
 void AllegroRenderer::drawVLine(ulong x, ulong y1, ulong y2, RGB const& color)
@@ -330,7 +324,6 @@ void AllegroRenderer::drawSprite(BaseSpriteSet const& spriteSet, int frame, ulon
 	if(GusanosSpriteSet const* s = dynamic_cast<GusanosSpriteSet const*>(&spriteSet))
 	{
 		s->spriteSet->getSprite(frame)->draw(gfx.buffer, x, y, blitter);
-		//s->spriteSet->getSprite(frame)->drawCut(gfx.buffer, x, y, 0, 0, 0, 0, 0);
 	}
 }
 
@@ -379,38 +372,6 @@ void AllegroRenderer::drawSkinnedBox(BaseSpriteSet const& skin, Rect const& rect
 	if(GusanosSpriteSet const* s = dynamic_cast<GusanosSpriteSet const*>(&skin))
 	{
 		s->spriteSet->drawSkinnedBox(gfx.buffer, blitter, rect, allegroColor(backgroundColor));
-		/*
-		gfx.drawSkinnedBox(blitter, s, rect, backgroundColor);
-		
-		int skinWidth = skin.getFrameWidth(0), skinHeight = skin.getFrameHeight(0);
-		
-		int x, y;
-	
-		drawBox(Rect(rect.x1 + skinWidth, rect.y1 + skinHeight, rect.x2 - skinWidth - 1, rect.y2 - skinHeight - 1), backgroundColor);
-		for(y = rect.y1 + skinHeight; y < rect.y2 - skinHeight * 2; y += skinHeight)
-		{
-			drawSprite(skin, 4, rect.x1, y);
-			drawSprite(skin, 5, rect.x2 - skinWidth, y);
-		}
-		
-		int cutOff = skinHeight*2 - rect.y2 + y;
-		drawSprite(skin, 4, rect.x1, y, 0, 0, cutOff, 0);
-		drawSprite(skin, 5, rect.x2 - skinWidth, y, 0, 0, cutOff, 0);
-		
-		for(x = rect.x1 + skinWidth; x < rect.x2 - skinWidth * 2; x += skinWidth)
-		{
-			drawSprite(skin, 6, x, rect.y1);
-			drawSprite(skin, 7, x, rect.y2 - skinHeight);
-		}
-		
-		cutOff = skinWidth*2 - rect.x2 + x;
-		drawSprite(skin, 6, x, rect.y1, 0, 0, 0, cutOff);
-		drawSprite(skin, 7, x, rect.y2 - skinHeight, 0, 0, 0, cutOff);
-	
-		drawSprite(skin, 0, rect.x1, rect.y1);
-		drawSprite(skin, 1, rect.x2 - skinWidth, rect.y1);
-		drawSprite(skin, 2, rect.x1, rect.y2 - skinHeight);
-		drawSprite(skin, 3, rect.x2 - skinWidth, rect.y2 - skinHeight);*/
 	}
 }
 
