@@ -121,27 +121,14 @@ static int fromHex(char h)
 		return -1;
 }
 
-bool Wnd::readColor(RGB& dest, std::string const& str)
-{
-	if(str.size() >= 7 && str[0] == '#')
-	{
-		dest.r = fromHex(str[1]) * 16 + fromHex(str[2]);
-		dest.g = fromHex(str[3]) * 16 + fromHex(str[4]);
-		dest.b = fromHex(str[5]) * 16 + fromHex(str[6]);
-		return true;
-	}
-	return false;
-}
-
 bool Wnd::readSpriteSet(BaseSpriteSet*& dest, std::string const& str)
 {
-	if(str.size() == 0)
-	{
-		dest = 0;
-		return true;
-	}
-	
 	delete dest;
+	dest = 0;
+
+	if(str.size() == 0)
+		return true;
+	
 	dest = m_context->loadSpriteSet(str);
 	//cerr << "Loaded: " << str << "(" << dest << ")" << endl;
 	if(!dest)
@@ -152,13 +139,12 @@ bool Wnd::readSpriteSet(BaseSpriteSet*& dest, std::string const& str)
 
 bool Wnd::readSkin(BaseSpriteSet*& dest, std::string const& str)
 {
-	if(str.size() == 0)
-	{
-		dest = 0;
-		return true;
-	}
-	
 	delete dest;
+	dest = 0;
+
+	if(str.size() == 0)
+		return true;
+	
 	dest = m_context->loadSpriteSet(str);
 
 	if(!dest)

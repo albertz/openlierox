@@ -152,11 +152,6 @@ Wnd* GContext::loadXMLFile(std::string const& name, Wnd* loadTo)
 	return 0;
 }
 
-int allegroColor(RGB const& rgb)
-{
-	return makecol(rgb.r, rgb.g, rgb.b);
-}
-
 }
 
 #endif

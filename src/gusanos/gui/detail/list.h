@@ -328,24 +328,6 @@ namespace OmfgGUI
 		private:
 			bool verify_(node_iter_t i, node_iter_t n);
 
-			struct ListFormatting
-			{
-				ListFormatting()
-						: headerColor(RGB(170, 170, 255))
-						, selectionColor(RGB(170, 170, 255))
-						, selectionFrameColor(RGB(0, 0, 0))
-						, indent(3.0)
-				{}
-
-
-				RGB headerColor;
-				RGB selectionColor;
-				RGB selectionFrameColor;
-				double indent;
-
-			}
-			m_listFormatting;
-
 			ListNode         m_RootNode;
 			node_iter_t      m_Base;
 			int              m_basePos;

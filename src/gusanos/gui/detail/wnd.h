@@ -43,14 +43,11 @@ namespace OmfgGUI
 			Wnd(Wnd* parent, std::map<std::string, std::string> const& attributes,
 			    std::string const& tagLabel = "window")
 					: m_focusable(true),
-					/*m_text(text),*/
 					m_parent(0),
 					m_lastChildFocus(0),
 					m_context(0),
 					m_font(0),
 					m_tagLabel(tagLabel),
-					/*m_className(className),*/
-					/*m_id(id),*/
 					m_attributes(attributes),
 					m_visible(true),
 					m_active(false)
@@ -124,8 +121,6 @@ namespace OmfgGUI
 			void getCoord(int& dx, int& dy, int x, int y);
 			void getCoordX(int& dx, int x);
 			void getCoordY(int& dy, int y);
-
-			static bool readColor(RGB& dest, std::string const& str);
 
 			void updatePlacement();
 
@@ -221,8 +216,6 @@ namespace OmfgGUI
 				return m_context;
 			}
 
-			//std::string const& getText() const;
-
 			bool m_focusable;
 			LuaReference luaReference;
 
@@ -235,19 +228,6 @@ namespace OmfgGUI
 			bool readSkin(BaseSpriteSet*& dest, std::string const& str);
 
 			LuaReference m_callbacks[LuaCallbacksMax];
-
-			/*
-				//Transfers ownership
-				Wnd* add_(Wnd* wnd)
-				{
-					if(m_context)
-					{
-						wnd->setContext_(m_context); //Inherit root
-					}
-			 
-					m_children.push_back(wnd);
-					return wnd;
-				}*/
 
 			std::string          m_text;
 			Rect                 m_rect;
@@ -294,34 +274,22 @@ namespace OmfgGUI
 
 				Formatting()
 						: width(50), height(50), spacing(5), padding(5), flags(0)
-						, alpha(255), rect(10, 10, 0, 0), fontColor(255, 255, 255)
+						, alpha(255), rect(10, 10, 0, 0)
 						, blender(Alpha)
 				{}
-
-				struct Border
-				{
-					Border()
-							: color(255, 255, 255)
-					{}
-
-					RGB color;
-				}
-				borders[4];
 
 				struct Background
 				{
 					Background()
-							: color(128, 128, 128), spriteSet(0), skin(0)
+							: spriteSet(0), skin(0)
 							, invisible(false)
 					{}
 
 					~Background()
 					{
-						//cerr << "Deleting spriteSet " << spriteSet << endl;
 						delete spriteSet;
 					}
 
-					RGB color;
 					BaseSpriteSet *spriteSet;
 					BaseSpriteSet *skin;
 					bool invisible;
@@ -337,7 +305,6 @@ namespace OmfgGUI
 				int         alpha;
 
 				Rect        rect;
-				RGB         fontColor;
 				Blender     blender;
 
 			}
