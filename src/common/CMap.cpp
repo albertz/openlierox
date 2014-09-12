@@ -103,7 +103,7 @@ bool CMap::NewFrom(CMap* map)
 	bmpDrawImage = map->bmpDrawImage.get() ? GetCopiedImage(map->bmpDrawImage) : NULL;
 	bmpForeground = map->bmpForeground.get() ? GetCopiedImage(map->bmpForeground) : NULL;
 	bmpBackImageHiRes = map->bmpBackImageHiRes.get() ? GetCopiedImage(map->bmpBackImageHiRes) : NULL;
-	bmpParalax = map->bmpParalax.get() ? GetCopiedImage(map->bmpParalax) : NULL;
+	bmpParallax = map->bmpParallax.get() ? GetCopiedImage(map->bmpParallax) : NULL;
 #ifdef _AI_DEBUG
 	bmpDebugImage = map->bmpDebugImage.get() ? GetCopiedImage(map->bmpDebugImage) : NULL;
 #endif

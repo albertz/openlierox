@@ -10,7 +10,7 @@ History:
 --------
 0.1 - 2006-02-10 (138kb)
   Converted from LOSP to Gusanos.
-  Added paralax.
+  Added parallax.
   Minor graphical improvements.
 
 Links:

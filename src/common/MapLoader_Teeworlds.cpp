@@ -908,8 +908,8 @@ struct ML_Teeworlds : MapLoad {
 
 	void createParalax() {
 		IVec paralaxSize = getParalaxSize();
-		map->bmpParalax = gfxCreateSurface(paralaxSize.x, paralaxSize.y);
-		DrawRectFill(map->bmpParalax.get(), 0, 0, map->bmpParalax->w, map->bmpParalax->h,
+		map->bmpParallax = gfxCreateSurface(paralaxSize.x, paralaxSize.y);
+		DrawRectFill(map->bmpParallax.get(), 0, 0, map->bmpParallax->w, map->bmpParallax->h,
 					 // that's the baby-blue color commonly used in Teeworlds :P
 					 Color(154, 183, 215));
 		foreach(g, groups) {
@@ -923,10 +923,10 @@ struct ML_Teeworlds : MapLoad {
 					TWImage& img = images[l.quadLayer.image_id];
 					IVec imgSize(Vec(img.width / ParalaxScaleFactor, img.height / ParalaxScaleFactor));
 					DrawImageResampledAdv(
-								map->bmpParalax.get(), img.image,
+								map->bmpParallax.get(), img.image,
 								0, 0,
-								(map->bmpParalax->w - imgSize.x) / 2,
-								(map->bmpParalax->h - imgSize.y) / 2,
+								(map->bmpParallax->w - imgSize.x) / 2,
+								(map->bmpParallax->h - imgSize.y) / 2,
 								img.image->w, img.image->h,
 								imgSize.x, imgSize.y
 								);

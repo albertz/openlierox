@@ -138,7 +138,7 @@ public:
 	SmartPointer<SDL_Surface> bmpDrawImage;
 	SmartPointer<SDL_Surface> bmpBackImageHiRes;
 	SmartPointer<SDL_Surface> bmpForeground;
-	SmartPointer<SDL_Surface> bmpParalax;
+	SmartPointer<SDL_Surface> bmpParallax;
 private:
 	SmartPointer<SDL_Surface> bmpMiniMap;
     SmartPointer<SDL_Surface> bmpGreenMask;
@@ -486,7 +486,7 @@ public:
 #ifndef DEDICATED_ONLY
 	void gusDraw(ALLEGRO_BITMAP* where, int x, int y);
 #endif
-	static void gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& foreground, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& paralax, int x, int y, int w, int h, float resFactor);
+	static void gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& foreground, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& parallax, int x, int y, int w, int h, float resFactor);
 	void gusUpdateMinimap(int x, int y, int w, int h);
 	
 	bool getPredefinedSpawnLocation(CWorm* worm, CVec* v);
@@ -565,7 +565,7 @@ public:
 #ifndef DEDICATED_ONLY
 	//ALLEGRO_BITMAP* image; -> bmpDrawImage
 	//ALLEGRO_BITMAP* background; -> bmpBackImageHiRes
-	//ALLEGRO_BITMAP* paralax; -> bmpParalax
+	//ALLEGRO_BITMAP* parallax; -> bmpParallax
 	ALLEGRO_BITMAP* lightmap; // This has to be 8 bit.
 	ALLEGRO_BITMAP* watermap; // How water looks in each pixel of the map
 #endif

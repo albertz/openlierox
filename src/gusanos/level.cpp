@@ -258,12 +258,12 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 {
 	if(!bmpDrawImage.get()) return;
 
-	if (!bmpParalax.get()) {
+	if (!bmpParallax.get()) {
 		blit(bmpDrawImage.get(),where,x*2,y*2,0,0,where->w,where->h);
 	} else {
-		int px = int(x * (bmpParalax->w - where->w) / float( bmpDrawImage->w - where->w ));
-		int py = int(y * (bmpParalax->h - where->h) / float( bmpDrawImage->h - where->h ));
-		blit(bmpParalax.get(),where,px*2,py*2,0,0,where->w,where->h);
+		int px = int(x * (bmpParallax->w - where->w) / float( bmpDrawImage->w - where->w ));
+		int py = int(y * (bmpParallax->h - where->h) / float( bmpDrawImage->h - where->h ));
+		blit(bmpParallax.get(),where,px*2,py*2,0,0,where->w,where->h);
 		blit(bmpDrawImage.get(),where,x*2,y*2,0,0,where->w,where->h);
 	}
 
@@ -474,7 +474,7 @@ void CMap::loaderSucceeded()
 
 
 
-void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& foreground, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& paralax, int x, int y, int w, int h, float resFactor) {
+void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& foreground, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& parallax, int x, int y, int w, int h, float resFactor) {
 	void (*blitFct) (SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
 
 	if (tLXOptions->bAntiAliasing)
@@ -492,17 +492,17 @@ void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPo
 	const int dx = (int)((float)x * xratio);
 	const int dy = (int)((float)y * yratio);
 
-	if (paralax.get()) {
+	if (parallax.get()) {
 		// Calculate ratios
-		const float parxratio = (float)paralax->w / (float)image->w;
-		const float paryratio = (float)paralax->h / (float)image->h;
+		const float parxratio = (float)parallax->w / (float)image->w;
+		const float paryratio = (float)parallax->h / (float)image->h;
 
 		const int parx = (int)((float)x * parxratio * 2);
 		const int pary = (int)((float)y * paryratio * 2);
 		const int parw = (int)((float)w * parxratio * 2);
 		const int parh = (int)((float)h * paryratio * 2);
 
-		(*blitFct) (bmpMiniMap.get(), paralax.get(), parx, pary, dx, dy, parw, parh, resFactor * xratio / parxratio, resFactor * yratio / paryratio);
+		(*blitFct) (bmpMiniMap.get(), parallax.get(), parx, pary, dx, dy, parw, parh, resFactor * xratio / parxratio, resFactor * yratio / paryratio);
 	} else {
 		DrawRectFill(bmpMiniMap.get(), dx, dy, dx + int(xratio*(w+1)), dy + int(yratio*(h+1)), Color());
 	}
@@ -514,6 +514,6 @@ void CMap::gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPo
 }
 
 void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
-	gusUpdateMinimap(bmpMiniMap, bmpForeground, bmpDrawImage, bmpParalax, x, y, w, h, 0.5f);
+	gusUpdateMinimap(bmpMiniMap, bmpForeground, bmpDrawImage, bmpParallax, x, y, w, h, 0.5f);
 }
 
