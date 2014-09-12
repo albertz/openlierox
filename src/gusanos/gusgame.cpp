@@ -219,8 +219,8 @@ bool GusGame::init()
 	fontLocator.registerLoader(&LOSPFontLoader::instance);
 	fontLocator.registerLoader(&LieroFontLoader::instance);
 	
-	xmlLocator.registerLoader(&XMLLoader::instance);
-	gssLocator.registerLoader(&GSSLoader::instance);
+	xmlLocator.registerLoader(&XMLLoader::instance); // Gusanos menu not used. still needed, though
+	//gssLocator.registerLoader(&GSSLoader::instance); // Gusanos menu not used
 #endif
 	
 	scriptLocator.registerLoader(&LuaLoader::instance);

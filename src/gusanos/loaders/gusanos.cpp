@@ -390,6 +390,8 @@ bool GSSLoader::canLoad(std::string const& path, std::string& name)
 	
 bool GSSLoader::load(GSSFile* gss, std::string const& path)
 {
+	return false; // Gusanos menu not used
+	
 	std::ifstream f;
 	OpenGameFileR(f, path, std::ios::binary);
 	

@@ -96,7 +96,10 @@ int l_gui_wnd(lua_State* L)
 	**Note that the .xml extension is not included in the name**
 */
 int l_gui_loadxml(lua_State* L)
-{
+{	
+	// Note: Gusanos menu not used.
+	// However, load and return something, because it would confuse+break old Gusanos mods like Promode otherwise.
+
 	LuaContext context(L);
 	
 	OmfgGUI::Context& gui = *static_cast<OmfgGUI::Context *>(lua_touserdata(context, lua_upvalueindex(1)));
@@ -117,7 +120,8 @@ int l_gui_loadxml(lua_State* L)
 			//loadTo = static_cast<OmfgGUI::Wnd *>(lua_touserdata(context, 2));
 			loadTo = ASSERT_LOBJECT(OmfgGUI::Wnd, 2); //(lua_touserdata(context, 2));
 		}
-			
+		assert(loadTo);
+				
 		OmfgGUI::Wnd* w = gui.loadXMLFile(name, loadTo);
 		if(w)
 		{
@@ -141,6 +145,7 @@ int l_gui_loadxml(lua_State* L)
 int l_gui_loadgss(lua_State* L)
 {
 	// we ignore that for now
+	// Gusanos menu not used.
 	return 0;
 	
 	OmfgGUI::Context& gui = *static_cast<OmfgGUI::Context *>(lua_touserdata(L, lua_upvalueindex(1)));
@@ -680,6 +685,9 @@ void GUIWndMetatable(LuaContext& context)
 
 void initGUI(OmfgGUI::Context& gui, LuaContext& context)
 {
+	// Gusanos menu not used.
+	// However, register dummy commands so that old Gusanos mods keep working.
+	
 #ifndef DEDICATED_ONLY
 
 	// GUI Wnd method and metatable

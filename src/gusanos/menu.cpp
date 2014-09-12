@@ -30,6 +30,8 @@ GContext menu(&renderer);
 
 std::string cmdLoadXML(std::list<std::string> const& args)
 {
+	return ""; // ignore without error
+
 	if(args.size() > 0)
 	{
 		std::string ret;
@@ -60,6 +62,8 @@ std::string cmdLoadXML(std::list<std::string> const& args)
 
 std::string cmdLoadGSS(std::list<std::string> const& args)
 {
+	return ""; // ignore without error
+	
 	if(args.size() > 0)
 	{
 		std::string ret;
@@ -94,6 +98,8 @@ std::string cmdLoadGSS(std::list<std::string> const& args)
 
 std::string cmdGSS(std::list<std::string> const& args)
 {
+	return ""; // ignore without error
+
 	if(args.size() > 0)
 	{
 		std::string ret;
@@ -122,6 +128,8 @@ std::string cmdGSS(std::list<std::string> const& args)
 
 std::string cmdFocus(std::list<std::string> const& args)
 {
+	return ""; // ignore without error
+
 	if(args.size() > 0)
 	{
 		std::string ret;
@@ -181,13 +189,18 @@ void GContext::clear()
 {
 	delete m_rootWnd;
 	m_rootWnd = 0;
+
+	// Gusanos menu not used.
+	// However, create dummy root wnd so that some old Gusanos mods work.
 	
+	/*
 	std::istringstream rootGSS(
 		"window { left: 0 ; top: 0 ; bottom : -1 ; right: -1; }"
 		"edit { background: #FFFFFF ; border: #666666; border-bottom: #A0A0A0 ; border-right: #A0A0A0 ;"
 		" width: 100 ; height: 15 ; font-family: big }");
 			
 	loadGSS(rootGSS, "default");
+	*/
 	
 	std::map<std::string, std::string> attributes;
 	attributes["id"] = "root";
