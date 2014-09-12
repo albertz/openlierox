@@ -17,20 +17,6 @@ struct ALLEGRO_BITMAP;
 namespace OmfgGUI
 {
 
-struct GusanosSpriteSet : public BaseSpriteSet
-{
-	GusanosSpriteSet(SpriteSet* spriteSet_)
-	: spriteSet(spriteSet_)
-	{}
-	
-	virtual int getFrameCount() const;
-	
-	virtual ulong getFrameWidth(int frame, int angle = 0) const;
-	virtual ulong getFrameHeight(int frame, int angle = 0) const;
-	
-	SpriteSet *spriteSet;
-};
-
 class GContext : public Context
 {
 public:
@@ -40,9 +26,7 @@ public:
 	void clear();
 	
 	virtual LuaContext& luaContext();
-	
-	virtual BaseSpriteSet* loadSpriteSet(std::string const& name);
-	
+		
 	virtual Wnd* loadXMLFile(std::string const& name, Wnd* loadTo);
 };
 

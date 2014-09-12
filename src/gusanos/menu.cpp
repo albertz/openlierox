@@ -77,21 +77,6 @@ std::string cmdFocus(std::list<std::string> const& args)
 	return ""; // ignore without error
 }
 
-int GusanosSpriteSet::getFrameCount() const
-{
-	return spriteSet->getFramesWidth();
-}
-
-ulong GusanosSpriteSet::getFrameWidth(int frame, int angle) const
-{
-	return spriteSet->getSprite(frame)->getWidth();
-}
-
-ulong GusanosSpriteSet::getFrameHeight(int frame, int angle) const
-{
-	return spriteSet->getSprite(frame)->getHeight();
-}
-
 GContext::GContext()
 : Context()
 {}
@@ -123,14 +108,6 @@ void GContext::clear()
 	attributes["id"] = "root";
 	Wnd* root = lua_new(Wnd, (0, attributes), luaIngame);
 	setRoot(root);
-}
-
-BaseSpriteSet* GContext::loadSpriteSet(std::string const& name)
-{
-	SpriteSet *s = spriteList.load(name);
-	if(!s)
-		return 0;
-	return new GusanosSpriteSet(s);
 }
 
 Wnd* GContext::loadXMLFile(std::string const& name, Wnd* loadTo)

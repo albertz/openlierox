@@ -4,7 +4,6 @@
 #include <string>
 #include "util/rect.h"
 #include "util/common.h"
-#include "renderer.h"
 #include "context.h"
 #include "../../luaapi/types.h"
 
@@ -196,10 +195,6 @@ namespace OmfgGUI
 		protected:
 
 			void setContext_(Context* context);
-
-			bool readSpriteSet(BaseSpriteSet*& dest, std::string const& str);
-
-			bool readSkin(BaseSpriteSet*& dest, std::string const& str);
 
 			LuaReference m_callbacks[LuaCallbacksMax];
 

@@ -47,62 +47,6 @@ Wnd::~Wnd()
 	}
 }
 
-bool Wnd::readSpriteSet(BaseSpriteSet*& dest, std::string const& str)
-{
-	delete dest;
-	dest = 0;
-
-	if(str.size() == 0)
-		return true;
-	
-	dest = m_context->loadSpriteSet(str);
-	//cerr << "Loaded: " << str << "(" << dest << ")" << endl;
-	if(!dest)
-		return false;
-
-	return true;
-}
-
-bool Wnd::readSkin(BaseSpriteSet*& dest, std::string const& str)
-{
-	delete dest;
-	dest = 0;
-
-	if(str.size() == 0)
-		return true;
-	
-	dest = m_context->loadSpriteSet(str);
-
-	if(!dest)
-		return false;
-		
-	int frames = dest->getFrameCount();
-	
-	if(frames < 8)
-	{
-		cerr << "Not enough sprites in skin " << str << endl;
-		delete dest;
-		dest = 0;
-		return false;
-	}
-	
-	size_t w = dest->getFrameWidth(0);
-	size_t h = dest->getFrameHeight(0);
-	for(int i = 1; i < 8; ++i)
-	{
-		if(dest->getFrameWidth(i) != w
-		|| dest->getFrameHeight(i) != h)
-		{
-			cerr << "Sprites in skin " << str << " are not all the same size" << endl;
-			delete dest;
-			dest = 0;
-			return false;
-		}
-	}
-	
-	return true;
-}
-
 void Wnd::setActivation(bool active)
 {
 	// Do nothing

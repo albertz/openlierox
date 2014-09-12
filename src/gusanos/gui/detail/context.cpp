@@ -1,6 +1,4 @@
 #include "context.h"
-
-#include "renderer.h"
 #include "wnd.h"
 #include "util/macros.h"
 #include <iostream>

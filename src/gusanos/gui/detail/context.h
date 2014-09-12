@@ -3,7 +3,6 @@
 
 #include "util/rect.h"
 #include "util/common.h"
-#include "renderer.h"
 #include <iostream>
 #include <map>
 #include <list>
@@ -101,9 +100,7 @@ public:
 	}
 
 	void destroy();
-	
-	virtual BaseSpriteSet* loadSpriteSet(std::string const& name) = 0;
-	
+		
 		
 protected:
 	void setRoot_(Wnd* wnd);
