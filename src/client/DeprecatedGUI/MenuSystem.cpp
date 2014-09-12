@@ -1529,11 +1529,7 @@ void TaskManager::renderTasksStatus(SDL_Surface* s) {
 	{
 		ScopedLock lock(mutex);
 		for(std::set<Task*>::const_iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
-			std::string statusTxt;
-			{
-				Mutex::ScopedLock lock(*(*i)->mutex);
-				statusTxt = (*i)->statusText();
-			}
+			std::string statusTxt = (*i)->statusText();
 			if(statusTxt != "") {
 				statusTxts.push_back(statusTxt);
 				if(statusTxts.size() >= MaxEntries)
