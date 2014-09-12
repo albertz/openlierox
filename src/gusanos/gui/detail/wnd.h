@@ -257,36 +257,10 @@ namespace OmfgGUI
 				    HasBottom = 1 << 3,
 				};
 
-				enum Blender
-				{
-				    None = 0,
-				    Alpha,
-				    Add
-				};
-
 				Formatting()
 						: width(50), height(50), spacing(5), padding(5), flags(0)
-						, alpha(255), rect(10, 10, 0, 0)
-						, blender(Alpha)
+						, rect(10, 10, 0, 0)
 				{}
-
-				struct Background
-				{
-					Background()
-							: spriteSet(0), skin(0)
-							, invisible(false)
-					{}
-
-					~Background()
-					{
-						delete spriteSet;
-					}
-
-					BaseSpriteSet *spriteSet;
-					BaseSpriteSet *skin;
-					bool invisible;
-				}
-				background;
 
 				int         width;
 				int         height;
@@ -294,10 +268,8 @@ namespace OmfgGUI
 				int         spacing;
 				int         padding;
 				long        flags;
-				int         alpha;
 
 				Rect        rect;
-				Blender     blender;
 
 			}
 			m_formatting;
