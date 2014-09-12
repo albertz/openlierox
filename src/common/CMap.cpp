@@ -1477,6 +1477,8 @@ void CMap::CalculateShadowMap()
 // Place a stone
 void CMap::PlaceStone(int size, CVec pos)
 {
+	if(!Objects) return;
+	
 	SmartPointer<SDL_Surface> stone;
 	short dy, sx,sy;
 	short x,y;
