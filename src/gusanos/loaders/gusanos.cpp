@@ -96,9 +96,7 @@ namespace{
 			parser.error("Trailing garbage");
 			return false;
 		}
-		
-		LevelConfig* returnConf = new LevelConfig;
-		
+				
 		fillSpawnPointList(parser, "spawnpoints", cfg.spawnPoints);
 		fillSpawnPointList(parser, "teambases", cfg.teamBases);
 		
