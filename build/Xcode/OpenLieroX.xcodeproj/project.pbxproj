@@ -365,8 +365,6 @@
 		23C34FD810CC57FB00DABBD6 /* context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FBC10CC57FB00DABBD6 /* context.cpp */; };
 		23C34FD910CC57FB00DABBD6 /* edit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FBE10CC57FB00DABBD6 /* edit.cpp */; };
 		23C34FDA10CC57FB00DABBD6 /* group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FC010CC57FB00DABBD6 /* group.cpp */; };
-		23C34FDB10CC57FB00DABBD6 /* gss-grammar.pg in Resources */ = {isa = PBXBuildFile; fileRef = 23C34FC310CC57FB00DABBD6 /* gss-grammar.pg */; };
-		23C34FDC10CC57FB00DABBD6 /* gss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FC410CC57FB00DABBD6 /* gss.cpp */; };
 		23C34FDD10CC57FB00DABBD6 /* label.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FC510CC57FB00DABBD6 /* label.cpp */; };
 		23C34FDE10CC57FB00DABBD6 /* list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FC710CC57FB00DABBD6 /* list.cpp */; };
 		23C34FDF10CC57FB00DABBD6 /* renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FCA10CC57FB00DABBD6 /* renderer.cpp */; };
@@ -1318,9 +1316,6 @@
 		23C34FBF10CC57FB00DABBD6 /* edit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = edit.h; sourceTree = "<group>"; };
 		23C34FC010CC57FB00DABBD6 /* group.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = group.cpp; sourceTree = "<group>"; };
 		23C34FC110CC57FB00DABBD6 /* group.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = group.h; sourceTree = "<group>"; };
-		23C34FC210CC57FB00DABBD6 /* gss-grammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gss-grammar.h"; sourceTree = "<group>"; };
-		23C34FC310CC57FB00DABBD6 /* gss-grammar.pg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "gss-grammar.pg"; sourceTree = "<group>"; };
-		23C34FC410CC57FB00DABBD6 /* gss.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gss.cpp; sourceTree = "<group>"; };
 		23C34FC510CC57FB00DABBD6 /* label.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = label.cpp; sourceTree = "<group>"; };
 		23C34FC610CC57FB00DABBD6 /* label.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = label.h; sourceTree = "<group>"; };
 		23C34FC710CC57FB00DABBD6 /* list.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = list.cpp; sourceTree = "<group>"; };
@@ -2415,9 +2410,6 @@
 				23C34FBF10CC57FB00DABBD6 /* edit.h */,
 				23C34FC010CC57FB00DABBD6 /* group.cpp */,
 				23C34FC110CC57FB00DABBD6 /* group.h */,
-				23C34FC210CC57FB00DABBD6 /* gss-grammar.h */,
-				23C34FC310CC57FB00DABBD6 /* gss-grammar.pg */,
-				23C34FC410CC57FB00DABBD6 /* gss.cpp */,
 				23C34FC510CC57FB00DABBD6 /* label.cpp */,
 				23C34FC610CC57FB00DABBD6 /* label.h */,
 				23C34FC710CC57FB00DABBD6 /* list.cpp */,
@@ -3289,7 +3281,6 @@
 				EAD6E50C0C4819D200D6C836 /* macosx.icns in Resources */,
 				2306CC2A0E6AC55E00132D3B /* OLX_g15logo_ver4.xbm in Resources */,
 				23C34EC610CC4B8000DABBD6 /* omfg_script_parser.pg in Resources */,
-				23C34FDB10CC57FB00DABBD6 /* gss-grammar.pg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3682,7 +3673,6 @@
 				23C34FD810CC57FB00DABBD6 /* context.cpp in Sources */,
 				23C34FD910CC57FB00DABBD6 /* edit.cpp in Sources */,
 				23C34FDA10CC57FB00DABBD6 /* group.cpp in Sources */,
-				23C34FDC10CC57FB00DABBD6 /* gss.cpp in Sources */,
 				23C34FDD10CC57FB00DABBD6 /* label.cpp in Sources */,
 				23C34FDE10CC57FB00DABBD6 /* list.cpp in Sources */,
 				23C34FDF10CC57FB00DABBD6 /* renderer.cpp in Sources */,
