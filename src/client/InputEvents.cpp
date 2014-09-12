@@ -453,8 +453,9 @@ static void HandleMouseState() {
 		// and it grabs the mouse in window mode which we don't want.
 		// In fullscreen mode, we could warp the mouse back to the center
 		// on each frame and then use this relative mouse mode.
+		// See: https://forums.libsdl.org/viewtopic.php?t=10690
 		// However, later, we could just remove the letterboxing area
-		// (i.e. bigger screen).
+		// by having a bigger virtual screen, so this problem goes away.
 		
 		Mouse.Button = SDL_GetMouseState(NULL,NULL); // Doesn't call libX11 funcs, so it's safe to call not from video thread
 		Mouse.X = mouseX;
