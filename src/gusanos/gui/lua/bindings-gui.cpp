@@ -22,26 +22,28 @@ using std::endl;
 #include <boost/bind.hpp>
 using boost::lexical_cast;
 
+/*
+Note:
+
+All of the GUI / Menu widget stuff of Gusanos is here only
+for compatibility of old Gusanos mods.
+None of the GUI widgets will get drawn or can be interacted with
+at any point.
+However, we completely emulate them virtually as if they were
+there. It's almost impossible from Lua to see that difference.
+
+The XML loading must also be there so that everything works
+as expected.
+The GSS loading was removed as it's mostly for style sheets and
+Lua will most likely never depend on any of that.
+*/
+
 namespace LuaBindings
 {
 	
 LuaReference listIterator;
 
 #ifndef DEDICATED_ONLY
-
-//std::vector<LuaReference> guiWndMetaTable;
-//LuaReference gui_listIterator;
-
-/* TODO
-void initWindow(Wnd* w)
-{
-	std::string v;
-	if(w->getAttrib("selectable", v)) 
-		newWindow->m_focusable = (v != "0");
-	else
-		newWindow->m_focusable = true;
-}
-*/
 
 template<class T>
 int l_gui_wnd(lua_State* L)
@@ -346,7 +348,6 @@ LMETHODC(OmfgGUI::Wnd, gui_wnd_focus,  {
 	this window is focused.
 */
 LMETHODC(OmfgGUI::Wnd, gui_wnd_set_sub_focus,  {
-	//OmfgGUI::Wnd* sub = static_cast<OmfgGUI::Wnd*>(lua_touserdata(context, 2));
 	OmfgGUI::Wnd* sub = ASSERT_LOBJECT(OmfgGUI::Wnd, 2); //(lua_touserdata(context, 2));
 	
 	// Make sure that 'sub' is a child of 'p'
@@ -452,7 +453,6 @@ int l_gui_listIterator(lua_State* L)
 		lua_pushvalue(context, 1);
 	else
 	{
-		//OmfgGUI::ListNode* i = static_cast<OmfgGUI::ListNode *>(lua_touserdata(context, 2));
 		OmfgGUI::ListNode* i = ASSERT_LOBJECT(OmfgGUI::ListNode, 2);
 	
 		i = OmfgGUI::ListNode::getNextVisible(i);
@@ -472,17 +472,10 @@ int l_gui_listIterator(lua_State* L)
 */
 LMETHODC(OmfgGUI::List, gui_list_subinsert,  {
 
-	//OmfgGUI::ListNode* parent = static_cast<OmfgGUI::ListNode *>(lua_touserdata(context, 2));
 	OmfgGUI::ListNode* parent = ASSERT_LOBJECT(OmfgGUI::ListNode, 2);
-	
-	//if(!p->verify(parent))
-	//	return 0;
 			
 	int c = lua_gettop(context);
-	//void* mem = lua_newuserdata_init(context, sizeof(LuaListNode));
-	//lua_pushvalue(context, -1);
 	OmfgGUI::ListNode* n = lua_new_keep(OmfgGUI::ListNode, (""), context);
-	//LuaListNode* n = new (mem) LuaListNode(context.createReference(), "");
 	p->push_back(n, parent);
 	for(int i = 3; i <= c; ++i)
 		n->setText(i - 3, lua_tostring(context, i));
