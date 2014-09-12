@@ -77,7 +77,7 @@ bool AttrDesc::authorizedToWrite(const BaseObject* base) const {
 		if(game.state == Game::S_Quit && !bRestartGameAfterQuit) return false; // don't allow any changes anymore on game.state. just quit
 		return true; // just allow any changes. client might want to disconnect, so client must be allowed to write this :)
 	}
-	if(game.state <= Game::S_Inactive) return true;
+	if(game.state <= Game::S_Connecting) return true;
 	if(!base->isRegistered()) return true;
 	if(attrUpdateByServerScope || attrUpdateByClientScope) {
 		if(game.isServer()) {

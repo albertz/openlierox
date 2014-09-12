@@ -167,6 +167,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 		if(!Menu_Net_JoinLobbyInitialize()) {
 			// Error
+			game.state = Game::S_Inactive;
 			Menu_Net_MainInitialize();
 			return;
 		}
@@ -200,6 +201,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
+					game.state = Game::S_Inactive;
 					Menu_Net_JoinConnectionShutdown();
 
 					Menu_NetInitialize();
