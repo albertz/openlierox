@@ -53,7 +53,6 @@ public:
 	
 	ALLEGRO_BITMAP* loadBitmap(const std::string &filename, bool keepAlpha = false, bool stretch2 = true);
 	SmartPointer<SDL_Surface> loadBitmapSDL(const std::string &filename, bool keepAlpha = false, bool stretch2 = true);
-	bool saveBitmap(const std::string &filename, ALLEGRO_BITMAP* image);
 	
 	operator bool(); // Returns true if it's safe to use this object
 

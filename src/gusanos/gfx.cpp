@@ -15,6 +15,7 @@ using namespace boost::assign;
 
 #include "gusanos/allegro.h"
 #include "GfxPrimitives.h"
+#include "AuxLib.h"
 
 #include <string>
 #include <algorithm>
@@ -34,31 +35,10 @@ namespace
 	ALLEGRO_BITMAP* m_doubleResBuffer = 0;
 	SpriteSet* mouseCursor = 0;
 	
-	string screenShot(const list<string> &args)
+	string screenShot(const list<string> &)
 	{
-		int nameIndex = 0;
-		
-		string filename;
-		do
-		{
-			string ssIndex = cast<string>(nameIndex);
-			while ( ssIndex.size() < 3 )
-			{
-				ssIndex = "0" + ssIndex;
-			}
-			filename = "screenshots/ss" + ssIndex + ".png";
-			++nameIndex;
-		} while( gusExists( filename.c_str() ) );
-		
-		ALLEGRO_BITMAP * tmpbitmap = create_bitmap_ex(24,screen->w,screen->h);
-		blit(screen,tmpbitmap,0,0,0,0,screen->w,screen->h);
-		bool success = gfx.saveBitmap( filename.c_str(),tmpbitmap);
-		destroy_bitmap(tmpbitmap);
-		
-		if ( success )
-			return "SCREENSHOT SAVED AS: " + filename;
-		else 
-			return "UNABLE TO SAVE SCREENSHOT";
+		PushScreenshot("gus_scrshots", "");
+		return "OK";
 	}	
 #endif
 }
@@ -190,15 +170,6 @@ SmartPointer<SDL_Surface> Gfx::loadBitmapSDL(const std::string& _filename, bool 
 		ResetAlpha(img.get());
 
 	return img;	
-}
-
-bool Gfx::saveBitmap( const string &filename,ALLEGRO_BITMAP* image)
-{
-	bool returnValue = false;
-	
-	//if ( !save_bitmap(filename.c_str(), image, palette) ) returnValue = true;
-	
-	return returnValue;
 }
 
 Gfx::operator bool()
