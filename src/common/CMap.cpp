@@ -103,6 +103,7 @@ bool CMap::NewFrom(CMap* map)
 	// Copy the data
 	bmpDrawImage = map->bmpDrawImage.get() ? GetCopiedImage(map->bmpDrawImage) : NULL;
 	bmpForeground = map->bmpForeground.get() ? GetCopiedImage(map->bmpForeground) : NULL;
+	bmpBackImageHiRes = map->bmpBackImageHiRes.get() ? GetCopiedImage(map->bmpBackImageHiRes) : NULL;
 #ifdef _AI_DEBUG
 	bmpDebugImage = map->bmpDebugImage.get() ? GetCopiedImage(map->bmpDebugImage) : NULL;
 #endif
@@ -111,17 +112,6 @@ bool CMap::NewFrom(CMap* map)
 
 	if(Objects && map->Objects)
 		memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
-	bmpBackImageHiRes = NULL;
-	if( map->bmpBackImageHiRes.get() )
-	{
-		bmpBackImageHiRes = gfxCreateSurface(Width*2, Height*2);
-		if( ! bmpBackImageHiRes.get() )
-		{
-			errors("CMap::NewFrom(): ERROR: cannot create bmpBackImageHiRes\n");
-			return false;
-		}
-		DrawImage(bmpBackImageHiRes.get(), map->bmpBackImageHiRes, 0, 0);
-	}
 	
 	AdditionalData = map->AdditionalData;
 	
