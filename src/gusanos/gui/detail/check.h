@@ -11,23 +11,12 @@ class Check : public Wnd
 public:
 	static LuaReference metaTable;
 	
-	Check(Wnd* parent_, /*std::string const& tagLabel, std::string const& className, 
-	  std::string const& id,*/ std::map<std::string, std::string> const& properties/*,
-	  std::string const& text_ = std::string("")*/)
+	Check(Wnd* parent_, std::map<std::string, std::string> const& properties)
 	: Wnd(parent_, properties, "check"), m_checked(false)
-	{
+	{}
 
-	}
-	
-	virtual bool render();
-	
-	virtual void process();
-	
-	virtual void toggleState();
-	virtual void applyGSS(Context::GSSselectors const& style);
-	
-	bool getState()
-	{ return m_checked; }
+	virtual void toggleState() { m_checked = !m_checked; }
+	bool getState()	{ return m_checked; }
 	
 private:
 	bool m_checked;

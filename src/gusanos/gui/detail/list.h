@@ -6,11 +6,11 @@
 
 #include <string>
 #include <boost/lexical_cast.hpp>
-using boost::lexical_cast;
-//#include <list>
 
 namespace OmfgGUI
 {
+
+	using boost::lexical_cast;
 
 	class List;
 
@@ -48,10 +48,6 @@ namespace OmfgGUI
 		}
 
 		void resizeColumns(size_t s);
-
-		void render(Renderer* renderer, long& y);
-
-		void renderFrom(Renderer* renderer, long& y);
 
 		static node_iter_t getPrevVisible(node_iter_t i);
 		static node_iter_t getNextVisible(node_iter_t i);
@@ -116,7 +112,6 @@ namespace OmfgGUI
 		public:
 			static LuaReference metaTable;
 
-			// typedef std::list<Node> list_t;
 			typedef LList<ListNode> list_t;
 			typedef list_t::iterator node_iter_t;
 			typedef list_t::reference node_ref_t;
@@ -134,8 +129,7 @@ namespace OmfgGUI
 
 			friend struct ListNode;
 
-			List(Wnd* parent, /*std::string const& tagLabel, std::string const& className,
-			     			     	  std::string const& id,*/ std::map<std::string, std::string> const& attributes)
+			List(Wnd* parent, std::map<std::string, std::string> const& attributes)
 					: 
 					Wnd(parent, attributes, "list"),
 					m_RootNode("root"),
@@ -158,13 +152,6 @@ namespace OmfgGUI
 
 			node_iter_t push_back(ListNode* node)
 			{
-				/*
-				node->columns.resize(m_columnHeaders.size());
-				node_iter_t i = m_RootNode.children.insert(node);
-				node->parent = 0; // Just to be sure
-				node->level = m_RootNode.level + 1;
-				*/
-				//node_iter_t i = push_back(node, &m_RootNode);
 				node->list = this;
 				node->columns.resize(m_columnHeaders.size());
 				m_RootNode.children.insert(node);
@@ -336,10 +323,6 @@ namespace OmfgGUI
 				return m_RootNode.children.begin();
 			}
 
-			virtual bool render();
-
-			virtual void applyFormatting(Context::GSSpropertyMap const&);
-
 			virtual int classID();
 
 		private:
@@ -363,7 +346,6 @@ namespace OmfgGUI
 			}
 			m_listFormatting;
 
-			//list_t           m_Nodes;
 			ListNode         m_RootNode;
 			node_iter_t      m_Base;
 			int              m_basePos;

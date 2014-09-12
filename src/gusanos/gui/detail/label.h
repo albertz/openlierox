@@ -13,19 +13,8 @@ public:
 	
 	Label(Wnd* parent_, std::map<std::string, std::string> const& properties)
 	: Wnd(parent_, properties, "label")
-	{
-
-	}
+	{}
 	
-	virtual bool render();
-	
-	virtual void process();
-
-	virtual bool mouseDown(ulong newX, ulong newY, Context::MouseKey::type button);
-
-	virtual bool mouseUp(ulong newX, ulong newY, Context::MouseKey::type button);
-	
-	virtual bool keyDown(int key);
 };
 
 }

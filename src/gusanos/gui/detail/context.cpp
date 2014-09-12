@@ -10,13 +10,6 @@ using std::endl;
 namespace OmfgGUI
 {
 
-/*
-Context::GSSpropertyMap Context::GSSpropertyMapStandard;
-Context::GSSstate Context::GSSstate::standard;
-Context::GSSid Context::GSSid::standard;
-Context::GSSclass Context::GSSclass::standard;
-*/
-
 void Context::destroy()
 {
 	delete m_rootWnd; m_rootWnd = 0;
@@ -57,16 +50,6 @@ void Context::setFocus(Wnd* aWnd)
 {
 	if(aWnd)
 	{
-		/* TODO: Fix
-		if(aWnd->m_parent)
-		{
-			Wnd* parent = aWnd->m_parent;
-			std::list<Wnd*>::iterator i = std::find(parent->m_children.begin(), parent->m_children.end(), aWnd);
-			assert(i != parent->m_children.end());
-			parent->m_children.splice(parent->m_children.end(), parent->m_children, i);
-		}
-		*/
-		
 		while(aWnd->m_lastChildFocus)
 		{
 			aWnd = aWnd->m_lastChildFocus;
@@ -113,16 +96,6 @@ void Context::registerNamedWindow(std::string const& id, Wnd* wnd)
 		return;
 
 	m_namedWindows.insert(std::make_pair(id, wnd));
-	
-	/*
-	std::map<std::string, Wnd*>::iterator i = m_namedWindows.find(id);
-	if(i != m_namedWindows.end())
-	{
-		//cerr << "Deleting conflicting window (named '" << id << "'): " << i->second << endl;
-		//delete i->second; //Delete conflicting window
-	}
-	m_namedWindows[id] = wnd;
-	*/
 }
 
 void Context::deregisterWindow(Wnd* wnd)
@@ -137,7 +110,6 @@ void Context::deregisterWindow(Wnd* wnd)
 		m_activeWnd = 0;
 	if(m_mouseFocusWnd == wnd)
 		m_mouseFocusWnd = 0;
-	//deregisterNamedWindow(wnd->m_id);
 	foreach_delete(i, m_namedWindows)
 	{
 		if(i->second == wnd)

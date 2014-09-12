@@ -167,9 +167,7 @@ public:
 	
 	// This is defined in xml.cpp
 	Wnd* buildFromXML(std::istream& s, Wnd* dest);
-	
-	//void testParseXML();
-	
+		
 	template<class WndT>
 	WndT* setRoot(WndT* wnd)
 	{
@@ -203,9 +201,7 @@ public:
 	virtual BaseFont* loadFont(std::string const& name) = 0;
 	virtual BaseSpriteSet* loadSpriteSet(std::string const& name) = 0;
 	
-	
-//	BaseFont const& m_defaultFont; //TEMP
-	
+		
 protected:
 	void setRoot_(Wnd* wnd);
 	
@@ -216,7 +212,6 @@ protected:
 	Wnd* m_mouseFocusWnd;
 	Renderer* m_renderer;
 
-	//GSSselectorMap m_gss_;
 	std::map<std::string, Wnd*> m_namedWindows;
 	
 	GSSselectors m_gss;
