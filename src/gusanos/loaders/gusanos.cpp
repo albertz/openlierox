@@ -121,7 +121,7 @@ namespace{
 		return true;
 	}
 
-	void parseCtfBasesFromLua(const std::string& filename, LevelConfig* config) {
+	static void parseCtfBasesFromLua(const std::string& filename, LevelConfig* config) {
 		FILE* f = OpenGameFile(filename, "r");
 		if(!f) return;
 		
