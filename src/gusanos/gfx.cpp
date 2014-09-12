@@ -32,7 +32,6 @@ namespace
 	bool m_initialized = false;
 
 #ifndef DEDICATED_ONLY
-	ALLEGRO_BITMAP* m_doubleResBuffer = 0;
 	SpriteSet* mouseCursor = 0;
 	
 	string screenShot(const list<string> &)
@@ -52,10 +51,6 @@ Gfx::Gfx()
 
 Gfx::~Gfx()
 {
-	if (m_doubleResBuffer)  {
-		destroy_bitmap(m_doubleResBuffer);
-		m_doubleResBuffer = NULL;
-	}
 }
 
 
