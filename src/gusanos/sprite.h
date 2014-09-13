@@ -28,13 +28,11 @@ public:
 	~Sprite();
 	
 #ifndef DEDICATED_ONLY
-	//void draw(ALLEGRO_BITMAP *where, int x, int y, bool flipped = false, int Alignment = 0);
 	void drawCut(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender, int alignment, int left, int top, int bottom, int right);
-	//void drawBlended(ALLEGRO_BITMAP *where, int x, int y, bool flipped = false, int alignment = 0, Blenders blender = ADD );
-	void draw(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender/*, bool flipped = false*/, int alignment = 0);
+	void draw(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender, int alignment = 0);
 	
 	// To ease transition
-	void draw(ALLEGRO_BITMAP *where, int x, int y/*, bool flipped = false*/, int alignment = 0);
+	void draw(ALLEGRO_BITMAP *where, int x, int y, int alignment = 0);
 
 #endif
 

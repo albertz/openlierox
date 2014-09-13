@@ -30,7 +30,7 @@ Sprite* genLight( int radius )
 }
 
 Sprite::Sprite( ALLEGRO_BITMAP* bitmap, int xPivot, int yPivot)
-		: m_bitmap(bitmap) //, m_mirror(0)
+		: m_bitmap(bitmap)
 {
 	if ( xPivot == -1 )
 		m_xPivot = m_bitmap->w / 2;
@@ -67,7 +67,7 @@ Sprite::Sprite(Sprite const& b, Sprite const& mask, int color)
 		        b.m_bitmap->w,
 		        b.m_bitmap->h
 		    )
-		)/*, m_mirror(0)*/, m_xPivot(b.m_xPivot), m_yPivot(b.m_yPivot)
+		), m_xPivot(b.m_xPivot), m_yPivot(b.m_yPivot)
 {
 	int colorDepth = bitmap_color_depth(b.m_bitmap);
 	LocalSetColorDepth cd(colorDepth);
@@ -105,7 +105,7 @@ Sprite::Sprite(Sprite const& b, MirrorTag)
 		        b.m_bitmap->w,
 		        b.m_bitmap->h
 		    )
-		)/*, m_mirror(0)*/, m_xPivot( (b.m_bitmap->w -1 ) - b.m_xPivot), m_yPivot(b.m_yPivot)
+		), m_xPivot( (b.m_bitmap->w -1 ) - b.m_xPivot), m_yPivot(b.m_yPivot)
 {
 	clear_to_color(m_bitmap, makecol(255,0,255));
 	draw_sprite_h_flip(m_bitmap, b.m_bitmap, 0, 0);
@@ -140,12 +140,12 @@ void Sprite::drawCut(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& 
 
 }
 
-void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y/*, bool flipped*/, int alignment)
+void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y, int alignment)
 {
-	draw(where, x, y, BlitterContext()/*, flipped*/, alignment);
+	draw(where, x, y, BlitterContext(), alignment);
 }
 
-void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender/*, bool flipped*/, int alignment )
+void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender, int alignment )
 {
 	int _x,_y;
 
@@ -163,24 +163,7 @@ void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& ble
 	else
 		_y = m_yPivot;
 
-	/*
-		if ( flipped )
-		{
-			if(!m_mirror)
-			{
-				LocalSetColorConversion cc(COLORCONV_NONE);
-				LocalSetColorDepth cd(bitmap_color_depth(m_bitmap));
-				
-				m_mirror = create_bitmap(m_bitmap->w,m_bitmap->h);
-				clear_to_color(m_mirror,makecol(255,0,255));
-				draw_sprite_h_flip(m_mirror, m_bitmap, 0, 0);
-			}
-	 
-			blender.drawSprite(where, m_mirror, x - ( m_bitmap->w - 1 ) + _x, y - _y);
-		}
-		else*/ {
-		blender.drawSprite(where, m_bitmap, x - _x, y - _y);
-	}
+	blender.drawSprite(where, m_bitmap, x - _x, y - _y);
 }
 
 #ifdef RLE
