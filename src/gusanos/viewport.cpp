@@ -199,24 +199,31 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 
 	// only use the player/worm specific drawings in gus mods
 	if(game.gameScript()->gusEngineUsed()) {
-		CWormInputHandler* player = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
+		CWormInputHandler* targetPlayer = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
 		
 		// Note that we only process worms in the Lua callbacks which have a player set.
 		// Most Lua code depends on this assumption so it would break otherwise.
 		
-		for(vector<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
-			CWorm* worm = (*playerIter)->getWorm();
-			if( worm && worm->isActive() && worm->inputHandler() ) {
-				IVec renderPos( worm->getRenderPos() );
-				int x = renderPos.x - offX;
-				int y = renderPos.y - offY;
-				LuaReferenceLazy ownerRef;
+		for(CWormInputHandler* player : game.players) {
+			CWorm* worm = player->getWorm();
+			if(!worm) continue;
+			if(!worm->isActive()) continue;
+			if(!worm->inputHandler()) continue;
 
-				if ( player )
-					ownerRef = player->getLuaReference();
+			IVec renderPos( worm->getRenderPos() );
+			int x = renderPos.x - offX;
+			int y = renderPos.y - offY;
+			LuaReferenceLazy ownerRef;
+			if(targetPlayer)
+				ownerRef = targetPlayer->getLuaReference();
 
-				LUACALLBACK(wormRender).call()((lua_Number)x)((lua_Number)y)(worm->getLuaReference())(getLuaReference())(ownerRef)();
-			}
+			LUACALLBACK(wormRender).call()
+				((lua_Number)x)
+				((lua_Number)y)
+				(worm->getLuaReference())
+				(getLuaReference())
+				(ownerRef)
+				();
 		}
 
 		// draw viewport specific stuff only for human worms
