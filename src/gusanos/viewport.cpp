@@ -151,7 +151,6 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		// this is the cause.
 		// Anyway, this should be fixed in a clean way, then.
 		SDL_Surface* bmpDest = dest->surf.get();
-		CViewport* v = this;
 
 		// update the drawing position
 		for_each_iterator(CWorm*, w, game.aliveWorms())
@@ -159,28 +158,28 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 
 		if( tLXOptions->bShadows ) {
 			// Draw the projectile shadows
-			cClient->DrawProjectileShadows(bmpDest, v);
+			cClient->DrawProjectileShadows(bmpDest, this);
 
 			// Draw the worm shadows
 			for_each_iterator(CWorm*, w, game.aliveWorms())
-				w->get()->DrawShadow(bmpDest, v);
+				w->get()->DrawShadow(bmpDest, this);
 		}
 
 		// Draw the entities
-		DrawEntities(bmpDest, v);
+		DrawEntities(bmpDest, this);
 
 		// Draw the projectiles
-		cClient->DrawProjectiles(bmpDest, v);
+		cClient->DrawProjectiles(bmpDest, this);
 
 		// Draw the bonuses
-		cClient->DrawBonuses(bmpDest, v);
+		cClient->DrawBonuses(bmpDest, this);
 
 		// draw unattached flags and flag spawnpoints
-		cClient->flagInfo()->draw(bmpDest, v);
+		cClient->flagInfo()->draw(bmpDest, this);
 
 		// draw worms
 		for_each_iterator(CWorm*, w, game.aliveWorms())
-			w->get()->Draw(bmpDest, v);
+			w->get()->Draw(bmpDest, this);
 	}
 
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
