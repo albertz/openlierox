@@ -496,8 +496,6 @@ void Particle::draw(CViewport* viewport)
 	} else {
 		if ( !m_type->culled ) {
 			m_sprite->getSprite(m_animator->getFrame(), m_angle)->draw(where, x, y, blitter);
-
-			//Blitters::drawSpriteRotate_solid_32(where, m_sprite->getSprite(m_animator->getFrame())->m_bitmap, x, y, -m_angle.toRad());
 		} else {
 			Sprite* renderSprite = m_sprite->getSprite(m_animator->getFrame(), m_angle);
 			game.gameMap()->culledDrawSprite(renderSprite, viewport, IVec(Vec(pos())), (int)m_alpha );
