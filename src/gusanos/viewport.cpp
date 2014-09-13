@@ -145,6 +145,8 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 
 	if (game.state == Game::S_Playing)  {
 		// for this scope as a small hack ...
+		// XXX: Why do we need this?
+		// It seems to me that the temp viewport is like the current viewport.
 		SDL_Surface* bmpDest = dest->surf.get();
 		CViewport _v;
 		_v.Height = this->Height;
