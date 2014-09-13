@@ -144,19 +144,14 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		blit( game.gameMap()->lightmap, fadeBuffer, offX*2,offY*2, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 	if (game.state == Game::S_Playing)  {
-		// for this scope as a small hack ...
-		// XXX: Why do we need this?
-		// It seems to me that the temp viewport is like the current viewport.
+		// Note: Earlier we had a temporary CViewport copy here
+		// where we basically copied all attributes of ourself.
+		// This was removed now because it seemed unneccessary;
+		// however, if there are related problems later, maybe
+		// this is the cause.
+		// Anyway, this should be fixed in a clean way, then.
 		SDL_Surface* bmpDest = dest->surf.get();
-		CViewport _v;
-		_v.Height = this->Height;
-		_v.Width = this->Width;
-		_v.VirtHeight = this->VirtHeight;
-		_v.VirtWidth = this->VirtWidth;
-		_v.WorldX = this->WorldX;
-		_v.WorldY = this->WorldY;
-		_v.pcTargetWorm = this->pcTargetWorm;
-		CViewport* v = &_v;
+		CViewport* v = this;
 
 		// update the drawing position
 		for_each_iterator(CWorm*, w, game.aliveWorms())
