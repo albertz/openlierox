@@ -72,24 +72,10 @@ Sprite::Sprite(Sprite const& b, Sprite const& mask, int color)
 	int colorDepth = bitmap_color_depth(b.m_bitmap);
 	LocalSetColorDepth cd(colorDepth);
 
-	//int unchanged = makecol(255, 0, 255); //unused
 	int wormColor = makecol(0, 0, 0);
-	//int max = getr(makecol(255, 0, 0)); //unused
 
 	ALLEGRO_BITMAP* maskBitmap = mask.m_bitmap;
 	ALLEGRO_BITMAP* srcBitmap = b.m_bitmap;
-
-	/*
-	for(int y = 0; y < m_bitmap->h; ++y)
-	for(int x = 0; x < m_bitmap->w; ++x)
-{
-		int col = getpixel_solid(srcBitmap, x, y);
-		int m = getpixel(maskBitmap, x, y);
-		if(m == wormColor)
-			col = specialTint(colorDepth, color, lightness(colorDepth, col));
-
-		putpixel_solid(m_bitmap, x, y, col);			
-}*/
 
 	static const int limit = 104;
 
