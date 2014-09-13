@@ -23,6 +23,10 @@ cmake_install.cmake
 CMakeLists.txt.user*
 /openlierox.cbp
 
+# CLion JetBrains IDE
+# It just uses CMake - don't add the temporary stuff.
+/.idea
+
 bin
 *~
 .*.swp
