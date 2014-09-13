@@ -18,11 +18,7 @@ using namespace std;
 Sprite* genLight( int radius )
 {
 	radius *= 2; // doubleRes
-	ALLEGRO_BITMAP* lightHax;
-	{
-		//LocalSetColorDepth cd(8);
-		lightHax = create_bitmap_ex(8, 2*radius, 2*radius );
-	}
+	ALLEGRO_BITMAP* lightHax = create_bitmap_ex(8, 2*radius, 2*radius );
 	for ( int x = 0; x < lightHax->w; ++x )
 		for ( int y = 0; y < lightHax->h; ++y ) {
 			int color = (int)(255 - ( 255 * Vec( (float)(radius-x), (float)(radius-y) ).length() ) / (float)radius);
