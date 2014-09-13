@@ -57,8 +57,6 @@ struct TestCuller : public Culler<TestCuller>
 
 	void line(int64_t y, int64_t x1, int64_t x2)
 	{
-		//hline_add(dest, x1 + scrOffX, y + scrOffY, x2 + scrOffX + 1, makecol(50, 50, 50), 255);
-
 		drawSpriteLine_add(
 		    dest,
 		    src,
