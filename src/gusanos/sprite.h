@@ -43,7 +43,6 @@ public:
 	{ return m_bitmap->h; }
 	
 	ALLEGRO_BITMAP *m_bitmap;
-	//ALLEGRO_BITMAP *m_mirror;
 	int m_xPivot;
 	int m_yPivot;
 	
