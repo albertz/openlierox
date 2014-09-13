@@ -12,6 +12,7 @@
 #define __INPUTEVENTS_H__
 
 #include <vector>
+#include <SDL.h>
 #include "Unicode.h"
 #include "Event.h"
 #include "EventQueue.h"
