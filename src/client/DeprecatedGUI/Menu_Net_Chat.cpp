@@ -86,7 +86,7 @@ void Menu_Net_ChatFrame(int mouse)
 
 	// Process & Draw the gui
 	ev = cChat.Process();
-	cChat.Draw( VideoPostProcessor::videoSurface() );
+	cChat.Draw( VideoPostProcessor::videoSurface().get() );
 
 
 	// Process any events
@@ -140,7 +140,7 @@ void Menu_Net_ChatFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 }; // namespace DeprecatedGUI

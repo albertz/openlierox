@@ -156,7 +156,7 @@ void Menu_Net_LANFrame(int mouse)
 
 	// Process & Draw the gui
 	ev = cLan.Process();
-	cLan.Draw( VideoPostProcessor::videoSurface() );
+	cLan.Draw( VideoPostProcessor::videoSurface().get() );
 
 
 	// Process the server list
@@ -371,7 +371,7 @@ void Menu_Net_LANFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 
@@ -446,7 +446,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
-        cDetails.Draw(VideoPostProcessor::videoSurface());
+        cDetails.Draw(VideoPostProcessor::videoSurface().get());
         gui_event_t *ev = NULL;
 
 		ev = cDetails.Process();
@@ -473,7 +473,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 			}
         }
 
-        DrawCursor(VideoPostProcessor::videoSurface());
+        DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
     }

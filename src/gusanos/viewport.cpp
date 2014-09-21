@@ -81,9 +81,6 @@ static Sprite* testLight = 0;
 
 void CViewport::setDestination(int width, int height)
 {
-	destroy_bitmap(dest);
-	dest = create_bitmap(width, height);
-
 	destroy_bitmap(fadeBuffer);
 	fadeBuffer = create_bitmap_ex(8, width, height);
 }
@@ -105,7 +102,7 @@ void CViewport::drawLight(IVec const& v)
 }
 
 
-void CViewport::gusRender(SDL_Surface* bmpDest)
+void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 {
 	{
 		int destw = Width*2;
@@ -113,11 +110,14 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		bool needDestReset = false;
 		if(!dest || !fadeBuffer || !testLight)
 			needDestReset = true;
-		else if(dest->w != destw || dest->h != desth )
+		else if(fadeBuffer->w != destw || fadeBuffer->h != desth)
 			needDestReset = true;
 		
 		if(needDestReset)
 			setDestination(destw, desth);
+		
+		destroy_bitmap(dest);
+		dest = create_bitmap_from_sdl(bmpDest, Left/2, Top/2, Width*2, Height*2);
 	}
 
 	{
@@ -273,7 +273,7 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		}
 	}
 
-	DrawImage(bmpDest, dest->surf, this->GetLeft()/2, this->GetTop()/2);
+	//DrawImage(bmpDest, dest->surf, this->GetLeft()/2, this->GetTop()/2);
 }
 
 

@@ -497,7 +497,7 @@ void Menu_OptionsFrame()
 	SetGameCursor(CURSOR_ARROW); // Hack: button changed the cursor to hand, we need to change it back
 	for(int i=op_Controls;i<=op_System;i++) {
 
-		TopButtons[i].Draw(VideoPostProcessor::videoSurface());
+		TopButtons[i].Draw(VideoPostProcessor::videoSurface().get());
 
 		if(i==OptionsMode || bSpeedTest)
 			continue;
@@ -505,7 +505,7 @@ void Menu_OptionsFrame()
 		if(TopButtons[i].InBox(Mouse->X,Mouse->Y)) {
 			TopButtons[i].MouseOver(Mouse);
 			if(Mouse->Up) {
-                DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
+                DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 				OptionsMode = i;
 				PlaySoundSample(sfxGeneral.smpClick);
 			}
@@ -514,7 +514,7 @@ void Menu_OptionsFrame()
 
 	// Process the gui layout
 	ev = bSpeedTest ? NULL : cOptions.Process();
-	cOptions.Draw(VideoPostProcessor::videoSurface());
+	cOptions.Draw(VideoPostProcessor::videoSurface().get());
 
 	if(ev) {
 
@@ -542,7 +542,7 @@ void Menu_OptionsFrame()
 
 		// Controls
 		ev = bSpeedTest ? NULL : cOpt_Controls.Process();
-		cOpt_Controls.Draw(VideoPostProcessor::videoSurface());
+		cOpt_Controls.Draw(VideoPostProcessor::videoSurface().get());
 
 		if(ev) {
 
@@ -571,12 +571,12 @@ void Menu_OptionsFrame()
 
 		// Game
 		ev = bSpeedTest ? NULL : cOpt_Game.Process();
-		cOpt_Game.Draw(VideoPostProcessor::videoSurface());
+		cOpt_Game.Draw(VideoPostProcessor::videoSurface().get());
 
 		val = (int)cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
 		//s = (CSlider *)cOpt_Game.getWidget(og_BloodAmount);
-        DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 385,140, 385,140, 70,40);
-		tLX->cFont.Draw(VideoPostProcessor::videoSurface(),385, 148, tLX->clNormalLabel, itoa(val)+"%");
+        DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 385,140, 385,140, 70,40);
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(),385, 148, tLX->clNormalLabel, itoa(val)+"%");
 
 		//val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
         //DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 285,260, 285,260, 100,50);
@@ -720,7 +720,7 @@ void Menu_OptionsFrame()
 
 		// System
 		ev = bSpeedTest ? NULL : cOpt_System.Process();
-		cOpt_System.Draw(VideoPostProcessor::videoSurface());
+		cOpt_System.Draw(VideoPostProcessor::videoSurface().get());
 
 		if(ev) {
 
@@ -880,7 +880,7 @@ void Menu_OptionsFrame()
 
 		if(cdepth != tLXOptions->iColourDepth || opengl != tLXOptions->bOpenGL || fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS) {
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
-			cOpt_System.getWidget(os_Apply)->Draw( VideoPostProcessor::videoSurface() );
+			cOpt_System.getWidget(os_Apply)->Draw( VideoPostProcessor::videoSurface().get() );
         } else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
 			cOpt_System.getWidget(os_Apply)->redrawBuffer();
@@ -899,7 +899,7 @@ void Menu_OptionsFrame()
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 
@@ -942,7 +942,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	while(game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
 
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 
 		// Escape quits the wait for user input
 		if(WasKeyboardEventHappening(SDLK_ESCAPE))

@@ -163,7 +163,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 	// Process & Draw the gui
 	ev = cFavourites.Process();
-	cFavourites.Draw( VideoPostProcessor::videoSurface() );
+	cFavourites.Draw( VideoPostProcessor::videoSurface().get() );
 
 	// Process the server list
 	if( ServerList::get()->process() ) {
@@ -421,7 +421,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 	}
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 ///////////////////
@@ -500,7 +500,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
-        cDetails.Draw(VideoPostProcessor::videoSurface());
+        cDetails.Draw(VideoPostProcessor::videoSurface().get());
         gui_event_t *ev = NULL;
 
 		ev = cDetails.Process();
@@ -527,7 +527,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 			}
         }
 
-        DrawCursor(VideoPostProcessor::videoSurface());
+        DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
     }
@@ -578,7 +578,7 @@ void Menu_Net_RenameServer(std::string& szName)
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && renameServerMsg && game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		DrawImageAdv(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list
 		if( ServerList::get()->process() ) {
@@ -587,7 +587,7 @@ void Menu_Net_RenameServer(std::string& szName)
 		}
 
 
-		cRename.Draw( VideoPostProcessor::videoSurface() );
+		cRename.Draw( VideoPostProcessor::videoSurface().get() );
 		ev = cRename.Process();
 
 		// Process any events
@@ -623,7 +623,7 @@ void Menu_Net_RenameServer(std::string& szName)
 		}
 
 
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
 		ProcessEvents();
@@ -679,7 +679,7 @@ void Menu_Net_FavouritesAddServer()
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list
 		if( ServerList::get()->process() ) {
@@ -687,7 +687,7 @@ void Menu_Net_FavouritesAddServer()
 			ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 		}
 
-		cAddSvr.Draw( VideoPostProcessor::videoSurface() );
+		cAddSvr.Draw( VideoPostProcessor::videoSurface().get() );
 		ev = cAddSvr.Process();
 
 		// Process any events
@@ -727,7 +727,7 @@ void Menu_Net_FavouritesAddServer()
 		}
 
 
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
 		ProcessEvents();

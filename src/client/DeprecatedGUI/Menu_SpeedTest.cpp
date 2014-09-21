@@ -81,7 +81,7 @@ bool Menu_SpeedTest_Frame()
 	if (!tSpeedTest)
 		return true;
 
-	SDL_Surface *bmpDest = VideoPostProcessor::videoSurface();
+	SDL_Surface *bmpDest = VideoPostProcessor::videoSurface().get();
 
 	// Error?
 	if (tSpeedTest->hasFinished())  {

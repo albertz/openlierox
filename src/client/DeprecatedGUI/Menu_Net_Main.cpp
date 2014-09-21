@@ -79,7 +79,7 @@ void Menu_Net_MainFrame(int mouse)
 
 	// Process & Draw the gui
 	ev = cMain.Process();
-	cMain.Draw( VideoPostProcessor::videoSurface() );
+	cMain.Draw( VideoPostProcessor::videoSurface().get() );
 
 
 	// Process any events
@@ -107,7 +107,7 @@ void Menu_Net_MainFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 }; // namespace DeprecatedGUI

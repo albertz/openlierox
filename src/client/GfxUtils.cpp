@@ -64,7 +64,7 @@ struct ScopedBackgroundLoadingAni::Data {
 		CopySurface(screenBackup.get(), VideoPostProcessor::videoSurface(), 0,0,0,0,640,480);
 	}
 	~Data() {
-		CopySurface(VideoPostProcessor::videoSurface(), screenBackup.get(), 0,0,0,0,640,480);	
+		CopySurface(VideoPostProcessor::videoSurface().get(), screenBackup.get(), 0,0,0,0,640,480);
 	}
 };
 
@@ -91,8 +91,8 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 				// As we are only loading the mod/map, we can savly access tLX->currentTime.
 				tLX->currentTime = GetTime();
 				
-				DrawImageEx(VideoPostProcessor::videoSurface(), data->screenBackup, 0,0,640,480);
-				DrawLoadingAni(VideoPostProcessor::videoSurface(), x, y, rx, ry, fg, bg, type);
+				DrawImageEx(VideoPostProcessor::videoSurface().get(), data->screenBackup, 0,0,640,480);
+				DrawLoadingAni(VideoPostProcessor::videoSurface().get(), x, y, rx, ry, fg, bg, type);
 				doVideoFrameInMainThread();
 				
 				data->breakSig.wait(data->mutex, 10);

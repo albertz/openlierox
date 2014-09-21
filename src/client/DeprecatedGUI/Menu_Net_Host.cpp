@@ -268,7 +268,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 	// Process & Draw the gui
 	ev = cHostPly.Process();
-	cHostPly.Draw( VideoPostProcessor::videoSurface() );
+	cHostPly.Draw( VideoPostProcessor::videoSurface().get() );
 
 	
 	// Speed test dialog
@@ -506,7 +506,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 //////////////
@@ -976,15 +976,15 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	}
 
     // Draw the host lobby details
-	Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
+	Menu_HostDrawLobby(VideoPostProcessor::videoSurface().get());
 
 	// Process & Draw the gui
 	if (!Con_IsVisible() && !bSpeedTestDialog && !CChatWidget::GlobalEnabled())  // Don't process when the console is opened or speed test is being performed
 		ev = cHostLobby.Process();
-	cHostLobby.Draw( VideoPostProcessor::videoSurface() );
+	cHostLobby.Draw( VideoPostProcessor::videoSurface().get() );
 	if(CChatWidget::GlobalEnabled())
 	{
-		CChatWidget::GlobalProcessAndDraw(VideoPostProcessor::videoSurface());
+		CChatWidget::GlobalProcessAndDraw(VideoPostProcessor::videoSurface().get());
 		return;
 	}
 	
@@ -1240,7 +1240,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 	
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 
 	int secondsTillGameStart = iStartDedicatedSeconds - Round( (tLX->currentTime - fStartDedicatedSecondsPassed).seconds() );
 	if( bStartDedicated && (int)game.worms()->size() < iStartDedicatedMinPlayers )
@@ -1439,7 +1439,7 @@ void Menu_HostShowMinimap()
 	DrawImage(tMenu->bmpBuffer.get(), minimapForLevel(buf), 463,minimapy+2);
 
 	// Update the screen
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 457,minimapy,457,minimapy,140,110);
+	DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 457,minimapy,457,minimapy,140,110);
 }
 
 
@@ -1494,7 +1494,7 @@ void Menu_Net_HostDeregister()
 			break;
 		}
 
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
 	}
@@ -1588,11 +1588,11 @@ bool Menu_ServerSettings_Frame()
 {
 	gui_event_t *ev = NULL;
 
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
+	DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Process events and draw gui
 	ev = cServerSettings.Process();
-	cServerSettings.Draw(VideoPostProcessor::videoSurface());
+	cServerSettings.Draw(VideoPostProcessor::videoSurface().get());
 
 	if(ev) {
 
@@ -1640,7 +1640,7 @@ bool Menu_ServerSettings_Frame()
 	}
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 
 	return false;
 }
@@ -1725,11 +1725,11 @@ bool Menu_BanList_Frame()
 	CListview *tListBox = (CListview *)cBanListGui.getWidget(bl_ListBox);
 
 
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
+	DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Process events and draw gui
 	ev = cBanListGui.Process();
-	cBanListGui.Draw(VideoPostProcessor::videoSurface());
+	cBanListGui.Draw(VideoPostProcessor::videoSurface().get());
 
 	if(ev) {
 
@@ -1769,7 +1769,7 @@ bool Menu_BanList_Frame()
 	}
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 
 	return false;
 }

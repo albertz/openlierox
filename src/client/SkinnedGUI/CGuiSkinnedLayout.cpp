@@ -38,7 +38,7 @@ CGuiSkinnedLayout::CGuiSkinnedLayout() : CContainerWidget("_TopLayout", NULL) {
 	bFullRepaint = false;
 	cSkin = NULL;
 
-	if (VideoPostProcessor::videoSurface())
+	if (VideoPostProcessor::videoSurface().get())
 		Resize(0, 0, VideoPostProcessor::videoSurface()->w, VideoPostProcessor::videoSurface()->h);
 }
 

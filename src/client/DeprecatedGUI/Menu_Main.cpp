@@ -118,7 +118,7 @@ void Menu_MainFrame()
 	// Process the buttons
 	ev = cMainMenu.Process();
 		
-	cMainMenu.Draw(VideoPostProcessor::videoSurface());
+	cMainMenu.Draw(VideoPostProcessor::videoSurface().get());
 	
 	int mouseover = false;
 	int img = lastimg;
@@ -224,7 +224,7 @@ void Menu_MainFrame()
 
 	if(alpha) {
 
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 410,260, 410,260, 200,64);
+		DrawImageAdv(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 410,260, 410,260, 200,64);
 
 		switch(img) {
 			case 0:
@@ -271,8 +271,8 @@ void Menu_MainFrame()
 		h = tLX->cFont.GetHeight() + tLX->cFont.GetHeight(credits2) + 4;
 
 	Menu_redrawBufferRect(x, y, w, h);
-	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clCredits1, credits1);
-	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), x, y + tLX->cFont.GetHeight(), tLX->clCredits2, credits2);
+	tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), x, y, tLX->clCredits1, credits1);
+	tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), x, y + tLX->cFont.GetHeight(), tLX->clCredits2, credits2);
 
 
 	// Restore the original spacing
@@ -280,7 +280,7 @@ void Menu_MainFrame()
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 

@@ -156,7 +156,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 	Menu_redrawBufferRect(0,180,640,tLX->cFont.GetHeight());
 
 	// Process the client frame
-	tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 180, tLX->clNormalLabel, "Connecting to " + cClient->getServerAddr_HumanReadable());
+	tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), 320, 180, tLX->clNormalLabel, "Connecting to " + cClient->getServerAddr_HumanReadable());
 
 
 	// Connected??
@@ -185,7 +185,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 	// Process & Draw the gui
 	ev = cConnecting.Process();
-	cConnecting.Draw( VideoPostProcessor::videoSurface() );
+	cConnecting.Draw( VideoPostProcessor::videoSurface().get() );
 
 
 	// Process any events
@@ -212,7 +212,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 
@@ -735,7 +735,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         int x = 360;
         y = 15;
 
-		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
+		f->Draw(VideoPostProcessor::videoSurface().get(), x, y,  tLX->clHeading, "Game Details");
 	}
 
 	// If any textbox is selected, forbid to show the console
@@ -747,11 +747,11 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	if (!Con_IsVisible() && !CChatWidget::GlobalEnabled())  // Don't process when the console is opened
 		ev = cJoinLobby.Process();
 
-	cJoinLobby.Draw( VideoPostProcessor::videoSurface() );
+	cJoinLobby.Draw( VideoPostProcessor::videoSurface().get() );
 
 	if(CChatWidget::GlobalEnabled())
 	{
-		CChatWidget::GlobalProcessAndDraw(VideoPostProcessor::videoSurface());
+		CChatWidget::GlobalProcessAndDraw(VideoPostProcessor::videoSurface().get());
 		return;
 	}
 
@@ -909,7 +909,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 }; // namespace DeprecatedGUI

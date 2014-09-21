@@ -287,7 +287,7 @@ void Menu_Frame() {
 
 		// Map editor
 		case MNU_MAPED:
-			Menu_MapEdFrame(VideoPostProcessor::videoSurface(),true);
+			Menu_MapEdFrame(VideoPostProcessor::videoSurface().get(),true);
 			break;
 
 		// Options
@@ -309,15 +309,15 @@ void Menu_Frame() {
 #ifdef DEBUG
 	if(tLX->fDeltaTime != TimeDiff()) {
 		Menu_redrawBufferRect(0, 0, 100, 20);
-		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime.seconds())));
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime.seconds())));
 	}
 #endif
 
-	taskManager->renderTasksStatus(VideoPostProcessor::videoSurface());
+	taskManager->renderTasksStatus(VideoPostProcessor::videoSurface().get());
 	
 	if (!tMenu->bForbidConsole)  {
 		Con_Process(tLX->fDeltaTime);
-		Con_Draw(VideoPostProcessor::videoSurface());
+		Con_Draw(VideoPostProcessor::videoSurface().get());
 	}
 	tMenu->bForbidConsole = false; // Reset it here, it might get recovered next frame
 
@@ -336,7 +336,7 @@ void Menu_Frame() {
 void Menu_RedrawMouse(bool total)
 {
 	if(total) {
-		SDL_BlitSurface(tMenu->bmpBuffer.get(),NULL,VideoPostProcessor::videoSurface(),NULL);
+		SDL_BlitSurface(tMenu->bmpBuffer.get(),NULL,VideoPostProcessor::videoSurface().get(),NULL);
 		return;
 	}
 
@@ -344,7 +344,7 @@ void Menu_RedrawMouse(bool total)
 	int hh = GetMaxCursorHeight() / 2 - 1;
 
 	mouse_t *m = GetMouse();
-	DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer,
+	DrawImageAdv(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer,
 				m->X - hw - m->deltaX,
 				m->Y - hh - m->deltaY,
 
@@ -601,11 +601,11 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 
 		SetGameCursor(CURSOR_ARROW);
 
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, x,y, x,y, w, h);
+		DrawImageAdv(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, x,y, x,y, w, h);
 
 		// Process the gui
 		ev = msgbox.Process();
-		msgbox.Draw(VideoPostProcessor::videoSurface());
+		msgbox.Draw(VideoPostProcessor::videoSurface().get());
 
 		if(ev) {
 
@@ -649,7 +649,7 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 		}
 
 		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && game.state != Game::S_Quit && ret == MBR_INVALID) {
-			DrawCursor(VideoPostProcessor::videoSurface());
+			DrawCursor(VideoPostProcessor::videoSurface().get());
 			doVideoFrameInMainThread();
 			CapFPS();
 			tLX->currentTime = GetTime(); // we need this for CapFPS()
@@ -991,7 +991,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 // Redraw a section from the buffer to the screen
 void Menu_redrawBufferRect(int x, int y, int w, int h)
 {
-    DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, x,y, x,y, w,h);
+    DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, x,y, x,y, w,h);
 }
 
 
@@ -1028,9 +1028,9 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 	Menu_redrawBufferRect(x,y,w,h);
 
-    Menu_DrawBox(VideoPostProcessor::videoSurface(), x,y, x+w, y+h);
-	DrawRectFillA(VideoPostProcessor::videoSurface(), x+2,y+2, x+w-1, y+h-1, tLX->clDialogBackground, 230);
-    tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+5, tLX->clNormalLabel, "Server Details");
+    Menu_DrawBox(VideoPostProcessor::videoSurface().get(), x,y, x+w, y+h);
+	DrawRectFillA(VideoPostProcessor::videoSurface().get(), x+2,y+2, x+w-1, y+h-1, tLX->clDialogBackground, 230);
+    tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), x+w/2, y+5, tLX->clNormalLabel, "Server Details");
 
 
 	server_t::Ptr svr = ServerList::get()->findServerStr(szAddress);
@@ -1039,7 +1039,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 		if(IsNetAddrValid(svr->sAddress)) {
 			origAddr = svr->sAddress;
 		} else {
-			tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Resolving domain ...");
+			tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Resolving domain ...");
 			return;
 		}
 	} else {
@@ -1049,7 +1049,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 		if(!StringToNetAddr(tmp_addr, origAddr)) {
 			// TODO: this happens also, if the server is not in the serverlist
 			// we should do the domain resolving also here by ourselfs
-			tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "DNS not resolved");
+			tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "DNS not resolved");
 			return;
 		}
 	}
@@ -1082,7 +1082,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
     if(nTries < 3 && !bGotDetails && !bOldLxBug) {
 
-		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Loading info...");
+		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Loading info...");
 
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
@@ -1419,13 +1419,13 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 	// No details, server down
     if(!bGotDetails) {
-        tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "Unable to query server");
+        tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "Unable to query server");
         return;
     }
 
 	// Old bug
     if(bOldLxBug) {
-        tLX->cFont.Draw(VideoPostProcessor::videoSurface(), x+15,y+tLX->cFont.GetHeight()+10, tLX->clError, "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
+        tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), x+15,y+tLX->cFont.GetHeight()+10, tLX->clError, "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
         return;
     }
 
@@ -1445,7 +1445,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	}
 
 	// All ok, draw the details
-	lvInfo.Draw( VideoPostProcessor::videoSurface() );
+	lvInfo.Draw( VideoPostProcessor::videoSurface().get() );
 }
 
 void Menu_Current_Shutdown() {

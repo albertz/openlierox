@@ -411,7 +411,7 @@ void CClient::DrawBox(SDL_Surface * dst, int x, int y, int w)
 
 ///////////////////
 // Main drawing routines
-void CClient::Draw(SDL_Surface * bmpDest)
+void CClient::Draw(const SmartPointer<SDL_Surface>& bmpDest)
 {
 #ifdef DEBUG
 	struct DrawDebugStrPostHandler {
@@ -423,7 +423,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 				cl.DrawText(dst, false, 10, 30, Color(255,0,0), cl.strDebug);
 		}
 	};
-	DrawDebugStrPostHandler drawDebugStrPostHandler(*this, bmpDest);
+	DrawDebugStrPostHandler drawDebugStrPostHandler(*this, bmpDest.get());
 #endif
 	
 	// TODO: clean this function up
@@ -456,7 +456,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if(bDedicated)
 		return;
 	
-	if(bmpDest == NULL) {
+	if(bmpDest.get() == NULL) {
 		errors << "CClient::Draw: bmpDest is unset" << endl;
 		return;
 	}
@@ -506,7 +506,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if(cViewports[1].getUsed())
 		DrawRectFill(bmpDest,640/2-2,0,640/2+2, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 	*/
-	DrawRectFill(bmpDest, 640/2-2, 0, 640/2+2, 480, tLX->clViewportSplit);
+	DrawRectFill(bmpDest.get(), 640/2-2, 0, 640/2+2, 480, tLX->clViewportSplit);
 
 	// Top bar (do not draw for Gusanos)
 	/*
@@ -558,10 +558,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Mini-Map
 		if (game.gameMap() != NULL && (bool)getGameLobby()[FT_MiniMap])  {
 			if (game.state >= Game::S_Preparing)
-				game.gameMap()->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, tLX->fDeltaTime );
+				game.gameMap()->DrawMiniMap( bmpDest.get(), MiniMapX, MiniMapY, tLX->fDeltaTime );
 			else {
 				if(game.gameMap()->GetMiniMap().get())
-					DrawImage( bmpDest, game.gameMap()->GetMiniMap(), MiniMapX, MiniMapY);
+					DrawImage( bmpDest.get(), game.gameMap()->GetMiniMap(), MiniMapX, MiniMapY);
 			}
 		}
 
@@ -570,8 +570,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// If waiting for the map/mod to finish downloading, draw the progress
 	if (bWaitingForMap || bWaitingForMod)  {
 		cDownloadBar->SetPosition( getDlProgress() );
-		tLX->cOutlineFont.DrawCentre(bmpDest, 320, getBottomBarTop() - cDownloadBar->GetHeight() - tLX->cOutlineFont.GetHeight() - 5, tLX->clNormalLabel, "Downloading files");
-		cDownloadBar->Draw(bmpDest);
+		tLX->cOutlineFont.DrawCentre(bmpDest.get(), 320, getBottomBarTop() - cDownloadBar->GetHeight() - tLX->cOutlineFont.GetHeight() - 5, tLX->clNormalLabel, "Downloading files");
+		cDownloadBar->Draw(bmpDest.get());
 	}
 
 	// DEBUG
@@ -581,22 +581,22 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// Draw the chatbox for either a local game, or remote game
 	if(game.isLocalGame())
-		DrawLocalChat(bmpDest);
+		DrawLocalChat(bmpDest.get());
 	else
-		DrawRemoteChat(bmpDest);
+		DrawRemoteChat(bmpDest.get());
 	
 	if(game.hudPermanentText != "") {
 		int y = tInterfaceSettings.LocalChatY;
-		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, game.hudPermanentText); // Shadow black
-		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, Color(200,200,255), game.hudPermanentText);
+		tLX->cFont.Draw(bmpDest.get(), tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, game.hudPermanentText); // Shadow black
+		tLX->cFont.Draw(bmpDest.get(), tInterfaceSettings.LocalChatX, y, Color(200,200,255), game.hudPermanentText);
 	}
 	
 	// FPS
 	if(tLXOptions->bShowFPS) {
 		if (false /*tLXOptions->bTopBarVisible*/)  {
-			DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
+			DrawBox( bmpDest.get(), tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
 			tLX->cFont.Draw( // Draw the text
-						bmpDest,
+						bmpDest.get(),
 						tInterfaceSettings.FpsX + 2,
 						tInterfaceSettings.FpsY,
 						tLX->clFPSLabel,
@@ -608,7 +608,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 					);
 		} else { // Top bar is hidden
 			tLX->cOutlineFont.Draw( // Draw the text
-						bmpDest,
+						bmpDest.get(),
 						VideoPostProcessor::videoSurface()->w - 70,
 						0,
 						tLX->clFPSLabel,
@@ -626,17 +626,17 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		if (false /*tLXOptions->bTopBarVisible*/)  {
 			// Draw the box around it
-			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
+			DrawBox( bmpDest.get(), tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
 
 			tLX->cFont.Draw( // Draw the text
-						bmpDest,
+						bmpDest.get(),
 						tInterfaceSettings.PingX + 2,
 						tInterfaceSettings.PingY,
 						tLX->clPingLabel,
 						"Ping: " + itoa(iMyPing));
 		} else {
 			tLX->cOutlineFont.Draw( // Draw the text
-						bmpDest,
+						bmpDest.get(),
 						VideoPostProcessor::videoSurface()->w - (tLXOptions->bShowFPS ? 135 : 65),
 						0,
 						tLX->clPingLabel,
@@ -668,12 +668,12 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		sprintf(cstr_buf,"%.2i:%.2i",iTLMinutes,iTLSeconds);
 	
 		//DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
-		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpClock, tInterfaceSettings.TimeLeftX+1,  tInterfaceSettings.TimeLeftY+1);
-		tLX->cFont.Draw(bmpDest,tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
+		DrawImage(bmpDest.get(), DeprecatedGUI::gfxGame.bmpClock, tInterfaceSettings.TimeLeftX+1,  tInterfaceSettings.TimeLeftY+1);
+		tLX->cFont.Draw(bmpDest.get(),tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
 	}
 
 	if( sSpectatorViewportMsg != "" && !game.gameOver )
-		tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
+		tLX->cOutlineFont.DrawCentre( bmpDest.get(), 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
 
 	std::list<std::string> dbgtxtHudLines;
 	if(tLXOptions->bShowNetRates) {
@@ -721,7 +721,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		const int dbgtxtHudX = 640 - txtWidth;
 		int dbgtxtHudY = 20;
 		foreach(i, dbgtxtHudLines) {
-			tLX->cOutlineFont.Draw(bmpDest, dbgtxtHudX, dbgtxtHudY, tLX->clWhite, *i);
+			tLX->cOutlineFont.Draw(bmpDest.get(), dbgtxtHudX, dbgtxtHudY, tLX->clWhite, *i);
 			dbgtxtHudY += tLX->cOutlineFont.GetHeight();
 		}
 	}
@@ -734,7 +734,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			CViewport* v = NULL;
 			if(i < NUM_VIEWPORTS) v = &cViewports[i];
 			if(!w->get()->bWeaponsReady)
-				w->get()->doWeaponSelectionFrame(bmpDest, v);
+				w->get()->doWeaponSelectionFrame(bmpDest.get(), v);
 		}
 	}
 
@@ -775,10 +775,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		} else {
 			if(game.gameMode() == &singlePlayerGame && singlePlayerGame.levelSucceeded) {
 				std::string s = "Congratulations, you have done it!";
-				tLX->cFont.DrawCentre(bmpDest, 321, 201, tLX->clBlack, s);
-				tLX->cFont.DrawCentre(bmpDest, 320, 200, Color(100,255,100), s);
+				tLX->cFont.DrawCentre(bmpDest.get(), 321, 201, tLX->clBlack, s);
+				tLX->cFont.DrawCentre(bmpDest.get(), 320, 200, Color(100,255,100), s);
 			} else
-				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
+				tLX->cOutlineFont.DrawCentre(bmpDest.get(), 320, 200, tLX->clNormalText, "Game Over");
 		}
 	} else
 		was_gameovermenu = false;
@@ -786,25 +786,25 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// Viewport manager
 	if(bViewportMgr)  {
 		bScoreboard = false;
-		DrawViewportManager(bmpDest);
+		DrawViewportManager(bmpDest.get());
 	}
 
 	if(iNetStatus == NET_CONNECTED && !bReadySent)  {
 		bScoreboard = false;
-		DrawPlayerWaiting(bmpDest);
+		DrawPlayerWaiting(bmpDest.get());
 	}
 
 	// Scoreboard
 	if(bScoreboard && !bGameMenu)
-		DrawScoreboard(bmpDest);
+		DrawScoreboard(bmpDest.get());
 
 	// Current Settings
-	DrawCurrentSettings(bmpDest);
+	DrawCurrentSettings(bmpDest.get());
 
 	// Game menu
 	bool options = DeprecatedGUI::bShowFloatingOptions;  // TODO: bad hack, because DrawGameMenu does processing as well...
 	if( bGameMenu)
-		DrawGameMenu(bmpDest);
+		DrawGameMenu(bmpDest.get());
 		
 	// Options dialog
 	if (DeprecatedGUI::bShowFloatingOptions && options)  {  // Skip the first frame to ignore the click on the Game Settings button
@@ -813,11 +813,11 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// Chatter
 	if(bChat_Typing)  {
-		DrawChatter(bmpDest);
+		DrawChatter(bmpDest.get());
 	}
 
 	// Console
-	Con_Draw(bmpDest);
+	Con_Draw(bmpDest.get());
 
 	// We currently just set it always to true because it paints on the video surface
 	// and expects that it will always stay there. This is of course wrong for double buffering
@@ -856,12 +856,12 @@ void CClient::DrawChatter(SDL_Surface * bmpDest)
 }
 
 
-void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
+void CClient::DrawViewport_Game(const SmartPointer<SDL_Surface>& bmpDest, CViewport* v) {
 	if(!game.gameMap() || !game.gameMap()->isLoaded()) return;
 
 	// Set the clipping
 	SDL_Rect rect = v->getRect();
-	ScopedSurfaceClip clip(bmpDest, rect);
+	ScopedSurfaceClip clip(bmpDest.get(), rect);
 	
 	v->gusRender(bmpDest);
 }
@@ -869,7 +869,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 
 ///////////////////
 // Draw a viewport
-void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
+void CClient::DrawViewport(const SmartPointer<SDL_Surface>& bmpDest, int viewport_index)
 {	
 	// Check the parameters
 	if (viewport_index >= NUM_VIEWPORTS)
@@ -937,12 +937,12 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			
 			// if surface was too big or some other problem while allocating, don't crash
 			if(tmpSurf.get()) {
-				DrawViewport_Game(tmpSurf.get(), &sizedViewport);
+				DrawViewport_Game(tmpSurf, &sizedViewport);
 				// For some special factors, we have optimised (mainly for quality) versions. Otherwise fallback to basic resampler.
 				if(sizeFactor == 2.0f)
-					DrawImageScale2x(bmpDest, tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1);
+					DrawImageScale2x(bmpDest.get(), tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1);
 				else
-					DrawImageResampledAdv(bmpDest, tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1, sizeFactor, sizeFactor);
+					DrawImageResampledAdv(bmpDest.get(), tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1, sizeFactor, sizeFactor);
 			}
 		}
 	}
@@ -1037,7 +1037,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		//tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
 		if (HealthBar)  {
 			HealthBar->SetPosition((int)worm->getHealth());
-			HealthBar->Draw(bmpDest);
+			HealthBar->Draw(bmpDest.get());
 		}
 
 		// Weapon
@@ -1045,7 +1045,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		if(Slot->weapon()) {
 			std::string weapon_name = Slot->weapon()->Name;
 			stripdot(weapon_name, 100);
-			tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
+			tLX->cFont.Draw(bmpDest.get(), *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
 
 			if (WeaponBar)  {
 				if(Slot->Reloading)  {
@@ -1067,7 +1067,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 					}
 				}
 				WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
-				WeaponBar->Draw( bmpDest );
+				WeaponBar->Draw( bmpDest.get() );
 			}
 		}
 		else { // no weapon
@@ -1076,7 +1076,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 				WeaponBar->SetCurrentForeState(0);  // "Shooting" state
 				WeaponBar->SetCurrentBgState(0);
 				WeaponBar->SetPosition((int) ( 0 ));
-				WeaponBar->Draw( bmpDest );
+				WeaponBar->Draw( bmpDest.get() );
 			}			
 		}
 	}
@@ -1086,36 +1086,36 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	if (tLXOptions->bTopBarVisible) {
 
 	// Lives
-	DrawBox(bmpDest, *LivesX, *LivesY, *LivesW); // Box first
+	DrawBox(bmpDest.get(), *LivesX, *LivesY, *LivesW); // Box first
 
 	std::string lives_str;
 	lives_str = "Lives: ";
 	switch (worm->getLives())  {
 	case WRM_OUT:
 		lives_str += "Out";
-		tLX->cFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
+		tLX->cFont.Draw(bmpDest.get(), *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
 		break;
 	case WRM_UNLIM:
-		tLX->cFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
-		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpInfinite, *LivesX + *LivesW - DeprecatedGUI::gfxGame.bmpInfinite.get()->w, *LivesY); // Infinite
+		tLX->cFont.Draw(bmpDest.get(), *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
+		DrawImage(bmpDest.get(), DeprecatedGUI::gfxGame.bmpInfinite, *LivesX + *LivesW - DeprecatedGUI::gfxGame.bmpInfinite.get()->w, *LivesY); // Infinite
 		break;
 	default:
 		if (worm->getLives() >= 0)  {
 			lives_str += itoa( worm->getLives() );
-			tLX->cFont.Draw(bmpDest,*LivesX + 2, *LivesY, tLX->clLivesLabel, lives_str);
+			tLX->cFont.Draw(bmpDest.get(), *LivesX + 2, *LivesY, tLX->clLivesLabel, lives_str);
 		}
 	}
 
 	
 	// Kills
-	DrawBox( bmpDest, *KillsX, *KillsY, *KillsW );
+	DrawBox( bmpDest.get(), *KillsX, *KillsY, *KillsW );
 	std::string teamScoreTxt = "Scores: ";
 	if(worm && worm->getTeam() >= 0 && worm->getTeam() < 4)
 		teamScoreTxt += itoa(cClient->getTeamScore(worm->getTeam()));
 	if(getGeneralGameType() == GMT_TEAMS)
-		tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, teamScoreTxt);		
+		tLX->cFont.Draw(bmpDest.get(),*KillsX+2, *KillsY, tLX->clKillsLabel, teamScoreTxt);
 	else
-		tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, "Kills: " + itoa( worm->getKills() ));
+		tLX->cFont.Draw(bmpDest.get(),*KillsX+2, *KillsY, tLX->clKillsLabel, "Kills: " + itoa( worm->getKills() ));
 
 	bool showTeamEnemyScores = getGeneralGameType() == GMT_TEAMS && !cViewports[1].getUsed();
 	if(showTeamEnemyScores) {
@@ -1123,11 +1123,11 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		int y = tInterfaceSettings.Kills2Y;
 		for(int i = 0; i < MAX_TEAMS; ++i) {
 			if(i != worm->getTeam() && (cClient->getTeamWormCount(i) > 0 || cClient->getTeamScore(i) != 0)) {
-				DrawImage( bmpDest, DeprecatedGUI::gfxGame.bmpTeamColours[i], x, y );			
+				DrawImage( bmpDest.get(), DeprecatedGUI::gfxGame.bmpTeamColours[i], x, y );
 				x += DeprecatedGUI::gfxGame.bmpTeamColours[i].get()->w + 5;
 				
 				std::string enemyScoreTxt = itoa(cClient->getTeamScore(i));
-				tLX->cFont.Draw(bmpDest, x, y, tLX->clTeamColors[i], enemyScoreTxt);
+				tLX->cFont.Draw(bmpDest.get(), x, y, tLX->clTeamColors[i], enemyScoreTxt);
 				x += MAX(30, tLX->cFont.GetWidth(enemyScoreTxt) + 5);
 			}
 		}
@@ -1141,8 +1141,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		// Am i IT?
 		if(worm->getTagIT())  {
 			spec_msg = "You are IT!";
-			DrawBox( bmpDest, *SpecMsgX, *SpecMsgY, *SpecMsgW);
-			tLX->cFont.Draw(bmpDest, *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
+			DrawBox( bmpDest.get(), *SpecMsgX, *SpecMsgY, *SpecMsgW);
+			tLX->cFont.Draw(bmpDest.get(), *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
 		}
 		break;
 
@@ -1158,17 +1158,17 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			else
 				spec_msg += itoa(count/1000)+"k";
 
-			DrawBox( bmpDest, *SpecMsgX, *SpecMsgY, *SpecMsgW);
-			tLX->cFont.Draw(bmpDest, *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
+			DrawBox( bmpDest.get(), *SpecMsgX, *SpecMsgY, *SpecMsgW);
+			tLX->cFont.Draw(bmpDest.get(), *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
 		}
 		break;
 
 	case GMT_TEAMS:  {
 			if (worm->getTeam() >= 0 && worm->getTeam() < 4)  {
 				int box_h = bmpBoxLeft.get() ? bmpBoxLeft.get()->h : tLX->cFont.GetHeight();
-				DrawBox( bmpDest, *TeamX, *TeamY, *TeamW);
-				tLX->cFont.Draw( bmpDest, *TeamX+2, *TeamY, tLX->clTeamColors[worm->getTeam()], "Team");
-				DrawImage( bmpDest, DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()],
+				DrawBox( bmpDest.get(), *TeamX, *TeamY, *TeamW);
+				tLX->cFont.Draw( bmpDest.get(), *TeamX+2, *TeamY, tLX->clTeamColors[worm->getTeam()], "Team");
+				DrawImage( bmpDest.get(), DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()],
 						   *TeamX + *TeamW - DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()].get()->w - 2,
 						   *TeamY + MAX(1, box_h/2 - DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()].get()->h/2));
 			}
@@ -1197,7 +1197,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		CWorm* worm = v->getOrigTarget();
 		if(worm && !worm->getAlive() && worm->getLives() != WRM_OUT) {
 			SDL_Rect rect = v->getRect();
-			ScopedSurfaceClip clip(bmpDest, rect);
+			ScopedSurfaceClip clip(bmpDest.get(), rect);
 			float x = (float)v->GetLeft();
 			float y = (float)v->GetTop();
 			float w = (float)v->GetVirtW();
@@ -1231,8 +1231,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 				col = Color(50,0,0,100);
 				msg = "Waiting for respawn ...";
 			}
-			DrawRectFill(bmpDest, (int)x, (int)y, int(x + w), int(y + h), col);
-			tLX->cFont.DrawCentre(bmpDest, int(x + w*0.5f), int(y + h*0.5f), tLX->clNormalLabel, msg);
+			DrawRectFill(bmpDest.get(), (int)x, (int)y, int(x + w), int(y + h), col);
+			tLX->cFont.DrawCentre(bmpDest.get(), int(x + w*0.5f), int(y + h*0.5f), tLX->clNormalLabel, msg);
 		}
 	}
 }

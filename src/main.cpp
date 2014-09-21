@@ -302,7 +302,7 @@ startpoint:
 		return -1;
 	}
 	
-	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
+	if (!bDedicated && !VideoPostProcessor::videoSurface().get()) {
 		SystemError("Could not find screen.");
 		return -1;
 	}
@@ -739,7 +739,7 @@ void GotoNetMenu()
 static void InitializeLoading()  {
 	if(bDedicated) return; // ignore this case
 
-	FillSurface(VideoPostProcessor::videoSurface(), Color(0,0,0));
+	FillSurface(VideoPostProcessor::videoSurface().get(), Color(0,0,0));
 
 	int bar_x, bar_y, bar_label_x, bar_label_y,bar_dir;
 	bool bar_visible;
@@ -794,17 +794,17 @@ static void DrawLoading(byte percentage, const std::string &text)  {
 	int y = MIN(cLoading.cBar->GetY(), cLoading.iBackgroundY);
 	int w = MAX(cLoading.bmpBackground.get()->w, cLoading.cBar->GetWidth());
 	int h = MAX(cLoading.bmpBackground.get()->h, cLoading.cBar->GetHeight());
-	DrawRectFill(VideoPostProcessor::videoSurface(), x, y, x+w, y+h, Color(0,0,0));
+	DrawRectFill(VideoPostProcessor::videoSurface().get(), x, y, x+w, y+h, Color(0,0,0));
 
 	if (cLoading.bmpBackground.get() != NULL)
-		DrawImage(VideoPostProcessor::videoSurface(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
+		DrawImage(VideoPostProcessor::videoSurface().get(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
 
 	if (cLoading.cBar)  {
 		cLoading.cBar->SetPosition(percentage);
-		cLoading.cBar->Draw( VideoPostProcessor::videoSurface() );
+		cLoading.cBar->Draw( VideoPostProcessor::videoSurface().get() );
 	}
 
-	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
+	tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
 
 	doVideoFrameInMainThread();
 }

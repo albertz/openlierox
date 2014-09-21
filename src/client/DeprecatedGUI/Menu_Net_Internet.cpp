@@ -183,7 +183,7 @@ void Menu_Net_NETFrame(int mouse)
 
 	// Process & Draw the gui
 	ev = cInternet.Process();
-	cInternet.Draw( VideoPostProcessor::videoSurface() );
+	cInternet.Draw( VideoPostProcessor::videoSurface().get() );
 
 
 	// Process the server list
@@ -422,7 +422,7 @@ void Menu_Net_NETFrame(int mouse)
 		Menu_Net_NETUpdateList();
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 
 }
 
@@ -485,7 +485,7 @@ void Menu_Net_NETAddServer()
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		DrawImageAdv(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		ProcessEvents();
 
@@ -495,7 +495,7 @@ void Menu_Net_NETAddServer()
 			Menu_Net_NET_ServerList_Refresher();
 		}
 
-		cAddSvr.Draw( VideoPostProcessor::videoSurface() );
+		cAddSvr.Draw( VideoPostProcessor::videoSurface().get() );
 		ev = cAddSvr.Process();
 
 		// Process any events
@@ -533,7 +533,7 @@ void Menu_Net_NETAddServer()
 		}
 
 
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
 	}
@@ -607,7 +607,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
-        cDetails.Draw(VideoPostProcessor::videoSurface());
+        cDetails.Draw(VideoPostProcessor::videoSurface().get());
         gui_event_t *ev = NULL;
 
 		ev = cDetails.Process();
@@ -636,7 +636,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 			}
         }
 
-        DrawCursor(VideoPostProcessor::videoSurface());
+        DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
     }

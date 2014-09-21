@@ -92,7 +92,7 @@ void Menu_Net_NewsFrame(int mouse)
 
 	// Process & Draw the gui
 	ev = cNews.Process();
-	cNews.Draw( VideoPostProcessor::videoSurface() );
+	cNews.Draw( VideoPostProcessor::videoSurface().get() );
 
 
 	// Process any events
@@ -131,7 +131,7 @@ void Menu_Net_NewsFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 }; // namespace DeprecatedGUI

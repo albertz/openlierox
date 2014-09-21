@@ -2957,7 +2957,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	const VideoFormat wantedFormat = getMainVideoFormat(withalpha);
 	if(wantedFormat != VideoFormat(img->format)) {
 		SmartPointer<SDL_Surface> converted;
-		if(bDedicated || !VideoPostProcessor::videoSurface()) {
+		if(bDedicated || !VideoPostProcessor::videoSurface().get()) {
 			if(!bDedicated)
 				// we haven't initialized the screen yet
 				warnings << "LoadGameImage: screen not initialized yet while loading image" << endl;	

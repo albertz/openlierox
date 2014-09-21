@@ -232,15 +232,15 @@ void CGuiSkin::Frame()
 		if (cPreviousLayout->needsRepaint())
 			cPreviousLayout->DoRepaint();
 		cPreviousLayout->Process();
-		cPreviousLayout->Draw(VideoPostProcessor::videoSurface(), 0, 0);
+		cPreviousLayout->Draw(VideoPostProcessor::videoSurface().get(), 0, 0);
 	}
 
 	cActiveLayout->Process();
 	if (cActiveLayout->needsRepaint())
 		cActiveLayout->DoRepaint();
 
-	cActiveLayout->Draw(VideoPostProcessor::videoSurface(), 0, 0);
-	DrawCursor(VideoPostProcessor::videoSurface());
+	cActiveLayout->Draw(VideoPostProcessor::videoSurface().get(), 0, 0);
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 	doVideoFrameInMainThread();
 }
 

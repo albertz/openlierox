@@ -325,7 +325,7 @@ void Menu_LocalInitialize()
 	
 	
 	Menu_RedrawMouse(true);
-	cLocalMenu.Draw(VideoPostProcessor::videoSurface());
+	cLocalMenu.Draw(VideoPostProcessor::videoSurface().get());
 }
 
 //////////////
@@ -429,7 +429,7 @@ void Menu_LocalFrame()
 
 
 	ev = cLocalMenu.Process();
-	cLocalMenu.Draw(VideoPostProcessor::videoSurface());
+	cLocalMenu.Draw(VideoPostProcessor::videoSurface().get());
 
 	if(ev) {
 
@@ -581,7 +581,7 @@ void Menu_LocalFrame()
 	}
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 static void _addPlaying(const SmartPointer<profile_t>& ply) {
@@ -759,7 +759,7 @@ void Menu_LocalShowMinimap(bool bReload)
 
 	// Update the screen
     DrawImage(tMenu->bmpBuffer.get(), tMenu->bmpMiniMapBuffer, 136,132);
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 130,130,130,130,140,110);
+	DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 130,130,130,130,140,110);
 }
 
 static bool Menu_LocalStartGame_CustomGame() {
@@ -1475,11 +1475,11 @@ bool Menu_GameSettings_Frame()
 
 	}
 
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
-	cGameSettings.Draw(VideoPostProcessor::videoSurface());
+	DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
+	cGameSettings.Draw(VideoPostProcessor::videoSurface().get());
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 
 	return false;
 }
@@ -1601,7 +1601,7 @@ bool Menu_WeaponsRestrictions_Frame()
     // State strings
     static const std::string    szStates[] = {"Enabled", "Bonus", "Banned"};
 
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
+	DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Draw the list
     int count = (int)cWeaponsRest.SendMessage(wr_Scroll, SCM_GETVALUE,(DWORD)0,0);
@@ -1643,8 +1643,8 @@ bool Menu_WeaponsRestrictions_Frame()
 
 		std::string buf = it->get().szName;
 		stripdot(buf,245);
-        tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 150, y, Colour, buf );
-		tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, StateColour, szStates[state] );
+        tLX->cFont.Draw( VideoPostProcessor::videoSurface().get(), 150, y, Colour, buf );
+		tLX->cFont.Draw( VideoPostProcessor::videoSurface().get(), 400, y, StateColour, szStates[state] );
 	}
 
     // Adjust the scrollbar
@@ -1657,7 +1657,7 @@ bool Menu_WeaponsRestrictions_Frame()
 
 
 	ev = cWeaponsRest.Process();
-	cWeaponsRest.Draw(VideoPostProcessor::videoSurface());
+	cWeaponsRest.Draw(VideoPostProcessor::videoSurface().get());
 
 	if(ev) {
 
@@ -1719,7 +1719,7 @@ bool Menu_WeaponsRestrictions_Frame()
 	}
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 
 	return false;
 }
@@ -1814,16 +1814,16 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		Menu_RedrawMouse(true);
 
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
-		Menu_DrawBox(VideoPostProcessor::videoSurface(), 170, 150, 470, 330);
-		DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
+		Menu_DrawBox(VideoPostProcessor::videoSurface().get(), 170, 150, 470, 330);
+		DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
 		DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
 
-		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
+		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
 		if (save)
-			tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 180,288,tLX->clNormalLabel,"Preset name");
+			tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), 180,288,tLX->clNormalLabel,"Preset name");
 
 		ev = cWpnPresets.Process();
-		cWpnPresets.Draw(VideoPostProcessor::videoSurface());
+		cWpnPresets.Draw(VideoPostProcessor::videoSurface().get());
 
 		// Process the widgets
 		if(ev)  {
@@ -1885,7 +1885,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		}
 
 		// Draw mouse
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 
 		// Display the dialog
 		doVideoFrameInMainThread();
@@ -1896,7 +1896,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 	// Redraw back to normal
 	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 120,150,122,152, 396,316);
-	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer,0,0);
+	DrawImage(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer,0,0);
 
 	Menu_RedrawMouse(true);
 

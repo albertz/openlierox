@@ -171,6 +171,7 @@ struct ALLEGRO_BITMAP            /* a bitmap structure */
 SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h);
 SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename, bool stretch2);
 ALLEGRO_BITMAP *load_bitmap(const std::string& filename, bool stretch2);
+ALLEGRO_BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf, int subx, int suby, int subw, int subh);
 ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf);
 ALLEGRO_BITMAP *create_bitmap(int width, int height);
 ALLEGRO_BITMAP *create_bitmap_ex(int color_depth, int width, int height);

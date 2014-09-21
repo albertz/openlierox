@@ -98,8 +98,8 @@ public:
 	int screenWidth() { return 640; }
 	int screenHeight() { return 480; }
 
-	static SDL_Surface* videoSurface() { return get()->m_videoSurface.get(); };
-	static SDL_Surface* videoBufferSurface() { return get()->m_videoBufferSurface.get(); };
+	static const SmartPointer<SDL_Surface>& videoSurface() { return get()->m_videoSurface; }
+	static const SmartPointer<SDL_Surface>& videoBufferSurface() { return get()->m_videoBufferSurface; }
 	
 };
 

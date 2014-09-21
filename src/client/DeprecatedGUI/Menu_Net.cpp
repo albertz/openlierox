@@ -170,7 +170,7 @@ void Menu_NetFrame()
 		cNetButtons[iNetMode-1].MouseOver(Mouse);
 		for(int i=mn_Internet; i<=mn_Chat && mouse == 0; i++) {
 
-			cNetButtons[i].Draw(VideoPostProcessor::videoSurface());
+			cNetButtons[i].Draw(VideoPostProcessor::videoSurface().get());
 
 			if( i == iNetMode-1 )
 				continue;
@@ -199,7 +199,7 @@ void Menu_NetFrame()
                 iNetMode = i+1;
 
                 // Redraw the window section
-                DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
+                DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
 
 				// Initialize the appropriate menu
 				switch(iNetMode) {

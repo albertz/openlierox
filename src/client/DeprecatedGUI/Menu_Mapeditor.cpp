@@ -459,12 +459,12 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 		int w = MouseImg.get()->w;
 		int h = MouseImg.get()->h;
 		//if(tMenu->iEditMode == 0 || tMenu->iEditMode == 3)
-		DrawImageStretchKey(VideoPostProcessor::videoSurface(),MouseImg, Mouse->X-w, Mouse->Y-h);
+		DrawImageStretchKey(VideoPostProcessor::videoSurface().get(),MouseImg, Mouse->X-w, Mouse->Y-h);
 		//else
 		//	DrawImageStretchKey(VideoPostProcessor::videoSurface(),MouseImg, Mouse->X-w, Mouse->Y-h, tLX->clPink);
 	}
 	else
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 
@@ -551,23 +551,23 @@ void Menu_MapEd_New()
 	t1->setText(itoa(cMap->GetWidth(),10));
 	t2->setText(itoa(cMap->GetHeight(),10));
 
-	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
+	DrawImage(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 0,0);
 	doVideoFrameInMainThread();
-	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
+	DrawImage(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 0,0);
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop) {
 		Menu_RedrawMouse(false);
 
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 210,170, 210,170, 222, 262);
+		DrawImageAdv(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 210,170, 210,170, 222, 262);
 
-		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 175, tLX->clNormalLabel, "Level details");
-		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 220, 202, tLX->clNormalLabel, "Width");
-		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 220, 232, tLX->clNormalLabel, "Height");
-		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 220, 262, tLX->clNormalLabel, "Theme");
+		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), 320, 175, tLX->clNormalLabel, "Level details");
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), 220, 202, tLX->clNormalLabel, "Width");
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), 220, 232, tLX->clNormalLabel, "Height");
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), 220, 262, tLX->clNormalLabel, "Theme");
 
 		ev = cg.Process();
-		cg.Draw(VideoPostProcessor::videoSurface());
+		cg.Draw(VideoPostProcessor::videoSurface().get());
 
 		// Process the widgets
 		if(ev) {
@@ -612,7 +612,7 @@ void Menu_MapEd_New()
 			break;
 
 
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
 		ProcessEvents();
@@ -697,21 +697,21 @@ void Menu_MapEd_LoadSave(int save)
 	FindFiles(filler, "levels", false, FM_REG);
 	lv->SortBy( 0, true );
 
-	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
+	DrawImage(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 0,0);
 	doVideoFrameInMainThread();
-	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
+	DrawImage(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 0,0);
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && game.state != Game::S_Quit) {
 		Menu_RedrawMouse(false);
 
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 302, 182);
+		DrawImageAdv(VideoPostProcessor::videoSurface().get(),tMenu->bmpBuffer, 170,150, 170,150, 302, 182);
 
-		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
-		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 180,288,tLX->clNormalLabel, "Level name");
+		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface().get(), 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(), 180,288,tLX->clNormalLabel, "Level name");
 
 		ev = cg.Process();
-		cg.Draw(VideoPostProcessor::videoSurface());
+		cg.Draw(VideoPostProcessor::videoSurface().get());
 
 		// Process the widgets
 		if(ev) {
@@ -768,7 +768,7 @@ void Menu_MapEd_LoadSave(int save)
 		}
 
 
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 		doVideoFrameInMainThread();
 		CapFPS();
 		ProcessEvents();

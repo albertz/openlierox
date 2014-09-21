@@ -381,16 +381,16 @@ void Menu_FloatingOptionsFrame()
 	static const int h = 450;
 
 	// Redraw background image
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpMainBack_common, x, y, x, y, w, h);
-	Menu_DrawBox(VideoPostProcessor::videoSurface(), x, y, x + w, y + h);
-	Menu_DrawSubTitle(VideoPostProcessor::videoSurface(), SUB_OPTIONS);
+	DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpMainBack_common, x, y, x, y, w, h);
+	Menu_DrawBox(VideoPostProcessor::videoSurface().get(), x, y, x + w, y + h);
+	Menu_DrawSubTitle(VideoPostProcessor::videoSurface().get(), SUB_OPTIONS);
 
 	// Process the top buttons
 	cFloatingOpt_TopButtons[iFloatingOptionsMode].MouseOver(Mouse);
 	SetGameCursor(CURSOR_ARROW); // Hack: button changed the cursor to hand, we need to change it back
 	for(int i=op_Controls;i<=op_System;i++) {
 
-		cFloatingOpt_TopButtons[i].Draw(VideoPostProcessor::videoSurface());
+		cFloatingOpt_TopButtons[i].Draw(VideoPostProcessor::videoSurface().get());
 
 		if(i==iFloatingOptionsMode)
 			continue;
@@ -431,7 +431,7 @@ void Menu_FloatingOptionsFrame()
 
 		// Controls
 		ev = cFloatingOpt_Controls.Process();
-		cFloatingOpt_Controls.Draw(VideoPostProcessor::videoSurface());
+		cFloatingOpt_Controls.Draw(VideoPostProcessor::videoSurface().get());
 
 		if(ev) {
 
@@ -461,11 +461,11 @@ void Menu_FloatingOptionsFrame()
 
 		// Game
 		ev = cFloatingOpt_Game.Process();
-		cFloatingOpt_Game.Draw(VideoPostProcessor::videoSurface());
+		cFloatingOpt_Game.Draw(VideoPostProcessor::videoSurface().get());
 
 		val = (int)cFloatingOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
-        DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 385,140, 385,140, 70,40);
-		tLX->cFont.Draw(VideoPostProcessor::videoSurface(),385, 148, tLX->clNormalLabel, itoa(val)+"%");
+        DrawImageAdv(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 385,140, 385,140, 70,40);
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface().get(),385, 148, tLX->clNormalLabel, itoa(val)+"%");
 
 
 
@@ -561,7 +561,7 @@ void Menu_FloatingOptionsFrame()
 
 		// System
 		ev = cFloatingOpt_System.Process();
-		cFloatingOpt_System.Draw(VideoPostProcessor::videoSurface());
+		cFloatingOpt_System.Draw(VideoPostProcessor::videoSurface().get());
 
 		if(ev) {
 
@@ -647,11 +647,11 @@ void Menu_FloatingOptionsFrame()
 	}
 
 	// Draw the OK button
-	cFloatingOptions.Draw(VideoPostProcessor::videoSurface());
+	cFloatingOptions.Draw(VideoPostProcessor::videoSurface().get());
 
 
 	// Draw the mouse
-	DrawCursor(VideoPostProcessor::videoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface().get());
 }
 
 
@@ -694,7 +694,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 	while(game.state != Game::S_Quit) {
 		Menu_RedrawMouse(true);
 
-		DrawCursor(VideoPostProcessor::videoSurface());
+		DrawCursor(VideoPostProcessor::videoSurface().get());
 
 		// Escape quits the wait for user input
 		if(WasKeyboardEventHappening(SDLK_ESCAPE,false))

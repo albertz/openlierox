@@ -454,13 +454,13 @@ void Menu_CGuiSkinFrame()
 	}
 	MainLayout->Draw(tMenu->bmpBuffer.get());
 	DrawCursor(tMenu->bmpBuffer.get());
-	DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
+	DrawImage(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
 }
 
 void Menu_CGuiSkinShutdown()
 {
 	DrawRectFill(tMenu->bmpBuffer.get(), 0, 0, 640-1, 480-1, tLX->clBlack);
-	DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 0, 0);
+	DrawImage(VideoPostProcessor::videoSurface().get(), tMenu->bmpBuffer, 0, 0);
 	SetGameCursor(CURSOR_NONE);
 	MainLayout = NULL;
 	CGuiSkin::ClearLayouts();

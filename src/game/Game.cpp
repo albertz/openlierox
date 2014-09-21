@@ -327,7 +327,7 @@ Result Game::prepareGameloop() {
 	notes << "prepare game loop" << endl;
 
 	// Pre-game initialization
-	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
+	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface().get(), tLX->clBlack);
 
 	// TODO: remove that as soon as we do the gamescript/map loading in a seperate thread
 	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
