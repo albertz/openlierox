@@ -144,49 +144,34 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 		blit( game.gameMap()->lightmap, fadeBuffer, offX*2,offY*2, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 	if (game.state == Game::S_Playing)  {
-		// Note: Earlier we had a temporary CViewport copy here
-		// where we basically copied all attributes of ourself.
-		// This was removed now because it seemed unneccessary;
-		// however, if there are related problems later, maybe
-		// this is the cause.
-		// Anyway, this should be fixed in a clean way, then.
-		// It was probably related to the Left/Top attribute
-		// of the viewport, which was 0 in the temp viewport.
-		// It's most often zero anyway, but if not, it will prob
-		// get messed up.
-		// TODO: Fix this.
-		// A correct fix probably would be to just remove `dest`
-		// here at all.
-		SDL_Surface* bmpDest = dest->surf.get();
-
 		// update the drawing position
 		for_each_iterator(CWorm*, w, game.aliveWorms())
 			w->get()->UpdateDrawPos();
 
 		if( tLXOptions->bShadows ) {
 			// Draw the projectile shadows
-			cClient->DrawProjectileShadows(bmpDest, this);
+			cClient->DrawProjectileShadows(bmpDest.get(), this);
 
 			// Draw the worm shadows
 			for_each_iterator(CWorm*, w, game.aliveWorms())
-				w->get()->DrawShadow(bmpDest, this);
+				w->get()->DrawShadow(bmpDest.get(), this);
 		}
 
 		// Draw the entities
-		DrawEntities(bmpDest, this);
+		DrawEntities(bmpDest.get(), this);
 
 		// Draw the projectiles
-		cClient->DrawProjectiles(bmpDest, this);
+		cClient->DrawProjectiles(bmpDest.get(), this);
 
 		// Draw the bonuses
-		cClient->DrawBonuses(bmpDest, this);
+		cClient->DrawBonuses(bmpDest.get(), this);
 
 		// draw unattached flags and flag spawnpoints
-		cClient->flagInfo()->draw(bmpDest, this);
+		cClient->flagInfo()->draw(bmpDest.get(), this);
 
 		// draw worms
 		for_each_iterator(CWorm*, w, game.aliveWorms())
-			w->get()->Draw(bmpDest, this);
+			w->get()->Draw(bmpDest.get(), this);
 	}
 
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
