@@ -137,6 +137,10 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 
 	game.gameMap()->gusDraw(dest, WorldX, WorldY);
 
+	if(game.gameMap()->bmpForeground.get()) {
+		DrawImageAdv(bmpDest.get(), game.gameMap()->bmpForeground, WorldX*2, WorldY*2, 0, 0, Width*2, Height*2);
+	}
+
 	if ( game.isLevelDarkMode() && game.gameMap()->lightmap )
 		blit( game.gameMap()->lightmap, fadeBuffer, WorldX*2, WorldY*2, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
@@ -177,10 +181,6 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 	if(game.isLevelDarkMode() && pcTargetWorm) {
 		if(pcTargetWorm->isActive())
 			drawLight(pcTargetWorm->pos().get());
-	}
-
-	if(game.gameMap()->bmpForeground.get()) {
-		DrawImageAdv(bmpDest.get(), game.gameMap()->bmpForeground, WorldX*2, WorldY*2, 0, 0, Width*2, Height*2);
 	}
 
 	if(game.isLevelDarkMode())
