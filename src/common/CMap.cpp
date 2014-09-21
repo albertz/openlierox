@@ -865,6 +865,11 @@ CVec CMap::groundPos(const CVec& pos) {
 // Draw the map
 void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worldY)
 {
+	// Note: This function is actually not used in game!
+	// We purely use CMap::gusDraw() there.
+	// This is still used by the mapeditor.
+	// TODO: Cleanup... Remove this function completely.
+	
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
 	if(gusIsLoaded())
