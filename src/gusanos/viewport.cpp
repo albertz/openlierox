@@ -135,13 +135,10 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 			testLight = genLight(r);
 	}
 
-	const int offX = static_cast<int>(WorldX);
-	const int offY = static_cast<int>(WorldY);
-
-	game.gameMap()->gusDraw(dest, offX, offY);
+	game.gameMap()->gusDraw(dest, WorldX, WorldY);
 
 	if ( game.isLevelDarkMode() && game.gameMap()->lightmap )
-		blit( game.gameMap()->lightmap, fadeBuffer, offX*2,offY*2, 0, 0, fadeBuffer->w, fadeBuffer->h );
+		blit( game.gameMap()->lightmap, fadeBuffer, WorldX*2, WorldY*2, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 	if (game.state == Game::S_Playing)  {
 		// update the drawing position
@@ -183,7 +180,7 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 	}
 
 	if(game.gameMap()->bmpForeground.get()) {
-		DrawImageAdv(dest->surf.get(), game.gameMap()->bmpForeground, offX*2, offY*2, 0, 0, dest->w, dest->h);
+		DrawImageAdv(bmpDest.get(), game.gameMap()->bmpForeground, WorldX*2, WorldY*2, 0, 0, Width*2, Height*2);
 	}
 
 	if(game.isLevelDarkMode())
@@ -203,8 +200,8 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 			if(!worm->inputHandler()) continue;
 
 			IVec renderPos( worm->getRenderPos() );
-			int x = renderPos.x - offX;
-			int y = renderPos.y - offY;
+			int x = renderPos.x - WorldX;
+			int y = renderPos.y - WorldY;
 			LuaReferenceLazy ownerRef;
 			if(targetPlayer)
 				ownerRef = targetPlayer->getLuaReference();
@@ -257,8 +254,6 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 			}
 		}
 	}
-
-	//DrawImage(bmpDest, dest->surf, this->GetLeft()/2, this->GetTop()/2);
 }
 
 
