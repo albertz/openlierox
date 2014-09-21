@@ -150,6 +150,13 @@ void CViewport::gusRender(SDL_Surface* bmpDest)
 		// however, if there are related problems later, maybe
 		// this is the cause.
 		// Anyway, this should be fixed in a clean way, then.
+		// It was probably related to the Left/Top attribute
+		// of the viewport, which was 0 in the temp viewport.
+		// It's most often zero anyway, but if not, it will prob
+		// get messed up.
+		// TODO: Fix this.
+		// A correct fix probably would be to just remove `dest`
+		// here at all.
 		SDL_Surface* bmpDest = dest->surf.get();
 
 		// update the drawing position
