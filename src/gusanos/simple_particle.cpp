@@ -52,10 +52,6 @@ void SimpleParticle::think()
 #ifndef DEDICATED_ONLY
 void SimpleParticle::draw(CViewport* viewport)
 {
-	// TODO: the viewport surface is most likely now our real
-	// video surface, and thus *has* alpha (where Gus functions)
-	// did not expect alpha. This has to be fixed here.
-	// (And maybe at many other places, too...)
 	IVec rPos = viewport->convertCoords(IVec(Vec(pos())));
 	if(!wupixel)
 	    putpixel2x2(viewport->dest, rPos.x, rPos.y, colour);

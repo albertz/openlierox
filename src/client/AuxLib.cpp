@@ -522,6 +522,8 @@ bool VideoPostProcessor::resetVideo() {
 		// need this.
 		// XXX: This could be fixed in a cleaner way in Gusanos,
 		// however, it also doesn't really matter that much.
+		// TODO: Fix Gusanos gfx functions, so that they support an alpha channel.
+		// Example code is e.g. SimpleParticle::draw().
 		m_videoSurface = create_32bpp_sdlsurface__allegroformat(screenWidth(), screenHeight());
 		if(!m_videoSurface.get()) {
 			errors << "failed to init video surface: " << SDL_GetError() << endl;
