@@ -51,8 +51,6 @@ public:
 	void varCbFont( std::string oldValue );
 #endif
 
-	void addQueueCommand( std::string const & command );
-
 private:
 	
 	float m_pos;

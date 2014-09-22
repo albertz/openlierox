@@ -190,11 +190,6 @@ int GConsole::executeConfig(const std::string& filename)
 		return Console::executeConfig(gusGame.getDefaultPath() + "/" + filename);
 }
 
-void GConsole::addQueueCommand( std::string const & command )
-{
-	commandsQueue.push_back( command );
-}
-
 #ifdef DEDICATED_ONLY
 void GConsole::addLogMsg(const std::string &msg)
 {
