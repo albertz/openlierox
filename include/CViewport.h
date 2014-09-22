@@ -218,9 +218,7 @@ public:
 	{
 		return (coord - Vec((float)WorldX,(float)WorldY)) * 2 /* doubleRes */;
 	}
-	
-	ALLEGRO_BITMAP* getBitmap() { return dest; }
-		
+			
 	ALLEGRO_BITMAP* dest;
 	ALLEGRO_BITMAP* fadeBuffer;
 
