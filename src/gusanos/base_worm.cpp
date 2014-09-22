@@ -539,53 +539,29 @@ void CWorm::draw(CViewport* viewport)
 		IVec rPos = viewport->convertCoords( IVec(renderPos) );
 
 		{
-			int x = rPos.x;
-			int y = rPos.y;
-
-			int renderX = x;
-			int renderY = y;
-
-			if(/* use OLX ninjarope drawing */ false && cNinjaRope.get().isReleased()) {
-				IVec nrPos = viewport->convertCoords( IVec(Vec(cNinjaRope.get().pos())) );
-				line(where, x, y, nrPos.x, nrPos.y, cNinjaRope.get().getColour());
-			}
+			// CNinjaRope::Draw(), called from CWorm::Draw(), draws the ninjarope.
 
 			if ( getCurrentWeaponRef() )
-				getCurrentWeaponRef()->drawBottom(where, renderX, renderY);
+				getCurrentWeaponRef()->drawBottom(where, rPos.x, rPos.y);
 
-			Angle angle = getPointingAngle();
-			bool flipped = false;
-			if(angle > Angle(180.0)) {
-				angle = Angle(360.0) - angle;
-				flipped = true;
-			}
-			
-			// Find the right pic
-			int f = (m_animator->getFrame() % 3) * 7;
-			int ang = MIN((int)( (angle.toDeg())/151 * 7 ), 6);  // clamp the value because LX skins don't have the very bottom aim
-			f += ang;
-			
-			if(false) // OLX code draws this
-				cSkin.get().DrawHalf(where->surf.get(), where->sub_x + renderX - cSkin.get().getSkinWidth() / 4, where->sub_y + renderY - cSkin.get().getSkinHeight() / 4, f, false, flipped);
+			// CWorm::Draw() draws the worm skin itself			
 
 			if ( getCurrentWeaponRef() )
-				getCurrentWeaponRef()->drawTop(where, renderX, renderY);
+				getCurrentWeaponRef()->drawTop(where, rPos.x, rPos.y);
 
 			if ( m_currentFirecone ) {
 				Vec distance = Vec(getPointingAngle(), (double)m_fireconeDistance);
 				m_currentFirecone->getSprite(m_fireconeAnimator->getFrame(), getPointingAngle())->
-						draw(where, renderX + static_cast<int>(distance.x), renderY + static_cast<int>(distance.y));
+						draw(where, rPos.x + static_cast<int>(distance.x), rPos.y + static_cast<int>(distance.y));
 			}
 		}
 
 #ifdef DEBUG_WORM_REACTS
 		{
-			int x = rPos.x;
-			int y = rPos.y;
-			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Up]), x, y + 15, 0);
-			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Down]), x, y - 15, 0);
-			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Left]), x + 15, y, 0);
-			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Right]), x - 15, y, 0);
+			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Up]), rPos.x, rPos.y + 15, 0);
+			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Down]), rPos.x, rPos.y - 15, 0);
+			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Left]), rPos.x + 15, rPos.y, 0);
+			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Right]), rPos.x - 15, rPos.y, 0);
 		}
 #endif
 
