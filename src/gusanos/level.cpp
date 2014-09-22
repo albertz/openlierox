@@ -470,9 +470,7 @@ void CMap::loaderSucceeded()
 	if ( !watermap ) {
 		watermap = create_bitmap( bmpDrawImage->w, bmpDrawImage->h );
 		blit( bmpBackImageHiRes.get(), watermap, 0,0,0,0,watermap->w, watermap->h );
-		gfx.setBlender(ALPHA, 150);
-		rectfill( watermap, 0,0,watermap->w, watermap->h, makecol( 0, 0, 200 ) );
-		solid_mode();
+		DrawRectFill(watermap->surf.get(), 0, 0, watermap->w, watermap->h, Color(0, 0, 200, 150));
 	}
 #endif
 	// Make the domain one pixel larger than the level so that things like ninjarope hook
