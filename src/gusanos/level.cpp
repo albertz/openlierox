@@ -265,6 +265,11 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 	if(bmpDrawImage.get())
 		blit(bmpDrawImage.get(), where, x*2, y*2, 0, 0, where->w, where->h);
 
+	// TODO: Actually, it was correct in viewport.cpp, because it could
+	// potentially shadow objects (that was its whole purpose).
+	// Thus, move out again...
+	// However, the worm HUD (crossair) should not be covered by this
+	// (as earlier).
 	if(bmpForeground.get())
 		blit(bmpForeground.get(), where, x*2, y*2, 0, 0, where->w, where->h);
 
