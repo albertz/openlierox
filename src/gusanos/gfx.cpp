@@ -29,8 +29,6 @@ Gfx gfx;
 namespace
 {
 #ifndef DEDICATED_ONLY
-	static SpriteSet* mouseCursor = 0;
-	
 	static string screenShot(const list<string> &)
 	{
 		PushScreenshot("gus_scrshots", "");
@@ -50,13 +48,6 @@ void Gfx::registerInConsole()
 	console.registerVariables()
 		("VID_DISTORTION_AA", &m_distortionAA, 1)
 	;
-#endif
-}
-
-void Gfx::loadResources()
-{
-#ifndef DEDICATED_ONLY
-	mouseCursor = spriteList.load("cursor");
 #endif
 }
 

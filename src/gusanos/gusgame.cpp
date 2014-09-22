@@ -436,7 +436,6 @@ bool GusGame::_loadMod(bool doLoadWeapons)
 {
 	options.maxWeapons = options.maxWeaponsVar;
 	console.loadResources();
-	gfx.loadResources();
 	
 	NRPartType = partTypeList.load("ninjarope.obj");
 	deathObject = partTypeList.load("death.obj");

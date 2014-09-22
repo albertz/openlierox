@@ -8,7 +8,6 @@ class Gfx
 {
 public:
 	void registerInConsole();
-	void loadResources();
 
 #ifndef DEDICATED_ONLY	
 	int m_distortionAA;
