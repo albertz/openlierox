@@ -92,9 +92,6 @@ void gusLogicFrame() {
 	sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
 #endif
 
-#ifndef DEDICATED_ONLY
-	console.checkInput();
-#endif
 	console.think();
 
 	spriteList.think();

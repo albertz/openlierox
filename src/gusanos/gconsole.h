@@ -41,10 +41,6 @@ public:
 	void init();
 	void shutDown();
 	void loadResources();
-	void checkInput();
-#ifndef DEDICATED_ONLY
-	void render(ALLEGRO_BITMAP *where, bool fullScreen = false);
-#endif
 	void think();
 	int executeConfig(const std::string &filename);
 #ifdef DEDICATED_ONLY
