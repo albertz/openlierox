@@ -22,6 +22,7 @@ public:
 	void shutDown();
 	void registerInConsole();
 	void loadResources();
+
 #ifndef DEDICATED_ONLY
 	INLINE void setBlender( Blenders blender, int alpha )
 	{
@@ -41,8 +42,6 @@ public:
 		}
 	}
 	
-	ALLEGRO_BITMAP* buffer;
-
 	int m_distortionAA;
 #endif
 

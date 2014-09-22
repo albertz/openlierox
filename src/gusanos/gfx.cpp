@@ -42,26 +42,14 @@ namespace
 #endif
 }
 
-Gfx::Gfx()
-#ifndef DEDICATED_ONLY
-: buffer(NULL)
-#endif
-{
-}
-
-Gfx::~Gfx()
-{
-}
+Gfx::Gfx() {}
+Gfx::~Gfx() {}
 
 
 void Gfx::init()
 {	
 #ifndef DEDICATED_ONLY	
 	Init_2xSaI(32); // needed for SUPER2XSAI and SUPEREAGLE filters
-	
-	// we don't use this buffer anymore in game. however, some code
-	// uses it and too lazy to cleanup...
-	buffer = create_bitmap(0,0);
 #endif
 
 	m_initialized = true; // Tell console commands it's safe to manipulate gfx
@@ -69,9 +57,6 @@ void Gfx::init()
 
 void Gfx::shutDown()
 {
-#ifndef DEDICATED_ONLY
-	destroy_bitmap(buffer); buffer = 0;
-#endif
 }
 
 void Gfx::registerInConsole()
