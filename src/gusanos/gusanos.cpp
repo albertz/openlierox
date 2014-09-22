@@ -103,9 +103,6 @@ void gusQuit() {
 	gusGame.unload();
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.destroy();
-#endif
-	console.shutDown();
-#ifndef DEDICATED_ONLY
 	sfx.shutDown();
 #endif
 	luaIngame.close();

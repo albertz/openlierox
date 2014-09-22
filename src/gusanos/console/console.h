@@ -93,9 +93,7 @@ public:
 		Console& m_console;
 	};
 
-	Console(void);
-	Console(int logMaxSize);
-	virtual ~Console(void);
+	virtual ~Console();
 
 	void registerVariable(Variable* var);
 	RegisterVariableProxy registerVariables()
@@ -128,12 +126,8 @@ public:
 protected:
 	
 	ItemMap items;
-	std::list<std::string> log;
 	
 	int m_variableCount;
-	unsigned int m_logMaxSize;
-	//unsigned int m_MaxMsgLength;
-	int m_mode;
 };
 
 struct ConsoleAddLines

@@ -26,19 +26,6 @@ using namespace std;
 
 //============================= LIFECYCLE ====================================
 
-Console::Console()
-: m_logMaxSize(256)
-{
-	
-	//m_MaxMsgLength=40;
-}
-
-Console::Console(int logMaxSize)
-: m_logMaxSize(logMaxSize)
-{
-	
-	//m_MaxMsgLength=MaxMsgLength;
-}
 
 Console::~Console()
 {
@@ -263,11 +250,6 @@ void Console::addLogMsg(const string &msg)
 	if (!msg.empty())
 	{
 		notes << "Gus con: " << msg << endl;
-
-		if(log.size() >= m_logMaxSize)
-			log.pop_front();
-		
-		log.push_back(msg);
 	}
 }
 

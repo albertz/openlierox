@@ -19,20 +19,6 @@ using boost::lexical_cast;
 
 using namespace std;
 
-#ifndef DEDICATED_ONLY
-
-#define TEST_KEY(k_, keyname_) if(k_ < 0) return "UNKNOWN KEY \"" + keyname_ + '"'
-
-struct IdentityGetText
-{
-	template<class IteratorT>
-	std::string const& operator()(IteratorT i) const
-	{
-		return *i;
-	}
-};
-#endif
-
 string echoCmd(list<string> const& args)
 {
 	if(args.size() > 0)
@@ -89,75 +75,35 @@ string aliasCmd(const list<string> &args)
 	return "ALIAS <NAME> <ACTION> : REGISTER ALIAS TO ACTION";
 }
 
-/////////////////////////////// Console //////////////////////////////////////
 
-//============================= LIFECYCLE ====================================
-
-GConsole::GConsole()
-: Console(256)
-#ifndef DEDICATED_ONLY
-, background(NULL)
-#endif
-{
-	scrolling = false;
+static std::string dummy_CON_SPEED(const std::list<std::string> &args) {
+	warnings << "Gus CON_SPEED obsolete/unused" << endl;
+	return "";
 }
 
-//============================= INTERFACE ====================================
-
-#ifndef DEDICATED_ONLY
-void GConsole::varCbFont( std::string oldValue )
-{
-	Font* newFont = fontLocator.load(m_fontName);
-	if(!newFont)
-	{
-		addLogMsg("FONT \"" + m_fontName + "\" NOT FOUND, REVERTING TO OLD FONT");
-		m_fontName = oldValue;
-		return;
-	}
-	m_font = newFont;
+static std::string dummy_CON_HEIGHT(const std::list<std::string> &args) {
+	warnings << "Gus CON_HEIGHT obsolete/unused" << endl;
+	return "";
 }
-#endif
+
+static std::string dummy_CON_FONT(const std::list<std::string> &args) {
+	warnings << "Gus CON_FONT obsolete/unused" << endl;
+	return "";
+}
+
 void GConsole::init()
 {
-	m_mode = CONSOLE_MODE_BINDINGS;
-	//m_mode = CONSOLE_MODE_INPUT;
-
-	console.registerVariables()
-		("CON_SPEED", &speed, 4)
-		("CON_HEIGHT", &height, 120)
-#ifndef DEDICATED_ONLY
-		("CON_FONT", &m_fontName, "minifont", boost::bind(&GConsole::varCbFont, this, _1))
-#endif
+	console.registerCommands()
+		("CON_SPEED", dummy_CON_SPEED)
+		("CON_HEIGHT", dummy_CON_HEIGHT)
+		("CON_FONT", dummy_CON_FONT)
 	;
-
+	
 	console.registerCommands()
 		(string("EXEC"), execCmd)
 		(string("ALIAS"), aliasCmd)
 		(string("ECHO"), echoCmd)
-	;
-	
-	currentCommand = commandsLog.end(); //To workaround a crashbug with uninitialized iterator
-	logRenderPos = log.rbegin();
-	scrolling = false;
-}
-
-void GConsole::shutDown()
-{
-#ifndef DEDICATED_ONLY
-	//m_font must be deleted here!!!! hmm not sure now
-#endif
-}
-
-void GConsole::loadResources()
-{
-#ifndef DEDICATED_ONLY
-	m_font = fontLocator.load(m_fontName);
-
-	if(!m_font)
-		cout << "Console font couldn't be loaded" << endl;
-	
-	background = spriteList.load("con_background");
-#endif
+	;	
 }
 
 int GConsole::executeConfig(const std::string& filename)
@@ -168,14 +114,6 @@ int GConsole::executeConfig(const std::string& filename)
 	else
 		return Console::executeConfig(gusGame.getDefaultPath() + "/" + filename);
 }
-
-#ifdef DEDICATED_ONLY
-void GConsole::addLogMsg(const std::string &msg)
-{
-	cout << "CONSOLE: " << msg << endl;
-}
-#endif
-//============================= PRIVATE ======================================
 
 
 GConsole console;
