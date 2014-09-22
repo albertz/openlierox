@@ -30,6 +30,7 @@ CMakeLists.txt.user*
 bin
 *~
 .*.swp
+*.autosave
 *.build
 *.o
 libopenlierox_pch_dephelp.a
