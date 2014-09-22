@@ -511,18 +511,6 @@ bool VideoPostProcessor::resetVideo() {
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");  // make the scaled rendering look smoother.
 	SDL_RenderSetLogicalSize(m_renderer.get(), screenWidth(), screenHeight());
 	
-	m_videoTexture = SDL_CreateTexture
-	(
-		m_renderer.get(),
-		getMainPixelFormat()->format,
-		SDL_TEXTUREACCESS_STREAMING,
-		screenWidth(), screenHeight()
-	);
-	if(!m_videoTexture.get()) {
-		errors << "failed to init video texture: " << SDL_GetError() << endl;
-		return false;
-	}
-	
 	// IMPORTANT: Don't reallocate if we already have the buffers.
 	// If we would do, the old surfaces would get deleted. This is bad
 	// because other threads could use it right now.
@@ -534,6 +522,19 @@ bool VideoPostProcessor::resetVideo() {
 		}
 	}
 	DumpSurfaceInfo(m_videoSurface.get(), "main video surface");
+
+	// Must be of same format as videoSurface, because we copy the pixels over.
+	m_videoTexture = SDL_CreateTexture
+	(
+		m_renderer.get(),
+		m_videoSurface->format->format,
+		SDL_TEXTUREACCESS_STREAMING,
+		screenWidth(), screenHeight()
+	);
+	if(!m_videoTexture.get()) {
+		errors << "failed to init video texture: " << SDL_GetError() << endl;
+		return false;
+	}
 	
 	// No need to reinit this.
 	if(!m_videoBufferSurface.get()) {
