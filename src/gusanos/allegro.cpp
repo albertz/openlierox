@@ -93,18 +93,21 @@ graphics_dump_palette(SDL_Surface* p_bitmap)
 
 void dumpUsedColors(SDL_Surface* surf);
 
+// some Gusanos functions, esp. the blitters code, assume that we use only the 0xffffff bits.
+// So, to keep things simple, just use this fixed format.
+const static int
+rmask = 0xff0000,
+gmask = 0xff00,
+bmask = 0xff,
+amask = 0 /*0xff000000*/;
+const static int
+rshift = 16,
+gshift = 8,
+bshift = 0,
+ashift = 24;
 
-ALLEGRO_BITMAP* screen = NULL;
 
-SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {
-	// some Gusanos functions, esp. the blitters code, assume that we use only the 0xffffff bits.
-	// So, to keep things simple, just use this fixed format.
-	const static int
-	rmask = 0xff0000,
-	gmask = 0xff00,
-	bmask = 0xff,
-	amask = 0 /*0xff000000*/;
-	
+SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {	
 	return SDL_CreateRGBSurface(0, w, h, 32, rmask,gmask,bmask,amask);
 }
 
@@ -205,15 +208,11 @@ bool allegro_init() {
 	if(cpu_capabilities & CPU_MMX) notes << "MMX, "; else notes << "no MMX, ";
 	if(cpu_capabilities & CPU_MMXPLUS) notes << "MMXExt"; else notes << "no MMXExt";
 	notes << endl;
-	
-	screen = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
-	
+		
 	return true;
 }
 
 void allegro_exit() {
-	destroy_bitmap(screen);
-	screen = NULL;
 }
 
 void rest(int t) { SDL_Delay(t); }
@@ -489,21 +488,23 @@ int getr(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); retur
 int getg(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return g; }
 int getb(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return b; }
 */
-int getr(Uint32 c) { return Uint8(c >> screen->surf->format->Rshift); }
-int getg(Uint32 c) { return Uint8(c >> screen->surf->format->Gshift); }
-int getb(Uint32 c) { return Uint8(c >> screen->surf->format->Bshift); }
+int getr(Uint32 c) { return Uint8(c >> rshift); }
+int getg(Uint32 c) { return Uint8(c >> gshift); }
+int getb(Uint32 c) { return Uint8(c >> bshift); }
 
 
 static Uint32 makecol_intern(Uint32 r, Uint32 g, Uint32 b) {
 	// we currently dont have alpha at all in gusanos
+	(void)ashift;
 	return
-		((r & 0xff) << screen->surf->format->Rshift) |
-		((g & 0xff) << screen->surf->format->Gshift) |
-		((b & 0xff) << screen->surf->format->Bshift)
+		((r & 0xff) << rshift) |
+		((g & 0xff) << gshift) |
+		((b & 0xff) << bshift)
 		;
 }
 
 Uint32 makecol(int r, int g, int b) { return makecol_intern(r,g,b); }
+
 Uint32 makecol_depth(int color_depth, int r, int g, int b) {
 	return makecol(r,g,b);
 	//return SDL_MapRGB(&pixelformat[color_depth/8],r,g,b);

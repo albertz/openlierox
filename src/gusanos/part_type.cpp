@@ -84,7 +84,7 @@ CGameObject* newParticle_SimpleParticle(PartType* type, Vec pos_ = Vec(0.f, 0.f)
 {
 	int timeout = type->simpleParticle_timeout + rndInt(type->simpleParticle_timeoutVariation);
 	
-	CGameObject* particle = new T(pos_, spd_, owner, timeout, type->gravity, type->colour);
+	CGameObject* particle = new T(pos_, spd_, owner, timeout, type->gravity, type->colour, type->wupixels);
 	
 	if(type->creation)
 		type->creation->run(particle);
@@ -523,24 +523,7 @@ bool PartType::load(std::string const& filename)
 	if(isSimpleParticleType())
 	{
 #ifndef DEDICATED_ONLY
-		if(wupixels)
-		{
-			switch(bitmap_color_depth(screen))
-			{
-				default: newParticle = newParticle_SimpleParticle<SimpleParticle>; break;
-				case 32: newParticle = newParticle_SimpleParticle<SimpleParticle32wu>; break;
-				case 16: newParticle = newParticle_SimpleParticle<SimpleParticle16wu>; break;
-			}
-		}
-		else
-		{
-			switch(bitmap_color_depth(screen))
-			{
-				default: newParticle = newParticle_SimpleParticle<SimpleParticle>; break;
-				case 32: newParticle = newParticle_SimpleParticle<SimpleParticle32>; break;
-				case 16: newParticle = newParticle_SimpleParticle<SimpleParticle16>; break;
-			}
-		}
+		newParticle = newParticle_SimpleParticle<SimpleParticle>;
 #else
 		newParticle = newParticle_Dummy;
 #endif

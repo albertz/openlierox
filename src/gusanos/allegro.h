@@ -65,8 +65,6 @@ extern void (*mouse_callback)(int flags);
 
 int poll_mouse();
 
-struct ALLEGRO_BITMAP;
-extern ALLEGRO_BITMAP* screen;
 
 
 enum GfxType {
