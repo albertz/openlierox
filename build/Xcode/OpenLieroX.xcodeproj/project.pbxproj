@@ -345,7 +345,6 @@
 		23C34F3410CC546200DABBD6 /* text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F2C10CC546200DABBD6 /* text.cpp */; };
 		23C34F3910CC549C00DABBD6 /* level_effect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F3710CC549C00DABBD6 /* level_effect.cpp */; };
 		23C34F4010CC54C800DABBD6 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F3E10CC54C800DABBD6 /* level.cpp */; };
-		23C34F7110CC557D00DABBD6 /* 2xsai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4410CC557D00DABBD6 /* 2xsai.cpp */; };
 		23C34F7410CC557D00DABBD6 /* base_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4A10CC557D00DABBD6 /* base_worm.cpp */; };
 		23C34F7510CC557D00DABBD6 /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4C10CC557D00DABBD6 /* client.cpp */; };
 		23C34F7610CC557D00DABBD6 /* liero.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4F10CC557D00DABBD6 /* liero.cpp */; };
@@ -1278,8 +1277,6 @@
 		23C34F3810CC549C00DABBD6 /* level_effect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level_effect.h; sourceTree = "<group>"; };
 		23C34F3E10CC54C800DABBD6 /* level.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = level.cpp; sourceTree = "<group>"; };
 		23C34F3F10CC54C800DABBD6 /* level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level.h; sourceTree = "<group>"; };
-		23C34F4410CC557D00DABBD6 /* 2xsai.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 2xsai.cpp; sourceTree = "<group>"; };
-		23C34F4510CC557D00DABBD6 /* 2xsai.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 2xsai.h; sourceTree = "<group>"; };
 		23C34F4A10CC557D00DABBD6 /* base_worm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = base_worm.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		23C34F4C10CC557D00DABBD6 /* client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = client.cpp; sourceTree = "<group>"; };
 		23C34F4D10CC557D00DABBD6 /* client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = client.h; sourceTree = "<group>"; };
@@ -2151,8 +2148,6 @@
 				23C3500310CC590A00DABBD6 /* menu.cpp */,
 				23C3500410CC590A00DABBD6 /* menu.h */,
 				23C34FB610CC57FA00DABBD6 /* gui */,
-				23C34F4410CC557D00DABBD6 /* 2xsai.cpp */,
-				23C34F4510CC557D00DABBD6 /* 2xsai.h */,
 				23C34F4A10CC557D00DABBD6 /* base_worm.cpp */,
 				23C34F4C10CC557D00DABBD6 /* client.cpp */,
 				23C34F4D10CC557D00DABBD6 /* client.h */,
@@ -3646,7 +3641,6 @@
 				23C34F3410CC546200DABBD6 /* text.cpp in Sources */,
 				23C34F3910CC549C00DABBD6 /* level_effect.cpp in Sources */,
 				23C34F4010CC54C800DABBD6 /* level.cpp in Sources */,
-				23C34F7110CC557D00DABBD6 /* 2xsai.cpp in Sources */,
 				238A90B618706B4700E3895A /* MapLoader_Teeworlds.cpp in Sources */,
 				23C34F7410CC557D00DABBD6 /* base_worm.cpp in Sources */,
 				23C34F7510CC557D00DABBD6 /* client.cpp in Sources */,
