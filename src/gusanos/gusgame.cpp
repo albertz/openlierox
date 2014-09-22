@@ -253,7 +253,6 @@ bool GusGame::init()
 	
 	//parseCommandLine(argc, argv);
 	
-	gfx.init();
 	network.init();
 	registerGameActions();
 #ifndef DEDICATED_ONLY

@@ -113,7 +113,6 @@ void gusQuit() {
 #ifndef DEDICATED_ONLY
 	sfx.shutDown();
 #endif
-	gfx.shutDown();
 	luaIngame.close();
 
 	allegro_exit();

@@ -2,7 +2,6 @@
 #include "gconsole.h"
 
 #ifndef DEDICATED_ONLY
-#include "2xsai.h"
 #include "blitters/blitters.h"
 #include "blitters/colors.h"
 #include "blitters/macros.h"
@@ -29,12 +28,10 @@ Gfx gfx;
 
 namespace
 {
-	bool m_initialized = false;
-
 #ifndef DEDICATED_ONLY
-	SpriteSet* mouseCursor = 0;
+	static SpriteSet* mouseCursor = 0;
 	
-	string screenShot(const list<string> &)
+	static string screenShot(const list<string> &)
 	{
 		PushScreenshot("gus_scrshots", "");
 		return "OK";
@@ -42,22 +39,6 @@ namespace
 #endif
 }
 
-Gfx::Gfx() {}
-Gfx::~Gfx() {}
-
-
-void Gfx::init()
-{	
-#ifndef DEDICATED_ONLY	
-	Init_2xSaI(32); // needed for SUPER2XSAI and SUPEREAGLE filters
-#endif
-
-	m_initialized = true; // Tell console commands it's safe to manipulate gfx
-}
-
-void Gfx::shutDown()
-{
-}
 
 void Gfx::registerInConsole()
 {
@@ -150,11 +131,6 @@ SmartPointer<SDL_Surface> Gfx::loadBitmapSDL(const std::string& _filename, bool 
 		ResetAlpha(img.get());
 
 	return img;	
-}
-
-Gfx::operator bool()
-{
-	return m_initialized;
 }
 
 
