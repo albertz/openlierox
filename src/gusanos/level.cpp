@@ -267,6 +267,9 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 		blit(bmpDrawImage.get(),where,x*2,y*2,0,0,where->w,where->h);
 	}
 
+	if(bmpForeground.get())
+		blit(bmpForeground.get(), where, x*2, y*2, 0, 0, where->w, where->h);
+
 	if ( gusGame.options.showMapDebug ) {
 		foreach( s, m_config.spawnPoints ) {
 			int c = (s->team == 0 ? makecol( 255,0,0 ) : makecol( 0, 255, 0 ));
