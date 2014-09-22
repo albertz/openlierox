@@ -160,27 +160,6 @@ void GConsole::loadResources()
 #endif
 }
 
-void GConsole::think()
-{
-#ifndef DEDICATED_ONLY
-	if ( height > 240 ) height=240;
-	if ( m_mode == CONSOLE_MODE_INPUT && m_pos < height )
-	{
-		m_pos+=speed;
-	}else if ( m_mode == CONSOLE_MODE_BINDINGS && m_pos > 0 )
-	{
-		m_pos-=speed;
-	}
-	if (m_pos > height) m_pos = (float)height;
-	if (m_pos < 0) m_pos = 0;
-#endif
-	while( !commandsQueue.empty() )
-	{
-		console.parseLine( *commandsQueue.begin() );
-		commandsQueue.erase( commandsQueue.begin() );
-	}
-}
-
 int GConsole::executeConfig(const std::string& filename)
 {
 	std::string p(gusGame.getModPath() + "/" + filename);

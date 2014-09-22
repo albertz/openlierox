@@ -41,7 +41,6 @@ public:
 	void init();
 	void shutDown();
 	void loadResources();
-	void think();
 	int executeConfig(const std::string &filename);
 #ifdef DEDICATED_ONLY
 	virtual void addLogMsg(const std::string &msg);
@@ -73,9 +72,7 @@ private:
 	
 	std::list< std::string > commandsLog;
 	std::list< std::string >::iterator currentCommand;
-	
-	std::list< std::string > commandsQueue;
-	
+		
 	enum
 	{
 		CONSOLE_MODE_INPUT,

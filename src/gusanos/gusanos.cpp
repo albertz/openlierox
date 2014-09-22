@@ -92,8 +92,6 @@ void gusLogicFrame() {
 	sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
 #endif
 
-	console.think();
-
 	spriteList.think();
 
 	LUACALLBACK(afterUpdate).call()();
