@@ -514,6 +514,7 @@ bool VideoPostProcessor::resetVideo() {
 	// IMPORTANT: Don't reallocate if we already have the buffers.
 	// If we would do, the old surfaces would get deleted. This is bad
 	// because other threads could use it right now.
+	// XXX: Explain. I hope that no other threads are currently accessing it...
 	if(!m_videoSurface.get()) {
 		m_videoSurface = gfxCreateSurface(screenWidth(), screenHeight());
 		if(!m_videoSurface.get()) {
