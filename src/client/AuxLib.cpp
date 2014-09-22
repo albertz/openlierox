@@ -74,6 +74,7 @@
 #include "CServer.h"
 #include "Geometry.h"
 #include "MainLoop.h"
+#include "gusanos/allegro.h"
 
 
 Null null;	// Used in timer class
@@ -516,7 +517,12 @@ bool VideoPostProcessor::resetVideo() {
 	// because other threads could use it right now.
 	// XXX: Explain. I hope that no other threads are currently accessing it...
 	if(!m_videoSurface.get()) {
-		m_videoSurface = gfxCreateSurface(screenWidth(), screenHeight());
+		// Note: Allegro format (main Gusanos format) does not have alpha.
+		// Some Gusanos functions, when they directly draw to the videoSurface,
+		// need this.
+		// XXX: This could be fixed in a cleaner way in Gusanos,
+		// however, it also doesn't really matter that much.
+		m_videoSurface = create_32bpp_sdlsurface__allegroformat(screenWidth(), screenHeight());
 		if(!m_videoSurface.get()) {
 			errors << "failed to init video surface: " << SDL_GetError() << endl;
 			return false;
@@ -539,7 +545,8 @@ bool VideoPostProcessor::resetVideo() {
 	
 	// No need to reinit this.
 	if(!m_videoBufferSurface.get()) {
-		m_videoBufferSurface = gfxCreateSurface(screenWidth(), screenHeight());
+		// Should be same format as videoSurface.
+		m_videoBufferSurface = GetCopiedImage(m_videoSurface);
 		if(!m_videoBufferSurface.get()) {
 			errors << "failed to init video backbuffer surface: " << SDL_GetError() << endl;
 			return false;
