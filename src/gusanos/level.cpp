@@ -274,6 +274,11 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 			circle( where, (int)(s->pos.x - x) * 2, (int)(s->pos.y - y) * 2, 8, c );
 		}
 	}
+	
+	// Note: We are not handling the lightmap here.
+	// All that code is currently in CViewport::gusRender(), where
+	// further lights can be added (e.g. by worms or objects), and then
+	// only at the very end of the rendering, everything is faded.
 }
 
 
