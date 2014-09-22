@@ -38,7 +38,7 @@ WeaponType::WeaponType() : ResourceBase()
 	laserSightRange = -1;
 	laserSightIntensity = 0;
 	laserSightAlpha = 255;
-	laserSightBlender = NONE;
+	laserSightBlender = BlitterContext::TNone;
 
 	primaryShoot = NULL;
 	primaryPressed = NULL;
@@ -139,11 +139,11 @@ bool WeaponType::load(std::string const& filename)
 	{
 		std::string str = parser.getString("laser_sight_blender", "none");
 		if(str == "add")
-			laserSightBlender = ADD;
+			laserSightBlender = BlitterContext::Add;
 		else if(str == "alpha")
-			laserSightBlender = ALPHA;
+			laserSightBlender = BlitterContext::Alpha;
 		else if(str == "none")
-			laserSightBlender = NONE;
+			laserSightBlender = BlitterContext::TNone;
 	}
 
 	laserSightColour = parser.getProperty("laser_sight_colour", "laser_sight_color")->toColor(255, 0, 0);

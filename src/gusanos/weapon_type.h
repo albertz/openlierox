@@ -4,6 +4,7 @@
 #include "gfx.h"
 #include "resource_base.h"
 #include "StringUtils.h"
+#include "blitters/context.h"
 
 #include <string>
 #include <vector>
@@ -38,7 +39,7 @@ public:
 	int laserSightRange;
 	float laserSightIntensity;
 	int laserSightAlpha;
-	Blenders laserSightBlender; // Change to BlitterContext::Type
+	BlitterContext::Type laserSightBlender;
 	uint32_t crc;
 	
 #ifndef DEDICATED_ONLY

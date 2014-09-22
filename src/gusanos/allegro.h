@@ -303,10 +303,6 @@ void bmp_unwrite_line(ALLEGRO_BITMAP* bmp);
 
 
 
-void set_trans_blender(int r, int g, int b, int a);
-void set_add_blender (int r, int g, int b, int a);
-void solid_mode();
-
 int getr(Uint32 c);
 int getg(Uint32 c);
 int getb(Uint32 c);

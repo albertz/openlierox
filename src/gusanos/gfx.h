@@ -4,13 +4,6 @@
 #include <string>
 #include "gusanos/allegro.h"
 
-enum Blenders
-{
-	ALPHA,
-	ADD,
-	NONE
-};
-
 class Gfx
 {
 public:
@@ -23,25 +16,7 @@ public:
 	void registerInConsole();
 	void loadResources();
 
-#ifndef DEDICATED_ONLY
-	INLINE void setBlender( Blenders blender, int alpha )
-	{
-		switch ( blender )
-		{
-			case ALPHA:
-				set_trans_blender(255, 255, 255, alpha);
-			break;
-			
-			case ADD:
-				set_add_blender( 255,255,255, alpha);
-			break;
-			
-			case NONE:
-				solid_mode();
-			break;
-		}
-	}
-	
+#ifndef DEDICATED_ONLY	
 	int m_distortionAA;
 #endif
 
