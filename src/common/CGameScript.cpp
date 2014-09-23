@@ -608,6 +608,11 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 		
 		ModInfo info;
 		if(checkGusMod(dir, false, info)) {
+			// Note: In case of Gusanos, this will not actually load the mod.
+			// The actuall loading happens mostly when we finish the map loading,
+			// indirectly in game.loadMap(), and also in gusGame.runInitScripts().
+			// See Game::prepareGameloop().
+			// Note that this behavior might change!
 			if(gusInit(info.path)) {
 				m_gusEngineUsed = true;
 				loaded = true;
