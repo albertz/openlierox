@@ -116,11 +116,7 @@ public:
 	std::string invoke(std::string const& name, std::list<std::string> const& args, bool parseRelease);
 	virtual void addLogMsg(const std::string &msg);
 	virtual int executeConfig(const std::string &filename);
-	std::string autoComplete(std::string const& text);
-	void listItems(const std::string &text);
-	
-	std::string completeCommand(std::string const& b);
-	
+		
 	ItemMap const& getItems() const { return items; }
 	
 protected:

@@ -30,20 +30,12 @@ using namespace std;
 Console::~Console()
 {
 	// Delete the registered variables
-/*
-	map<string, ConsoleItem*>::iterator tempvar = items.begin();
-	while (tempvar != items.end())
-	{
-		delete tempvar->second;
-		tempvar++;
-	}*/
-	
 	foreach(i, items)
 	{
 		delete i->second;
 	}
 	
-	//items.clear();
+	items.clear();
 }
 
 //============================= INTERFACE ====================================
@@ -96,7 +88,6 @@ void Console::registerSpecialCommand(const std::string &name, int index, std::st
 		ItemMap::iterator tempItem = items.find(name);
 		if (tempItem == items.end())
 		{
-			//items[name] = new SpecialCommand(index,func);
 			registerItem(name, new SpecialCommand(index, func));
 		}
 	}
@@ -116,19 +107,9 @@ void Console::registerAlias(const std::string &name, const std::string &action)
 		}
 	}
 }
-/*
-struct IsTemporary
-{
-	bool operator()(std::pair<std::string, ConsoleItem*> const& x) const
-	{
-		return x.second->temp;
-	}
-};
-*/
+
 void Console::clearTemporaries()
 {
-	//std::remove_if(items.begin(), items.end(), IsTemporary());
-
 	foreach_delete(i, items)
 	{	
 		if(i->second->temp)
@@ -217,34 +198,6 @@ std::string Console::invoke(string const& name, list<string> const& args, bool p
 	return "";
 }
 
-/*
-void Console::parse(list<string> &args, bool parseRelease)
-{
-	string itemName;
-	string arguments;
-	string retString;
-	
-	if (!args.empty())
-	{
-		itemName = *args.begin();
-		if ( !parseRelease || (itemName[0] == '+') )
-		{
-			if (parseRelease) itemName[0]='-';
-			map<string, ConsoleItem*>::iterator tempItem = items.find(itemName);
-			if (tempItem != items.end())
-			{
-				args.pop_front();
-				retString = tempItem->second->invoke(args);
-				addLogMsg(retString);
-			}else
-			{
-				addLogMsg("UNKNOWN COMMAND \"" + itemName + "\"" );
-			}
-		}
-	}
-}
-*/
-
 void Console::addLogMsg(const string &msg)
 {
 	if (!msg.empty())
@@ -264,220 +217,12 @@ int Console::executeConfig(const string &filename)
 		//...parse the file
 		while (portable_getline(file, text2Parse))
 		{
-			//getline(file,text2Parse);
-			//std::transform(text2Parse.begin(), text2Parse.end(), text2Parse.begin(), (int(*)(int)) toupper);
 			parseLine(text2Parse);
 		}
 
 		return 1;
 	}
 	
-	
 	return 0;
-};
-
-struct CompletionHandler : public ConsoleGrammarBase
-{
-	struct State
-	{
-		State()
-		{
-		}
-		
-		State(string::const_iterator b_)
-		: commandComplete(false), argumentComplete(false), beginArgument(b_), beginCommand(b_), argumentIdx(0)
-		{
-		}
-		
-		bool commandComplete;
-		bool argumentComplete;
-		std::string command;
-		std::string argument;
-		string::const_iterator beginArgument;
-		string::const_iterator beginCommand;
-		int argumentIdx;
-	};
-		
-	CompletionHandler(
-		string::const_iterator b_,
-		string::const_iterator e_,
-		Console& console_
-	)
-	: b(b_), e(e_), current(b_), console(console_), beginPrefix(b_), endPrefix(b_)
-	{
-		c = (unsigned char)*b;
-	}
-	
-	int cur()
-	{
-		return c;
-	}
-	
-	void next()
-	{
-		++b;
-		if(b == e)
-		{
-			if(!current.commandComplete)
-			{
-				current.command = std::string(current.beginCommand, b);
-			}
-			else if(!current.argumentComplete)
-			{
-				if(current.beginArgument != e)
-					current.argument = std::string(current.beginArgument, b);
-				else
-					endPrefix = b;
-			}
-			
-			throw current;
-		}
-		c = (unsigned char)*b;
-	}
-	
-	void inCommand()
-	{
-		states.push(current);
-		current.commandComplete = false;
-		current.beginCommand = b;
-		endPrefix = b;
-	}
-	
-	void inArguments(std::string const& command)
-	{
-		current.commandComplete = true;
-		current.argumentIdx = 0;
-		current.argumentComplete = false;
-		current.argument = "";
-		current.beginArgument = e;
-		current.command = command;
-	}
-	
-	void inArgument(int idx)
-	{
-		current.commandComplete = true;
-		current.argumentComplete = false;
-		current.argumentIdx = idx;
-		current.beginArgument = b;
-		endPrefix = b;
-	}
-	
-	void outArgument(int idx, std::string const& argument)
-	{
-		current.argumentComplete = false;
-		current.argumentIdx = idx + 1;
-		current.argument = "";
-		current.beginArgument = e;
-	}
-	
-	void outCommand()
-	{
-		if(!states.empty())
-		{
-			current = states.top();
-			states.pop();
-		}
-	}
-	
-	std::string prefix()
-	{
-		return std::string(beginPrefix, endPrefix);
-	}
-
-	int c;
-	string::const_iterator b;
-	string::const_iterator e;
-	State current;
-	Console& console;
-	string::const_iterator beginPrefix;
-	string::const_iterator endPrefix;
-	
-	std::stack<State> states;
-};
-
-struct ItemGetText
-{
-	template<class IteratorT>
-	std::string const& operator()(IteratorT i) const
-	{
-		return i->first;
-	}
-};
-
-std::string Console::completeCommand(std::string const& b)
-{
-	return shellComplete(items, b.begin(), b.end()
-		, ItemGetText(), ConsoleAddLines(*this));
 }
-
-string Console::autoComplete(string const& text)
-{
-	string returnText = text;
-	
-	if ( !text.empty() )
-	{
-		ConsoleGrammar<CompletionHandler> handler((CompletionHandler(text.begin(), text.end(), *this)));
-		
-		try
-		{
-			handler.block();
-		}
-		catch(CompletionHandler::State result)
-		{
-			if(result.commandComplete)
-			{
-				ItemMap::const_iterator item = items.find(result.command);
-				
-				if(item != items.end())
-				{
-					return handler.prefix() + item->second->completeArgument(result.argumentIdx, result.argument);
-				}
-				
-				return text;
-			}
-			else
-			{
-				return handler.prefix() + completeCommand(result.command);
-			}
-		}
-		catch(SyntaxError error)
-		{
-			return text;
-		}
-	}
-	
-	return text;
-}
-
-void Console::listItems(const string &text)
-{
-	if ( !text.empty() )
-	{
-		// Find the first item that matches that text
-		ItemMap::iterator item = items.lower_bound( text ); 
-		if( item != items.end() && text == item->first.substr(0, text.length()) ) // If found
-		{
-			// Temp item to check if there is only 1 item matching the given text
-			ItemMap::iterator tempItem = item; 
-			tempItem++;
-			
-			// If the temp item is equal to the first item found it means that there are more than 1 items that match
-			if ( tempItem != items.end() )
-			if ( tempItem->first.substr(0, text.length() ) == item->first.substr(0, text.length()) )
-			{
-				
-				addLogMsg("]");
-				
-				// Add a message with the name of all the matching items
-				while ( item != items.end() && text == item->first.substr(0, text.length() ) )
-				{
-					addLogMsg(item->first);
-					item++;
-				}
-			}
-		}
-	}
-}
-
-//============================= PRIVATE ======================================
 
