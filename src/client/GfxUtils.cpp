@@ -15,6 +15,8 @@
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "Condition.h"
+#include "InputEvents.h"
+
 
 void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
 	switch(type) {
@@ -57,15 +59,7 @@ struct ScopedBackgroundLoadingAni::Data {
 	Mutex mutex;
 	bool quit;
 	Condition breakSig;
-	SmartPointer<SDL_Surface> screenBackup;
-	
-	Data() : thread(NULL), quit(false) {
-		screenBackup = gfxCreateSurface(640,480);
-		CopySurface(screenBackup.get(), VideoPostProcessor::videoSurface(), 0,0,0,0,640,480);
-	}
-	~Data() {
-		CopySurface(VideoPostProcessor::videoSurface().get(), screenBackup.get(), 0,0,0,0,640,480);
-	}
+	Data() : thread(NULL), quit(false) {}
 };
 
 ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
@@ -75,6 +69,12 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 	return;
 #endif
 
+	// Note: Earlier, we made a backup copy of the video surface.
+	// This is not really needed, because we will redraw in the next frame after this anyway.
+	// Also, this caused about 25% overhead in the whole loading process!
+	// So, to avoid flickering, just copy to our back buffer:
+	CopySurface(VideoPostProcessor::videoBufferSurface().get(), VideoPostProcessor::videoSurface().get(), 0,0,0,0,640,480);
+	
 	data = new Data();
 	
 	struct Animator : Action {
@@ -91,12 +91,13 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 				// As we are only loading the mod/map, we can savly access tLX->currentTime.
 				tLX->currentTime = GetTime();
 				
-				DrawImageEx(VideoPostProcessor::videoSurface().get(), data->screenBackup, 0,0,640,480);
 				DrawLoadingAni(VideoPostProcessor::videoSurface().get(), x, y, rx, ry, fg, bg, type);
 				doVideoFrameInMainThread();
 				
-				data->breakSig.wait(data->mutex, 10);
+				data->breakSig.wait(data->mutex, 50);
 			}
+			
+			
 			return true;
 		}
 	};
@@ -110,7 +111,6 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 	anim->bg = bg;
 	anim->type = type;
 	anim->data = data;
-	
 	data->thread = threadPool->start(anim, "Background Loading animation");
 }
 
@@ -122,7 +122,11 @@ ScopedBackgroundLoadingAni::~ScopedBackgroundLoadingAni() {
 			data->breakSig.signal();
 		}
 		threadPool->wait(data->thread);
-		delete data; data = NULL;
+		delete data;
+		data = NULL;
+		
+		// force a redraw
+		WakeupIfNeeded();
 	}
 }
 
