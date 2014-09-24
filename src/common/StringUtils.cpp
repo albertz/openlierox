@@ -457,7 +457,6 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 	std::string::const_iterator p1, p2;
 	p1 = s1.begin();
 	p2 = s2.begin();
-	short dif;
 	while(true) {
 		if(p1 == s1.end()) {
 			if(p2 == s2.end())
@@ -469,9 +468,13 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 			// not at end of s1
 			return 1; // s1 > s2
 
-		dif = (short)(uchar)tolower((uchar)*p1) - (short)(uchar)tolower((uchar)*p2);
-		if(dif != 0) return dif; // dif > 0  <=>  s1 > s2
-
+		// Note: Only use `tolower`, if they actually differ.
+		// `tolower` is probably way more expensive than this fast check.
+		if(*p1 != *p2) {
+			short dif = (short)(uchar)tolower((uchar)*p1) - (short)(uchar)tolower((uchar)*p2);
+			if(dif != 0) return dif; // dif > 0  <=>  s1 > s2
+		}
+		
 		p1++; p2++;
 	}
 }
