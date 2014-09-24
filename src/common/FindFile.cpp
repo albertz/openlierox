@@ -334,25 +334,18 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 	DIR* dirhandle = opendir((dir == "") ? "." : dir.c_str());
 	if(dirhandle == NULL) return false;
 
-	// If we have more than CacheLimit entries,
-	// only cache the dir in that case.
+	// Only cache the dir entry after a certain amount.
 	// The purpose is to keep the cache small and still to be fast.
-	static const int CacheLimit = 100;
-	std::vector<std::string> dirSearchNameBuffer(CacheLimit);
+	// We expect that we get the same order the next time we read the dir.
+	static const int CacheIgnoreNum = 100;
 	size_t count = 0;
 	dirent* direntry;
 	while((direntry = readdir(dirhandle))) {
 		// Cache fillup logic.
-		std::string dirSearchName = dir.empty() ? direntry->d_name : (dir + "/" + direntry->d_name);
-		if(count < CacheLimit)
-			dirSearchNameBuffer[count] = dirSearchName;
-		else if(count == CacheLimit) {
-			for(const auto& s : dirSearchNameBuffer)
-				exactfilenamecache.add_searchname(s);
-			dirSearchNameBuffer.clear();
-		}
-		if(count >= CacheLimit)
+		if(count >= CacheIgnoreNum) {
+			std::string dirSearchName = dir.empty() ? direntry->d_name : (dir + "/" + direntry->d_name);
 			exactfilenamecache.add_searchname(dirSearchName);
+		}
 		count++;
 
 		// Now do the actual filename check.
