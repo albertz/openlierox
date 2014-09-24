@@ -78,6 +78,8 @@ void CClient::Clear()
 	tGameInfo = EngineSettings();
 	otherGameInfo.clear();
 
+	if(serverGameState)
+		delete serverGameState;
 	serverGameState = new GameState;
 
 	cProjectiles.clear();
