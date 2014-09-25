@@ -901,15 +901,11 @@ std::string GetAbsolutePath(const std::string& path) {
 		return path;
 #else
 	std::string exactpath;
-	if(GetExactFileName(path, exactpath)) {
-		char buf[PATH_MAX];
-		if(realpath(exactpath.c_str(), buf) != NULL) {
-			fix_markend(buf);
-			return buf;
-		} else
-			return exactpath;
-	} else
-		return path;
+	GetExactFileName(path, exactpath);
+	// Earlier, we also did `realpath` on the path.
+	// This added a significant overhead on the whole FindFile system.
+	// Actually, not sure why it was there because I don't think it is really needed.
+	return path;
 #endif
 }
 
