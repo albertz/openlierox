@@ -379,8 +379,8 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 	ReplaceFileVariables(sname);
 
 	// Fast direct check, if file exists.
-	if(IsPathStatable(abs_searchname)) {
-		filename = abs_searchname;
+	if(IsPathStatable(sname)) {
+		filename = sname;
 		return true;
 	}
 
