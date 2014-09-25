@@ -681,14 +681,14 @@ bool OpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::ope
 	return false;
 }
 
-bool OpenGameFileW(std::ofstream& f, const std::string& path, std::ios_base::openmode mode) {
+bool OpenGameFileW(std::ofstream& f, const std::string& path) {
 	if(path.size() == 0)
 		return false;
 	
 	std::string fullfn = GetWriteFullFileName(path, true);
 	if(fullfn.size() != 0) {
 		try {
-			f.open(Utf8ToSystemNative(fullfn).c_str(), mode);
+			f.open(Utf8ToSystemNative(fullfn).c_str(), std::ios_base::out);
 			return f.is_open();
 		} catch(...) {}
 		return false;
