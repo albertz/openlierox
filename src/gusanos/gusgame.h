@@ -175,7 +175,7 @@ public:
 	static bool checkCRCs(BitStream& data);
 		
 private:
-	bool _loadMod(bool doLoadWeapons = true);
+	bool _loadMod();
 	void _prepareLoad(const std::string& path);
 	void _finishLoad();
 };

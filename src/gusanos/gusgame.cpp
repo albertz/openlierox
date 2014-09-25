@@ -426,8 +426,10 @@ void GusGame::loadWeapons()
 	}
 }
 
-bool GusGame::_loadMod(bool doLoadWeapons)
+bool GusGame::_loadMod()
 {
+	loaded = false;
+
 	options.maxWeapons = options.maxWeaponsVar;
 	
 	NRPartType = partTypeList.load("ninjarope.obj");
@@ -446,19 +448,12 @@ bool GusGame::_loadMod(bool doLoadWeapons)
 	}
 	
 #endif
-	if(doLoadWeapons)
-	{
-		loadWeapons();
-		if (weaponList.size() > 0 )
-		{
-			loaded = true;
-		}
-		else
-		{
-			loaded = false;
-			console.addLogMsg("ERROR: NO WEAPONS FOUND IN MOD FOLDER");
-		}
-	}
+	loadWeapons();
+	if( !weaponList.empty() )
+		loaded = true;
+	else
+		console.addLogMsg("ERROR: NO WEAPONS FOUND IN MOD FOLDER");
+
 	console.executeConfig("mod.cfg");
 	
 	return loaded;
