@@ -406,31 +406,25 @@ void GusGame::applyLevelEffect( LevelEffect* effect, int x, int y )
 void GusGame::loadWeapons()
 {
 	std::string path = m_modPath + "/weapons";
+	if ( !gusExists( path ) ) return;
 	
-	if ( gusExists( path ) )
-	{		
-		for( Iterator<std::string>::Ref iter = gusFileListIter(path); iter->isValid(); iter->next())
-		{
-			if( gusExistsFile(path + "/" + iter->get()) )
-			{
-				if ( GetFileExtensionWithDot(iter->get()) == ".wpn")
-				{
-					WeaponType* weapon = new WeaponType;
-					weapon->load(path + "/" + iter->get());
-					weaponList.push_back(weapon);
-				}
-			}
-		}
-		
-		WeaponOrder comp;
-		std::sort(weaponList.begin(), weaponList.end(), comp); 
-		
-		for ( size_t i = 0; i < weaponList.size(); ++i )
-		{
-			weaponList[i]->setIndex(i);
-		}
+	for( Iterator<std::string>::Ref iter = gusFileListIter(path); iter->isValid(); iter->next())
+	{
+		if( GetFileExtensionWithDot(iter->get()) != ".wpn" ) continue;
+
+		WeaponType* weapon = new WeaponType;
+		weapon->load(path + "/" + iter->get());
+		weaponList.push_back(weapon);
 	}
-};
+	
+	WeaponOrder comp;
+	std::sort(weaponList.begin(), weaponList.end(), comp); 
+	
+	for ( size_t i = 0; i < weaponList.size(); ++i )
+	{
+		weaponList[i]->setIndex(i);
+	}
+}
 
 bool GusGame::_loadMod(bool doLoadWeapons)
 {
