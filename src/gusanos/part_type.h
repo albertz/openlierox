@@ -35,6 +35,8 @@ CGameObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir,
 
 class PartType : public ResourceBase
 {
+	bool _load(std::string const& filename);
+
 public:
 	
 	static LuaReference metaTable;

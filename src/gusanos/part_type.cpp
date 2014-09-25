@@ -35,6 +35,8 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <list>
+#include <functional>
 
 using namespace std;
 
@@ -307,13 +309,73 @@ enum type
 };
 }
 
+
+static void _reduceStack(std::function<void()> loadFunc) {
+	// If we call this recursively, save loadFunc for later
+	// and call it from the root call context.
+	// Do this to avoid too deep stacks, which is a problem
+	// for certain mods (e.g. Telek).
+	// That will leave the object unloaded in the recursive context,
+	// so we must not depend on it until we return from
+	// all the loading code.
+	// This should be the case for the particle type loading.
+
+	// Note that we could also have more tricky code here
+	// via clever co-routine stack dumping - then we would not
+	// have any requirements. The code logic would look very
+	// similar (see Git history for a draft).
+	// However, for simplification, we don't do this for now.
+
+	// We expect that this is always called from the same thread.
+	
+	static bool insideLoading = false;
+	struct Stack {
+		std::function<void()> loadFunc_;
+		Stack(std::function<void()> f = NULL) : loadFunc_(f) {}
+	};
+	static std::list<Stack> stacks;
+	
+	if(insideLoading) {
+		// Dump our stack + loadFunc.
+		stacks.push_back(Stack(loadFunc));
+		// It will get handled from the root call context.
+		// Nothing to do here anymore.
+		return;
+	}
+	
+	insideLoading = true;
+	{
+		loadFunc();
+
+		while(!stacks.empty()) {
+			Stack top;
+			std::swap(top, stacks.back());
+			stacks.pop_back();
+			
+			top.loadFunc_();
+		}
+	}
+	insideLoading = false;
+}
+
 bool PartType::load(std::string const& filename)
+{
+	if(!gusExistsFile(filename)) return false;
+	
+	_reduceStack([this,filename]() {
+		_load(filename);
+	});
+	
+	return true;
+}
+
+bool PartType::_load(std::string const& filename)
 {
 	std::ifstream fileStream;
 	OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
-	if (!fileStream ) {
-		//notes << "PartType: cannot open " << filename << endl;
+	if(!fileStream) {
+		notes << "PartType: cannot open " << filename << endl;
 		return false;
 	}
 	
