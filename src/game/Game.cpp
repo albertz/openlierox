@@ -867,6 +867,9 @@ void Game::frameInner()
 		// We have a separate fixed 100FPS for game simulation.
 		// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
 		// we have to set it accordingly.
+		// XXX/TODO: This must be changed! Some code expects that tLX->currentTime
+		// is always *only* increasing, *never* decreasing, e.g.
+		// CClientNetEngineBeta9::SendReportDamage(), and many others.
 		AbsTime curTime = tLX->currentTime;
 		TimeDiff curDeltaTime = tLX->fDeltaTime;
 		tLX->currentTime = simulationTime;
