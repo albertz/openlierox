@@ -480,8 +480,28 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 }
 
 bool stringcaseequal(const std::string& s1, const std::string& s2) {
-	if (s1.size() != s2.size()) return false;
-	return stringcasecmp(s1, s2) == 0;
+	size_t S = s1.size();
+	if(S != s2.size()) return false;
+	if(S == 0) return true;
+	// Optimized version, not just stringcasecmp().
+	// This function is heavily used in the FindFile system,
+	// thus it's important that this is fast.
+	// The idea is to both check from start-to-end and from end-to-start.
+	const uchar* fw_c1 = (const uchar*) &s1[0];
+	const uchar* fw_c2 = (const uchar*) &s2[0];
+	const uchar* bw_c1 = (const uchar*) &s1[S-1];
+	const uchar* bw_c2 = (const uchar*) &s2[S-1];
+	while(true) {
+		if(fw_c1 > bw_c1) break;
+		if(tolower(*fw_c1) != tolower(*fw_c2)) return false;
+		if(fw_c1 >= bw_c1) break;
+		if(tolower(*bw_c1) != tolower(*bw_c2)) return false;
+		fw_c1++;
+		fw_c2++;
+		bw_c1--;
+		bw_c2--;
+	}
+	return true;
 }
 
 bool subStrEqual(const std::string& s1, const std::string s2, size_t p) {
