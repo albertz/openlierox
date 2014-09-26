@@ -28,7 +28,7 @@
 #include "StringUtils.h"
 #include "Options.h"
 #include "Debug.h"
-#include <zlib.h> // for crc32
+#include <boost/crc.hpp>
 
 
 #ifdef WIN32
@@ -272,16 +272,13 @@ size_t GetLastName(const std::string& fullname, const char** seperators)
 
 struct ExactFilenameCache {
 	struct simple_crc32_hasher {
-		size_t operator() (const std::string& str) const {			
-			uint32_t crc = (uint32_t) crc32(0, Z_NULL, 0);
-			for(std::string::const_iterator pos = str.begin(); pos != str.end(); pos++) {
-				uchar c = (uchar)tolower((uchar)*pos) & 0xf;
-				++pos;
-				if(pos == str.end()) break;
-				c += ((uchar)tolower((uchar)*pos) & 0xf) << 4;
-				crc = (uint32_t) crc32(crc, (Byte*)&c, 1);
-			}
-			return crc;
+		size_t operator() (const std::string& str) const {
+			boost::crc_32_type crc;
+			const uchar* c = (const uchar*) &str[0];
+			const uchar* E = c + str.size();
+			for(; c < E; ++c)
+				crc.process_byte((uchar) tolower(*c));
+			return crc.checksum();
 		}
 	};
 	struct strcasecomparer {
