@@ -865,17 +865,14 @@ void Game::frameInner()
 
 	if(!state.ext.updated && state >= Game::S_Preparing && gameWasPrepared) {
 		// We have a separate fixed 100FPS for game simulation.
-		// Because much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime},
-		// we have to set it accordingly.
-		// XXX/TODO: This must be changed! Some code expects that tLX->currentTime
+		// Note: much old code uses tLX->{currentTime, fDeltaTime, fRealDeltaTime}.
+		// We cannot change tLX->currentTime because some code expects that tLX->currentTime
 		// is always *only* increasing, *never* decreasing, e.g.
 		// CClientNetEngineBeta9::SendReportDamage(), and many others.
-		AbsTime curTime = tLX->currentTime;
+		// The physics code however uses GetPhysicsTime(), which returns the simulationTime.
 		TimeDiff curDeltaTime = tLX->fDeltaTime;
-		tLX->currentTime = simulationTime;
-		tLX->fDeltaTime = TimeDiff(Game::FixedFrameTime);
-		tLX->fRealDeltaTime = TimeDiff(Game::FixedFrameTime);
-		while(tLX->currentTime < curTime) {
+		tLX->fDeltaTime = tLX->fRealDeltaTime = TimeDiff(Game::FixedFrameTime);
+		while(simulationTime < tLX->currentTime) {
 
 			if(hasSeriousHighSimulationDelay()) {
 				TimeDiff simDelay = simulationDelay();
@@ -883,7 +880,13 @@ void Game::frameInner()
 					warnings << "deltatime " << simDelay.seconds() << " is too high" << endl;
 				// Don't do anything anymore, just skip.
 				// Also don't increment serverFrame so clients know about this.
-				tLX->currentTime += TimeDiff(simDelay.milliseconds() - simDelay.milliseconds() % Game::FixedFrameTime);
+				simulationTime += TimeDiff(simDelay.milliseconds() - simDelay.milliseconds() % Game::FixedFrameTime);
+				// Note that the underlying LX physics still simulates all frames in between,
+				// because it has its own fLastSimulationTime.
+				// Earlier, that was what we had fRealDeltaTime for, to skip such lags.
+				// TODO: This all doesn't work anymore, because we have fRealDeltaTime fixed
+				// here. We should remove all that logic from the LX physics and just keep
+				// the logic here.
 				continue;
 			}
 
@@ -907,11 +910,9 @@ void Game::frameInner()
 			if(isServer())
 				cServer->Frame();
 
-			tLX->currentTime += TimeDiff(Game::FixedFrameTime);
+			simulationTime += TimeDiff(Game::FixedFrameTime);
 		}
-		simulationTime = tLX->currentTime;
-		tLX->currentTime = curTime;
-		tLX->fDeltaTime = curDeltaTime;
+		tLX->fDeltaTime = tLX->fRealDeltaTime = curDeltaTime;
 	}
 
 	const bool stateUpdated = state.ext.updated;

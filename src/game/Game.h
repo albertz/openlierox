@@ -108,6 +108,7 @@ public:
 		if(gameOverFrame > serverFrame) return TimeDiff(0);
 		return TimeDiff((serverFrame - gameOverFrame) * 10);
 	}
+	AbsTime simulationAbsTime() const { return simulationTime; }
 
 	bool hasHighSimulationDelay();
 	bool hasSeriousHighSimulationDelay();

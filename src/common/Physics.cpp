@@ -18,6 +18,7 @@
 #include "CBonus.h"
 #include "game/Game.h"
 #include "CGameScript.h"
+#include "Game.h"
 
 
 void PhysicsEngine::Init() {
@@ -31,7 +32,7 @@ void PhysicsEngine::UnInit() {
 }
 
 AbsTime GetPhysicsTime() {
-	return NewNet::Active() ? NewNet::GetCurTime() : tLX->currentTime;
+	return NewNet::Active() ? NewNet::GetCurTime() : game.simulationAbsTime();
 }
 
 
