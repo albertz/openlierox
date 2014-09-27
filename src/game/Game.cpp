@@ -633,24 +633,8 @@ Result Game::prepareGameloop() {
 	return true;
 }
 
-/*
-uint64_t calcFramesLeft(AbsTime curTime, AbsTime curSimTime) {
-	TimeDiff diff = curTime - curSimTime;
-	return (diff.milliseconds() + Game::FixedFrameTime - 1) / Game::FixedFrameTime;
-}
-*/
 
-static TimeDiff simulationDelay() {
-	return GetTime() - tLX->currentTime;
-	/*
-	if(simulationTime > tLX->currentTime) { // inside the 100FPS loop
-		curTime = simulationTime;
-		curSimTime = tLX->currentTime;
-		uint64_t framesLeft = calcFramesLeft(curTime, curSimTime);
-		TimeDiff timeLeft = TimeDiff(framesLeft * Game::FixedFrameTime);
-	}
-	*/
-}
+static TimeDiff simulationDelay() { return GetTime() - GetPhysicsTime(); }
 
 bool Game::hasHighSimulationDelay() { return simulationDelay() > TimeDiff(100); }
 bool Game::hasSeriousHighSimulationDelay() { return simulationDelay() > TimeDiff(200); }
