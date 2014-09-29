@@ -102,7 +102,8 @@ bool CGameObject::isInside(int x, int y) const {
 
 
 // -------
-// LX56PhysicsDT.seconds() default is 1/84 ~= 0.0119.
+// GusDT() default is 1/100 = 0.01.
+#define GusDT	TimeDiff(Game::FixedFrameTime)
 
 CGameObject::ScopedGusCompatibleSpeed::ScopedGusCompatibleSpeed(CGameObject& o) : obj(o) {
 	// Note: Instead of having asserts on obj.gusSpeedScope, we make it dynamic.
@@ -113,46 +114,46 @@ CGameObject::ScopedGusCompatibleSpeed::ScopedGusCompatibleSpeed(CGameObject& o) 
 		// We do this if we use the LX56 Physics simulation on worms
 		// Gusanos interprets the velocity in a different way, so we convert it while we are doing Gus stuff.
 		// Gusanos uses velocity as follows: pos += velocity (per frame, with 100 FPS).
-		obj.velocity() *= LX56PhysicsDT.seconds();
+		obj.velocity() *= GusDT.seconds();
 		obj.gusSpeedScope = true;
 	}
 }
 
 CGameObject::ScopedGusCompatibleSpeed::~ScopedGusCompatibleSpeed() {
 	if(obj.gusSpeedScope) {
-		obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
+		obj.velocity() *= 1.0f / GusDT.seconds();
 		obj.gusSpeedScope = false;
 	}
 }
 
 CGameObject::ScopedLXCompatibleSpeed::ScopedLXCompatibleSpeed(CGameObject& o) : obj(o) {
 	if(obj.gusSpeedScope) {
-		obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
+		obj.velocity() *= 1.0f / GusDT.seconds();
 		obj.gusSpeedScope = false;
 	}
 }
 
 CGameObject::ScopedLXCompatibleSpeed::~ScopedLXCompatibleSpeed() {
 	if(!obj.gusSpeedScope) {
-		obj.velocity() *= LX56PhysicsDT.seconds();
+		obj.velocity() *= GusDT.seconds();
 		obj.gusSpeedScope = true;
 	}
 }
 
 float convertSpeed_LXToGus(float v) {
-	return v * LX56PhysicsDT.seconds();
+	return v * GusDT.seconds();
 }
 
 float convertSpeed_GusToLX(float v) {
-	return v / LX56PhysicsDT.seconds();
+	return v / GusDT.seconds();
 }
 
 float convertAccel_LXToGus(float v) {
-	return v * LX56PhysicsDT.seconds() * LX56PhysicsDT.seconds();
+	return v * GusDT.seconds() * GusDT.seconds();
 }
 
 float convertAccel_GusToLX(float v) {
-	return (v / LX56PhysicsDT.seconds()) / LX56PhysicsDT.seconds();
+	return (v / GusDT.seconds()) / GusDT.seconds();
 }
 
 CVec CGameObject::getGusVel() const {
