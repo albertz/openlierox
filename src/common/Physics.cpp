@@ -18,7 +18,6 @@
 #include "CBonus.h"
 #include "game/Game.h"
 #include "CGameScript.h"
-#include "Game.h"
 
 
 void PhysicsEngine::Init() {
@@ -35,12 +34,6 @@ AbsTime GetPhysicsTime() {
 	return NewNet::Active() ? NewNet::GetCurTime() : game.simulationAbsTime();
 }
 
-
-
-void PhysicsEngine::skipWorm(CWorm* worm) {
-	worm->fLastSimulationTime += tLX->fRealDeltaTime;
-}
-
 void PhysicsEngine::skipProjectiles(Iterator<CProjectile*>::Ref projs) {
 	cClient->fLastSimulationTime += tLX->fRealDeltaTime;
 	
@@ -48,13 +41,4 @@ void PhysicsEngine::skipProjectiles(Iterator<CProjectile*>::Ref projs) {
 		CProjectile* p = i->get();
 		p->fLastSimulationTime += tLX->fRealDeltaTime;
 	}
-}
-
-void PhysicsEngine::skipBonuses(CBonus* bonuses, size_t count) {
-	if(!cClient->getGameLobby()[FT_Bonuses]) return;
-	CBonus *b = bonuses;
-	for(size_t i=0; i < count; i++,b++) {
-		if(!b->getUsed()) continue;
-		b->fLastSimulationTime += tLX->fRealDeltaTime;
-	}	
 }

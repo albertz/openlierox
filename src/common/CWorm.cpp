@@ -243,8 +243,6 @@ CWorm::CWorm() :
 
 	gusSkinVisble = true;
 
-	fLastSimulationTime = tLX->currentTime;
-
 	cDamageReport.clear();
 
 	skinPreviewDrawer = skinPreviewDrawerP = new SkinDynDrawer(this);
@@ -609,7 +607,7 @@ void CWorm::Spawn(CVec position) {
 			m_weapons[i]->reset();
 	}
 
-	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = GetPhysicsTime();
+	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = GetPhysicsTime();
 
 	if(bLocal) {
 		if( !NewNet::Active() )
@@ -1640,7 +1638,6 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	// Macro to do less copypaste
 	// Only the gamestate variables are copied, score is updated by server in separate packet
 	#define COPY(X) X = w.X;
-	COPY( fLastSimulationTime );
 	COPY( tState );
 	COPY( vPos );
 	COPY( vVelocity );
@@ -1680,7 +1677,6 @@ void CWorm::NewNet_InitWormState(int seed)
 {
 	NewNet_random.seed(seed);
 	// These vars most probably getting reset in Spawn() but I want to be sure
-	fLastSimulationTime = AbsTime();
 	fLastInputTime = AbsTime();
 	lastMoveTime = AbsTime();
 	fServertime = TimeDiff();

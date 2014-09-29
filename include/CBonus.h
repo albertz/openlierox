@@ -87,12 +87,6 @@ public:
 	float&	life()				{ return fLife; }
 	float&	flashTime()			{ return fFlashTime; }
 
-	// HINT: saves the current time of the simulation
-	// TODO: should be moved later to PhysicsEngine
-	// but it's not possible in a clean way until we have no simulateBonuses()
-	// there which simulates all bonuses together
-	AbsTime	fLastSimulationTime;
-
 };
 
 

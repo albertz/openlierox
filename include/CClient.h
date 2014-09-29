@@ -380,12 +380,12 @@ private:
 
 public:
 	// HINT: saves the current time of the simulation
-	// TODO: should be moved later to PhysicsEngine
-	// but it's not possible in a clean way until we have no simulateWorld()
-	// there which simulates everything together
 	// HINT: this is currently used for simulating the projectiles
 	// if you are going to use this also for something else,
 	// then be sure that is is run together with simulateProjectiles() !
+	// Note: This is only kept here to be able to simulate the
+	// LX physics with a different FPS rate (usually 84) than
+	// the main loop (fixed 100 FPS).
 	AbsTime	fLastSimulationTime;
 
 // IRC callbacks

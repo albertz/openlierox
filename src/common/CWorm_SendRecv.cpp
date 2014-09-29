@@ -514,8 +514,6 @@ void CWorm::readPacketState(CBytestream *bs)
 		const CVec dir = getFaceDirection();
 		incrementDirtCount( CarveHole(getPos() + dir*4) );
 	}
-
-	this->fLastSimulationTime = tLX->currentTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
 }
 
 

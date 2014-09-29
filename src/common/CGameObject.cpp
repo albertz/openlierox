@@ -110,8 +110,9 @@ CGameObject::ScopedGusCompatibleSpeed::ScopedGusCompatibleSpeed(CGameObject& o) 
 	// static object and thus we might get messed up, setting the scope twice
 	// or so on this static dummy object. But that doesn't realy matter anyway.
 	if(!obj.gusSpeedScope) {
-		// we do this if we use the LX56 Physics simulation on worms
-		// Gusanos interprets the velocity in a different way, so we convert it while we are doing Gus stuff
+		// We do this if we use the LX56 Physics simulation on worms
+		// Gusanos interprets the velocity in a different way, so we convert it while we are doing Gus stuff.
+		// Gusanos uses velocity as follows: pos += velocity (per frame, with 100 FPS).
 		obj.velocity() *= LX56PhysicsDT.seconds();
 		obj.gusSpeedScope = true;
 	}

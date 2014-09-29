@@ -31,7 +31,6 @@
 void CBonus::Spawn(CVec ppos, int type, int weapon, CGameScript *gs)
 {
 	bUsed = true;
-	fLastSimulationTime = tLX->currentTime;
 	vPos = ppos;
 	vVelocity = CVec(0,0);
 	iType = type;
@@ -77,6 +76,6 @@ void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, bool showname)
 }
 
 void CBonus::setUsed(bool _u) {
-	bUsed = _u; if(_u) fLastSimulationTime = tLX->currentTime;
+	bUsed = _u;
 }
 

@@ -78,7 +78,7 @@ bool PhysicsEngine::isInitialised() { return m_inited; }
 
 
 static void simulateNinjarope(float dt, CWorm* owner);
-static void simulateWormWeapon(TimeDiff dt, CWorm* worm);
+static void simulateWormWeapon(float dt, CWorm* worm);
 
 // -----------------------------
 // ------ worm -----------------
@@ -271,13 +271,6 @@ static bool moveAndCheckWormCollision(AbsTime currentTime, float dt, CWorm* worm
 void PhysicsEngine::simulateWorm(CWorm* worm, bool local) {
 	if(game.gameScript()->gusEngineUsed()) return;
 
-	AbsTime simulationTime = GetPhysicsTime();
-	warpSimulationTimeForDeltaTimeCap(worm->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-	const TimeDiff orig_dt = LX56PhysicsDT;
-	const float dt = (bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs] ? orig_dt.seconds() : (orig_dt.seconds() * (float)cClient->getGameLobby()[FT_GameSpeed]);
-	const TimeDiff wpnDT = orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed]; // wpnDT could be different from dt
-	if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
-
 	// TODO: Later, we should have a message bus for input-events which is filled
 	// by goleft/goright/stopleft/stopright/shoot/etc signals. These signals are handled in here.
 	// Though the key/mouse event handling (what CWorm::getInput() is doing atm)
@@ -293,7 +286,8 @@ void PhysicsEngine::simulateWorm(CWorm* worm, bool local) {
 	// worm updates.)
 
 	// get input max once a frame (and not at all if we don't simulate this frame)
-
+	// TODO: This is not the case anymore. Is this bad?
+	
 		/*
 			Only get input for this worm on certain conditions:
 			1) This worm is a local worm (ie, owned by me)
@@ -313,19 +307,18 @@ void PhysicsEngine::simulateWorm(CWorm* worm, bool local) {
 
 	const worm_state_t *ws = &worm->tState.get();
 
-simulateWormStart:
-
 	if(!worm->getAlive()) return;
-	if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
-	worm->fLastSimulationTime += TimeDiff(orig_dt);
-
+	
+	// We expect that this gets called with this fixed FPS.
+	// Gamespeed multiplicators or other things are handled from the outside.
+	float dt = LX56PhysicsDT.seconds();
 
 	// If we're seriously injured (below 15% health) and visible, bleed
 	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 	// If you want to make that better, you would have to give the CViewport to simulateWorm (but that would be really stupid).
 	if(worm->getHealth() < 15 && worm->isVisibleForEverybody()) {
-		if(simulationTime > worm->getLastBlood() + 2.0f) {
-			worm->setLastBlood( worm->fLastSimulationTime );
+		if(GetPhysicsTime() > worm->getLastBlood() + 2.0f) {
+			worm->setLastBlood( GetPhysicsTime() );
 
 			const float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 20;
 			for(short i=0;i<amount;i++) {
@@ -435,7 +428,7 @@ simulateWormStart:
 
 
 		// Check collisions and move
-		moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), &worm->velocity().write(), worm->getPos(), jumped );
+		moveAndCheckWormCollision( GetPhysicsTime(), dt, worm, worm->getPos(), &worm->velocity().write(), worm->getPos(), jumped );
 
 
 		// Ultimate in friction
@@ -469,31 +462,32 @@ simulateWormStart:
 		worm->tState.write().bJump = worm->jumping; // we may have overwritten this
 	}
 
-	simulateWormWeapon(wpnDT, worm);
+	simulateWormWeapon(dt, worm);
 
 	worm->posRecordings.push_back(worm->getPos());
-
-	goto simulateWormStart;
 }
 
-static void simulateWormWeapon(TimeDiff dt, CWorm* worm) {
+static void simulateWormWeapon(float dt, CWorm* worm) {
 	if(worm->tWeapons.size() == 0) return;
 
+	// Without FT_GameSpeedOnlyForProjs, we apply the gamespeed multiplicator logic outside.
+	if((bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs])
+		dt *= (float)cClient->getGameLobby()[FT_GameSpeed];
+	
 	wpnslot_t *Slot = worm->writeCurWeapon();
-
 	if(!Slot->weapon()) return;
-
+	
 	// Slot should still do the reloading even without enabled wpn, thus uncommented this check.
 	//if(!Slot->Enabled) return;
 
 	if(Slot->LastFire > 0)
-		Slot->LastFire -= dt.seconds();
+		Slot->LastFire -= dt;
 
 	if(Slot->Reloading) {
 		if((int)cClient->getGameLobby()[FT_LoadingTime] == 0)
 			Slot->Charge = 1.f;
 		else
-			Slot->Charge += fabs((float)dt.seconds()) * (Slot->weapon()->Recharge * (1.0f/((int)cClient->getGameLobby()[FT_LoadingTime] * 0.01f)));
+			Slot->Charge += dt * (Slot->weapon()->Recharge * (1.0f/((int)cClient->getGameLobby()[FT_LoadingTime] * 0.01f)));
 
 		if(Slot->Charge >= 1.f) {
 			Slot->Charge = 1.f;
@@ -627,14 +621,9 @@ static void colideBonus(CBonus* bonus, int x, int y) {
 }
 
 static void simulateBonus(CBonus* bonus) {
-	AbsTime simulationTime = GetPhysicsTime();
-	warpSimulationTimeForDeltaTimeCap(bonus->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-	const float orig_dt = LX56PhysicsDT.seconds();
-	const float dt = (bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs] ? orig_dt : (orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed]);
-
-simulateBonusStart:
-	if(bonus->fLastSimulationTime + orig_dt > simulationTime) return;
-	bonus->fLastSimulationTime += TimeDiff(orig_dt);
+	// We expect that this gets called with this fixed FPS.
+	// Gamespeed multiplicators or other things are handled from the outside.
+	float dt = LX56PhysicsDT.seconds();
 
 	int x,  y;
 	int mw, mh;
@@ -704,8 +693,6 @@ simulateBonusStart:
 			}
 		}
 	}
-
-	goto simulateBonusStart;
 }
 
 void PhysicsEngine::simulateBonuses(CBonus* bonuses, size_t count) {

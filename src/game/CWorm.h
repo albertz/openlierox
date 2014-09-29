@@ -617,12 +617,6 @@ public:
 	void NewNet_CopyWormState(const CWorm & w);
 	void NewNet_InitWormState( int seed );
 	
-	// HINT: saves the current time of the simulation
-	// TODO: should be moved later to PhysicsEngine
-	// but it's not possible in a clean way until we have no simulateWorms()
-	// there which simulates all worms together
-	AbsTime	fLastSimulationTime;
-
 	NewNet::NetSyncedRandom NewNet_random;
 	
 	/* Keeps track over the positions over time.

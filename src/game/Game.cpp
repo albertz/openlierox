@@ -856,6 +856,14 @@ void Game::frameInner()
 		// The physics code however uses GetPhysicsTime(), which returns the simulationTime.
 		TimeDiff curDeltaTime = tLX->fDeltaTime;
 		tLX->fDeltaTime = tLX->fRealDeltaTime = TimeDiff(Game::FixedFrameTime);
+		
+		TimeDiff frameDt = TimeDiff(Game::FixedFrameTime);
+		if(!(bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs]) {
+			frameDt *= 1.0f/CLAMP((float)cClient->getGameLobby()[FT_GameSpeed], 0.05f, 10.0f);
+			if(frameDt <= TimeDiff(0))
+				frameDt = TimeDiff(1);
+		}
+		
 		while(simulationTime < tLX->currentTime) {
 
 			if(hasSeriousHighSimulationDelay()) {
@@ -894,7 +902,7 @@ void Game::frameInner()
 			if(isServer())
 				cServer->Frame();
 
-			simulationTime += TimeDiff(Game::FixedFrameTime);
+			simulationTime += frameDt;
 		}
 		tLX->fDeltaTime = tLX->fRealDeltaTime = curDeltaTime;
 	}
@@ -1264,7 +1272,6 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	w->setLocal(local);
 	if(local && game.isServer()) w->setClient(cServer->localClientConnection());
 	w->setID(wormId);
-	w->fLastSimulationTime = GetPhysicsTime(); 
 	if(profile.get()) {
 		w->setName(profile->sName);
 		w->setSkin(profile->cSkin);

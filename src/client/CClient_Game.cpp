@@ -66,26 +66,32 @@ void CClient::Simulation()
 		return;
 	}
 
-	if(game.isGamePaused() || game.gameOver) {
+	if(game.gameOver) {
 		// Clear the input of the local worms
 		clearLocalWormInputs();
-		
-		// gameover case will be checked below
-		if(!game.gameOver) {
-			// skip simulations for this frame
-			for_each_iterator(CWorm*, w, game.worms()) {
-				if(!w->get()->getAlive()) continue;
-				PhysicsEngine::Get()->skipWorm(w->get());
-			}
-			PhysicsEngine::Get()->skipProjectiles(cProjectiles.begin());
-			PhysicsEngine::Get()->skipBonuses(cBonuses, MAX_BONUSES);				
-		}
 	}
 
-	// gameover check and maybe other stuff
-	if(!game.shouldDoPhysicsFrame())
-		return;
+	// Note that this is slightly something different than gameOver.
+	if(!game.shouldDoPhysicsFrame()) {
+		// Clear the input of the local worms
+		clearLocalWormInputs();
 
+		// skip simulations for this frame
+		PhysicsEngine::Get()->skipProjectiles(cProjectiles.begin());
+		return;		
+	}
+
+	AbsTime currentTime = GetPhysicsTime();
+	const TimeDiff orig_dt = LX56PhysicsDT;
+	TimeDiff frame_dt = orig_dt;
+	if(!(bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs]) {
+		frame_dt *= 1.0f/CLAMP((float)cClient->getGameLobby()[FT_GameSpeed], 0.05f, 10.0f);
+		if(frame_dt <= TimeDiff(0))
+			frame_dt = TimeDiff(1);
+	}
+	
+simulateStart:
+	if(cClient->fLastSimulationTime + frame_dt > currentTime) return;
 
 	// TODO: does it work also, if we
 	// 1. simulate all worms
@@ -189,19 +195,19 @@ void CClient::Simulation()
 
 		// In a timed game increment the tagged worms time
 		if(getGeneralGameType() == GMT_TIME && w->getTagIT())  {
-			w->incrementTagTime(tLX->fRealDeltaTime);
+			w->incrementTagTime(frame_dt);
 
 			// Log
 			log_worm_t *l = GetLogWorm(w->getID());
 			if (l)
-				l->fTagTime += tLX->fRealDeltaTime;
+				l->fTagTime += frame_dt;
 		}
 	}
 
 	// Entities
 	// only some gfx effects, therefore it doesn't belong to PhysicsEngine
 	if(!bDedicated)
-		SimulateEntities(tLX->fDeltaTime);
+		SimulateEntities(orig_dt);
 
 	// Weather
 	// TODO: if this will be implemented once, this should be moved to the PhysicsEngine
@@ -213,7 +219,9 @@ void CClient::Simulation()
 
 	// Bonuses
 	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);
-
+	
+	cClient->fLastSimulationTime += frame_dt;
+	goto simulateStart;
 }
 
 

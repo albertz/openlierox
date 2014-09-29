@@ -50,9 +50,7 @@ public:
 	void simulateBonuses(CBonus* bonuses, size_t count);
 	
 	// skips simulation for one frame (but increments simulationtime)
-	void skipWorm(CWorm* worm);
 	void skipProjectiles(Iterator<CProjectile*>::Ref projs);
-	void skipBonuses(CBonus* bonuses, size_t count);	
 };
 
 AbsTime GetPhysicsTime(); // Returns tLX->currentTime, or NewNet::GetCurTime() if new net engine is active

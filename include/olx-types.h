@@ -46,6 +46,7 @@ struct TimeDiff {
 	
 	TimeDiff& operator+=(const TimeDiff& td) { timeDiff += td.timeDiff; return *this; }
 	TimeDiff& operator-=(const TimeDiff& td) { assert(timeDiff >= td.timeDiff); timeDiff -= td.timeDiff; return *this; }
+	TimeDiff& operator*=(float f) { *this = (*this) * f; return *this; }
 	
 	bool operator<(const TimeDiff& td) const { return timeDiff < td.timeDiff; }
 	bool operator>(const TimeDiff& td) const { return timeDiff > td.timeDiff; }

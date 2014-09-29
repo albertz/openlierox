@@ -1363,16 +1363,20 @@ static INLINE bool LX56ProjectileHandler_doFrame(const AbsTime currentTime, Time
 
 
 static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
-	const TimeDiff orig_dt = LX56PhysicsDT;
-	const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed];
+	// The FPS callrate doesn't matter that much because we do our own FPS handling here.
 	
+	const TimeDiff orig_dt = LX56PhysicsDT;
+	TimeDiff frame_dt = orig_dt * (1.0f/CLAMP((float)cClient->getGameLobby()[FT_GameSpeed],0.05f,10.0f));
+	if(frame_dt <= TimeDiff(0))
+		frame_dt = TimeDiff(1);
+		
 	VectorD2<int> oldPos(prj->getPos());
 	VectorD2<int> oldRadius(prj->getRadius());
 	
 simulateProjectileStart:
-	if(prj->fLastSimulationTime + orig_dt > currentTime) goto finalMapPosIndexUpdate;
-	prj->fLastSimulationTime += orig_dt;
-	if(LX56ProjectileHandler_doFrame(currentTime, dt, prj))
+	if(prj->fLastSimulationTime + frame_dt > currentTime) goto finalMapPosIndexUpdate;
+	prj->fLastSimulationTime += frame_dt;
+	if(LX56ProjectileHandler_doFrame(currentTime, orig_dt, prj))
 		goto simulateProjectileStart;
 
 finalMapPosIndexUpdate:
@@ -1381,26 +1385,15 @@ finalMapPosIndexUpdate:
 
 
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
+	// Note: This function can be called with any FPS -
+	// LX56_simulateProjectile will handle its own internal FPS
+	// via CProjectile::fLastSimulationTime.
+
 	AbsTime currentTime = GetPhysicsTime();
-	const TimeDiff orig_dt = LX56PhysicsDT;
-	
-	const TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
-	if(warpTime > TimeDiff(0)) {
-		for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
-			CProjectile* const p = i->get();
-			p->fLastSimulationTime += warpTime;
-		}
-	}
-	
-simulateProjectilesStart:
-	if(cClient->fLastSimulationTime + orig_dt > currentTime) return;
-	
+		
 	for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
 		CProjectile* const p = i->get();
-		LX56_simulateProjectile( cClient->fLastSimulationTime, p );
-	}
-	
-	cClient->fLastSimulationTime += orig_dt;
-	goto simulateProjectilesStart;
+		LX56_simulateProjectile( currentTime, p );
+	}	
 }
 
