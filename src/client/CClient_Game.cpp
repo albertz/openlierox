@@ -60,6 +60,15 @@ bool CClient::shouldDoProjectileSimulation() {
 // Simulation
 void CClient::Simulation()
 {
+	AbsTime currentTime = GetPhysicsTime();
+	const TimeDiff orig_dt = LX56PhysicsDT;
+	TimeDiff frame_dt = orig_dt;
+	if(!(bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs]) {
+		frame_dt *= 1.0f/CLAMP((float)cClient->getGameLobby()[FT_GameSpeed], 0.05f, 10.0f);
+		if(frame_dt <= TimeDiff(0))
+			frame_dt = TimeDiff(1);
+	}
+
 	// Don't simulate if the physics engine is not ready
 	if (!PhysicsEngine::Get() || !PhysicsEngine::Get()->isInitialised())  {
 		errors << "WARNING: trying to simulate with non-initialized physics engine!" << endl;
@@ -78,16 +87,9 @@ void CClient::Simulation()
 
 		// skip simulations for this frame
 		PhysicsEngine::Get()->skipProjectiles(cProjectiles.begin());
+		
+		cClient->fLastSimulationTime = currentTime;
 		return;		
-	}
-
-	AbsTime currentTime = GetPhysicsTime();
-	const TimeDiff orig_dt = LX56PhysicsDT;
-	TimeDiff frame_dt = orig_dt;
-	if(!(bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs]) {
-		frame_dt *= 1.0f/CLAMP((float)cClient->getGameLobby()[FT_GameSpeed], 0.05f, 10.0f);
-		if(frame_dt <= TimeDiff(0))
-			frame_dt = TimeDiff(1);
 	}
 	
 simulateStart:
