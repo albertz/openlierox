@@ -254,16 +254,16 @@ void CMap::gusThink()
 }
 
 #ifndef DEDICATED_ONLY
-void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
+void CMap::gusDraw(ALLEGRO_BITMAP* where, float x, float y)
 {
 	if(bmpParallax.get()) {
-		int px = int(x * (bmpParallax->w - where->w) / float( bmpDrawImage->w - where->w ));
-		int py = int(y * (bmpParallax->h - where->h) / float( bmpDrawImage->h - where->h ));
-		blit(bmpParallax.get(),where,px*2,py*2,0,0,where->w,where->h);
+		float px = x * (bmpParallax->w - where->w) / float( bmpDrawImage->w - where->w );
+		float py = y * (bmpParallax->h - where->h) / float( bmpDrawImage->h - where->h );
+		blit(bmpParallax.get(),where,int(px*2),int(py*2),0,0,where->w,where->h);
 	}
 
 	if(bmpDrawImage.get())
-		blit(bmpDrawImage.get(), where, x*2, y*2, 0, 0, where->w, where->h);
+		blit(bmpDrawImage.get(), where, int(x*2), int(y*2), 0, 0, where->w, where->h);
 
 	// TODO: Actually, it was correct in viewport.cpp, because it could
 	// potentially shadow objects (that was its whole purpose).
@@ -271,12 +271,12 @@ void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 	// However, the worm HUD (crossair) should not be covered by this
 	// (as earlier).
 	if(bmpForeground.get())
-		blit(bmpForeground.get(), where, x*2, y*2, 0, 0, where->w, where->h);
+		blit(bmpForeground.get(), where, int(x*2), int(y*2), 0, 0, where->w, where->h);
 
 	if ( gusGame.options.showMapDebug ) {
 		foreach( s, m_config.spawnPoints ) {
 			int c = (s->team == 0 ? makecol( 255,0,0 ) : makecol( 0, 255, 0 ));
-			circle( where, (int)(s->pos.x - x) * 2, (int)(s->pos.y - y) * 2, 8, c );
+			circle( where, (int)((s->pos.x - x) * 2), (int)((s->pos.y - y) * 2), 8, c );
 		}
 	}
 	

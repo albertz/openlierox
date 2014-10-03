@@ -484,7 +484,7 @@ public:
 	void gusThink();
 	bool gusIsLoaded() { return m_gusLoaded; }
 #ifndef DEDICATED_ONLY
-	void gusDraw(ALLEGRO_BITMAP* where, int x, int y);
+	void gusDraw(ALLEGRO_BITMAP* where, float x, float y);
 #endif
 	static void gusUpdateMinimap(SmartPointer<SDL_Surface>& bmpMiniMap, const SmartPointer<SDL_Surface>& foreground, const SmartPointer<SDL_Surface>& image, const SmartPointer<SDL_Surface>& parallax, int x, int y, int w, int h, float resFactor);
 	void gusUpdateMinimap(int x, int y, int w, int h);
