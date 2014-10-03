@@ -85,7 +85,7 @@ private:
 
 	int		VirtWidth, VirtHeight;
 
-	float  	WorldX, WorldY;
+	int  	WorldX, WorldY;
 
     CVec    curPos, tgtPos;
 

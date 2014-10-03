@@ -113,8 +113,8 @@ void CViewport::Process(CViewport *pcViewList, int MWidth, int MHeight, int iGam
 		return;
 	}
 	
-	float hx = Width  / 2.0f;
-	float hy = Height / 2.0f;
+	int hx = Width/2;
+	int hy = Height/2;
 
     // Follow a player
     switch (nType)  {
@@ -152,11 +152,11 @@ void CViewport::Process(CViewport *pcViewList, int MWidth, int MHeight, int iGam
 			// and it is needed when having a sizefactor!=1 and a custom viewport.
             if( true /* pcTargetWorm->getAlive() */ ) {
 				if( bSmooth )
-					setSmoothPosition( pcTargetWorm->getPos().x - hx, pcTargetWorm->getPos().y - hy, tLX->fDeltaTime );
+					setSmoothPosition( pcTargetWorm->getPos().x-hx, pcTargetWorm->getPos().y-hy, tLX->fDeltaTime );
 				else
 				{
-					WorldX = pcTargetWorm->getPos().x - hx;
-					WorldY = pcTargetWorm->getPos().y - hy;
+					WorldX = (int)(pcTargetWorm->getPos().x-hx);
+					WorldY = (int)(pcTargetWorm->getPos().y-hy);									
 				}
 
                 // Clear the timer
@@ -386,11 +386,11 @@ void CViewport::Clamp(int MWidth, int MHeight)
 	// We are drawing the map (and everything) tiled together then.
 	if(!cClient->getGameLobby()[FT_InfiniteMap]) {
 		if(MWidth >= Width)
-			WorldX = CLAMP(WorldX, 0.f, float(MWidth-Width));
+			WorldX = CLAMP(WorldX, 0, MWidth-Width);
 		else
 			WorldX = 0;
 		if(MHeight >= Height)
-			WorldY = CLAMP(WorldY, 0.f, float(MHeight-Height));
+			WorldY = CLAMP(WorldY, 0, MHeight-Height);
 		else
 			WorldY = 0;
 	}
