@@ -138,7 +138,7 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 	game.gameMap()->gusDraw(dest, WorldX, WorldY);
 
 	if ( game.isLevelDarkMode() && game.gameMap()->lightmap )
-		blit( game.gameMap()->lightmap, fadeBuffer, WorldX*2, WorldY*2, 0, 0, fadeBuffer->w, fadeBuffer->h );
+		blit( game.gameMap()->lightmap, fadeBuffer, int(WorldX*2), int(WorldY*2), 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 	if (game.state == Game::S_Playing)  {
 		// update the drawing position
@@ -195,9 +195,9 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 			if(!worm->isActive()) continue;
 			if(!worm->inputHandler()) continue;
 
-			IVec renderPos( worm->getRenderPos() );
-			int x = renderPos.x - WorldX;
-			int y = renderPos.y - WorldY;
+			auto renderPos = worm->getRenderPos();
+			auto x = renderPos.x - WorldX;
+			auto y = renderPos.y - WorldY;
 			LuaReferenceLazy ownerRef;
 			if(targetPlayer)
 				ownerRef = targetPlayer->getLuaReference();
