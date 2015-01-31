@@ -307,7 +307,8 @@ struct GameOptions {
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
 	std::string cfgFilename;
 	bool	doProjectileSimulationInDedicated;
-	
+	bool bCheckMaxWpnTimeInInstantStart;   //Enforce max weapon selection time when instant start is enabled
+        
 	// Widget states
 	int		iInternetList[7];
 	int		iLANList[6];

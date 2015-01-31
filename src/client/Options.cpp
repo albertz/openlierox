@@ -215,6 +215,8 @@ bool GameOptions::Init() {
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
 		( tLXOptions->doProjectileSimulationInDedicated, "Misc.DoProjectileSimulationInDedicated", true )
+                ( tLXOptions->bCheckMaxWpnTimeInInstantStart, "Misc.CheckMaxWpnSelectionTimeInInstantStart", false)	//Enforce max weapon selection time when immediate start is enabled
+                //TODO: Should this be true by default, and should this be added to the GUI?
 
 		( tLXOptions->iInternetSortColumn, "Widgets.InternetSortColumn", 4 )
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )
