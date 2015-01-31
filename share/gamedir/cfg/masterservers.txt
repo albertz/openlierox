@@ -1,2 +1,2 @@
-server.openlierox.net
 thelobby.altervista.org/server
+server.openlierox.net
