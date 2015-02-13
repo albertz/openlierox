@@ -195,7 +195,21 @@ bool GameOptions::Init() {
 		( tLXOptions->fAimMaxSpeed, "Game.AimMaxSpeed", /* Gusanos promode default */ 232.996, "Aim max speed", "maximum possible aim speed for worm", GIG_Other, ALT_VeryAdvanced, true, 20, 1000 )
 		( tLXOptions->fAimFriction, "Game.AimFriction", /* Gusanos promode default */ 0, "Aim friction", "aim speed friction for worm", GIG_Other, ALT_VeryAdvanced, true, 0, 1 )
 		( tLXOptions->bAimLikeLX56, "Game.AimLikeLX56", false, "Aim friction like LX56", "aim speed friction behaves like LX56", GIG_Other, ALT_OnlyViaConfig )
-	
+		
+		// Killing spree thresholds
+		( tLXOptions->iSpreeThreshold1, "Game.SpreeThreshold1", 3 )
+		( tLXOptions->iSpreeThreshold2, "Game.SpreeThreshold2", 5 )
+		( tLXOptions->iSpreeThreshold3, "Game.SpreeThreshold3", 7 )
+		( tLXOptions->iSpreeThreshold4, "Game.SpreeThreshold4", 9 )
+		( tLXOptions->iSpreeThreshold5, "Game.SpreeThreshold5", 10 )
+		// Dying spree thresholds
+		( tLXOptions->iDyingSpreeThreshold1, "Game.DyingSpreeThreshold1", 3 )
+		( tLXOptions->iDyingSpreeThreshold2, "Game.DyingSpreeThreshold2", 5 )
+		( tLXOptions->iDyingSpreeThreshold3, "Game.DyingSpreeThreshold3", 7 )
+		( tLXOptions->iDyingSpreeThreshold4, "Game.DyingSpreeThreshold4", 9 )
+		( tLXOptions->iDyingSpreeThreshold5, "Game.DyingSpreeThreshold5", 10 )
+		
+		
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer
