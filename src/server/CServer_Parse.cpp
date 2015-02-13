@@ -1894,7 +1894,11 @@ void GameServer::ParseWantsJoin(const SmartPointer<NetworkSocket>& tSocket, CByt
 	// Accept these messages from banned clients?
 	if (!tLXOptions->bWantsJoinBanned && cBanList.isBanned(ip))
 		return;
-
+	
+	//Do not broadcast the message if the nick is longer than "legitimately" possible
+	if (Nick.size() > 20)
+		return;
+	
 	// Notify about the wants to join
 	if (networkTexts->sWantsJoin != "<none>")  {
 		std::string buf;
