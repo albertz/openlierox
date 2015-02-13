@@ -1537,7 +1537,22 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			
 			RemoveClient(newcl, "bot tried to connect");
 			return;
-		}		
+		}
+		
+		//Check name length - by using tricks it's possible (at least in 0.58) to create excessively long names
+		//which cause lots of annoyance. This server-side check prevents that.
+		//Because the player creation menu allows max 20 characters, we can check it very easily
+		if (newWorms[i].sName.size() > 20){
+			CBytestream sKickmsg;
+			sKickmsg.writeInt(-1, 4);
+			sKickmsg.writeString("lx::badconnect");
+			sKickmsg.writeString(OldLxCompatibleString("Connection failed - your name is too long"));
+			sKickmsg.Send(net_socket.get());
+			
+			RemoveClient(newcl, "Name is too long");
+			return;
+		}
+		
 	}
 
 	std::set<CWorm*> removeWormList;
