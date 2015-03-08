@@ -474,8 +474,12 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 	}
 
 	name = RemoveSpecialChars(name); // Strip unicode characters
-	if (name.size() > 32)  // Check if not too long
-		name.erase(32, std::string::npos);
+	//Check length -- note: the limit was previously 32 (see old code below),
+	//but now it's 20 as in the player profiles menu
+	if (name.size()>20)
+		name.resize(20);
+	//if (name.size() > 32)  // Check if not too long
+	//	name.erase(32, std::string::npos);
 
 	// Check no other user has this name
 	CWorm *w = cServer->getWorms();
