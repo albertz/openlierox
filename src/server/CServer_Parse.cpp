@@ -429,18 +429,6 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		return;
 	}
 	
-	//The newline tag (<br>) allows annoying impersonation
-	//Prevent impersonation by adding "* " immediately after the newline, just like the /me command does
-	//This should be done server side so that it doesn't depend on how the client parses the tag
-	//Messages containing these tags could be blocked altogether, or the tag could be removed,
-	//but this is less aggressive and should be enough
-	size_t newline_tag_found = 0;
-	if (buf.find("<br>") != std::string::npos){
-		while (buf.find("<br>", newline_tag_found) != std::string::npos){
-			newline_tag_found = buf.find("<br>", newline_tag_found) + 4;
-			buf.insert(newline_tag_found, "* ");
-		}
-	}
 	
 	// TODO: is it correct that we check here only for worm 0 ?
 	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
