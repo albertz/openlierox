@@ -239,6 +239,10 @@ struct GameOptions {
 	bool	bAllowRemoteBots;
 	bool	bForceCompatibleConnect;
 	std::string	sForceMinVersion;
+	//Chat message check options
+	bool bCheckChatMessageLength;
+	int iMaxChatMessageLength;
+	bool bKickOversizedMsgSenders;
 	
 	// IRC chat
 	bool	bEnableChat;
