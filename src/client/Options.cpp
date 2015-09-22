@@ -164,6 +164,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bCheckChatMessageLength, "Network.CheckChatMessageLength", true)	//Check chat message length
 		( tLXOptions->iMaxChatMessageLength, "Network.MaxChatMessageLength", 1024)	//Max chat message length, 1024 should be reasonable? NOTE: Includes nickname and ": " after it.
 		( tLXOptions->bKickOversizedMsgSenders, "Network.KickOversizedMsgSenders", false)	//Drop clients who send oversized messages NOTE: This should be off by default...
+		( tLXOptions->bLogServerChatToMainlog, "Network.LogServerChatToMainlog", true)	//Log chat to main log when hosting a server - previously OLX always did this. NOTE: It's under network settings as it affects mostly the server side.
 		
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
 		( tLXOptions->sNewestVersion, "State.NewestVersion", "" )

@@ -243,6 +243,8 @@ struct GameOptions {
 	bool bCheckChatMessageLength;
 	int iMaxChatMessageLength;
 	bool bKickOversizedMsgSenders;
+	//Server chat logging
+	bool bLogServerChatToMainlog;
 	
 	// IRC chat
 	bool	bEnableChat;

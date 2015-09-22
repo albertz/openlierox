@@ -470,10 +470,14 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 			return;
 		}
 
-	// people could try wrong chat command
-	if(!strStartsWith(command_buf, "!login") && !strStartsWith(command_buf, "//login"))
+	//Previously, OLX logged all chat to the main log when hosting a server.
+	//It clutters the log so now log only if configured to do so.
+	//NOTE: This has nothing to do with the "Log conversations" option - it goes to different log!
+	if (tLXOptions->bLogServerChatToMainlog){
+	if(!strStartsWith(command_buf, "!login") && !strStartsWith(command_buf, "//login"))	// people could try wrong chat command
 		notes << "CHAT: " << buf << endl;
-
+	}
+	
 	// Check for Clx (a cheating version of lx)
 	if(buf[0] == 0x04) {
 		server->SendGlobalText(cl->debugName() + " seems to have CLX or some other hack", TXT_NORMAL);
@@ -927,8 +931,14 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 		SendText("Invalid parameter count.", TXT_NETWORK);
 		return false;
 	}
-
-	if(cmd->tProcFunc != &ProcessLogin)
+	
+	
+	//Previously, OLX logged all private messages and team chat to the main log when hosting a server.
+	//It clutters the log and can be considered a privacy violation.
+	//So now log only if configured to do so.
+	//NOTE: This has nothing to do with the "Log conversations" option - it goes to a different log!
+	//Other commands except login are logged as previously.
+	if( (cmd->tProcFunc != &ProcessLogin) && ((cmd->tProcFunc != &ProcessPrivate) || (tLXOptions->bLogServerChatToMainlog)) && ((cmd->tProcFunc != &ProcessTeamChat) || (tLXOptions->bLogServerChatToMainlog)) )
 		notes << "ChatCommand from " << cl->debugName(true) << ": " << message << endl;
 	
 	// Get the parameters
