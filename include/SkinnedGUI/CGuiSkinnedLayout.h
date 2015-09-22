@@ -111,7 +111,7 @@ public:
 	virtual void	MoveTo( int x, int y );
 	virtual void	Resize( int x, int y, int w, int h);
 
-	SDL_Rect	getClientRect()  { SDL_Rect r = { iClientX, iClientY, iClientWidth, iClientHeight }; return r; }
+	SDL_Rect	getClientRect()  { SDL_Rect r = { (Sint16)iClientX, (Sint16)iClientY, (Uint16)iClientWidth, (Uint16)iClientHeight }; return r; }
 
 	void		incModalsRunning();
 	void		decModalsRunning();

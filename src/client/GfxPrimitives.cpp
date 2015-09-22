@@ -587,7 +587,7 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 // Draw the image tiled on the dest surface
 void DrawImageTiled(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
 {
-	SDL_Rect newClip = {dx,dy,dw,dh};
+	SDL_Rect newClip = {(Sint16)dx,(Sint16)dy,(Uint16)dw,(Uint16)dh};
 	ScopedSurfaceClip clip(bmpDest,newClip);	
 	MOD(sx, (int)bmpSrc->w); MOD(sy, (int)bmpSrc->h);
 	
@@ -1113,8 +1113,8 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 {
 	if(!bmpSrc || !bmpDest) return;
 	
-	SDL_Rect src = { sx, sy, sw, sh };
-	SDL_Rect dst = { dx, dy, (int)((float)sw * xratio), (int)((float)sh * yratio) };
+	SDL_Rect src = { (Sint16)sx, (Sint16)sy, (Uint16)sw, (Uint16)sh };
+	SDL_Rect dst = { (Sint16)dx, (Sint16)dy, (Uint16)((float)sw * xratio), (Uint16)((float)sh * yratio) };
 	
 	// Source clipping
 	if (!ClipRefRectWith((SDLRect&)src, (SDLRect&)bmpSrc->clip_rect))
@@ -1134,8 +1134,8 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 {
 	if(!bmpSrc || !bmpDest) return;
 
-	SDL_Rect src = { sx, sy, sw, sh };
-	SDL_Rect dst = { dx, dy, dw, dh };
+	SDL_Rect src = { (Sint16)sx, (Sint16)sy, (Uint16)sw, (Uint16)sh };
+	SDL_Rect dst = { (Sint16)dx, (Sint16)dy, (Uint16)dw, (Uint16)dh };
 	
 	// Source clipping
 	if (!ClipRefRectWith((SDLRect&)src, (SDLRect&)bmpSrc->clip_rect))
@@ -2053,7 +2053,7 @@ static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Color 
 // Draws a filled rectangle
 void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Color color)
 {
-	SDL_Rect r = { x, y, x2 - x, y2 - y };
+	SDL_Rect r = { (Sint16)x, (Sint16)y, (Uint16)(x2 - x), (Uint16)(y2 - y) };
 
 	switch (color.a)  {
 		case SDL_ALPHA_OPAQUE:
