@@ -1232,6 +1232,18 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 
 	// Get user info
 	int numworms = bs->readInt(1);
+	
+	//Block attempts to join without worms - this fixes the "empty name join glitch"
+	//NOTE: The local client should be allowed to connect without worms in dedicated mode??
+	if (numworms<=0 && !(addrFromStr.find("127.0.0.1")==0)){
+		CBytestream sKickmsg;
+		sKickmsg.writeInt(-1, 4);
+		sKickmsg.writeString("lx::badconnect");
+		sKickmsg.writeString(OldLxCompatibleString("Connection failed - you must have a name"));
+		sKickmsg.Send(net_socket.get());
+		return;
+	}
+	
 	numworms = CLAMP(numworms, 0, (int)MAX_PLAYERS);
 	
 	Version clientVersion;
