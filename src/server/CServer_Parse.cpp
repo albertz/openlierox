@@ -1507,7 +1507,15 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			
 			RemoveClient(newcl, "bot tried to connect");
 			return;
-		}		
+		}
+		
+		//Check name length - by using tricks it's possible (at least in 0.58) to create excessively long names
+		//which cause lots of annoyance. This server-side check prevents that and truncates oversized nicks.
+		//Because the player creation menu allows max 20 characters, we can check it very easily.
+		//Hard-coding the length isn't nice - however, it seems to be hard-coded elsewhere...
+		if (newWorms[i].sName.size() > 20)
+			newWorms[i].sName.resize(20);
+		
 	}
 
 	std::set<CWorm*> removeWormList;
@@ -1804,6 +1812,10 @@ void GameServer::ParseWantsJoin(const SmartPointer<NetworkSocket>& tSocket, CByt
 	// Accept these messages from banned clients?
 	if (!tLXOptions->bWantsJoinBanned && cBanList.isBanned(ip))
 		return;
+	
+	//Check name length and resize if too long. 0.58 allows creation of oversized names using tricks.
+	if (Nick.size()>20)
+		Nick.resize(20);
 
 	// Notify about the wants to join
 	if (networkTexts->sWantsJoin != "<none>")  {
