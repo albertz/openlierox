@@ -242,7 +242,11 @@ public:
 	bool	bForceCompatibleConnect;
 	std::string	sForceMinVersion;
 	int		iMaxPlayers;
-
+	//Chat message check options
+	bool bCheckChatMessageLength;
+	int iMaxChatMessageLength;
+	bool bKickOversizedMsgSenders;
+	
 	bool	bAllowConnectDuringGame; // >=Beta8
 	bool	bAllowStrafing;
 	bool	bAllowNickChange;

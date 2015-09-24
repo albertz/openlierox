@@ -164,7 +164,10 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
 		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", true, "Force Compatible", "Don't allow incompatible clients to connect" )
 		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", defaultMinVersion.asString(), "Force Min Version", "Minimal version needed to play on this server" )
-
+		( tLXOptions->bCheckChatMessageLength, "Network.CheckChatMessageLength", true)	//Check chat message length
+		( tLXOptions->iMaxChatMessageLength, "Network.MaxChatMessageLength", 800)	//Max chat message length, 800 should be more than enough for reasonable messages? NOTE: Includes nickname and ": " after it.
+		( tLXOptions->bKickOversizedMsgSenders, "Network.KickOversizedMsgSenders", false)	//Drop clients who send oversized messages NOTE: This should be off by default. It can be used on dedicated servers, but it is better to implement kicking in the control script.
+		
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
 		( tLXOptions->sNewestVersion, "State.NewestVersion", "" )
 

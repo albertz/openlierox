@@ -442,7 +442,33 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		warnings << cl->debugName() << " sends empty message" << endl;
 		return;
 	}
-
+	
+	//Check message length.
+	//OLX seems to allow sending arbitrarily long chat messages.
+	//These messages can be a problem as they can cause excessive lag.
+	//Resize oversized messages and optionally kick the sender
+	//TODO: Implement check at lower level to drop packets without ever passing them to chat handler? Or would this cause problems or confusion?
+	//TODO: Limit message length client side too?
+	if (tLXOptions->bCheckChatMessageLength && buf.size() > tLXOptions->iMaxChatMessageLength){
+		buf.resize(tLXOptions->iMaxChatMessageLength);
+		if (tLXOptions->bKickOversizedMsgSenders){
+			server->DropClient(cl, CLL_KICK, "Attempt to send oversized message or command");
+			//NOTE BUG: If we allow the message to pass (by not returning now), 
+			// the later check (check if player tries to fake other player) will fail because 
+			// the player doesn't exist on the server anymore, and a log entry will be generated.
+			// The function will then return and the message will be dropped anyway.
+			//Possible workarounds: Instead of kicking here, set a "kick flag" and kick later. 
+			// Or, do the entire length check later.
+			// But is it constructive to pass the message any further?
+			// It complicates code and might cause confusion 
+			// if some kicks result from an apparent message and others do not,
+			// as chat commands are not broadcasted anyway.
+			// Also, this check should be done as early as possible to minimize any effects resulting from oversized messages..
+			return;
+		}
+	}
+	
+	
 	CWorm* senderWorm = NULL;
 	std::string msgWithoutName;
 	for_each_iterator(CWorm*, w, game.wormsOfClient(cl))
