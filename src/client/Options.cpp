@@ -204,7 +204,20 @@ bool GameOptions::Init() {
 		( tLXOptions->bAimLikeLX56, "Game.AimLikeLX56", false, "Aim friction like LX56", "aim speed friction behaves like LX56", GIG_Other, ALT_OnlyViaConfig )
 		( tLXOptions->fRopeAdjustSpeed, "Game.RopeAdjustSpeed", /* Gusanos default */ 0.5f, "Rope adjust speed", "rope length adjust speed", GIG_Other, ALT_VeryAdvanced, true, 0.1f, 2.0f )
 		( tLXOptions->bSetAFK, "Game.SetAFK", true, "set AFK status", "set AFK status on local human worms in game", GIG_Other, ALT_Dev )
-
+		
+		// Killing spree thresholds
+		( tLXOptions->iSpreeThreshold1, "Game.SpreeThreshold1", 3 )
+		( tLXOptions->iSpreeThreshold2, "Game.SpreeThreshold2", 5 )
+		( tLXOptions->iSpreeThreshold3, "Game.SpreeThreshold3", 7 )
+		( tLXOptions->iSpreeThreshold4, "Game.SpreeThreshold4", 9 )
+		( tLXOptions->iSpreeThreshold5, "Game.SpreeThreshold5", 10 )
+		// Dying spree thresholds
+		( tLXOptions->iDyingSpreeThreshold1, "Game.DyingSpreeThreshold1", 3 )
+		( tLXOptions->iDyingSpreeThreshold2, "Game.DyingSpreeThreshold2", 5 )
+		( tLXOptions->iDyingSpreeThreshold3, "Game.DyingSpreeThreshold3", 7 )
+		( tLXOptions->iDyingSpreeThreshold4, "Game.DyingSpreeThreshold4", 9 )
+		( tLXOptions->iDyingSpreeThreshold5, "Game.DyingSpreeThreshold5", 10 )
+		
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer

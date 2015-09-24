@@ -302,7 +302,19 @@ public:
 	bool	bAimLikeLX56;
 	float	fRopeAdjustSpeed;
 	bool	bSetAFK;
-
+	
+	//Killing/dying spree thresholds
+	int iSpreeThreshold1;
+	int iSpreeThreshold2;
+	int iSpreeThreshold3;
+	int iSpreeThreshold4;
+	int iSpreeThreshold5;
+	int iDyingSpreeThreshold1;
+	int iDyingSpreeThreshold2;
+	int iDyingSpreeThreshold3;
+	int iDyingSpreeThreshold4;
+	int iDyingSpreeThreshold5;
+	
     // Advanced
     int     nMaxFPS;
 	int		iJpegQuality;
