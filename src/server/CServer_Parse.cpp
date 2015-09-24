@@ -498,7 +498,8 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		return;
 	}
 	
-	notes << "CHAT: " << buf << endl;
+	if (tLXOptions->bLogServerChatToMainlog)
+		notes << "CHAT: " << buf << endl;
 
 	// Check for Clx (a cheating version of lx)
 	if(buf[0] == 0x04) {
@@ -937,8 +938,9 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 		SendText("Invalid parameter count.", TXT_NETWORK);
 		return false;
 	}
+	
 
-	if(cmd->tProcFunc != &ProcessLogin)
+	if ( (cmd->tProcFunc != &ProcessLogin) && ((cmd->tProcFunc != &ProcessPrivate) || (tLXOptions->bLogServerChatToMainlog)) && ((cmd->tProcFunc != &ProcessTeamChat) || (tLXOptions->bLogServerChatToMainlog)) )
 		notes << "ChatCommand from " << cl->debugName(true) << ": " << message << endl;
 	
 	// Get the parameters

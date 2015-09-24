@@ -246,6 +246,8 @@ public:
 	bool bCheckChatMessageLength;
 	int iMaxChatMessageLength;
 	bool bKickOversizedMsgSenders;
+	//Server chat logging
+	bool bLogServerChatToMainlog;
 	
 	bool	bAllowConnectDuringGame; // >=Beta8
 	bool	bAllowStrafing;
