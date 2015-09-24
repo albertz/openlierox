@@ -1208,11 +1208,13 @@ void GameServer::CheckTimeouts()
 }
 
 void GameServer::CheckWeaponSelectionTime()
-{
+{	
 	if( game.isLocalGame() ) return;
-	if( game.state != Game::S_Preparing ) return;
 	if( serverChoosesWeapons() ) return;
-	if( gameSettings[FT_ImmediateStart] ) return;
+	
+	//Continue checking if 1) preparing (=selecting weapons) or 2) playing while immediate start is on. Otherwise return.
+	if ( !(game.state == Game::S_Preparing || (game.state == Game::S_Playing && gameSettings[FT_ImmediateStart]) ) )
+		return;
 	
 	float timeLeft = float(tLXOptions->iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds();
 	
@@ -1227,10 +1229,11 @@ void GameServer::CheckWeaponSelectionTime()
 	} }
 
 	// Issue some sort of warning to clients
-	CHECKTIME(5);
-	CHECKTIME(10);
-	CHECKTIME(30);
-	CHECKTIME(60);
+	if (game.state == Game::S_Preparing){
+		CHECKTIME(5);
+		CHECKTIME(10);
+		CHECKTIME(30);
+		CHECKTIME(60);	}
 #undef CHECKTIME
 	
 	// Kick retards who still mess with their weapons, we'll start on next frame
