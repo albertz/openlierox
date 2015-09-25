@@ -488,8 +488,11 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 	}
 
 	name = RemoveSpecialChars(name); // Strip unicode characters
-	if (name.size() > 32)  // Check if not too long
-		name.erase(32, std::string::npos);
+	if (name.size() > 20)  // Check if not too long
+		name.resize(20);	
+		//NOTE: The limit was previously 32 (see the old code below), 
+		//but it's 20 in the player creation menu so it should be 20 here as well.
+		//name.erase(32, std::string::npos);
 
 	// Check no other user has this name
 	for_each_iterator(CWorm*, w, game.worms()) {

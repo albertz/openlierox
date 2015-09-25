@@ -442,7 +442,33 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		warnings << cl->debugName() << " sends empty message" << endl;
 		return;
 	}
-
+	
+	//Check message length.
+	//OLX seems to allow sending arbitrarily long chat messages.
+	//These messages can be a problem as they can cause excessive lag.
+	//Resize oversized messages and optionally kick the sender
+	//TODO: Implement check at lower level to drop packets without ever passing them to chat handler? Or would this cause problems or confusion?
+	//TODO: Limit message length client side too?
+	if (tLXOptions->bCheckChatMessageLength && buf.size() > tLXOptions->iMaxChatMessageLength){
+		buf.resize(tLXOptions->iMaxChatMessageLength);
+		if (tLXOptions->bKickOversizedMsgSenders){
+			server->DropClient(cl, CLL_KICK, "Attempt to send oversized message or command");
+			//NOTE BUG: If we allow the message to pass (by not returning now), 
+			// the later check (check if player tries to fake other player) will fail because 
+			// the player doesn't exist on the server anymore, and a log entry will be generated.
+			// The function will then return and the message will be dropped anyway.
+			//Possible workarounds: Instead of kicking here, set a "kick flag" and kick later. 
+			// Or, do the entire length check later.
+			// But is it constructive to pass the message any further?
+			// It complicates code and might cause confusion 
+			// if some kicks result from an apparent message and others do not,
+			// as chat commands are not broadcasted anyway.
+			// Also, this check should be done as early as possible to minimize any effects resulting from oversized messages..
+			return;
+		}
+	}
+	
+	
 	CWorm* senderWorm = NULL;
 	std::string msgWithoutName;
 	for_each_iterator(CWorm*, w, game.wormsOfClient(cl))
@@ -472,7 +498,8 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		return;
 	}
 	
-	notes << "CHAT: " << buf << endl;
+	if (tLXOptions->bLogServerChatToMainlog)
+		notes << "CHAT: " << buf << endl;
 
 	// Check for Clx (a cheating version of lx)
 	if(buf[0] == 0x04) {
@@ -911,8 +938,9 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 		SendText("Invalid parameter count.", TXT_NETWORK);
 		return false;
 	}
+	
 
-	if(cmd->tProcFunc != &ProcessLogin)
+	if ( (cmd->tProcFunc != &ProcessLogin) && ((cmd->tProcFunc != &ProcessPrivate) || (tLXOptions->bLogServerChatToMainlog)) && ((cmd->tProcFunc != &ProcessTeamChat) || (tLXOptions->bLogServerChatToMainlog)) )
 		notes << "ChatCommand from " << cl->debugName(true) << ": " << message << endl;
 	
 	// Get the parameters
@@ -1232,6 +1260,18 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 
 	// Get user info
 	int numworms = bs->readInt(1);
+	
+	//Block attempts to join without worms - this fixes the "empty name join glitch"
+	//NOTE: The local client should be allowed to connect without worms in dedicated mode??
+	if (numworms<=0 && !(addrFromStr.find("127.0.0.1")==0)){
+		CBytestream sKickmsg;
+		sKickmsg.writeInt(-1, 4);
+		sKickmsg.writeString("lx::badconnect");
+		sKickmsg.writeString(OldLxCompatibleString("Connection failed - you must have a name"));
+		sKickmsg.Send(net_socket.get());
+		return;
+	}
+	
 	numworms = CLAMP(numworms, 0, (int)MAX_PLAYERS);
 	
 	Version clientVersion;
@@ -1495,7 +1535,15 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			
 			RemoveClient(newcl, "bot tried to connect");
 			return;
-		}		
+		}
+		
+		//Check name length - by using tricks it's possible (at least in 0.58) to create excessively long names
+		//which cause lots of annoyance. This server-side check prevents that and truncates oversized nicks.
+		//Because the player creation menu allows max 20 characters, we can check it very easily.
+		//Hard-coding the length isn't nice - however, it seems to be hard-coded elsewhere...
+		if (newWorms[i].sName.size() > 20)
+			newWorms[i].sName.resize(20);
+		
 	}
 
 	std::set<CWorm*> removeWormList;
@@ -1792,6 +1840,10 @@ void GameServer::ParseWantsJoin(const SmartPointer<NetworkSocket>& tSocket, CByt
 	// Accept these messages from banned clients?
 	if (!tLXOptions->bWantsJoinBanned && cBanList.isBanned(ip))
 		return;
+	
+	//Check name length and resize if too long. 0.58 allows creation of oversized names using tricks.
+	if (Nick.size()>20)
+		Nick.resize(20);
 
 	// Notify about the wants to join
 	if (networkTexts->sWantsJoin != "<none>")  {
