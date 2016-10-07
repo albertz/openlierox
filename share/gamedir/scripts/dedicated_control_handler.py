@@ -247,7 +247,7 @@ def parseNewWorm(wormID, name):
 		if not name in ranking.auth:
 			ranking.auth[name] = getWormSkin(wormID)
 			try:
-				f = open(io.getFullFileName("pwn0meter_auth.txt"),"r")
+				f = open(io.getWriteFullFileName("pwn0meter_auth.txt"),"a")
 				try:
 					portalocker.lock(f, portalocker.LOCK_EX)
 				except:
