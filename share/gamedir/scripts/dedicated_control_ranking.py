@@ -130,7 +130,7 @@ def refreshRank(useRatios = True):
 def ParseAuthInfo():
 
         try:
-            f = open(io.getFullFileName("pwn0meter_auth.txt"),"r")
+            f = open(io.getWriteFullFileName("pwn0meter_auth.txt"),"r")
         except IOError:
             return {}
 
