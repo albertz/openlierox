@@ -2,7 +2,11 @@
 
 #include <vector>
 #include <list>
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#else
 #include <AL/al.h>
+#endif
 #include <AL/alut.h>
 #include <boost/utility.hpp>
 

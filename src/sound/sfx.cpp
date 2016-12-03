@@ -5,7 +5,6 @@ using namespace boost::assign;
 
 #include <vector>
 #include <list>
-#include <AL/al.h>
 #include <boost/utility.hpp>
 
 #include "sfx.h"

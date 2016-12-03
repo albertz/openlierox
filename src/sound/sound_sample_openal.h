@@ -4,7 +4,11 @@
 #include "gusanos/resource_list.h"
 #include "CVec.h"
 #include "sound_sample.h"
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#else
 #include <AL/al.h>
+#endif
 
 class CGameObject;
 struct OpenALBuffer;
