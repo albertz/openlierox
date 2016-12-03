@@ -854,7 +854,6 @@
 		2326B58910CF9E2A00D3F035 /* gusgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusgame.cpp; sourceTree = "<group>"; };
 		2326B58A10CF9E2A00D3F035 /* gusgame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusgame.h; sourceTree = "<group>"; };
 		2326B68110CFB34E00D3F035 /* LXMapFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LXMapFlags.h; sourceTree = "<group>"; };
-		2326BAC710D29BB200D3F035 /* PhysicsDummy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhysicsDummy.h; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		232F590C14BA4BA4003D2E95 /* ClientConnectionRequestInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientConnectionRequestInfo.h; sourceTree = "<group>"; };
 		232F590D14BA4BBC003D2E95 /* ClientConnectionRequestInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientConnectionRequestInfo.cpp; sourceTree = "<group>"; };
@@ -898,7 +897,6 @@
 		2365B0DE14B280B5002D5BF9 /* EngineSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineSettings.h; sourceTree = "<group>"; };
 		2365F1460F8E7322008885A9 /* Geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Geometry.h; sourceTree = "<group>"; };
 		236718780F7F8AAB00416803 /* ProjectileDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectileDesc.h; sourceTree = "<group>"; };
-		23671C760F80D6D000416803 /* StaticAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticAssert.h; sourceTree = "<group>"; };
 		2367B2E50F7AFC9000F7B302 /* CChatWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CChatWidget.h; sourceTree = "<group>"; };
 		2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CChatWidget.cpp; sourceTree = "<group>"; };
 		236C181A14ABD1B700251191 /* PixelFunctors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PixelFunctors.cpp; sourceTree = "<group>"; };
@@ -1571,7 +1569,6 @@
 		EA430C740BEFCEDE00C6547E /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Entity.h; path = ../../include/Entity.h; sourceTree = SOURCE_ROOT; };
 		EA430C750BEFCEDE00C6547E /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../../include/Error.h; sourceTree = SOURCE_ROOT; };
 		EA430C760BEFCEDE00C6547E /* FindFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FindFile.h; path = ../../include/FindFile.h; sourceTree = SOURCE_ROOT; };
-		EA430C770BEFCEDE00C6547E /* Frame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Frame.h; path = ../../include/Frame.h; sourceTree = SOURCE_ROOT; };
 		EA430C780BEFCEDE00C6547E /* GfxPrimitives.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GfxPrimitives.h; path = ../../include/GfxPrimitives.h; sourceTree = SOURCE_ROOT; };
 		EA430C7A0BEFCEDE00C6547E /* InputEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputEvents.h; path = ../../include/InputEvents.h; sourceTree = SOURCE_ROOT; };
 		EA430C7B0BEFCEDE00C6547E /* LieroX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LieroX.h; path = ../../include/LieroX.h; sourceTree = SOURCE_ROOT; };
@@ -2886,7 +2883,6 @@
 			isa = PBXGroup;
 			children = (
 				2370BEA411483D9300C6E277 /* olx-types.h */,
-				2326BAC710D29BB200D3F035 /* PhysicsDummy.h */,
 				23C182B210C4A8B3003DBB09 /* OLXConsole.h */,
 				23C1816A10C49602003DBB09 /* OLXCommand.h */,
 				238944620FC735FB008F031D /* IRC_ReplyCodes.h */,
@@ -2976,7 +2972,6 @@
 				EA430C740BEFCEDE00C6547E /* Entity.h */,
 				EA430C750BEFCEDE00C6547E /* Error.h */,
 				EA430C760BEFCEDE00C6547E /* FindFile.h */,
-				EA430C770BEFCEDE00C6547E /* Frame.h */,
 				EA430C780BEFCEDE00C6547E /* GfxPrimitives.h */,
 				EA430C7A0BEFCEDE00C6547E /* InputEvents.h */,
 				EA430C7B0BEFCEDE00C6547E /* LieroX.h */,
@@ -2997,7 +2992,6 @@
 				23EABF6C0F40C79100CA55CF /* TaskManager.h */,
 				23EAC0940F4203BE00CA55CF /* Process.h */,
 				238F2DF20F74138C0016D617 /* FlagInfo.h */,
-				23671C760F80D6D000416803 /* StaticAssert.h */,
 				2365F1460F8E7322008885A9 /* Geometry.h */,
 				23C5AC3A0FADB032005A36AE /* MapLoader.h */,
 				23C5AC3D0FADB842005A36AE /* PreInitVar.h */,
