@@ -11,6 +11,7 @@ build/Xcode/build
 xcuserdata
 xcshareddata
 nbproject
+*.xcworkspace
 
 *.kdev*
 Doxyfile
