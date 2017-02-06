@@ -1,9 +1,10 @@
 [Desktop Entry]
 Version=1.0
 Name=OpenLieroX
+GenericName=real-time 2D shooter
 Type=Application
 Comment=A real-time excessive Worms-clone
 Exec=openlierox
 TryExec=openlierox
 Icon=OpenLieroX.svg
-Categories=Game;
+Categories=Game;ActionGame;
