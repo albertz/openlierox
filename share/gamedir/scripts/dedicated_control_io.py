@@ -230,14 +230,16 @@ def messageLog(message,severity = LOG_INFO):
 
 	outline += " -- "
 	outline += str(message) #incase we get anything other than string
+
 	try:
-		f = open(cfg.LOG_FILE,"a")
+		log_filename = getWriteFullFileName(cfg.LOG_FILE)
+		f = open(log_filename,"a")
 		f.write((outline + "\n"))
 		f.close()
 	except IOError:
 		msg("ERROR: Unable to open logfile.")
 	except NameError: # can happen if cfg is not defined - we accept that
-		pass
+		msg("WARN: Name error when attempting to log - cfg probably not loaded yet")
 
 	#It's possible that we get a broken pipe here, but we can't exit clearly and also display it,
 	# so let python send out the ugly warning.
