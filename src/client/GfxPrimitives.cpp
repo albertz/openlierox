@@ -2465,10 +2465,10 @@ void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 		return;
 
 	// Because we are drawing 2x stretched, we have to make sure we don't draw the boundary pixels
-	x1 -= x1 & 1;
-	y1 -= y1 & 1;
-	x2 -= x2 & 1;
-	y2 -= y2 & 1;
+	x1 = MIN(x1, bmp->w - 3);
+	x2 = MIN(x2, bmp->w - 3);
+	y1 = MIN(y1, bmp->h - 3);
+	y2 = MIN(y2, bmp->h - 3);
 
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);
