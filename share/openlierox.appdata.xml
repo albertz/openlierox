@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Ryan Lerch <rlerch@redhat.com> -->
+<application>
+  <id type="desktop">openlierox.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <summary>Sidescrolling shooter where you control worms armed with a range of weapons</summary>
+  <description>
+    <p>
+      Open Lierox is a side scrolling multiplayer shooter where you control a tiny worm
+      that is armed with a range of weapons such as a rocket launcher, shotguns and ninja
+      stars.
+      Typical gameplay is a deathmatch style where you try to rack up as many kills
+      of the other players in a set amount of time.
+    </p>
+  </description>
+  <url type="homepage">http://openlierox.sourceforge.net/</url>
+  <screenshots>
+    <screenshot type="default">http://www.openlierox.net/official/screenshots/olx11.png</screenshot>
+    <screenshot>http://www.openlierox.net/official/screenshots/olx3.png</screenshot>
+    <screenshot>http://www.openlierox.net/official/screenshots/olx1.png</screenshot>
+  </screenshots>
+</application>
