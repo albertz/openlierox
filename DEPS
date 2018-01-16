@@ -66,7 +66,7 @@ Debian: binutils-dev
 ----
 
 Quick command for Debian/Ubuntu:
-sudo apt-get install build-essential subversion cmake libsdl2-dev libsdl2-mixer-dev libsdl2-image-dev libgd2-noxpm-dev zlib1g-dev libzip-dev libxml2-dev libx11-dev libcurl4-dev libboost-signals-dev libboost-system-dev libopenal-dev libalut-dev libvorbis-dev
+sudo apt-get install build-essential subversion cmake libsdl2-dev libsdl2-mixer-dev libsdl2-image-dev libgd2-noxpm-dev zlib1g-dev libzip-dev libxml2-dev libx11-dev libcurl4-gnutls-dev libboost-signals-dev libboost-system-dev libopenal-dev libalut-dev libvorbis-dev
 cmake -D HAWKNL_BUILTIN=1 -D DEBUG=0 -D X11=1 .
 
 Quick command for OpenBSD:
