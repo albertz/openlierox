@@ -93,7 +93,7 @@ private:
 			SDL_LockMutex(SmartPointer_CollMutex);
 			if( SmartPointer_CollisionDetector == NULL )
 			{
-				hints << "SmartPointer collision detector initialized" << endl;
+				//hints << "SmartPointer collision detector initialized" << endl; // Causes a crash during static init
 				SmartPointer_CollisionDetector = new std::map< void *, SDL_mutex * > ();
 			}
 			if( SmartPointer_CollisionDetector->count(obj) != 0 ) // Should be faster than find() I think
