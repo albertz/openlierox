@@ -25,10 +25,11 @@ WeaponType::WeaponType() : ResourceBase()
 {
 	ammo = 1;
 	reloadTime = 0;
-#ifndef DEDICATED_ONLY
 
+#ifndef DEDICATED_ONLY
 	firecone = NULL;
 	skin = 0;
+	laserSightBlender = BlitterContext::TNone;
 #endif
 
 	syncHax = false;
@@ -38,7 +39,7 @@ WeaponType::WeaponType() : ResourceBase()
 	laserSightRange = -1;
 	laserSightIntensity = 0;
 	laserSightAlpha = 255;
-	laserSightBlender = BlitterContext::TNone;
+
 
 	primaryShoot = NULL;
 	primaryPressed = NULL;
@@ -136,6 +137,9 @@ bool WeaponType::load(std::string const& filename)
 	laserSightIntensity = (float)parser.getDouble("laser_sight_intensity", 0.0);
 	laserSightRange = parser.getInt("laser_sight_range", -1);
 	laserSightAlpha = parser.getInt("laser_sight_alpha", 255);
+
+	laserSightColour = parser.getProperty("laser_sight_colour", "laser_sight_color")->toColor(255, 0, 0);
+#ifndef DEDICATED_ONLY
 	{
 		std::string str = parser.getString("laser_sight_blender", "none");
 		if(str == "add")
@@ -145,9 +149,6 @@ bool WeaponType::load(std::string const& filename)
 		else if(str == "none")
 			laserSightBlender = BlitterContext::TNone;
 	}
-
-	laserSightColour = parser.getProperty("laser_sight_colour", "laser_sight_color")->toColor(255, 0, 0);
-#ifndef DEDICATED_ONLY
 
 	{
 		OmfgScript::TokenBase* v = parser.getProperty("firecone");

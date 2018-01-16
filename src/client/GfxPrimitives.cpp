@@ -16,7 +16,9 @@
 // Created 12/11/01
 // By Jason Boettcher
 
+#ifndef DEDICATED_ONLY
 #define USE_GD_FOR_IMAGE_LOADING 1
+#endif
 
 #include <cassert>
 #include <SDL.h>

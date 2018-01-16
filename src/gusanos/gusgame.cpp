@@ -542,13 +542,13 @@ void GusGame::unload()
 	LuaBindings::init(luaIngame);
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
+	chatSound = NULL;
+	infoFont = NULL;
 #endif
 
 	NRPartType = NULL;
 	deathObject = NULL;
 	digObject = NULL;
-	chatSound = NULL;
-	infoFont = NULL;
 }
 
 bool GusGame::isLoaded()

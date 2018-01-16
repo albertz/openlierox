@@ -83,8 +83,10 @@ bool CMap::NewFrom(CMap* map)
 	
 	m_gusLoaded = map->m_gusLoaded;
 	
+#ifndef DEDICATED_ONLY
 	lightmap = create_copy_bitmap(map->lightmap);
 	watermap = create_copy_bitmap(map->watermap);
+#endif
 	material = create_copy_bitmap(map->material);
 	if(material)
 		assert(material->surf->format->BitsPerPixel == 8);
@@ -1075,7 +1077,9 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 						CopyPixel2x2_SameFormat(
 							bmpDrawImage.get(), bmpBackImageHiRes.get(),
 							mapx2, mapy2);
+#ifndef DEDICATED_ONLY
 						putpixel2x2(lightmap, mapx2, mapy2, 0);
+#endif
 					}
 					else if(CurrentPixel != tLX->clBlack) // Put pixels that are not black/pink (eg, brown)
 						PutPixel2x2(bmpDrawImage.get(), mapx2, mapy2, CurrentPixel.get(bmpDrawImage->format));

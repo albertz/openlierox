@@ -1,6 +1,6 @@
-#ifndef DEDICATED_ONLY
-
 #include "CViewport.h"
+
+#ifndef DEDICATED_ONLY
 
 #include "gusgame.h"
 #include "sound/sfx.h"
@@ -252,5 +252,19 @@ void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
 	}
 }
 
+#else
+// Stubs
+LuaReference CViewport::metaTable;
 
+void CViewport::gusInit()
+{
+}
+
+void CViewport::gusReset()
+{
+}
+
+void CViewport::gusRender(const SmartPointer<SDL_Surface>& bmpDest)
+{
+}
 #endif

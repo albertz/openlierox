@@ -45,7 +45,9 @@
 #include "Version.h"
 #include "CrashHandler.h"
 #include "game/Level.h"
+#ifndef DEDICATED_ONLY
 #include "sound/sfx.h"
+#endif
 #include "TaskManager.h"
 #include "game/ServerList.h"
 
@@ -247,7 +249,9 @@ void Menu_Frame() {
 		return;
 	}
 
+#ifndef DEDICATED_ONLY
 	sfx.think();
+#endif
 
 	if(game.state >= Game::S_Preparing) return; // could be already quitted
 	

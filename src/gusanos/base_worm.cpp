@@ -373,8 +373,10 @@ void CWorm::think()
 				die();
 		}		
 
+#ifndef DEDICATED_ONLY
 		// NOTE: This was from Worm::think() which isn't used right now
 		renderPos = pos();
+#endif
 		return;
 	}
 	
@@ -420,9 +422,10 @@ void CWorm::think()
 		++m_timeSinceDeath;
 	}
 
+#ifndef DEDICATED_ONLY
 	// NOTE: This was from Worm::think() which isn't used right now
 	renderPos = pos();
-
+#endif
 	NetWorm_think();
 }
 

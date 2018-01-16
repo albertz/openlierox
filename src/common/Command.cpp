@@ -2405,6 +2405,7 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 
 COMMAND(exportLevel, "export current level data. or from the specified level", "exportlevelname [level]", 1, 2);
 void Cmd_exportLevel::exec(CmdLineIntf *caller, const std::vector<std::string>& params) {
+#ifndef DEDICATED_ONLY
 	CMap* m = NULL;
 	SmartPointer<CMap> tmpMap;
 	if(params.size() >= 2) {
@@ -2449,6 +2450,7 @@ void Cmd_exportLevel::exec(CmdLineIntf *caller, const std::vector<std::string>& 
 
 		f.close();
 	}
+#endif // #ifndef DEDICATED_ONLY
 }
 
 

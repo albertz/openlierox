@@ -15,6 +15,7 @@
 #ifndef DEDICATED_ONLY
 #include "sound.h"
 #include "sprite_set.h"
+#include "sound/sfx.h"
 #endif
 #include "util/text.h"
 #include "util/angle.h"
@@ -28,7 +29,6 @@
 
 #include "luaapi/context.h"
 #include "script.h"
-#include "sound/sfx.h"
 
 #include "omfgscript/omfg_script.h"
 

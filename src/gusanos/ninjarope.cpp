@@ -27,8 +27,10 @@ void CNinjaRope::gusInit()
 	m_length = 0;
 	m_angle = 0;
 	m_angleSpeed = 0;
+#ifndef DEDICATED_ONLY
 	m_animator = NULL;
 	m_sprite = NULL;
+#endif
 		
 	if(gusGame.NRPartType != NULL) {
 #ifndef DEDICATED_ONLY

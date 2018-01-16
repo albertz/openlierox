@@ -17,8 +17,9 @@
 #include "util/log.h"
 #include "game/Game.h"
 #include "CGameScript.h"
+#ifndef DEDICATED_ONLY
 #include "gusanos/player_input.h"
-
+#endif
 #include "gusanos/LuaCallbacks.h"
 #include "gusanos/lua/bindings-game.h"
 #include "gusanos/gusgame.h"

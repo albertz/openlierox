@@ -21,8 +21,17 @@
 #include "SmartPointer.h"
 #include "CodeAttributes.h"
 #include "olx-types.h"
-#include "sound/sound_sample.h"
 
+#ifndef DEDICATED_ONLY
+#include "sound/sound_sample.h"
+#else
+class SoundSample 
+{
+public:
+	SoundSample() {}
+	virtual ~SoundSample() {}
+};
+#endif
 
 
 // General sounds

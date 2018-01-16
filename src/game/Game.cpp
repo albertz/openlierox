@@ -31,7 +31,9 @@
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
 #include "gusanos/luaapi/context.h"
+#ifndef DEDICATED_ONLY
 #include "sound/sfx.h"
+#endif
 #include "OLXConsole.h"
 #include "game/SinglePlayer.h"
 #include "game/SettingsPreset.h"

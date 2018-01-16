@@ -35,7 +35,9 @@
 #include "WeaponDesc.h"
 #include "AuxLib.h" // for doActionInMainThread
 #include "game/Game.h"
+#ifndef DEDICATED_ONLY
 #include "gusanos/player_input.h"
+#endif
 #include "sound/SoundsBase.h"
 #include "CClientNetEngine.h"
 
@@ -1153,6 +1155,7 @@ void CWormHumanInputHandler::actionStop ( Actions action )
 
 void CWormHumanInputHandler::OlxInputToGusEvents()
 {
+#ifndef DEDICATED_ONLY
 	// Note: This whole function should be removed later.
 	// See the comment on CWormInputHandler::OlxInputToGusEvents.
 
@@ -1222,6 +1225,6 @@ void CWormHumanInputHandler::OlxInputToGusEvents()
 	cStrafe.reset();
 	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].reset();
-
+#endif // #ifndef DEDICATED_ONLY
 }
 

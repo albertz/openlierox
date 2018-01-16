@@ -39,9 +39,11 @@
 #include "game/GameMode.h"
 #include "CodeAttributes.h"
 #include "CGameScript.h"
+#ifndef DEDICATED_ONLY
 #include "gusanos/base_animator.h"
-#include "gusanos/sprite_set.h"
 #include "gusanos/animators.h"
+#endif
+#include "gusanos/sprite_set.h"
 #include "gusanos/weapon.h"
 #include "gusanos/weapon_type.h"
 #include "game/ClassInfo.h"
@@ -182,8 +184,10 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 };
 
 CWorm::CWorm() :
-	cSparkles(this),
-	m_fireconeAnimator(NULL), m_animator(NULL)
+	cSparkles(this)
+#ifndef DEDICATED_ONLY
+	,m_fireconeAnimator(NULL), m_animator(NULL)
+#endif
 {
 	thisRef.classId = LuaID<CWorm>::value;
 
@@ -274,9 +278,8 @@ void CWorm::FreeGraphics()
 		delete m_fireconeAnimator;
 		m_fireconeAnimator = 0;
 	}
-#endif
-
 	skin = skinMask = NULL;
+#endif
 }
 
 
@@ -331,13 +334,13 @@ void CWorm::Prepare()
 		m_inputHandler = NULL;
 	}
 
-	skin = skinMask = NULL;
 	m_lastHurt=(0);
 	animate=(false); changing=(false);
-	m_animator = m_fireconeAnimator = NULL;
-	m_currentFirecone = NULL;
 
 #ifndef DEDICATED_ONLY
+	skin = skinMask = NULL;
+	m_animator = m_fireconeAnimator = NULL;
+	m_currentFirecone = NULL;
 	skin = spriteList.load("skin");
 	skinMask = spriteList.load("skin-mask");
 	m_animator = new AnimLoopRight(skin,35);
@@ -1166,7 +1169,9 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Find the right pic
 	int f = ((int)fFrame*7);
+#ifndef DEDICATED_ONLY
 	if(game.gameScript()->gusEngineUsed()) f = (m_animator->getFrame() % 3) * 7;
+#endif
 	int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 	f += ang;
 
@@ -1278,7 +1283,9 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Copied from ::Draw
 		// TODO: a separate function for this
 		int f = ((int)fFrame*7);
+#ifndef DEDICATED_ONLY
 		if(game.gameScript()->gusEngineUsed()) f = (m_animator->getFrame() % 3) * 7;
+#endif
 		int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 		f += ang;
 

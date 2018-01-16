@@ -21,7 +21,9 @@
 #include "Options.h" // for controls_t
 #include "game/CWorm.h"
 #include "MathLib.h"
+#ifndef DEDICATED_ONLY
 #include "sound/sfx.h"
+#endif
 
 
 CViewport& CViewport::operator=(const CViewport& o) {
@@ -45,8 +47,10 @@ CViewport& CViewport::operator=(const CViewport& o) {
 	fTimer = o.fTimer;
 
 	if(bUsed) {
+#ifndef DEDICATED_ONLY
 		m_listener = new Listener();
 		sfx.registerListener(m_listener);
+#endif
 	}
 
 	return *this;
@@ -73,17 +77,21 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
     nType = type;
 	bSmooth = false;
 	
+#ifndef DEDICATED_ONLY
 	m_listener = new Listener();
 	sfx.registerListener(m_listener);
+#endif
 }
 
 void CViewport::shutdown() {
 	bUsed = false;
+#ifndef DEDICATED_ONLY
 	if (m_listener)  {
 		sfx.removeListener(m_listener);
 		delete m_listener;
 		m_listener = NULL;
 	}
+#endif
 	gusReset();
 }
 
@@ -329,7 +337,9 @@ void CViewport::Process(CViewport *pcViewList, int MWidth, int MHeight, int iGam
 	// Clamp it
 	Clamp(MWidth, MHeight);
 
+#ifndef DEDICATED_ONLY
 	m_listener->pos = Vec((float)WorldX, (float)WorldY) + Vec((float)(Width/2), (float)(Height/2));
+#endif
 }
 
 

@@ -11,11 +11,11 @@
 #include "../script.h"
 #ifndef DEDICATED_ONLY
 #include "../sound.h"
+#include "sound/sfx.h"
 #endif
 #include "../part_type.h"
 #include "../weapon_type.h"
 #include "game/CMap.h"
-#include "sound/sfx.h"
 
 //TEMP:
 #include "../sprite_set.h"

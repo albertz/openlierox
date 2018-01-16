@@ -33,7 +33,10 @@
 LuaReference CNinjaRope::metaTable;
 
 CNinjaRope::CNinjaRope()
-: m_sprite(NULL), m_animator(NULL) {
+#ifndef DEDICATED_ONLY
+: m_sprite(NULL), m_animator(NULL)
+#endif
+{
 	thisRef.classId = LuaID<CNinjaRope>::value;
 	Clear();
 }

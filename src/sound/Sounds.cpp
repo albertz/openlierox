@@ -34,9 +34,10 @@
 #include "FindFile.h"
 #include "game/Sounds.h"
 
+#ifndef DEDICATED_ONLY
 #include "sound/sfx.h"
 #include "sound/sfxdriver.h"
-
+#endif
 
 ///////////////////
 // Load the sounds
@@ -83,7 +84,7 @@ bool QuitSoundSystem() { return false; }
 SmartPointer<SoundSample> LoadSoundSample(const std::string& filename, int maxsimulplays) { return NULL; }
 bool FreeSoundSample(SoundSample* sample) { return false; }
 bool PlaySoundSample(SoundSample* sample) { return false; }
-void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me) {}
+void StartSound(SoundSample* smp, CVec pos, bool local, int volume) {}
 void StartSound(SoundSample* smp, CVec pos) {}
 
 #else // not DEDICATED_ONLY

@@ -295,8 +295,10 @@ size_t CCache::GetCacheSize()
 	for (MapCache_t::iterator it = MapCache.begin(); it != MapCache.end(); it++)
 		res += it->second.tMap.get()->GetMemorySize() + it->first.size();
 
+#ifndef DEDICATED_ONLY
 	for (SoundCache_t::iterator it = SoundCache.begin(); it != SoundCache.end(); it++)
 		res += it->first.size() + sizeof(SoundSample) + it->second.sndSample->GetMemorySize();
+#endif
 
 	return res;
 }
