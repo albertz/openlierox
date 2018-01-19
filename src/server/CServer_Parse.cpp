@@ -428,7 +428,31 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		warnings << cl->debugName() << " sends empty message" << endl;
 		return;
 	}
-
+	
+	//Check message length.
+	//OLX seems to allow sending arbitrary long chat messages.
+	//These messages can be a problem as they can cause excessive lag.
+	//Resize oversized messages and optionally kick the sender
+	//TODO: Implement check at lower level to drop packets without ever passing them to chat handler? Or would this cause problems or confusion?
+	//TODO: Limit message length client side too?
+	if (tLXOptions->bCheckChatMessageLength && buf.size() > tLXOptions->iMaxChatMessageLength){
+		buf.resize(tLXOptions->iMaxChatMessageLength);
+		if (tLXOptions->bKickOversizedMsgSenders){
+			server->DropClient(cl, CLL_KICK, "Attempt to send oversized message or command");
+			//NOTE BUG: If we allow the message to pass (by not returning now), 
+			// the later check ("Check if player tries to fake other player") will fail because 
+			// the player doesn't exist on the server anymore, and a log entry will be generated.
+			// The function will then return and the message will be dropped anyway.
+			//Possible workaround: Instead of kicking here, set a "kick flag" and kick later. 
+			// But is it constructive to pass the message any further?
+			// It complicates code and might cause confusion 
+			// if some kicks result from an apparent message and others do not,
+			// as chat commands are not broadcasted anyway.
+			return;
+		}
+	}
+	
+	
 	// TODO: is it correct that we check here only for worm 0 ?
 	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
 
@@ -446,10 +470,14 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 			return;
 		}
 
-	// people could try wrong chat command
-	if(!strStartsWith(command_buf, "!login") && !strStartsWith(command_buf, "//login"))
+	//Previously, OLX logged all chat to the main log when hosting a server.
+	//It clutters the log so now log only if configured to do so.
+	//NOTE: This has nothing to do with the "Log conversations" option - it goes to different log!
+	if (tLXOptions->bLogServerChatToMainlog){
+	if(!strStartsWith(command_buf, "!login") && !strStartsWith(command_buf, "//login"))	// people could try wrong chat command
 		notes << "CHAT: " << buf << endl;
-
+	}
+	
 	// Check for Clx (a cheating version of lx)
 	if(buf[0] == 0x04) {
 		server->SendGlobalText(cl->debugName() + " seems to have CLX or some other hack", TXT_NORMAL);
@@ -903,8 +931,14 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 		SendText("Invalid parameter count.", TXT_NETWORK);
 		return false;
 	}
-
-	if(cmd->tProcFunc != &ProcessLogin)
+	
+	
+	//Previously, OLX logged all private messages and team chat to the main log when hosting a server.
+	//It clutters the log and can be considered a privacy violation.
+	//So now log only if configured to do so.
+	//NOTE: This has nothing to do with the "Log conversations" option - it goes to a different log!
+	//Other commands except login are logged as previously.
+	if( (cmd->tProcFunc != &ProcessLogin) && ((cmd->tProcFunc != &ProcessPrivate) || (tLXOptions->bLogServerChatToMainlog)) && ((cmd->tProcFunc != &ProcessTeamChat) || (tLXOptions->bLogServerChatToMainlog)) )
 		notes << "ChatCommand from " << cl->debugName(true) << ": " << message << endl;
 	
 	// Get the parameters
@@ -1221,6 +1255,20 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 
 	// Get user info
 	int numworms = bs->readInt(1);
+	
+	//Block attempts to join without any "worms" - this fixes the "empty name join glitch"
+	//NOTE: The local client should we allowed to connect without worms in dedicated mode??
+	//NOTE: Is this the correct/best way to do it?
+	if (numworms<=0 && !(addrFromStr.find("127.0.0.1")==0)){
+		CBytestream sKickmsg;
+		sKickmsg.writeInt(-1, 4);
+		sKickmsg.writeString("lx::badconnect");
+		sKickmsg.writeString(OldLxCompatibleString("Connection failed - you must have a name"));
+		sKickmsg.Send(net_socket.get());
+		return;
+	}
+	
+	
 	numworms = CLAMP(numworms, 0, (int)MAX_PLAYERS);
 	
 	Version clientVersion;
@@ -1523,7 +1571,16 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			
 			RemoveClient(newcl, "bot tried to connect");
 			return;
-		}		
+		}
+		
+		//Check name length - by using tricks it's possible (at least in 0.58) to create excessively long names
+		//which cause lots of annoyance. This server-side check prevents that and truncates oversized nicks.
+		//Because the player creation menu allows max 20 characters, we can check it very easily.
+		//Hard-coding the length isn't nice - however, it seems to be hard-coded elsewhere...
+		if (newWorms[i].sName.size() > 20)
+			newWorms[i].sName.resize(20);
+		
+		
 	}
 
 	std::set<CWorm*> removeWormList;
@@ -1865,7 +1922,12 @@ void GameServer::ParseWantsJoin(const SmartPointer<NetworkSocket>& tSocket, CByt
 	// Accept these messages from banned clients?
 	if (!tLXOptions->bWantsJoinBanned && cBanList.isBanned(ip))
 		return;
-
+	
+	//Truncate nicks longer than "legitimately" possible
+	//Hard-coding the length isn't nice - however, it seems to be hard-coded elsewhere...
+	if (Nick.size() > 20)
+		Nick.resize(20);
+	
 	// Notify about the wants to join
 	if (networkTexts->sWantsJoin != "<none>")  {
 		std::string buf;

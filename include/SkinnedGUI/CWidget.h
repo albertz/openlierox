@@ -275,7 +275,7 @@ public:
 
 	WidgetType		getType()					{ return iType; }
 
-	SDL_Rect		getRect()						{ SDL_Rect r = { getX(), getY(), getWidth(), getHeight() }; return r; }
+	SDL_Rect		getRect()						{ SDL_Rect r = { (Sint16)getX(), (Sint16)getY(), (Uint16)getWidth(), (Uint16)getHeight() }; return r; }
 
 	const std::string& getName()					{ return sName; }
 	void			setName(const std::string& _n)	{ sName = _n; }

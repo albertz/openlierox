@@ -101,65 +101,51 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 	iKillsInRow[victim->getID()] = 0;
 	iDeathsInRow[victim->getID()]++;
 
-	// Killing spree message
+	// Killing spree message -- now with configurable thresholds
 	if(killer && killer != victim) {
-		switch(iKillsInRow[killer->getID()]) {
-			case 3:
-				if(networkTexts->sSpree1 != "<none>")
-					cServer->SendGlobalText(replacemax(networkTexts->sSpree1, "<player>",
-											killer->getName(), 1), TXT_NORMAL);
-				break;
-			case 5:
-				if(networkTexts->sSpree2 != "<none>")
-					cServer->SendGlobalText(replacemax(networkTexts->sSpree2, "<player>",
-											killer->getName(), 1), TXT_NORMAL);
-				break;
-			case 7:
-				if(networkTexts->sSpree3 != "<none>")
-					cServer->SendGlobalText(replacemax(networkTexts->sSpree3, "<player>",
-											killer->getName(), 1), TXT_NORMAL);
-				break;
-			case 9:
-				if(networkTexts->sSpree4 != "<none>")
-					cServer->SendGlobalText(replacemax(networkTexts->sSpree4, "<player>",
-											killer->getName(), 1), TXT_NORMAL);
-				break;
-			case 10:
-				if(networkTexts->sSpree5 != "<none>")
-					cServer->SendGlobalText(replacemax(networkTexts->sSpree5, "<player>",
-											killer->getName(), 1), TXT_NORMAL);
-				break;
-		}
+		if(iKillsInRow[killer->getID()] == tLXOptions->iSpreeThreshold1) {
+			if(networkTexts->sSpree1 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sSpree1, "<player>", killer->getName(), 1), TXT_NORMAL); }
+		
+		else if(iKillsInRow[killer->getID()] == tLXOptions->iSpreeThreshold2) {
+			if(networkTexts->sSpree2 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sSpree2, "<player>", killer->getName(), 1), TXT_NORMAL); }
+		
+		else if(iKillsInRow[killer->getID()] == tLXOptions->iSpreeThreshold3) {
+			if(networkTexts->sSpree3 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sSpree3, "<player>", killer->getName(), 1), TXT_NORMAL); }
+				
+		else if(iKillsInRow[killer->getID()] == tLXOptions->iSpreeThreshold4) {
+			if(networkTexts->sSpree4 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sSpree4, "<player>", killer->getName(), 1), TXT_NORMAL); }
+		
+		else if(iKillsInRow[killer->getID()] == tLXOptions->iSpreeThreshold5) {
+			if(networkTexts->sSpree5 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sSpree5, "<player>", killer->getName(), 1), TXT_NORMAL); }
+		
 	}
 
-	// Dying spree message
-	switch(iDeathsInRow[victim->getID()]) {
-		case 3:
-			if(networkTexts->sDSpree1 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sDSpree1, "<player>",
-										victim->getName(), 1), TXT_NORMAL);
-			break;
-		case 5:
-			if(networkTexts->sDSpree2 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sDSpree2, "<player>",
-										victim->getName(), 1), TXT_NORMAL);
-			break;
-		case 7:
-			if(networkTexts->sDSpree3 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sDSpree3, "<player>",
-										victim->getName(), 1), TXT_NORMAL);
-			break;
-		case 9:
-			if(networkTexts->sDSpree4 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sDSpree4, "<player>",
-										victim->getName(), 1), TXT_NORMAL);
-			break;
-		case 10:
-			if(networkTexts->sDSpree5 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sDSpree5, "<player>",
-										victim->getName(), 1), TXT_NORMAL);
-			break;
-	}
+	// Dying spree message -- now with configurable thresholds
+	if(iDeathsInRow[victim->getID()] == tLXOptions->iDyingSpreeThreshold1){
+		if(networkTexts->sDSpree1 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sDSpree1, "<player>", victim->getName(), 1), TXT_NORMAL); }
+	
+	else if(iDeathsInRow[victim->getID()] == tLXOptions->iDyingSpreeThreshold2){
+		if(networkTexts->sDSpree2 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sDSpree2, "<player>", victim->getName(), 1), TXT_NORMAL); }
+	
+	else if(iDeathsInRow[victim->getID()] == tLXOptions->iDyingSpreeThreshold3){
+		if(networkTexts->sDSpree3 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sDSpree3, "<player>", victim->getName(), 1), TXT_NORMAL); }
+				
+	else if(iDeathsInRow[victim->getID()] == tLXOptions->iDyingSpreeThreshold4){
+		if(networkTexts->sDSpree4 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sDSpree4, "<player>", victim->getName(), 1), TXT_NORMAL); }
+				
+	else if(iDeathsInRow[victim->getID()] == tLXOptions->iDyingSpreeThreshold5){
+		if(networkTexts->sDSpree5 != "<none>")
+				cServer->SendGlobalText(replacemax(networkTexts->sDSpree5, "<player>", victim->getName(), 1), TXT_NORMAL); }
+	
 
 	// Victim is out of the game
 	if(victim->Kill() && networkTexts->sPlayerOut != "<none>")

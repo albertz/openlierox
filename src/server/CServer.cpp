@@ -1411,9 +1411,18 @@ void GameServer::CheckTimeouts()
 
 void GameServer::CheckWeaponSelectionTime()
 {
-	if( iState != SVS_GAME || tLX->iGameType != GME_HOST ) return;
-	if( serverChoosesWeapons() ) return;
-	if( tLXOptions->tGameInfo.features[FT_ImmediateStart] ) return;
+	//Don't check if 1) in lobby, 2) in local game or when playing as a client, 3) server chooses weapons
+	if( iState == SVS_LOBBY ||  tLX->iGameType != GME_HOST || serverChoosesWeapons())
+		return;
+	
+	//Don't check if we are not in loading stage (i.e. we are playing) AND if immediate start is NOT used
+	//But do check while playing if immediate start is on
+	if( (iState != SVS_GAME) && !(tLXOptions->tGameInfo.features[FT_ImmediateStart]) )
+		return;
+	
+	//Don't check if immediate start is on AND if not configured to do so
+	if( (tLXOptions->tGameInfo.features[FT_ImmediateStart]) && !(tLXOptions->bCheckMaxWpnTimeInInstantStart) ) 
+		return;
 	
 	float timeLeft = float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds();
 	
@@ -1428,10 +1437,12 @@ void GameServer::CheckWeaponSelectionTime()
 	} }
 
 	// Issue some sort of warning to clients
-	CHECKTIME(5);
-	CHECKTIME(10);
-	CHECKTIME(30);
-	CHECKTIME(60);
+	if( iState == SVS_GAME){
+		CHECKTIME(5);
+		CHECKTIME(10);
+		CHECKTIME(30);
+		CHECKTIME(60);
+	}
 #undef CHECKTIME
 	
 	// Kick retards who still mess with their weapons, we'll start on next frame
@@ -1465,7 +1476,9 @@ void GameServer::CheckWeaponSelectionTime()
 			// after we set all worms to ready, the client should sent the ImReady in next frame
 			continue;
 		}
+		
 		DropClient( cl, CLL_KICK, "selected weapons too long" );
+		
 	}
 }
 

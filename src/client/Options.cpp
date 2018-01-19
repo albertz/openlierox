@@ -161,7 +161,11 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
 		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", true, "Force Compatible", "Don't allow incompatible clients to connect" )
 		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", defaultMinVersion.asString().c_str(), "Force Min Version", "Minimal version needed to play on this server" )
-
+		( tLXOptions->bCheckChatMessageLength, "Network.CheckChatMessageLength", true)	//Check chat message length
+		( tLXOptions->iMaxChatMessageLength, "Network.MaxChatMessageLength", 1024)	//Max chat message length, 1024 should be reasonable? NOTE: Includes nickname and ": " after it.
+		( tLXOptions->bKickOversizedMsgSenders, "Network.KickOversizedMsgSenders", false)	//Drop clients who send oversized messages NOTE: This should be off by default...
+		( tLXOptions->bLogServerChatToMainlog, "Network.LogServerChatToMainlog", true)	//Log chat to main log when hosting a server - previously OLX always did this. NOTE: It's under network settings as it affects mostly the server side.
+		
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
 		( tLXOptions->sNewestVersion, "State.NewestVersion", "" )
 
@@ -195,7 +199,21 @@ bool GameOptions::Init() {
 		( tLXOptions->fAimMaxSpeed, "Game.AimMaxSpeed", /* Gusanos promode default */ 232.996, "Aim max speed", "maximum possible aim speed for worm", GIG_Other, ALT_VeryAdvanced, true, 20, 1000 )
 		( tLXOptions->fAimFriction, "Game.AimFriction", /* Gusanos promode default */ 0, "Aim friction", "aim speed friction for worm", GIG_Other, ALT_VeryAdvanced, true, 0, 1 )
 		( tLXOptions->bAimLikeLX56, "Game.AimLikeLX56", false, "Aim friction like LX56", "aim speed friction behaves like LX56", GIG_Other, ALT_OnlyViaConfig )
-	
+		
+		// Killing spree thresholds
+		( tLXOptions->iSpreeThreshold1, "Game.SpreeThreshold1", 3 )
+		( tLXOptions->iSpreeThreshold2, "Game.SpreeThreshold2", 5 )
+		( tLXOptions->iSpreeThreshold3, "Game.SpreeThreshold3", 7 )
+		( tLXOptions->iSpreeThreshold4, "Game.SpreeThreshold4", 9 )
+		( tLXOptions->iSpreeThreshold5, "Game.SpreeThreshold5", 10 )
+		// Dying spree thresholds
+		( tLXOptions->iDyingSpreeThreshold1, "Game.DyingSpreeThreshold1", 3 )
+		( tLXOptions->iDyingSpreeThreshold2, "Game.DyingSpreeThreshold2", 5 )
+		( tLXOptions->iDyingSpreeThreshold3, "Game.DyingSpreeThreshold3", 7 )
+		( tLXOptions->iDyingSpreeThreshold4, "Game.DyingSpreeThreshold4", 9 )
+		( tLXOptions->iDyingSpreeThreshold5, "Game.DyingSpreeThreshold5", 10 )
+		
+		
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer
@@ -215,6 +233,8 @@ bool GameOptions::Init() {
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
 		( tLXOptions->doProjectileSimulationInDedicated, "Misc.DoProjectileSimulationInDedicated", true )
+                ( tLXOptions->bCheckMaxWpnTimeInInstantStart, "Misc.CheckMaxWpnSelectionTimeInInstantStart", false)	//Enforce max weapon selection time when immediate start is enabled
+                //TODO: Should this be true by default, and should this be added to the GUI?
 
 		( tLXOptions->iInternetSortColumn, "Widgets.InternetSortColumn", 4 )
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )
