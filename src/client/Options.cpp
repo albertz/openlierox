@@ -198,7 +198,12 @@ bool GameOptions::Init() {
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer
 		( tLXOptions->bMatchLogging, "Advanced.MatchLogging", true )
-		( tLXOptions->bRecoverAfterCrash, "Advanced.RecoverAfterCrash", true )
+		( tLXOptions->bRecoverAfterCrash, "Advanced.RecoverAfterCrash",
+#ifndef DEDICATED_ONLY
+																		true )
+#else
+																		false )
+#endif
 		( tLXOptions->bCheckForUpdates, "Advanced.CheckForUpdates", true )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", false )

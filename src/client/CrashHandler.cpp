@@ -232,10 +232,11 @@ public:
 		// Install exception handler only if we don't have Google breakpad
 		// All this old code can be removed completly later on.
 #ifdef NBREAKPAD
-		setSignalHandlers();
-		DumpCallstack(NullOut()); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
-
-		notes << "registered simple signal handler" << endl;
+		if(tLXOptions->bRecoverAfterCrash) {
+			setSignalHandlers();
+			DumpCallstack(NullOut()); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
+			notes << "registered simple signal handler" << endl;
+		}
 #endif
 	}
 	
