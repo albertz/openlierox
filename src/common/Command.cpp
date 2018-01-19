@@ -1819,7 +1819,9 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	}
 
 	cClient->connectInfo = new ClientConnectionRequestInfo;
-	cClient->connectInfo->worms.push_back(bDedicated ? FindProfile(FindFirstCPUProfileName()) : MainHumanProfile());
+	if (!bDedicated) {
+		cClient->connectInfo->worms.push_back(MainHumanProfile());
+	}
 
 	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 
