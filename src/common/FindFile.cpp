@@ -942,10 +942,10 @@ std::string GetFileContents(const std::string& path, bool absolute)
 		return "";
 
 	fseek(fp, 0, SEEK_END);
-	size_t size = ftell(fp);
+	long size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 
-	if (!size)  {
+	if (!size || size < 0)  {
 		fclose(fp);
 		return "";
 	}
