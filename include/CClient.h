@@ -22,7 +22,6 @@
 #include <map>
 #include <set>
 #include "FastVector.h"
-#include "CWeather.h"
 #include "CChatBox.h"
 #include "Networking.h"
 #include "CBytestream.h"
@@ -276,7 +275,6 @@ private:
 	bool		bShouldRepaintInfo;
 	bool		bCurrentSettings;
 
-    CWeather    cWeather;
 
 	// Game menu && score
 	bool		bUpdateScore;

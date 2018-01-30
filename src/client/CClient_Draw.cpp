@@ -820,9 +820,6 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	SDL_Rect rect = v->getRect();
 	ScopedSurfaceClip clip(bmpDest, rect);
 	
-	// Weather
-	//cWeather.Draw(bmpDest, v);
-	
 	// Earlier: When game menu is visible (bGameMenu), it covers all this anyway, so we won't bother to draw it.
 	// We draw it anyway now because we could use some nice alpha blending or so
 	if (cMap) {

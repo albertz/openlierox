@@ -195,10 +195,6 @@ void CClient::Simulation()
 	if(!bDedicated)
 		SimulateEntities(tLX->fDeltaTime);
 
-	// Weather
-	// TODO: if this will be implemented once, this should be moved to the PhysicsEngine
-	//cWeather.Simulate(tLX->fDeltaTime, cMap);
-
 	// Projectiles
 	if(shouldDoProjectileSimulation())
 		PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());

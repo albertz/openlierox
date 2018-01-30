@@ -412,9 +412,6 @@ int CClient::Initialize()
 	cShootList.Initialize();
 
 	this->SetupGameInputs();
-	
-    // Initialize the weather
-    //cWeather.Initialize(wth_snow);
 
 	m_flagInfo = new FlagInfo();
 	
