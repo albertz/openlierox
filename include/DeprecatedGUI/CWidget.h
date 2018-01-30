@@ -22,7 +22,6 @@
 #ifdef WIN32
 #include "windows.h"
 #endif //WIN32
-#include "DeprecatedGUI/CGuiSkin.h"
 #include "SmartPointer.h"
 
 namespace DeprecatedGUI {
@@ -86,7 +85,6 @@ public:
 	
     virtual ~CWidget() 
 	{
-		CGuiSkin::DeRegisterUpdateCallback( this );	// Remove any possible callbacks 'cause widget not exists anymore
 	}
 
 protected:
@@ -160,14 +158,11 @@ public:
 	virtual	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate) = 0;
 	virtual	int		KeyUp(UnicodeChar c, int keysym,  const ModifiersState& modstate) = 0;
 
-	virtual	void	LoadStyle() = 0;	// Not used anywhere
 	virtual	void	Draw(SDL_Surface * bmpDest) = 0;
 
 	virtual DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;
 	virtual DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) = 0;
 	virtual DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param) = 0;
-	
-	virtual void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
 // Base class for CGuiLayout and CGuiSkinnedLayout

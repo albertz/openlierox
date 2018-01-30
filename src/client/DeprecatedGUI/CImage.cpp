@@ -77,21 +77,4 @@ DWORD CImage::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 	return 0;
 }
 
-CWidget * CImage::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-{
-	CImage * w = new CImage( p[0].s );
-	w->cClick.Init( p[1].s, w );
-	if( dx == 0 )
-		dx = w->iWidth;
-	if( dy == 0 )
-		dy = w->iHeight;
-	layout->Add( w, id, x, y, dx, dy );
-	return w;
-};
-
-static bool CImage_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
-							( "file", SVT_STRING )
-							( "click", SVT_STRING );
-
 }; // namespace DeprecatedGUI

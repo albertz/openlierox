@@ -307,10 +307,6 @@ void Menu_Frame() {
 		case MNU_OPTIONS:
 			Menu_OptionsFrame();
 			break;
-
-		case MNU_GUISKIN:
-			Menu_CGuiSkinFrame();
-			break;
 	}
 
 	// DEBUG: show FPS
@@ -2604,10 +2600,6 @@ void Menu_Current_Shutdown() {
 				// Options
 			case MNU_OPTIONS:
 				Menu_OptionsShutdown();
-				break;
-				
-			case MNU_GUISKIN:
-				Menu_CGuiSkinShutdown();
 				break;
 		}
 	

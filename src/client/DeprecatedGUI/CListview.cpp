@@ -1864,10 +1864,4 @@ lv_subitem_t *CListview::getSubItem(lv_item_t *it, int subitem_index)
 	return sub;
 }
 
-static bool CListview_WidgetRegistered =
-	CGuiSkin::RegisterWidget( "listview", & CListview::WidgetCreator )
-							( "oldstyle", SVT_BOOL )
-							( "hideselection", SVT_BOOL )
-							( "hideborder", SVT_BOOL );
-
 }; // namespace DeprecatedGUI

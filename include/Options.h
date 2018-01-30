@@ -268,8 +268,6 @@ struct GameOptions {
 	bool	bShowProjectileUsage;
 	bool	bColorizeNicks;
 	bool	bAutoTyping;
-	std::string	sSkinPath;	// Old unfinished skinned GUI
-	bool	bNewSkinnedGUI;	// Just for test
 	bool	bAntiAliasing;
 	bool	bMouseAiming;
 	int		iMouseSensity;

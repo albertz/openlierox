@@ -353,7 +353,6 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface * bmpDest);
-	void	LoadStyle() {}
 
 	void	MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cur_y);
 	void	CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& ms_y);
@@ -379,9 +378,7 @@ public:
 
 	CHttp&	GetHttp()		{ return cHttp; }
 
-
 	// TODO: add function for getting individual text lines & their color
-
 };
 
 }; // namespace DeprecatedGUI

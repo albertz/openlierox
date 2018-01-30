@@ -45,7 +45,6 @@ private:
 	Color	iColNormal;
 	Color	iColGlow;
 	bool	bMouseOver;
-	CGuiSkin::CallbackHandler cClick;
 
 public:
 
@@ -63,20 +62,6 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return CLabel::SendMessage( iMsg, sStr, Param ); }
 
 	void	Draw(SDL_Surface * bmpDest);
-
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CTextButton * w = new CTextButton( p[0].s, p[1].c, p[2].c );
-		w->cClick.Init( p[3].s, w );
-		layout->Add( w, id, x, y, dx, dy );
-		return w;
-	}
-	
-	void	ProcessGuiSkinEvent(int iEvent) 
-	{
-		if( iEvent == TXB_MOUSEUP )
-			cClick.Call();
-	}
 };
 
 }; // namespace DeprecatedGUI

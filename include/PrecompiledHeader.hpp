@@ -146,7 +146,6 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CCombobox.h"
 #include "DeprecatedGUI/CGuiLayout.h"
-#include "DeprecatedGUI/CGuiSkin.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
 #include "DeprecatedGUI/CImage.h"
 #include "DeprecatedGUI/CInputBox.h"

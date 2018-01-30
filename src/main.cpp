@@ -52,8 +52,6 @@
 #include "DeprecatedGUI/Menu.h"
 #include "DeprecatedGUI/CChatWidget.h"
 
-#include "SkinnedGUI/CGuiSkin.h"
-
 #include "breakpad/ExtractInfo.h"
 
 #ifndef WIN32
@@ -887,24 +885,6 @@ static int MainLoopThread(void*) {
 									   "us a mail or post in our forum. This may help us a lot "
 									   "for fixing the problem.\n\nThanks!", DeprecatedGUI::LMB_OK);
 	}
-	
-	if( tLXOptions->bNewSkinnedGUI )
-	{
-		// Just for test - it's not real handler yet
-		SkinnedGUI::cMainSkin->Load("default");
-		SkinnedGUI::cMainSkin->OpenLayout("test.skn");
-		while (!tLX->bQuitGame)  {
-			tLX->fDeltaTime = GetTime() - tLX->currentTime;
-			tLX->currentTime = GetTime();
-
-			WaitForNextEvent();
-			SkinnedGUI::cMainSkin->Frame();
-		}
-
-		ShutdownLieroX();
-		return 0;
-	}
-
 
 	while(!tLX->bQuitGame) {
 		SetCrashHandlerReturnPoint("MainLoopThread before lobby");
@@ -1089,18 +1069,6 @@ void ParseArguments(int argc, char *argv[])
             tLXOptions->bFullscreen = true;
         } else
 
-        // -skin
-        // Turns new skinned GUI on
-        if( stricmp(a, "-skin") == 0 ) {
-            tLXOptions->bNewSkinnedGUI = true;
-        } else
-
-        // -noskin
-        // Turns new skinned GUI off
-        if( stricmp(a, "-noskin") == 0 ) {
-            tLXOptions->bNewSkinnedGUI = false;
-        } else
-		
 		if( stricmp(a, "-aftercrash") == 0) {
 			afterCrash = true;
 		}
@@ -1186,9 +1154,6 @@ int InitializeLieroX()
 	tLX->currentTime = 0;
 	tLX->fDeltaTime = 0;
 	tLX->bHosted = false;
-
-	if (!SkinnedGUI::InitializeGuiSkinning())
-		return false;
 
 	// Initialize the game colors (must be called after SDL_GetVideoSurface is not NULL and tLX is not NULL)
 	DeprecatedGUI::InitializeColors();
@@ -1518,16 +1483,10 @@ void ShutdownLieroX()
 	ShutdownLoading();  // In case we're called when an error occured
 
 	DeprecatedGUI::ShutdownGraphics();
-	SkinnedGUI::ShutdownGuiSkinning();
 
 	ShutdownFontCache();
 
 	DeprecatedGUI::Menu_Shutdown();
-	// Only do the deregistration for widgets if we are not restarting.
-	// The problem is that we have registered most widgets globally (not by any init-function)
-	// so we would not reinit them.
-	if(!bRestartGameAfterQuit)
-		DeprecatedGUI::CGuiSkin::DeInit();
 	ShutdownProfiles();
 
 	// Free the IP to Country DB

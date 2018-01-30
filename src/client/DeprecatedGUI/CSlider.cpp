@@ -94,11 +94,4 @@ DWORD CSlider::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 	return 0;
 }
 
-static bool CSlider_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "slider", & CSlider::WidgetCreator )
-							( "min", SVT_INT )
-							( "max", SVT_INT )
-							( "var", SVT_STRING )
-							( "click", SVT_STRING );
-
 }; // namespace DeprecatedGUI

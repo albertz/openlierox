@@ -84,8 +84,6 @@ public:
 		iSortDirection = SORT_NONE;
 		bUnique = false;
 		iType = wid_Combobox;
-		iVar = NULL;
-		sVar = NULL;
 	}
 
 
@@ -111,10 +109,6 @@ private:
 	// Scrollbar
 	CScrollbar		cScrollbar;
 
-	int				*iVar;
-	std::string		*sVar;
-	CGuiSkin::CallbackHandler cClick;
-
 private:
 	cb_item_t* getItemRW(int index);
 	void	Sort(bool ascending);
@@ -138,7 +132,6 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
 	void	Draw(SDL_Surface * bmpDest);
-	void	LoadStyle() {}
 	
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
@@ -173,12 +166,6 @@ public:
 	int getItemHeight();
 	
 	const cb_item_t* getLastItem();
-
-	void	setAttachedVar(std::string* var)	{ sVar = var; }
-	void	setAttachedVar(int* var)			{ iVar = var; }
-	
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
-	void	ProcessGuiSkinEvent(int iEvent);
 };
 
 } // namespace DeprecatedGUI
