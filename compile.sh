@@ -171,7 +171,7 @@ echo ">>> compiling now, this could take some time ..."
 mkdir -p bin
 if $COMPILER \
 	src/*.cpp src/client/*.cpp \
-	src/client/DeprecatedGUI/*.cpp src/client/SkinnedGUI/*.cpp \
+	src/client/DeprecatedGUI/*.cpp \
 	src/common/*.cpp src/server/*.cpp \
 	libs/coredumper/src/*.c \
 	$LIBZIP_GCC_PARAM \
