@@ -309,9 +309,6 @@ void GameServer::SimulateGame()
 	if(iState != SVS_PLAYING)
 		return;
 
-	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
-		return;
-
 	// If this is a remote game, and game over,
 	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
 	if(bGameOver

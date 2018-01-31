@@ -944,9 +944,7 @@ static int MainLoopThread(void*) {
 			// cap the delta
 			if(tLX->fDeltaTime.seconds() > 0.5f) {
 				warnings << "deltatime " << tLX->fDeltaTime.seconds() << " is too high" << endl;
-				// only if not in new net mode because it would screw up the gamestate there
-				if(!NewNet::Active())
-					tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
+				tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
 			}
 			
 			ProcessEvents();

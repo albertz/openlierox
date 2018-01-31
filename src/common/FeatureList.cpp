@@ -64,7 +64,7 @@ Feature featureArray[] = {
 			0, 		0, 				Version(), 			GIG_HideAndSeek, ALT_Advanced,	0,	320, 	true,	true ),
 	Feature("HS_SeekerVisionAngle",	"Seeker vision angle",			"The angle of seeker vision (180 = half-circle, 360 = full circle)", 
 			360, 	360, 			Version(),			GIG_HideAndSeek, ALT_Advanced,	0,	360,	false,	true ),
-	Feature("NewNetEngine", 		"New net engine (restricted)",	"New net engine without self-shooting and lag effects, CPU-eating, many features won't work with it; DONT USE IF YOU DONT KNOW IT", 
+	Feature("NewNetEngine", 		"New net engine (non-functional)",	"This feature does not work, do not use it",
 			false, 	false, 			OLXBetaVersion(0,58,1),	GIG_Advanced, ALT_DevKnownUnstable ),
 	Feature("FillWithBotsTo",		"Fill with bots up to",	"If too less players, it will get filled with bots",
 			0,	0,					OLXBetaVersion(0,58,1),		GIG_Other, ALT_Advanced,	0,	MAX_PLAYERS, true,	true),

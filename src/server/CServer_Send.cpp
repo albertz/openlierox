@@ -365,9 +365,6 @@ void GameServer::SendWormsOut(const std::list<byte>& ids)
 // Returns true if we sent an update
 bool GameServer::SendUpdate()
 {
-	if(NewNet::Active())
-		return false;
-		
 	// Delays for different net speeds
 	static const float	shootDelay[] = {0.010f, 0.005f, 0.0f, 0.0f};
 

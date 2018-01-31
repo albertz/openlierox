@@ -98,7 +98,6 @@
 #include "Music.h"
 #include "Mutex.h"
 #include "Networking.h"
-#include "NewNetEngine.h"
 #include "NotifyUser.h"
 #include "OLXG15.h"
 #include "Options.h"

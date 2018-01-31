@@ -42,8 +42,6 @@ public:
 	virtual void ParseChatCommandCompletionRequest(CBytestream *bs) { return; };
 	virtual void ParseAFK(CBytestream *bs) { return; };
 	virtual void ParseReportDamage(CBytestream *bs) { return; };
-	virtual void ParseNewNetKeys(CBytestream *bs) { return; };
-	virtual void ParseNewNetChecksum(CBytestream *bs) { return; };
 
 	void		 ParseImReady(CBytestream *bs);
 	void		 ParseUpdate(CBytestream *bs);
@@ -173,9 +171,6 @@ public:
 	virtual void SendUpdateWorm(CWorm* w);
 	
 	static void WriteFeatureSettings(CBytestream* bs);
-
-	virtual void ParseNewNetKeys(CBytestream *bs);
-	virtual void ParseNewNetChecksum(CBytestream *bs);
 
 protected:
 	virtual void WritePrepareGame(CBytestream *bs);

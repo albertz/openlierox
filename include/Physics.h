@@ -58,7 +58,7 @@ public:
 	void skipBonuses(CBonus* bonuses, size_t count);	
 };
 
-AbsTime GetPhysicsTime(); // Returns tLX->currentTime, or NewNet::GetCurTime() if new net engine is active
+AbsTime GetPhysicsTime(); // Returns tLX->currentTime
 
 
 inline void warpSimulationTimeForDeltaTimeCap(AbsTime& simulationTime, TimeDiff deltaTime, TimeDiff realDeltaTime) {

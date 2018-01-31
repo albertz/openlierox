@@ -60,7 +60,6 @@ inline int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 	}
 	
 	bool preventSelfShooting =
-		!NewNet::Active() &&
 		(this->getIgnoreWormCollBeforeTime() > this->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 
 	CWorm *w = worms;

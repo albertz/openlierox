@@ -491,12 +491,6 @@ mapCreate:
 			UpdateWorms();
 	}
 	
-	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
-	{
-		warnings << "New net engine enabled, we are disabling some features" << endl;
-		NewNet::DisableAdvancedFeatures();
-	}
-
 	iState = SVS_GAME;		// In-game, waiting for players to load
 	iServerFrame = 0;
 	bGameOver = false;
@@ -603,8 +597,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	// getting spawned. Thus, this should only be sent if we got ParseImReady from client.
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
-	if (tLXOptions->tGameInfo.features[FT_NewNetEngine])
-		bs.writeInt(NewNet::netRandom.getSeed(), 4);
+
 	if(receiver)
 		receiver->getNetEngine()->SendPacket(&bs);
 	else
@@ -1592,14 +1585,6 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 		bs.writeString(OldLxCompatibleString(cl_msg));
 		cl->getChannel()->AddReliablePacketToSend(bs);
 	}
-	
-	/*
-	if( NewNet::Active() )
-	{
-		gotoLobby();
-		SendGlobalText("New net engine doesn't support client leaving yet!",TXT_NETWORK);
-	}
-	*/
 }
 
 // WARNING: We are using SendWormsOut here, that means that we cannot use the specific client anymore

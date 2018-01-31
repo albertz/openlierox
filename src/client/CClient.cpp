@@ -1093,10 +1093,7 @@ void CClient::Frame()
 		cMap->isLoaded() &&
 		cGameScript.get())
 	{
-		if( NewNet::Active() )
-			NewNet_Frame();
-		else
-			Simulation();
+		Simulation();
 	}
 
 	SendPackets();
@@ -1106,27 +1103,6 @@ void CClient::Frame()
 		ConnectingBehindNAT();
 	else
 		Connecting();
-}
-
-void CClient::NewNet_Frame()
-{
-	CBytestream out, packet;
-	if( getNumWorms() <= 0 )
-		return;
-	out.writeByte( C2S_NEWNET_KEYS );
-	out.writeByte( getWorm(0)->getID() );
-	while( NewNet::Frame(&out) )
-	{
-		packet.Append(&out);
-		out.Clear();
-		out.writeByte( C2S_NEWNET_KEYS );
-		out.writeByte( getWorm(0)->getID() );
-	}
-	
-	if( NewNet::ChecksumRecalculated() )
-		getNetEngine()->SendNewNetChecksum();
-
-	cNetChan->AddReliablePacketToSend(packet);
 }
 
 ///////////////////
@@ -1183,9 +1159,6 @@ bool CClient::ReadPackets()
 		if (bDownloadingMap && cHttpDownloader)
 			cHttpDownloader->CancelFileDownload(sMapDownloadName);
 		getUdpFileDownloader()->reset();
-
-		if( NewNet::Active() )
-			NewNet::EndRound();
 
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
 	}
@@ -2498,16 +2471,6 @@ int CClient::getNumRemoteWorms()
 		if( cRemoteWorms[i].isUsed() )
 			ret++;
 	return ret;
-}
-
-void CClient::NewNet_SaveProjectiles()
-{
-	NewNet_SavedProjectiles = cProjectiles;
-}
-
-void CClient::NewNet_LoadProjectiles()
-{
-	cProjectiles = NewNet_SavedProjectiles;
 }
 
 long CClient::MapPosIndex::index(const CMap* m) const {

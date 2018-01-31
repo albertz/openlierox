@@ -380,14 +380,3 @@ void CClientNetEngineBeta9::SendReportDamage(bool flush)
 	cDamageReport.clear();
 	fLastDamageReportSent = tLX->currentTime;
 }
-
-void CClientNetEngineBeta9NewNet::SendNewNetChecksum()
-{
-	CBytestream bs;
-	bs.writeByte(C2S_NEWNET_CHECKSUM);
-	AbsTime time;
-	unsigned checksum = NewNet::GetChecksum( &time );
-	bs.writeInt(checksum, 4);
-	bs.writeInt((unsigned)time.milliseconds(), 4);
-	client->cNetChan->AddReliablePacketToSend(bs);
-}

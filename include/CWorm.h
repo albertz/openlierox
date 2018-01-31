@@ -28,9 +28,7 @@
 #include "CMap.h"
 #include "CGameSkin.h"
 #include "Entity.h"
-#include "NewNetEngine.h" // For NetSyncedRandom
 #include "Version.h"
-#include "NewNetEngine.h"
 #include "DynDraw.h"
 #include "CGameObject.h"
 
@@ -422,9 +420,6 @@ public:
 	void		doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v);
 
 	void		setAiDiff(int aiDif);
-	
-	NewNet::KeyState_t NewNet_GetKeys();
-	void		NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged );
 
 	//
 	// Misc.
@@ -634,16 +629,11 @@ public:
 	
 	std::map< int, DamageReport> & getDamageReport() { return cDamageReport; }
 	
-	void NewNet_CopyWormState(const CWorm & w);
-	void NewNet_InitWormState( int seed );
-	
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorms()
 	// there which simulates all worms together
 	AbsTime	fLastSimulationTime;
-
-	NewNet::NetSyncedRandom NewNet_random;
 };
 
 
