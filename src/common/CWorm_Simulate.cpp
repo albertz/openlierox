@@ -44,8 +44,6 @@ void CWormHumanInputHandler::getInput() {
 	TimeDiff dt = GetPhysicsTime() - m_worm->fLastInputTime;
 	m_worm->fLastInputTime = GetPhysicsTime();
 
-	int		weap = false;
-
 	mouse_t *ms = GetMouse();
 
 	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
@@ -259,7 +257,6 @@ void CWormHumanInputHandler::getInput() {
 		if(cSelWeapon.isDown()) {
 			// TODO: was is the intention of this var? if weapon change, then it's wrong
 			// if cSelWeapon.isDown(), then we don't need it
-			weap = true;
 
 			// we don't want keyrepeats here, so only count the first down-event
 			int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
@@ -572,14 +569,12 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 		return;
 	}
 	
-	int l = 0;
 	int t = 0;
 	short i;
 	int centrex = 320; // TODO: hardcoded screen width here
 	
     if( v ) {
         if( v->getUsed() ) {
-            l = v->GetLeft();
 	        t = v->GetTop();
             centrex = v->GetLeft() + v->GetVirtW()/2;
         }

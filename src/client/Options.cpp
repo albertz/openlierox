@@ -239,7 +239,8 @@ bool GameOptions::Init() {
 	struct GameModeIndexWrapper : DynamicVar<int> {
 		int get() {
 			if(tLXOptions) return GetGameModeIndex(tLXOptions->tGameInfo.gameMode);
-			else errors << "GameModeIndexWrapper:get: options not inited" << endl; return 0; 
+			else errors << "GameModeIndexWrapper:get: options not inited" << endl;
+			return 0;
 		}
 		void set(const int& i) {
 			if(tLXOptions) {

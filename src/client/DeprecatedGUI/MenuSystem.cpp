@@ -2188,7 +2188,6 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	std::string		sIP;
     CWorm			cWorms[MAX_WORMS];
 	bool			bHaveLives = false;
-	bool			bHaveVersion = false;
 	std::string		sServerVersion;
 	bool			bHaveGameSpeed = false;
 	float			fGameSpeed = 1.0f;
@@ -2293,7 +2292,6 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					}
 
 					if(!inbs.isPosAtEnd())  {
-						bHaveVersion = true;
 						sServerVersion = inbs.readString();
 					}
 

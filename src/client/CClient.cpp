@@ -86,8 +86,8 @@ void CClient::Clear()
 	bMapGrabbed = false;
 	if( cNetChan )
 		delete cNetChan;
-		cNetChan = NULL;
-		iNetStatus 	 = NET_DISCONNECTED;	
+	cNetChan = NULL;
+	iNetStatus 	 = NET_DISCONNECTED;
 	reconnectingAmount = 0;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
@@ -2382,7 +2382,8 @@ CChannel * CClient::createChannel(const Version& v)
 
 void CClient::setNetEngineFromServerVersion()
 {
-	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
+	if(cNetEngine) delete cNetEngine;
+	cNetEngine = NULL;
 	if( getServerVersion() >= OLXBetaVersion(0,58,1) )
 		cNetEngine = new CClientNetEngineBeta9(this);
 	else if( getServerVersion() >= OLXBetaVersion(7) )

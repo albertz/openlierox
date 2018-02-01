@@ -329,6 +329,8 @@ if(UNIX)
 	ENDIF (G15)
 
 	SET(LIBS ${LIBS} ${SDLLIBS} pthread xml2 z)
+
+	ADD_DEFINITIONS("-ftabstop=4") # Avoid some GCC and clang warnings due to messy indentation
 endif(UNIX)
 
 IF (NOT DEDICATED_ONLY)

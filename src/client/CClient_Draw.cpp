@@ -2566,7 +2566,7 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 {
 	const int h = getBottomBarTop() - y;
 
-	SDL_Rect newclip = {x, y, WAIT_COL_W, h};
+	SDL_Rect newclip = {(SDLRect::Type) x, (SDLRect::Type) y, WAIT_COL_W, (SDLRect::TypeS) h};
 	ScopedSurfaceClip clip(bmpDest, newclip);
 
 	DrawRectFill(bmpDest, x, y, x + WAIT_COL_W, y + h, tLX->clScoreBackground);

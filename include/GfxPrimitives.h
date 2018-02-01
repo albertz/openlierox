@@ -273,7 +273,7 @@ bool OneSideClip(T1& c, T2& d, const T3 clip_c, const T4 clip_d)  {
 // Create a SDL rect
 inline SDL_Rect MakeRect(int x, int y, int w, int h)
 {
-	SDL_Rect r = {x, y, w, h};
+	SDL_Rect r = {(SDLRect::Type) x, (SDLRect::Type) y, (SDLRect::TypeS) w, (SDLRect::TypeS) h};
 	return r;
 }
 
@@ -393,8 +393,8 @@ inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> 
 //////////////
 // Draw the image with a huge amount of options
 inline void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
-	SDL_Rect r1 = { dx, dy, 0, 0 };
-	SDL_Rect r2 = { sx, sy, w, h };
+	SDL_Rect r1 = { (SDLRect::Type) dx, (SDLRect::Type) dy, 0, 0 };
+	SDL_Rect r2 = { (SDLRect::Type) sx, (SDLRect::Type) sy, (SDLRect::TypeS) w, (SDLRect::TypeS) h };
 	DrawImageAdv( bmpDest, bmpSrc, r1, r2);
 }
 inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
@@ -431,7 +431,7 @@ inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & b
 ///////////////
 // Simply draw the image
 inline void DrawImage(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int x, int y) {
-	SDL_Rect r = { x, y, 0, 0 };
+	SDL_Rect r = { (SDLRect::Type) x, (SDLRect::Type) y, 0, 0 };
 	DrawImage( bmpDest, bmpSrc, r);
 }
 inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int x, int y) {

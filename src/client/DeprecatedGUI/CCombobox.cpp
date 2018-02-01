@@ -894,7 +894,7 @@ int CCombobox::getIndexByName(const std::string& szString) {
 		cb_item_t tmp; tmp.sName = szString; tmp.tImage = NULL;
 		int index = -1;
 		bool found = false;
-		std::list<cb_item_t>::const_iterator i = lowerBound(tmp, &index, &found);
+		lowerBound(tmp, &index, &found);
 		return found ? index : -1;
 	}
     return -1;

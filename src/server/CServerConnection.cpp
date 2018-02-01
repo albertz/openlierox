@@ -217,7 +217,8 @@ void CServerConnection::setClientVersion(const Version& v)
 }
 
 void CServerConnection::resetNetEngine() {
-	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;	
+	if(cNetEngine) delete cNetEngine;
+	cNetEngine = NULL;
 }
 
 void CServerConnection::setNetEngineFromClientVersion()
