@@ -132,6 +132,8 @@ bool Menu_Net_HostInitialize()
 	//cHostPly.Add( new CLabel("Server-side Health",			tLX->clNormalLabel),-1,	125, 418,0,  0);
 	//cHostPly.Add( new CCheckbox(false),	                    hs_ServerSideHealth,	270,415,17, 17);
 
+	Menu_Net_AddTabBarButtons(&cHostPly);
+
 	cHostPly.getWidget(hs_Playing)->setKeyboardNavigationOrder(1);
 	cHostPly.getWidget(hs_Back)->setKeyboardNavigationOrder(1);
 	cHostPly.getWidget(hs_Ok)->setKeyboardNavigationOrder(1);
@@ -269,6 +271,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 	ev = cHostPly.Process();
 	cHostPly.Draw( VideoPostProcessor::videoSurface() );
 
+	if (Menu_Net_ProcessTabBarButtons(ev))
+		return;
 	
 	// Speed test dialog
 	if (bSpeedTestDialog)  {
