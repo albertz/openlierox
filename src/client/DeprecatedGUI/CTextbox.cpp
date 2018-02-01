@@ -62,7 +62,7 @@ void CTextbox::Create()
 	if (CursorBlinkerTimer == NULL)  {
 		CursorBlinkerTimer = new Timer;
 		CursorBlinkerTimer->name = "CTextbox cursor blinker";
-		CursorBlinkerTimer->interval = 500;
+		CursorBlinkerTimer->interval = 300;
 		CursorBlinkerTimer->once = false;
 		CursorBlinkerTimer->onTimer.handler() = getEventHandler(this, &CTextbox::OnTimerEvent);
 		CursorBlinkerTimer->start();
@@ -249,7 +249,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		if(iCurpos)
 			iCurpos--;
 
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// Right arrow
@@ -278,7 +278,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 			if(tLX->cFont.GetWidth(Utf8SubStr(sText, 0, iCurpos)) > (iWidth - 7))
 				iScrollPos++;
 
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// Home
@@ -298,7 +298,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 		iCurpos = 0;
 		iScrollPos = 0;
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// End
@@ -321,7 +321,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		else
 			iScrollPos = 0;
 
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// Select all
@@ -330,7 +330,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		iSelStart = 0;
 		iSelLength = -((int)Utf8StringSize(sText));
 
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// Enter
@@ -353,7 +353,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
     if(((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_c ) ||
 		( (modstate.bCtrl || modstate.bMeta) && keysym == SDLK_INSERT )) {
         CopyText();
-        return TXT_NONE;
+        return TXT_CHANGE;
     }
 
     // Ctrl-x or Super-x or Shift-Delete (cut)
