@@ -106,6 +106,10 @@ void Menu_LocalInitialize()
     cLocalMenu.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  236, 0,   0);
 	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
 
+	cLocalMenu.getWidget(ml_Playing)->setKeyboardNavigationOrder(1);
+	cLocalMenu.getWidget(ml_Back)->setKeyboardNavigationOrder(1);
+	cLocalMenu.getWidget(ml_Start)->setKeyboardNavigationOrder(1);
+
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 24);
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0].get()->w - 50);
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", (DWORD)-1);
