@@ -21,6 +21,7 @@
 #include "Options.h" // for controls_t
 #include "CWorm.h"
 #include "MathLib.h"
+#include "Touchscreen.h"
 
 
 
@@ -348,6 +349,14 @@ void CViewport::reset()
 // Clamp the viewport if it exceeds any boundaries
 void CViewport::Clamp(int MWidth, int MHeight)
 {
+	if (GetTouchscreenControlsShown())
+	{
+		// Always center viewport on the player
+		WorldX = CLAMP(WorldX, -Width/2, MWidth-Width/2);
+		WorldY = CLAMP(WorldY, -Height/2, MHeight-Height/2);
+		return;
+	}
+
 	// If we have FT_InfiniteMap set, we don't want to clamp the viewport.
 	// We are drawing the map (and everything) tiled together then.
 	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {

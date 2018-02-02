@@ -44,6 +44,7 @@
 #include "HTTP.h"
 #include "Version.h"
 #include "CrashHandler.h"
+#include "Touchscreen.h"
 
 
 // TODO: move this out here
@@ -331,6 +332,8 @@ void Menu_Frame() {
 	
 	// now do the actual flip&draw
 	doVideoFrameInMainThread();
+
+	SetTouchscreenControlsShown(false);
 }
 
 

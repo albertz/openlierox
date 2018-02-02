@@ -29,6 +29,7 @@
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "Mutex.h"
+#include "Touchscreen.h"
 #include "DeprecatedGUI/CTextbox.h"
 
 
@@ -333,6 +334,16 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		return TXT_CHANGE;
 	}
 
+	if (keysym == SDLK_RETURN ||
+		keysym == SDLK_KP_ENTER ||
+		keysym == SDLK_LALT ||
+		keysym == SDLK_LCTRL ||
+		keysym == SDLK_LSHIFT) {
+		if (!GetTouchscreenTextInputShown()) {
+			ShowTouchscreenTextInput(sText);
+		}
+	}
+
 	// Enter
 	if(keysym == SDLK_RETURN || keysym == SDLK_KP_ENTER) {
 		return TXT_ENTER;
@@ -568,6 +579,10 @@ int	CTextbox::MouseUp(mouse_t *tMouse, int nDown)
 	// We can lose focus now
 	bCanLoseFocus = true;
 
+	if (!GetTouchscreenTextInputShown()) {
+		ShowTouchscreenTextInput(sText);
+	}
+
 	return TXT_NONE;
 }
 
@@ -577,6 +592,15 @@ int CTextbox::MouseOver(mouse_t *tMouse)
 {
 	SetGameCursor(CURSOR_TEXT);
 	bCanLoseFocus = !tMouse->Down;
+
+	if (GetTouchscreenTextInputShown()) {
+		std::string text;
+		if (ProcessTouchscreenTextInput(&text)) {
+			setText(text);
+			return TXT_ENTER;
+		}
+	}
+
 	return TXT_MOUSEOVER;
 }
 

@@ -59,6 +59,10 @@
 #include <sys/stat.h>
 #endif
 
+#ifdef __ANDROID__
+#include <SDL/SDL_android.h>
+#endif
+
 #include <libxml/parser.h>
 
 // TODO: i hate globals ...
@@ -587,7 +591,9 @@ static bool afterCrashInformedUser = false;
 // Main entry point
 int main(int argc, char *argv[])
 {
+#ifndef __ANDROID__
 	if(DoCrashReport(argc, argv)) return 0;
+#endif
 
 	teeStdoutInit();
 	
@@ -778,6 +784,12 @@ quit:
 	ShutdownLieroX();
 
 	notes << "waiting for all left threads and tasks" << endl;
+#ifdef __ANDROID__
+	if(!bRestartGameAfterQuit) {
+		exit(0); // Force quit without waiting to hide the app window
+	}
+#endif
+
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
 
@@ -789,6 +801,10 @@ quit:
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
 		hints << "-- Restarting game --" << endl;
+#ifdef __ANDROID__
+		SDL_ANDROID_RestartMyself("");
+#endif
+
 		goto startpoint;
 	}
 

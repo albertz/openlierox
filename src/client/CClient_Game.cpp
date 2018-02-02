@@ -39,6 +39,7 @@
 #include "CHideAndSeek.h"
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
+#include "Touchscreen.h"
 
 
 CClient		*cClient = NULL;
@@ -48,6 +49,7 @@ bool CClient::shouldDoProjectileSimulation() {
 	if(bDedicated && tLX->iGameType != GME_JOIN && !tLXOptions->doProjectileSimulationInDedicated) return false;
 	return true;
 }
+
 
 
 ///////////////////
@@ -1223,6 +1225,16 @@ void CClient::processChatter()
         return;
     }
 
+	if (GetTouchscreenTextInputShown()) {
+		std::string text;
+		if (ProcessTouchscreenTextInput(&text)) {
+			CWorm* firstLocalWorm = cClient->getWorm(0);
+			if(!firstLocalWorm || !firstLocalWorm->isUsed()) return;
+			cNetEngine->SendText(text, firstLocalWorm->getName());
+		}
+		bChat_Typing = false;
+		return;
+	}
 
 	// Check if we have hit the chat key and we're in a network game
 	if( cChat_Input.wasDown() || cTeamChat_Input.wasDown() ) {
@@ -1245,6 +1257,10 @@ void CClient::processChatter()
 		
 		if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
 			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+
+		if (!GetTouchscreenTextInputShown()) {
+			ShowTouchscreenTextInput();
+		}
 
 		return;
 	}

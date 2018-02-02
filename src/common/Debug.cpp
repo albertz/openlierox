@@ -515,6 +515,10 @@ void DumpCallstack(const PrintOutFct& printer) {
 
 #endif
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 std::string GetLogTimeStamp()
 {
 	// TODO: please recode this, don't use C-strings!
@@ -570,6 +574,9 @@ struct CoutPrint : PrintOutFct {
 	void print(const std::string& str) const {
 		// TODO: We have used std::cout here before but it doesn't seem to work after a while for some reason.
 		printf("%s", str.c_str());
+#ifdef __ANDROID__
+		__android_log_print(ANDROID_LOG_INFO, "OpenLieroX", "%s", str.c_str());
+#endif
 	}
 };
 

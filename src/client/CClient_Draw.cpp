@@ -52,6 +52,7 @@
 #include "CGameMode.h"
 #include "FlagInfo.h"
 #include "WeaponDesc.h"
+#include "Touchscreen.h"
 
 
 
@@ -567,6 +568,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			}
 		}
 
+		if (!bGameMenu && GetMouse()->FirstDown && !GetTouchscreenControlsShown()) {
+			SetTouchscreenControlsShown(true);
+		}
 	}
 
 	// If waiting for the map/mod to finish downloading, draw the progress
@@ -1280,6 +1284,7 @@ void CClient::SimulateHud()
 		if(bGameMenu) curState = AFK_MENU;
 		if(Con_IsVisible()) curState = AFK_CONSOLE;
 		if(!ApplicationHasFocus()) curState = AFK_AWAY;
+		if (GetTouchscreenTextInputShown()) curState = AFK_TYPING_CHAT;
 		if( curState != cLocalWorms[0]->getAFK() ) {
 			cNetEngine->SendAFK( cLocalWorms[0]->getID(), curState );
 		}
@@ -1328,6 +1333,7 @@ void CClient::InitializeGameMenu()
 	bGameMenu = true;
 	ProcessEvents();  // Prevents immediate closing of the scoreboard
 	SetGameCursor(CURSOR_HAND);
+	SetTouchscreenControlsShown(false);
 
 	// Shutdown any previous instances
 	cGameMenuLayout.Shutdown();

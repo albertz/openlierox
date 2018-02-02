@@ -23,6 +23,7 @@
 #include "MathLib.h"
 #include "NotifyUser.h"
 #include "Event.h"
+#include "Touchscreen.h"
 
 
 
@@ -546,6 +547,8 @@ bool ProcessEvents()
 		HandleNextEvent();
 		ret = true;
 	}
+
+	ProcessTouchscreenEvents();
 
 #ifdef FUZZY_ERROR_TESTING
 	/*Event.type = GetRandomInt(255);

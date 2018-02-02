@@ -73,6 +73,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "Geometry.h"
+#include "Touchscreen.h"
 
 
 Null null;	// Used in timer class
@@ -401,6 +402,9 @@ setvideomode:
 		SubclassWindow();
 	}
 #endif
+
+	SetupTouchscreenControls();
+	SetTouchscreenControlsShown(false);
 
 	// Set the change mode flag
 	if (tLX)

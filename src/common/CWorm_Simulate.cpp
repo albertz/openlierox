@@ -35,6 +35,7 @@
 #include "Physics.h"
 #include "WeaponDesc.h"
 #include "AuxLib.h" // for doActionInMainThread
+#include "Touchscreen.h"
 
 
 ///////////////////
@@ -255,16 +256,16 @@ void CWormHumanInputHandler::getInput() {
 		// Weapon changing
 		//
 		if(cSelWeapon.isDown()) {
-			// TODO: was is the intention of this var? if weapon change, then it's wrong
-			// if cSelWeapon.isDown(), then we don't need it
-
 			// we don't want keyrepeats here, so only count the first down-event
 			int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
-			m_worm->iCurrentWeapon += change;
-			MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+
+			if (!GetTouchscreenControlsShown()) {
+				m_worm->iCurrentWeapon += change;
+				MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+			}
 
 			// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
-			if (cSelWeapon.isJoystick() && change == 0 && cSelWeapon.isDownOnce())  {
+			if ( ((cSelWeapon.isJoystick() && change == 0) || GetTouchscreenControlsShown()) && cSelWeapon.isDownOnce())  {
 				m_worm->iCurrentWeapon++;
 				MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
 			}
@@ -320,10 +321,18 @@ void CWormHumanInputHandler::getInput() {
 			}
 		}
 
+		const float carveDelay = 0.2f;
+
+		if (GetTouchscreenControlsShown() && cStrafe.isDown() && tLX->currentTime - m_worm->fLastCarve >= carveDelay) {
+			// Strafe also acts like dig button for touchscreen controls
+			ws->bCarve = true;
+			ws->bMove = true;
+			m_worm->fLastCarve = tLX->currentTime;
+		}
+
 		// inform player about disallowed strafing
-		if(!cClient->isHostAllowingStrafing() && cStrafe.isDownOnce())
-			// TODO: perhaps in chat?
-			hints << "strafing is not allowed on this server." << endl;
+		//if(!cClient->isHostAllowingStrafing() && cStrafe.isDownOnce())
+			//hints << "strafing is not allowed on this server." << endl; // TODO: perhaps in chat?
 	}
 
 

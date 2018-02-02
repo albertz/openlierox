@@ -29,6 +29,7 @@
 #include "Cursor.h"
 #include "Timer.h"
 #include "AuxLib.h"
+#include "Touchscreen.h"
 
 
 namespace DeprecatedGUI {
@@ -1737,6 +1738,15 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	if (bUseScroll && shouldScrollDown) {
 		ScrollToLastLine();
 	}
+
+	static std::list<std::string> chatLines;
+	while (chatLines.size() > 4)
+		chatLines.pop_front();
+	chatLines.push_back(text);
+	std::string chatLinesStr;
+	for (std::list<std::string>::iterator it = chatLines.begin(); it != chatLines.end(); it++)
+		chatLinesStr += *it + "\n";
+	SetTouchscreenTextInputHintMessage(chatLinesStr.c_str());
 }
 
 //////////////////////

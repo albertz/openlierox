@@ -498,6 +498,10 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 
 		rSrc.x += rDest.x - old_x;
 		rSrc.y += rDest.y - old_y;
+		if (rSrc.x < 0)
+			rDest.x -= rSrc.x;
+		if (rSrc.y < 0)
+			rDest.y -= rSrc.y;
 		if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
 			return;
 		rDest.w = MIN(rSrc.w, rDest.w);

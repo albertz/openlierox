@@ -139,7 +139,12 @@ bool GameOptions::Init() {
 #else
 			false )
 #endif
-		( tLXOptions->iColourDepth, "Video.ColourDepth", 32 )
+		( tLXOptions->iColourDepth, "Video.ColourDepth",
+#ifdef __ANDROID___
+			16 ) // Faster video output
+#else
+			32 )
+#endif
 		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->sVideoPostProcessor, "Video.PostProcessor", "" )
 

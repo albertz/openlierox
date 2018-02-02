@@ -1004,6 +1004,23 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
 	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
+
+		// Draw black borders around the level
+		/*
+		if (x < 0) {
+			rectfill(where, 0, 0, -x * 2, where->h, 0);
+		}
+		if (bmpDrawImage.get() && x * 2 > bmpDrawImage.get()->w - where->w) {
+			rectfill(where, bmpDrawImage.get()->w - x * 2, 0, where->w, where->h, 0);
+		}
+		if (y < 0) {
+			rectfill(where, 0, 0, where->w, -y * 2, 0);
+		}
+		if (bmpDrawImage.get() && y * 2 > bmpDrawImage.get()->h - where->h) {
+			rectfill(where, 0, bmpDrawImage.get()->h - y * 2, where->w, where->h, 0);
+		}
+		*/
+
 		DrawImageAdv(bmpDest, bmpDrawImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
 #ifdef _AI_DEBUG
 		DrawImageAdv(bmpDest, bmpDebugImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
