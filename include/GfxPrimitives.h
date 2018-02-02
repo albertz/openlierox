@@ -107,6 +107,7 @@ public:
 	
 	SDLRectBasic() { this->SDL_Rect::x = this->SDL_Rect::y = this->SDL_Rect::w = this->SDL_Rect::h = 0; }
 	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {}
+	SDLRectBasic(Type _x, Type _y, TypeS _w, TypeS _h) { SDL_Rect::x = _x; SDL_Rect::y = _y; SDL_Rect::w = _w; SDL_Rect::h = _h; }
 	Type& x() { return this->SDL_Rect::x; }
 	Type& y() { return this->SDL_Rect::y; }
 	TypeS& width() { return this->SDL_Rect::w; }
@@ -159,6 +160,8 @@ class OLXRect : public _RectBasic {
 public:
 
 	OLXRect(const _RectBasic & r): _RectBasic(r) {}
+
+	OLXRect(typename _RectBasic::Type x, typename _RectBasic::Type y, typename _RectBasic::TypeS w, typename _RectBasic::TypeS h): _RectBasic(x, y, w, h) {}
 
 	class GetX2 {
 	protected:
