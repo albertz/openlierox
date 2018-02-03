@@ -289,7 +289,9 @@ bool ProcessTouchscreenTextInput(std::string * output)
 
 void SetTouchscreenTextInputHintMessage(const std::string & message)
 {
-	SDL_ANDROID_SetScreenKeyboardHintMesage(message.c_str());
+	// TODO: crashes for no reason
+	//notes << "SDL_ANDROID_SetScreenKeyboardHintMesage: " << message << endl;
+	//SDL_ANDROID_SetScreenKeyboardHintMesage(message.c_str());
 }
 
 #else // __ANDROID__

@@ -377,8 +377,10 @@ static void teeOlxOutputHandler(int in, int out) {
 	
 	// The main process will quit this fork by closing the pipe.
 	// There will be problems if this fork terminates earlier.
+#ifndef __ANDROID__
 	signal(SIGINT, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
+#endif
 	while( true ) {
 		char ch = 0;
 		if(read(in, &ch, 1) <= 0) break;
@@ -634,7 +636,9 @@ startpoint:
 	}
 
 	teeStdoutFile(GetWriteFullFileName("logs/OpenLieroX - " + GetDateTimeFilename() + ".txt", true));
+#ifndef __ANDROID__
 	CrashHandler::init();
+#endif
 
 	if(!NetworkTexts::Init()) {
 		SystemError("Could not load network strings.");
@@ -823,7 +827,9 @@ quit:
 	notes << "Good Bye and enjoy your day..." << endl;
 
 	// Uninit the crash handler after all other code
+#ifndef __ANDROID__
 	CrashHandler::uninit();
+#endif
 
 	teeStdoutQuit();
 	return 0;
@@ -831,7 +837,7 @@ quit:
 
 // note: important to have const char* here because std::string is too dynamic, could be screwed up when returning
 void SetCrashHandlerReturnPoint(const char* name) {
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__ANDROID__)
 	if(sigsetjmp(longJumpBuffer, true) != 0) {
 		hints << "returned from sigsetjmp in " << name << endl;
 		if(!tLXOptions) {
