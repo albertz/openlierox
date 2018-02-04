@@ -1675,9 +1675,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	}
 
 
-	int top = topbar.get() ? (topbar.get()->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
-	if (!tLXOptions->bTopBarVisible)
-		top = 0;
+	int top = 0;
 
 	int h = bottombar.get() ? (480 - bottombar.get()->h - top) : (382 - top); // Height of the viewports
 
