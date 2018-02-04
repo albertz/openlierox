@@ -223,7 +223,7 @@ private:
 	bool		bFollowOverride;
 
     AbsTime		fLastCarve;
-	
+	AbsTime		fLastShoot;
 
 	
 	// Score

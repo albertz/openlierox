@@ -186,7 +186,8 @@ void CWorm::Clear()
 	bAlreadyKilled = false;
 
 	fLastSimulationTime = tLX->currentTime;
-	
+	fLastCarve = tLX->currentTime;
+	fLastShoot = tLX->currentTime;
 	
 	if(m_inputHandler) {
 		delete m_inputHandler;

@@ -302,7 +302,7 @@ void ShowTouchscreenTextInput(const std::string & initialText)
 bool ProcessTouchscreenTextInput(std::string * output)
 {
 	if (!GetTouchscreenTextInputShown())
-		return;
+		return false;
 
 	Mutex::ScopedLock lock( screenKeyboardMutex );
 
