@@ -431,6 +431,7 @@ void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
 void	Menu_DisableNetEvents();
 void	Menu_EnableNetEvents();
+bool	Menu_IsKeyboardNavigationUsed();
 
 // Server list
 void		Menu_SvrList_Clear();

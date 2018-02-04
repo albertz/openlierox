@@ -131,7 +131,8 @@ public:
 	void		setID(int _id)	{ iID = _id; }
 
 	void		setTooltip(const SDL_Rect& keepArea, VectorD2<int> pos, const std::string& msg);
-	
+
+	static bool isKeyboardNavigationUsed() { return bKeyboardNavigation; }
 };
 
 extern CGuiLayout cGameMenuLayout;
