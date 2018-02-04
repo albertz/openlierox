@@ -1,14 +1,8 @@
 
-- Tap fire button to switch weapons.
-
 - Healthbar and weapon bar above own worm, and also display weapon ordering.
-
-- Center viewport on own worm near level edge.
 
 - Scroll chat text instead of selecting it.
 
 - Minimap to the left and always shown.
 
 - Weapon selection button + movement cycles weapons randomly.
-
-- Tap to dig while staying still does not work, tapping in another place on the screen should not change worm direction.
