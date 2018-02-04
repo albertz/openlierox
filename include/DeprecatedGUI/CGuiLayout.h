@@ -134,6 +134,9 @@ public:
 	
 };
 
+extern CGuiLayout cGameMenuLayout;
+extern CGuiLayout cScoreLayout;
+
 } // namespace DeprecatedGUI
 
 #endif  //  __CGUILAYOUT_H__DEPRECATED_GUI__

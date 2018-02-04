@@ -2295,10 +2295,10 @@ void CClient::Shutdown() {
 	cShootList.Shutdown();
 
 	// Game menu
-	cGameMenuLayout.Shutdown();
+	DeprecatedGUI::cGameMenuLayout.Shutdown();
 
 	// Scoreboard
-	cScoreLayout.Shutdown();
+	DeprecatedGUI::cScoreLayout.Shutdown();
 
 
 	// Bonuses

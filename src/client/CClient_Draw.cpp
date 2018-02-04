@@ -55,7 +55,8 @@
 #include "Touchscreen.h"
 
 
-
+using DeprecatedGUI::cGameMenuLayout;
+using DeprecatedGUI::cScoreLayout;
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
 float			fLagFlash;

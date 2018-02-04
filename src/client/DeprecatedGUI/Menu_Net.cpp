@@ -139,7 +139,6 @@ void Menu_Net_GotoHostLobby()
 void Menu_NetFrame()
 {
 	int		mouse = 0;
-	mouse_t	*Mouse = GetMouse();
 
 	// Refresh the main window of the screen
 	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);

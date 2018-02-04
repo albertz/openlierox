@@ -28,7 +28,6 @@
 #include "CShootList.h"
 #include "Version.h"
 #include "FileDownload.h"
-#include "DeprecatedGUI/CGuiLayout.h"
 #include "Frame.h"
 #include "CProjectile.h"
 #include "CWpnRest.h"
@@ -269,7 +268,6 @@ private:
 	SmartPointer<SDL_Surface> bmpBoxBuffer;
 	SmartPointer<SDL_Surface> bmpBoxLeft;
 	SmartPointer<SDL_Surface> bmpBoxRight;
-	DeprecatedGUI::CGuiLayout  cGameMenuLayout;
 	bool		bShouldRepaintInfo;
 	bool		bCurrentSettings;
 
@@ -280,7 +278,6 @@ private:
 
 	// Ingame scoreboard
 	SmartPointer<SDL_Surface> bmpIngameScoreBg;
-	DeprecatedGUI::CGuiLayout	cScoreLayout;
 
 	// Bonus's
 	CBonus		*cBonuses;

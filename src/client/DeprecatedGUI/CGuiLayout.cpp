@@ -36,6 +36,9 @@
 namespace DeprecatedGUI {
 
 
+CGuiLayout cGameMenuLayout;
+CGuiLayout cScoreLayout;
+
 bool CGuiLayout::bKeyboardNavigation = true;
 
 
