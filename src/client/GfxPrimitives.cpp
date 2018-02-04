@@ -432,7 +432,7 @@ inline void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy
 		+ (dy * dst_pitch) + (dx * dst->format->BytesPerPixel);
 
 	// Copy row by row
-	for (register int i = 0; i < h; ++i)  {
+	for (int i = 0; i < h; ++i)  {
 		memcpy(dstrow, srcrow, byte_bound);
 		dstrow += dst_pitch;
 		srcrow += src_pitch;
@@ -657,7 +657,7 @@ void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 
 	short bpp = bmpDest->format->BytesPerPixel;
 
-	register Uint8 *sp,*tp;
+	Uint8 *sp,*tp;
 	for(y = h; y; --y) {
 
 		sp = SrcPix;

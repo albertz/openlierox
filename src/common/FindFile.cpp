@@ -151,7 +151,7 @@ list.clear();
 	int len = GetLogicalDriveStrings(sizeof(drives),drives); // Get the list of drives
 	drive_t tmp;
 	if (len)  {
-		for (register int i=0; i<len; i+=(int)strnlen(&drives[i],4)+1)  {
+		for (int i=0; i<len; i+=(int)strnlen(&drives[i],4)+1)  {
 			// Create the name (for example: C:\)
 			tmp.name = &drives[i];
 			// Get the type

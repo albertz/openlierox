@@ -179,7 +179,7 @@ bool ReadIntArray(const std::string& filename, const std::string& section, const
 		return false;
 
 	std::vector<std::string> arr = explode(string,",");
-	for (register int i=0; i<MIN(num_items,(int)arr.size()); i++)
+	for (int i=0; i<MIN(num_items,(int)arr.size()); i++)
 		array[i] = from_string<int>(arr[i]);
 
 	return num_items == (int)arr.size();
