@@ -27,6 +27,9 @@
 #include "Debug.h"
 #include "LieroX.h"
 #include "CWorm.h"
+#include "Mutex.h"
+#include "Condition.h"
+#include "ThreadPool.h"
 
 #ifdef __ANDROID__
 
@@ -52,6 +55,8 @@ static bool oldLeft = false, oldRight = false, oldUp = false, oldDown = false;
 
 static bool controlsInitialized = false;
 static char sScreenKeyboardBuf[256] = "";
+static Mutex screenKeyboardMutex;
+static Condition screenKeyboardCond;
 
 
 void ProcessTouchscreenEvents()
@@ -273,23 +278,78 @@ void ShowTouchscreenTextInput(const std::string & initialText)
 {
 	if (GetTouchscreenTextInputShown())
 		return;
+
+	Mutex::ScopedLock lock( screenKeyboardMutex );
+
 	strncpy(sScreenKeyboardBuf, initialText.c_str(), sizeof(sScreenKeyboardBuf));
 	sScreenKeyboardBuf[sizeof(sScreenKeyboardBuf) - 1] = 0;
-	SDL_ANDROID_GetScreenKeyboardTextInputAsync(sScreenKeyboardBuf, sizeof(sScreenKeyboardBuf));
+
+	struct MainThreadAction: public Action
+	{
+		int handle()
+		{
+			Mutex::ScopedLock lock( screenKeyboardMutex );
+			SDL_ANDROID_GetScreenKeyboardTextInputAsync(sScreenKeyboardBuf, sizeof(sScreenKeyboardBuf));
+			screenKeyboardCond.signal();
+			return 0;
+		} 
+	};
+	doActionInMainThread( new MainThreadAction );
+
+	screenKeyboardCond.wait( screenKeyboardMutex );
 }
 
 bool ProcessTouchscreenTextInput(std::string * output)
 {
-	if (SDL_ANDROID_GetScreenKeyboardTextInputAsync(sScreenKeyboardBuf, sizeof(sScreenKeyboardBuf)) == SDL_ANDROID_TEXTINPUT_ASYNC_FINISHED) {
-		output->assign(sScreenKeyboardBuf);
-		return true;
-	}
-	return false;
+	if (!GetTouchscreenTextInputShown())
+		return;
+
+	Mutex::ScopedLock lock( screenKeyboardMutex );
+
+	bool result = false;
+
+	struct MainThreadAction: public Action
+	{
+		std::string * output;
+		bool * result;
+		MainThreadAction(std::string * output, bool * result): output(output), result(result) {}
+		int handle()
+		{
+			Mutex::ScopedLock lock( screenKeyboardMutex );
+			if (SDL_ANDROID_GetScreenKeyboardTextInputAsync(sScreenKeyboardBuf, sizeof(sScreenKeyboardBuf)) == SDL_ANDROID_TEXTINPUT_ASYNC_FINISHED) {
+				output->assign(sScreenKeyboardBuf);
+				*result = true;;
+			}
+			screenKeyboardCond.signal();
+			return 0;
+		}
+	};
+	doActionInMainThread( new MainThreadAction(output, &result) );
+
+	screenKeyboardCond.wait( screenKeyboardMutex );
+
+	return result;
 }
 
 void SetTouchscreenTextInputHintMessage(const std::string & message)
 {
-	SDL_ANDROID_SetScreenKeyboardHintMesage(message.c_str());
+	Mutex::ScopedLock lock( screenKeyboardMutex );
+
+	struct MainThreadAction: public Action
+	{
+		const std::string & message;
+		MainThreadAction(const std::string & message): message(message) {}
+		int handle()
+		{
+			Mutex::ScopedLock lock( screenKeyboardMutex );
+			SDL_ANDROID_SetScreenKeyboardHintMesage(message.c_str());
+			screenKeyboardCond.signal();
+			return 0;
+		} 
+	};
+	doActionInMainThread( new MainThreadAction(message) );
+
+	screenKeyboardCond.wait( screenKeyboardMutex );
 }
 
 #else // __ANDROID__
