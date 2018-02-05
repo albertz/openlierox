@@ -289,9 +289,16 @@ void CWormHumanInputHandler::getInput() {
 		const float comboTapTime = 0.3f;
 		if (GetTouchscreenControlsShown() && allocombo && cShoot.isDownOnce()) {
 			if (m_worm->fLastShoot + comboTapTime > tLX->currentTime) {
-				// Cycle weapons by tapping Shoot button rapidly
-				m_worm->iCurrentWeapon++;
-				MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+				// Cycle weapons by tapping Shoot button rapidly, but skip weapons with no ammo
+				int prevWeapon = m_worm->iCurrentWeapon;
+				while(true) {
+					m_worm->iCurrentWeapon++;
+					MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+					if (m_worm->iCurrentWeapon == prevWeapon)
+						break;
+					if (!m_worm->tWeapons[m_worm->iCurrentWeapon].Reloading && m_worm->tWeapons[m_worm->iCurrentWeapon].Enabled)
+						break;
+				}
 			}
 		}
 		m_worm->fLastShoot = tLX->currentTime;
