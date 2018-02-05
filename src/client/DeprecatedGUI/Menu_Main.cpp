@@ -203,7 +203,7 @@ void Menu_MainFrame()
 			case mm_Theme:
 				if( ev->iEventMsg == CMB_CHANGED ) {
 					CCombobox * cbox = (CCombobox *) cMainMenu.getWidget(mm_Theme);
-					if (cbox && cbox->getSelectedItem()) {
+					if (cbox && cbox->getSelectedItem() && cbox->getSelectedItem()->sIndex != tLXOptions->sTheme) {
 						tLXOptions->sTheme = cbox->getSelectedItem()->sIndex;
 						notes("Changed theme to: " + tLXOptions->sTheme + "\n");
 

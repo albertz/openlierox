@@ -246,6 +246,7 @@ void Menu_LocalFrame()
 	cLocalMenu.Draw(VideoPostProcessor::videoSurface());
 
 	if(ev) {
+		int changeTeamPlayerId = -1;
 
 		switch(ev->iControlID) {
 			// Back
@@ -281,38 +282,45 @@ void Menu_LocalFrame()
 
 			// Playing list
 			case ml_Playing:
-				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK || ev->iEventMsg == LV_ENTER) {
-					Menu_LocalRemovePlaying();
+				if (ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK || ev->iEventMsg == LV_ENTER) {
+					if (!Menu_IsKeyboardNavigationUsed() || tLXOptions->tGameInfo.gameMode->GameTeams() <= 1)
+						Menu_LocalRemovePlaying();
 				}
 
+				lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 
-				if(ev->iEventMsg == LV_WIDGETEVENT && tLXOptions->tGameInfo.gameMode->GameTeams() > 1) {
-
+				if (tLXOptions->tGameInfo.gameMode->GameTeams() > 1 && ev->iEventMsg == LV_WIDGETEVENT) {
 					// If the team colour item was clicked on, change it
-					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
-
 					ev = lv->getWidgetEvent();
 					if (ev->cWidget->getType() == wid_Image && ev->iEventMsg == IMG_CLICK)  {
-						lv_item_t *it = lv->getItem(ev->iControlID);
-						lv_subitem_t *sub = lv->getSubItem(it, 2);
+						changeTeamPlayerId = ev->iControlID;
+					}
+					if (Menu_IsKeyboardNavigationUsed()) {
+						changeTeamPlayerId = lv->getCurIndex();
+					}
+				}
 
-						if(sub) {
-							sub->iExtra++;
-							sub->iExtra %= 4;
+				if (changeTeamPlayerId >= 0) {
+					lv_item_t *it = lv->getItem(changeTeamPlayerId);
+					lv_subitem_t *sub = lv->getSubItem(it, 2);
 
-							// Change the image
-							((CImage *)ev->cWidget)->Change(DynDrawFromSurface(gfxGame.bmpTeamColours[sub->iExtra]));
-						}
+					if(sub) {
+						sub->iExtra++;
+						sub->iExtra %= 4;
 
-						tMenu->sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
-						tMenu->sLocalPlayers[ev->iControlID].getProfile()->iTeam = sub->iExtra;
-						tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(tLXOptions->tGameInfo.gameMode->GeneralGameType());
+						// Change the image
+						((CImage *)sub->tWidget)->Change(DynDrawFromSurface(gfxGame.bmpTeamColours[sub->iExtra]));
 
-						// Reload the skin
-						sub = lv->getSubItem(it, 0);
-						if (sub)  {
-							sub->bmpImage = tMenu->sLocalPlayers[ev->iControlID].getPicimg();
-						}
+						tMenu->sLocalPlayers[changeTeamPlayerId].setTeam(sub->iExtra);
+						tMenu->sLocalPlayers[changeTeamPlayerId].getProfile()->iTeam = sub->iExtra;
+					}
+
+					tMenu->sLocalPlayers[changeTeamPlayerId].ChangeGraphics(tLXOptions->tGameInfo.gameMode->GeneralGameType());
+
+					// Reload the skin
+					sub = lv->getSubItem(it, 0);
+					if (sub)  {
+						sub->bmpImage = tMenu->sLocalPlayers[changeTeamPlayerId].getPicimg();
 					}
 				}
 				break;

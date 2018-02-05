@@ -24,6 +24,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "Sounds.h"
 #include "Timer.h"
 #include "Debug.h"
 
@@ -555,15 +556,16 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 				// Move the scrollbar if necessary
 				cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
 				iKeySelectedItem = iSelected;
+				PlaySoundSample(sfxGeneral.smpClick);
 			}
 			return CMB_CHANGED;
 		} else
-		
 		if (keysym == SDLK_UP)  {
 			if (selectPrev())  {
 				// Move the scrollbar if necessary
 				cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
 				iKeySelectedItem = iSelected;
+				PlaySoundSample(sfxGeneral.smpClick);
 			}
 			return CMB_CHANGED;
 		} else
@@ -575,6 +577,7 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 			keysym == SDLK_x ||
 			keysym == SDLK_z) {
 			bDropped = false;
+			PlaySoundSample(sfxGeneral.smpClick);
 			return CMB_CHANGED;
 		}
 	} else {
@@ -588,6 +591,7 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 			bDropped = true;
 			cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
 			iKeySelectedItem = iSelected;
+			PlaySoundSample(sfxGeneral.smpClick);
 			return CMB_CHANGED;
 		}
 	}

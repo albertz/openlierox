@@ -36,24 +36,24 @@
 
 namespace DeprecatedGUI {
 
-int OptionsMode = 0;
-CGuiLayout	cOptions;
-CGuiLayout	cOpt_Controls;
-CGuiLayout	cOpt_System;
-CGuiLayout	cOpt_Game;
-CButton		TopButtons[3];
+static CGuiLayout	cOpt_Controls;
+static CGuiLayout	cOpt_System;
+static CGuiLayout	cOpt_Game;
+
+enum { Static = -1 };
 
 // Control id's
-enum {
-	op_Back = -2,
-	Static = -1,
+enum OptionsMode_t {
 	op_Controls=0,
 	op_Game,
-	op_System
+	op_System,
+	op_Back,
 };
 
+static OptionsMode_t OptionsMode = op_Controls;
+
 enum {
-	os_Fullscreen,
+	os_Fullscreen = op_Back + 1,
 	os_ColourDepth,
 	os_SoundOn,
 	os_SoundVolume,
@@ -78,7 +78,7 @@ enum {
 };
 
 enum {
-	og_BloodAmount,
+	og_BloodAmount = op_Back + 1,
 	og_Shadows,
 	og_Particles,
 	og_OldSkoolRope,
@@ -97,7 +97,7 @@ enum {
 };
 
 enum {
-	oc_Ply1_Up,
+	oc_Ply1_Up = op_Back + 1,
 	oc_Ply1_Down,
 	oc_Ply1_Left,
 	oc_Ply1_Right,
@@ -131,7 +131,7 @@ enum {
 };
 
 
-std::string InputNames[] = {
+static std::string InputNames[] = {
 	"Up",
 	"Down",
 	"Left",
@@ -144,14 +144,23 @@ std::string InputNames[] = {
 };
 
 
-bool bSpeedTest = false;
+static bool bSpeedTest = false;
+
+static void Menu_OptionsAddTopButtons(CGuiLayout * layout)
+{
+	// Setup the top buttons
+	layout->Add( new CButton(BUT_CONTROLS, tMenu->bmpButtons), op_Controls, 180, 110, 100, 15);
+	layout->Add( new CButton(BUT_GAME, tMenu->bmpButtons), op_Game, 310, 110, 50, 15);
+	layout->Add( new CButton(BUT_SYSTEM, tMenu->bmpButtons), op_System, 390, 110, 70, 15);
+	layout->Add( new CButton(BUT_BACK, tMenu->bmpButtons), op_Back, 25,440, 50,15);
+}
 
 ///////////////////
 // Initialize the options
 bool Menu_OptionsInitialize()
 {
 	tMenu->iMenuType = MNU_OPTIONS;
-	OptionsMode = 0;
+	OptionsMode = op_Controls;
     int i;
 	bSpeedTest = false;
 
@@ -163,33 +172,17 @@ bool Menu_OptionsInitialize()
 
 	Menu_RedrawMouse(true);
 
-	// Setup the top buttons
-	TopButtons[op_Controls] =	CButton(BUT_CONTROLS,	tMenu->bmpButtons);
-	TopButtons[op_Game] =		CButton(BUT_GAME,		tMenu->bmpButtons);
-	TopButtons[op_System] =		CButton(BUT_SYSTEM,		tMenu->bmpButtons);
-
-	TopButtons[0].Setup(op_Controls, 180, 110, 100, 15);
-	TopButtons[1].Setup(op_Game, 310, 110, 50, 15);
-	TopButtons[2].Setup(op_System, 390, 110, 70, 15);
-    for(i=op_Controls; i<=op_System; i++)
-        TopButtons[i].Create();
-
-	cOptions.Shutdown();
-	cOptions.Initialize();
-
 	cOpt_System.Shutdown();
 	cOpt_System.Initialize();
+	Menu_OptionsAddTopButtons(&cOpt_System);
 
 	cOpt_Controls.Shutdown();
 	cOpt_Controls.Initialize();
+	Menu_OptionsAddTopButtons(&cOpt_Controls);
 
 	cOpt_Game.Shutdown();
 	cOpt_Game.Initialize();
-
-
-	// Add the controls
-	cOptions.Add( new CButton(BUT_BACK, tMenu->bmpButtons), op_Back, 25,440, 50,15);
-
+	Menu_OptionsAddTopButtons(&cOpt_Game);
 
 	// Controls
 	cOpt_Controls.Add( new CLabel("Player Controls", tLX->clHeading), Static, 40,  150, 0,0);
@@ -449,7 +442,7 @@ bool Menu_OptionsInitialize()
 bool Menu_StartWithSysOptionsMenu(void*) {
 	iSkipStart = true;
 	Menu_OptionsInitialize();
-	OptionsMode = 2;
+	OptionsMode = op_System;
 	return true;
 }
 
@@ -476,50 +469,10 @@ void Menu_OptionsUpdateUpload(float speed)
 	}
 }
 
-
-///////////////////
-// Options main frame
-void Menu_OptionsFrame()
+static bool Menu_OptionsProcessTopButtons(gui_event_t *ev)
 {
-	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev = NULL;
-	int			val;
-
-	CCheckbox	*c,*c2;
-	//CSlider		*s;
-
-	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer,  180,110,  180,110,  300,30);
-	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
-
-
-	// Process the top buttons
-	TopButtons[OptionsMode].MouseOver(Mouse);
-	SetGameCursor(CURSOR_ARROW); // Hack: button changed the cursor to hand, we need to change it back
-	for(int i=op_Controls;i<=op_System;i++) {
-
-		TopButtons[i].Draw(VideoPostProcessor::videoSurface());
-
-		if(i==OptionsMode || bSpeedTest)
-			continue;
-
-		if(TopButtons[i].InBox(Mouse->X,Mouse->Y)) {
-			TopButtons[i].MouseOver(Mouse);
-			if(Mouse->Up) {
-                DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
-				OptionsMode = i;
-				PlaySoundSample(sfxGeneral.smpClick);
-			}
-		}
-	}
-
-	// Process the gui layout
-	ev = bSpeedTest ? NULL : cOptions.Process();
-	cOptions.Draw(VideoPostProcessor::videoSurface());
-
 	if(ev) {
-
 		switch(ev->iControlID) {
-
 			// Back button
 			case op_Back:
 				if(ev->iEventMsg == BTN_CLICKED) {
@@ -531,18 +484,49 @@ void Menu_OptionsFrame()
 					// Leave
 					PlaySoundSample(sfxGeneral.smpClick);
 					Menu_MainInitialize();
-					return;
+					return true;
+				}
+				break;
+
+			// Top buttons
+			case op_Controls:
+			case op_Game:
+			case op_System:
+				if(ev->iEventMsg == BTN_CLICKED) {
+					DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
+					OptionsMode = (OptionsMode_t) ev->iControlID;
+					PlaySoundSample(sfxGeneral.smpClick);
+					cOpt_Controls.FocusWidget(ev->iControlID);
+					cOpt_Game.FocusWidget(ev->iControlID);
+					cOpt_System.FocusWidget(ev->iControlID);
+					return true;
 				}
 				break;
 		}
 	}
+	return false;
+}
 
+///////////////////
+// Options main frame
+void Menu_OptionsFrame()
+{
+	gui_event_t *ev = NULL;
+	int			val;
 
-	if(OptionsMode == 0) {
+	CCheckbox	*c,*c2;
+
+	// Process the top buttons
+	SetGameCursor(CURSOR_ARROW); // Hack: button changed the cursor to hand, we need to change it back
+
+	if(OptionsMode == op_Controls) {
 
 		// Controls
 		ev = bSpeedTest ? NULL : cOpt_Controls.Process();
 		cOpt_Controls.Draw(VideoPostProcessor::videoSurface());
+
+		if (Menu_OptionsProcessTopButtons(ev))
+			return;
 
 		if(ev) {
 
@@ -567,11 +551,14 @@ void Menu_OptionsFrame()
 	}
 
 
-	if(OptionsMode == 1) {
+	if(OptionsMode == op_Game) {
 
 		// Game
 		ev = bSpeedTest ? NULL : cOpt_Game.Process();
 		cOpt_Game.Draw(VideoPostProcessor::videoSurface());
+
+		if (Menu_OptionsProcessTopButtons(ev))
+			return;
 
 		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
 		//s = (CSlider *)cOpt_Game.getWidget(og_BloodAmount);
@@ -695,7 +682,7 @@ void Menu_OptionsFrame()
 
 
 	// Process the different pages
-	if(OptionsMode == 2) {
+	if(OptionsMode == op_System) {
 
 		// Fullscreen value
 		c = (CCheckbox *)cOpt_System.getWidget(os_Fullscreen);
@@ -717,10 +704,12 @@ void Menu_OptionsFrame()
 		//                 this could lead to a crash!
 
 
-
 		// System
 		ev = bSpeedTest ? NULL : cOpt_System.Process();
 		cOpt_System.Draw(VideoPostProcessor::videoSurface());
+
+		if (Menu_OptionsProcessTopButtons(ev))
+			return;
 
 		if(ev) {
 
@@ -906,7 +895,6 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	mouse_t *Mouse = GetMouse();
 
 	// Draw the back buffer
-	cOptions.Draw(tMenu->bmpBuffer.get());
 	cOpt_Controls.Draw(tMenu->bmpBuffer.get());
 
 	Menu_DrawBox(tMenu->bmpBuffer.get(), 210, 170, 430, 310);
@@ -918,12 +906,6 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,270,Color(255,255,255),"Press any key/mouse");
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,285,Color(128,128,128),"(Escape to cancel)");
-
-	TopButtons[OptionsMode].MouseOver(Mouse);
-	for(ushort i=0;i<3;i++) {
-		TopButtons[i].Draw(tMenu->bmpBuffer.get());
-	}
-
 
 	Menu_RedrawMouse(true);
 
@@ -997,7 +979,6 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 // Shutdown the options menu
 void Menu_OptionsShutdown()
 {
-	cOptions.Shutdown();
 	cOpt_Controls.Shutdown();
 	cOpt_System.Shutdown();
 	cOpt_Game.Shutdown();
