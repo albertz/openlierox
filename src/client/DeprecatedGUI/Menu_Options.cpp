@@ -40,6 +40,8 @@ static CGuiLayout	cOpt_Controls;
 static CGuiLayout	cOpt_System;
 static CGuiLayout	cOpt_Game;
 
+bool bShowFloatingOptions = false;
+
 enum { Static = -1 };
 
 // Control id's
@@ -152,23 +154,26 @@ static void Menu_OptionsAddTopButtons(CGuiLayout * layout)
 	layout->Add( new CButton(BUT_CONTROLS, tMenu->bmpButtons), op_Controls, 180, 110, 100, 15);
 	layout->Add( new CButton(BUT_GAME, tMenu->bmpButtons), op_Game, 310, 110, 50, 15);
 	layout->Add( new CButton(BUT_SYSTEM, tMenu->bmpButtons), op_System, 390, 110, 70, 15);
-	layout->Add( new CButton(BUT_BACK, tMenu->bmpButtons), op_Back, 25,440, 50,15);
+	layout->Add( new CButton(BUT_BACK, tMenu->bmpButtons), op_Back, 40,440, 50,15);
 }
 
 ///////////////////
 // Initialize the options
-bool Menu_OptionsInitialize()
+bool Menu_OptionsInitialize(bool floating)
 {
-	tMenu->iMenuType = MNU_OPTIONS;
+	bShowFloatingOptions = floating;
+	if (!bShowFloatingOptions)
+		tMenu->iMenuType = MNU_OPTIONS;
 	OptionsMode = op_Controls;
-    int i;
+	int i;
 	bSpeedTest = false;
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_OPTIONS);
+	if (!bShowFloatingOptions)
+		Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_OPTIONS);
 
 	Menu_RedrawMouse(true);
 
@@ -253,17 +258,20 @@ bool Menu_OptionsInitialize()
 	const int starty = 130;
 	y = starty;
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, y, 0,0);
-	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 90, y + 8, 620 - 90, 0);
+	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 90, y + 8, 620 - 150, 0);
 	y += 20;
-	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, y, 0,0);
-	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, y, 0,0);
+	// Do not allow changing video mode during game, it is complicated
+	if (!bShowFloatingOptions) {
+		cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, y, 0,0);
+		cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, y, 0,0);
+		cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, y, 0,0);
+	}
 	cOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, y, 17,17);
-	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, y, 17,17);
 
 	y += 20;
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, y, 0,0);
-	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 90, y + 8, 620 - 90, 0);
+	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 90, y + 8, 620 - 150, 0);
 	y += 20;
 	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, y, 17,17);
@@ -272,7 +280,7 @@ bool Menu_OptionsInitialize()
 
 	y += 20;
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, y, 0,0);
-	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 110, y + 8, 620 - 110, 0);	
+	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 110, y + 8, 620 - 170, 0);	
 	y += 20;
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, y, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, y - 2, 100,tLX->cFont.GetHeight());
@@ -288,30 +296,33 @@ bool Menu_OptionsInitialize()
 	cOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60, y, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, y - 2, 130,tLX->cFont.GetHeight());
 	
-	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, y, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, y - 2, 50,tLX->cFont.GetHeight());
-	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 585, y - 2, 30, 22); y += 25;
-	
 	cOpt_System.Add( new CLabel("Check bandwidth sanity",tLX->clNormalLabel),    Static, 330, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bCheckBandwidthSanity),  os_NetworkUploadCheck, 530, y,17,17);
+	y += 25;
+
+	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 60, y, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 250, y - 2, 50,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 327, y - 2, 30, 22);
+	
 	
 	y += 20;
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, y, 0,0);
-	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 130, y + 8, 620 - 130, 0);	
+	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 130, y + 8, 620 - 200, 0);	
 	y += 20;
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bShowFPS),   os_ShowFPS, 200, y, 17,17);
 
 	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,y, 0,0);
-	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,y, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 550, y - 2, 50,tLX->cFont.GetHeight()); y += 30;
+	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 460,y, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 530, y - 2, 50,tLX->cFont.GetHeight());
+	y += 30;
 	
 	cOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bLogConvos), os_LogConvos, 200,y,17,17);
 	cOpt_System.Add( new CLabel("Check for updates",tLX->clNormalLabel),Static, 230, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bCheckForUpdates),  os_CheckForUpdates, 365,y,17,17);
-	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 480, y, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 550,y,17,17);
+	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 460, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 530,y,17,17);
 	
 	
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
@@ -379,6 +390,12 @@ bool Menu_OptionsInitialize()
 		break;
 	}
 
+	// Do not allow changing video mode during game, it is complicated
+	if (bShowFloatingOptions) {
+		cOpt_System.getWidget(os_Fullscreen)->setEnabled(false);
+		cOpt_System.getWidget(os_ColourDepth)->setEnabled(false);
+		cOpt_System.getWidget(os_OpenGL)->setEnabled(false);
+	}
 
 	// Disable apply for now
 	cOpt_System.getWidget(os_Apply)->setEnabled(false);
@@ -438,6 +455,11 @@ bool Menu_OptionsInitialize()
 	return true;
 }
 
+bool Menu_FloatingOptionsInitialize()
+{
+	return Menu_OptionsInitialize(true);
+}
+
 
 bool Menu_StartWithSysOptionsMenu(void*) {
 	iSkipStart = true;
@@ -478,12 +500,15 @@ static bool Menu_OptionsProcessTopButtons(gui_event_t *ev)
 				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Shutdown & save
-					Menu_OptionsShutdown();
 					tLXOptions->SaveToDisc();
-
-					// Leave
+					if (bShowFloatingOptions) {
+						Menu_FloatingOptionsShutdown();
+					} else {
+						Menu_OptionsShutdown();
+						// Leave
+						Menu_MainInitialize();
+					}
 					PlaySoundSample(sfxGeneral.smpClick);
-					Menu_MainInitialize();
 					return true;
 				}
 				break;
@@ -725,12 +750,7 @@ void Menu_OptionsFrame()
 						tLXOptions->bFullscreen = fullscr;
 						tLXOptions->bOpenGL = opengl;
 						tLXOptions->iColourDepth = cdepth;
-						bool fail = false;
 
-						CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
-						tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
-						tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
-						t->setText(itoa(tLXOptions->nMaxFPS));
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						if(restart) {
@@ -834,7 +854,16 @@ void Menu_OptionsFrame()
 						tLXOptions->bCheckForUpdates = cOpt_System.SendMessage(os_CheckForUpdates, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					}
 					break;
-				
+
+				case os_MaxFPS:
+					if(ev->iEventMsg == TXT_CHANGE)  {
+						bool fail = false;
+						CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
+						tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
+						tLXOptions->nMaxFPS = fail ? 95 : MAX(5, tLXOptions->nMaxFPS);
+						//t->setText(itoa(tLXOptions->nMaxFPS));
+					}
+					break;
 			}
 		}
 
@@ -861,7 +890,7 @@ void Menu_OptionsFrame()
 		// FPS and fullscreen
 		t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
 
-		if(cdepth != tLXOptions->iColourDepth || opengl != tLXOptions->bOpenGL || fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS) {
+		if(cdepth != tLXOptions->iColourDepth || opengl != tLXOptions->bOpenGL || fullscr != tLXOptions->bFullscreen) {
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
 			cOpt_System.getWidget(os_Apply)->Draw( VideoPostProcessor::videoSurface() );
         } else {
@@ -885,6 +914,20 @@ void Menu_OptionsFrame()
 	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
+void Menu_FloatingOptionsFrame()
+{
+	static const int x = 30;
+	static const int y = 20;
+	static const int w = 565;
+	static const int h = 450;
+
+	// Redraw background image
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpMainBack_common, x, y, x, y, w, h);
+	Menu_DrawBox(VideoPostProcessor::videoSurface(), x, y, x + w, y + h);
+	Menu_DrawSubTitle(VideoPostProcessor::videoSurface(), SUB_OPTIONS);
+
+	Menu_OptionsFrame();
+}
 
 ///////////////////
 // Process an input box waiting thing
@@ -969,11 +1012,18 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_OPTIONS);
+	if (!bShowFloatingOptions)
+		Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_OPTIONS);
 
 	Menu_RedrawMouse(true);
 }
 
+void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *b)
+{
+	DrawImage(tMenu->bmpBuffer.get(), VideoPostProcessor::videoSurface(), 0, 0);
+	Menu_OptionsWaitInput(ply, name, b);
+	Menu_redrawBufferRect(0, 0, VideoPostProcessor::get()->screenWidth(), VideoPostProcessor::get()->screenHeight());
+}
 
 ///////////////////
 // Shutdown the options menu
@@ -985,6 +1035,12 @@ void Menu_OptionsShutdown()
 
 	if (bSpeedTest)
 		Menu_SpeedTest_Shutdown();
+}
+
+void Menu_FloatingOptionsShutdown()
+{
+	Menu_OptionsShutdown();
+	bShowFloatingOptions = false;
 }
 
 }; // namespace DeprecatedGUI

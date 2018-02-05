@@ -535,7 +535,7 @@ void	Menu_ServerSettingsShutdown();
 
 
 // Options
-bool	Menu_OptionsInitialize();
+bool	Menu_OptionsInitialize(bool floating = false);
 void	Menu_OptionsShutdown();
 void	Menu_OptionsFrame();
 void	Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b);
