@@ -51,7 +51,7 @@ void OpenLinkInExternBrowser(const std::string& url) {
 	
 #elif defined(__ANDROID__)
 
-	std::string cmd = "am start -a android.intent.action.VIEW --user -3 -d "
+	std::string cmd = "am start -a android.intent.action.VIEW --user -3 -d ";
 	cmd = url;
 	::system(cmd.c_str());
 
