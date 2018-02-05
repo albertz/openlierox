@@ -5,4 +5,5 @@
 
 - Minimap to the left and always shown.
 
-- Weapon selection button + movement cycles weapons randomly.
+- Fix keyboard navigation in options, game settings, and weapon bans.
+
