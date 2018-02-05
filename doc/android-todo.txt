@@ -5,5 +5,5 @@
 
 - Minimap to the left and always shown.
 
-- Fix keyboard navigation in options, game settings, and weapon bans.
+- Fix keyboard navigation in host player list, game settings, and weapon bans.
 
