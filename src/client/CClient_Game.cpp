@@ -1232,7 +1232,6 @@ void CClient::processChatter()
 			if(!firstLocalWorm || !firstLocalWorm->isUsed()) return;
 			cNetEngine->SendText(text, firstLocalWorm->getName());
 		}
-		bChat_Typing = false;
 		return;
 	}
 
@@ -1258,6 +1257,9 @@ void CClient::processChatter()
 		if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
 			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
 
+#ifdef __ANDROID__
+		bChat_Typing = false; // Always use Android native text input box instead of in-game input
+#endif
 		if (!GetTouchscreenTextInputShown()) {
 			ShowTouchscreenTextInput();
 		}
