@@ -553,10 +553,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Mini-Map
 		if (cMap != NULL && (bool)getGameLobby()->features[FT_MiniMap])  {
 			if (bGameReady || iNetStatus == NET_PLAYING)
-				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
+				cMap->DrawMiniMap( bmpDest, GetTouchscreenControlsShown() ? 0 : tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
 			else {
 				if(cMap->GetMiniMap().get())
-					DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+					DrawImage( bmpDest, cMap->GetMiniMap(), GetTouchscreenControlsShown() ? 0 : tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
 			}
 		}
 
@@ -987,7 +987,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 
 	// Draw the details only when current settings is not displayed
-	if (!bCurrentSettings)  {
+	// Touchscreen controls cover health bar in the corner of the screen, so do not draw it, it will be drawn near the worm
+	if (!bCurrentSettings && !GetTouchscreenControlsShown())  {
 		// Health
 		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
 		if (HealthBar)  {

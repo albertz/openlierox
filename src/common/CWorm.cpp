@@ -34,6 +34,7 @@
 #include "WeaponDesc.h"
 #include "Mutex.h"
 #include "InputEvents.h"
+#include "Touchscreen.h"
 
 
 
@@ -183,6 +184,8 @@ void CWorm::Clear()
 	// Graphics
 	cHealthBar = DeprecatedGUI::CBar(LoadGameImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, DeprecatedGUI::BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
+	cWeaponBar = DeprecatedGUI::CBar(LoadGameImage("data/frontend/worm_weapon.png", true), 0, 0, 0, 0, DeprecatedGUI::BAR_LEFTTORIGHT, 2, 2);
+	cWeaponBar.SetLabelVisible(false);
 
 	bAlreadyKilled = false;
 
@@ -786,6 +789,47 @@ static inline bool isWormVisible(CWorm* w, CViewport* v) {
 	return w->isVisible(v);
 }
 
+static int drawHealthBar(SDL_Surface * bmpDest, int hx, int hy, int health, DeprecatedGUI::CBar* cHealthBar, int barState, Color BorderColor, const Uint8 HealthColors[15])
+{
+	int WormNameY = 0;
+	if (cHealthBar && cHealthBar->IsProperlyLoaded())  {
+
+		cHealthBar->SetCurrentForeState(barState);
+		cHealthBar->SetCurrentBgState(barState);
+		cHealthBar->SetX(hx - cHealthBar->GetWidth() / 2);
+		cHealthBar->SetY(hy - cHealthBar->GetHeight() - 1);
+		cHealthBar->Draw( bmpDest );
+		cHealthBar->SetPosition( health );
+		WormNameY += cHealthBar->GetHeight()+2; // Leave some space
+
+	} else {  // Old style healthbar
+		hy -= 7;
+
+		// Draw the "grid"
+		{
+			DrawRect(bmpDest, hx-10,hy-1,hx+15,hy+5,BorderColor);
+			DrawVLine(bmpDest, hy, hy+4, hx-5,BorderColor);
+			DrawVLine(bmpDest, hy, hy+4, hx,BorderColor);
+			DrawVLine(bmpDest, hy, hy+4, hx+5,BorderColor);
+			DrawVLine(bmpDest, hy, hy+4, hx+10,BorderColor);
+		}
+
+		// Clamp it
+		int iShowHealth = Round((float)((health+15)/20));
+		if (iShowHealth > 5)
+			iShowHealth = 5;
+
+		for (short i=0; i<iShowHealth; i++) {
+			Color CurColor = Color(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
+			DrawRectFill(bmpDest,hx-10+(i*5+1),hy,hx-10+(i*5+1)+4,hy+5,CurColor);
+		}
+
+		WormNameY += 7;
+	}
+
+	return WormNameY;
+}
+
 ///////////////////
 // Draw the worm
 void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
@@ -893,52 +937,50 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if( !getAlive() )
 		return;
 
-	
+	static const Color HealthBorderColor = Color(0x49,0x50,0x65);
+											// Red			Orange				Yellow		   Light Green		  Green
+	static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
+											// Dark blue		Blue			Blue			Light blue		Lighter blue
+	static const Uint8 WeaponColors[15] = {0x00,0x00,0x60,  0x00,0x00,0x90,  0x00,0x00,0xC0,  0x00,0x20,0xFE,  0x20,0x40,0xFE};
+	static const Uint8 WeaponDisabledColors[15] = {0x00,0x00,0x30,  0x00,0x00,0x40,  0x00,0x00,0x50,  0x00,0x10,0x60,  0x10,0x20,0x70};
+
 	if (tLXOptions->bShowHealth && isWormVisible(this, v))  {
 		if (!bLocal || m_type != PRF_HUMAN)  {
-			int hx = x + l;
-			int hy = y + t - 9; // -8 = worm height/2
-
-			if (cHealthBar.IsProperlyLoaded())  {
-
-				cHealthBar.SetX(hx - cHealthBar.GetWidth() / 2);
-				cHealthBar.SetY(hy - cHealthBar.GetHeight() - 1);
-				cHealthBar.Draw( bmpDest );
-				cHealthBar.SetPosition((int)getHealth());
-				WormNameY += cHealthBar.GetHeight()+2; // Leave some space
-
-			} else {  // Old style healthbar
-				hy -= 7;
-
-				// Draw the "grid"
-				{
-					Color BorderColor = Color(0x49,0x50,0x65);
-					DrawRect(bmpDest, hx-10,hy-1,hx+15,hy+5,BorderColor);
-					DrawVLine(bmpDest, hy, hy+4, hx-5,BorderColor);
-					DrawVLine(bmpDest, hy, hy+4, hx,BorderColor);
-					DrawVLine(bmpDest, hy, hy+4, hx+5,BorderColor);
-					DrawVLine(bmpDest, hy, hy+4, hx+10,BorderColor);
-				}
-											// Red			Orange				Yellow		   Light Green		  Green
-				static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
-
-				// Clamp it
-				int iShowHealth = Round((float)((getHealth()+15)/20));
-				if (iShowHealth > 5)
-					iShowHealth = 5;
-
-				for (short i=0; i<iShowHealth; i++) {
-					Color CurColor = Color(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
-					DrawRectFill(bmpDest,hx-10+(i*5+1),hy,hx-10+(i*5+1)+4,hy+5,CurColor);
-				}
-
-				WormNameY += 7;
-
-			}
-
+			// int hy =  -8 = worm height/2
+			WormNameY += drawHealthBar(bmpDest, x + l, y + t - 9, (int)getHealth(), &cHealthBar, 0, HealthBorderColor, HealthColors);
 		}
 	}
 
+	if (GetTouchscreenControlsShown() && isWormVisible(this, v) && bLocal && m_type == PRF_HUMAN) {
+		// Touchscreen controls cover the health and weapon bars, so draw them below the worm, so they won't cover the crosshair
+		int yOffset = drawHealthBar(bmpDest, x + l, y + t + 20, (int)getHealth(), &cHealthBar, 0, HealthBorderColor, HealthColors);
+		yOffset -= 4;
+
+		if(getCurWeapon()->Weapon) {
+			if(getCurWeapon()->Reloading || !getCurWeapon()->Enabled)  {
+				yOffset += drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, (int) (getCurWeapon()->Charge * 100.0f), &cWeaponBar, 1, HealthBorderColor, WeaponDisabledColors);
+			} else {
+				yOffset += drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, (int) (getCurWeapon()->Charge * 100.0f), &cWeaponBar, 0, HealthBorderColor, WeaponColors);
+			}
+		} else { // no weapon
+			yOffset += drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, 0, &cWeaponBar, 0, HealthBorderColor, WeaponColors);
+		}
+
+		/*
+		// Draw current weapon index, just a colored dot
+		yOffset -= 4;
+		for (int i = 0; i < iNumWeaponSlots; i++) {
+			Color CurColor;
+			if (i == iCurrentWeapon)
+				CurColor = Color(HealthColors[12],HealthColors[13],HealthColors[14]);
+			else if (tWeapons[i].Reloading || !tWeapons[i].Enabled || !tWeapons[i].Weapon)
+				CurColor = Color(WeaponDisabledColors[0],WeaponDisabledColors[1],WeaponDisabledColors[2]);
+			else
+				CurColor = Color(WeaponColors[12],WeaponColors[13],WeaponColors[14]);
+			DrawRectFill(bmpDest, x + l - 12 + (i*5), y + t + 20 + yOffset, x + l - 12 + (i*5) + 2, y + t + 20 + yOffset + 2, CurColor);
+		}
+		*/
+	}
 
 	//
 	// Draw the crosshair

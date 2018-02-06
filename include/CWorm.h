@@ -310,6 +310,7 @@ private:
 	SmartPointer<DynDrawIntf> skinPreviewDrawer;
 	SmartPointer<SDL_Surface> bmpGibs;
 	DeprecatedGUI::CBar		cHealthBar;
+	DeprecatedGUI::CBar		cWeaponBar;
 
 
 	// Arsenal
