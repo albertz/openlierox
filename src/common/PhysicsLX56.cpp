@@ -795,7 +795,7 @@ public:
 				continue;
 			if(y>=mh) {
 				if( cClient->getGameLobby()->features[FT_InfiniteMap] )
-					bonus->pos().y =- (float)mh;
+					bonus->pos().y -= (float)mh;
 				else
 					colideBonus(bonus, x,y);
 				return;
