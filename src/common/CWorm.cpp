@@ -958,28 +958,28 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 		if(getCurWeapon()->Weapon) {
 			if(getCurWeapon()->Reloading || !getCurWeapon()->Enabled)  {
-				yOffset += drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, (int) (getCurWeapon()->Charge * 100.0f), &cWeaponBar, 1, HealthBorderColor, WeaponDisabledColors);
+				drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, (int) (getCurWeapon()->Charge * 100.0f), &cWeaponBar, 1, HealthBorderColor, WeaponDisabledColors);
 			} else {
-				yOffset += drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, (int) (getCurWeapon()->Charge * 100.0f), &cWeaponBar, 0, HealthBorderColor, WeaponColors);
+				drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, (int) (getCurWeapon()->Charge * 100.0f), &cWeaponBar, 0, HealthBorderColor, WeaponColors);
 			}
 		} else { // no weapon
-			yOffset += drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, 0, &cWeaponBar, 0, HealthBorderColor, WeaponColors);
+			drawHealthBar(bmpDest, x + l, y + t + 20 + yOffset, 0, &cWeaponBar, 0, HealthBorderColor, WeaponColors);
 		}
 
-		/*
 		// Draw current weapon index, just a colored dot
-		yOffset -= 4;
-		for (int i = 0; i < iNumWeaponSlots; i++) {
-			Color CurColor;
-			if (i == iCurrentWeapon)
-				CurColor = Color(HealthColors[12],HealthColors[13],HealthColors[14]);
-			else if (tWeapons[i].Reloading || !tWeapons[i].Enabled || !tWeapons[i].Weapon)
-				CurColor = Color(WeaponDisabledColors[0],WeaponDisabledColors[1],WeaponDisabledColors[2]);
-			else
-				CurColor = Color(WeaponColors[12],WeaponColors[13],WeaponColors[14]);
-			DrawRectFill(bmpDest, x + l - 12 + (i*5), y + t + 20 + yOffset, x + l - 12 + (i*5) + 2, y + t + 20 + yOffset + 2, CurColor);
+		if (bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
+			yOffset -= 1;
+			for (int i = 0; i < iNumWeaponSlots; i++) {
+				Color CurColor;
+				if (i == iCurrentWeapon)
+					CurColor = Color(HealthColors[12],HealthColors[13],HealthColors[14]);
+				else if (tWeapons[i].Reloading || !tWeapons[i].Enabled || !tWeapons[i].Weapon)
+					CurColor = Color(WeaponDisabledColors[0],WeaponDisabledColors[1],WeaponDisabledColors[2]);
+				else
+					CurColor = Color(WeaponColors[12],WeaponColors[13],WeaponColors[14]);
+				DrawRectFill(bmpDest, x + l - 11 + (i*5), y + t + 20 + yOffset, x + l - 11 + (i*5) + 2, y + t + 20 + yOffset + 2, CurColor);
+			}
 		}
-		*/
 	}
 
 	//
