@@ -299,6 +299,11 @@ void CWormHumanInputHandler::getInput() {
 					if (!m_worm->tWeapons[m_worm->iCurrentWeapon].Reloading && m_worm->tWeapons[m_worm->iCurrentWeapon].Enabled)
 						break;
 				}
+				if (m_worm->iCurrentWeapon != prevWeapon) {
+					// Let the weapon name show up for a short moment
+					m_worm->bForceWeapon_Name = true;
+					m_worm->fForceWeapon_Time = tLX->currentTime + 0.75f;
+				}
 			}
 		}
 		m_worm->fLastShoot = tLX->currentTime;
