@@ -349,26 +349,27 @@ void CViewport::reset()
 // Clamp the viewport if it exceeds any boundaries
 void CViewport::Clamp(int MWidth, int MHeight)
 {
-	if (GetTouchscreenControlsShown())
-	{
-		// Always center viewport on the player
+	// If we have FT_InfiniteMap set, we don't want to clamp the viewport.
+	// We are drawing the map (and everything) tiled together then.
+	if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
+		return;
+	}
+
+	if (GetTouchscreenControlsShown()) {
+		// Always center viewport on the player when using touchscren
 		WorldX = CLAMP(WorldX, -Width/2, MWidth-Width/2);
 		WorldY = CLAMP(WorldY, -Height/2, MHeight-Height/2);
 		return;
 	}
 
-	// If we have FT_InfiniteMap set, we don't want to clamp the viewport.
-	// We are drawing the map (and everything) tiled together then.
-	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
-		if(MWidth >= Width)
-			WorldX = CLAMP(WorldX, 0, MWidth-Width);
-		else
-			WorldX = 0;
-		if(MHeight >= Height)
-			WorldY = CLAMP(WorldY, 0, MHeight-Height);
-		else
-			WorldY = 0;
-	}
+	if(MWidth >= Width)
+		WorldX = CLAMP(WorldX, 0, MWidth-Width);
+	else
+		WorldX = 0;
+	if(MHeight >= Height)
+		WorldY = CLAMP(WorldY, 0, MHeight-Height);
+	else
+		WorldY = 0;
 }
 
 

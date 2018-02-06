@@ -84,6 +84,7 @@ public:
 		}
 
 		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+		CVec prevWormPos = worm->pos();
 		pos += *vel * dt * worm->speedFactor();
 		if(wrapAround) {
 			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
@@ -248,7 +249,18 @@ public:
 			else if( fabs(vel->y) > 30 && (clip & 0x04 || clip & 0x08) )
 				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm );
 		}
-		
+
+		if (wrapAround && worm->getNinjaRope()->isReleased()) {
+			if (worm->pos().x > prevWormPos.x + cClient->getMap()->GetWidth() / 2)
+				worm->getNinjaRope()->hookPos().x += cClient->getMap()->GetWidth();
+			if (worm->pos().x < prevWormPos.x - cClient->getMap()->GetWidth() / 2)
+				worm->getNinjaRope()->hookPos().x -= cClient->getMap()->GetWidth();
+			if (worm->pos().y > prevWormPos.y + cClient->getMap()->GetHeight() / 2)
+				worm->getNinjaRope()->hookPos().y += cClient->getMap()->GetHeight();
+			if (worm->pos().y < prevWormPos.y - cClient->getMap()->GetHeight() / 2)
+				worm->getNinjaRope()->hookPos().y -= cClient->getMap()->GetHeight();
+		}
+
 		return coll;
 	}
 
@@ -625,11 +637,10 @@ public:
 		bool outsideMap = false;
 
 		// Hack to see if the hook went out of the cClient->getMap()
-		if(!rope->isPlayerAttached() && !wrapAround)
-			if(
-				rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
+		if(!rope->isPlayerAttached() && !wrapAround &&
+			(	rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
 				rope->hookPos().x >= cClient->getMap()->GetWidth()-1 ||
-				rope->hookPos().y >= cClient->getMap()->GetHeight()-1) {
+				rope->hookPos().y >= cClient->getMap()->GetHeight()-1)) {
 			rope->setShooting( false );
 			rope->setAttached( true );
 
@@ -682,7 +693,12 @@ public:
 				if(!worms[i].isVisible(owner))
 					continue;
 
-				if( ( worms[i].getPos() - rope->hookPos() ).GetLength2() < 25 ) {
+				CVec dist = worms[i].getPos() - rope->hookPos();
+				if( wrapAround ) {
+					FMOD(dist.x, (float)cClient->getMap()->GetWidth());
+					FMOD(dist.y, (float)cClient->getMap()->GetHeight());
+				}
+				if( dist.GetLength2() < 25 ) {
 					rope->AttachToPlayer(&worms[i], owner);
 					break;
 				}
@@ -700,7 +716,19 @@ public:
 			{
 				rope->UnAttachPlayer();
 			} else {
+				CVec prevHookPos = rope->hookPos();
 				rope->hookPos() = rope->getAttachedPlayer()->getPos();
+				if( wrapAround ) {
+					//printf("worm %d rope %5.2f %5.2f -> %5.2f %5.2f width %d\n", owner->getID(), prevHookPos.x, prevHookPos.y, rope->hookPos().x, rope->hookPos().y, cClient->getMap()->GetWidth());
+					while (rope->hookPos().x > prevHookPos.x + cClient->getMap()->GetWidth() / 2)
+						rope->hookPos().x -= cClient->getMap()->GetWidth();
+					while (rope->hookPos().x < prevHookPos.x - cClient->getMap()->GetWidth() / 2)
+						rope->hookPos().x += cClient->getMap()->GetWidth();
+					while (rope->hookPos().y > prevHookPos.y + cClient->getMap()->GetHeight() / 2)
+						rope->hookPos().y -= cClient->getMap()->GetHeight();
+					while (rope->hookPos().y < prevHookPos.y - cClient->getMap()->GetHeight() / 2)
+						rope->hookPos().y += cClient->getMap()->GetHeight();
+				}
 			}
 		}
 	}

@@ -109,9 +109,21 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 	// because the worms are being processed in a "random" order -> we simulate and then the hook worm
 	// is simulated -> we have a wrong position, that's why we are correcting it here:
 	if(HookAttached && PlayerAttached && Worm) {
+		int prevx = (int)hookPos().x;
+		int prevy = (int)hookPos().y;
 		hx = (int)Worm->getPos().x;
 		hy = (int)Worm->getPos().y;
 		// HINT: don't change HookPos directly here, this should only be done by the simulation-function
+		if (cClient->getGameLobby()->features[FT_InfiniteMap]) {
+			while (hx > prevx + (int)(cClient->getMap()->GetWidth() / 2))
+				hx -= cClient->getMap()->GetWidth();
+			while (hx < prevx - (int)(cClient->getMap()->GetWidth() / 2))
+				hx += cClient->getMap()->GetWidth();
+			while (hy > prevy + (int)(cClient->getMap()->GetHeight() / 2))
+				hy -= cClient->getMap()->GetHeight();
+			while (hy < prevy - (int)(cClient->getMap()->GetHeight() / 2))
+				hy += cClient->getMap()->GetHeight();
+		}
 	}
 
 	int px = (int)ppos.x;
