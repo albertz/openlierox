@@ -1,9 +1,5 @@
 
-- Healthbar and weapon bar above own worm, and also display weapon ordering.
-
 - Scroll chat text instead of selecting it.
-
-- Minimap to the left and always shown.
 
 - Fix keyboard navigation in host player list, game settings, and weapon bans.
 
