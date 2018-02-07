@@ -1,5 +1,23 @@
 
+- Join and host network games with two players.
+
+- Wide-screen aspect ratio.
+
+- Option to mirror the map for infinite map.
+
+- Save mirrored map for old clients to download.
+
 - Scroll chat text instead of selecting it.
 
-- Fix keyboard navigation in host player list, game settings, and weapon bans.
+- Scroll comboboxes and list boxes with a gesture.
+
+- Add command to change game settings to ded server scripts.
+
+- Fix shots getting stuck in walls.
+
+- Fix bonuses not spawning on dedicated server.
+
+- Better touchscreen navigation in weapon selection screen, make all screen buttons work.
+
+- Fix keyboard navigation in host player list kickban menu, game settings, and weapon bans.
 
