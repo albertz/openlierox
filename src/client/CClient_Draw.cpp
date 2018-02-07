@@ -401,6 +401,9 @@ void CClient::DrawBox(SDL_Surface * dst, int x, int y, int w)
 void CClient::Draw(SDL_Surface * bmpDest)
 {
 #ifdef DEBUG
+#ifdef DrawText // Windows crap
+#undef DrawText
+#endif
 	struct DrawDebugStrPostHandler {
 		CClient& cl;
 		SDL_Surface* dst;

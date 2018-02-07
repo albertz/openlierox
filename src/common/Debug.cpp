@@ -25,7 +25,7 @@ void RaiseDebugger() {
 	// HINT: ignored when not in debugger
 	// If it just does nothing then, remove the surrounding #ifdef DEBUG
 	// I read about a Win32's IsDebuggerPresent() function, perhaps you should use that one here.
-	__asm  { int 3 };
+	//__asm  { int 3 };
 #endif
 }
 
@@ -127,8 +127,8 @@ void RaiseDebugger() {
 
 #include "AuxLib.h" // for Windows.h
 
-#include <DbgHelp.h>
-#include <ShlObj.h>
+#include <dbghelp.h>
+#include <shlobj.h>
 
 #include "LieroX.h"
 #include "CClient.h"
@@ -143,7 +143,7 @@ void RaiseDebugger() {
 void *ReadGameStateForReport(char *buffer, size_t bufsize)
 {
 	memset(buffer, 0, bufsize);
-	__try {
+	//__try {
 		if (cClient)  {
 			strncat(buffer, "Game state:\n", bufsize);
 			if (cClient->getStatus() == NET_CONNECTED)  {
@@ -162,8 +162,8 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 			}
 		}
 		buffer[bufsize - 1] = '\0';
-	} __except (EXCEPTION_EXECUTE_HANDLER)
-	{ return buffer; }
+	//} __except (EXCEPTION_EXECUTE_HANDLER)
+	//{ return buffer; }
 
 	return buffer;
 }
@@ -174,7 +174,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 	if (!tLXOptions || !tLX)
 		return buffer;
 	char tmp[32];
-	__try  {
+	//__try  {
 
 		// Game type
 		strncat(buffer, "iGameType = ", bufsize);
@@ -197,7 +197,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 
 		// Game mode
 		strncat(buffer, "GameMode = ", bufsize);
-		char tmp[16];
+		//char tmp[16];
 		itoa(tLXOptions->tGameInfo.gameMode->GeneralGameType(), tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, tmp, bufsize);
@@ -287,9 +287,9 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		}
 
 		buffer[bufsize - 1] = '\0';
-	} __except (EXCEPTION_EXECUTE_HANDLER) {
-		return buffer;
-	}
+	//} __except (EXCEPTION_EXECUTE_HANDLER) {
+	//	return buffer;
+	//}
 	return buffer;
 }
 

@@ -73,7 +73,9 @@
 #	define snprintf	 _snprintf
 #	define stricmp _stricmp
 #	define fcloseall _fcloseall
-#	define strcasecmp	stricmp
+#	ifndef strcasecmp
+#		define strcasecmp	stricmp
+#	endif
 #else
 inline void strlwr(char* string) {
 	if(string)
