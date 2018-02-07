@@ -1,7 +1,9 @@
 
-- Join and host network games with two players.
+- Navigate menu with analog gamepad stick.
 
 - Wide-screen aspect ratio.
+
+- Join and host network games with two players.
 
 - Option to mirror the map for infinite map.
 
