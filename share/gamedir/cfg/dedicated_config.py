@@ -111,6 +111,7 @@ PRESETS = [ "Mortars", "Random" ]
 
 GLOBAL_SETTINGS = {
 	"GameOptions.Network.ServerName":               "Games nonstop + voting",
+	"GameOptions.Network.WelcomeMessage":           "Welcome, <player>. Type !help for voting commands.",
 	"GameOptions.GameInfo.AllowConnectDuringGame":  1,
 	"GameOptions.GameInfo.AllowEmptyGames":         1,
 	"GameOptions.GameInfo.ImmediateStart":          1,
