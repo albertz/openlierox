@@ -273,6 +273,7 @@ static void initFeaturesList(CListview* l)
 			}
 		}
 	}
+	l->AddItem("", l->getNumItems(), tLX->clNormalLabel); // Empty line to fix keyboard navigation bug
 }
 
 
