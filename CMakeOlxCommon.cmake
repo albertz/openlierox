@@ -331,6 +331,7 @@ if(UNIX)
 	SET(LIBS ${LIBS} ${SDLLIBS} pthread xml2 z)
 
 	ADD_DEFINITIONS("-ftabstop=4") # Avoid some GCC and clang warnings due to messy indentation
+	ADD_DEFINITIONS("-Werror=format -Werror=format-nonliteral -Werror=format-security") # Force printf() arguments validation
 endif(UNIX)
 
 IF (NOT DEDICATED_ONLY)
