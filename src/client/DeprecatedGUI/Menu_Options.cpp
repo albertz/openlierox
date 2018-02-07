@@ -151,8 +151,9 @@ static bool bSpeedTest = false;
 static void Menu_OptionsAddTopButtons(CGuiLayout * layout)
 {
 	// Setup the top buttons
-	layout->Add( new CButton(BUT_CONTROLS, tMenu->bmpButtons), op_Controls, 180, 110, 100, 15);
-	layout->Add( new CButton(BUT_GAME, tMenu->bmpButtons), op_Game, 310, 110, 50, 15);
+	if (!getenv("ANDROID_TV"))
+		layout->Add( new CButton(BUT_CONTROLS, tMenu->bmpButtons), op_Controls, 180, 110, 100, 15);
+	layout->Add( new CButton(BUT_GAME, tMenu->bmpButtons), op_Game, getenv("ANDROID_TV") ? 180 : 310, 110, 50, 15);
 	layout->Add( new CButton(BUT_SYSTEM, tMenu->bmpButtons), op_System, 390, 110, 70, 15);
 	layout->Add( new CButton(BUT_BACK, tMenu->bmpButtons), op_Back, 40,440, 50,15);
 }
@@ -164,7 +165,7 @@ bool Menu_OptionsInitialize(bool floating)
 	bShowFloatingOptions = floating;
 	if (!bShowFloatingOptions)
 		tMenu->iMenuType = MNU_OPTIONS;
-	OptionsMode = op_Controls;
+	OptionsMode = getenv("ANDROID_TV") ? op_Game : op_Controls;
 	int i;
 	bSpeedTest = false;
 
