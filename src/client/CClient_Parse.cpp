@@ -1717,6 +1717,8 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 	int x = bs->readInt(2);
 	int y = bs->readInt(2);
 
+	notes << __PRETTY_FUNCTION__ << " id " << id << " pos " << x << " " << y << endl;
+
 	// Check
 	if (!client->bGameReady)  {
 		warnings << "CClientNetEngine::ParseSpawnBonus: Cannot spawn bonus when not playing (packet ignored)" << endl;

@@ -29,6 +29,7 @@
 // Spawn the bonus
 void CBonus::Spawn(CVec ppos, int type, int weapon, CGameScript *gs)
 {
+	notes << __PRETTY_FUNCTION__ << " pos " << ppos.x << " " << ppos.y << endl;
 	bUsed = true;
 	fLastSimulationTime = tLX->currentTime;
 	vPos = ppos;
@@ -76,6 +77,7 @@ void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, int showname)
 }
 
 void CBonus::setUsed(bool _u) {
+	notes << __PRETTY_FUNCTION__ << " " << _u << endl;
 	bUsed = _u; if(_u) fLastSimulationTime = tLX->currentTime;
 }
 
