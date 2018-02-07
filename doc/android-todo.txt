@@ -21,5 +21,5 @@
 
 - Better touchscreen navigation in weapon selection screen, make all screen buttons work.
 
-- Fix keyboard navigation in host player list kickban menu, game settings, and weapon bans.
+- Fix keyboard navigation in host player list kickban menu.
 
