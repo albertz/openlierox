@@ -113,7 +113,7 @@ void Menu_GameSettings()
 
 	features->setDrawBorder(true);
 	features->setRedrawMenu(false);
-	features->setShowSelect(false);
+	features->setShowSelect(Menu_IsKeyboardNavigationUsed());
 	features->setOldStyle(true);
 	features->subItemsAreAligned() = true;
 	features->setMouseOverEventEnabled(true);

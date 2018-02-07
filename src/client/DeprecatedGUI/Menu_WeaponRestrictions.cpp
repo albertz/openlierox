@@ -106,7 +106,7 @@ static void UpdateWeaponListWidget()
 	for (auto weapon: tWeaponList) {
 		std::string buf = weapon->psLink->szName;
 		stripdot(buf,245);
-		lv_item_t* row = listWidget->AddItem(buf, idx, tLX->clNormalLabel);
+		listWidget->AddItem(buf, idx, tLX->clNormalLabel);
 		listWidget->AddSubitem(buf);
 		listWidget->AddSubitem(szStates[weapon->psLink->nState], VALIGN_MIDDLE, cStateColours[weapon->psLink->nState]);
 		idx++;
