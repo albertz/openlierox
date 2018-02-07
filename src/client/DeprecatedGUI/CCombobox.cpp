@@ -560,6 +560,20 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 			}
 			return CMB_CHANGED;
 		} else
+		if (keysym == SDLK_PAGEDOWN) {
+			bool changed = false;
+			for (int count = 0; count < 10; count++) {
+				if (selectNext())  {
+					// Move the scrollbar if necessary
+					cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
+					iKeySelectedItem = iSelected;
+					changed = true;
+				}
+			}
+			if (changed)
+				PlaySoundSample(sfxGeneral.smpClick);
+			return CMB_CHANGED;
+		} else
 		if (keysym == SDLK_UP)  {
 			if (selectPrev())  {
 				// Move the scrollbar if necessary
@@ -567,6 +581,20 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 				iKeySelectedItem = iSelected;
 				PlaySoundSample(sfxGeneral.smpClick);
 			}
+			return CMB_CHANGED;
+		} else
+		if (keysym == SDLK_PAGEUP) {
+			bool changed = false;
+			for (int count = 0; count < 10; count++) {
+				if (selectPrev())  {
+					// Move the scrollbar if necessary
+					cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
+					iKeySelectedItem = iSelected;
+					changed = true;
+				}
+			}
+			if (changed)
+				PlaySoundSample(sfxGeneral.smpClick);
 			return CMB_CHANGED;
 		} else
 		if (keysym == SDLK_RETURN ||
