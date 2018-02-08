@@ -540,6 +540,9 @@ class PresetCicler(StandardCiclerBase):
 		if not self.curSelection: return
 		StandardCiclerBase.apply(self)
 
+		if self.curSelection == "Skip":
+			return
+
 		global availablePresets, presetDir
 
 		sDefaults = os.path.join(presetDir,"Defaults")
@@ -587,24 +590,26 @@ def selectPreset( Preset = None, Level = None, Mod = None, LT = None ):
 	if Preset:
 		presetCicler.pushSelection(Preset)
 		msg += " Preset " + Preset
+		if len(presetCicler.preSelectedList) > 1 and presetCicler.preSelectedList[0] == "Skip":
+			presetCicler.preSelectedList.pop(0)
 	if Level:
 		mapCicler.pushSelection(Level)
 		msg += " Map " + Level
 		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
 		if len(presetCicler.preSelectedList) <= 0:
-			presetCicler.pushSelection( "Random" ) # Prevent loading preset that overrides this setting
+			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
 	if Mod:
 		modCicler.pushSelection(Mod)
 		msg += " Mod " + Mod
 		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
 		if len(presetCicler.preSelectedList) <= 0:
-			presetCicler.pushSelection( "Random" ) # Prevent loading preset that overrides this setting
+			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
 	if LT:
 		LT_Cicler.pushSelection(str(LT))
 		msg += " LT " + str(LT)
 		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
 		if len(presetCicler.preSelectedList) <= 0:
-			presetCicler.pushSelection( "Random" ) # Prevent loading preset that overrides this setting
+			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
 
 	if gameState != GAME_LOBBY:
 		io.chatMsg( msg.strip() + " will be selected for next game")
