@@ -1251,6 +1251,12 @@ bool CWorm::GiveBonus(CBonus *b)
 			tWeapons[iCurrentWeapon].Charge = 1;
 			tWeapons[iCurrentWeapon].Reloading = false;
 			tWeapons[iCurrentWeapon].Enabled = true;
+
+			if (getLocal()) {
+				// Let the weapon name show up for a short moment
+				bForceWeapon_Name = true;
+				fForceWeapon_Time = tLX->currentTime + 0.75f;
+			}
 		}
 		else {
 			warnings << "selected bonus has invalid weapon " << b->getWeapon() << endl;
