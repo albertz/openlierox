@@ -154,13 +154,13 @@ def parseAdminCommand(wormid,message):
 
 def userCommandHelp(wormid):
 	if cfg.ALLOW_TEAM_CHANGE:
-		msg = "%sb or %sr or %steam [b/r" % (cfg.USER_PREFIX, cfg.USER_PREFIX, cfg.USER_PREFIX)
+		msg = "%sb or %sr or %sg or %steam [b/r" % (cfg.USER_PREFIX, cfg.USER_PREFIX, cfg.USER_PREFIX, cfg.USER_PREFIX)
 		if cfg.MAX_TEAMS >= 3:
 			msg += "/g"
 		if cfg.MAX_TEAMS >= 4:
 			msg += "/y"
 		msg += "] - set your team"
-		io.privateMsg(wormid, msg + " - set your team")
+		io.privateMsg(wormid, msg)
 	if cfg.RANKING:
 		io.privateMsg(wormid, "%stoprank - display the best players" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
@@ -349,13 +349,13 @@ def parseUserCommand(wormid,message):
 			if cmd == "map":
 				level = ""
 				for l in io.listMaps():
-					if l.lower().find(" ".join(params[0:]).lower()) != -1:
+					if l.lower().rstrip(".lxl").find(" ".join(params[0:]).lower()) != -1:
 						level = l
 						break
 				if level == "":
-					io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(io.listMaps()))
+					io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join([x.rstrip(".lxl") for x in io.listMaps()]))
 				else:
-					addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level )
+					addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level.rstrip(".lxl") )
 			
 			if cmd == "lt":
 				addVote( 'hnd.selectPreset( LT = %i )' % int(params[0]), wormid, "Loading time %i" % int(params[0]) )
@@ -389,15 +389,15 @@ def parseUserCommand(wormid,message):
 				if len(params) > 1 and cmd != "":
 					level = ""
 					for l in io.listMaps():
-						if l.lower().find(params[1].lower()) != -1:
+						if l.lower().rstrip(".lxl").find(params[1].lower()) != -1:
 							level = l
 							break
 					if level == "":
-						io.privateMsg(wormid, "Invalid map, available maps: " + ", ".join(io.listMaps()))
+						io.privateMsg(wormid, "Invalid map, available maps: " + ", ".join([x.rstrip(".lxl") for x in io.listMaps()]))
 						cmd = ""
 					else:
 						cmd += '; hnd.selectPreset( Level = "%s" )' % level
-						msg += " on %s" % level
+						msg += " on %s" % level.rstrip(".lxl")
 
 				if cmd != "":
 					addVote( cmd, wormid, msg )
