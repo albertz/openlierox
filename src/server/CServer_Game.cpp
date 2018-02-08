@@ -372,10 +372,6 @@ void GameServer::SimulateGame()
 	}
 
 	// Check if we need to spawn a bonus
-	static int i = 0;
-	i++;
-	if (i % 500 == 0)
-		notes << __PRETTY_FUNCTION__ << " currentTime " << tLX->currentTime.seconds() << " fLastBonusTime " << fLastBonusTime.seconds() << " fBonusFreq " << tLXOptions->tGameInfo.fBonusFreq << " bBonusesOn " << tLXOptions->tGameInfo.bBonusesOn << endl;
 	if(tLX->currentTime - fLastBonusTime > tLXOptions->tGameInfo.fBonusFreq && tLXOptions->tGameInfo.bBonusesOn && !bGameOver) {
 		SpawnBonus();
 		fLastBonusTime = tLX->currentTime;
@@ -420,8 +416,6 @@ void GameServer::SpawnBonus()
 		spot = i;
 		break;
 	}
-
-	notes << __PRETTY_FUNCTION__ << " id " << spot << " pos " << pos.x << " " << pos.y << endl;
 
 	// No spots
 	if(spot == -1)
