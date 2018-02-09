@@ -64,17 +64,16 @@ IF(UNIX)
 	IF(CMAKE_C_COMPILER MATCHES i686-w64-mingw32-gcc)
 		SET(MINGW_CROSS_COMPILE ON)
 	ENDIF(CMAKE_C_COMPILER MATCHES i686-w64-mingw32-gcc)
-	IF (MINGW_CROSS_COMPILE)
-		SET(G15 OFF)
-		SET(HAWKNL_BUILTIN ON) # We already have prebuilt HawkNL library
-		SET(LIBZIP_BUILTIN ON)
-		SET(X11 OFF)
-	ENDIF (MINGW_CROSS_COMPILE)
 ELSE(UNIX)
 	IF(WIN32)
 		SET(G15 OFF)
-		SET(HAWKNL_BUILTIN OFF) # We already have prebuilt HawkNL library
 		SET(X11 OFF)
+		SET(HAWKNL_BUILTIN OFF) # We already have prebuilt HawkNL library
+		SET(LIBZIP_BUILTIN ON)
+		IF (MINGW_CROSS_COMPILE)
+			SET(HAWKNL_BUILTIN ON)
+			SET(LIBZIP_BUILTIN ON)
+		ENDIF (MINGW_CROSS_COMPILE)
 	ELSE(WIN32)
 	ENDIF(WIN32)
 ENDIF(UNIX)
@@ -236,7 +235,7 @@ ADD_DEFINITIONS("-std=c++11")
 IF(WIN32)
 	IF(MINGW_CROSS_COMPILE)
 		ADD_DEFINITIONS(-DZLIB_WIN32_NODLL -DLIBXML_STATIC -DNONDLL -DCURL_STATICLIB
-							-D_WIN32_WINNT=0x0500 -D_WIN32_WINDOWS=0x0500 -DWINVER=0x0500 -DWIN32)
+						-D_WIN32_WINNT=0x0500 -D_WIN32_WINDOWS=0x0500 -DWINVER=0x0500 -DWIN32 -D_WIN32 -DMINGW)
 		INCLUDE_DIRECTORIES(
 					${OLXROOTDIR}/build/mingw/include
 					${OLXROOTDIR}/libs/hawknl/include
@@ -330,8 +329,8 @@ ELSEIF(APPLE)
 	link_directories(/Library/Frameworks/SDL_mixer.framework)
 	link_directories(/Library/Frameworks/SDL_image.framework)
 ELSEIF(MINGW_CROSS_COMPILE)
-
-ELSE()
+	SET(LIBS ${LIBS} SDLmain SDL_image SDL_mixer SDL gd xml2 jpeg png vorbisenc vorbisfile vorbis ogg z dbghelp dsound dxguid wsock32 wininet wldap32 user32 gdi32 winmm version kernel32)
+ELSE(MINGW_CROSS_COMPILE)
 	EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 	STRING(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
 ENDIF(WIN32 AND NOT MINGW_CROSS_COMPILE)
@@ -356,10 +355,7 @@ if(UNIX)
 	ADD_DEFINITIONS("-ftabstop=4") # Avoid some GCC and clang warnings due to messy indentation
 	ADD_DEFINITIONS("-Werror=format -Werror=format-nonliteral -Werror=format-security") # Force printf() arguments validation
 
-	SET(LIBS ${LIBS} ${SDLLIBS} xml2 z)
-	IF(NOT MINGW_CROSS_COMPILE)
-		SET(LIBS ${LIBS} ${SDLLIBS} pthread)
-	ENDIF(NOT MINGW_CROSS_COMPILE)
+	SET(LIBS ${LIBS} ${SDLLIBS} xml2 z pthread)
 endif(UNIX)
 
 IF (NOT DEDICATED_ONLY)
@@ -371,9 +367,5 @@ IF (NOT DEDICATED_ONLY)
 		SET(LIBS ${LIBS} SDL_mixer gd)
 	endif(APPLE)
 ENDIF (NOT DEDICATED_ONLY)
-
-IF(MINGW_CROSS_COMPILE)
-	SET(LIBS ${LIBS} SDLmain SDL jpeg png vorbisenc vorbis ogg dbghelp dsound dxguid wsock32 wininet wldap32 user32 gdi32 winmm version kernel32)
-ENDIF(MINGW_CROSS_COMPILE)
 
 ADD_DEFINITIONS('-D SYSTEM_DATA_DIR=\"${SYSTEM_DATA_DIR}\"')

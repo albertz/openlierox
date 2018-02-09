@@ -396,14 +396,15 @@ void CClient::DrawBox(SDL_Surface * dst, int x, int y, int w)
 	DrawImage(dst, bmpBoxRight, x + bmpBoxLeft.get()->w + middle_w, y); // Right part
 }
 
+#ifdef DrawText // Windows crap
+#undef DrawText
+#endif
+
 ///////////////////
 // Main drawing routines
 void CClient::Draw(SDL_Surface * bmpDest)
 {
 #ifdef DEBUG
-#ifdef DrawText // Windows crap
-#undef DrawText
-#endif
 	struct DrawDebugStrPostHandler {
 		CClient& cl;
 		SDL_Surface* dst;
