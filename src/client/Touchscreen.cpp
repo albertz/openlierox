@@ -52,6 +52,7 @@ static int aimTime;
 static int oldPosX, oldPosY;
 static bool oldPressed = false, oldCarve = false;
 static bool oldLeft = false, oldRight = false, oldUp = false, oldDown = false;
+static bool weaponSelectionHoriz = false, weaponSelectionVert = false;
 
 static bool controlsInitialized = false;
 static char sScreenKeyboardBuf[256] = "";
@@ -87,6 +88,8 @@ void ProcessTouchscreenEvents()
 			oldDown = false;
 			oldLeft = false;
 			oldRight = false;
+			weaponSelectionHoriz = false;
+			weaponSelectionVert = false;
 			KeyboardEvent k;
 			k.down = false;
 			k.ch = 0;
@@ -101,6 +104,8 @@ void ProcessTouchscreenEvents()
 		}
 		return;
 	}
+
+	CWorm* worm = cClient->getWorm(0);
 
 	if (pressed) {
 		if (pressed != oldPressed) {
@@ -122,6 +127,7 @@ void ProcessTouchscreenEvents()
 	if (posX - oldPosX < -TOUCHJOY_DEAD_ZONE) {
 		if (!oldLeft) {
 			oldLeft = true;
+			weaponSelectionHoriz = true;
 			KeyboardEvent k;
 			k.down = true;
 			k.ch = 0;
@@ -130,6 +136,10 @@ void ProcessTouchscreenEvents()
 		}
 		if (posX - oldPosX < -TOUCHJOY_DEAD_ZONE * 3) {
 			oldPosX = posX + TOUCHJOY_DEAD_ZONE * 3;
+			if (worm && !worm->getWeaponsReady()) {
+				// Weapon selection menu, press up/down slowly and in steps
+				oldPosX = posX;
+			}
 		}
 	} else {
 		if (oldLeft) {
@@ -145,6 +155,7 @@ void ProcessTouchscreenEvents()
 	if (posX - oldPosX > TOUCHJOY_DEAD_ZONE) {
 		if (!oldRight) {
 			oldRight = true;
+			weaponSelectionHoriz = true;
 			KeyboardEvent k;
 			k.down = true;
 			k.ch = 0;
@@ -153,6 +164,10 @@ void ProcessTouchscreenEvents()
 		}
 		if (posX - oldPosX > TOUCHJOY_DEAD_ZONE * 3) {
 			oldPosX = posX - TOUCHJOY_DEAD_ZONE * 3;
+			if (worm && !worm->getWeaponsReady()) {
+				// Weapon selection menu, press up/down slowly and in steps
+				oldPosX = posX;
+			}
 		}
 	} else {
 		if (oldRight) {
@@ -165,12 +180,18 @@ void ProcessTouchscreenEvents()
 		}
 	}
 
-	CWorm* worm = cClient->getWorm(0);
 	if (worm && !worm->getWeaponsReady()) {
 		// Weapon selection menu, press up/down slowly and in steps
+		if (weaponSelectionHoriz) {
+			oldPosY = posY; // Prevent moving cursor left/right
+		}
+		if (weaponSelectionVert) {
+			oldPosX = posX; // Prevent moving cursor up/down
+		}
 		if (abs(posY - oldPosY) > TOUCHJOY_DEAD_ZONE * 2.5) {
 			aimTime += (posY - oldPosY) > 0 ? 1 : -1;
 			oldPosY = posY;
+			weaponSelectionVert = true;
 		}
 	} else {
 		aimTime += (posY - oldPosY) * AIM_SPEED;
@@ -318,7 +339,7 @@ bool ProcessTouchscreenTextInput(std::string * output)
 			Mutex::ScopedLock lock( screenKeyboardMutex );
 			if (SDL_ANDROID_GetScreenKeyboardTextInputAsync(sScreenKeyboardBuf, sizeof(sScreenKeyboardBuf)) == SDL_ANDROID_TEXTINPUT_ASYNC_FINISHED) {
 				output->assign(sScreenKeyboardBuf);
-				*result = true;;
+				*result = true;
 			}
 			screenKeyboardCond.signal();
 			return 0;
