@@ -659,7 +659,11 @@ public:
 		if(!rope->isPlayerAttached()) {
 			rope->setAttached( false );
 
-			VectorD2<long> wrappedHookPos = rope->hookPos();
+			// float to long will truncate towards zero, so if we had x = 5.5,
+			// and the level width is 8, and x is wrapped around to 5.5 - 8 = -2.5,
+			// then for x = 5.5: ((long)x % width) == 5, and for x = -2.5: ((long)x % width) == 6
+			// floorf() does not have this truncating error, it always truncates towards minus infinity.
+			VectorD2<long> wrappedHookPos(floorf(rope->hookPos().x), floorf(rope->hookPos().y));
 			MOD(wrappedHookPos.x, (long)cClient->getMap()->GetWidth());
 			MOD(wrappedHookPos.y, (long)cClient->getMap()->GetHeight());
 			
@@ -669,6 +673,12 @@ public:
 				rope->setShooting( false );
 				rope->setAttached( true );
 				rope->hookVelocity() = CVec(0,0);
+
+				if(firsthit) {
+					// Move rope hook to the center of the pixel
+					rope->hookPos().x = floorf(rope->hookPos().x) + 0.5f;
+					rope->hookPos().y = floorf(rope->hookPos().y) + 0.5f;
+				}
 
 				if((px & PX_DIRT) && firsthit) {
 					Color col = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), wrappedHookPos.x, wrappedHookPos.y));
@@ -719,7 +729,6 @@ public:
 				CVec prevHookPos = rope->hookPos();
 				rope->hookPos() = rope->getAttachedPlayer()->getPos();
 				if( wrapAround ) {
-					//printf("worm %d rope %5.2f %5.2f -> %5.2f %5.2f width %d\n", owner->getID(), prevHookPos.x, prevHookPos.y, rope->hookPos().x, rope->hookPos().y, cClient->getMap()->GetWidth());
 					while (rope->hookPos().x > prevHookPos.x + cClient->getMap()->GetWidth() / 2)
 						rope->hookPos().x -= cClient->getMap()->GetWidth();
 					while (rope->hookPos().x < prevHookPos.x - cClient->getMap()->GetWidth() / 2)
