@@ -85,12 +85,12 @@ void Menu_MainInitialize()
 	// selection of different themes (like default, LX56, ...)
 	Menu_Main_GuiThemeComboboxCreate();
 
-	const char * LXALinkText = "Visit our forums at http://lxalliance.net";
+	const char * LXALinkText = "Visit our forums at http://openlierox.net/";
 	int orig_spacing = tLX->cFont.GetVSpacing();
 	tLX->cFont.SetVSpacing(tMenu->tFrontendInfo.iCreditsSpacing);
 	cMainMenu.Add( new CTextButton(LXALinkText, tLX->clCredits2, tLX->clCredits1 ), 
-						mm_LXALink, tMenu->tFrontendInfo.iCreditsLeft - tLX->cFont.GetWidth(LXALinkText) - 30, 
-						tMenu->tFrontendInfo.iCreditsTop + tLX->cFont.GetHeight() * 6, 250, 15 );
+						mm_LXALink, tMenu->tFrontendInfo.iCreditsLeft - tLX->cFont.GetWidth(LXALinkText) - 20,
+						tMenu->tFrontendInfo.iCreditsTop + tLX->cFont.GetHeight() * 5, 250, 15 );
 	tLX->cFont.SetVSpacing(orig_spacing);
 }
 
@@ -196,7 +196,7 @@ void Menu_MainFrame()
             
 			case mm_LXALink:
 				if( ev->iEventMsg == TXB_MOUSEUP ) {
-					OpenLinkInExternBrowser("http://www.openlierox.net/forum");
+					OpenLinkInExternBrowser("http://www.openlierox.net/");
 				}
 				break;
 
