@@ -1194,12 +1194,14 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				break;
 
             // Popup menu
-			case hl_PopupMenu:  {
+			case hl_PopupMenu:
+				if (ev->iEventMsg >= MNU_USER) {
 					Menu_HostActionsPopupMenuClick(cHostLobby, hl_PopupMenu, hl_PopupPlayerInfo, g_nLobbyWorm, ev->iEventMsg);
 				} 
 				break;
 
-			case hl_PopupPlayerInfo:  {
+			case hl_PopupPlayerInfo:
+				if (ev->iEventMsg >= MNU_USER) {
 					Menu_HostActionsPopupPlayerInfoClick(cHostLobby, hl_PopupMenu, hl_PopupPlayerInfo, g_nLobbyWorm, ev->iEventMsg);
 				} 
 				break;
@@ -1230,6 +1232,13 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		}
 	}
 
+	if (Menu_IsKeyboardNavigationUsed() && (!cHostLobby.getFocusedWidget() || cHostLobby.getFocusedWidget()->getID() != hl_PopupMenu)) {
+		// If popup menu not focused, remove it
+		cHostLobby.SendMessage(hl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
+		cHostLobby.removeWidget(hl_PopupMenu);
+		cHostLobby.SendMessage(hl_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
+		cHostLobby.removeWidget(hl_PopupPlayerInfo);
+	}
 	
 	// Draw the mouse
 	DrawCursor(VideoPostProcessor::videoSurface());
@@ -1833,6 +1842,9 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 							mnu = new CMenu(Mouse->X, Mouse->Y);
 							layout.Add(mnu, id_PopupMenu, 0, 0, 640, 480 );
 							if (wormid > 0)  {  // These items make no sense for host
+								if (tLXOptions->tGameInfo.gameMode->GameTeams() > 1) {
+									mnu->addItem(5, "Change team");
+								}
 								mnu->addItem(0, "Kick player");
 								mnu->addItem(1, "Ban player");
 								if (remote_cl)  {
@@ -1845,6 +1857,8 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 							}
 							if( cServer->getState() != SVS_PLAYING )
 								mnu->addItem(4, "Spectator", true, w->isSpectating());
+
+							layout.FocusWidget(id_PopupMenu);
 						}
 
 						CMenu * info = new CMenu( Mouse->X + (mnu ? mnu->getMenuWidth() : 0) + 10, Mouse->Y );
@@ -1918,22 +1932,31 @@ void Menu_HostActionsPopupMenuClick(CGuiLayout & layout, int id_PopupMenu, int i
 
 					// Spectate
 					case MNU_USER+4:  {
-						if( cServer->getState() == SVS_PLAYING )
-							break;
+							if( cServer->getState() == SVS_PLAYING )
+								break;
 
-						if (mnu->getItem(4) && g_nLobbyWorm >= 0 && wormid < MAX_WORMS)  {
-							bool spec = mnu->getItem(4)->bChecked;
-							CWorm *w = &cServer->getWorms()[wormid];
-							w->setSpectating(spec);
-							std::string buf;
-							if (spec)  {
-								if (networkTexts->sIsSpectating != "<none>")
-									cServer->SendGlobalText(replacemax(networkTexts->sIsSpectating, "<player>", w->getName(), buf, 1), TXT_NETWORK);
-							} else {
-								if (networkTexts->sIsPlaying != "<none>")
-									cServer->SendGlobalText(replacemax(networkTexts->sIsPlaying, "<player>", w->getName(), buf, 1), TXT_NETWORK);
+							if (mnu->getItem(4) && g_nLobbyWorm >= 0 && wormid < MAX_WORMS)  {
+								bool spec = mnu->getItem(4)->bChecked;
+								CWorm *w = &cServer->getWorms()[wormid];
+								w->setSpectating(spec);
+								std::string buf;
+								if (spec)  {
+									if (networkTexts->sIsSpectating != "<none>")
+										cServer->SendGlobalText(replacemax(networkTexts->sIsSpectating, "<player>", w->getName(), buf, 1), TXT_NETWORK);
+								} else {
+									if (networkTexts->sIsPlaying != "<none>")
+										cServer->SendGlobalText(replacemax(networkTexts->sIsPlaying, "<player>", w->getName(), buf, 1), TXT_NETWORK);
+								}
 							}
-						}
+						} break;
+
+					// Team
+					case MNU_USER+5:  {
+							CWorm *w = &cServer->getWorms()[wormid];
+							w->setTeam((w->getTeam() + 1) % cServer->getGameMode()->GameTeams());
+
+							cServer->SendWormLobbyUpdate();  // Update
+							bHost_Update = true;
 						} break;
                 }
 
