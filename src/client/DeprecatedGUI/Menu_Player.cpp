@@ -28,6 +28,7 @@
 #include "DeprecatedGUI/CSlider.h"
 #include "AuxLib.h"
 #include "ProfileSystem.h"
+#include "CWorm.h"
 
 
 namespace DeprecatedGUI {
@@ -126,7 +127,7 @@ void Menu_PlayerInitialize()
     cNewPlayer.Add( new CLabel("Type", tLX->clNormalLabel),Static,40,  232,0,  0);
     cNewPlayer.Add( new CCombobox(),           np_Type,  120, 230,120,17);
 
-	cNewPlayer.SendMessage(np_Name,TXM_SETMAX,20,0);
+	cNewPlayer.SendMessage(np_Name,TXM_SETMAX,MAX_WORM_NAME_LENGTH,0);
 	cNewPlayer.SendMessage( np_Name, TXM_SETFLAGS, TXF_NOUNICODE, 0); // Disable unicode for backward compatibility
 
 
@@ -190,7 +191,7 @@ void Menu_PlayerInitialize()
     cViewPlayers.Add( new CLabel("Type", tLX->clNormalLabel),                   Static, 350,202, 0,  0);
     cViewPlayers.Add( new CCombobox(),                              vp_Type,   400,200, 120,17);
 
-	cViewPlayers.SendMessage(vp_Name,TXM_SETMAX,20,0);
+	cViewPlayers.SendMessage(vp_Name,TXM_SETMAX,MAX_WORM_NAME_LENGTH,0);
 	cViewPlayers.SendMessage(vp_Name, TXM_SETFLAGS, TXF_NOUNICODE, 0); // Disable unicode for backward compatibility
 
 	cViewPlayers.SendMessage(vp_Players,		LVM_SETOLDSTYLE, (DWORD)0, 0);

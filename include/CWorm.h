@@ -40,7 +40,7 @@
 #pragma warning(disable:4355)
 #endif
 
-enum { MAX_WEAPONSLOTS = 10 };
+enum { MAX_WEAPONSLOTS = 10, MAX_WORM_NAME_LENGTH = 20, };
 
 // Direction
 enum DIR_TYPE

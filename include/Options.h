@@ -239,6 +239,10 @@ struct GameOptions {
 	bool	bAllowRemoteBots;
 	bool	bForceCompatibleConnect;
 	std::string	sForceMinVersion;
+	//Chat message check options
+	int		iMaxChatMessageLength;
+	//Server chat logging
+	bool	bLogServerChatToMainlog;
 	
 	// IRC chat
 	bool	bEnableChat;
@@ -283,11 +287,24 @@ struct GameOptions {
 	float	fAimMaxSpeed;
 	float	fAimFriction;
 	bool	bAimLikeLX56;
-
-    // Advanced
-    int     nMaxFPS;
-	int		iJpegQuality;
-	int		iMaxCachedEntries;		// Amount of entries to cache, including maps, mods, images and sounds.
+	
+	//Killing/dying spree thresholds
+	int iSpreeThreshold1;
+	int iSpreeThreshold2;
+	int iSpreeThreshold3;
+	int iSpreeThreshold4;
+	int iSpreeThreshold5;
+	
+	int iDyingSpreeThreshold1;
+	int iDyingSpreeThreshold2;
+	int iDyingSpreeThreshold3;
+	int iDyingSpreeThreshold4;
+	int iDyingSpreeThreshold5;
+	
+	// Advanced
+	int	nMaxFPS;
+	int	iJpegQuality;
+	int	iMaxCachedEntries;		// Amount of entries to cache, including maps, mods, images and sounds.
 	bool	bMatchLogging;			// Save screenshot of every game final score
 	bool	bRecoverAfterCrash;		// If we should try to recover after segfault etc, or generate coredump and quit
 	bool	bCheckForUpdates;		// Check for new development version on sourceforge.net
@@ -305,7 +322,8 @@ struct GameOptions {
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
 	std::string cfgFilename;
 	bool	doProjectileSimulationInDedicated;
-	
+	bool	bCheckMaxWpnTimeInInstantStart;   //Enforce max weapon selection time when instant start is enabled
+        
 	// Widget states
 	int		iInternetList[7];
 	int		iLANList[6];
