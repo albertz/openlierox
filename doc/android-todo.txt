@@ -1,6 +1,4 @@
 
-- Navigate menu with analog gamepad stick.
-
 - Wide-screen aspect ratio.
 
 - Join and host network games with two players.
@@ -16,10 +14,3 @@
 - Add command to change game settings to ded server scripts.
 
 - Fix shots getting stuck in walls.
-
-- Fix bonuses not spawning on dedicated server.
-
-- Better touchscreen navigation in weapon selection screen, make all screen buttons work.
-
-- Fix keyboard navigation in host player list kickban menu.
-
