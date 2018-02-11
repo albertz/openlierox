@@ -235,7 +235,7 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 	UnlockSurface(cMap->GetImage());
 
 	// Go through bonuses. If any were next to an explosion, destroy the bonus explosivly
-	if (tGameInfo.bBonusesOn)  {
+	if (tGameInfo.bBonusesOn && !getGameLobby()->features[FT_IndestructibleBonuses]) {
 		CBonus *b = cBonuses;
 		for(i=0; i < MAX_BONUSES; i++,b++) {
 			if(!b->getUsed())

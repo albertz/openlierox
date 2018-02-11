@@ -85,6 +85,7 @@ void GameServer::Clear()
 	bGameOver = false;
 	//iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
+	fOldClientsBonusUpdateTime = 0;
 	bServerRegistered = false;
 	fLastRegister = AbsTime();
 	fRegisterUdpTime = AbsTime();
