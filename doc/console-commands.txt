@@ -1,0 +1,73 @@
+Available commands:
+addBot - add bot to game
+addBots - add bots to game
+addHuman - add human player to game
+authorizeWorm - authorize worm
+banWorm - ban worm
+chatMsg - give a global chat message
+connect - join a server
+disconnect - disconnect from server or exit server
+dumpConnections - dump connections of server
+dumpGameState - dump game state
+dumpSysState - dump system state
+findSpot - find randm free spot in map (close to pos)
+getComputerWormList - get computer worm list
+getFullFileName - get full filename
+getVar - read variable
+getWormIp - get worm IP
+getWormList - get worm list
+getWormLocationInfo - get worm location info
+getWormName - get worm name
+getWormPing - get worm ping
+getWormPos - get worm position
+getWormProps - get worm properties
+getWormScore - get worm score
+getWormSkin - get worm skin
+getWormTeam - get worm team
+getWormVelocity - get worm velocity
+getWriteFullFileName - get writeable full filename
+gotoLobby - go to lobby
+help - list available commands or shows desription/usage of specific command
+irc - send message to IRC chat
+kickBot - kick bot from game
+kickBots - kick all bots from game
+kickWorm - kick worm
+killBots - kill all bots out of game
+listMaps - list all available maps
+listMods - list all available mods
+loadConfig - load config file
+longhelp - list available commands and description
+map - set map
+mapInfo - get map info
+mod - set mod
+msg - print message on stdout
+muteWorm - mute worm
+privateMsg - give a private message to a worm
+quit - quit game
+saveConfig - save current config
+saveConfigSection - save a specific config section
+script - load extern dedicated script
+serverName - rename server
+serverSideHealth - turn on/off server-side health
+setVar - set variable
+setViewport - Set viewport mode
+setWormCanAirJump - enable/disable air jump for worm
+setWormCanUseNinja - (dis)allow worm to use ninja
+setWormDamageFactor - set worm damagefactor
+setWormLives - set worm lives
+setWormShieldFactor - set worm shieldfactor
+setWormSpeedFactor - set worm speedfactor
+setWormTeam - set worm team
+signal - send custom signal to dedicated script
+sound - enable or disable sound
+spawnWorm - spawn worm
+startGame - start game
+startLobby - start server lobby
+suicide - suicide first local human worm
+unmuteWorm - unmute worm
+unstuck - unstuck first local human worm
+version - print game version info
+volume - set sound volume
+wait - Execute commands after wait
+wantsJoin - enable/disable wants to join messages
+whoIs - get some info about a worm

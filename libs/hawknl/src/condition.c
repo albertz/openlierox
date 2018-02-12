@@ -35,10 +35,12 @@ struct nl_cond_t
   HANDLE events_[MAX_EVENTS];
 };
 
+#ifndef __MINGW32__
 struct timespec {
 	long tv_sec;
 	long tv_nsec;
 };
+#endif
 
 #else /* !NL_WIN_THREADS */
 

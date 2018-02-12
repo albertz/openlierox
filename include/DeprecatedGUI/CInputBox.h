@@ -75,7 +75,7 @@ public:
 	int		MouseWheelDown(mouse_t *tMouse)		{ return INB_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return INB_NONE; }
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return INB_NONE; }
-	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return INB_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate); // return event on key up so we won't process that same event inside key reader
 
 
 	// Process a message sent
@@ -99,8 +99,6 @@ public:
 	// Draw the title button
 	void	Draw(SDL_Surface * bmpDest);
 
-	inline void	LoadStyle() {}
-
 
 	inline int		getValue()						{ return iKeyvalue; }
 	inline void	setValue(int _v)					{ iKeyvalue = _v; }
@@ -108,30 +106,8 @@ public:
 	inline void	setText(const std::string& _t)		{ sText = _t; }
 	inline std::string	getName()				{ return sName; }
 
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
-	void	ProcessGuiSkinEvent(int iEvent);
-
 	static CInputbox * InputBoxSelected;
 	static std::string InputBoxLabel;	// "GUI.InputBoxLabel" skin string
-	friend class CInputboxInput;
-};
-
-class CInputboxInput: public CInputbox	// InputBoxDialog.xml should contain exactly one such control at the end
-{
-	private:
-	int		iSkipFirstFrame;
-
-	public:
-	CInputboxInput();
-	~CInputboxInput();
-	
-	void	Draw(SDL_Surface * bmpDest) {};
-
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
-	
-	void	ProcessGuiSkinEvent(int iEvent);
-
-	static void UpdateCallback( const std::string & param, CWidget * source );
 };
 
 } // namespace DeprecatedGUI

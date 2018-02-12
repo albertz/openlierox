@@ -134,6 +134,7 @@ public:
 		tItems = NULL;
 		tLastItem = NULL;
 		tSelected = NULL;
+		tPreviousMouseSelection = NULL;
 		iItemCount=0;
 		bGotScrollbar = false;
 		iType = wid_Listview;
@@ -189,6 +190,7 @@ private:
 	
 	AbsTime			fLastMouseUp;
 	int				iClickedSub;
+	lv_item_t		*tPreviousMouseSelection;
 
 	// Scrollbar
 	CScrollbar		cScrollbar;
@@ -215,6 +217,7 @@ private:
 private:
 	void	ShowTooltip(const std::string& text, int ms_x, int ms_y);
 	void	UpdateItemIDs();
+	void	MoveMouseToCurrentItem();
 
 public:
 	// Methods
@@ -233,8 +236,6 @@ public:
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
 	void	Draw(SDL_Surface * bmpDest);
-
-	void	LoadStyle() {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
@@ -260,6 +261,12 @@ public:
 	}
 	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Color iColour, const std::string& tooltip = "") {
 		AddSubitem(iType, sText, DynDrawFromSurface(img), wid, iVAlign, iColour, tooltip);		
+	}
+	void	AddSubitem(const std::string& sText, int iVAlign = VALIGN_MIDDLE, const std::string& tooltip = "") {
+		AddSubitem(LVS_TEXT, sText, (DynDrawIntf*)NULL, NULL, iVAlign, tooltip);
+	}
+	void	AddSubitem(const std::string& sText, int iVAlign, Color iColour, const std::string& tooltip = "") {
+		AddSubitem(LVS_TEXT, sText, (DynDrawIntf*)NULL, NULL, iVAlign, iColour, tooltip);
 	}
 
 	void	RemoveItem(int iIndex);
@@ -309,22 +316,6 @@ public:
 	void	setMouseOverEventEnabled(bool b)	{ bMouseOverEventEnabled = b; }
 	int		getMouseOverIndex()		 { if(tMouseOver) return tMouseOver->iIndex; else return -1; }
 	std::string getMouseOverSIndex() { if(tMouseOver) return tMouseOver->sIndex; else return ""; }
-
-
-	// Read-only listview for skinning (typically text list), more variants to come.
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CListview * w = new CListview();
-		layout->Add( w, id, x, y, dx, dy );
-		w->setOldStyle( p[0].b );
-		w->setShowSelect( ! p[1].b );
-		w->setDrawBorder( ! p[2].b );
-		return w;
-	}
-
-	void	ProcessGuiSkinEvent(int iEvent)
-	{
-	}
 };
 
 } // namespace DeprecatedGUI

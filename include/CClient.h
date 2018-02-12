@@ -22,14 +22,12 @@
 #include <map>
 #include <set>
 #include "FastVector.h"
-#include "CWeather.h"
 #include "CChatBox.h"
 #include "Networking.h"
 #include "CBytestream.h"
 #include "CShootList.h"
 #include "Version.h"
 #include "FileDownload.h"
-#include "DeprecatedGUI/CGuiLayout.h"
 #include "Frame.h"
 #include "CProjectile.h"
 #include "CWpnRest.h"
@@ -189,7 +187,6 @@ public:
 	friend class CClientNetEngine;
 	friend class CClientNetEngineBeta7;
 	friend class CClientNetEngineBeta9;
-	friend class CClientNetEngineBeta9NewNet;
 
 	typedef void (*DownloadFinishedCB) ();
 
@@ -220,7 +217,6 @@ private:
 	// Projectiles
 	typedef FastVector<CProjectile,MAX_PROJECTILES> Projectiles;
 	Projectiles	cProjectiles;
-	Projectiles	NewNet_SavedProjectiles;
 	
 public:
 	struct MapPosIndex {
@@ -272,11 +268,9 @@ private:
 	SmartPointer<SDL_Surface> bmpBoxBuffer;
 	SmartPointer<SDL_Surface> bmpBoxLeft;
 	SmartPointer<SDL_Surface> bmpBoxRight;
-	DeprecatedGUI::CGuiLayout  cGameMenuLayout;
 	bool		bShouldRepaintInfo;
 	bool		bCurrentSettings;
 
-    CWeather    cWeather;
 
 	// Game menu && score
 	bool		bUpdateScore;
@@ -284,7 +278,6 @@ private:
 
 	// Ingame scoreboard
 	SmartPointer<SDL_Surface> bmpIngameScoreBg;
-	DeprecatedGUI::CGuiLayout	cScoreLayout;
 
 	// Bonus's
 	CBonus		*cBonuses;
@@ -451,9 +444,6 @@ public:
 	void		DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm );
 	void		ProcessShot(shoot_t *shot, AbsTime fSpawnTime);
 	void		ProcessShot_Beam(shoot_t *shot);
-	
-	void		NewNet_Simulation(); // Simulates one frame, delta time always set to 10 ms, ignores current time
-	void		NewNet_DoLocalShot( CWorm *w );
 
 	void		BotSelectWeapons();
 
@@ -473,7 +463,6 @@ public:
 
 	// Main
 	void		Frame();
-	void		NewNet_Frame();
 
 	// Drawing
 	bool		InitializeDrawing();
@@ -676,8 +665,6 @@ public:
 	void		setOnMapDlFinished(DownloadFinishedCB f)  { tMapDlCallback = f; }
 	void		setOnModDlFinished(DownloadFinishedCB f)  { tModDlCallback = f; }
 	
-	void		NewNet_SaveProjectiles();
-	void		NewNet_LoadProjectiles();
 	Projectiles & getProjectiles()		{ return cProjectiles; }
 	
 	void		DumpGameState(CmdLineIntf* caller);

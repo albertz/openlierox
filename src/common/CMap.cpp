@@ -690,8 +690,10 @@ bool CMap::createGrid() {
     GridFlags = new uchar[nGridCols * nGridRows];
     AbsoluteGridFlags = new uchar[nGridCols * nGridRows];
     if(GridFlags == NULL || AbsoluteGridFlags == NULL) {
-		if(GridFlags) delete[] GridFlags; GridFlags = NULL;
-		if(AbsoluteGridFlags) delete[] AbsoluteGridFlags; AbsoluteGridFlags = NULL;
+		if(GridFlags) delete[] GridFlags;
+		GridFlags = NULL;
+		if(AbsoluteGridFlags) delete[] AbsoluteGridFlags;
+		AbsoluteGridFlags = NULL;
 		unlockFlags();
         SetError("CMap::CreateGrid(): Out of memory");
         return false;
@@ -796,8 +798,6 @@ void CMap::calculateCollisionGridArea(int x, int y, int w, int h)
 	const int cw = getCollGridCellW();
 	const int ch = getCollGridCellH();
 
-	AbsTime time = GetTime();
-
 #define GRID_CELL(X, Y)  (CollisionGrid + (Y) * Width + (X))
 #define PIXEL_FLAG(X, Y)  (PixelFlags + (Y) * Width + (X))
 #define CHECK(X, Y)  if ((X) >= (int)Width || (X) < 0 || (Y) >= (int)Height || (Y) < 0)  { errors << "CMap::calculateCollisionGridArea(): Calculating over map borders" << endl; RaiseDebugger(); }
@@ -832,7 +832,7 @@ void CMap::calculateCollisionGridArea(int x, int y, int w, int h)
 		}
 
 	// The rest
-	SDL_Rect clip = { cw, ch, Width - 2 * cw - 1, Height - 2 * ch - 1 };
+	SDL_Rect clip = { (SDLRect::Type) cw, (SDLRect::Type) ch, (SDLRect::TypeS) (Width - 2 * cw - 1), (SDLRect::TypeS) (Height - 2 * ch - 1) };
 	if (!ClipRefRectWith(x, y, w, h, (SDLRect&)clip))
 		return;
 
@@ -875,7 +875,6 @@ void CMap::calculateCollisionGridArea(int x, int y, int w, int h)
 				}
 		}
 
-	TimeDiff df = GetTime() - time;
 	//notes << "Calculating collision grid took " << df.seconds() << " seconds." << endl;
 
 #undef PIXEL_FLAG
@@ -1005,6 +1004,23 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
 	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
+
+		// Draw black borders around the level
+		/*
+		if (x < 0) {
+			rectfill(where, 0, 0, -x * 2, where->h, 0);
+		}
+		if (bmpDrawImage.get() && x * 2 > bmpDrawImage.get()->w - where->w) {
+			rectfill(where, bmpDrawImage.get()->w - x * 2, 0, where->w, where->h, 0);
+		}
+		if (y < 0) {
+			rectfill(where, 0, 0, where->w, -y * 2, 0);
+		}
+		if (bmpDrawImage.get() && y * 2 > bmpDrawImage.get()->h - where->h) {
+			rectfill(where, 0, bmpDrawImage.get()->h - y * 2, where->w, where->h, 0);
+		}
+		*/
+
 		DrawImageAdv(bmpDest, bmpDrawImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
 #ifdef _AI_DEBUG
 		DrawImageAdv(bmpDest, bmpDebugImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
@@ -1022,7 +1038,8 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 // Draw the map
 void CMap::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
-	SDL_Rect destRect = {view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2};
+	SDL_Rect destRect = {(SDLRect::Type) view->GetLeft(), (SDLRect::Type) view->GetTop(),
+						(SDLRect::TypeS) (view->GetWidth()*2), (SDLRect::TypeS) (view->GetHeight()*2) };
 	Draw(bmpDest, destRect, view->GetWorldX(), view->GetWorldY());
 }
 
@@ -1857,7 +1874,7 @@ void CMap::StaticCollisionCheckFinite(const CVec &objpos, int objw, int objh, CM
 	}
 
 	// Cross check, taken from worm collision
-	SDL_Rect coll_r = { (int)objpos.x - objw / 2, (int)objpos.y - objh / 2, objw, objh };
+	SDL_Rect coll_r = { (SDLRect::Type) ((int)objpos.x - objw / 2), (SDLRect::Type) ((int)objpos.y - objh / 2), (SDLRect::TypeS) objw, (SDLRect::TypeS) objh };
 	if (!ClipRefRectWith(coll_r.x, coll_r.y, coll_r.w, coll_r.h, (SDLRect&)bmpImage->clip_rect))
 		return;
 	result.x = coll_r.x + coll_r.w / 2;
@@ -1918,7 +1935,7 @@ void CMap::StaticCollisionCheckInfinite(const CVec &objpos, int objw, int objh, 
 	}
 
 	// Cross check, taken from worm collision
-	SDL_Rect coll_r = { (int)objpos.x - objw / 2, (int)objpos.y - objh / 2, objw, objh };
+	SDL_Rect coll_r = { (SDLRect::Type) ((int)objpos.x - objw / 2), (SDLRect::Type) ((int)objpos.y - objh / 2), (SDLRect::TypeS) objw, (SDLRect::TypeS) objh };
 	result.x = coll_r.x + coll_r.w / 2;
 	result.y = coll_r.y + coll_r.h / 2;
 
@@ -2196,7 +2213,6 @@ void CMap::PlaceMisc(int id, CVec pos)
 	SmartPointer<SDL_Surface> misc;
 	short dy,dx, sx,sy;
 	short x,y;
-	short w,h;
 
 	if(id < 0 || id >= Theme.NumMisc) {
 		warnings("Bad misc size\n");
@@ -2216,8 +2232,6 @@ void CMap::PlaceMisc(int id, CVec pos)
 
 	// Calculate half
 	misc = Theme.bmpMisc[id];
-	w = misc.get()->w;
-	h = misc.get()->h;
 
 	sx = (int)pos.x-(misc.get()->w>>1);
 	sy = (int)pos.y-(misc.get()->h>>1);
@@ -2778,101 +2792,6 @@ void CMap::DEBUG_DrawPixelFlags(int x, int y, int w, int h)
 #endif
 
 	//SDL_SetClipRect(bmpDrawImage.get(), &oldrect);
-}
-
-
-void CMap::NewNet_SaveToMemory()
-{
-	if( bMapSavingToMemory )
-	{
-		errors("Error: calling CMap::SaveToMemory() twice\n");
-		return;
-	}
-	bMapSavingToMemory = true;
-	if( bmpSavedImage.get() == NULL )
-	{
-		if( bmpBackImageHiRes.get() )
-			bmpSavedImage = gfxCreateSurface(Width*2, Height*2);
-		else
-			bmpSavedImage = gfxCreateSurface(Width, Height);
-			
-		if( bmpSavedImage.get() == NULL )
-		{
-			errors("Error: CMap::SaveToMemory(): cannot allocate GFX surface\n");
-			return;
-		}
-		savedPixelFlags = new uchar[Width * Height];
-	}
-	
-	savedMapCoords.clear();
-}
-
-void CMap::NewNet_RestoreFromMemory()
-{
-	if( ! bMapSavingToMemory )
-	{
-		errors("Error: calling CMap::RestoreFromMemory() twice\n");
-		return;
-	}
-	if( bmpSavedImage.get() == NULL || savedPixelFlags == NULL )
-	{
-		errors("Error: CMap::RestoreFromMemory(): bmpSavedImage is NULL\n");
-		return;
-	}
-	
-	for( std::set< SavedMapCoord_t > :: iterator it = savedMapCoords.begin();
-			it != savedMapCoords.end(); it++ )
-	{
-		int startX = it->X*MAP_SAVE_CHUNK;
-		int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
-		int startY = it->Y*MAP_SAVE_CHUNK;
-		int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
-
-		LOCK_OR_QUIT(bmpSavedImage);
-		lockFlags();
-	
-		if( bmpBackImageHiRes.get() )
-		{
-			LOCK_OR_QUIT(bmpDrawImage);
-			DrawImageAdv( bmpDrawImage.get(), bmpSavedImage, startX*2, startY*2, startX*2, startY*2, sizeX*2, sizeY*2 );
-			UnlockSurface(bmpDrawImage);
-		}
-		else
-		{
-			LOCK_OR_QUIT(bmpImage);
-			DrawImageAdv( bmpImage.get(), bmpSavedImage, startX, startY, startX, startY, sizeX, sizeY );
-			UnlockSurface(bmpImage);
-		}
-
-		for( int y=startY; y<startY+sizeY; y++ )
-			memcpy( PixelFlags + y*Width + startX, savedPixelFlags + y*Width + startX, sizeX*sizeof(uchar) );
-	
-		unlockFlags();
-		UnlockSurface(bmpSavedImage);
-		
-		if( tLXOptions->bShadows )
-		{
-			UpdateArea(startX, startY, sizeX, sizeY, true);
-		}
-		else
-		{
-			UpdateDrawImage(startX, startY, sizeX, sizeY);
-			UpdateMiniMapRect(startX-10, startY-10, sizeX+20, sizeY+20);
-		}
-	}
-
-	bMapSavingToMemory = false;
-	savedMapCoords.clear();
-}
-
-void CMap::NewNet_Deinit()
-{
-		bMapSavingToMemory = false;
-		bmpSavedImage = NULL;
-		if( savedPixelFlags )
-			delete[] savedPixelFlags;
-		savedPixelFlags = NULL;
-		savedMapCoords.clear();
 }
 
 void CMap::SaveToMemoryInternal(int x, int y, int w, int h)

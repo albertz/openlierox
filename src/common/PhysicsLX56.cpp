@@ -84,6 +84,7 @@ public:
 		}
 
 		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+		CVec prevWormPos = worm->pos();
 		pos += *vel * dt * worm->speedFactor();
 		if(wrapAround) {
 			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
@@ -248,7 +249,18 @@ public:
 			else if( fabs(vel->y) > 30 && (clip & 0x04 || clip & 0x08) )
 				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm );
 		}
-		
+
+		if (wrapAround && worm->getNinjaRope()->isReleased()) {
+			if (worm->pos().x > prevWormPos.x + cClient->getMap()->GetWidth() / 2)
+				worm->getNinjaRope()->hookPos().x += cClient->getMap()->GetWidth();
+			if (worm->pos().x < prevWormPos.x - cClient->getMap()->GetWidth() / 2)
+				worm->getNinjaRope()->hookPos().x -= cClient->getMap()->GetWidth();
+			if (worm->pos().y > prevWormPos.y + cClient->getMap()->GetHeight() / 2)
+				worm->getNinjaRope()->hookPos().y += cClient->getMap()->GetHeight();
+			if (worm->pos().y < prevWormPos.y - cClient->getMap()->GetHeight() / 2)
+				worm->getNinjaRope()->hookPos().y -= cClient->getMap()->GetHeight();
+		}
+
 		return coll;
 	}
 
@@ -625,11 +637,10 @@ public:
 		bool outsideMap = false;
 
 		// Hack to see if the hook went out of the cClient->getMap()
-		if(!rope->isPlayerAttached() && !wrapAround)
-			if(
-				rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
+		if(!rope->isPlayerAttached() && !wrapAround &&
+			(	rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
 				rope->hookPos().x >= cClient->getMap()->GetWidth()-1 ||
-				rope->hookPos().y >= cClient->getMap()->GetHeight()-1) {
+				rope->hookPos().y >= cClient->getMap()->GetHeight()-1)) {
 			rope->setShooting( false );
 			rope->setAttached( true );
 
@@ -648,7 +659,11 @@ public:
 		if(!rope->isPlayerAttached()) {
 			rope->setAttached( false );
 
-			VectorD2<long> wrappedHookPos = rope->hookPos();
+			// float to long will truncate towards zero, so if we had x = 5.5,
+			// and the level width is 8, and x is wrapped around to 5.5 - 8 = -2.5,
+			// then for x = 5.5: ((long)x % width) == 5, and for x = -2.5: ((long)x % width) == 6
+			// floorf() does not have this truncating error, it always truncates towards minus infinity.
+			VectorD2<long> wrappedHookPos(floorf(rope->hookPos().x), floorf(rope->hookPos().y));
 			MOD(wrappedHookPos.x, (long)cClient->getMap()->GetWidth());
 			MOD(wrappedHookPos.y, (long)cClient->getMap()->GetHeight());
 			
@@ -658,6 +673,13 @@ public:
 				rope->setShooting( false );
 				rope->setAttached( true );
 				rope->hookVelocity() = CVec(0,0);
+
+				if(firsthit && !outsideMap) {
+					// Move rope hook to the center of the pixel, so adding/removing map width/height
+					// will not mess up the rope coordinate due to floating point error accumulation on infinite level
+					rope->hookPos().x = floorf(rope->hookPos().x) + 0.5f;
+					rope->hookPos().y = floorf(rope->hookPos().y) + 0.5f;
+				}
 
 				if((px & PX_DIRT) && firsthit) {
 					Color col = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), wrappedHookPos.x, wrappedHookPos.y));
@@ -682,7 +704,12 @@ public:
 				if(!worms[i].isVisible(owner))
 					continue;
 
-				if( ( worms[i].getPos() - rope->hookPos() ).GetLength2() < 25 ) {
+				CVec dist = worms[i].getPos() - rope->hookPos();
+				if( wrapAround ) {
+					FMOD(dist.x, (float)cClient->getMap()->GetWidth());
+					FMOD(dist.y, (float)cClient->getMap()->GetHeight());
+				}
+				if( dist.GetLength2() < 25 ) {
 					rope->AttachToPlayer(&worms[i], owner);
 					break;
 				}
@@ -700,7 +727,18 @@ public:
 			{
 				rope->UnAttachPlayer();
 			} else {
+				CVec prevHookPos = rope->hookPos();
 				rope->hookPos() = rope->getAttachedPlayer()->getPos();
+				if( wrapAround ) {
+					while (rope->hookPos().x > prevHookPos.x + cClient->getMap()->GetWidth() / 2)
+						rope->hookPos().x -= cClient->getMap()->GetWidth();
+					while (rope->hookPos().x < prevHookPos.x - cClient->getMap()->GetWidth() / 2)
+						rope->hookPos().x += cClient->getMap()->GetWidth();
+					while (rope->hookPos().y > prevHookPos.y + cClient->getMap()->GetHeight() / 2)
+						rope->hookPos().y -= cClient->getMap()->GetHeight();
+					while (rope->hookPos().y < prevHookPos.y - cClient->getMap()->GetHeight() / 2)
+						rope->hookPos().y += cClient->getMap()->GetHeight();
+				}
 			}
 		}
 	}
@@ -767,7 +805,7 @@ public:
 				continue;
 			if(y>=mh) {
 				if( cClient->getGameLobby()->features[FT_InfiniteMap] )
-					bonus->pos().y =- (float)mh;
+					bonus->pos().y -= (float)mh;
 				else
 					colideBonus(bonus, x,y);
 				return;

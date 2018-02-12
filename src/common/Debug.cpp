@@ -22,10 +22,12 @@ bool AmIBeingDebugged() { return false; }
 
 void RaiseDebugger() {
 #ifdef DEBUG
+#if !defined(__MINGW32__)
 	// HINT: ignored when not in debugger
 	// If it just does nothing then, remove the surrounding #ifdef DEBUG
 	// I read about a Win32's IsDebuggerPresent() function, perhaps you should use that one here.
 	__asm  { int 3 };
+#endif
 #endif
 }
 
@@ -127,8 +129,8 @@ void RaiseDebugger() {
 
 #include "AuxLib.h" // for Windows.h
 
-#include <DbgHelp.h>
-#include <ShlObj.h>
+#include <dbghelp.h>
+#include <shlobj.h>
 
 #include "LieroX.h"
 #include "CClient.h"
@@ -143,7 +145,9 @@ void RaiseDebugger() {
 void *ReadGameStateForReport(char *buffer, size_t bufsize)
 {
 	memset(buffer, 0, bufsize);
+#if !defined(__MINGW32__)
 	__try {
+#endif
 		if (cClient)  {
 			strncat(buffer, "Game state:\n", bufsize);
 			if (cClient->getStatus() == NET_CONNECTED)  {
@@ -162,8 +166,10 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 			}
 		}
 		buffer[bufsize - 1] = '\0';
+#if !defined(__MINGW32__)
 	} __except (EXCEPTION_EXECUTE_HANDLER)
 	{ return buffer; }
+#endif
 
 	return buffer;
 }
@@ -174,8 +180,9 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 	if (!tLXOptions || !tLX)
 		return buffer;
 	char tmp[32];
+#if !defined(__MINGW32__)
 	__try  {
-
+#endif
 		// Game type
 		strncat(buffer, "iGameType = ", bufsize);
 		switch (tLX->iGameType)  {
@@ -197,7 +204,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 
 		// Game mode
 		strncat(buffer, "GameMode = ", bufsize);
-		char tmp[16];
+		//char tmp[16];
 		itoa(tLXOptions->tGameInfo.gameMode->GeneralGameType(), tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, tmp, bufsize);
@@ -287,9 +294,11 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		}
 
 		buffer[bufsize - 1] = '\0';
+#if !defined(__MINGW32__)
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return buffer;
 	}
+#endif
 	return buffer;
 }
 
@@ -515,6 +524,10 @@ void DumpCallstack(const PrintOutFct& printer) {
 
 #endif
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 std::string GetLogTimeStamp()
 {
 	// TODO: please recode this, don't use C-strings!
@@ -570,6 +583,9 @@ struct CoutPrint : PrintOutFct {
 	void print(const std::string& str) const {
 		// TODO: We have used std::cout here before but it doesn't seem to work after a while for some reason.
 		printf("%s", str.c_str());
+#ifdef __ANDROID__
+		__android_log_print(ANDROID_LOG_INFO, "OpenLieroX", "%s", str.c_str());
+#endif
 	}
 };
 

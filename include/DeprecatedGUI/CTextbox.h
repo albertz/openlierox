@@ -119,7 +119,6 @@ private:
 	int			*iVar;
 	float		*fVar;
 	std::string	*sVar;
-	CGuiSkin::CallbackHandler cClick;
 
 
 public:
@@ -138,8 +137,6 @@ public:
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
 	void	Draw(SDL_Surface * bmpDest);
-
-	void	LoadStyle() {}
 
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param);
@@ -160,9 +157,6 @@ public:
 	void	CopyText();
 
 	void OnTimerEvent(Timer::EventData ev);
-
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
-	void	ProcessGuiSkinEvent(int iEvent);
 };
 
 }; // namespace DeprecatedGUI

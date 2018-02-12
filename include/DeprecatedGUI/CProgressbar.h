@@ -72,18 +72,6 @@ public:
 	}
 
 	inline void SetPosition(int _pos)  { cProgressBar.SetPosition(_pos); }
-
-	void	LoadStyle() {}
-
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CProgressBar * w = new CProgressBar( LoadGameImage( p[0].s, true ), p[1].i, p[2].i, p[3].b, p[4].i );
-		w->iVar = CScriptableVars::GetVarP<int>( p[5].s );
-		layout->Add( w, id, x, y, dx, dy );
-		return w;
-	}
-	
-	void	ProcessGuiSkinEvent(int iEvent) { }
 };
 
 }; // namespace DeprecatedGUI

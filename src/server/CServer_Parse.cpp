@@ -162,14 +162,6 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 		case C2S_REPORTDAMAGE:
 			ParseReportDamage(bs);
 			break;
-			
-		case C2S_NEWNET_KEYS:
-			ParseNewNetKeys(bs);
-			break;
-
-		case C2S_NEWNET_CHECKSUM:
-			ParseNewNetChecksum(bs);
-			break;
 
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
@@ -432,24 +424,9 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 	//Check message length.
 	//OLX seems to allow sending arbitrary long chat messages.
 	//These messages can be a problem as they can cause excessive lag.
-	//Resize oversized messages and optionally kick the sender
-	//TODO: Implement check at lower level to drop packets without ever passing them to chat handler? Or would this cause problems or confusion?
 	//TODO: Limit message length client side too?
-	if (tLXOptions->bCheckChatMessageLength && buf.size() > tLXOptions->iMaxChatMessageLength){
+	if ((int)buf.size() > tLXOptions->iMaxChatMessageLength) {
 		buf.resize(tLXOptions->iMaxChatMessageLength);
-		if (tLXOptions->bKickOversizedMsgSenders){
-			server->DropClient(cl, CLL_KICK, "Attempt to send oversized message or command");
-			//NOTE BUG: If we allow the message to pass (by not returning now), 
-			// the later check ("Check if player tries to fake other player") will fail because 
-			// the player doesn't exist on the server anymore, and a log entry will be generated.
-			// The function will then return and the message will be dropped anyway.
-			//Possible workaround: Instead of kicking here, set a "kick flag" and kick later. 
-			// But is it constructive to pass the message any further?
-			// It complicates code and might cause confusion 
-			// if some kicks result from an apparent message and others do not,
-			// as chat commands are not broadcasted anyway.
-			return;
-		}
 	}
 	
 	
@@ -473,9 +450,9 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 	//Previously, OLX logged all chat to the main log when hosting a server.
 	//It clutters the log so now log only if configured to do so.
 	//NOTE: This has nothing to do with the "Log conversations" option - it goes to different log!
-	if (tLXOptions->bLogServerChatToMainlog){
-	if(!strStartsWith(command_buf, "!login") && !strStartsWith(command_buf, "//login"))	// people could try wrong chat command
-		notes << "CHAT: " << buf << endl;
+	if (tLXOptions->bLogServerChatToMainlog) {
+		if(!strStartsWith(command_buf, "!login") && !strStartsWith(command_buf, "//login"))	// people could try wrong chat command
+			notes << "CHAT: " << buf << endl;
 	}
 	
 	// Check for Clx (a cheating version of lx)
@@ -938,7 +915,8 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 	//So now log only if configured to do so.
 	//NOTE: This has nothing to do with the "Log conversations" option - it goes to a different log!
 	//Other commands except login are logged as previously.
-	if( (cmd->tProcFunc != &ProcessLogin) && ((cmd->tProcFunc != &ProcessPrivate) || (tLXOptions->bLogServerChatToMainlog)) && ((cmd->tProcFunc != &ProcessTeamChat) || (tLXOptions->bLogServerChatToMainlog)) )
+	if ((cmd->tProcFunc != &ProcessLogin) && ((cmd->tProcFunc != &ProcessPrivate) ||
+		(tLXOptions->bLogServerChatToMainlog)) && ((cmd->tProcFunc != &ProcessTeamChat) || (tLXOptions->bLogServerChatToMainlog)))
 		notes << "ChatCommand from " << cl->debugName(true) << ": " << message << endl;
 	
 	// Get the parameters
@@ -983,53 +961,6 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	for( int i=0; i < MAX_CLIENTS; i++ )
 		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )
 			server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), damage, offender->getID() );
-}
-
-
-void CServerNetEngineBeta9::ParseNewNetKeys(CBytestream *bs)
-{
-	int id = bs->readByte();
-	if( id < 0 || id >= MAX_WORMS || !cl->OwnsWorm(id) )
-	{
-		warnings << "CServerNetEngineBeta9::ParseNewNetKeys(): worm id " << id << " client doesn't own worm" << endl;
-		bs->Skip( NewNet::NetPacketSize() );
-		return;
-	}
-
-	CBytestream send;
-	send.writeByte( S2C_NEWNET_KEYS );
-	send.writeByte( id );
-	send.writeData( bs->readData( NewNet::NetPacketSize() ) );
-	
-	// Re-send the packet to all clients, except the sender
-	for( int i=0; i < MAX_CLIENTS; i++ )
-		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )
-		{
-			send.ResetPosToBegin();
-			server->cClients[i].getNetEngine()->SendPacket(&send);
-		}
-}
-
-void CServerNetEngineBeta9::ParseNewNetChecksum(CBytestream *bs)
-{
-	unsigned checksum = bs->readInt(4);
-	AbsTime checkTime(bs->readInt(4));
-	AbsTime myTime;
-	unsigned myChecksum = NewNet::GetChecksum(&myTime);
-	if( myTime != checkTime )
-	{
-		warnings << "CServerNetEngineBeta9::ParseNewNetChecksum(): received time " << checkTime.milliseconds() <<
-					" our time " << myTime.milliseconds() << endl;
-		return;
-	}
-	if( myChecksum != checksum && ! server->bGameOver )
-	{
-		std::string wormName = "unknown";
-		if( cl->getNumWorms() > 0 )
-			wormName = cl->getWorm(0)->getName();
-		server->DropClient(cl, CLL_KICK, "Game state was de-synced in new net engine!");
-		server->SendGlobalText( "Game state was de-synced in new net engine for worm " + wormName, TXT_NETWORK );
-	}
 }
 
 /*
@@ -1168,7 +1099,7 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 // Handle a 'connect' message
 void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBytestream *bs) {
 	NetworkAddr		adrFrom;
-	int				p, player = -1;
+	int				p;
 	int				numplayers;
 	CServerConnection	*newcl = NULL;
 
@@ -1259,7 +1190,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	//Block attempts to join without any "worms" - this fixes the "empty name join glitch"
 	//NOTE: The local client should we allowed to connect without worms in dedicated mode??
 	//NOTE: Is this the correct/best way to do it?
-	if (numworms<=0 && !(addrFromStr.find("127.0.0.1")==0)){
+	if (numworms<=0 && !(addrFromStr.find("127.0.0.1")==0)) {
 		CBytestream sKickmsg;
 		sKickmsg.writeInt(-1, 4);
 		sKickmsg.writeString("lx::badconnect");
@@ -1376,7 +1307,6 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	}
 
 	// Find a spot for the client
-	player = -1;
 	p=0;
 	if(newcl == NULL)
 		for (CServerConnection* cl = cClients; p < MAX_CLIENTS; p++, cl++) {
@@ -1576,11 +1506,9 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		//Check name length - by using tricks it's possible (at least in 0.58) to create excessively long names
 		//which cause lots of annoyance. This server-side check prevents that and truncates oversized nicks.
 		//Because the player creation menu allows max 20 characters, we can check it very easily.
-		//Hard-coding the length isn't nice - however, it seems to be hard-coded elsewhere...
-		if (newWorms[i].sName.size() > 20)
-			newWorms[i].sName.resize(20);
-		
-		
+		//Player name does not allow Unicode characters for backward compatibility
+		if (newWorms[i].sName.size() > MAX_WORM_NAME_LENGTH)
+			newWorms[i].sName.resize(MAX_WORM_NAME_LENGTH);
 	}
 
 	std::set<CWorm*> removeWormList;
@@ -1924,9 +1852,8 @@ void GameServer::ParseWantsJoin(const SmartPointer<NetworkSocket>& tSocket, CByt
 		return;
 	
 	//Truncate nicks longer than "legitimately" possible
-	//Hard-coding the length isn't nice - however, it seems to be hard-coded elsewhere...
-	if (Nick.size() > 20)
-		Nick.resize(20);
+	if (Nick.size() > MAX_WORM_NAME_LENGTH)
+		Nick.resize(MAX_WORM_NAME_LENGTH);
 	
 	// Notify about the wants to join
 	if (networkTexts->sWantsJoin != "<none>")  {

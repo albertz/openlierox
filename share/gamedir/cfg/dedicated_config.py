@@ -33,7 +33,7 @@ WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTi
 # A user with a high ping doesn't give any disadvantages to other players (or at least that should not be the case and I wonder if it is).
 MAX_PING = 2000 # Max ping to auto-kick player
 
-RECORD_VIDEO = 1 # If we should record video on our ded server. Warning: it eats CPU!
+RECORD_VIDEO = 0 # If we should record video on our ded server. Warning: it eats CPU!
 TIME_TO_KILL_VIDEORECORDER = 60 # Wait one minute before killing recorder - it may encode rather slowly!
 
 # TODO: We should use the OLX chatcommand system.
@@ -111,6 +111,7 @@ PRESETS = [ "Mortars", "Random" ]
 
 GLOBAL_SETTINGS = {
 	"GameOptions.Network.ServerName":               "Games nonstop + voting",
+	"GameOptions.Network.WelcomeMessage":           "Welcome, <player>. Type !help for voting commands.",
 	"GameOptions.GameInfo.AllowConnectDuringGame":  1,
 	"GameOptions.GameInfo.AllowEmptyGames":         1,
 	"GameOptions.GameInfo.ImmediateStart":          1,

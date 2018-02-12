@@ -29,6 +29,7 @@
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "Mutex.h"
+#include "Touchscreen.h"
 #include "DeprecatedGUI/CTextbox.h"
 
 
@@ -62,7 +63,7 @@ void CTextbox::Create()
 	if (CursorBlinkerTimer == NULL)  {
 		CursorBlinkerTimer = new Timer;
 		CursorBlinkerTimer->name = "CTextbox cursor blinker";
-		CursorBlinkerTimer->interval = 500;
+		CursorBlinkerTimer->interval = 300;
 		CursorBlinkerTimer->once = false;
 		CursorBlinkerTimer->onTimer.handler() = getEventHandler(this, &CTextbox::OnTimerEvent);
 		CursorBlinkerTimer->start();
@@ -249,7 +250,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		if(iCurpos)
 			iCurpos--;
 
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// Right arrow
@@ -278,7 +279,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 			if(tLX->cFont.GetWidth(Utf8SubStr(sText, 0, iCurpos)) > (iWidth - 7))
 				iScrollPos++;
 
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// Home
@@ -298,7 +299,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 		iCurpos = 0;
 		iScrollPos = 0;
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// End
@@ -321,7 +322,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		else
 			iScrollPos = 0;
 
-		return TXT_NONE;
+		return TXT_CHANGE;
 	}
 
 	// Select all
@@ -330,7 +331,17 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		iSelStart = 0;
 		iSelLength = -((int)Utf8StringSize(sText));
 
-		return TXT_NONE;
+		return TXT_CHANGE;
+	}
+
+	if (keysym == SDLK_RETURN ||
+		keysym == SDLK_KP_ENTER ||
+		keysym == SDLK_LALT ||
+		keysym == SDLK_LCTRL ||
+		keysym == SDLK_LSHIFT) {
+		if (!GetTouchscreenTextInputShown()) {
+			ShowTouchscreenTextInput(sText);
+		}
 	}
 
 	// Enter
@@ -353,7 +364,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
     if(((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_c ) ||
 		( (modstate.bCtrl || modstate.bMeta) && keysym == SDLK_INSERT )) {
         CopyText();
-        return TXT_NONE;
+        return TXT_CHANGE;
     }
 
     // Ctrl-x or Super-x or Shift-Delete (cut)
@@ -568,6 +579,10 @@ int	CTextbox::MouseUp(mouse_t *tMouse, int nDown)
 	// We can lose focus now
 	bCanLoseFocus = true;
 
+	if (!GetTouchscreenTextInputShown()) {
+		ShowTouchscreenTextInput(sText);
+	}
+
 	return TXT_NONE;
 }
 
@@ -577,6 +592,15 @@ int CTextbox::MouseOver(mouse_t *tMouse)
 {
 	SetGameCursor(CURSOR_TEXT);
 	bCanLoseFocus = !tMouse->Down;
+
+	if (GetTouchscreenTextInputShown()) {
+		std::string text;
+		if (ProcessTouchscreenTextInput(&text)) {
+			setText(text);
+			return TXT_ENTER;
+		}
+	}
+
 	return TXT_MOUSEOVER;
 }
 
@@ -835,59 +859,6 @@ void CTextbox::CopyText()
 	if (!iSelLength)
 		return;
 	copy_to_clipboard(sSelectedText);
-}
-
-static bool CTextbox_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "textbox", & CTextbox::WidgetCreator )
-							( "var", SVT_STRING )
-							( "click", SVT_STRING );
-
-CWidget * CTextbox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-{
-	CTextbox * w = new CTextbox();
-	layout->Add( w, id, x, y, dx, dy );
-	// Text should be set in textbox AFTER the textbox is added to CGuiSkinnedLayout
-	w->cClick.Init( p[1].s, w );
-	w->bVar = CScriptableVars::GetVarP<bool>( p[0].s );
-	if( w->bVar )
-		w->setText( itoa( *w->bVar ) );
-	w->iVar = CScriptableVars::GetVarP<int>( p[0].s );
-	if( w->iVar )
-		w->setText( itoa( *w->iVar ) );
-	w->fVar = CScriptableVars::GetVarP<float>( p[0].s );
-	if( w->fVar )
-		w->setText( ftoa( *w->fVar ) );
-	w->sVar = CScriptableVars::GetVarP<std::string>( p[0].s );
-	if( w->sVar )
-		w->setText( *w->sVar );
-	return w;
-}
-
-void	CTextbox::ProcessGuiSkinEvent(int iEvent)
-{
-	if( iEvent == CGuiSkin::SHOW_WIDGET )
-	{
-		if( bVar )
-			setText( itoa( *bVar ) );
-		if( iVar )
-			setText( itoa( *iVar ) );
-		if( fVar )
-			setText( ftoa( *fVar ) );
-		if( sVar )
-			setText( *sVar );
-	}
-	if( iEvent == TXT_CHANGE )
-	{
-		if( bVar )
-			*bVar = ( atoi( getText() ) != 0 );
-		if( iVar )
-			*iVar = atoi( getText() );
-		if( fVar )
-			*fVar = atof( getText() );
-		if( sVar )
-			*sVar = getText();
-		cClick.Call();
-	}
 }
 
 }; // namespace DeprecatedGUI

@@ -77,7 +77,6 @@ private:
     // Attributes
 	SmartPointer<DynDrawIntf> tImage;
 	std::string	sPath;
-	CGuiSkin::CallbackHandler cClick;
 
 public:
     // Methods
@@ -99,7 +98,7 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return IMG_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)			{ return IMG_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)			{ return IMG_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)		{ return IMG_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)		{ return IMG_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
@@ -107,16 +106,6 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface * bmpDest);
-
-	void	LoadStyle() {}
-
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
-
-	void	ProcessGuiSkinEvent(int iEvent) 
-	{
-		if( iEvent == IMG_CLICK )
-			cClick.Call();
-	}
 };
 
 }; // namespace DeprecatedGUI

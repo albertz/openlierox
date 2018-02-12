@@ -34,6 +34,7 @@ OPTION(OPTIM_PROJECTILES "Enable optimisations for projectiles" Yes)
 OPTION(MEMSTATS "Enable memory statistics and debugging" No)
 OPTION(BREAKPAD "Google Breakpad support" No)
 OPTION(DISABLE_JOYSTICK "Disable joystick support" No)
+OPTION(MINGW_CROSS_COMPILE "Cross-compile Windows .EXE using i686-w64-mingw32-gcc compiler" No)
 
 IF (DEBUG)
 	SET(CMAKE_BUILD_TYPE Debug)
@@ -51,18 +52,28 @@ ENDIF (DEDICATED_ONLY)
 # http://www.cmake.org/Wiki/CMake_Useful_Variables
 IF(UNIX)
 	IF(APPLE)
-	ELSE(APPLE)
+		SET(HAWKNL_BUILTIN ON)
+		SET(LIBZIP_BUILTIN ON)
+		SET(X11 OFF)
 	ENDIF(APPLE)
 
 	IF (CYGWIN)
 		SET(WITH_G15 OFF) # Linux library as of now
 	ELSE (CYGWIN)
 	ENDIF (CYGWIN)
+	IF(CMAKE_C_COMPILER MATCHES i686-w64-mingw32-gcc)
+		SET(MINGW_CROSS_COMPILE ON)
+	ENDIF(CMAKE_C_COMPILER MATCHES i686-w64-mingw32-gcc)
 ELSE(UNIX)
 	IF(WIN32)
 		SET(G15 OFF)
-		SET(HAWKNL_BUILTIN OFF) # We already have prebuilt HawkNL library
 		SET(X11 OFF)
+		SET(HAWKNL_BUILTIN OFF) # We already have prebuilt HawkNL library
+		SET(LIBZIP_BUILTIN ON)
+		IF (MINGW_CROSS_COMPILE)
+			SET(HAWKNL_BUILTIN ON)
+			SET(LIBZIP_BUILTIN ON)
+		ENDIF (MINGW_CROSS_COMPILE)
 	ELSE(WIN32)
 	ENDIF(WIN32)
 ENDIF(UNIX)
@@ -86,6 +97,8 @@ MESSAGE( "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
 #MESSAGE( "PCH = ${PCH} (Precompiled header, CMake 2.6 only)" )
 #MESSAGE( "ADVASSERT = ${ADVASSERT}" )
 #MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}" )
+MESSAGE( "MINGW_CROSS_COMPILE = ${MINGW_CROSS_COMPILE}" )
+
 
 PROJECT(openlierox)
 
@@ -101,14 +114,13 @@ IF(ADVASSERT)
 ENDIF(ADVASSERT)
 
 # TODO: don't hardcode path here
-IF(NOT WIN32)
+IF(NOT WIN32 AND NOT MINGW_CROSS_COMPILE)
 	INCLUDE_DIRECTORIES(/usr/include/libxml2)
 	INCLUDE_DIRECTORIES(/usr/local/include/libxml2)
-ENDIF(NOT WIN32)
+ENDIF(NOT WIN32 AND NOT MINGW_CROSS_COMPILE)
 
 AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/src/client CLIENT_SRCS)
 AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/src/client/DeprecatedGUI CLIENT_SRCS_GUI_OLD)
-AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/src/client/SkinnedGUI CLIENT_SRCS_GUI_NEW)
 AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/src/common COMMON_SRCS)
 AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/src/server SERVER_SRCS)
 
@@ -209,7 +221,7 @@ ENDIF (STLPORT)
 
 
 IF(DEBUG)
-	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
+	ADD_DEFINITIONS(-DDEBUG=1)
 ENDIF(DEBUG)
 
 IF(MEMSTATS)
@@ -217,46 +229,62 @@ IF(MEMSTATS)
 ENDIF(MEMSTATS)
 
 
+# Generic defines
+ADD_DEFINITIONS("-std=c++11")
 
 IF(WIN32)
-	ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -DHAVE_BOOST -DZLIB_WIN32_NODLL)
-	SET(OPTIMIZE_COMPILER_FLAG /Ox /Ob2 /Oi /Ot /GL)
-	IF(DEBUG)
-		ADD_DEFINITIONS(-DUSE_DEFAULT_MSC_DELEAKER)
-	ELSE(DEBUG)
-		ADD_DEFINITIONS(${OPTIMIZE_COMPILER_FLAG})
-	ENDIF(DEBUG)
-	INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/hawknl/include
-				${OLXROOTDIR}/libs/hawknl/src
-				${OLXROOTDIR}/libs/libzip
-				${OLXROOTDIR}/libs/boost_process)
+	IF(MINGW_CROSS_COMPILE)
+		ADD_DEFINITIONS(-DZLIB_WIN32_NODLL -DLIBXML_STATIC -DNONDLL -DCURL_STATICLIB
+						-D_WIN32_WINNT=0x0500 -D_WIN32_WINDOWS=0x0500 -DWINVER=0x0500 -DWIN32 -D_WIN32 -DMINGW)
+		INCLUDE_DIRECTORIES(
+					${OLXROOTDIR}/build/mingw/include
+					${OLXROOTDIR}/libs/hawknl/include
+					${OLXROOTDIR}/libs/hawknl/src
+					${OLXROOTDIR}/libs/libzip)
+		# as long as we dont have breakpad, this doesnt make sense
+		ADD_DEFINITIONS(-gdwarf-2 -g1) # By default GDB uses STABS and produces 300Mb exe - DWARF will produce 40Mb and no line numbers, -g2 will give 170Mb
+	ELSE(MINGW_CROSS_COMPILE)
+		ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -DZLIB_WIN32_NODLL)
+		SET(OPTIMIZE_COMPILER_FLAG /Ox /Ob2 /Oi /Ot /GL)
+		IF(DEBUG)
+			ADD_DEFINITIONS(-DUSE_DEFAULT_MSC_DELEAKER)
+		ELSE(DEBUG)
+			ADD_DEFINITIONS(${OPTIMIZE_COMPILER_FLAG})
+		ENDIF(DEBUG)
+		INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/hawknl/include
+					${OLXROOTDIR}/libs/hawknl/src
+					${OLXROOTDIR}/libs/libzip)
+	ENDIF(MINGW_CROSS_COMPILE)
 ELSE(WIN32)
 	ADD_DEFINITIONS(-Wall)
+	ADD_DEFINITIONS("-pthread")
 
 	EXEC_PROGRAM(sh ARGS ${CMAKE_CURRENT_SOURCE_DIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
 	string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
 	MESSAGE( "OLX_VERSION = ${OLXVER}" )
 
-	ADD_DEFINITIONS("-pthread")
-	ADD_DEFINITIONS("-std=c++0x")
-
 	SET(OPTIMIZE_COMPILER_FLAG -O3)
 ENDIF(WIN32)
 
-IF(OPTIM_PROJECTILES)
+IF(OPTIM_PROJECTILES AND NOT MINGW_CROSS_COMPILE)
 	#Always optimize these files - they make debug build unusable otherwise
-	SET_SOURCE_FILES_PROPERTIES(	${OLXROOTDIR}/src/common/PhysicsLX56_Projectiles.cpp 
+	SET_SOURCE_FILES_PROPERTIES(${OLXROOTDIR}/src/common/PhysicsLX56_Projectiles.cpp
 						PROPERTIES COMPILE_FLAGS ${OPTIMIZE_COMPILER_FLAG})
-ENDIF(OPTIM_PROJECTILES)
+ENDIF(OPTIM_PROJECTILES AND NOT MINGW_CROSS_COMPILE)
 
-if(WIN32)
-elseif(APPLE)
+# SDL libs
+IF(WIN32)
+ELSEIF(APPLE)
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}/build/Xcode/include)
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}/build/Xcode/freealut/include)
 	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL.framework/Headers)
 	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL_image.framework/Headers)
 	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL_mixer.framework/Headers)
 	INCLUDE_DIRECTORIES(/Library/Frameworks/UnixImageIO.framework/Headers)
 	INCLUDE_DIRECTORIES(/Library/Frameworks/GD.framework/Headers)
-else()
+ELSEIF(MINGW_CROSS_COMPILE)
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}/build/mingw/include/SDL)
+ELSE()
 	EXEC_PROGRAM(sdl-config ARGS --cflags OUTPUT_VARIABLE SDLCFLAGS)
 	string(REGEX REPLACE "[\r\n]" " " SDLCFLAGS "${SDLCFLAGS}")
 	ADD_DEFINITIONS(${SDLCFLAGS})
@@ -275,15 +303,7 @@ IF(G15)
 	ADD_DEFINITIONS("-DWITH_G15")
 ENDIF(G15)
 
-SET(PYTHONLIBS "")
-IF(PYTHON_DED_EMBEDDED)
-	ADD_DEFINITIONS("-DPYTHON_DED_EMBEDDED")
-	EXEC_PROGRAM(python2.5-config ARGS --includes OUTPUT_VARIABLE PYTHONFLAGS)
-	ADD_DEFINITIONS(${PYTHONFLAGS})
-	EXEC_PROGRAM(python2.5-config ARGS --libs OUTPUT_VARIABLE PYTHONLIBS)
-ENDIF(PYTHON_DED_EMBEDDED)
 
-SET(LIBS ${PYTHONLIBS})
 SET(LIBS ${LIBS} curl)
 
 if(APPLE)
@@ -291,11 +311,13 @@ if(APPLE)
 	FIND_PACKAGE(SDL_image REQUIRED)
 	SET(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY})
 	SET(LIBS ${LIBS} "-framework Cocoa" "-framework Carbon")
+	SET(LIBS ${LIBS} crypto)
+	SET(LIBS ${LIBS} "-logg" "-lvorbis" "-lvorbisfile")
 else(APPLE)
 	SET(LIBS ${LIBS} SDL SDL_image)
 endif(APPLE)
 
-if(WIN32)
+IF(WIN32 AND NOT MINGW_CROSS_COMPILE)
 	SET(LIBS ${LIBS} SDL_mixer wsock32 wininet dbghelp
 				"${OLXROOTDIR}/build/msvc/libs/SDLmain.lib"
 				"${OLXROOTDIR}/build/msvc/libs/libxml2.lib"
@@ -303,14 +325,15 @@ if(WIN32)
 				"${OLXROOTDIR}/build/msvc/libs/libzip.lib"
 				"${OLXROOTDIR}/build/msvc/libs/zlib.lib"
 				"${OLXROOTDIR}/build/msvc/libs/bgd.lib")
-elseif(APPLE)
+ELSEIF(APPLE)
 	link_directories(/Library/Frameworks/SDL_mixer.framework)
 	link_directories(/Library/Frameworks/SDL_image.framework)
-	link_directories(/Library/Frameworks/UnixImageIO.framework)
-else()
+ELSEIF(MINGW_CROSS_COMPILE)
+	SET(LIBS ${LIBS} SDLmain SDL_image SDL_mixer SDL gd xml2 jpeg png vorbisenc vorbisfile vorbis ogg z dbghelp dsound dxguid wsock32 wininet wldap32 user32 gdi32 winmm version kernel32)
+ELSE(MINGW_CROSS_COMPILE)
 	EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 	STRING(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
-endif(WIN32)
+ENDIF(WIN32 AND NOT MINGW_CROSS_COMPILE)
 
 if(UNIX)
 	IF (NOT HAWKNL_BUILTIN)
@@ -329,7 +352,10 @@ if(UNIX)
 		SET(LIBS ${LIBS} g15daemon_client g15render)
 	ENDIF (G15)
 
-	SET(LIBS ${LIBS} ${SDLLIBS} pthread xml2 z)
+	ADD_DEFINITIONS("-ftabstop=4") # Avoid some GCC and clang warnings due to messy indentation
+	ADD_DEFINITIONS("-Werror=format -Werror=format-nonliteral -Werror=format-security") # Force printf() arguments validation
+
+	SET(LIBS ${LIBS} ${SDLLIBS} xml2 z pthread)
 endif(UNIX)
 
 IF (NOT DEDICATED_ONLY)
@@ -341,6 +367,5 @@ IF (NOT DEDICATED_ONLY)
 		SET(LIBS ${LIBS} SDL_mixer gd)
 	endif(APPLE)
 ENDIF (NOT DEDICATED_ONLY)
-
 
 ADD_DEFINITIONS('-D SYSTEM_DATA_DIR=\"${SYSTEM_DATA_DIR}\"')

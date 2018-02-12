@@ -131,7 +131,7 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 	
 	if(getenv("SDL_AUDIODRIVER"))
 		notes << "SDL_AUDIODRIVER=" << getenv("SDL_AUDIODRIVER") << endl;
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__ANDROID__)
 	if(!getenv("SDL_AUDIODRIVER")) {
 		notes << "SDL_AUDIODRIVER not set, setting to ALSA" << endl;
 		putenv((char*)"SDL_AUDIODRIVER=alsa");

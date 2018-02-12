@@ -35,11 +35,11 @@
 #include "CClientNetEngine.h"
 #include "ProfileSystem.h"
 #include "Debug.h"
-#include "NewNetEngine.h"
 #include "CGameMode.h"
 #include "CHideAndSeek.h"
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
+#include "Touchscreen.h"
 
 
 CClient		*cClient = NULL;
@@ -49,6 +49,7 @@ bool CClient::shouldDoProjectileSimulation() {
 	if(bDedicated && tLX->iGameType != GME_JOIN && !tLXOptions->doProjectileSimulationInDedicated) return false;
 	return true;
 }
+
 
 
 ///////////////////
@@ -195,10 +196,6 @@ void CClient::Simulation()
 	if(!bDedicated)
 		SimulateEntities(tLX->fDeltaTime);
 
-	// Weather
-	// TODO: if this will be implemented once, this should be moved to the PhysicsEngine
-	//cWeather.Simulate(tLX->fDeltaTime, cMap);
-
 	// Projectiles
 	if(shouldDoProjectileSimulation())
 		PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());
@@ -206,69 +203,6 @@ void CClient::Simulation()
 	// Bonuses
 	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);
 
-}
-
-
-void CClient::NewNet_Simulation() // Simulates one frame, delta time always set to 10 ms, ignores current time
-{
-
-	// Don't simulate if the physics engine is not ready
-	if (!PhysicsEngine::Get()->isInitialised())  {
-		errors << "WARNING: trying to simulate with non-initialized physics engine!" << endl;
-		return;
-	}
-
-	// Local game always uses old net engine, so NewNet_Simulation() should never be called on local game.
-	if (tLX->iGameType == GME_LOCAL)  {
-		errors << "WARNING: new net engine is used for local game!" << endl;
-		return;
-	}
-
-    // We stop a few seconds after the actual game over
-    if(bGameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
-        return;
-
-
-    CWorm *w;
-	// Player simulation
-	w = cRemoteWorms;
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-
-		if(w->getAlive()) 
-		{
-			// Remote worm -> do not get input for worm - worm input is simulated beforew this function called
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false ); 
-		}
-
-		if(w->getAlive()) 
-		{
-			// Shoot
-			if(w->getWormState()->bShoot) {
-				// This handles only client-side weapons, like jetpack and for beam drawing
-				// It doesn't process the shot itself.
-				// The shot-info will be sent to the server which sends it back and
-				// we handle it in CClient::ProcessShot in the end.
-				NewNet_DoLocalShot( w );
-			}
-
-			// TODO: we should move this stuff to drawing, we may skip it for physics calculation
-			// If the worm is using a weapon with a laser sight, spawn a laser sight
-			if (w->getCurWeapon()->Weapon)
-				if(w->getCurWeapon()->Weapon->LaserSight && !w->getCurWeapon()->Reloading)
-					LaserSight(w, w->getAngle());
-		}
-	}
-
-	// Entities
-	// only some gfx effects, therefore it doesn't belong to PhysicsEngine
-	// TODO: we should move this stuff to drawing, we may skip it for physics calculation
-	if(!bDedicated)
-		SimulateEntities(TimeDiff(NewNet::TICK_TIME));
-
-	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());
 }
 
 
@@ -301,7 +235,7 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 	UnlockSurface(cMap->GetImage());
 
 	// Go through bonuses. If any were next to an explosion, destroy the bonus explosivly
-	if (tGameInfo.bBonusesOn)  {
+	if (tGameInfo.bBonusesOn && !getGameLobby()->features[FT_IndestructibleBonuses]) {
 		CBonus *b = cBonuses;
 		for(i=0; i < MAX_BONUSES; i++,b++) {
 			if(!b->getUsed())
@@ -445,8 +379,7 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	// Set damage report for local worm for Beta9 server - server won't send it back to us
 	// Set it also for remote worms on pre-Beta9 server
 	if( getServerVersion() < OLXBetaVersion(0,58,1) || 
-		( getServerVersion() >= OLXBetaVersion(0,58,1) && someOwnWorm ) ||
-		( NewNet::Active() && NewNet::CanUpdateGameState() ) )
+		( getServerVersion() >= OLXBetaVersion(0,58,1) && someOwnWorm ) )
 	{
 		// TODO: fix this
 		if(ownerWorm) {
@@ -456,21 +389,15 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	}
 
 	// Update our scoreboard for local worms
-	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(0,58,1) ) || NewNet::Active() ) // Do not update scoreboard for pre-Beta9 servers
+	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(0,58,1) ) ) // Do not update scoreboard for pre-Beta9 servers
 		// TODO: fix this
 		if(ownerWorm)
 			getRemoteWorms()[owner].addDamage( realdamage, w, tGameInfo ); // Update client scoreboard
-	
-	if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
-		// TODO: fix this
-		if(ownerWorm)
-			cServer->getWorms()[owner].addDamage( realdamage, w, tGameInfo ); // Update server scoreboard
 
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(0,58,1) || 
 		( getServerVersion() >= OLXBetaVersion(0,58,1) && someOwnWorm ) ||
-		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(0,58,1) ) || // We're hosting, calculate health for pre-Beta9 clients
-		NewNet::Active() ) 
+		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(0,58,1) ) ) // We're hosting, calculate health for pre-Beta9 clients
 	{
 		if(w->injure(damage)) {
 			// His dead Jim
@@ -479,45 +406,19 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 
 			// Kill someOwnWorm
 			// TODO: why is localworm[0] == 0 checked here?
-			if(someOwnWorm || NewNet::Active() ||
+			if(someOwnWorm ||
 				(iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth) ) {
 
 				w->setAlive(false);
 				w->Kill();
-				if( !NewNet::Active() )
-	        	    w->clearInput();
+				w->clearInput();
 
 				cNetEngine->SendDeath(w->getID(), owner); // Let the server know that i am dead
-        	    
-        	    if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
-        	    	cServer->killWorm(w->getID(), owner);
-
-        	   	if( NewNet::Active() )
-        	   	{
-        	   		// TODO: merge this part of code with cClient::ParseWormDown()?
-					// Make a death sound
-					int s = GetRandomInt(2);
-					if( NewNet::CanPlaySound(w->getID()) )
-						StartSound( sfxGame.smpDeath[s], w->getPos(), w->getLocal(), -1, cViewports[0].getTarget());
-
-					// Spawn some giblets
-					for(int n=0;n<7;n++)
-						SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),Color(),w->getGibimg());
-
-					// Blood
-					int amount = (int) (50.0f * ((float)tLXOptions->iBloodAmount / 100.0f));
-					for(int i=0;i<amount;i++) {
-						float sp = GetRandomNum()*100+50;
-						SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
-						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(200,0,0),NULL);
-						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
-					}
-        	   	}
 			}
 		}
 	}
 	// If we are hosting then synchronise the serverside worms with the clientside ones
-	if(tLX->iGameType == GME_HOST && cServer && ! NewNet::Active() ) {
+	if(tLX->iGameType == GME_HOST && cServer ) {
 		CWorm *sw = cServer->getWorms() + w->getID();
 		sw->setHealth(w->getHealth());
 	}
@@ -1042,93 +943,6 @@ void CClient::DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm 
 	ProcessShot( &shot, tLX->currentTime );
 }
 
-void CClient::NewNet_DoLocalShot( CWorm *w ) 
-{
-	wpnslot_t *Slot = w->getCurWeapon();
-
-	if(Slot->Reloading)
-		return;
-
-	if(Slot->LastFire>0)
-		return;
-
-	// Don't shoot with banned weapons
-	if (!Slot->Enabled)
-		return;
-
-	if(!Slot->Weapon) {
-		errors << "WARNING: trying to shoot with an unitialized weapon!" << endl;
-		return;
-	}
-
-	Slot->LastFire = Slot->Weapon->ROF;
-
-	// Special weapons get processed differently
-	if(Slot->Weapon->Type == WPN_SPECIAL) {
-		ShootSpecial(w);
-		return;
-	}
-
-	// Beam weapons get processed differently
-	if(Slot->Weapon->Type == WPN_BEAM) {
-		DrawBeam(w);
-		return;
-	}
-
-	// Must be a projectile
-	if(Slot->Weapon->Type != WPN_PROJECTILE)
-		return;
-
-	shoot_t shot;
-
-	shot.cPos = w->getPos();
-	shot.cWormVel = w->getVelocity();
-	shot.fTime = GetPhysicsTime().seconds();
-	shot.nRandom = w->NewNet_random.getInt(255);
-	shot.nWeapon = w->getCurWeapon()->Weapon->ID;
-	shot.nWormID = w->getID();
-
-
-	// Get the direction angle
-	float Angle = w->getAngle();
-	if(w->getFaceDirectionSide() == DIR_LEFT)
-		Angle=180-Angle;
-
-	if(Angle < 0)
-		Angle+=360;
-	if(Angle > 360)
-		Angle-=360;
-	if(Angle == 360)
-		Angle=0;
-
-	float speed = 0.0f;
-
-	// only projectile wpns have speed; Beam weapons have no speed
-	if(Slot->Weapon->Type == WPN_PROJECTILE) {
-		// Add the shot to the shooting list
-		CVec vel = w->getVelocity();
-		speed = NormalizeVector( &vel );
-	}
-	
-	shot.nAngle = (int)Angle;
-	shot.nSpeed = (int)( speed*100 );
-	
-
-	//
-	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
-	// (ROF = Rate of Fire)
-	//
-
-	// Drain the Weapon charge
-	Slot->Charge -= Slot->Weapon->Drain / 100;
-	if(Slot->Charge <= 0) {
-		Slot->Charge = 0;
-		Slot->Reloading = true;
-	}
-
-	ProcessShot( &shot, GetPhysicsTime() );
-}
-
 ///////////////////
 // Process a shot
 void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
@@ -1183,8 +997,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 	if(wpn->UseSound) {
 		CWorm* me = cViewports[0].getTarget();
 		if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
-			if(NewNet::CanPlaySound(shot->nWormID))
-				StartSound(wpn->smpSample, shot->cPos, cRemoteWorms[shot->nWormID].getLocal(), 100, me);
+			StartSound(wpn->smpSample, shot->cPos, cRemoteWorms[shot->nWormID].getLocal(), 100, me);
 		} else
 			StartSound(wpn->smpSample, shot->cPos, false, 100, me);
 	}
@@ -1412,6 +1225,15 @@ void CClient::processChatter()
         return;
     }
 
+	if (GetTouchscreenTextInputShown()) {
+		std::string text;
+		if (ProcessTouchscreenTextInput(&text)) {
+			CWorm* firstLocalWorm = cClient->getWorm(0);
+			if(!firstLocalWorm || !firstLocalWorm->isUsed()) return;
+			cNetEngine->SendText(text, firstLocalWorm->getName());
+		}
+		return;
+	}
 
 	// Check if we have hit the chat key and we're in a network game
 	if( cChat_Input.wasDown() || cTeamChat_Input.wasDown() ) {
@@ -1434,6 +1256,13 @@ void CClient::processChatter()
 		
 		if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
 			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+
+#ifdef __ANDROID__
+		bChat_Typing = false; // Always use Android native text input box instead of in-game input
+#endif
+		if (!GetTouchscreenTextInputShown()) {
+			ShowTouchscreenTextInput();
+		}
 
 		return;
 	}

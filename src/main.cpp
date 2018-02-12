@@ -52,13 +52,15 @@
 #include "DeprecatedGUI/Menu.h"
 #include "DeprecatedGUI/CChatWidget.h"
 
-#include "SkinnedGUI/CGuiSkin.h"
-
 #include "breakpad/ExtractInfo.h"
 
 #ifndef WIN32
 #include <dirent.h>
 #include <sys/stat.h>
+#endif
+
+#ifdef __ANDROID__
+#include <SDL/SDL_android.h>
 #endif
 
 #include <libxml/parser.h>
@@ -340,7 +342,8 @@ static void teeOlxOutputToFileHandler(int c) {
 	static FILE* out = NULL;
 
 	if(c == EOF) {
-		if(out) fclose(out); out = NULL;
+		if(out) fclose(out);
+		out = NULL;
 		return;
 	}
 	
@@ -351,7 +354,8 @@ static void teeOlxOutputToFileHandler(int c) {
 		buffer += c;
 	
 	if(ch == '\n' && currentOlxOutputFilename != teeOlxOutputFile) {
-		if(out) fclose(out); out = NULL;
+		if(out) fclose(out);
+		out = NULL;
 		currentOlxOutputFilename = teeOlxOutputFile;
 		if(currentOlxOutputFilename != "") {
 			out = fopen(currentOlxOutputFilename.c_str(), "a");
@@ -373,8 +377,10 @@ static void teeOlxOutputHandler(int in, int out) {
 	
 	// The main process will quit this fork by closing the pipe.
 	// There will be problems if this fork terminates earlier.
+#ifndef __ANDROID__
 	signal(SIGINT, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
+#endif
 	while( true ) {
 		char ch = 0;
 		if(read(in, &ch, 1) <= 0) break;
@@ -587,7 +593,9 @@ static bool afterCrashInformedUser = false;
 // Main entry point
 int main(int argc, char *argv[])
 {
+#ifndef __ANDROID__
 	if(DoCrashReport(argc, argv)) return 0;
+#endif
 
 	teeStdoutInit();
 	
@@ -628,7 +636,9 @@ startpoint:
 	}
 
 	teeStdoutFile(GetWriteFullFileName("logs/OpenLieroX - " + GetDateTimeFilename() + ".txt", true));
+#ifndef __ANDROID__
 	CrashHandler::init();
+#endif
 
 	if(!NetworkTexts::Init()) {
 		SystemError("Could not load network strings.");
@@ -778,6 +788,12 @@ quit:
 	ShutdownLieroX();
 
 	notes << "waiting for all left threads and tasks" << endl;
+#ifdef __ANDROID__
+	if(!bRestartGameAfterQuit) {
+		exit(0); // Force quit without waiting to hide the app window
+	}
+#endif
+
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
 
@@ -789,6 +805,10 @@ quit:
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
 		hints << "-- Restarting game --" << endl;
+#ifdef __ANDROID__
+		SDL_ANDROID_RestartMyself("");
+#endif
+
 		goto startpoint;
 	}
 
@@ -807,7 +827,9 @@ quit:
 	notes << "Good Bye and enjoy your day..." << endl;
 
 	// Uninit the crash handler after all other code
+#ifndef __ANDROID__
 	CrashHandler::uninit();
+#endif
 
 	teeStdoutQuit();
 	return 0;
@@ -815,7 +837,7 @@ quit:
 
 // note: important to have const char* here because std::string is too dynamic, could be screwed up when returning
 void SetCrashHandlerReturnPoint(const char* name) {
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__ANDROID__)
 	if(sigsetjmp(longJumpBuffer, true) != 0) {
 		hints << "returned from sigsetjmp in " << name << endl;
 		if(!tLXOptions) {
@@ -887,24 +909,6 @@ static int MainLoopThread(void*) {
 									   "us a mail or post in our forum. This may help us a lot "
 									   "for fixing the problem.\n\nThanks!", DeprecatedGUI::LMB_OK);
 	}
-	
-	if( tLXOptions->bNewSkinnedGUI )
-	{
-		// Just for test - it's not real handler yet
-		SkinnedGUI::cMainSkin->Load("default");
-		SkinnedGUI::cMainSkin->OpenLayout("test.skn");
-		while (!tLX->bQuitGame)  {
-			tLX->fDeltaTime = GetTime() - tLX->currentTime;
-			tLX->currentTime = GetTime();
-
-			WaitForNextEvent();
-			SkinnedGUI::cMainSkin->Frame();
-		}
-
-		ShutdownLieroX();
-		return 0;
-	}
-
 
 	while(!tLX->bQuitGame) {
 		SetCrashHandlerReturnPoint("MainLoopThread before lobby");
@@ -964,9 +968,7 @@ static int MainLoopThread(void*) {
 			// cap the delta
 			if(tLX->fDeltaTime.seconds() > 0.5f) {
 				warnings << "deltatime " << tLX->fDeltaTime.seconds() << " is too high" << endl;
-				// only if not in new net mode because it would screw up the gamestate there
-				if(!NewNet::Active())
-					tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
+				tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
 			}
 			
 			ProcessEvents();
@@ -1089,18 +1091,6 @@ void ParseArguments(int argc, char *argv[])
             tLXOptions->bFullscreen = true;
         } else
 
-        // -skin
-        // Turns new skinned GUI on
-        if( stricmp(a, "-skin") == 0 ) {
-            tLXOptions->bNewSkinnedGUI = true;
-        } else
-
-        // -noskin
-        // Turns new skinned GUI off
-        if( stricmp(a, "-noskin") == 0 ) {
-            tLXOptions->bNewSkinnedGUI = false;
-        } else
-		
 		if( stricmp(a, "-aftercrash") == 0) {
 			afterCrash = true;
 		}
@@ -1186,9 +1176,6 @@ int InitializeLieroX()
 	tLX->currentTime = 0;
 	tLX->fDeltaTime = 0;
 	tLX->bHosted = false;
-
-	if (!SkinnedGUI::InitializeGuiSkinning())
-		return false;
 
 	// Initialize the game colors (must be called after SDL_GetVideoSurface is not NULL and tLX is not NULL)
 	DeprecatedGUI::InitializeColors();
@@ -1518,16 +1505,10 @@ void ShutdownLieroX()
 	ShutdownLoading();  // In case we're called when an error occured
 
 	DeprecatedGUI::ShutdownGraphics();
-	SkinnedGUI::ShutdownGuiSkinning();
 
 	ShutdownFontCache();
 
 	DeprecatedGUI::Menu_Shutdown();
-	// Only do the deregistration for widgets if we are not restarting.
-	// The problem is that we have registered most widgets globally (not by any init-function)
-	// so we would not reinit them.
-	if(!bRestartGameAfterQuit)
-		DeprecatedGUI::CGuiSkin::DeInit();
 	ShutdownProfiles();
 
 	// Free the IP to Country DB

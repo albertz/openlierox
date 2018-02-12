@@ -81,17 +81,6 @@ public:
 
 	void	PreDraw();
 	void	Draw(SDL_Surface * bmpDest);
-
-	void	LoadStyle() {}
-
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CWidget * w = new CBox( p[0].i, p[1].i, p[2].c, p[3].c, p[4].c );
-		layout->Add( w, id, x, y, dx, dy );
-		return w;
-	};
-	
-	void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
 }; // namespace DeprecatedGUI

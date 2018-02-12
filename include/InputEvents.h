@@ -116,6 +116,9 @@ bool		IsWaitingForEvent();
 // Should be called on SDL_SYSWMEVENT from main thread
 void		EvHndl_SysWmEvent_MainThread(SDL_Event* ev);
 
+// To inject key events from touchscreen input
+void		HandleCInputs_KeyEvent(KeyboardEvent& ev);
+
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();
 SDL_Event	*GetEvent();

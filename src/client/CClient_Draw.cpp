@@ -52,9 +52,11 @@
 #include "CGameMode.h"
 #include "FlagInfo.h"
 #include "WeaponDesc.h"
+#include "Touchscreen.h"
 
 
-
+using DeprecatedGUI::cGameMenuLayout;
+using DeprecatedGUI::cScoreLayout;
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
 float			fLagFlash;
@@ -394,6 +396,10 @@ void CClient::DrawBox(SDL_Surface * dst, int x, int y, int w)
 	DrawImage(dst, bmpBoxRight, x + bmpBoxLeft.get()->w + middle_w, y); // Right part
 }
 
+#ifdef DrawText // Windows crap
+#undef DrawText
+#endif
+
 ///////////////////
 // Main drawing routines
 void CClient::Draw(SDL_Surface * bmpDest)
@@ -488,7 +494,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// Draw the borders
 	if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
 		// Fill the viewport area with black
-		DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
+		DrawRectFill(bmpDest, 0, 0,
 			VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
 
 		if (tLX->iGameType == GME_LOCAL)  {
@@ -518,15 +524,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// if 2 viewports, draw special
 	if(cViewports[1].getUsed())
 		DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
-
-	// Top bar
-	if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
-		SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
-		if (top_bar.get())
-			DrawImage( bmpDest, top_bar, 0, 0);
-		else
-			DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
-	}
 
 	// DEBUG: draw the AI paths
 #ifdef _AI_DEBUG
@@ -560,13 +557,16 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Mini-Map
 		if (cMap != NULL && (bool)getGameLobby()->features[FT_MiniMap])  {
 			if (bGameReady || iNetStatus == NET_PLAYING)
-				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
+				cMap->DrawMiniMap( bmpDest, GetTouchscreenControlsShown() ? 0 : tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
 			else {
 				if(cMap->GetMiniMap().get())
-					DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+					DrawImage( bmpDest, cMap->GetMiniMap(), GetTouchscreenControlsShown() ? 0 : tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
 			}
 		}
 
+		if (!bGameMenu && GetMouse()->FirstDown && !GetTouchscreenControlsShown()) {
+			SetTouchscreenControlsShown(true);
+		}
 	}
 
 	// If waiting for the map/mod to finish downloading, draw the progress
@@ -589,55 +589,28 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// FPS
 	if(tLXOptions->bShowFPS) {
-		if (tLXOptions->bTopBarVisible)  {
-			DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
-			tLX->cFont.Draw( // Draw the text
-						bmpDest,
-						tInterfaceSettings.FpsX + 2,
-						tInterfaceSettings.FpsY,
-						tLX->clFPSLabel,
+		tLX->cOutlineFont.Draw( // Draw the text
+					bmpDest,
+					VideoPostProcessor::videoSurface()->w - 70,
+					0,
+					tLX->clFPSLabel,
 #ifdef DEBUG
-						"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
+					"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
 #else
-						"FPS: " + itoa(GetFPS()) // Get the string and its width
+					"FPS: " + itoa(GetFPS()) // Get the string and its width
 #endif
-					);
-		} else { // Top bar is hidden
-			tLX->cOutlineFont.Draw( // Draw the text
-						bmpDest,
-						VideoPostProcessor::videoSurface()->w - 70,
-						0,
-						tLX->clFPSLabel,
-#ifdef DEBUG
-						"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
-#else
-						"FPS: " + itoa(GetFPS()) // Get the string and its width
-#endif
-					);
-		}
+				);
 	}
 
 	// Ping on the top right
 	if(tLXOptions->bShowPing && tLX->iGameType == GME_JOIN)  {
 
-		if (tLXOptions->bTopBarVisible)  {
-			// Draw the box around it
-			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
-
-			tLX->cFont.Draw( // Draw the text
-						bmpDest,
-						tInterfaceSettings.PingX + 2,
-						tInterfaceSettings.PingY,
-						tLX->clPingLabel,
-						"Ping: " + itoa(iMyPing));
-		} else {
-			tLX->cOutlineFont.Draw( // Draw the text
-						bmpDest,
-						VideoPostProcessor::videoSurface()->w - (tLXOptions->bShowFPS ? 135 : 65),
-						0,
-						tLX->clPingLabel,
-						"Ping: " + itoa(iMyPing));				
-		}
+		tLX->cOutlineFont.Draw( // Draw the text
+					bmpDest,
+					VideoPostProcessor::videoSurface()->w - (tLXOptions->bShowFPS ? 135 : 65),
+					0,
+					tLX->clPingLabel,
+					"Ping: " + itoa(iMyPing));				
 
 	}
 
@@ -663,9 +636,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		char cstr_buf[16]; //max number of digits ever needed + ":" is 13
 		sprintf(cstr_buf,"%.2i:%.2i",iTLMinutes,iTLSeconds);
 	
-		DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
+		//DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
 		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpClock, tInterfaceSettings.TimeLeftX+1,  tInterfaceSettings.TimeLeftY+1);
-		tLX->cFont.Draw(bmpDest,tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
+		tLX->cOutlineFont.Draw(bmpDest,tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
 	}
 
 	if( sSpectatorViewportMsg != "" && !isGameOver() )
@@ -820,9 +793,6 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	SDL_Rect rect = v->getRect();
 	ScopedSurfaceClip clip(bmpDest, rect);
 	
-	// Weather
-	//cWeather.Draw(bmpDest, v);
-	
 	// Earlier: When game menu is visible (bGameMenu), it covers all this anyway, so we won't bother to draw it.
 	// We draw it anyway now because we could use some nice alpha blending or so
 	if (cMap) {
@@ -959,7 +929,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	// The positions are different for different viewports
 	int *HealthLabelX, *WeaponLabelX, *LivesX, *KillsX, *TeamX, *SpecMsgX;
 	int *HealthLabelY, *WeaponLabelY, *LivesY, *KillsY, *TeamY, *SpecMsgY;
-	int	*LivesW, *KillsW, *TeamW, *SpecMsgW;
+	int	*LivesW, *TeamW; //, *KillsW, *SpecMsgW;
 	DeprecatedGUI::CBar *HealthBar, *WeaponBar;
 
 	// Do we need to draw this?
@@ -979,7 +949,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 		KillsX = &tInterfaceSettings.Kills1X;
 		KillsY = &tInterfaceSettings.Kills1Y;
-		KillsW = &tInterfaceSettings.Kills1W;
+		//KillsW = &tInterfaceSettings.Kills1W;
 
 		TeamX = &tInterfaceSettings.Team1X;
 		TeamY = &tInterfaceSettings.Team1Y;
@@ -987,7 +957,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 		SpecMsgX = &tInterfaceSettings.SpecMsg1X;
 		SpecMsgY = &tInterfaceSettings.SpecMsg1Y;
-		SpecMsgW = &tInterfaceSettings.SpecMsg1W;
+		//SpecMsgW = &tInterfaceSettings.SpecMsg1W;
 
 		HealthBar = cHealthBar1;
 		WeaponBar = cWeaponBar1;
@@ -1001,7 +971,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 		KillsX = &tInterfaceSettings.Kills2X;
 		KillsY = &tInterfaceSettings.Kills2Y;
-		KillsW = &tInterfaceSettings.Kills2W;
+		//KillsW = &tInterfaceSettings.Kills2W;
 
 		TeamX = &tInterfaceSettings.Team2X;
 		TeamY = &tInterfaceSettings.Team2Y;
@@ -1009,7 +979,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 		SpecMsgX = &tInterfaceSettings.SpecMsg2X;
 		SpecMsgY = &tInterfaceSettings.SpecMsg2Y;
-		SpecMsgW = &tInterfaceSettings.SpecMsg2W;
+		//SpecMsgW = &tInterfaceSettings.SpecMsg2W;
 
 		HealthBar = cHealthBar2;
 		WeaponBar = cWeaponBar2;
@@ -1021,7 +991,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 
 	// Draw the details only when current settings is not displayed
-	if (!bCurrentSettings)  {
+	// Touchscreen controls cover health bar in the corner of the screen, so do not draw it, it will be drawn near the worm
+	if (!bCurrentSettings && !GetTouchscreenControlsShown())  {
 		// Health
 		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
 		if (HealthBar)  {
@@ -1069,36 +1040,37 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 
 	// Lives
-	DrawBox(bmpDest, *LivesX, *LivesY, *LivesW); // Box first
+	//DrawBox(bmpDest, *LivesX, *LivesY, *LivesW); // Box first
 
 	std::string lives_str;
 	lives_str = "Lives: ";
 	switch (worm->getLives())  {
 	case WRM_OUT:
 		lives_str += "Out";
-		tLX->cFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
+		tLX->cOutlineFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
 		break;
 	case WRM_UNLIM:
-		tLX->cFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
-		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpInfinite, *LivesX + *LivesW - DeprecatedGUI::gfxGame.bmpInfinite.get()->w, *LivesY); // Infinite
+		tLX->cOutlineFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
+		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpInfinite, *LivesX + *LivesW - DeprecatedGUI::gfxGame.bmpInfinite.get()->w,
+					*LivesY + tLX->cOutlineFont.GetHeight() / 2 - DeprecatedGUI::gfxGame.bmpInfinite.get()->h / 2); // Infinite
 		break;
 	default:
 		if (worm->getLives() >= 0)  {
 			lives_str += itoa( worm->getLives() );
-			tLX->cFont.Draw(bmpDest,*LivesX + 2, *LivesY, tLX->clLivesLabel, lives_str);
+			tLX->cOutlineFont.Draw(bmpDest,*LivesX + 2, *LivesY, tLX->clLivesLabel, lives_str);
 		}
 	}
 
 	
 	// Kills
-	DrawBox( bmpDest, *KillsX, *KillsY, *KillsW );
+	//DrawBox( bmpDest, *KillsX, *KillsY, *KillsW );
 	std::string teamScoreTxt = "Scores: ";
 	if(worm && worm->getTeam() >= 0 && worm->getTeam() < 4)
 		teamScoreTxt += itoa(iTeamScores[worm->getTeam()]);
 	if(getGeneralGameType() == GMT_TEAMS)
-		tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, teamScoreTxt);		
+		tLX->cOutlineFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, teamScoreTxt);		
 	else
-		tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, "Kills: " + itoa( worm->getKills() ));
+		tLX->cOutlineFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, "Kills: " + itoa( worm->getKills() ));
 
 	bool showTeamEnemyScores = getGeneralGameType() == GMT_TEAMS && !cViewports[1].getUsed();
 	if(showTeamEnemyScores) {
@@ -1110,7 +1082,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 				x += DeprecatedGUI::gfxGame.bmpTeamColours[i].get()->w + 5;
 				
 				std::string enemyScoreTxt = itoa(iTeamScores[i]);
-				tLX->cFont.Draw(bmpDest, x, y, tLX->clTeamColors[i], enemyScoreTxt);
+				tLX->cOutlineFont.Draw(bmpDest, x, y, tLX->clTeamColors[i], enemyScoreTxt);
 				x += MAX(30, tLX->cFont.GetWidth(enemyScoreTxt) + 5);
 			}
 		}
@@ -1124,8 +1096,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		// Am i IT?
 		if(worm->getTagIT())  {
 			spec_msg = "You are IT!";
-			DrawBox( bmpDest, *SpecMsgX, *SpecMsgY, *SpecMsgW);
-			tLX->cFont.Draw(bmpDest, *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
+			//DrawBox( bmpDest, *SpecMsgX, *SpecMsgY, *SpecMsgW);
+			tLX->cOutlineFont.Draw(bmpDest, *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
 		}
 		break;
 
@@ -1141,16 +1113,16 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			else
 				spec_msg += itoa(count/1000)+"k";
 
-			DrawBox( bmpDest, *SpecMsgX, *SpecMsgY, *SpecMsgW);
-			tLX->cFont.Draw(bmpDest, *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
+			//DrawBox( bmpDest, *SpecMsgX, *SpecMsgY, *SpecMsgW);
+			tLX->cOutlineFont.Draw(bmpDest, *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
 		}
 		break;
 
 	case GMT_TEAMS:  {
 			if (worm->getTeam() >= 0 && worm->getTeam() < 4)  {
-				int box_h = bmpBoxLeft.get() ? bmpBoxLeft.get()->h : tLX->cFont.GetHeight();
-				DrawBox( bmpDest, *TeamX, *TeamY, *TeamW);
-				tLX->cFont.Draw( bmpDest, *TeamX+2, *TeamY, tLX->clTeamColors[worm->getTeam()], "Team");
+				int box_h = bmpBoxLeft.get() ? bmpBoxLeft.get()->h : tLX->cOutlineFont.GetHeight();
+				//DrawBox( bmpDest, *TeamX, *TeamY, *TeamW);
+				tLX->cOutlineFont.Draw( bmpDest, *TeamX+2, *TeamY, tLX->clTeamColors[worm->getTeam()], "Team");
 				DrawImage( bmpDest, DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()],
 						   *TeamX + *TeamW - DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()].get()->w - 2,
 						   *TeamY + MAX(1, box_h/2 - DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()].get()->h/2));
@@ -1232,25 +1204,6 @@ void CClient::SimulateHud()
 	// Top bar toggle
 	if (cToggleTopBar.isDownOnce() && !bChat_Typing)  {
 		tLXOptions->bTopBarVisible = !tLXOptions->bTopBarVisible;
-
-		SmartPointer<SDL_Surface> topbar = (tLX->iGameType == GME_LOCAL) ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
-
-		int toph = topbar.get() ? (topbar.get()->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
-		int top = toph;
-		if (!tLXOptions->bTopBarVisible)  {
-			toph = -toph;
-			top = 0;
-		}
-
-		// TODO: allow more viewports
-		// Setup the viewports
-		cViewports[0].SetTop(top);
-		cViewports[0].SetVirtHeight(cViewports[0].GetVirtH() - toph);
-		if (cViewports[1].getUsed()) {
-			cViewports[1].SetTop(top);
-			cViewports[1].SetVirtHeight(cViewports[1].GetVirtH() - toph);
-		}
-
 		bShouldRepaintInfo = true;
 	}
 
@@ -1283,6 +1236,7 @@ void CClient::SimulateHud()
 		if(bGameMenu) curState = AFK_MENU;
 		if(Con_IsVisible()) curState = AFK_CONSOLE;
 		if(!ApplicationHasFocus()) curState = AFK_AWAY;
+		if (GetTouchscreenTextInputShown()) curState = AFK_TYPING_CHAT;
 		if( curState != cLocalWorms[0]->getAFK() ) {
 			cNetEngine->SendAFK( cLocalWorms[0]->getID(), curState );
 		}
@@ -1331,6 +1285,7 @@ void CClient::InitializeGameMenu()
 	bGameMenu = true;
 	ProcessEvents();  // Prevents immediate closing of the scoreboard
 	SetGameCursor(CURSOR_HAND);
+	SetTouchscreenControlsShown(false);
 
 	// Shutdown any previous instances
 	cGameMenuLayout.Shutdown();
@@ -1375,8 +1330,10 @@ void CClient::InitializeGameMenu()
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(teamName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < 4) {
 				SmartPointer<SDL_Surface> pic = DeprecatedGUI::gfxGame.bmpTeamColours[iMatchWinnerTeam];
-				if (pic.get())
+				if (pic.get()) {
 					cGameMenuLayout.Add(new DeprecatedGUI::CImage(DynDrawFromSurface(pic)), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
+					cGameMenuLayout.getWidget(gm_TopSkin)->setKeyboardNavigationOrder(1);
+				}
 			}
 		} else {
 			std::string winnerName = "noone";
@@ -1392,8 +1349,10 @@ void CClient::InitializeGameMenu()
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(winnerName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			if(iMatchWinner >= 0 && iMatchWinner < MAX_WORMS) {
 				SmartPointer<DynDrawIntf> pic = cRemoteWorms[iMatchWinner].getPicimg();
-				if (pic.get())
+				if (pic.get()) {
 					cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, WORM_SKIN_WIDTH, WORM_SKIN_HEIGHT);
+					cGameMenuLayout.getWidget(gm_TopSkin)->setKeyboardNavigationOrder(1);
+				}
 			}
 		}
 	}
@@ -1408,12 +1367,14 @@ void CClient::InitializeGameMenu()
 
 	Left->setDrawBorder(false);
 	Right->setDrawBorder(false);
-	Left->setShowSelect(false);
-	Right->setShowSelect(false);
+	Left->setShowSelect(DeprecatedGUI::Menu_IsKeyboardNavigationUsed());
+	Right->setShowSelect(DeprecatedGUI::Menu_IsKeyboardNavigationUsed());
 	Left->setRedrawMenu(false);
 	Right->setRedrawMenu(false);
 	Left->setOldStyle(true);
 	Right->setOldStyle(true);
+	Left->setKeyboardNavigationOrder(1);
+	Right->setKeyboardNavigationOrder(1);
 
 	AddColumns(Left);
 	AddColumns(Right);
@@ -1546,38 +1507,45 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 		case gm_LeftList:
 		case gm_RightList:
-			if (ev->iEventMsg == DeprecatedGUI::LV_WIDGETEVENT)  {
-				ev = ((DeprecatedGUI::CListview *)ev->cWidget)->getWidgetEvent();
+			if (ev->iEventMsg == DeprecatedGUI::LV_WIDGETEVENT) {
+				DeprecatedGUI::gui_event_t * wev = ((DeprecatedGUI::CListview *)ev->cWidget)->getWidgetEvent();
 
 				// Do not display the host menu when not hosting
 				if (tLX->iGameType == GME_JOIN)
 					break;
 
 				// Click on the command button
-				if (ev->cWidget->getType() == DeprecatedGUI::wid_Button && ev->iEventMsg == DeprecatedGUI::BTN_CLICKED)  {
-					iSelectedPlayer = ev->cWidget->getID();
-					DeprecatedGUI::Menu_HostActionsPopupMenuInitialize(cGameMenuLayout, gm_PopupMenu, gm_PopupPlayerInfo, iSelectedPlayer );
+				if (wev->cWidget->getType() == DeprecatedGUI::wid_Button && wev->iEventMsg == DeprecatedGUI::BTN_CLICKED) {
+					iSelectedPlayer = wev->cWidget->getID();
+					DeprecatedGUI::Menu_HostActionsPopupMenuInitialize(cGameMenuLayout, gm_PopupMenu, gm_PopupPlayerInfo, iSelectedPlayer);
 				}
 			}
 		break;
 
-		case gm_PopupMenu:  {
-			DeprecatedGUI::Menu_HostActionsPopupMenuClick(cGameMenuLayout, gm_PopupMenu, gm_PopupPlayerInfo, iSelectedPlayer, ev->iEventMsg);
+		case gm_PopupMenu:
+			if (ev->iEventMsg >= DeprecatedGUI::MNU_USER) {
+				DeprecatedGUI::Menu_HostActionsPopupMenuClick(cGameMenuLayout, gm_PopupMenu, gm_PopupPlayerInfo, iSelectedPlayer, ev->iEventMsg);
 			} 
 			break;
 			
-		case gm_PopupPlayerInfo:  {
-			DeprecatedGUI::Menu_HostActionsPopupPlayerInfoClick(cGameMenuLayout, gm_PopupMenu, gm_PopupPlayerInfo, iSelectedPlayer, ev->iEventMsg);
+		case gm_PopupPlayerInfo:
+			if (ev->iEventMsg >= DeprecatedGUI::MNU_USER) {
+				DeprecatedGUI::Menu_HostActionsPopupPlayerInfoClick(cGameMenuLayout, gm_PopupMenu, gm_PopupPlayerInfo, iSelectedPlayer, ev->iEventMsg);
 			} 
 			break;
 		}
 	}
 
+	if (DeprecatedGUI::Menu_IsKeyboardNavigationUsed() && (!cGameMenuLayout.getFocusedWidget() || cGameMenuLayout.getFocusedWidget()->getID() != gm_PopupMenu)) {
+		// If popup menu not focused, remove it
+		cGameMenuLayout.removeWidget(gm_PopupMenu);
+		cGameMenuLayout.removeWidget(gm_PopupPlayerInfo);
+	}
+
 	// TODO: why is processing events in a draw-function? move it out here
 	// Process the keyboard
 	if (!bChat_Typing && !DeprecatedGUI::bShowFloatingOptions)  {
-
-		if (WasKeyboardEventHappening(SDLK_RETURN,false) || WasKeyboardEventHappening(SDLK_KP_ENTER,false) || WasKeyboardEventHappening(SDLK_ESCAPE,false))  {
+		if (WasKeyboardEventHappening(SDLK_ESCAPE,false))  {
 			if (tLX->iGameType == GME_LOCAL && bGameOver)  {
 				GotoLocalMenu();
 			} else if (!bGameOver)  {
@@ -2569,7 +2537,7 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 {
 	const int h = getBottomBarTop() - y;
 
-	SDL_Rect newclip = {(Sint16)x, (Sint16)y, (Uint16)WAIT_COL_W, (Uint16)h};
+	SDL_Rect newclip = {(SDLRect::Type) x, (SDLRect::Type) y, WAIT_COL_W, (SDLRect::TypeS) h};
 	ScopedSurfaceClip clip(bmpDest, newclip);
 
 	DrawRectFill(bmpDest, x, y, x + WAIT_COL_W, y + h, tLX->clScoreBackground);

@@ -84,7 +84,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
 
 	enum { GO_RIGHT=1, GO_DOWN=2, GO_LEFT=4, GO_UP=8 }; short dir;
 	unsigned short col;
-	register int x=0, y=0;
+	int x=0, y=0;
 	int grid_x=0, grid_y=0;
 	bool avoided_all_grids;
 
@@ -208,7 +208,7 @@ NEW_ai_node_t* createNewAiNode(const VectorD2<int>& p) {
 // (depends on which of them is the absolute greatest)
 // HINT: don't lock the flags here (it's done in the caller)
 inline bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
-	register const uchar* pxflags = cClient->getMap()->GetPixelFlags();
+	const uchar* pxflags = cClient->getMap()->GetPixelFlags();
 	if (!pxflags)  {  // The map has been probably shut down
 		warnings << "simpleTraceLine with pxflags==NULL" << endl;
 		return false;
@@ -223,7 +223,7 @@ inline bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar check
 		}
 		if(start.x < 0 || (uint)(start.x + dist.x) >= map_w || start.y < 0 || (uint)start.y >= map_h)
 			return false;
-		for(register int x = 0; x <= dist.x; x++) {
+		for(int x = 0; x <= dist.x; x++) {
 			if(pxflags[start.y*map_w + start.x + x] & checkflag)
 				return false;
 		}
@@ -234,7 +234,7 @@ inline bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar check
 		}
 		if(start.y < 0 || (uint)(start.y + dist.y) >= map_h || start.x < 0 || (uint)start.x >= map_w)
 			return false;
-		for(register int y = 0; y <= dist.y; y++) {
+		for(int y = 0; y <= dist.y; y++) {
 			if(pxflags[(start.y+y)*map_w + start.x] & checkflag)
 				return false;
 		}
@@ -1369,7 +1369,6 @@ CWorm *CWormBotInputHandler::findTarget()
 CWorm* CWormBotInputHandler::nearestEnemyWorm() {
 	CWorm	*w = cClient->getRemoteWorms();
 	CWorm	*trg = NULL;
-	CWorm	*nonsight_trg = NULL;
 	float	fDistance = -1;
 	float	fSightDistance = -1;
 
@@ -1416,7 +1415,6 @@ CWorm* CWormBotInputHandler::nearestEnemyWorm() {
 				trg = w;
 				fSightDistance = l;
 				if (fDistance < 0 || l < fDistance)  {
-					nonsight_trg = w;
 					fDistance = l;
 				}
 			}
@@ -1424,7 +1422,6 @@ CWorm* CWormBotInputHandler::nearestEnemyWorm() {
 		else {
 			// Line of sight blocked
 			if(fDistance < 0 || l < fDistance) {
-				nonsight_trg = w;
 				fDistance = l;
 			}
 		}
@@ -2061,9 +2058,8 @@ bool CWormBotInputHandler::AI_Shoot()
 	
     float fDist;
     int nType = -1;
-    int length = 0;
 
-	length = traceWeaponLine(cTrgPos, &fDist, &nType);
+	traceWeaponLine(cTrgPos, &fDist, &nType);
 
     // If target is blocked by rock we can't use direct firing
     if(nType & PX_ROCK)  {
@@ -2948,7 +2944,7 @@ int traceWormLine(CVec target, CVec start, CVec* collision)
 	NormalizeVector(&dir);
 	set_col_and_break action = set_col_and_break(start - dir*(wormsize-1)/2, collision);
 	target -= dir*(wormsize-1)/2;
-	for(register unsigned short i = 0; i < wormsize; i++, action.start += dir, target += dir)
+	for(unsigned short i = 0; i < wormsize; i++, action.start += dir, target += dir)
 		fastTraceLine(target, action.start, (uchar)PX_ROCK, action);
 
 	return !action.hit;
@@ -3887,6 +3883,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		Prevent injuries! If any of the projectiles around is heading to us, try to get away from it
 	*/
 	// TODO: this doesn't work that good atm; so it's better to ignore it at all than to go away in a situation where shooting would be better
+#if 0
 	if (false)  {
 		// TODO: improve this
 
@@ -3944,7 +3941,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 		return;
 	}
-
+#endif
 	// TODO: in general, move away from projectiles
 
 	// prevent suicides
@@ -4349,7 +4346,6 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 	// If the worm is not on ground, we cannot hit him with a napalm-like weapon (napalm, blaster etc.)
 	bool have_straight = false;
 	bool have_falling = false;
-	bool have_flying = false;
 
 	// Check what weapons we have
 	for (int i=0; i < 5; i++)  {
@@ -4364,8 +4360,6 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 				have_falling = true;
 			else if (gravity >= -5)
 				have_straight = true;
-			else
-				have_flying = true;
 		}
 	}
 

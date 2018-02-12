@@ -240,11 +240,9 @@ struct GameOptions {
 	bool	bForceCompatibleConnect;
 	std::string	sForceMinVersion;
 	//Chat message check options
-	bool bCheckChatMessageLength;
-	int iMaxChatMessageLength;
-	bool bKickOversizedMsgSenders;
+	int		iMaxChatMessageLength;
 	//Server chat logging
-	bool bLogServerChatToMainlog;
+	bool	bLogServerChatToMainlog;
 	
 	// IRC chat
 	bool	bEnableChat;
@@ -274,8 +272,6 @@ struct GameOptions {
 	bool	bShowProjectileUsage;
 	bool	bColorizeNicks;
 	bool	bAutoTyping;
-	std::string	sSkinPath;	// Old unfinished skinned GUI
-	bool	bNewSkinnedGUI;	// Just for test
 	bool	bAntiAliasing;
 	bool	bMouseAiming;
 	int		iMouseSensity;
@@ -326,7 +322,7 @@ struct GameOptions {
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
 	std::string cfgFilename;
 	bool	doProjectileSimulationInDedicated;
-	bool bCheckMaxWpnTimeInInstantStart;   //Enforce max weapon selection time when instant start is enabled
+	bool	bCheckMaxWpnTimeInInstantStart;   //Enforce max weapon selection time when instant start is enabled
         
 	// Widget states
 	int		iInternetList[7];

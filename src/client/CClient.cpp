@@ -86,8 +86,8 @@ void CClient::Clear()
 	bMapGrabbed = false;
 	if( cNetChan )
 		delete cNetChan;
-		cNetChan = NULL;
-		iNetStatus 	 = NET_DISCONNECTED;	
+	cNetChan = NULL;
+	iNetStatus 	 = NET_DISCONNECTED;
 	reconnectingAmount = 0;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
@@ -412,9 +412,6 @@ int CClient::Initialize()
 	cShootList.Initialize();
 
 	this->SetupGameInputs();
-	
-    // Initialize the weather
-    //cWeather.Initialize(wth_snow);
 
 	m_flagInfo = new FlagInfo();
 	
@@ -1096,10 +1093,7 @@ void CClient::Frame()
 		cMap->isLoaded() &&
 		cGameScript.get())
 	{
-		if( NewNet::Active() )
-			NewNet_Frame();
-		else
-			Simulation();
+		Simulation();
 	}
 
 	SendPackets();
@@ -1109,27 +1103,6 @@ void CClient::Frame()
 		ConnectingBehindNAT();
 	else
 		Connecting();
-}
-
-void CClient::NewNet_Frame()
-{
-	CBytestream out, packet;
-	if( getNumWorms() <= 0 )
-		return;
-	out.writeByte( C2S_NEWNET_KEYS );
-	out.writeByte( getWorm(0)->getID() );
-	while( NewNet::Frame(&out) )
-	{
-		packet.Append(&out);
-		out.Clear();
-		out.writeByte( C2S_NEWNET_KEYS );
-		out.writeByte( getWorm(0)->getID() );
-	}
-	
-	if( NewNet::ChecksumRecalculated() )
-		getNetEngine()->SendNewNetChecksum();
-
-	cNetChan->AddReliablePacketToSend(packet);
 }
 
 ///////////////////
@@ -1186,9 +1159,6 @@ bool CClient::ReadPackets()
 		if (bDownloadingMap && cHttpDownloader)
 			cHttpDownloader->CancelFileDownload(sMapDownloadName);
 		getUdpFileDownloader()->reset();
-
-		if( NewNet::Active() )
-			NewNet::EndRound();
 
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
 	}
@@ -1705,9 +1675,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	}
 
 
-	int top = topbar.get() ? (topbar.get()->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
-	if (!tLXOptions->bTopBarVisible)
-		top = 0;
+	int top = 0;
 
 	int h = bottombar.get() ? (480 - bottombar.get()->h - top) : (382 - top); // Height of the viewports
 
@@ -2325,10 +2293,10 @@ void CClient::Shutdown() {
 	cShootList.Shutdown();
 
 	// Game menu
-	cGameMenuLayout.Shutdown();
+	DeprecatedGUI::cGameMenuLayout.Shutdown();
 
 	// Scoreboard
-	cScoreLayout.Shutdown();
+	DeprecatedGUI::cScoreLayout.Shutdown();
 
 
 	// Bonuses
@@ -2412,7 +2380,8 @@ CChannel * CClient::createChannel(const Version& v)
 
 void CClient::setNetEngineFromServerVersion()
 {
-	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
+	if(cNetEngine) delete cNetEngine;
+	cNetEngine = NULL;
 	if( getServerVersion() >= OLXBetaVersion(0,58,1) )
 		cNetEngine = new CClientNetEngineBeta9(this);
 	else if( getServerVersion() >= OLXBetaVersion(7) )
@@ -2501,16 +2470,6 @@ int CClient::getNumRemoteWorms()
 		if( cRemoteWorms[i].isUsed() )
 			ret++;
 	return ret;
-}
-
-void CClient::NewNet_SaveProjectiles()
-{
-	NewNet_SavedProjectiles = cProjectiles;
-}
-
-void CClient::NewNet_LoadProjectiles()
-{
-	cProjectiles = NewNet_SavedProjectiles;
 }
 
 long CClient::MapPosIndex::index(const CMap* m) const {

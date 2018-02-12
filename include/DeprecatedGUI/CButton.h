@@ -89,7 +89,6 @@ private:
     int         iGoodWidth;
 	int			iButtonType;
 	bool		bUseFallback;
-	CGuiSkin::CallbackHandler cClick;
 	
 	void initWidthHeight() {
 		iWidth = iGoodWidth;
@@ -112,7 +111,7 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ bMouseOver = true; bMouseDown = true; SetGameCursor(CURSOR_HAND); return BTN_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return BTN_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return BTN_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return BTN_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return BTN_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
@@ -123,32 +122,8 @@ public:
 	void	Draw(SDL_Surface * bmpDest);
     void	Draw2(SDL_Surface * bmpDest);
 
-	void	LoadStyle() {}
-
 	int		getType()  { return iButtonType; }
 	void	setType(int _t)  { iButtonType = _t; }
-
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CButton * w = new CButton( p[0].i, tMenu->bmpButtons );
-		w->cClick.Init( p[1].s, w );
-		layout->Add( w, id, x, y, dx, dy );
-		return w;
-	};
-
-	static CWidget * WidgetCreator_Image( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CButton * w = new CButton( p[0].s );
-		w->cClick.Init( p[1].s, w );
-		layout->Add( w, id, x, y, dx, dy );
-		return w;
-	};
-	
-	void	ProcessGuiSkinEvent(int iEvent) 
-	{
-		if( iEvent == BTN_CLICKED )
-			cClick.Call();
-	};
 
 	void setImageID(int theValue) {
 		iImageID = theValue;

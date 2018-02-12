@@ -107,6 +107,7 @@ public:
 	
 	SDLRectBasic() { this->SDL_Rect::x = this->SDL_Rect::y = this->SDL_Rect::w = this->SDL_Rect::h = 0; }
 	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {}
+	SDLRectBasic(Type _x, Type _y, TypeS _w, TypeS _h) { SDL_Rect::x = _x; SDL_Rect::y = _y; SDL_Rect::w = _w; SDL_Rect::h = _h; }
 	Type& x() { return this->SDL_Rect::x; }
 	Type& y() { return this->SDL_Rect::y; }
 	TypeS& width() { return this->SDL_Rect::w; }
@@ -159,6 +160,8 @@ class OLXRect : public _RectBasic {
 public:
 
 	OLXRect(const _RectBasic & r): _RectBasic(r) {}
+
+	OLXRect(typename _RectBasic::Type x, typename _RectBasic::Type y, typename _RectBasic::TypeS w, typename _RectBasic::TypeS h): _RectBasic(x, y, w, h) {}
 
 	class GetX2 {
 	protected:
@@ -273,7 +276,7 @@ bool OneSideClip(T1& c, T2& d, const T3 clip_c, const T4 clip_d)  {
 // Create a SDL rect
 inline SDL_Rect MakeRect(int x, int y, int w, int h)
 {
-	SDL_Rect r = {(Sint16)x, (Sint16)y, (Uint16)w, (Uint16)h};
+	SDL_Rect r = {(SDLRect::Type) x, (SDLRect::Type) y, (SDLRect::TypeS) w, (SDLRect::TypeS) h};
 	return r;
 }
 
@@ -393,8 +396,8 @@ inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> 
 //////////////
 // Draw the image with a huge amount of options
 inline void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
-	SDL_Rect r1 = { (Sint16)dx, (Sint16)dy, 0, 0 };
-	SDL_Rect r2 = { (Sint16)sx, (Sint16)sy, (Uint16)w, (Uint16)h };
+	SDL_Rect r1 = { (SDLRect::Type) dx, (SDLRect::Type) dy, 0, 0 };
+	SDL_Rect r2 = { (SDLRect::Type) sx, (SDLRect::Type) sy, (SDLRect::TypeS) w, (SDLRect::TypeS) h };
 	DrawImageAdv( bmpDest, bmpSrc, r1, r2);
 }
 inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
@@ -431,7 +434,7 @@ inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & b
 ///////////////
 // Simply draw the image
 inline void DrawImage(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int x, int y) {
-	SDL_Rect r = { (Sint16)x, (Sint16)y, 0, 0 };
+	SDL_Rect r = { (SDLRect::Type) x, (SDLRect::Type) y, 0, 0 };
 	DrawImage( bmpDest, bmpSrc, r);
 }
 inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int x, int y) {

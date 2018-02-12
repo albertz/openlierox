@@ -432,7 +432,7 @@ inline void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy
 		+ (dy * dst_pitch) + (dx * dst->format->BytesPerPixel);
 
 	// Copy row by row
-	for (register int i = 0; i < h; ++i)  {
+	for (int i = 0; i < h; ++i)  {
 		memcpy(dstrow, srcrow, byte_bound);
 		dstrow += dst_pitch;
 		srcrow += src_pitch;
@@ -498,6 +498,10 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 
 		rSrc.x += rDest.x - old_x;
 		rSrc.y += rDest.y - old_y;
+		if (rSrc.x < 0)
+			rDest.x -= rSrc.x;
+		if (rSrc.y < 0)
+			rDest.y -= rSrc.y;
 		if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
 			return;
 		rDest.w = MIN(rSrc.w, rDest.w);
@@ -587,7 +591,7 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 // Draw the image tiled on the dest surface
 void DrawImageTiled(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
 {
-	SDL_Rect newClip = {(Sint16)dx,(Sint16)dy,(Uint16)dw,(Uint16)dh};
+	SDL_Rect newClip = {(SDLRect::Type) dx, (SDLRect::Type) dy, (SDLRect::TypeS) dw, (SDLRect::TypeS) dh};
 	ScopedSurfaceClip clip(bmpDest,newClip);	
 	MOD(sx, (int)bmpSrc->w); MOD(sy, (int)bmpSrc->h);
 	
@@ -653,7 +657,7 @@ void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 
 	short bpp = bmpDest->format->BytesPerPixel;
 
-	register Uint8 *sp,*tp;
+	Uint8 *sp,*tp;
 	for(y = h; y; --y) {
 
 		sp = SrcPix;
@@ -991,7 +995,6 @@ int SafeSoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 	int src_locked;
 	int dst_locked;
 	int pos, inc;
-	int dst_width;
 	int dst_maxrow;
 	int src_row, dst_row;
 	Uint8 *srcp = NULL;
@@ -1062,8 +1065,7 @@ int SafeSoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 	inc = (srcrect->h << 16) / dstrect->h;
 	src_row = srcrect->y;
 	dst_row = dstrect->y;
-	dst_width = dstrect->w*bpp;
-		
+	
 	/* Perform the stretch blit */
 	for ( dst_maxrow = dst_row+dstrect->h; dst_row<dst_maxrow; ++dst_row ) {
 		dstp = (Uint8 *)dst->pixels + (dst_row*dst->pitch)
@@ -1113,8 +1115,8 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 {
 	if(!bmpSrc || !bmpDest) return;
 	
-	SDL_Rect src = { (Sint16)sx, (Sint16)sy, (Uint16)sw, (Uint16)sh };
-	SDL_Rect dst = { (Sint16)dx, (Sint16)dy, (Uint16)((float)sw * xratio), (Uint16)((float)sh * yratio) };
+	SDL_Rect src = { (SDLRect::Type) sx, (SDLRect::Type) sy, (SDLRect::TypeS) sw, (SDLRect::TypeS) sh };
+	SDL_Rect dst = { (SDLRect::Type) dx, (SDLRect::Type) dy, (SDLRect::TypeS) ((float)sw * xratio), (SDLRect::TypeS) ((float)sh * yratio) };
 	
 	// Source clipping
 	if (!ClipRefRectWith((SDLRect&)src, (SDLRect&)bmpSrc->clip_rect))
@@ -1134,8 +1136,8 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 {
 	if(!bmpSrc || !bmpDest) return;
 
-	SDL_Rect src = { (Sint16)sx, (Sint16)sy, (Uint16)sw, (Uint16)sh };
-	SDL_Rect dst = { (Sint16)dx, (Sint16)dy, (Uint16)dw, (Uint16)dh };
+	SDL_Rect src = { (SDLRect::Type) sx, (SDLRect::Type) sy, (SDLRect::TypeS) sw, (SDLRect::TypeS) sh };
+	SDL_Rect dst = { (SDLRect::Type) dx, (SDLRect::Type) dy, (SDLRect::TypeS) dw, (SDLRect::TypeS) dh };
 	
 	// Source clipping
 	if (!ClipRefRectWith((SDLRect&)src, (SDLRect&)bmpSrc->clip_rect))
@@ -2053,7 +2055,7 @@ static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Color 
 // Draws a filled rectangle
 void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Color color)
 {
-	SDL_Rect r = { (Sint16)x, (Sint16)y, (Uint16)(x2 - x), (Uint16)(y2 - y) };
+	SDL_Rect r = { (SDLRect::Type) x, (SDLRect::Type) y, (SDLRect::TypeS) (x2 - x), (SDLRect::TypeS) (y2 - y) };
 
 	switch (color.a)  {
 		case SDL_ALPHA_OPAQUE:
@@ -2152,10 +2154,10 @@ void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 		return;
 
 	// Because we are drawing 2x stretched, we have to make sure we don't draw the boundary pixels
-	x1 -= x1 & 1;
-	y1 -= y1 & 1;
-	x2 -= x2 & 1;
-	y2 -= y2 & 1;
+	x1 = MIN(x1, bmp->w - 3);
+	x2 = MIN(x2, bmp->w - 3);
+	y1 = MIN(y1, bmp->h - 3);
+	y2 = MIN(y2, bmp->h - 3);
 
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);

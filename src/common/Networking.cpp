@@ -200,7 +200,7 @@ bool InitNetworkSystem() {
 	
 	dnsCache = new ThreadVar<dnsCacheT>();
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__ANDROID__)
 	//sigignore(SIGPIPE);
 	signal(SIGPIPE, sigpipe_handler);
 #endif

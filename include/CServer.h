@@ -125,6 +125,7 @@ private:
 	int			lastClientSendData;
 	
 	AbsTime		fLastBonusTime;
+	AbsTime		fOldClientsBonusUpdateTime;
 
 	int			iLastVictim;	// TODO: what is this good for
 
@@ -195,6 +196,7 @@ public:
 	}
 	
 	void		SpawnBonus();
+	void		UpdateBonuses();
 	void		WormShoot(CWorm *w);
 	void		WormShootEnd(CWorm* w, const weapon_t* weapon);
     void        RecheckGame();

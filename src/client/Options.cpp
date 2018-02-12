@@ -56,7 +56,8 @@ static_assert( sizeof(ply_def2) / sizeof(std::string) == __SIN_PLY_BOTTOM, "ply_
 static_assert( sizeof(gen_keys) / sizeof(std::string) == __SIN_GENERAL_BOTTOM, "gen_keys__sizecheck" );
 static_assert( sizeof(gen_def) / sizeof(std::string) == __SIN_GENERAL_BOTTOM, "gen_def__sizecheck" );
 
-static const Version defaultMinVersion("OpenLieroX/0.58_rc1");
+static const char * defaultMinVersionStr = "OpenLieroX/0.58_rc1";
+static const Version defaultMinVersion(defaultMinVersionStr);
 
 
 
@@ -138,7 +139,12 @@ bool GameOptions::Init() {
 #else
 			false )
 #endif
-		( tLXOptions->iColourDepth, "Video.ColourDepth", 32 )
+		( tLXOptions->iColourDepth, "Video.ColourDepth",
+#ifdef __ANDROID__
+			16 ) // Faster video output
+#else
+			32 )
+#endif
 		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->sVideoPostProcessor, "Video.PostProcessor", "" )
 
@@ -160,12 +166,8 @@ bool GameOptions::Init() {
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
 		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", true, "Force Compatible", "Don't allow incompatible clients to connect" )
-		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", defaultMinVersion.asString().c_str(), "Force Min Version", "Minimal version needed to play on this server" )
-		( tLXOptions->bCheckChatMessageLength, "Network.CheckChatMessageLength", true)	//Check chat message length
-		( tLXOptions->iMaxChatMessageLength, "Network.MaxChatMessageLength", 1024)	//Max chat message length, 1024 should be reasonable? NOTE: Includes nickname and ": " after it.
-		( tLXOptions->bKickOversizedMsgSenders, "Network.KickOversizedMsgSenders", false)	//Drop clients who send oversized messages NOTE: This should be off by default...
-		( tLXOptions->bLogServerChatToMainlog, "Network.LogServerChatToMainlog", true)	//Log chat to main log when hosting a server - previously OLX always did this. NOTE: It's under network settings as it affects mostly the server side.
-		
+		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", defaultMinVersionStr, "Force Min Version", "Minimal version needed to play on this server" )
+
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
 		( tLXOptions->sNewestVersion, "State.NewestVersion", "" )
 
@@ -181,8 +183,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bShowHealth, "Game.ShowWormHealth", false )
 		( tLXOptions->bColorizeNicks, "Game.ColorizeNicks", true )
 		( tLXOptions->bAutoTyping, "Game.AutoTyping", false )
-		( tLXOptions->sSkinPath, "Game.SkinPath", "" )
-		( tLXOptions->bNewSkinnedGUI, "Game.NewSkinnedGUI", false )
 		( tLXOptions->sTheme, "Game.Theme", "" )
 		( tLXOptions->bAntiAliasing, "Game.Antialiasing", true )
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false ) // TODO: rename to mouse control?
@@ -218,10 +218,17 @@ bool GameOptions::Init() {
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer
 		( tLXOptions->bMatchLogging, "Advanced.MatchLogging", true )
-		( tLXOptions->bRecoverAfterCrash, "Advanced.RecoverAfterCrash", true )
+		( tLXOptions->bRecoverAfterCrash, "Advanced.RecoverAfterCrash",
+#ifndef DEDICATED_ONLY
+																		true )
+#else
+																		false )
+#endif
 		( tLXOptions->bCheckForUpdates, "Advanced.CheckForUpdates", true )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", false )
+		( tLXOptions->bLogServerChatToMainlog, "Network.LogServerChatToMainlog", true)	//Log chat to main log when hosting a server - previously OLX always did this. NOTE: It's under network settings as it affects mostly the server side.
+		( tLXOptions->iMaxChatMessageLength, "Network.MaxChatMessageLength", 384)	//Max chat message length. NOTE: Includes nickname and ": " after it.
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )
 		( tLXOptions->bShowNetRates, "Misc.ShowNetRate", false )
 		( tLXOptions->bShowProjectileUsage, "Misc.ShowProjectileUsage", false )
@@ -233,8 +240,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
 		( tLXOptions->doProjectileSimulationInDedicated, "Misc.DoProjectileSimulationInDedicated", true )
-                ( tLXOptions->bCheckMaxWpnTimeInInstantStart, "Misc.CheckMaxWpnSelectionTimeInInstantStart", false)	//Enforce max weapon selection time when immediate start is enabled
-                //TODO: Should this be true by default, and should this be added to the GUI?
+		( tLXOptions->bCheckMaxWpnTimeInInstantStart, "Misc.CheckMaxWpnSelectionTimeInInstantStart", true )
 
 		( tLXOptions->iInternetSortColumn, "Widgets.InternetSortColumn", 4 )
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )
@@ -255,7 +261,8 @@ bool GameOptions::Init() {
 	struct GameModeIndexWrapper : DynamicVar<int> {
 		int get() {
 			if(tLXOptions) return GetGameModeIndex(tLXOptions->tGameInfo.gameMode);
-			else errors << "GameModeIndexWrapper:get: options not inited" << endl; return 0; 
+			else errors << "GameModeIndexWrapper:get: options not inited" << endl;
+			return 0;
 		}
 		void set(const int& i) {
 			if(tLXOptions) {
@@ -285,8 +292,8 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.sMapFile, "LevelName", "Dirt Level.lxl" ) // WARNING: confusing, it is handled like the filename
 		( &gameModeIndexWrapper, "GameType", (int)GM_DEATHMATCH )
 		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
-		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30.0f, "Bonus spawn time", "How often a new bonus will be spawned (every N seconds)", GIG_Bonus, ALT_Advanced, 1.0f, 150.0f )
-		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60.0f, "Bonus life time", "Bonus life time, in seconds", GIG_Bonus, ALT_VeryAdvanced, 1.0f, 150.0f )
+		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30.0f, "Bonus spawn time", "How often a new bonus will be spawned (every N seconds)", GIG_Bonus, ALT_Advanced, true, 1.0f, 150.0f )
+		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60.0f, "Bonus life time", "Bonus life time, in seconds", GIG_Bonus, ALT_VeryAdvanced, true, 1.0f, 150.0f )
 		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5, "Respawn time", "Player respawn time, in seconds", GIG_Advanced, ALT_Advanced, true, 0.0f, 20.0f )
 		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", true, "Group teams", "Respawn player closer to its team, and farther from enemy", GIG_Advanced, ALT_Advanced )
 		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons on respawn", "Your weapon ammo is emptied when you respawn", GIG_Weapons, ALT_VeryAdvanced )
@@ -334,8 +341,6 @@ bool GameOptions::Init() {
 		
 	bool ret = tLXOptions->LoadFromDisc();
 
-	/*notes << "Skinnable vars:\n" << CGuiSkin::DumpVars() << endl;
-	notes << "Skinnable widgets:\n" << CGuiSkin::DumpWidgets() << endl;*/
 	return ret;
 }
 

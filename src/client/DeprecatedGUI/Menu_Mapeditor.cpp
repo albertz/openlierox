@@ -407,12 +407,8 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 
     // Grab the level & drag it
 	if(Mouse->Down & SDL_BUTTON(2)) {
-		int inmap = false;
-
 		if(Mouse->X >= 22 && Mouse->X <= 618) {
 			if(Mouse->Y >= 173 && Mouse->Y <= 457) {
-				inmap = true;
-
 				// Mouse button grabs and moves the map
 				x = (Mouse->X - 22)/2;
 				y = (Mouse->Y - 173)/2;

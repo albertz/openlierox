@@ -154,26 +154,26 @@ def parseAdminCommand(wormid,message):
 
 def userCommandHelp(wormid):
 	if cfg.ALLOW_TEAM_CHANGE:
-		msg = "%steam [b/r" % (cfg.USER_PREFIX)
+		msg = "%sb or %sr or %sg or %steam [b/r" % (cfg.USER_PREFIX, cfg.USER_PREFIX, cfg.USER_PREFIX, cfg.USER_PREFIX)
 		if cfg.MAX_TEAMS >= 3:
 			msg += "/g"
 		if cfg.MAX_TEAMS >= 4:
 			msg += "/y"
 		msg += "] - set your team"
-		io.privateMsg(wormid, msg + " - set your team")
+		io.privateMsg(wormid, msg)
 	if cfg.RANKING:
 		io.privateMsg(wormid, "%stoprank - display the best players" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%sranktotal - display the number of players in the ranking" % cfg.USER_PREFIX )
 	if cfg.VOTING:
-		io.privateMsg(wormid, "%skick wormID - add vote to kick player etc" % cfg.ADMIN_PREFIX)
-		io.privateMsg(wormid, "%smute wormID - add vote" % cfg.ADMIN_PREFIX)
-		io.privateMsg(wormid, "%smod modName (or part of name) - add vote" % cfg.ADMIN_PREFIX)
-		io.privateMsg(wormid, "%smap mapName - add vote" % cfg.ADMIN_PREFIX)
-		io.privateMsg(wormid, "%slt loadingTime - add vote" % cfg.ADMIN_PREFIX)
-		io.privateMsg(wormid, "%sstart - start game now" % cfg.ADMIN_PREFIX)
-		io.privateMsg(wormid, "%sstop - go to lobby" % cfg.ADMIN_PREFIX)
-		io.privateMsg(wormid, "%sy / %sn - vote yes / no" % (cfg.ADMIN_PREFIX, cfg.ADMIN_PREFIX) )
+		io.privateMsg(wormid, "%skick wormID - add vote to kick player etc" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smute wormID - add vote" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smod modName (or part of name) - add vote" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smap mapName - add vote" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%slt loadingTime - add vote" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%sstart or %sgo [mod] [map] - start or restart game" % (cfg.USER_PREFIX, cfg.USER_PREFIX))
+		io.privateMsg(wormid, "%sstop - go to lobby" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%sy / %sn - vote yes / no" % (cfg.USER_PREFIX, cfg.USER_PREFIX) )
 	if userCommandHelp_Preset:
 		userCommandHelp_Preset(wormid)
 
@@ -198,6 +198,7 @@ def addVote( command, poster, description ):
 	hnd.worms[poster].Voted = 1
 	voteTime = time.time()
 	voteDescription = description
+	io.messageLog("%s: %s" % (hnd.worms[poster].Name, description), io.LOG_USRCMD)
 	recheckVote()
 
 def recheckVote(verbose = True):
@@ -259,11 +260,11 @@ def parseUserCommand(wormid,message):
 			cmd = message.split(" ")[0]
 			cmd = cmd.replace(cfg.USER_PREFIX,"",1).lower() #Remove the prefix
 		
-		if wormid >= 0:
-			io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_USRCMD)
-		else:
-			io.messageLog("ded admin issued %s" % cmd, io.LOG_USRCMD)
-			
+		#if wormid >= 0:
+		#	io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_USRCMD)
+		#else:
+		#	io.messageLog("ded admin issued %s" % cmd, io.LOG_USRCMD)
+
 		# Unnecesary to split multiple times, this saves CPU.
 		params = message.split(" ")[1:]
 		
@@ -283,6 +284,14 @@ def parseUserCommand(wormid,message):
 					io.setWormTeam(wormid, 2)
 				elif ( params[0].lower() == "yellow" or params[0].lower() == "y" ) and cfg.MAX_TEAMS >= 4:
 					io.setWormTeam(wormid, 3)
+
+		if cfg.ALLOW_TEAM_CHANGE and (cmd == "b" or cmd == "r" or cmd == "g"):
+			if cmd == "b":
+				io.setWormTeam(wormid, 0)
+			elif cmd == "r":
+				io.setWormTeam(wormid, 1)
+			elif cmd == "g":
+				io.setWormTeam(wormid, 2)
 		
 		if cfg.RANKING:
 			if cmd == "toprank":
@@ -340,19 +349,58 @@ def parseUserCommand(wormid,message):
 			if cmd == "map":
 				level = ""
 				for l in io.listMaps():
-					if l.lower().find(" ".join(params[0:]).lower()) != -1:
+					if l.lower().rstrip(".lxl").find(" ".join(params[0:]).lower()) != -1:
 						level = l
 						break
 				if level == "":
-					io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(io.listMaps()))
+					io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join([x.rstrip(".lxl") for x in io.listMaps()]))
 				else:
-					addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level )
+					addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level.rstrip(".lxl") )
 			
 			if cmd == "lt":
 				addVote( 'hnd.selectPreset( LT = %i )' % int(params[0]), wormid, "Loading time %i" % int(params[0]) )
 			
-			if cmd == "start":
-				addVote( 'hnd.lobbyWaitAfterGame = time.time(); hnd.lobbyWaitBeforeGame = time.time()', wormid, "Start game now" )
+			if cmd == "start" or cmd == "go":
+				cmd = 'io.gotoLobby(); voteCommand = "hnd.lobbyWaitAfterGame = time.time(); hnd.lobbyWaitBeforeGame = time.time()"'
+				msg = "Start game"
+
+				if len(params) > 0:
+					preset = -1
+					for p in range(len(hnd.availablePresets)):
+						if hnd.availablePresets[p].lower().find(params[0].lower()) != -1:
+							preset = p
+							break
+					if preset != -1:
+						cmd += '; hnd.selectPreset( Preset = "%s" )' % hnd.availablePresets[preset]
+						msg += ", preset %s" % hnd.availablePresets[preset]
+					else:
+						mod = ""
+						for m in io.listMods():
+							if m.lower().find(params[0].lower()) != -1:
+								mod = m
+								break
+						if mod == "":
+							io.privateMsg(wormid, "Invalid mod, available mods: " + ", ".join(hnd.availablePresets) + ", ".join(io.listMods()))
+							cmd = ""
+						else:
+							cmd += '; hnd.selectPreset( Mod = "%s" )' % mod
+							msg += ", mod %s" % mod
+
+				if len(params) > 1 and cmd != "":
+					level = ""
+					for l in io.listMaps():
+						if l.lower().rstrip(".lxl").find(params[1].lower()) != -1:
+							level = l
+							break
+					if level == "":
+						io.privateMsg(wormid, "Invalid map, available maps: " + ", ".join([x.rstrip(".lxl") for x in io.listMaps()]))
+						cmd = ""
+					else:
+						cmd += '; hnd.selectPreset( Level = "%s" )' % level
+						msg += " on %s" % level.rstrip(".lxl")
+
+				if cmd != "":
+					addVote( cmd, wormid, msg )
 			
 			if cmd == "stop":
 				addVote( 'io.gotoLobby()', wormid, "Go to lobby" )

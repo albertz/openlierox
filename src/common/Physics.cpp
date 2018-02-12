@@ -10,7 +10,6 @@
 #include "Physics.h"
 #include "PhysicsLX56.h"
 #include "Debug.h"
-#include "NewNetEngine.h"
 #include "LieroX.h"
 #include "CWorm.h"
 #include "CClient.h"
@@ -39,7 +38,7 @@ void PhysicsEngine::UnInit() {
 }
 
 AbsTime GetPhysicsTime() {
-	return NewNet::Active() ? NewNet::GetCurTime() : tLX->currentTime;
+	return tLX->currentTime;
 }
 
 

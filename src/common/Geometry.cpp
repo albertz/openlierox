@@ -282,7 +282,7 @@ SDL_Rect Polygon2D::minOverlayRect(CViewport* v) const {
 #define Tx(x) ((x - wx) * 2 + l)
 #define Ty(y) ((y - wy) * 2 + t)
 	
-	SDL_Rect r = { Tx(overlay.x), Ty(overlay.y), overlay.w * 2, overlay.h * 2};
+	SDL_Rect r = { (SDLRect::Type) Tx(overlay.x), (SDLRect::Type) Ty(overlay.y), (SDLRect::TypeS) (overlay.w * 2), (SDLRect::TypeS) (overlay.h * 2) };
 
 #undef Tx
 #undef Ty	

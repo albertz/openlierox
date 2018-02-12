@@ -110,6 +110,8 @@ namespace redi
       typedef typename traits_type::pos_type    pos_type;
       /** @deprecated use pstreams::fd_type instead. */
       typedef fd_type                           fd_t;
+      /* to have basic_pstreambuf::fd_type well-defined also out-of-scope */
+      typedef pstreams::fd_type                 fd_type;
 
       /// Default constructor.
       basic_pstreambuf();
@@ -1111,8 +1113,7 @@ namespace redi
               // parent can get error code from ck_exec pipe
               error_ = errno;
 
-              int ignoreme__stupid_wor_workaround = ::write(ck_exec[WR], &error_, sizeof(error_));
-              ignoreme__stupid_wor_workaround = 0; // again stupid workaround to ignore unused var
+              if(::write(ck_exec[WR], &error_, sizeof(error_)) < 0); // ignore error
               ::close(ck_exec[WR]);
               ::close(ck_exec[RD]);
 

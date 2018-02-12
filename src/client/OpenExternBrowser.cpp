@@ -23,6 +23,10 @@
 #include <shellapi.h>
 #endif
 
+#ifdef __ANDROID__
+#include <SDL/SDL_android.h>
+#endif
+
 #include "Debug.h"
 #include "LieroX.h"
 
@@ -49,6 +53,10 @@ void OpenLinkInExternBrowser(const std::string& url) {
 #elif defined(WIN32)
 	ShellExecute(NULL, "open", url.c_str(), NULL, NULL, SW_MAXIMIZE);
 	
+#elif defined(__ANDROID__)
+
+	SDL_ANDROID_OpenExternalWebBrowser(url.c_str());
+
 #else
 	std::string browser = "";
 		

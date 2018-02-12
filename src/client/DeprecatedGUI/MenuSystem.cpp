@@ -44,6 +44,7 @@
 #include "HTTP.h"
 #include "Version.h"
 #include "CrashHandler.h"
+#include "Touchscreen.h"
 
 
 // TODO: move this out here
@@ -307,10 +308,6 @@ void Menu_Frame() {
 		case MNU_OPTIONS:
 			Menu_OptionsFrame();
 			break;
-
-		case MNU_GUISKIN:
-			Menu_CGuiSkinFrame();
-			break;
 	}
 
 	// DEBUG: show FPS
@@ -335,6 +332,8 @@ void Menu_Frame() {
 	
 	// now do the actual flip&draw
 	doVideoFrameInMainThread();
+
+	SetTouchscreenControlsShown(false);
 }
 
 
@@ -1066,6 +1065,10 @@ void Menu_EnableNetEvents()
 			tMenu->tSocket[i]->setWithEvents(true);
 }
 
+bool Menu_IsKeyboardNavigationUsed()
+{
+	return CGuiLayout::isKeyboardNavigationUsed();
+}
 
 /*
 ============================
@@ -2192,7 +2195,6 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	std::string		sIP;
     CWorm			cWorms[MAX_WORMS];
 	bool			bHaveLives = false;
-	bool			bHaveVersion = false;
 	std::string		sServerVersion;
 	bool			bHaveGameSpeed = false;
 	float			fGameSpeed = 1.0f;
@@ -2297,7 +2299,6 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					}
 
 					if(!inbs.isPosAtEnd())  {
-						bHaveVersion = true;
 						sServerVersion = inbs.readString();
 					}
 
@@ -2604,10 +2605,6 @@ void Menu_Current_Shutdown() {
 				// Options
 			case MNU_OPTIONS:
 				Menu_OptionsShutdown();
-				break;
-				
-			case MNU_GUISKIN:
-				Menu_CGuiSkinShutdown();
 				break;
 		}
 	

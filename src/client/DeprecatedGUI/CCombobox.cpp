@@ -24,6 +24,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "Sounds.h"
 #include "Timer.h"
 #include "Debug.h"
 
@@ -531,6 +532,7 @@ int CCombobox::findItem(UnicodeChar startLetter) {
 // Key down event
 int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
+#if 0 /* This will disallow to navigate menu with arrow keys */
 	// Search for items by pressed key
 	if (!bCanSearch)
 		return CMB_NONE;
@@ -545,32 +547,80 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 		cScrollbar.setValue( index - cScrollbar.getItemsperbox() / 2 );
 		return CMB_CHANGED;
 	}
-
+#endif
 	// TODO: this doesn't work as expected atm if the mouse is over
 	// Handle key up/down
 	if (bDropped)  {
 		if (keysym == SDLK_DOWN)  {
 			if (selectNext())  {
 				// Move the scrollbar if necessary
-				if (cScrollbar.getValue() + cScrollbar.getItemsperbox() <= iSelected)
-					cScrollbar.setValue(cScrollbar.getValue() + 1);
+				cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
 				iKeySelectedItem = iSelected;
-				return CMB_CHANGED;
+				PlaySoundSample(sfxGeneral.smpClick);
 			}
+			return CMB_CHANGED;
 		} else
-		
+		if (keysym == SDLK_PAGEDOWN) {
+			bool changed = false;
+			for (int count = 0; count < 10; count++) {
+				if (selectNext())  {
+					// Move the scrollbar if necessary
+					cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
+					iKeySelectedItem = iSelected;
+					changed = true;
+				}
+			}
+			if (changed)
+				PlaySoundSample(sfxGeneral.smpClick);
+			return CMB_CHANGED;
+		} else
 		if (keysym == SDLK_UP)  {
 			if (selectPrev())  {
 				// Move the scrollbar if necessary
-				if (cScrollbar.getValue() > iSelected)
-					cScrollbar.setValue(cScrollbar.getValue() - 1);
+				cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
 				iKeySelectedItem = iSelected;
-				return CMB_CHANGED;
+				PlaySoundSample(sfxGeneral.smpClick);
 			}
+			return CMB_CHANGED;
 		} else
-		
-		if(keysym == SDLK_RETURN) {
+		if (keysym == SDLK_PAGEUP) {
+			bool changed = false;
+			for (int count = 0; count < 10; count++) {
+				if (selectPrev())  {
+					// Move the scrollbar if necessary
+					cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
+					iKeySelectedItem = iSelected;
+					changed = true;
+				}
+			}
+			if (changed)
+				PlaySoundSample(sfxGeneral.smpClick);
+			return CMB_CHANGED;
+		} else
+		if (keysym == SDLK_RETURN ||
+			keysym == SDLK_KP_ENTER ||
+			keysym == SDLK_LALT ||
+			keysym == SDLK_LCTRL ||
+			keysym == SDLK_LSHIFT ||
+			keysym == SDLK_x ||
+			keysym == SDLK_z) {
 			bDropped = false;
+			PlaySoundSample(sfxGeneral.smpClick);
+			return CMB_CHANGED;
+		}
+	} else {
+		if (keysym == SDLK_RETURN ||
+			keysym == SDLK_KP_ENTER ||
+			keysym == SDLK_LALT ||
+			keysym == SDLK_LCTRL ||
+			keysym == SDLK_LSHIFT ||
+			keysym == SDLK_x ||
+			keysym == SDLK_z) {
+			bDropped = true;
+			cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
+			iKeySelectedItem = iSelected;
+			PlaySoundSample(sfxGeneral.smpClick);
+			return CMB_CHANGED;
 		}
 	}
 
@@ -894,7 +944,7 @@ int CCombobox::getIndexByName(const std::string& szString) {
 		cb_item_t tmp; tmp.sName = szString; tmp.tImage = NULL;
 		int index = -1;
 		bool found = false;
-		std::list<cb_item_t>::const_iterator i = lowerBound(tmp, &index, &found);
+		lowerBound(tmp, &index, &found);
 		return found ? index : -1;
 	}
     return -1;
@@ -978,70 +1028,6 @@ const cb_item_t* CCombobox::getSIndexItem(const std::string& sIndex) const {
 int CCombobox::getSelectedIndex() 
 { 
 	return iSelected;
-}
-
-
-static bool CComboBox_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "combobox", & CCombobox::WidgetCreator )
-							( "items", SVT_STRING )
-							( "var", SVT_STRING )
-							( "click", SVT_STRING );
-
-CWidget * CCombobox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-{
-	CCombobox * w = new CCombobox();
-	w->cClick.Init( p[2].s, w );
-	layout->Add( w, id, x, y, dx, dy );
-	// Items should be added to combobox AFTER the combobox is added to CGuiSkinnedLayout
-	std::vector<std::string> items = explode( p[0].s, "," );
-	w->iVar = CScriptableVars::GetVarP<int>( p[1].s );	// If combobox is int or string determined by attached var type
-	if( w->iVar )
-	{
-		for( unsigned i = 0; i < items.size(); i++ )
-		{
-			std::string item = items[i];
-			int index = i;
-			if( item.find("#") != std::string::npos )
-			{
-				index = atoi( item.substr( item.find("#") + 1 ) );
-				item = item.substr( 0, item.find("#") );
-			}
-			TrimSpaces(item);
-			w->addItem( index, "", item );
-		}
-		w->setCurItem( *w->iVar );
-	}
-	if(p[1].s != "") w->sVar = CScriptableVars::GetVarP<std::string>( p[1].s );
-	if( w->sVar )
-	{
-		for( unsigned i = 0; i < items.size(); i++ )
-		{
-			std::string item = items[i];
-			std::string index = item;
-			if( item.find("#") != std::string::npos )
-			{
-				index = item.substr( item.find("#") + 1 );
-				TrimSpaces( index );
-				item = item.substr( 0, item.find("#") );
-			}
-			TrimSpaces(item);
-			w->addItem( i, index, item );
-		}
-		w->setCurSIndexItem( *w->sVar );
-	}
-	return w;
-}
-
-void CCombobox::ProcessGuiSkinEvent(int iEvent)
-{
-	if( iEvent == CMB_CHANGED )
-	{
-		if( iVar )
-			*iVar = iSelected;
-		if( sVar )
-			*sVar = getItem( iSelected )->sIndex;
-		cClick.Call();	// If this is "Select Skin" combobox the *this ptr may be destroyed here, so just return after this line
-	}
 }
 
 const cb_item_t* CCombobox::getLastItem() {

@@ -309,9 +309,6 @@ void GameServer::SimulateGame()
 	if(iState != SVS_PLAYING)
 		return;
 
-	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
-		return;
-
 	// If this is a remote game, and game over,
 	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
 	if(bGameOver
@@ -379,6 +376,7 @@ void GameServer::SimulateGame()
 		SpawnBonus();
 		fLastBonusTime = tLX->currentTime;
 	}
+	UpdateBonuses();
 
 	// check for flag
 	w = cWorms;
@@ -448,6 +446,48 @@ void GameServer::SpawnBonus()
 	bs.writeInt((int)pos.y, 2);
 
 	SendGlobalPacket(&bs);
+}
+
+void GameServer::UpdateBonuses()
+{
+	// Respawn the bonus if it exploded at the same spot where it was.
+	// Needed only for old clients, which do not support FT_IndestructibleBonuses
+	if (!tLXOptions->tGameInfo.bBonusesOn || !tLXOptions->tGameInfo.features[FT_IndestructibleBonuses] || fOldClientsBonusUpdateTime > tLX->currentTime )
+		return;
+
+	fOldClientsBonusUpdateTime = tLX->currentTime + 3.0f;
+
+	// Grab the bonus list from the client, because server-side bonuses do not update their position
+	CBonus *b = cClient->getBonusList();
+	CBonus *spawnb = cBonuses;
+	for (short i=0; i < MAX_BONUSES; i++, b++, spawnb++) {
+		if (!b->getUsed())
+			continue;
+
+		CServerConnection *cl = cClients;
+		for (short c = 0; c < MAX_CLIENTS; c++, cl++) {
+			// Not in 0.59 branch
+			if (cl->getClientVersion() >= OLXRcVersion(0, 58, 4) && cl->getClientVersion() < OLXBetaVersion(0, 59, 0))
+				continue;
+
+			CBytestream bs;
+
+			bs.writeByte(S2C_SPAWNBONUS);
+			bs.writeInt(b->getType(), 1);
+			if(b->getType() == BNS_WEAPON)
+				bs.writeInt(b->getWeapon(), 1);
+			bs.writeInt(i, 1);
+
+			bs.writeInt((int)b->pos().x, 2);
+			// Spawning the bonus generates small explosion, make sure it won't dig the dirt all the way down
+			int y = b->pos().y;
+			if (spawnb->pos().y <= y - 6)
+				y -= 6;
+			bs.writeInt(y, 2);
+
+			cl->getNetEngine()->SendPacket(&bs);
+		}
+	}
 }
 
 

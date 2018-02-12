@@ -72,7 +72,6 @@ private:
 	AbsTime	fMouseNext[3];
 
 	int		*iVar;
-	CGuiSkin::CallbackHandler cClick;
 
 public:
 	// Methods
@@ -91,8 +90,6 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle() {}
-
 	void	UpdatePos();
 
 
@@ -110,36 +107,6 @@ public:
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
-
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CScrollbar * w = new CScrollbar();
-		layout->Add( w, id, x, y, dx, dy );
-		// Should be set after scrollbar is added to layout
-		w->cClick.Init( p[4].s, w );
-		w->setMin( p[0].i );
-		w->setMax( p[1].i );
-		w->setItemsperbox( p[2].i );
-		w->iVar = CScriptableVars::GetVarP<int>( p[3].s );
-		if( w->iVar )
-			w->setValue( *w->iVar );
-		return w;
-	};
-	
-	void	ProcessGuiSkinEvent(int iEvent) 
-	{
-		if( iEvent == CGuiSkin::SHOW_WIDGET )
-		{
-			if( iVar )
-				setValue( *iVar );
-		}
-		if( iEvent == SCR_CHANGE )
-		{
-			if( iVar )
-				*iVar = iValue;
-			cClick.Call();
-		}
-	}
 };
 
 } // namespace DeprecatedGUI

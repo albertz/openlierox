@@ -22,28 +22,12 @@
 #ifdef WIN32
 #include "windows.h"
 #endif //WIN32
-#include "DeprecatedGUI/CGuiSkin.h"
 #include "SmartPointer.h"
 
 namespace DeprecatedGUI {
 
 // Widget messages
 enum { WDM_SETENABLE = -1 };
-
-// Generic event IDs
-enum {
-	OnMouseOver=0,
-	OnMouseOut,
-	OnMouseDown,
-	OnClick,
-	NumEvents
-};
-
-// Generic events
-class generic_events_t { public:
-	char Events[NumEvents][128];
-};
-
 
 // Widget types
 enum WidgetType_t {
@@ -62,7 +46,7 @@ enum WidgetType_t {
 	wid_Image,
 	wid_Frame,
 	wid_Animation,
-	wid_GuiLayout
+	wid_GuiLayout,
 };
 
 class CGuiLayoutBase;
@@ -80,13 +64,13 @@ public:
 		bEnabled = true;
 		bRedrawMenu = true;
 		bCanLoseFocus = true;
+		iKeyboardNavigationOrder = 0;
 	}
 
 	CWidget(const CWidget&) { assert(false); }
 	
     virtual ~CWidget() 
 	{
-		CGuiSkin::DeRegisterUpdateCallback( this );	// Remove any possible callbacks 'cause widget not exists anymore
 	}
 
 protected:
@@ -103,8 +87,8 @@ protected:
 private:
 	int					iID;
 	bool				bEnabled;
+	int					iKeyboardNavigationOrder;
 
-	generic_events_t	tEvents;
 	CGuiLayoutBase		*cParent;
 
 
@@ -139,11 +123,12 @@ public:
 	CGuiLayoutBase	*getParent()				{ return cParent; }
 	void			setParent(CGuiLayoutBase *l)	{ cParent = l; }
 
+	int				getKeyboardNavigationOrder() const	{ return iKeyboardNavigationOrder; }
+	// Default order is 0, positive value - widget will be the last, negative value - widget will be the first to be selected, range is between -120 and 120
+	void			setKeyboardNavigationOrder(int i)	{ iKeyboardNavigationOrder = i; }
+
 	bool			CanLoseFocus()				{ return bCanLoseFocus; }
 	void			setLoseFocus(bool _f)			{ bCanLoseFocus = _f; }
-
-	void			SetupEvents(generic_events_t *Events);	// Not used anywhere, should be removed
-	void			ProcessEvent(int Event);	// Not used anywhere, should be removed
 
 
 	// Virtual functions
@@ -160,14 +145,11 @@ public:
 	virtual	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate) = 0;
 	virtual	int		KeyUp(UnicodeChar c, int keysym,  const ModifiersState& modstate) = 0;
 
-	virtual	void	LoadStyle() = 0;	// Not used anywhere
 	virtual	void	Draw(SDL_Surface * bmpDest) = 0;
 
 	virtual DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;
 	virtual DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) = 0;
 	virtual DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param) = 0;
-	
-	virtual void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
 // Base class for CGuiLayout and CGuiSkinnedLayout

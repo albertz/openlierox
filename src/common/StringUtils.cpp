@@ -1165,7 +1165,6 @@ std::string Base64Decode(const std::string &src)
   int equalsTerm = 0;
   int i;
   int numQuantums;
-  size_t rawlen=0;
   std::string::size_type srcPos = 0;
 
   while( src.size() > length && src[length] != '=' )
@@ -1181,8 +1180,6 @@ std::string Base64Decode(const std::string &src)
   /* Don't allocate a buffer if the decoded length is 0 */
   if(numQuantums <= 0)
     return "";
-
-  rawlen = (numQuantums * 3) - equalsTerm;
 
   std::string newstr;
 

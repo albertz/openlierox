@@ -387,11 +387,6 @@ public:
 
 	CVec		groundPos(const CVec& pos);
 	
-	// Save/restore from memory, for commit/rollback net mechanism
-	void		NewNet_SaveToMemory();
-	void		NewNet_RestoreFromMemory();
-	void		NewNet_Deinit();
-
 	theme_t		*GetTheme()		{ return &Theme; }
 
 	void		DEBUG_DrawPixelFlags(int x, int y, int w, int h);
@@ -478,8 +473,8 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 	int gridflag_i;
 	int pos_x, pos_y;
 	int grid_x, grid_y;
-	register int x = 0;
-	register int y = 0;
+	int x = 0;
+	int y = 0;
 	while(true) {
 		if(dom != Y_DOM) { // X_DOM
 			y = (int)(quot*(float)x);

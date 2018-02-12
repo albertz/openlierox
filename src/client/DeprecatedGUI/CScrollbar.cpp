@@ -307,12 +307,4 @@ DWORD CScrollbar::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
     return 0;
 }
 
-static bool CScrollbar_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "scrollbar", & CScrollbar::WidgetCreator )
-							( "min", SVT_INT )
-							( "max", SVT_INT )
-							( "itemsperbox", SVT_INT )
-							( "var", SVT_STRING )
-							( "click", SVT_STRING );
-
 }; // namespace DeprecatedGUI

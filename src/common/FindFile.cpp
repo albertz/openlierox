@@ -151,7 +151,7 @@ list.clear();
 	int len = GetLogicalDriveStrings(sizeof(drives),drives); // Get the list of drives
 	drive_t tmp;
 	if (len)  {
-		for (register int i=0; i<len; i+=(int)strnlen(&drives[i],4)+1)  {
+		for (int i=0; i<len; i+=(int)strnlen(&drives[i],4)+1)  {
 			// Create the name (for example: C:\)
 			tmp.name = &drives[i];
 			// Get the type
@@ -770,7 +770,9 @@ bool FileCopy(const std::string& src, const std::string& dest) {
 	notes << "FileCopy: |" << flush;
 	size_t len = 0;
 	while((len = fread(tmp, 1, sizeof(tmp), src_f)) > 0) {
-		if(count == 0) notes << "." << flush; count++; count %= 20;
+		if(count == 0) notes << "." << flush;
+		count++;
+		count %= 20;
 		if(len != fwrite(tmp, 1, len, dest_f)) {
 			errors << "FileCopy: problem while writing" << endl;
 			success = false;
@@ -861,10 +863,10 @@ std::string GetFileContents(const std::string& path, bool absolute)
 		return "";
 
 	fseek(fp, 0, SEEK_END);
-	size_t size = ftell(fp);
+	long size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 
-	if (!size)  {
+	if (!size || size < 0 || size > 100000000)  {
 		fclose(fp);
 		return "";
 	}
