@@ -674,8 +674,9 @@ public:
 				rope->setAttached( true );
 				rope->hookVelocity() = CVec(0,0);
 
-				if(firsthit) {
-					// Move rope hook to the center of the pixel
+				if(firsthit && !outsideMap) {
+					// Move rope hook to the center of the pixel, so adding/removing map width/height
+					// will not mess up the rope coordinate due to floating point error accumulation on infinite level
 					rope->hookPos().x = floorf(rope->hookPos().x) + 0.5f;
 					rope->hookPos().y = floorf(rope->hookPos().y) + 0.5f;
 				}
