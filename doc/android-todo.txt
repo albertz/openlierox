@@ -13,4 +13,8 @@
 
 - Add command to change game settings to ded server scripts.
 
-- Fix shots getting stuck in walls.
+- Second UDP masterserver, because server.az2000.de:23450 is down.
+
+- Fix desynced physics random for projectiles simulation.
+
+- Backport projectiles timing fix from 0.59.
