@@ -110,7 +110,7 @@ Feature featureArray[] = {
 			false,	false,			Version(),				GIG_Race,	ALT_Advanced,	false),
 	Feature("Race_CheckPointRadius", "Checkpoint radius", "The radius of the checkpoints (bigger value makes race easier)",
 			15.0f, 15.0f,			Version(),				GIG_Race,	ALT_VeryAdvanced, 5.0f, 100.f, true, true),
-	Feature("FT_IndestructibleBonuses", "Indestructible bonuses", "Bonuses will not be destroyed by explosions",
+	Feature("IndestructibleBonuses", "Indestructible bonuses", "Bonuses will not be destroyed by explosions",
 			false, false,			Version(),				GIG_Bonus,	ALT_VeryAdvanced, false, true),
 
 	Feature::Unset()
