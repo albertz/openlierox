@@ -16,5 +16,3 @@
 - Second UDP masterserver, because server.az2000.de:23450 is down.
 
 - Fix desynced physics random for projectiles simulation.
-
-- Backport projectiles timing fix from 0.59.
