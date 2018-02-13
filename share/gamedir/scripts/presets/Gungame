@@ -9,6 +9,6 @@ setvar( "GameOptions.GameInfo.BonusFrequency", "15" )
 setvar( "GameOptions.GameInfo.BonusHealthToWeaponChance", "1" )
 setvar( "GameOptions.GameInfo.BonusLife", "40" )
 setvar( "GameOptions.GameInfo.BonusNames", "0" )
-setvar( "GameOptions.GameInfo.IndestructibleBonuses", "1" )
+# setvar( "GameOptions.GameInfo.IndestructibleBonuses", "1" )
 
 SetWeaponBans("Bonus only")
