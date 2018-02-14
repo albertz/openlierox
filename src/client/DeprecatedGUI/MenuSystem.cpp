@@ -1836,9 +1836,9 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 *
 ************************/
 
-std::list<std::string> tUdpMasterServers;
-std::map<size_t, ThreadPoolItem *> tUpdateThreads;
-size_t threadId = 0;
+static std::list<std::string> tUdpMasterServers;
+static std::map<size_t, ThreadPoolItem *> tUpdateThreads;
+static size_t threadId = 0;
 
 struct UdpServerlistData  {
 	CBytestream *bs;
