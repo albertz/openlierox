@@ -29,6 +29,7 @@
 
 #include "Debug.h"
 #include "LieroX.h"
+#include "AuxLib.h"
 
 
 void OpenLinkInExternBrowser(const std::string& url) {
@@ -55,7 +56,17 @@ void OpenLinkInExternBrowser(const std::string& url) {
 	
 #elif defined(__ANDROID__)
 
-	SDL_ANDROID_OpenExternalWebBrowser(url.c_str());
+	struct OpenBrowser: public Action
+	{
+		std::string url;
+		OpenBrowser(std::string url): url(url) { }
+		int handle()
+		{
+			SDL_ANDROID_OpenExternalWebBrowser(url.c_str());
+			return true;
+		}
+	};
+	doActionInMainThread( new OpenBrowser(url) );
 
 #else
 	std::string browser = "";
