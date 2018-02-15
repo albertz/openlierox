@@ -11,8 +11,8 @@
 
 - Scroll comboboxes and list boxes with a gesture.
 
-- Add command to change game settings to ded server scripts.
+- Wider item separation for comboboxes and list boxes.
 
-- Reorder UDP masterservers, if the first one does not respond.
+- Add command to change game settings to ded server scripts.
 
 - Fix desynced physics random for projectiles simulation.
