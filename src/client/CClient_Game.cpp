@@ -1170,25 +1170,6 @@ void CClient::processChatter()
 
     keyboard_t *kb = GetKeyboard();
 
-	// Process taunt keys
-	for(short i=0; i<kb->queueLength; i++) {
-    	const KeyboardEvent& input = kb->keyQueue[i];
-
-		if( input.down && input.state.bCtrl && taunts->getTauntForKey( input.sym ) != "" ) {
-			sChat_Text += taunts->getTauntForKey( input.sym );
-			if( bChat_Typing && bTeamChat )
-				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName() );
-			else
-				cNetEngine->SendText(sChat_Text, cLocalWorms[0]->getName() );
-			sChat_Text = "";
-			bChat_Typing = false;
-			clearHumanWormInputs();
-			if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
-				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
-			return; // TODO: we may lose some chat keys if user typing very fast ;)
-		}
-	}
-
 	// If we're currently typing a message, add any keys to it
 	if(bChat_Typing) {
 
