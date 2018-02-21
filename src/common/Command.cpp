@@ -1697,6 +1697,31 @@ void Cmd_getVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	caller->pushReturnArg(varptr->var.toString());
 }
 
+COMMAND(listVars, "list all variables", "[prefix]", 0, 1);
+void Cmd_listVars::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	std::string prefix = params.size() > 0 ? params[0] : "";
+	for (CScriptableVars::const_iterator it = (prefix == "") ? CScriptableVars::begin() : CScriptableVars::lower_bound(prefix);
+			it != CScriptableVars::end(); it++)
+	{
+		if ( prefix != "" && !strStartsWith(it->first, prefix) )
+			break;
+		caller->pushReturnArg(it->first);
+	}
+}
+
+COMMAND_EXTRA(getVarHelp, "print variable description", "variable", 1, 1, paramCompleters[0] = &autoCompleteVar);
+void Cmd_getVarHelp::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	std::string var = params[0];
+	
+	RegisteredVar* varptr = CScriptableVars::GetVar(var);
+	if( varptr == NULL ) {
+		caller->writeMsg("GetVarHelp: no var with name " + var);
+		return;
+	}
+
+	caller->pushReturnArg(varptr->shortDesc + ": " + varptr->longDesc);
+}
+
 COMMAND(getFullFileName, "get full filename", "relativefilename", 1, 1);
 void Cmd_getFullFileName::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	caller->pushReturnArg(Utf8ToSystemNative(GetAbsolutePath(GetFullFileName(params[0], NULL))));
