@@ -166,12 +166,12 @@ def userCommandHelp(wormid):
 		io.privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%sranktotal - display the number of players in the ranking" % cfg.USER_PREFIX )
 	if cfg.VOTING:
-		io.privateMsg(wormid, "%skick wormID - add vote to kick player etc" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%smute wormID - add vote" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%smod modName (or part of name) - add vote" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%smap mapName - add vote" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%slt loadingTime - add vote" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%sstart or %sgo [mod] [map] - start or restart game" % (cfg.USER_PREFIX, cfg.USER_PREFIX))
+		io.privateMsg(wormid, "%skick wormID" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smute wormID" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smod modName (or part of name)" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smap mapName" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%slt loadingTime" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%sstart or %sgo [mod] [map]" % (cfg.USER_PREFIX, cfg.USER_PREFIX))
 		io.privateMsg(wormid, "%sstop - go to lobby" % cfg.USER_PREFIX)
 		io.privateMsg(wormid, "%sy / %sn - vote yes / no" % (cfg.USER_PREFIX, cfg.USER_PREFIX) )
 	if userCommandHelp_Preset:
