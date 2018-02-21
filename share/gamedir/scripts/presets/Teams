@@ -3,15 +3,17 @@
 import random
 global worms, io
 
-setvar( "GameOptions.GameInfo.ModName", random.choice(["MSF II", "Classic", "WH40K 0.13"]) )
-SetWeaponBans()
+#setvar( "GameOptions.GameInfo.ModName", random.choice(["MSF II", "Classic", "WH40K 0.13"]) )
+#SetWeaponBans()
 
-setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+#setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 
-setvar("GameOptions.GameInfo.GameType", 1)
+setvar( "GameOptions.GameInfo.GameType", 1 )
 
 setvar( "GameOptions.GameInfo.FillWithBotsTo", 4 )
 
+for x in range(len(io.getWormList()), 4):
+	io.addBot()
 for w in worms.values():
 	io.setWormTeam( w.iID, 0 )
 for f in range(int(len(worms)/2)):

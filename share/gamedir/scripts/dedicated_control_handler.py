@@ -687,20 +687,16 @@ def controlHandlerDefault():
 
 				if lobbyWaitBeforeGame <= curTime and canStart: # Start the game
 
-					if io.getGameType() <= 1:
-						if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
-							setvar("GameOptions.GameInfo.GameType", 1)
-							if not cfg.ALLOW_TEAM_CHANGE:
-								counter = 0
-								for w in worms.values():
-									if w.iID != -1:
-										io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
-										counter += 1
-						else:
-							io.setvar("GameOptions.GameInfo.GameType", 0)
+					if io.isTeamGame():
+						if not cfg.ALLOW_TEAM_CHANGE:
+							counter = 0
+							for w in worms.values():
+								if w.iID != -1:
+									io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
+									counter += 1
 
 					if io.startGame():
-						if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
+						if cfg.ALLOW_TEAM_CHANGE and io.isTeamGame():
 							io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 						sentStartGame = True
 						if cfg.RECORD_VIDEO:

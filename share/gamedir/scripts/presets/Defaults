@@ -5,7 +5,7 @@
 
 # TODO: use options.cfg settings as default and don't hardcode any other stuff here
 
-global controlHandler
+global controlHandler, io
 controlHandler = controlHandlerDefault
 cmds.adminCommandHelp_Preset = None
 cmds.parseAdminCommand_Preset = None
@@ -25,3 +25,5 @@ setvar( "GameOptions.GameInfo.FillWithBotsTo", cfg.FILL_WITH_BOTS_TO )
 
 setvar( "GameOptions.GameInfo.Bonuses", "0" )
 setvar( "GameOptions.GameInfo.IndestructibleBonuses", "0" )
+
+io.kickBots()

@@ -82,6 +82,9 @@ def kickBot(msg = None):
 	else:
 		SendCommand( "kickbot" )
 
+def kickBots():
+	SendCommand( "kickbots" )
+
 # Suicides all local bots
 def killBots():
 	SendCommand( "killbots" )
@@ -169,6 +172,10 @@ def getVar(var):
 	
 def getGameType():
 	return int(getVar("GameOptions.GameInfo.GameType"))
+
+def isTeamGame():
+	gameType = getGameType()
+	return (gameType == 1) or (gameType == 4) or (gameType == 5) or (gameType == 7)
 
 def getFullFileName(fn):
 	return SendCommand( "getfullfilename \"%s\"" % fn )[0]
