@@ -45,6 +45,12 @@ def getSignal():
 def setvar(what, data):
 	SendCommand( "setvar %s \"%s\"" % (str(what), str(data)) )
 
+def setVar(what, data):
+	setvar(what, data)
+
+def listVars(prefix = ""):
+	return SendCommand( "listVars %s" % (str(prefix)) )
+
 # Use this to make the server quit
 def Quit():
 	SendCommand( "quit" )
@@ -168,6 +174,12 @@ def getVar(var):
 	ret = SendCommand( "getvar %s" % var )
 	if len(ret) == 0: # var does not exist
 		return "" # TODO: or exception? 
+	return ret[0]
+
+def getVarHelp(var):
+	ret = SendCommand( "getVarHelp %s" % var )
+	if len(ret) == 0: # var does not exist
+		return ""
 	return ret[0]
 	
 def getGameType():

@@ -577,14 +577,51 @@ if( len(presetCicler.list) == 0 ):
 	presetCicler.list = availablePresets
 random.shuffle(presetCicler.list)
 
-LT_Cicler = StandardCiclerGameVar()
-LT_Cicler.list = [ "100" ]
-LT_Cicler.gameVar = "GameOptions.GameInfo.LoadingTime"
 
-def selectPreset( Preset = None, Level = None, Mod = None, LT = None ):
-	global presetCicler, modCicler, mapCicler, LT_Cicler
+class GameVarCicler(StandardCiclerBase):
+	def __init__(self):
+		StandardCiclerBase.__init__(self)
+		self.gameCount = 0
+		self.savedList = []
+		self.restoreDefaults = []
 
-	#io.messageLog(("selectPreset(): Preset %s Level %s Mod %s LT %s" % (str(Preset), str(Level), str(Mod), str(LT))),io.LOG_WARN)
+	def cicle(self):
+		if self.gameCount > 0:
+			self.gameCount -= 1
+			if self.gameCount <= 0:
+				self.preSelectedList = self.restoreDefaults
+				self.restoreDefaults = []
+				self.savedList = []
+
+		while True:
+			StandardCiclerBase.cicle(self)
+			if len(self.preSelectedList) <= 0:
+				self.preSelectedList = list(self.savedList)
+				return
+
+	def apply(self):
+		if not self.curSelection: return
+		io.setvar(self.curSelection[0], self.curSelection[1])
+
+	def pushSelection(self, selection, gameCount = 10):
+		defaultValue = io.getVar(selection[0])
+		defaultSet = False
+		for (v, d) in self.restoreDefaults:
+			if v == selection[0]:
+				defaultSet = True
+		if not defaultSet:
+			self.restoreDefaults.insert(len(self.restoreDefaults), (selection[0], defaultValue))
+
+		StandardCiclerBase.pushSelection(self, selection)
+		self.savedList = list(self.preSelectedList)
+		self.gameCount = gameCount
+
+gameVarCicler = GameVarCicler()
+
+def selectPreset( Preset = None, Level = None, Mod = None, VarName = None, VarValue = None, VarGameCount = 10 ):
+	global presetCicler, modCicler, mapCicler, gameVarCicler
+
+	#io.messageLog(("selectPreset(): Preset %s Level %s Mod %s" % (str(Preset), str(Level), str(Mod))),io.LOG_WARN)
 
 	msg = ""
 	if Preset:
@@ -604,12 +641,9 @@ def selectPreset( Preset = None, Level = None, Mod = None, LT = None ):
 		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
 		if len(presetCicler.preSelectedList) <= 0:
 			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
-	if LT:
-		LT_Cicler.pushSelection(str(LT))
-		msg += " LT " + str(LT)
-		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
-		if len(presetCicler.preSelectedList) <= 0:
-			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
+	if VarName and VarValue and VarGameCount:
+		gameVarCicler.pushSelection((VarName, VarValue), gameCount = VarGameCount)
+		msg += " " + VarName.replace("GameOptions.GameInfo.", "") + "=" + VarValue
 
 	if gameState != GAME_LOBBY:
 		io.chatMsg( msg.strip() + " will be selected for next game")
@@ -627,7 +661,7 @@ def controlHandlerDefault():
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
 	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame
-	global presetCicler, modCicler, mapCicler, LT_Cicler
+	global presetCicler, modCicler, mapCicler, gameVarCicler
 	global videoRecorder, videoRecorderSignalTime
 	
 	if scriptPaused:
@@ -643,8 +677,8 @@ def controlHandlerDefault():
 		if oldGameState != GAME_LOBBY:
 			mapCicler.check()
 			modCicler.check()
-			LT_Cicler.check()
 			presetCicler.check()
+			gameVarCicler.check()
 			lobbyEnoughPlayers = False # reset the state
 			lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 			lobbyWaitAfterGame = curTime

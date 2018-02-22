@@ -1719,7 +1719,7 @@ void Cmd_getVarHelp::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		return;
 	}
 
-	caller->pushReturnArg(varptr->shortDesc + ": " + varptr->longDesc);
+	caller->pushReturnArg(varptr->longDesc != "" ? varptr->longDesc : varptr->shortDesc != "" ? varptr->shortDesc : var);
 }
 
 COMMAND(getFullFileName, "get full filename", "relativefilename", 1, 1);
