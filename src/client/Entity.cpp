@@ -201,7 +201,7 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Color colour, SmartPoi
 
 ///////////////////
 // Draw the entities
-void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
+void DrawEntities(SDL_Surface * bmpDest, CViewport *v, bool wrapAround, int mapW, int mapH)
 {
 	CVec end;
 
@@ -209,17 +209,37 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 	int wy = v->GetWorldY();
 	int l = v->GetLeft();
 	int t = v->GetTop();
-
+	int viewW = v->GetWidth();
+	int viewH = v->GetHeight();
 
 	int x,y;
 	int x2,y2;
-		
+
+	mapW *= 2;
+	mapH *= 2;
+
 	for (Entities::Iterator::Ref e = tEntities.begin(); e->isValid(); e->next()) {
 
 		entity_t *ent = e->get();
 
-		x= int((ent->vPos.x - (float)wx)*2.0) + l;
-		y= int((ent->vPos.y - (float)wy)*2.0) + t;
+		x = (ent->vPos.x - wx) * 2;
+		y = (ent->vPos.y - wy) * 2;
+		if (wrapAround) {
+			x %= mapW;
+			y %= mapH;
+			if (x < 0)
+				x += mapW;
+			if (y < 0)
+				y += mapH;
+			if (wx * 2 + viewW >= mapW) {
+				x += mapW;
+			}
+			if (wy * 2 + viewH >= mapH) {
+				y += mapH;
+			}
+		}
+		x += l;
+		y += t;
 
 		// Clipping
 		if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {

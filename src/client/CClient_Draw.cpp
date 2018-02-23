@@ -820,7 +820,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 			}
 			
 			// Draw the entities
-			DrawEntities(bmpDest, v);
+			DrawEntities(bmpDest, v, getGameLobby()->features[FT_InfiniteMap], cMap->GetWidth(), cMap->GetHeight());
 			
 			// Draw the projectiles
 			DrawProjectiles(bmpDest, v);
