@@ -367,7 +367,7 @@ def parseUserCommand(wormid,message):
 				else:
 					fullname = "GameOptions.GameInfo.%s" % name
 					value = " ".join(params[1:]).replace('"', '')
-					addVote( 'hnd.selectPreset( VarName = "%s", VarValue = "%s" )' % (fullname, value), wormid, "Set %s to %s for next 10 games" % (name, value) )
+					addVote( 'hnd.selectPreset( VarName = "%s", VarValue = "%s" )' % (fullname, value), wormid, "Set %s to %s for next 2 games" % (name, value) )
 
 			if cmd == "start" or cmd == "go":
 				cmd = 'io.gotoLobby(); voteCommand = "hnd.lobbyWaitAfterGame = time.time(); hnd.lobbyWaitBeforeGame = time.time()"'

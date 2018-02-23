@@ -618,7 +618,7 @@ class GameVarCicler(StandardCiclerBase):
 
 gameVarCicler = GameVarCicler()
 
-def selectPreset( Preset = None, Level = None, Mod = None, VarName = None, VarValue = None, VarGameCount = 10 ):
+def selectPreset( Preset = None, Level = None, Mod = None, VarName = None, VarValue = None, VarGameCount = 2 ):
 	global presetCicler, modCicler, mapCicler, gameVarCicler
 
 	#io.messageLog(("selectPreset(): Preset %s Level %s Mod %s" % (str(Preset), str(Level), str(Mod))),io.LOG_WARN)
