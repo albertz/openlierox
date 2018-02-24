@@ -129,11 +129,6 @@ public:
 
 		
 		AdditionalData.clear();
-		
-		bMapSavingToMemory = false;
-		bmpSavedImage = NULL;
-		savedPixelFlags = NULL;
-		savedMapCoords.clear();
    	}
 
 	~CMap() {
@@ -188,24 +183,6 @@ private:
 	object_t	*Objects;
 
 	std::map< std::string, std::string > AdditionalData; // Not used currently, maybe will contain CTF info in Beta10
-
-	// Save/restore from memory, for commit/rollback net mechanism
-	bool		bMapSavingToMemory;
-	SmartPointer<SDL_Surface> bmpSavedImage;
-	uchar *		savedPixelFlags;
-	enum { MAP_SAVE_CHUNK = 16 };
-	struct SavedMapCoord_t {
-		int X, Y;
-		SavedMapCoord_t(int x = 0, int y = 0) : X(x), Y(y) {}
-		bool operator < (const SavedMapCoord_t & m) const
-		{
-			if( Y < m.Y ) return true;
-			else if( Y > m.Y ) return false;
-			else if( X < m.X ) return true;
-			else return false;
-		}
-	};
-	std::set< SavedMapCoord_t > savedMapCoords;
 
 private:
 	// Update functions

@@ -101,13 +101,6 @@ bool CMap::NewFrom(CMap* map)
 	
 	AdditionalData = map->AdditionalData;
 	
-	bMapSavingToMemory = false;
-	bmpSavedImage = NULL;
-	if( savedPixelFlags )
-		delete[] savedPixelFlags;
-	savedPixelFlags = NULL;
-	savedMapCoords.clear();
-	
 	Created = true;
 
 	return true;
@@ -147,8 +140,6 @@ size_t CMap::GetMemorySize()
 #ifdef _AI_DEBUG
 	res += GetSurfaceMemorySize(bmpDebugImage.get());
 #endif
-	if( bmpSavedImage.get() != NULL )
-		res += GetSurfaceMemorySize(bmpSavedImage.get()) + Width * Height; // Saved pixel flags
 	if( bmpBackImageHiRes.get() )
 		res += GetSurfaceMemorySize(bmpBackImageHiRes.get());
 	return res;
@@ -1270,8 +1261,6 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)bmpImage.get()->clip_rect))
 		return 0;
 			
-	SaveToMemoryInternal( map_x, map_y, w, h );
-
 	// Variables
 	byte bpp = hole.get()->format->BytesPerPixel;
 	
@@ -1537,8 +1526,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 	int clip_w = MIN(sx+w, bmpImage.get()->w);
 	int hole_clip_y = -MIN(sy,(int)0);
 	int hole_clip_x = -MIN(sx,(int)0);
-	
-	SaveToMemoryInternal( clip_x, clip_y, clip_w, clip_h );
 
 	lockFlags();
 
@@ -1703,8 +1690,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 	int clip_w = MIN(sx+w, bmpImage.get()->w);
 	int green_clip_y = -MIN(sy,(int)0);
 	int green_clip_x = -MIN(sx,(int)0);
-	
-	SaveToMemoryInternal( clip_x, clip_y, clip_w, clip_h );
 
 	short screenbpp = getMainPixelFormat()->BytesPerPixel;
 
@@ -2803,57 +2788,6 @@ void CMap::DEBUG_DrawPixelFlags(int x, int y, int w, int h)
 	//SDL_SetClipRect(bmpDrawImage.get(), &oldrect);
 }
 
-void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
-{
-	if( ! bMapSavingToMemory )
-		return;
-	if( bmpSavedImage.get() == NULL || savedPixelFlags == NULL )
-	{
-		errors("Error: CMap::SaveToMemoryInternal(): bmpSavedImage is NULL\n");
-		return;
-	}
-
-	int gridX = x / MAP_SAVE_CHUNK;
-	int gridMaxX = 1 + (x+w) / MAP_SAVE_CHUNK;
-	
-	int gridY = y / MAP_SAVE_CHUNK;
-	int gridMaxY = 1 + (y+h) / MAP_SAVE_CHUNK;
-
-	for( int fy = gridY; fy < gridMaxY; fy++ )
-		for( int fx = gridX; fx < gridMaxX; fx++ )
-			if( savedMapCoords.count( SavedMapCoord_t( fx, fy ) ) == 0 )
-			{
-				savedMapCoords.insert( SavedMapCoord_t( fx, fy ) );
-				
-				int startX = fx*MAP_SAVE_CHUNK;
-				int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
-				int startY = fy*MAP_SAVE_CHUNK;
-				int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
-
-				LOCK_OR_QUIT(bmpSavedImage);
-				lockFlags();
-				
-				if( bmpBackImageHiRes.get() )
-				{
-					LOCK_OR_QUIT(bmpDrawImage);
-					DrawImageAdv( bmpSavedImage.get(), bmpDrawImage, startX*2, startY*2, startX*2, startY*2, sizeX*2, sizeY*2 );
-					UnlockSurface(bmpDrawImage);
-				}
-				else
-				{
-					LOCK_OR_QUIT(bmpImage);
-					DrawImageAdv( bmpSavedImage.get(), bmpImage, startX, startY, startX, startY, sizeX, sizeY );
-					UnlockSurface(bmpImage);
-				}
-
-				for( int y=startY; y<startY+sizeY; y++ )
-					memcpy( savedPixelFlags + y*Width + startX, PixelFlags + y*Width + startX, sizeX*sizeof(uchar) );
-
-				unlockFlags();
-				UnlockSurface(bmpSavedImage);
-			}
-}
-
 
 ///////////////////
 // Shutdown the map
@@ -2896,13 +2830,6 @@ void CMap::Shutdown()
 		Objects = NULL;
 		NumObjects = 0;
 		AdditionalData.clear();
-
-		bMapSavingToMemory = false;
-		bmpSavedImage = NULL;
-		if( savedPixelFlags )
-			delete[] savedPixelFlags;
-		savedPixelFlags = NULL;
-		savedMapCoords.clear();
 	}
 	// Safety
 	else  {
@@ -2920,10 +2847,6 @@ void CMap::Shutdown()
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
 		AdditionalData.clear();
-		bMapSavingToMemory = false;
-		bmpSavedImage = NULL;
-		savedPixelFlags = NULL;
-		savedMapCoords.clear();
 	}
 
 	Created = false;
