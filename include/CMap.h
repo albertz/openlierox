@@ -218,6 +218,7 @@ private:
 	bool		NewFrom(CMap *map);
 	void		SaveToCache();
 	bool		LoadFromCache();
+	void		LoadPostProcess();
 
 public:
 	// Methods

@@ -2526,6 +2526,7 @@ bool CMap::Load(const std::string& filename)
 	if(LoadFromCache()) {
 		// everything is ok
 		notes << "reusing cached map for " << filename << endl;
+		LoadPostProcess();
 		return true;
 	}
 	
@@ -2552,30 +2553,11 @@ bool CMap::Load(const std::string& filename)
 	bMiniMapDirty = true;
 	Created = true;
     //sRandomLayout.bUsed = false;
-	
-    // Calculate the shadowmap
-	CalculateShadowMap();
-	
-	// Apply the shadow
-	ApplyShadow(0, 0, Width, Height);
-
-	// Update the draw image
-	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
-
-	// Update the minimap
-	UpdateMiniMap(true);
-
-    // Calculate the total dirt count
-    CalculateDirtCount();
-
-    // Calculate the grid
-    calculateGrid();
-
-	// Calculate collision grid
-	calculateCollisionGridArea(0, 0, Width, Height);
 
 	// Save the map to cache
 	SaveToCache();
+
+	LoadPostProcess();
 
 	return true;
 }
@@ -3128,4 +3110,93 @@ std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 	std::string name = loader->header().name;
 	delete loader;
 	return name;
+}
+
+void CMap::LoadPostProcess()
+{
+	if (cClient->getGameLobby()->features[FT_AddMirroredMap]) {
+		CMap m;
+		m.Create(Width * 2, Height, Theme.name, MinimapWidth, MinimapHeight);
+
+		if (bmpBackImageHiRes.get())
+			m.bmpBackImageHiRes = gfxCreateSurface(bmpBackImageHiRes->w * 2, bmpBackImageHiRes->h);
+
+		lockFlags();
+		m.lockFlags();
+
+		if ((int)cClient->getGameLobby()->features[FT_MirroredMapSide] == 1) {
+			// Add to the right side
+			DrawImage(m.bmpImage.get(), bmpImage, 0, 0);
+			DrawImageAdv_Mirror(m.bmpImage.get(), bmpImage, 0, 0, bmpImage->w, 0, bmpImage->w, bmpImage->h);
+
+			DrawImage(m.bmpDrawImage.get(), bmpDrawImage, 0, 0);
+			DrawImageAdv_Mirror(m.bmpDrawImage.get(), bmpDrawImage, 0, 0, bmpDrawImage->w, 0, bmpDrawImage->w, bmpDrawImage->h);
+
+			DrawImage(m.bmpBackImage.get(), bmpBackImage, 0, 0);
+			DrawImageAdv_Mirror(m.bmpBackImage.get(), bmpBackImage, 0, 0, bmpBackImage->w, 0, bmpBackImage->w, bmpBackImage->h);
+
+			if (bmpBackImageHiRes.get()) {
+				DrawImage(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, 0, 0);
+				DrawImageAdv_Mirror(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, 0, 0, bmpBackImageHiRes->w, 0, bmpBackImageHiRes->w, bmpBackImageHiRes->h);
+			}
+
+			for (int y = 0; y < Height; y++) {
+				for (int x = 0; x < Width; x++) {
+					m.PixelFlags[y * Width * 2 + x] = PixelFlags[y * Width + x];
+					m.PixelFlags[y * Width * 2 + (Width * 2 - x - 1)] = PixelFlags[y * Width + x];
+				}
+			}
+		} else {
+			// Add to the left side
+			DrawImage(m.bmpImage.get(), bmpImage, bmpImage->w, 0);
+			DrawImageAdv_Mirror(m.bmpImage.get(), bmpImage, 0, 0, 0, 0, bmpImage->w, bmpImage->h);
+
+			DrawImage(m.bmpDrawImage.get(), bmpDrawImage, bmpDrawImage->w, 0);
+			DrawImageAdv_Mirror(m.bmpDrawImage.get(), bmpDrawImage, 0, 0, , 0, bmpDrawImage->w, bmpDrawImage->h);
+
+			DrawImage(m.bmpBackImage.get(), bmpBackImage, bmpBackImage->w, 0);
+			DrawImageAdv_Mirror(m.bmpBackImage.get(), bmpBackImage, 0, 0, 0, 0, bmpBackImage->w, bmpBackImage->h);
+
+			if (bmpBackImageHiRes.get()) {
+				DrawImage(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, bmpBackImageHiRes->w, 0);
+				DrawImageAdv_Mirror(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, 0, 0, 0, 0, bmpBackImageHiRes->w, bmpBackImageHiRes->h);
+			}
+
+			for (int y = 0; y < Height; y++) {
+				for (int x = 0; x < Width; x++) {
+					m.PixelFlags[y * Width * 2 + x + Width] = PixelFlags[y * Width + x];
+					m.PixelFlags[y * Width * 2 + (Width - x - 1)] = PixelFlags[y * Width + x];
+				}
+			}
+		}
+
+		unlockFlags();
+		m.unlockFlags();
+
+		NewFrom(&m);
+	}
+	if (cClient->getGameLobby()->features[FT_AddTopMirroredMap]) {
+		// TODO
+	}
+
+	// Calculate the shadowmap
+	CalculateShadowMap();
+	
+	// Apply the shadow
+	ApplyShadow(0, 0, Width, Height);
+
+	// Update the draw image
+	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
+
+	// Update the minimap
+	UpdateMiniMap(true);
+
+	// Calculate the total dirt count
+	CalculateDirtCount();
+
+	// Calculate the grid
+	calculateGrid();
+
+	// Calculate collision grid
+	calculateCollisionGridArea(0, 0, Width, Height);
 }
