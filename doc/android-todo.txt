@@ -3,10 +3,6 @@
 
 - Join and host network games with two players.
 
-- Option to mirror the map for infinite map.
-
-- Save mirrored map for old clients to download.
-
 - Scroll chat text instead of selecting it.
 
 - Scroll comboboxes and list boxes with a gesture.

@@ -246,6 +246,7 @@ public:
     void        calculateGrid();
 	bool		createCollisionGrid();
 	void		calculateCollisionGridArea(int x, int y, int w, int h);
+	void		PostProcessMirroredMap();
 
 	int	getCollGridCellW() const;
 	int	getCollGridCellH() const;
