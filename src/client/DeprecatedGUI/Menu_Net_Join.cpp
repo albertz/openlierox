@@ -170,8 +170,8 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 		if(!Menu_Net_JoinLobbyInitialize()) {
 			// Error
 			Menu_Net_MainInitialize();
-			return;
 		}
+		return;
 	}
 
 	// Check for a bad connection
