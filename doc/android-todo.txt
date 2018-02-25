@@ -9,4 +9,3 @@
 
 - Wider item separation for comboboxes and list boxes.
 
-- Fix desynced physics random for projectiles simulation.
