@@ -199,6 +199,8 @@ void CWorm::Clear()
 	}
 	
 	cDamageReport.clear();
+
+	iShotCount = 0;
 }
 
 

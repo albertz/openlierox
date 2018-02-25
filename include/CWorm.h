@@ -331,6 +331,8 @@ private:
 
 	CWormInputHandler* m_inputHandler;
 
+	unsigned	iShotCount; // For server only, used as a random number for CShotList
+
 public:
 	// Used to print damage numbers over the worm head
 	struct DamageReport {		
@@ -629,7 +631,9 @@ public:
 	void reinitInputHandler();
 	
 	std::map< int, DamageReport> & getDamageReport() { return cDamageReport; }
-	
+
+	unsigned	getShotCount() const	{ return iShotCount; }
+	void		increaseShotCount()		{ iShotCount++; }
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorms()

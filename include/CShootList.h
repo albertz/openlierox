@@ -59,11 +59,10 @@ struct shoot_t {
 	CVec	cPos;
 	CVec	cWormVel;
 	int		nAngle;
-	int		nRandom;
+	uchar	nRandom; // Actually it's a worm shot count
 	int		nSpeed;
 	int		nWormID;
 
-	int		devID;
 	bool	release;
 };
 

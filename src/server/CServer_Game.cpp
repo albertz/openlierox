@@ -529,6 +529,7 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 		time = w->serverTime();
 	
 	// Add the shot to ALL the connected clients shootlist
+	w->increaseShotCount();
 	CServerConnection *cl = getClients();
 	for(short i=0; i<MAX_CLIENTS; i++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED)
@@ -622,6 +623,7 @@ void GameServer::WormShoot(CWorm *w)
 		time = w->serverTime();
 	
 	// Add the shot to ALL the connected clients shootlist
+	w->increaseShotCount();
 	CServerConnection *cl = getClients();
 	for(short i=0; i<MAX_CLIENTS; i++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED)
@@ -630,7 +632,6 @@ void GameServer::WormShoot(CWorm *w)
 		cl->getShootList()->addShoot(Slot->Weapon->ID, time, speed, (int)Angle, w, false);
 	}
 
-	
 
 	//
 	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF

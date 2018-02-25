@@ -97,17 +97,12 @@ bool CShootList::addShoot( int weaponID, TimeDiff fTime, float fSpeed, int nAngl
 	psShot->cWormVel = pcWorm->getVelocity();
 	psShot->fTime = fTime;
 	psShot->nAngle = nAngle;
-	psShot->nRandom = GetRandomInt(255);
+	psShot->nRandom = pcWorm->getShotCount(); // uint32 to unit8 conversion
 	psShot->nSpeed = (int)( fSpeed*100 );
 	psShot->nWeapon = weaponID;
 	psShot->nWormID = pcWorm->getID();
 	psShot->release = release;
 	
-	// Debuging
-	psShot->devID = 0;
-	if(m_nNumShootings > 1)
-		psShot->devID = m_psShoot[m_nNumShootings-2].devID+1;
-
 	return true;
 }
 
@@ -568,6 +563,7 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, const Version
 	// Copy the base data, so we only apply the changes to the shot
 	*psShot = *psFirst;
 
+	psShot->nRandom++;
 
 	flags = bs->readByte();
 	if( flags & SHF_EXTRAFLAGS )

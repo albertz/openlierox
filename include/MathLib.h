@@ -180,92 +180,15 @@ public:
 };
 
 
-// Random number generator with save()/restore() methods that will save and restore generator's state
-// This generator should produce the same numbers on any CPU architecture, if initialized with the same seed.
-// Ripped from Gnu Math library
-// I don't want to use Mersenne Twister 'cuz it has a state of 624 ints which should be copied with Save()/Restore()
-
-class SyncedRandom
+// Very fast 32-bit PRNG: https://en.wikipedia.org/wiki/Xorshift
+// The parameter must be initialized to non-zero, otherwise it will return zero every time
+static inline uint32_t xorshift32Random(uint32_t x)
 {
-public:
-
-	SyncedRandom( unsigned long s = getRandomSeed() )
-	{
-		if (!s)
-			s = 1UL; /* default seed is 1 */
-
-  		z1 = LCG (s);
-		if (z1 < 2UL)
-			z1 += 2UL;
-		z2 = LCG (z1);
-		if (z2 < 8UL)
-			z2 += 8UL;
-		z3 = LCG (z2);
-		if (z3 < 16UL)
-			z3 += 16UL;
-		z4 = LCG (z3);
-		if (z4 < 128UL)
-			z4 += 128UL;
-
-		/* Calling RNG ten times to satify recurrence condition */
-		getInt(); getInt(); getInt(); getInt();	getInt();
-		getInt(); getInt(); getInt(); getInt();	getInt();
-	};
-	
-	// Returns unsigned int in a range 0 : UINT_MAX
-	unsigned long getInt()
-	{
-		unsigned long b1, b2, b3, b4;
-
-		b1 = ((((z1 << 6UL) & MASK) ^ z1) >> 13UL);
-		z1 = ((((z1 & 4294967294UL) << 18UL) & MASK) ^ b1);
-
-		b2 = ((((z2 << 2UL) & MASK) ^ z2) >> 27UL);
-		z2 = ((((z2 & 4294967288UL) << 2UL) & MASK) ^ b2);
-
-		b3 = ((((z3 << 13UL) & MASK) ^ z3) >> 21UL);
-		z3 = ((((z3 & 4294967280UL) << 7UL) & MASK) ^ b3);
-
-		b4 = ((((z4 << 3UL) & MASK) ^ z4) >> 12UL);
-		z4 = ((((z4 & 4294967168UL) << 13UL) & MASK) ^ b4);
-
-		return (z1 ^ z2 ^ z3 ^ z4);
-	};
-	
-	// Returns float in range 0 : 1 (1 non-inclusive)
-	float getFloat()
-	{
-		return getInt() / 4294967296.0f;
-	};
-	
-	void save()
-	{
-		save_z1 = z1;
-		save_z2 = z2;
-		save_z3 = z3;
-		save_z4 = z4;
-	};
-
-	void restore()
-	{
-		z1 = save_z1;
-		z2 = save_z2;
-		z3 = save_z3;
-		z4 = save_z4;
-	};
-	
-	// Returns random seed based on time() and SDL_GetTicks() functions
-	static unsigned long getRandomSeed();
-
-private:
-
-	static const unsigned long MASK = 0xffffffffUL;
-	unsigned long LCG(unsigned long n) { return ((69069UL * n) & MASK); };
-	
-	unsigned long z1, z2, z3, z4;
-
-	unsigned long save_z1, save_z2, save_z3, save_z4;
-};
+	x ^= x << 13;
+	x ^= x >> 17;
+	x ^= x << 5;
+	return x;
+}
 
 
 #endif  //  __MATHLIB_H__
