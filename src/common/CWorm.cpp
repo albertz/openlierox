@@ -1089,8 +1089,12 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	// Draw the weapon name
 	if(bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
 		if(bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
-			if(Slot->Weapon)
+			if(Slot->Weapon && Slot->Weapon->Name != "")
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
+			else
+				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,
+												(iCurrentWeapon == 0) ? "-" : (iCurrentWeapon == 1) ? "--" :
+												(iCurrentWeapon == 2) ? "---" : (iCurrentWeapon == 3) ? "----" : "-----");
 
 			if( tLX->currentTime > fForceWeapon_Time )
 				bForceWeapon_Name = false;
