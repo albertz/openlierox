@@ -48,6 +48,9 @@ def setvar(what, data):
 def setVar(what, data):
 	setvar(what, data)
 
+def setWormWeapon(wormid, slot, weapon):
+	SendCommand( "setWormWeapon %d %d \"%s\"" % (wormid, slot, weapon) )
+
 def listVars(prefix = ""):
 	return SendCommand( "listVars %s" % (str(prefix)) )
 

@@ -35,6 +35,10 @@ bots = {}  # Dictionary of all possible bots
 # Function that controls ded server behavior
 controlHandler = None
 
+gameStartedHandler = None
+newWormHandler = None
+wormDiedHandler = None
+
 scriptPaused = False
 
 
@@ -184,6 +188,8 @@ def signalHandler(sig):
 			gameState = GAME_PLAYING
 			sentStartGame = False
 			controlHandler()
+			if gameStartedHandler != None:
+				gameStartedHandler()
 		#TODO: gamestarted && gameloopstart are pretty much duplicates
 		# Or are they? Check.
 		# Same thing for gameloopend and backtolobby
@@ -268,6 +274,9 @@ def parseNewWorm(wormID, name):
 			return
 	cmds.recheckVote()
 
+	if newWormHandler != None:
+		newWormHandler(wormID, name)
+
 
 def parseWormLeft(sig):
 	global worms, scriptPaused
@@ -331,6 +340,9 @@ def parseWormDied(sig):
 	killerID = int(sig[2])
 	worms[deaderID].Lives -= 1
 	worms[deaderID].Alive = False
+
+	if wormDiedHandler != None:
+		wormDiedHandler(deaderID, killerID)
 
 	if not cfg.RANKING:
 		return

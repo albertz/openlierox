@@ -1,0 +1,61 @@
+#!/usr/bin/python -u
+
+import random
+
+global worms, io, controlHandler, wormDiedHandler, newWormHandler, gameStartedHandler
+
+setvar( "GameOptions.GameInfo.ModName", "Classic" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+SetWeaponBans("Bonus only")
+
+weaponChoices = [
+	[
+		"Spikeballs", "Larpa", "Doomsday", "Cannon", "Napalm", "Super Shotgun", "Chaingun", "Handgun", "Rifle", "Laser",
+	],
+	[
+		"Bazooka", "Blaster", "Booby Trap", "Bouncy Larpa", "Bouncy Mine", "Dart", "Explosives", "Flamer", "Float Mine",
+		"Gauss Gun", "Grasshopper", "Mine", "Minigun", "Mini Rockets", "RB Rampage", "Gauss Gun", "Shotgun", "Uzi", "Winchester", "Zimm",
+	],
+	[
+		"Big Nuke", "Chiquita Bomb", "Cluster bomb", "Crackler", "Grenade", "Hellraider", "Mini Nuke",
+	],
+]
+
+weaponList = []
+for i in range(len(weaponChoices)):
+	weaponList.extend(random.sample(weaponChoices[i], 5))
+
+for wormid in worms.keys():
+	io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))
+
+def gameStartedNewGun():
+	global worms, weaponList, io
+	for wormid in worms.keys():
+		worms[wormid].newgunCount = 0
+		io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))
+		for i in range(5):
+			io.setWormWeapon(wormid, i, weaponList[0])
+
+def newWormNewGun(wormid, name):
+	global worms, weaponList, io
+	worms[wormid].newgunCount = 5 # Penalty for joining mid-game
+	weapon = weaponList[5]
+	for i in range(5):
+		io.setWormWeapon(wormid, i, weapon)
+	io.privateMsg(wormid, "New guns: " + ", ".join(weaponList[5:]))
+
+def wormDiedNewGun(died, killer):
+	global worms, weaponList, io
+	worms[killer].newgunCount += 1
+	weapon = weaponList[-1]
+	if len(weaponList) > worms[died].newgunCount:
+		weapon = weaponList[worms[killer].newgunCount]
+	for i in range(5):
+		io.setWormWeapon(killer, i, weapon)
+	io.privateMsg(killer, "New gun: " + weapon)
+
+gameStartedHandler = gameStartedNewGun
+newWormHandler = newWormNewGun
+wormDiedHandler = wormDiedNewGun
