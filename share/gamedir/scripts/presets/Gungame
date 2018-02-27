@@ -1,14 +1,26 @@
 #!/usr/bin/python -u
 
+global worms, io
+
 setvar( "GameOptions.GameInfo.ModName", "Classic" )
 
 setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 
 setvar( "GameOptions.GameInfo.Bonuses", "1" )
-setvar( "GameOptions.GameInfo.BonusFrequency", "25" )
 setvar( "GameOptions.GameInfo.BonusHealthToWeaponChance", "1" )
 setvar( "GameOptions.GameInfo.BonusLife", "40" )
 setvar( "GameOptions.GameInfo.BonusNames", "0" )
 # setvar( "GameOptions.GameInfo.IndestructibleBonuses", "1" )
+
+bonusFreq = 15
+wormAmount = len(io.getWormList())
+if wormAmount <= 4:
+	bonusFreq = 20
+if wormAmount <= 3:
+	bonusFreq = 25
+if wormAmount <= 2:
+	bonusFreq = 30
+
+setvar( "GameOptions.GameInfo.BonusFrequency", bonusFreq )
 
 SetWeaponBans("Bonus only")
