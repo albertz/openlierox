@@ -587,6 +587,8 @@ public:
     void        incrementDirtCount(int d);
     int         getDirtCount()          { return iDirtCount; }
 
+	int			getNumWeaponSlots() const { return iNumWeaponSlots; }
+
 	void		setTarget(bool _t)			{ bGotTarget = _t; }
 
 	TimeDiff	getTagTime()			{ return fTagTime; }

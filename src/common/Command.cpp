@@ -1588,6 +1588,63 @@ void Cmd_setWormCanAirJump::exec(CmdLineIntf* caller, const std::vector<std::str
 	cServer->SetWormCanAirJump(id, canUse);
 }
 
+COMMAND(setWormWeapon, "force specific weapon for a worm", "wormId weaponSlot weaponName", 2, 3);
+void Cmd_setWormWeapon::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if (tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if (fail) {
+		printUsage(caller);
+		return;
+	}
+
+	if (!CheckWorm(caller, id, "setWormWeapon")) return;
+
+	CWorm *w = &(cServer->getWorms()[id]);
+
+	int slotId = from_string<int>(params[1], fail);
+	if (fail || slotId < 0 || slotId >= w->getNumWeaponSlots()) {
+		printUsage(caller);
+		return;
+	}
+
+	const weapon_t *weapon = NULL;
+	if (params.size() > 2) {
+		weapon = cServer->getGameScript()->FindWeapon(params[2]);
+		if (!weapon) {
+			printUsage(caller);
+			notes << "Cannot find weapon " << params[2] << endl;
+			return;
+		}
+	}
+
+	wpnslot_t *slot = w->getWeapon(slotId);
+	const weapon_t *oldWeapon = slot->Weapon;
+	if (weapon) {
+		slot->Weapon = weapon;
+		slot->Enabled = true;
+		slot->Charge = 1;
+		slot->Reloading = false;
+	} else {
+		slot->Weapon = NULL;
+		slot->Enabled = false;
+	}
+
+	// handle worm shoot end if needed
+	if(oldWeapon && slot->Weapon != oldWeapon && w->getWormState()->bShoot)
+		cServer->WormShootEnd(w, oldWeapon);
+
+	// TODO: move that out here
+	CBytestream bs;
+	bs.writeByte(S2C_WORMWEAPONINFO);
+	w->writeWeapons(&bs);
+	cServer->SendGlobalPacket(&bs);
+}
+
 COMMAND(authorizeWorm, "authorize worm", "id", 1, 1);
 void Cmd_authorizeWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN) {
