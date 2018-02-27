@@ -483,9 +483,6 @@ void CClient::PlayerShoot(CWorm *w)
 	if(Slot->Reloading)
 		return;
 
-	if(Slot->LastFire>0)
-		return;
-
 	if(!Slot->Enabled)
 		return;
 	
@@ -494,25 +491,30 @@ void CClient::PlayerShoot(CWorm *w)
 		return;
 	}
 
+	if(Slot->Weapon->Type == WPN_BEAM) {
+		// Beam weapons get processed differently
+		// Beam weapons have no rate of fire, they fire continuously until out of ammo,
+		// but we don't know when they are out of ammo, because the server won't tell us,
+		// so we'll draw it for some short time after each 'shoot' packet from the server
+		if (Slot->LastFire>0) {
+			DrawBeam(w);
+			Slot->LastFire -= tLX->fDeltaTime.seconds();
+		}
+		return;
+	}
+
+	if(Slot->LastFire>0) {
+		return;
+	}
+
 	// Safe the ROF time (Rate of Fire). That's the pause time after each shot.
 	// In simulateWormWeapon, we decrease this by deltatime and
 	// the next shot is allowed if lastfire<=0.
-	if (Slot->Weapon->Type != WPN_BEAM)
-		Slot->LastFire = Slot->Weapon->ROF;
+	Slot->LastFire = Slot->Weapon->ROF;
 
 	// Special weapons get processed differently
 	if(Slot->Weapon->Type == WPN_SPECIAL) {
 		ShootSpecial(w);
-		return;
-	}
-
-	// Beam weapons get processed differently
-	if(Slot->Weapon->Type == WPN_BEAM) {
-		// Beam weapons have no rate of fire, they fire continuously until out of ammo,
-		// but we don't know when they are out of ammo, because the server won't tell us,
-		// so we'll draw it for some short time after each 'shoot' packet from the server
-		Slot->LastFire += tLX->fDeltaTime.seconds();
-		DrawBeam(w);
 		return;
 	}
 
@@ -1031,7 +1033,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 		CWorm *w = &cRemoteWorms[shot->nWormID];
 		if(!w->isUsed()) return;
 		// Draw the beam for 0.3 seconds after receiving the packet
-		w->getCurWeapon()->LastFire = -0.3;
+		w->getCurWeapon()->LastFire = 0.3;
 	}
 	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
 
