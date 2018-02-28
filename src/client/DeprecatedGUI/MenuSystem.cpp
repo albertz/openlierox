@@ -557,6 +557,7 @@ void Menu_DrawWinButton(SDL_Surface * bmpDest, int x, int y, int w, int h, bool 
 // Show a message box
 MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::string& sText, MessageBoxType type)
 {
+	SetTouchscreenControlsShown(false);
 	if(bDedicated) {
 		hints << "Menu_MessageBox: " << sTitle << ": " << sText << endl;
 		switch(type) {
