@@ -14,6 +14,7 @@ findSpot - find randm free spot in map (close to pos)
 getComputerWormList - get computer worm list
 getFullFileName - get full filename
 getVar - read variable
+getVarHelp - print variable description
 getWormIp - get worm IP
 getWormList - get worm list
 getWormLocationInfo - get worm location info
@@ -35,6 +36,7 @@ kickWorm - kick worm
 killBots - kill all bots out of game
 listMaps - list all available maps
 listMods - list all available mods
+listVars - list all variables
 loadConfig - load config file
 longhelp - list available commands and description
 map - set map
@@ -58,6 +60,7 @@ setWormLives - set worm lives
 setWormShieldFactor - set worm shieldfactor
 setWormSpeedFactor - set worm speedfactor
 setWormTeam - set worm team
+setWormWeapons - force specific weapons for a worm
 signal - send custom signal to dedicated script
 sound - enable or disable sound
 spawnWorm - spawn worm
