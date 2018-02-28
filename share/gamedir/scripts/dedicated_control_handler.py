@@ -38,6 +38,7 @@ controlHandler = None
 gameStartedHandler = None
 newWormHandler = None
 wormDiedHandler = None
+wormSpawnedHandler = None
 
 scriptPaused = False
 
@@ -214,7 +215,7 @@ def signalHandler(sig):
 	return True
 
 def parseNewWorm(wormID, name):
-	global worms
+	global worms, newWormHandler
 
 	name = name.replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
 	exists = False
@@ -334,7 +335,7 @@ def parseChatMessage(sig):
 		cmds.parseUserCommand(wormID,message)
 
 def parseWormDied(sig):
-	global worms
+	global worms, wormDiedHandler
 
 	deaderID = int(sig[1])
 	killerID = int(sig[2])
@@ -377,10 +378,13 @@ def parseWormDied(sig):
 			ranking.rank[worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
 
 def parseWormSpawned(sig):
-	global worms
+	global worms, wormSpawnedHandler
 
 	wormID = int(sig[1])
 	worms[wormID].Alive = True
+
+	if wormSpawnedHandler != None:
+		wormSpawnedHandler(wormID)
 
 def parseCustom(sig):
 	if not cmds.parseAdminCommand(-1, "%s%s" % (cfg.ADMIN_PREFIX, str(sig[1:]))):
@@ -672,7 +676,7 @@ oldGameState = GAME_LOBBY
 def controlHandlerDefault():
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
-	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame
+	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame, gameStartedHandler
 	global presetCicler, modCicler, mapCicler, gameVarCicler
 	global videoRecorder, videoRecorderSignalTime
 	

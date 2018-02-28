@@ -5,11 +5,11 @@
 
 # TODO: use options.cfg settings as default and don't hardcode any other stuff here
 
-global io, cmds, controlHandler, newWormHandler, wormDiedHandler, gameStartedHandler, controlHandlerDefault
-controlHandler = controlHandlerDefault
+global io, cmds, controlHandler, newWormHandler, wormDiedHandler, gameStartedHandler, wormSpawnedHandler
 gameStartedHandler = None
 newWormHandler = None
 wormDiedHandler = None
+wormSpawnedHandler = None
 cmds.adminCommandHelp_Preset = None
 cmds.parseAdminCommand_Preset = None
 cmds.userCommandHelp_Preset = None
