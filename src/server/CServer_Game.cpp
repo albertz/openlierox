@@ -586,11 +586,7 @@ void GameServer::WormShoot(CWorm *w)
 			if(tLXOptions->tGameInfo.features[FT_DisableWpnsWhenEmpty]) {
 				Slot->Enabled = false;
 				Slot->Weapon = NULL;
-				// TODO: move that out here
-				CBytestream bs;
-				bs.writeByte(S2C_WORMWEAPONINFO);
-				w->writeWeapons(&bs);
-				cServer->SendGlobalPacket(&bs);			
+				SendWeapons(w);
 			} else
 				Slot->Reloading = true;
 		}
@@ -646,11 +642,7 @@ void GameServer::WormShoot(CWorm *w)
 		if(tLXOptions->tGameInfo.features[FT_DisableWpnsWhenEmpty]) {
 			Slot->Enabled = false;
 			Slot->Weapon = NULL;
-			// TODO: move that out here
-			CBytestream bs;
-			bs.writeByte(S2C_WORMWEAPONINFO);
-			w->writeWeapons(&bs);
-			cServer->SendGlobalPacket(&bs);			
+			SendWeapons(w);
 		} else
 			Slot->Reloading = true;
 	}

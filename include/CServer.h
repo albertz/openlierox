@@ -273,6 +273,7 @@ public:
 	void		SendEmptyWeaponsOnRespawn( CWorm * Worm );
 	bool		SendUpdate();
 	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
+	void		SendWeapons(CWorm *w); // Send weapons of particular worm to everyone
 	void		SendWormTagged(CWorm *w);
 	void		SendTeamScoreUpdate();
 	void		SetWormSpeedFactor(int wormID, float f);

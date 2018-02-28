@@ -1173,11 +1173,7 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 	// NOTE: random weapons for host worms (in case bSameWeaponsAsHostWorm) are handled in local client
 	if(!tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
 		w->GetRandomWeapons();
-		// TODO: move that out here
-		CBytestream bs;
-		bs.writeByte(S2C_WORMWEAPONINFO);
-		w->writeWeapons(&bs);
-		cServer->SendGlobalPacket(&bs);		
+		cServer->SendWeapons(w);
 		return "";
 	}
 	

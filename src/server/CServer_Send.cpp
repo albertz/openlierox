@@ -560,6 +560,20 @@ void GameServer::SendWeapons(CServerConnection* cl)
 			cClients[c].getNetEngine()->SendWeapons();
 }
 
+// Send weapons of particular worm to everyone
+void GameServer::SendWeapons(CWorm* w)
+{
+	if(!w->isUsed())
+		return;
+	if(!w->getWeaponsReady())
+		return;
+
+	CBytestream bs;
+	bs.writeByte(S2C_WORMWEAPONINFO);
+	w->writeWeapons(&bs);
+	SendGlobalPacket(&bs);
+}
+
 ///////////////////
 // Tells all clients that the worm is now tagged
 void GameServer::SendWormTagged(CWorm *w)
