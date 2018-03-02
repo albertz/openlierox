@@ -557,9 +557,9 @@ public:
 
 	bool		getWeaponsReady()		{ return bWeaponsReady; }
 	void		setWeaponsReady(bool _w)	{ bWeaponsReady = _w; }
-	wpnslot_t	*getCurWeapon()			{ return &tWeapons[MIN(4, iCurrentWeapon)]; }
-	int			getCurrentWeapon()		{ return MIN(4, iCurrentWeapon); }
-	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
+	wpnslot_t	*getCurWeapon()			{ return &tWeapons[MIN(iNumWeaponSlots, iCurrentWeapon)]; }
+	int			getCurrentWeapon()		{ return MIN(iNumWeaponSlots, iCurrentWeapon); }
+	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(iNumWeaponSlots, _w); }
 	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
 
 	void		setGameReady(bool _g)		{ bGameReady = _g; }

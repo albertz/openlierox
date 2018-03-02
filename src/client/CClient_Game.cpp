@@ -480,12 +480,9 @@ void CClient::PlayerShoot(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
 
-	if(Slot->Reloading)
-		return;
-
 	if(!Slot->Enabled)
 		return;
-	
+
 	if(!Slot->Weapon) {
 		errors << "PlayerShoot: Slot->Weapon not set. Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
 		return;
@@ -502,6 +499,9 @@ void CClient::PlayerShoot(CWorm *w)
 		}
 		return;
 	}
+
+	if(Slot->Reloading)
+		return;
 
 	if(Slot->LastFire>0) {
 		return;
@@ -1032,6 +1032,17 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
 		CWorm *w = &cRemoteWorms[shot->nWormID];
 		if(!w->isUsed()) return;
+		// Selected weapon for a worm is sent in an unreliable packet,
+		// it may be different from the actual weapon the worm is using.
+		// Since we received the shot data in a reliable packet, use it to select the right weapon.
+		if (w->getCurWeapon()->Weapon != cGameScript.get()->GetWeapons() + shot->nWeapon) {
+			for (int i = 0; i < w->getNumWeaponSlots(); i++) {
+				if (w->getWeapon(i)->Weapon == cGameScript.get()->GetWeapons() + shot->nWeapon) {
+					w->setCurrentWeapon(i);
+					break;
+				}
+			}
+		}
 		// Draw the beam for 0.3 seconds after receiving the packet
 		w->getCurWeapon()->LastFire = 0.3;
 	}
