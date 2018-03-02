@@ -12,16 +12,13 @@ SetWeaponBans("Bonus only")
 
 weaponChoices = [
 	[
-		"Spikeballs", "Larpa", "Doomsday", "Cannon", "Napalm", "Super Shotgun", "Chaingun", "Handgun", "Rifle", "Laser",
+		"Doomsday", "Cannon", "Napalm", "Spikeballs", "Super Shotgun", "Larpa", "Laser", "Minigun", "Rifle",
 	],
 	[
-		"Bazooka", "Bouncy Larpa", "Bouncy Mine", "Explosives", "Flamer", "Gauss Gun", "Minigun", "Mini Rockets", "Winchester", "Zimm",
+		"Bazooka", "Bouncy Larpa", "Bouncy Mine", "Chaingun", "Explosives", "Flamer", "Gauss Gun", "Handgun", "Mini Rockets", "Winchester", "Zimm",
 	],
 	[
-		"Blaster", "Booby Trap", "Crackler", "Dart", "Float Mine", "Hellraider", "Mine", "RB Rampage", "Shotgun", "Uzi",
-	],
-	[
-		"Big Nuke", "Chiquita Bomb", "Cluster bomb", "Grasshopper", "Grenade", "Mini Nuke",
+		"Big Nuke", "Blaster", "Crackler", "Dart", "Float Mine", "Grasshopper", "Hellraider", "Mine", "Mini Nuke", "RB Rampage", "Shotgun", "Uzi",
 	],
 ]
 
@@ -42,25 +39,22 @@ def gameStartedNewGun():
 
 def newWormNewGun(wormid, name):
 	global worms, weaponList, io
-	worms[wormid].newgunCount = 5 # Penalty for joining mid-game
-	weapon = weaponList[5]
-	io.privateMsg(wormid, "New guns: " + ", ".join(weaponList[5:]))
+	worms[wormid].newgunCount = 10 # Penalty for joining mid-game
+	weapon = weaponList[10]
+	io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))
 
 def wormSpawnedNewGun(wormid):
 	global worms, weaponList, io
-	weapon = weaponList[-1]
-	if len(weaponList) > worms[wormid].newgunCount:
-		weapon = weaponList[worms[wormid].newgunCount]
+	weapon = weaponList[worms[wormid].newgunCount % len(weaponList)]
 	io.setWormWeapons(wormid, weapon, weapon, weapon, weapon, weapon)
 
 def wormDiedNewGun(died, killer):
 	global worms, weaponList, io
-	worms[killer].newgunCount += 1
-	weapon = weaponList[-1]
-	if len(weaponList) > worms[killer].newgunCount:
-		weapon = weaponList[worms[killer].newgunCount]
-	io.setWormWeapons(killer, weapon, weapon, weapon, weapon, weapon)
-	#io.privateMsg(killer, "New gun: " + weapon)
+	if killer != died:
+		worms[killer].newgunCount += 1
+		weapon = weaponList[worms[killer].newgunCount % len(weaponList)]
+		io.setWormWeapons(killer, weapon, weapon, weapon, weapon, weapon)
+		#io.privateMsg(killer, "New gun: " + weapon)
 
 gameStartedHandler = gameStartedNewGun
 newWormHandler = newWormNewGun
