@@ -29,20 +29,20 @@ class LevelDecompilerApp : public wxApp
 void DecompileLevel(const wxString& level, const wxString& outpath);
 
 // Basic functions
-int max(const int vals[])
+int max(const int vals[], int len)
 {
 	int res = vals[0];
-	for (int i = 1; i < sizeof(vals)/sizeof(int); i++)
+	for (int i = 1; i < len; i++)
 		if (vals[i] > res) 
 			res = vals[i];
 
 	return res;
 }
 
-bool equal(const int vals[])
+bool equal(const int vals[], int len)
 {
 	int first = vals[0];
-	for (int i = 1; i < sizeof(vals)/sizeof(int); i++)
+	for (int i = 1; i < len; i++)
 		if (vals[i] != first) 
 			return false;
 
@@ -141,7 +141,7 @@ void LevelDecompilerApp::OnInitCmdLine(wxCmdLineParser& parser)
 {
 	static const wxCmdLineEntryDesc cmdLineDesc [] =
 	{
-		{ wxCMD_LINE_PARAM, NULL, NULL, _T("LevelFile.lxl"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_PARAM, NULL, NULL, "LevelFile.lxl", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
 		{ wxCMD_LINE_NONE }
 	};
 
@@ -183,7 +183,7 @@ LevelDecompilerFrame::LevelDecompilerFrame(const wxString& title) : wxFrame(NULL
 	dlgSelectFile = new wxFileDialog(this, wxFileSelectorPromptStr, wxEmptyString, wxEmptyString, 
 					_T("LieroX Levels (*.lxl)|*.lxl|All files (*.*)|*.*"));
 	dlgSaveFile = new wxFileDialog(this, _T("Save to"), wxEmptyString, wxEmptyString, 
-					_T("Bitmap Images (*.bmp)|*.bmp|PNG Images (*.png)|*.png|JPG Images (*.jpg)|*.jpg|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|All files (*.*)|*.*"), wxSAVE|wxOVERWRITE_PROMPT);
+					_T("Bitmap Images (*.bmp)|*.bmp|PNG Images (*.png)|*.png|JPG Images (*.jpg)|*.jpg|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|All files (*.*)|*.*"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
 
 	// Set component positions
