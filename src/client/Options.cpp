@@ -35,7 +35,6 @@
 
 GameOptions	*tLXOptions = NULL;
 NetworkTexts	*networkTexts = NULL;
-Taunts *taunts = NULL;
 
 const std::string DefaultCfgFilename = "cfg/options.cfg";
 
@@ -453,11 +452,6 @@ void ShutdownOptions()
 		delete networkTexts;
 		networkTexts = NULL;
 	}
-
-	if(taunts) {
-		delete taunts;
-		taunts = NULL;
-	}
 }
 
 
@@ -746,45 +740,4 @@ GameOptions::GameOptions() {
 	
 	// TODO: don't hardcode the size here
 	sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes	
-}
-
-bool Taunts::Init() {
-	if(taunts) {
-		warnings << "taunts are already inited; ignoring ..." << endl;
-		return true;
-	}
-
-	taunts = new Taunts;
-
-	return taunts->LoadFromDisc();
-}
-
-bool Taunts::LoadFromDisc()
-{
-	notes << "Loading taunts... ";
-
-	// TODO: use the general INI-parser here
-	const std::string cfg = "cfg/taunts.txt";
-	
-	for( int f=0; f < Taunts::MAX_COUNT; f++ )
-	{
-		texts[f] = "";
-		keyNames[f] = "";
-		keySyms[f] = 0;
-		ReadString (cfg, "Taunts", std::string("Taunt") + itoa(f), texts[f], "");
-		ReadString (cfg, "Taunts", std::string("TauntKey") + itoa(f), keyNames[f], "");
-		if( keyNames[f] != "" )
-			keySyms[f] = keys_t::keySymFromName(keyNames[f]);
-	}
-
-	notes << "DONE" << endl;
-	return true;
-}
-
-std::string Taunts::getTauntForKey(int keySym) const {
-	for( int f=0; f < Taunts::MAX_COUNT; f++ )
-		if( keySyms[f] == keySym )
-			return texts[f];
-	
-	return "";
 }

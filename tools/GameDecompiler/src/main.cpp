@@ -62,15 +62,12 @@
 #include "TaskManager.h"
 #include "CGameMode.h"
 #include "ConversationLogger.h"
-#include "StaticAssert.h"
 #include "Command.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
 #include "DeprecatedGUI/CChatWidget.h"
-
-#include "SkinnedGUI/CGuiSkin.h"
 
 CGameScript	*Game;
 
@@ -274,7 +271,7 @@ int DecompileWeapon(int id)
 	fprintf( fp, "SpeedVar = %f\n", Weap->Proj.SpeedVar);
 	fprintf( fp, "Spread = %f\n", Weap->Proj.Spread);
 	fprintf( fp, "Amount = %i\n", Weap->Proj.Amount);
-	fprintf( fp, "Projectile = p_%s_%08x.txt\n", Weap->Name.c_str(), (int)Weap->Proj.Proj);
+	fprintf( fp, "Projectile = p_%s_%08x.txt\n", Weap->Name.c_str(), (int)(long long)Weap->Proj.Proj);
 	
 	fclose(fp);
 	
@@ -309,7 +306,7 @@ void DecompileProjectile(const proj_t * proj, const char * weaponName)
 {
 	char fname[128];
 
-	sprintf(fname, "p_%s_%08x.txt", weaponName, (int)proj);
+	sprintf(fname, "p_%s_%08x.txt", weaponName, (int)(long long)proj);
 	
 	FILE * fp = fopen(fname, "w");
 	if(!fp)
@@ -509,7 +506,7 @@ void DecompileProjectile(const proj_t * proj, const char * weaponName)
 	{
 	
 		fprintf( fp, "\n[Projectile]\n" );
-		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)childProj->Proj);
+		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)(long long)childProj->Proj);
 		fprintf( fp, "Amount = %i\n", childProj->Amount);
 		fprintf( fp, "Speed = %i\n", childProj->Speed);
 		fprintf( fp, "SpeedVar = %f\n", childProj->SpeedVar);
@@ -525,7 +522,7 @@ void DecompileProjectile(const proj_t * proj, const char * weaponName)
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 
 		fprintf( fp, "\n[ProjectileTrail]\n" );
-		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)proj->Trail.Proj.Proj);
+		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)(long long)proj->Trail.Proj.Proj);
 		fprintf( fp, "Delay = %f\n", proj->Trail.Delay * 1000.0f);
 		fprintf( fp, "UseProjVelocity = %s\n", ( proj->Trail.Proj.UseParentVelocityForSpread ? "true":"false" ));
 		fprintf( fp, "Amount = %i\n", proj->Trail.Proj.Amount);
@@ -614,13 +611,14 @@ void* startFunctionData = NULL;
 
 void ResetQuitEngineFlag() {};
 void SetQuitEngineFlag(const std::string& reason) { };
-bool Warning_QuitEngineFlagSet(const std::string& preText) { };
+bool Warning_QuitEngineFlagSet(const std::string& preText) { return false; };
 #ifndef WIN32
 sigjmp_buf longJumpBuffer;
 #endif
 void ShutdownLieroX() {} ;
 void updateFileListCaches() {};
 void SetCrashHandlerReturnPoint(const char* name) { };
+void setBinaryDirAndName(char* argv0) { };
 
 
 

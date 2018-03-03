@@ -45,6 +45,15 @@ def getSignal():
 def setvar(what, data):
 	SendCommand( "setvar %s \"%s\"" % (str(what), str(data)) )
 
+def setVar(what, data):
+	setvar(what, data)
+
+def setWormWeapons(wormid, weapon1, weapon2, weapon3, weapon4, weapon5):
+	SendCommand( "setWormWeapons %d \"%s\" \"%s\" \"%s\" \"%s\" \"%s\"" % (wormid, weapon1, weapon2, weapon3, weapon4, weapon5) )
+
+def listVars(prefix = ""):
+	return SendCommand( "listVars %s" % (str(prefix)) )
+
 # Use this to make the server quit
 def Quit():
 	SendCommand( "quit" )
@@ -81,6 +90,9 @@ def kickBot(msg = None):
 		SendCommand( "kickbot \"%s\"" % str(msg) )
 	else:
 		SendCommand( "kickbot" )
+
+def kickBots():
+	SendCommand( "kickbots" )
 
 # Suicides all local bots
 def killBots():
@@ -166,9 +178,19 @@ def getVar(var):
 	if len(ret) == 0: # var does not exist
 		return "" # TODO: or exception? 
 	return ret[0]
+
+def getVarHelp(var):
+	ret = SendCommand( "getVarHelp %s" % var )
+	if len(ret) == 0: # var does not exist
+		return ""
+	return ret[0]
 	
 def getGameType():
 	return int(getVar("GameOptions.GameInfo.GameType"))
+
+def isTeamGame():
+	gameType = getGameType()
+	return (gameType == 1) or (gameType == 4) or (gameType == 5) or (gameType == 7)
 
 def getFullFileName(fn):
 	return SendCommand( "getfullfilename \"%s\"" % fn )[0]

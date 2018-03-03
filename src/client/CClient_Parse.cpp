@@ -1385,12 +1385,13 @@ void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
 	CWorm* w = getWorm(client, bs, "CClientNetEngine::ParseWormWeaponInfo", CWorm::skipWeapons);
 	if(!w) return;
 
-	notes << "Client:ParseWormWeaponInfo: ";
+	//notes << "Client:ParseWormWeaponInfo: ";
 	w->readWeapons(bs);
 
 	client->UpdateScoreboard();
-	if (w->getLocal())
+	if (w->getLocal()) {
 		client->bShouldRepaintInfo = true;
+	}
 }
 
 

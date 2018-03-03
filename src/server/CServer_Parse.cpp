@@ -829,7 +829,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 				// If it's a weapon, change the worm's current weapon
 				if (b->getType() == BNS_WEAPON) {
 
-					if (curwpn >= 0 && curwpn < 5) {
+					if (curwpn >= 0 && curwpn < w->getNumWeaponSlots()) {
 						wpnslot_t *wpn = w->getWeapon(curwpn);
 						const weapon_t* oldWeapon = wpn->Weapon;
 						if(b->getWeapon() >= 0 && b->getWeapon() < server->cGameScript->GetNumWeapons()) {

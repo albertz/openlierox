@@ -434,7 +434,7 @@ inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & b
 ///////////////
 // Simply draw the image
 inline void DrawImage(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int x, int y) {
-	SDL_Rect r = { (SDLRect::Type) x, (SDLRect::Type) y, 0, 0 };
+	SDL_Rect r = { (SDLRect::Type) x, (SDLRect::Type) y, (SDLRect::TypeS) bmpSrc->w, (SDLRect::TypeS) bmpSrc->h };
 	DrawImage( bmpDest, bmpSrc, r);
 }
 inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int x, int y) {
@@ -447,6 +447,11 @@ inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & b
 void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 inline void DrawImageAdv_Mirror(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	DrawImageAdv_Mirror(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
+}
+
+void DrawImageAdv_MirrorVertical(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+inline void DrawImageAdv_MirrorVertical(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+	DrawImageAdv_MirrorVertical(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
 }
 
 ////////////////

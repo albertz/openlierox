@@ -391,11 +391,6 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		sAltKey = "";
 	}
 
-	if(modstate.bCtrl && taunts->getTauntForKey( keysym ) != "" ) {
-		sText += taunts->getTauntForKey( keysym );
-		return TXT_ENTER;
-	}
-
 	// No visible character
 	if (c == 0)
 		return TXT_NONE;

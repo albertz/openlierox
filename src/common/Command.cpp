@@ -1588,6 +1588,56 @@ void Cmd_setWormCanAirJump::exec(CmdLineIntf* caller, const std::vector<std::str
 	cServer->SetWormCanAirJump(id, canUse);
 }
 
+COMMAND(setWormWeapons, "force specific weapons for a worm", "wormId weaponName1 weaponName2 weaponName3 weaponName4 weaponName5", 6, 6);
+void Cmd_setWormWeapons::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if (tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if (fail) {
+		printUsage(caller);
+		return;
+	}
+
+	if (!CheckWorm(caller, id, "setWormWeapon")) return;
+
+	CWorm *w = &(cServer->getWorms()[id]);
+
+	for (int slotId = 0; slotId < 5; slotId++) {
+		if (slotId >= w->getNumWeaponSlots()) {
+			continue;
+		}
+		const weapon_t *weapon = NULL;
+		if (params[slotId+1] != "") {
+			weapon = cServer->getGameScript()->FindWeapon(params[slotId+1]);
+			if (!weapon) {
+				printUsage(caller);
+				warnings << "Cannot find weapon " << params[slotId+1] << endl;
+				return;
+			}
+		}
+		wpnslot_t *slot = w->getWeapon(slotId);
+		const weapon_t *oldWeapon = slot->Weapon;
+		if (weapon) {
+			slot->Weapon = weapon;
+			slot->Enabled = true;
+			slot->Charge = 1;
+			slot->Reloading = false;
+		} else {
+			slot->Weapon = NULL;
+			slot->Enabled = false;
+		}
+		// handle worm shoot end if needed
+		if(oldWeapon && slot->Weapon != oldWeapon && w->getWormState()->bShoot)
+			cServer->WormShootEnd(w, oldWeapon);
+	}
+
+	cServer->SendWeapons(w);
+}
+
 COMMAND(authorizeWorm, "authorize worm", "id", 1, 1);
 void Cmd_authorizeWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN) {
@@ -1695,6 +1745,31 @@ void Cmd_getVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	}
 	
 	caller->pushReturnArg(varptr->var.toString());
+}
+
+COMMAND(listVars, "list all variables", "[prefix]", 0, 1);
+void Cmd_listVars::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	std::string prefix = params.size() > 0 ? params[0] : "";
+	for (CScriptableVars::const_iterator it = (prefix == "") ? CScriptableVars::begin() : CScriptableVars::lower_bound(prefix);
+			it != CScriptableVars::end(); it++)
+	{
+		if ( prefix != "" && !strStartsWith(it->first, prefix) )
+			break;
+		caller->pushReturnArg(it->first);
+	}
+}
+
+COMMAND_EXTRA(getVarHelp, "print variable description", "variable", 1, 1, paramCompleters[0] = &autoCompleteVar);
+void Cmd_getVarHelp::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	std::string var = params[0];
+	
+	RegisteredVar* varptr = CScriptableVars::GetVar(var);
+	if( varptr == NULL ) {
+		caller->writeMsg("GetVarHelp: no var with name " + var);
+		return;
+	}
+
+	caller->pushReturnArg(varptr->longDesc != "" ? varptr->longDesc : varptr->shortDesc != "" ? varptr->shortDesc : var);
 }
 
 COMMAND(getFullFileName, "get full filename", "relativefilename", 1, 1);

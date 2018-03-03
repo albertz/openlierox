@@ -35,6 +35,11 @@ bots = {}  # Dictionary of all possible bots
 # Function that controls ded server behavior
 controlHandler = None
 
+gameStartedHandler = None
+newWormHandler = None
+wormDiedHandler = None
+wormSpawnedHandler = None
+
 scriptPaused = False
 
 
@@ -184,6 +189,8 @@ def signalHandler(sig):
 			gameState = GAME_PLAYING
 			sentStartGame = False
 			controlHandler()
+			if gameStartedHandler != None:
+				gameStartedHandler()
 		#TODO: gamestarted && gameloopstart are pretty much duplicates
 		# Or are they? Check.
 		# Same thing for gameloopend and backtolobby
@@ -208,7 +215,7 @@ def signalHandler(sig):
 	return True
 
 def parseNewWorm(wormID, name):
-	global worms
+	global worms, newWormHandler
 
 	name = name.replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
 	exists = False
@@ -268,6 +275,9 @@ def parseNewWorm(wormID, name):
 			return
 	cmds.recheckVote()
 
+	if newWormHandler != None:
+		newWormHandler(wormID, name)
+
 
 def parseWormLeft(sig):
 	global worms, scriptPaused
@@ -325,12 +335,15 @@ def parseChatMessage(sig):
 		cmds.parseUserCommand(wormID,message)
 
 def parseWormDied(sig):
-	global worms
+	global worms, wormDiedHandler
 
 	deaderID = int(sig[1])
 	killerID = int(sig[2])
 	worms[deaderID].Lives -= 1
 	worms[deaderID].Alive = False
+
+	if wormDiedHandler != None:
+		wormDiedHandler(deaderID, killerID)
 
 	if not cfg.RANKING:
 		return
@@ -365,10 +378,13 @@ def parseWormDied(sig):
 			ranking.rank[worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
 
 def parseWormSpawned(sig):
-	global worms
+	global worms, wormSpawnedHandler
 
 	wormID = int(sig[1])
 	worms[wormID].Alive = True
+
+	if wormSpawnedHandler != None:
+		wormSpawnedHandler(wormID)
 
 def parseCustom(sig):
 	if not cmds.parseAdminCommand(-1, "%s%s" % (cfg.ADMIN_PREFIX, str(sig[1:]))):
@@ -577,14 +593,51 @@ if( len(presetCicler.list) == 0 ):
 	presetCicler.list = availablePresets
 random.shuffle(presetCicler.list)
 
-LT_Cicler = StandardCiclerGameVar()
-LT_Cicler.list = [ "100" ]
-LT_Cicler.gameVar = "GameOptions.GameInfo.LoadingTime"
 
-def selectPreset( Preset = None, Level = None, Mod = None, LT = None ):
-	global presetCicler, modCicler, mapCicler, LT_Cicler
+class GameVarCicler(StandardCiclerBase):
+	def __init__(self):
+		StandardCiclerBase.__init__(self)
+		self.gameCount = 0
+		self.savedList = []
+		self.restoreDefaults = []
 
-	#io.messageLog(("selectPreset(): Preset %s Level %s Mod %s LT %s" % (str(Preset), str(Level), str(Mod), str(LT))),io.LOG_WARN)
+	def cicle(self):
+		if self.gameCount > 0:
+			self.gameCount -= 1
+			if self.gameCount <= 0:
+				self.preSelectedList = self.restoreDefaults
+				self.restoreDefaults = []
+				self.savedList = []
+
+		while True:
+			StandardCiclerBase.cicle(self)
+			if len(self.preSelectedList) <= 0:
+				self.preSelectedList = list(self.savedList)
+				return
+
+	def apply(self):
+		if not self.curSelection: return
+		io.setvar(self.curSelection[0], self.curSelection[1])
+
+	def pushSelection(self, selection, gameCount = 10):
+		defaultValue = io.getVar(selection[0])
+		defaultSet = False
+		for (v, d) in self.restoreDefaults:
+			if v == selection[0]:
+				defaultSet = True
+		if not defaultSet:
+			self.restoreDefaults.insert(len(self.restoreDefaults), (selection[0], defaultValue))
+
+		StandardCiclerBase.pushSelection(self, selection)
+		self.savedList = list(self.preSelectedList)
+		self.gameCount = gameCount
+
+gameVarCicler = GameVarCicler()
+
+def selectPreset( Preset = None, Level = None, Mod = None, VarName = None, VarValue = None, VarGameCount = 2 ):
+	global presetCicler, modCicler, mapCicler, gameVarCicler
+
+	#io.messageLog(("selectPreset(): Preset %s Level %s Mod %s" % (str(Preset), str(Level), str(Mod))),io.LOG_WARN)
 
 	msg = ""
 	if Preset:
@@ -604,12 +657,9 @@ def selectPreset( Preset = None, Level = None, Mod = None, LT = None ):
 		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
 		if len(presetCicler.preSelectedList) <= 0:
 			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
-	if LT:
-		LT_Cicler.pushSelection(str(LT))
-		msg += " LT " + str(LT)
-		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
-		if len(presetCicler.preSelectedList) <= 0:
-			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
+	if VarName and VarValue and VarGameCount:
+		gameVarCicler.pushSelection((VarName, VarValue), gameCount = VarGameCount)
+		msg += " " + VarName.replace("GameOptions.GameInfo.", "") + "=" + VarValue
 
 	if gameState != GAME_LOBBY:
 		io.chatMsg( msg.strip() + " will be selected for next game")
@@ -626,8 +676,8 @@ oldGameState = GAME_LOBBY
 def controlHandlerDefault():
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
-	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame
-	global presetCicler, modCicler, mapCicler, LT_Cicler
+	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame, gameStartedHandler
+	global presetCicler, modCicler, mapCicler, gameVarCicler
 	global videoRecorder, videoRecorderSignalTime
 	
 	if scriptPaused:
@@ -643,8 +693,8 @@ def controlHandlerDefault():
 		if oldGameState != GAME_LOBBY:
 			mapCicler.check()
 			modCicler.check()
-			LT_Cicler.check()
 			presetCicler.check()
+			gameVarCicler.check()
 			lobbyEnoughPlayers = False # reset the state
 			lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 			lobbyWaitAfterGame = curTime
@@ -687,20 +737,16 @@ def controlHandlerDefault():
 
 				if lobbyWaitBeforeGame <= curTime and canStart: # Start the game
 
-					if io.getGameType() <= 1:
-						if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
-							setvar("GameOptions.GameInfo.GameType", 1)
-							if not cfg.ALLOW_TEAM_CHANGE:
-								counter = 0
-								for w in worms.values():
-									if w.iID != -1:
-										io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
-										counter += 1
-						else:
-							io.setvar("GameOptions.GameInfo.GameType", 0)
+					if io.isTeamGame():
+						if not cfg.ALLOW_TEAM_CHANGE:
+							counter = 0
+							for w in worms.values():
+								if w.iID != -1:
+									io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
+									counter += 1
 
 					if io.startGame():
-						if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
+						if cfg.ALLOW_TEAM_CHANGE and io.isTeamGame():
 							io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 						sentStartGame = True
 						if cfg.RECORD_VIDEO:

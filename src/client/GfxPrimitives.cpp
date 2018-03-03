@@ -678,6 +678,55 @@ void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 	UnlockSurface(bmpSrc);
 }
 
+void DrawImageAdv_MirrorVertical(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+{
+	// TODO: fix this
+	// Warning: Both surfaces have to have same bpp!
+	if(bmpDest->format->BytesPerPixel != bmpSrc->format->BytesPerPixel) {
+		errors << "DrawImageAdv_MirrorVertical: dst bpp " << bmpDest->format->BytesPerPixel << " != " << " src bpp " << bmpSrc->format->BytesPerPixel << endl;
+		return;
+	}
+
+	// Clipping on source surface
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
+		return;
+
+	// Clipping on dest surface
+	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
+		return;
+
+	int x,y;
+
+	// Lock the surfaces
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + (dy + h - 1)*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels + sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	short bpp = bmpDest->format->BytesPerPixel;
+
+	Uint8 *sp,*tp;
+	for(y = h; y; --y) {
+
+		sp = SrcPix;
+		tp = TrgPix;
+		for(x = w; x; --x) {
+			// Copy the pixel
+			memcpy(tp, sp, bpp);
+			tp += bpp;
+			sp += bpp;
+		}
+
+		SrcPix += bmpSrc->pitch;
+		TrgPix -= bmpDest->pitch;
+	}
+
+	// Unlock em
+	UnlockSurface(bmpDest);
+	UnlockSurface(bmpSrc);
+}
 
 ///////////////////
 // Draws a sprite doubly stretched

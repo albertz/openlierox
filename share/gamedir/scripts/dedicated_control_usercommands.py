@@ -34,7 +34,6 @@ def adminCommandHelp(wormid):
 	io.privateMsg(wormid, "%spreset presetName" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smod modName (or part of name)" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smap mapName" % cfg.ADMIN_PREFIX)
-	io.privateMsg(wormid, "%slt loadingTime" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%steam wormID teamID (0123 or brgy)" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%sstart - start game now" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%sstop - go to lobby" % cfg.ADMIN_PREFIX)
@@ -113,8 +112,6 @@ def parseAdminCommand(wormid,message):
 				io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(io.listMaps()))
 			else:
 				hnd.selectPreset( Level = level )
-		elif cmd == "lt":
-			hnd.selectPreset( LT = int(params[0]) )
 		elif cmd == "start":
 			io.startGame()
 		elif cmd == "stop":
@@ -166,12 +163,12 @@ def userCommandHelp(wormid):
 		io.privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%sranktotal - display the number of players in the ranking" % cfg.USER_PREFIX )
 	if cfg.VOTING:
-		io.privateMsg(wormid, "%skick wormID - add vote to kick player etc" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%smute wormID - add vote" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%smod modName (or part of name) - add vote" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%smap mapName - add vote" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%slt loadingTime - add vote" % cfg.USER_PREFIX)
-		io.privateMsg(wormid, "%sstart or %sgo [mod] [map] - start or restart game" % (cfg.USER_PREFIX, cfg.USER_PREFIX))
+		io.privateMsg(wormid, "%skick wormID" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smute wormID" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smod modName (or part of name)" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%smap mapName" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%sset option value" % cfg.USER_PREFIX)
+		io.privateMsg(wormid, "%sstart or %sgo [mod] [map]" % (cfg.USER_PREFIX, cfg.USER_PREFIX))
 		io.privateMsg(wormid, "%sstop - go to lobby" % cfg.USER_PREFIX)
 		io.privateMsg(wormid, "%sy / %sn - vote yes / no" % (cfg.USER_PREFIX, cfg.USER_PREFIX) )
 	if userCommandHelp_Preset:
@@ -357,9 +354,21 @@ def parseUserCommand(wormid,message):
 				else:
 					addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level.rstrip(".lxl") )
 			
-			if cmd == "lt":
-				addVote( 'hnd.selectPreset( LT = %i )' % int(params[0]), wormid, "Loading time %i" % int(params[0]) )
-			
+			if cmd == "set":
+				name = ""
+				varlistraw = io.listVars("GameOptions.GameInfo.")
+				varlist = [x.replace("GameOptions.GameInfo.", "") for x in varlistraw]
+				for v in varlist:
+					if len(params) > 0 and v.lower().find(params[0].lower()) != -1:
+						name = v
+						break
+				if name == "":
+					io.privateMsg(wormid,"Available options: " + " ".join(varlist))
+				else:
+					fullname = "GameOptions.GameInfo.%s" % name
+					value = " ".join(params[1:]).replace('"', '')
+					addVote( 'hnd.selectPreset( VarName = "%s", VarValue = "%s" )' % (fullname, value), wormid, "Set %s to %s for next 2 games" % (name, value) )
+
 			if cmd == "start" or cmd == "go":
 				cmd = 'io.gotoLobby(); voteCommand = "hnd.lobbyWaitAfterGame = time.time(); hnd.lobbyWaitBeforeGame = time.time()"'
 				msg = "Start game"

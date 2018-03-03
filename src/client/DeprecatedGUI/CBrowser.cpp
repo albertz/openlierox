@@ -1411,11 +1411,13 @@ void CBrowser::WalkNodes(xmlNodePtr node)
 		return;
 	}
 
+#if 0 // Only used for chatbox spam
 	// Newline
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"br"))  {
 		EndLine();
 		return;
 	}
+#endif
 
 	// Common block elements
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"p") || !xmlStrcasecmp(node->name, (xmlChar *)"div")
@@ -1484,6 +1486,7 @@ void CBrowser::WalkNodes(xmlNodePtr node)
 		return;
 	}
 
+#if 0 // Only used for chatbox spam
 	// Horizontal rule
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"hr"))  {
 		if (!tCurrentLine->isEmpty())
@@ -1493,6 +1496,7 @@ void CBrowser::WalkNodes(xmlNodePtr node)
 		EndLine();
 		return;
 	}
+#endif
 
 	// Body
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"body"))  {

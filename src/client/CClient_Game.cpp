@@ -480,17 +480,30 @@ void CClient::PlayerShoot(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
 
+	if(!Slot->Enabled)
+		return;
+
+	if(!Slot->Weapon) {
+		errors << "PlayerShoot: Slot->Weapon not set. Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
+		return;
+	}
+
+	if(Slot->Weapon->Type == WPN_BEAM) {
+		// Beam weapons get processed differently
+		// Beam weapons have no rate of fire, they fire continuously until out of ammo,
+		// but we don't know when they are out of ammo, because the server won't tell us,
+		// so we'll draw it for some short time after each 'shoot' packet from the server
+		if (Slot->LastFire>0) {
+			DrawBeam(w);
+			Slot->LastFire -= tLX->fDeltaTime.seconds();
+		}
+		return;
+	}
+
 	if(Slot->Reloading)
 		return;
 
-	if(Slot->LastFire>0)
-		return;
-
-	if(!Slot->Enabled)
-		return;
-	
-	if(!Slot->Weapon) {
-		errors << "PlayerShoot: Slot->Weapon not set. Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
+	if(Slot->LastFire>0) {
 		return;
 	}
 
@@ -502,12 +515,6 @@ void CClient::PlayerShoot(CWorm *w)
 	// Special weapons get processed differently
 	if(Slot->Weapon->Type == WPN_SPECIAL) {
 		ShootSpecial(w);
-		return;
-	}
-
-	// Beam weapons get processed differently
-	if(Slot->Weapon->Type == WPN_BEAM) {
-		DrawBeam(w);
 		return;
 	}
 
@@ -1025,6 +1032,19 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
 		CWorm *w = &cRemoteWorms[shot->nWormID];
 		if(!w->isUsed()) return;
+		// Selected weapon for a worm is sent in an unreliable packet,
+		// it may be different from the actual weapon the worm is using.
+		// Since we received the shot data in a reliable packet, use it to select the right weapon.
+		if (w->getCurWeapon()->Weapon != cGameScript.get()->GetWeapons() + shot->nWeapon) {
+			for (int i = 0; i < w->getNumWeaponSlots(); i++) {
+				if (w->getWeapon(i)->Weapon == cGameScript.get()->GetWeapons() + shot->nWeapon) {
+					w->setCurrentWeapon(i);
+					break;
+				}
+			}
+		}
+		// Draw the beam for 0.3 seconds after receiving the packet
+		w->getCurWeapon()->LastFire = 0.3;
 	}
 	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
 
@@ -1169,25 +1189,6 @@ void CClient::processChatter()
 		return;
 
     keyboard_t *kb = GetKeyboard();
-
-	// Process taunt keys
-	for(short i=0; i<kb->queueLength; i++) {
-    	const KeyboardEvent& input = kb->keyQueue[i];
-
-		if( input.down && input.state.bCtrl && taunts->getTauntForKey( input.sym ) != "" ) {
-			sChat_Text += taunts->getTauntForKey( input.sym );
-			if( bChat_Typing && bTeamChat )
-				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName() );
-			else
-				cNetEngine->SendText(sChat_Text, cLocalWorms[0]->getName() );
-			sChat_Text = "";
-			bChat_Typing = false;
-			clearHumanWormInputs();
-			if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
-				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
-			return; // TODO: we may lose some chat keys if user typing very fast ;)
-		}
-	}
 
 	// If we're currently typing a message, add any keys to it
 	if(bChat_Typing) {

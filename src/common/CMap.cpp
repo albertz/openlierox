@@ -101,13 +101,6 @@ bool CMap::NewFrom(CMap* map)
 	
 	AdditionalData = map->AdditionalData;
 	
-	bMapSavingToMemory = false;
-	bmpSavedImage = NULL;
-	if( savedPixelFlags )
-		delete[] savedPixelFlags;
-	savedPixelFlags = NULL;
-	savedMapCoords.clear();
-	
 	Created = true;
 
 	return true;
@@ -147,8 +140,6 @@ size_t CMap::GetMemorySize()
 #ifdef _AI_DEBUG
 	res += GetSurfaceMemorySize(bmpDebugImage.get());
 #endif
-	if( bmpSavedImage.get() != NULL )
-		res += GetSurfaceMemorySize(bmpSavedImage.get()) + Width * Height; // Saved pixel flags
 	if( bmpBackImageHiRes.get() )
 		res += GetSurfaceMemorySize(bmpBackImageHiRes.get());
 	return res;
@@ -1270,8 +1261,6 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)bmpImage.get()->clip_rect))
 		return 0;
 			
-	SaveToMemoryInternal( map_x, map_y, w, h );
-
 	// Variables
 	byte bpp = hole.get()->format->BytesPerPixel;
 	
@@ -1537,8 +1526,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 	int clip_w = MIN(sx+w, bmpImage.get()->w);
 	int hole_clip_y = -MIN(sy,(int)0);
 	int hole_clip_x = -MIN(sx,(int)0);
-	
-	SaveToMemoryInternal( clip_x, clip_y, clip_w, clip_h );
 
 	lockFlags();
 
@@ -1703,8 +1690,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 	int clip_w = MIN(sx+w, bmpImage.get()->w);
 	int green_clip_y = -MIN(sy,(int)0);
 	int green_clip_x = -MIN(sx,(int)0);
-	
-	SaveToMemoryInternal( clip_x, clip_y, clip_w, clip_h );
 
 	short screenbpp = getMainPixelFormat()->BytesPerPixel;
 
@@ -2526,6 +2511,8 @@ bool CMap::Load(const std::string& filename)
 	if(LoadFromCache()) {
 		// everything is ok
 		notes << "reusing cached map for " << filename << endl;
+		LoadPostProcess();
+		PostProcessMirroredMap();
 		return true;
 	}
 	
@@ -2552,8 +2539,20 @@ bool CMap::Load(const std::string& filename)
 	bMiniMapDirty = true;
 	Created = true;
     //sRandomLayout.bUsed = false;
-	
-    // Calculate the shadowmap
+
+	LoadPostProcess();
+
+	// Save the map to cache
+	SaveToCache();
+
+	PostProcessMirroredMap();
+
+	return true;
+}
+
+void CMap::LoadPostProcess()
+{
+	// Calculate the shadowmap
 	CalculateShadowMap();
 	
 	// Apply the shadow
@@ -2565,19 +2564,14 @@ bool CMap::Load(const std::string& filename)
 	// Update the minimap
 	UpdateMiniMap(true);
 
-    // Calculate the total dirt count
-    CalculateDirtCount();
+	// Calculate the total dirt count
+	CalculateDirtCount();
 
-    // Calculate the grid
-    calculateGrid();
+	// Calculate the grid
+	calculateGrid();
 
 	// Calculate collision grid
 	calculateCollisionGridArea(0, 0, Width, Height);
-
-	// Save the map to cache
-	SaveToCache();
-
-	return true;
 }
 
 
@@ -2794,57 +2788,6 @@ void CMap::DEBUG_DrawPixelFlags(int x, int y, int w, int h)
 	//SDL_SetClipRect(bmpDrawImage.get(), &oldrect);
 }
 
-void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
-{
-	if( ! bMapSavingToMemory )
-		return;
-	if( bmpSavedImage.get() == NULL || savedPixelFlags == NULL )
-	{
-		errors("Error: CMap::SaveToMemoryInternal(): bmpSavedImage is NULL\n");
-		return;
-	}
-
-	int gridX = x / MAP_SAVE_CHUNK;
-	int gridMaxX = 1 + (x+w) / MAP_SAVE_CHUNK;
-	
-	int gridY = y / MAP_SAVE_CHUNK;
-	int gridMaxY = 1 + (y+h) / MAP_SAVE_CHUNK;
-
-	for( int fy = gridY; fy < gridMaxY; fy++ )
-		for( int fx = gridX; fx < gridMaxX; fx++ )
-			if( savedMapCoords.count( SavedMapCoord_t( fx, fy ) ) == 0 )
-			{
-				savedMapCoords.insert( SavedMapCoord_t( fx, fy ) );
-				
-				int startX = fx*MAP_SAVE_CHUNK;
-				int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
-				int startY = fy*MAP_SAVE_CHUNK;
-				int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
-
-				LOCK_OR_QUIT(bmpSavedImage);
-				lockFlags();
-				
-				if( bmpBackImageHiRes.get() )
-				{
-					LOCK_OR_QUIT(bmpDrawImage);
-					DrawImageAdv( bmpSavedImage.get(), bmpDrawImage, startX*2, startY*2, startX*2, startY*2, sizeX*2, sizeY*2 );
-					UnlockSurface(bmpDrawImage);
-				}
-				else
-				{
-					LOCK_OR_QUIT(bmpImage);
-					DrawImageAdv( bmpSavedImage.get(), bmpImage, startX, startY, startX, startY, sizeX, sizeY );
-					UnlockSurface(bmpImage);
-				}
-
-				for( int y=startY; y<startY+sizeY; y++ )
-					memcpy( savedPixelFlags + y*Width + startX, PixelFlags + y*Width + startX, sizeX*sizeof(uchar) );
-
-				unlockFlags();
-				UnlockSurface(bmpSavedImage);
-			}
-}
-
 
 ///////////////////
 // Shutdown the map
@@ -2887,13 +2830,6 @@ void CMap::Shutdown()
 		Objects = NULL;
 		NumObjects = 0;
 		AdditionalData.clear();
-
-		bMapSavingToMemory = false;
-		bmpSavedImage = NULL;
-		if( savedPixelFlags )
-			delete[] savedPixelFlags;
-		savedPixelFlags = NULL;
-		savedMapCoords.clear();
 	}
 	// Safety
 	else  {
@@ -2911,10 +2847,6 @@ void CMap::Shutdown()
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
 		AdditionalData.clear();
-		bMapSavingToMemory = false;
-		bmpSavedImage = NULL;
-		savedPixelFlags = NULL;
-		savedMapCoords.clear();
 	}
 
 	Created = false;
@@ -3128,4 +3060,163 @@ std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 	std::string name = loader->header().name;
 	delete loader;
 	return name;
+}
+
+void CMap::PostProcessMirroredMap()
+{
+	if (!cClient->getGameLobby()->features[FT_MirroredMap] && !cClient->getGameLobby()->features[FT_MirroredMapTop])
+		return;
+
+	if (cClient->getGameLobby()->features[FT_MirroredMap]) {
+		CMap m;
+		m.Create(Width * 2, Height, Theme.name, MinimapWidth, MinimapHeight); // This erases filename and other data
+
+		if (bmpBackImageHiRes.get())
+			m.bmpBackImageHiRes = gfxCreateSurface(bmpBackImageHiRes->w * 2, bmpBackImageHiRes->h);
+
+		lockFlags();
+		m.lockFlags();
+
+		if ((int)cClient->getGameLobby()->features[FT_MirroredMapSide] == 1) {
+			// Add to the right side
+			DrawImage(m.bmpImage.get(), bmpImage, 0, 0);
+			DrawImageAdv_Mirror(m.bmpImage.get(), bmpImage, 0, 0, bmpImage->w, 0, bmpImage->w, bmpImage->h);
+
+			DrawImage(m.bmpDrawImage.get(), bmpDrawImage, 0, 0);
+			DrawImageAdv_Mirror(m.bmpDrawImage.get(), bmpDrawImage, 0, 0, bmpDrawImage->w, 0, bmpDrawImage->w, bmpDrawImage->h);
+
+			DrawImage(m.bmpBackImage.get(), bmpBackImage, 0, 0);
+			DrawImageAdv_Mirror(m.bmpBackImage.get(), bmpBackImage, 0, 0, bmpBackImage->w, 0, bmpBackImage->w, bmpBackImage->h);
+
+			if (bmpBackImageHiRes.get()) {
+				DrawImage(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, 0, 0);
+				DrawImageAdv_Mirror(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, 0, 0, bmpBackImageHiRes->w, 0, bmpBackImageHiRes->w, bmpBackImageHiRes->h);
+			}
+
+			for (unsigned y = 0; y < Height; y++) {
+				for (unsigned x = 0; x < Width; x++) {
+					m.PixelFlags[y * Width * 2 + x] = PixelFlags[y * Width + x];
+					m.PixelFlags[y * Width * 2 + (Width * 2 - x - 1)] = PixelFlags[y * Width + x];
+				}
+			}
+		} else {
+			// Add to the left side
+			DrawImage(m.bmpImage.get(), bmpImage, bmpImage->w, 0);
+			DrawImageAdv_Mirror(m.bmpImage.get(), bmpImage, 0, 0, 0, 0, bmpImage->w, bmpImage->h);
+
+			DrawImage(m.bmpDrawImage.get(), bmpDrawImage, bmpDrawImage->w, 0);
+			DrawImageAdv_Mirror(m.bmpDrawImage.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage->w, bmpDrawImage->h);
+
+			DrawImage(m.bmpBackImage.get(), bmpBackImage, bmpBackImage->w, 0);
+			DrawImageAdv_Mirror(m.bmpBackImage.get(), bmpBackImage, 0, 0, 0, 0, bmpBackImage->w, bmpBackImage->h);
+
+			if (bmpBackImageHiRes.get()) {
+				DrawImage(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, bmpBackImageHiRes->w, 0);
+				DrawImageAdv_Mirror(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, 0, 0, 0, 0, bmpBackImageHiRes->w, bmpBackImageHiRes->h);
+			}
+
+			for (unsigned y = 0; y < Height; y++) {
+				for (unsigned x = 0; x < Width; x++) {
+					m.PixelFlags[y * Width * 2 + x + Width] = PixelFlags[y * Width + x];
+					m.PixelFlags[y * Width * 2 + (Width - x - 1)] = PixelFlags[y * Width + x];
+				}
+			}
+		}
+
+		Width *= 2;
+		nTotalDirtCount *= 2;
+
+		delete [] PixelFlags;
+		PixelFlags = NULL;
+		unlockFlags();
+		CreatePixelFlags();
+		lockFlags();
+		memcpy(PixelFlags, m.PixelFlags, Width * Height);
+		unlockFlags();
+		m.unlockFlags();
+
+		bmpImage = m.bmpImage;
+		bmpDrawImage = m.bmpDrawImage;
+		bmpBackImage = m.bmpBackImage;
+		bmpShadowMap = m.bmpShadowMap;
+		if (bmpBackImageHiRes.get()) {
+			bmpBackImageHiRes = m.bmpBackImageHiRes;
+		}
+#ifdef _AI_DEBUG
+		bmpDebugImage = m.bmpDebugImage;
+#endif
+	}
+
+	if (cClient->getGameLobby()->features[FT_MirroredMapTop]) {
+		CMap m;
+		m.Create(Width, Height * 2, Theme.name, MinimapWidth, MinimapHeight); // This erases filename and other data
+
+		if (bmpBackImageHiRes.get())
+			m.bmpBackImageHiRes = gfxCreateSurface(bmpBackImageHiRes->w, bmpBackImageHiRes->h * 2);
+
+		lockFlags();
+		m.lockFlags();
+
+		// Add to the right side
+		DrawImage(m.bmpImage.get(), bmpImage, 0, bmpImage->h);
+		DrawImageAdv_MirrorVertical(m.bmpImage.get(), bmpImage, 0, 0, 0, 0, bmpImage->w, bmpImage->h);
+
+		DrawImage(m.bmpDrawImage.get(), bmpDrawImage, 0, bmpDrawImage->h);
+		DrawImageAdv_MirrorVertical(m.bmpDrawImage.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage->w, bmpDrawImage->h);
+
+		DrawImage(m.bmpBackImage.get(), bmpBackImage, 0, bmpBackImage->h);
+		DrawImageAdv_MirrorVertical(m.bmpBackImage.get(), bmpBackImage, 0, 0, 0, 0, bmpBackImage->w, bmpBackImage->h);
+
+		if (bmpBackImageHiRes.get()) {
+			DrawImage(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, 0, bmpBackImageHiRes->h);
+			DrawImageAdv_MirrorVertical(m.bmpBackImageHiRes.get(), bmpBackImageHiRes, 0, 0, 0, 0, bmpBackImageHiRes->w, bmpBackImageHiRes->h);
+		}
+
+		for (unsigned y = 0; y < Height; y++) {
+			for (unsigned x = 0; x < Width; x++) {
+				m.PixelFlags[(Height + y) * Width + x] = PixelFlags[y * Width + x];
+				m.PixelFlags[(Height - y - 1) * Width + x] = PixelFlags[y * Width + x];
+			}
+		}
+
+		Height *= 2;
+		nTotalDirtCount *= 2;
+
+		delete [] PixelFlags;
+		PixelFlags = NULL;
+		unlockFlags();
+		CreatePixelFlags();
+		lockFlags();
+		memcpy(PixelFlags, m.PixelFlags, Width * Height);
+		unlockFlags();
+		m.unlockFlags();
+
+		bmpImage = m.bmpImage;
+		bmpDrawImage = m.bmpDrawImage;
+		bmpBackImage = m.bmpBackImage;
+		bmpShadowMap = m.bmpShadowMap;
+		if (bmpBackImageHiRes.get()) {
+			bmpBackImageHiRes = m.bmpBackImageHiRes;
+		}
+#ifdef _AI_DEBUG
+		bmpDebugImage = m.bmpDebugImage;
+#endif
+	}
+
+	if (GridFlags)
+		delete[] GridFlags;
+	GridFlags = NULL;
+	if (AbsoluteGridFlags)
+		delete[] AbsoluteGridFlags;
+	AbsoluteGridFlags = NULL;
+	createGrid();
+
+	if (CollisionGrid)
+		delete [] CollisionGrid;
+	CollisionGrid = NULL;
+	createCollisionGrid();
+
+	bMiniMapDirty = true;
+
+	LoadPostProcess();
 }

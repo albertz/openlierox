@@ -529,6 +529,7 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 		time = w->serverTime();
 	
 	// Add the shot to ALL the connected clients shootlist
+	w->increaseShotCount();
 	CServerConnection *cl = getClients();
 	for(short i=0; i<MAX_CLIENTS; i++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED)
@@ -585,11 +586,7 @@ void GameServer::WormShoot(CWorm *w)
 			if(tLXOptions->tGameInfo.features[FT_DisableWpnsWhenEmpty]) {
 				Slot->Enabled = false;
 				Slot->Weapon = NULL;
-				// TODO: move that out here
-				CBytestream bs;
-				bs.writeByte(S2C_WORMWEAPONINFO);
-				w->writeWeapons(&bs);
-				cServer->SendGlobalPacket(&bs);			
+				SendWeapons(w);
 			} else
 				Slot->Reloading = true;
 		}
@@ -622,6 +619,7 @@ void GameServer::WormShoot(CWorm *w)
 		time = w->serverTime();
 	
 	// Add the shot to ALL the connected clients shootlist
+	w->increaseShotCount();
 	CServerConnection *cl = getClients();
 	for(short i=0; i<MAX_CLIENTS; i++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED)
@@ -630,7 +628,6 @@ void GameServer::WormShoot(CWorm *w)
 		cl->getShootList()->addShoot(Slot->Weapon->ID, time, speed, (int)Angle, w, false);
 	}
 
-	
 
 	//
 	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
@@ -645,11 +642,7 @@ void GameServer::WormShoot(CWorm *w)
 		if(tLXOptions->tGameInfo.features[FT_DisableWpnsWhenEmpty]) {
 			Slot->Enabled = false;
 			Slot->Weapon = NULL;
-			// TODO: move that out here
-			CBytestream bs;
-			bs.writeByte(S2C_WORMWEAPONINFO);
-			w->writeWeapons(&bs);
-			cServer->SendGlobalPacket(&bs);			
+			SendWeapons(w);
 		} else
 			Slot->Reloading = true;
 	}

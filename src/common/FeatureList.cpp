@@ -90,6 +90,12 @@ Feature featureArray[] = {
 			true,	true,			OLXBetaVersion(0,58,10),	GIG_Weapons, ALT_Advanced,	false, false),
 	Feature("InfiniteMap",			"Infinite map",			"Map has no borders and is tiled together",
 			false,	false,			OLXBetaVersion(0,58,1),		GIG_Other,	ALT_Advanced,	false),
+	Feature("MirroredMap",			"Mirrored map",			"Extend the map by adding a mirrored version",
+			false,	false,			OLXRcVersion(0,58,4),		GIG_Other,	ALT_Advanced,	false),
+	Feature("MirroredMapSide",		"Mirrored map side",	"0 = left side, 1 = right side",
+			0,	0,					Version(),					GIG_Other,	ALT_Advanced,	0,	1, false),
+	Feature("MirroredMapTop",		"Mirrored map on top",	"Extend the map by adding a vertically mirrored version",
+			false,	false,			OLXRcVersion(0,58,4),		GIG_Other,	ALT_Advanced,	false),
 	Feature("WormFriction",			"Worm Friction",		"Friction coefficient for worms (0 = disabled)",
 			0.0f, 0.0f,				OLXBetaVersion(0,58,1),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
 	Feature("WormGroundFriction",	"Worm Ground Friction",		"Friction coefficient when worms are on ground (0.1 = default; 1 = stucked; 0 = no friction)",
@@ -110,7 +116,7 @@ Feature featureArray[] = {
 			false,	false,			Version(),				GIG_Race,	ALT_Advanced,	false),
 	Feature("Race_CheckPointRadius", "Checkpoint radius", "The radius of the checkpoints (bigger value makes race easier)",
 			15.0f, 15.0f,			Version(),				GIG_Race,	ALT_VeryAdvanced, 5.0f, 100.f, true, true),
-	Feature("FT_IndestructibleBonuses", "Indestructible bonuses", "Bonuses will not be destroyed by explosions",
+	Feature("IndestructibleBonuses", "Indestructible bonuses", "Bonuses will not be destroyed by explosions",
 			false, false,			Version(),				GIG_Bonus,	ALT_VeryAdvanced, false, true),
 
 	Feature::Unset()

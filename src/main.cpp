@@ -644,11 +644,6 @@ startpoint:
 		SystemError("Could not load network strings.");
 		return -1;
 	}
-	
-	if(!Taunts::Init()) {
-		SystemError("Could not load taunts.");
-		return -1;
-	}
 
 	CSSParser::test_css();
 

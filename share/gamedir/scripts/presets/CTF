@@ -11,12 +11,14 @@ SetWeaponBans()
 setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 
 # set hide&seek
-setvar("GameOptions.GameInfo.GameType", 5)
+setvar( "GameOptions.GameInfo.GameType", 5 )
 
 setvar( "GameOptions.GameInfo.FillWithBotsTo", 4 )
 setvar( "GameOptions.GameInfo.CTF_AllowRopeForCarrier", 1 ) # That's impossible to play on most maps without rope
 setvar( "GameOptions.GameInfo.CTF_SpeedFactorForCarrier", 0.6 ) # Slow down flag carrier
 
+for x in range(len(io.getWormList()), 4):
+	io.addBot()
 for w in worms.values():
 	io.setWormTeam( w.iID, 0 )
 for f in range(int(len(worms)/2)):

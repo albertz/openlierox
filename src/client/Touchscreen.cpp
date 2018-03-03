@@ -261,6 +261,37 @@ bool GetTouchscreenControlsShown()
 void SetTouchscreenControlsShown(bool shown)
 {
 	SDL_ANDROID_SetScreenKeyboardShown(shown);
+	if (!shown) {
+		// De-press all touchscreen keys
+		oldPressed = false;
+		oldUp = false;
+		oldDown = false;
+		oldLeft = false;
+		oldRight = false;
+		weaponSelectionHoriz = false;
+		weaponSelectionVert = false;
+		KeyboardEvent k;
+		k.down = false;
+		k.ch = 0;
+		k.sym = SDLK_UP;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_DOWN;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_LEFT;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_RIGHT;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_LALT;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_x;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_LCTRL;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_LSHIFT;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_i;
+		HandleCInputs_KeyEvent(k);
+	}
 }
 
 void SetupTouchscreenControls()

@@ -22,6 +22,8 @@ setvar("GameOptions.GameInfo.TimeLimit", -1)
 
 setvar( "GameOptions.GameInfo.FillWithBotsTo", 4 )
 
+for x in range(len(io.getWormList()), 4):
+	io.addBot()
 # Pick one random seeker
 for w in worms.values():
 	io.setWormTeam( w.iID, 0 )

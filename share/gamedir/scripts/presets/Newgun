@@ -1,0 +1,70 @@
+#!/usr/bin/python -u
+
+import random
+
+global worms, io, controlHandler, wormDiedHandler, newWormHandler, gameStartedHandler, wormSpawnedHandler
+
+setvar( "GameOptions.GameInfo.ModName", "Classic" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+SetWeaponBans("Bonus only")
+
+weaponChoices = [
+	[
+		"Doomsday", "Cannon", "Napalm", "Spikeballs", "Super Shotgun", "Larpa", "Laser", "Minigun", "Rifle",
+	],
+	[
+		"Bazooka", "Bouncy Larpa", "Bouncy Mine", "Chaingun", "Explosives", "Flamer", "Gauss Gun", "Handgun", "Mini Rockets", "Winchester", "Zimm",
+	],
+	[
+		"Big Nuke", "Blaster", "Crackler", "Float Mine", "Grasshopper", "Hellraider", "Mine", "Mini Nuke", "RB Rampage", "Shotgun",
+	],
+]
+
+weaponChoicesEndgame = ["Dart", "Uzi",]
+
+weaponList = []
+for i in range(len(weaponChoices)):
+	weaponList.extend(random.sample(weaponChoices[i], 5))
+
+for wormid in worms.keys():
+	io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))
+
+def getWeaponNewGun(newgunCount):
+	global weaponList, weaponChoicesEndgame
+	if newgunCount < len(weaponList):
+		return weaponList[newgunCount]
+	else:
+		return weaponChoicesEndgame[newgunCount % len(weaponChoicesEndgame)]
+
+def gameStartedNewGun():
+	global worms, io, getWeaponNewGun
+	for wormid in worms.keys():
+		worms[wormid].newgunCount = 0
+		io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))
+
+def newWormNewGun(wormid, name):
+	global worms, io, getWeaponNewGun
+	worms[wormid].newgunCount = 10 # Penalty for joining mid-game
+	weapon = getWeaponNewGun(worms[wormid].newgunCount)
+	io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))
+
+def wormSpawnedNewGun(wormid):
+	global worms, io, getWeaponNewGun
+	weapon = getWeaponNewGun(worms[wormid].newgunCount)
+	io.setWormWeapons(wormid, weapon, weapon, weapon, weapon, weapon)
+
+def wormDiedNewGun(died, killer):
+	global worms, io, getWeaponNewGun
+	if killer != died:
+		worms[killer].newgunCount += 1
+		weapon = getWeaponNewGun(worms[killer].newgunCount)
+		io.setWormWeapons(killer, weapon, weapon, weapon, weapon, weapon)
+		#io.privateMsg(killer, "New gun: " + weapon)
+
+gameStartedHandler = gameStartedNewGun
+newWormHandler = newWormNewGun
+wormDiedHandler = wormDiedNewGun
+wormSpawnedHandler = wormSpawnedNewGun
+

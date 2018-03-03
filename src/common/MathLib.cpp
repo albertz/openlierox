@@ -242,8 +242,3 @@ float Parabola::getLength(float pa, float pb)
 
 	return fabs(up - low);
 }
-
-unsigned long SyncedRandom::getRandomSeed()
-{
-	return (unsigned long)time(NULL) + ~ SDL_GetTicks();
-}

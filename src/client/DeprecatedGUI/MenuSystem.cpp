@@ -557,6 +557,7 @@ void Menu_DrawWinButton(SDL_Surface * bmpDest, int x, int y, int w, int h, bool 
 // Show a message box
 MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::string& sText, MessageBoxType type)
 {
+	SetTouchscreenControlsShown(false);
 	if(bDedicated) {
 		hints << "Menu_MessageBox: " << sTitle << ": " << sText << endl;
 		switch(type) {
@@ -1836,9 +1837,9 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 *
 ************************/
 
-std::list<std::string> tUdpMasterServers;
-std::map<size_t, ThreadPoolItem *> tUpdateThreads;
-size_t threadId = 0;
+static std::list<std::string> tUdpMasterServers;
+static std::map<size_t, ThreadPoolItem *> tUpdateThreads;
+static size_t threadId = 0;
 
 struct UdpServerlistData  {
 	CBytestream *bs;

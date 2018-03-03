@@ -331,6 +331,8 @@ private:
 
 	CWormInputHandler* m_inputHandler;
 
+	unsigned	iShotCount; // For server only, used as a random number for CShotList
+
 public:
 	// Used to print damage numbers over the worm head
 	struct DamageReport {		
@@ -555,9 +557,9 @@ public:
 
 	bool		getWeaponsReady()		{ return bWeaponsReady; }
 	void		setWeaponsReady(bool _w)	{ bWeaponsReady = _w; }
-	wpnslot_t	*getCurWeapon()			{ return &tWeapons[MIN(4, iCurrentWeapon)]; }
-	int			getCurrentWeapon()		{ return MIN(4, iCurrentWeapon); }
-	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
+	wpnslot_t	*getCurWeapon()			{ return &tWeapons[MIN(iNumWeaponSlots, iCurrentWeapon)]; }
+	int			getCurrentWeapon()		{ return MIN(iNumWeaponSlots, iCurrentWeapon); }
+	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(iNumWeaponSlots, _w); }
 	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
 
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
@@ -584,6 +586,8 @@ public:
 
     void        incrementDirtCount(int d);
     int         getDirtCount()          { return iDirtCount; }
+
+	int			getNumWeaponSlots() const { return iNumWeaponSlots; }
 
 	void		setTarget(bool _t)			{ bGotTarget = _t; }
 
@@ -629,7 +633,9 @@ public:
 	void reinitInputHandler();
 	
 	std::map< int, DamageReport> & getDamageReport() { return cDamageReport; }
-	
+
+	unsigned	getShotCount() const	{ return iShotCount; }
+	void		increaseShotCount()		{ iShotCount++; }
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorms()

@@ -607,11 +607,13 @@ void CWorm::writeWeapons(CBytestream *bs)
 // Read the weapon list
 void CWorm::readWeapons(CBytestream *bs)
 {
-	notes << "weapons for " << iID << ":" << sName << ": ";
-	
+	bool weaponsChanged = false;
+
 	for(ushort i=0; i<5; i++) {
-		if(i > 0) notes << ", ";
 		int id = bs->readByte();
+
+		const weapon_t *oldWeapon = tWeapons[i].Weapon;
+		bool oldEnabled = tWeapons[i].Enabled;
 
 		tWeapons[i].Weapon = NULL;
 		tWeapons[i].Enabled = false;
@@ -620,26 +622,24 @@ void CWorm::readWeapons(CBytestream *bs)
 			if(id >= 0 && id < cGameScript->GetNumWeapons()) {
 				tWeapons[i].Weapon = cGameScript->GetWeapons() + id;
 				tWeapons[i].Enabled = true;
-				notes << tWeapons[i].Weapon->Name;
 			}
 			else if(id == 255) { // special case to unset weapon
 				tWeapons[i].Weapon = NULL;
 				tWeapons[i].Enabled = false;
-				notes << "UNSET";
 			}
 			else {
 				warnings << "Error when reading weapons (ID is over num weapons)" << endl;
 				tWeapons[i].Weapon = NULL;
 				tWeapons[i].Enabled = false;
-				notes << id << "?";
 			}
 		} else {
 			errors << "readWeapons: cGameScript == NULL" << endl;
 			tWeapons[i].Enabled = false;
-			notes << id;
+		}
+		if (oldWeapon != tWeapons[i].Weapon || oldEnabled != tWeapons[i].Enabled) {
+			weaponsChanged = true;
 		}
 	}
-	notes << endl;
 
 	// Reset the weapons
 	if (cServer->getState() == SVS_PLAYING)  {
@@ -658,6 +658,12 @@ void CWorm::readWeapons(CBytestream *bs)
 	}
 	
 	bWeaponsReady = true;
+
+	if (weaponsChanged) {
+		// Let the weapon name show up for a short moment
+		bForceWeapon_Name = true;
+		fForceWeapon_Time = tLX->currentTime + 0.75f;
+	}
 }
 
 
