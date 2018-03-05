@@ -406,7 +406,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 		int clickDist = getItemHeight();
 		if (abs(iFingerDraggedPos - tMouse->Y) > clickDist) {
 			bFingerDragged = true;
-		};
+		}
 		if (bFingerDragged) {
 			int clicks = (tMouse->Y - iFingerDraggedPos) / clickDist;
 			while (clicks > 0) {
