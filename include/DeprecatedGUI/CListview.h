@@ -146,6 +146,8 @@ public:
 		iGrabbed = 0;
 		bOldStyle = false;
 		iSavedScrollbarPos = 0;
+		bFingerDragged = false;
+		iFingerDraggedPos = 0;
 		iLastChar = 0;
 		bDrawBorder = true;
 		bNeedsRepaint = true;
@@ -196,6 +198,8 @@ private:
 	CScrollbar		cScrollbar;
 	bool			bGotScrollbar;
 	int				iSavedScrollbarPos;
+	bool			bFingerDragged;
+	int				iFingerDraggedPos;
 
 	// Tooltips
 	bool			bTooltipVisible;

@@ -1085,6 +1085,35 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18)
 		return LV_NONE;
 
+	// Finger drag
+	if (tMouse->FirstDown)  {
+		bFingerDragged = false;
+		iFingerDraggedPos = tMouse->Y;
+	}
+
+	if (tMenu->bFingerDrag && tMouse->Down && bGotScrollbar) {
+		int clickDist = tMenu->iListItemHeight;
+		if (abs(iFingerDraggedPos - tMouse->Y) > clickDist) {
+			bFingerDragged = true;
+		};
+		if (bFingerDragged) {
+			int clicks = (tMouse->Y - iFingerDraggedPos) / clickDist;
+			while (clicks > 0) {
+				clicks--;
+				iFingerDraggedPos += clickDist;
+				cScrollbar.MouseWheelUp(tMouse);
+				bNeedsRepaint = true;
+			}
+			while (clicks < 0) {
+				clicks++;
+				iFingerDraggedPos -= clickDist;
+				cScrollbar.MouseWheelDown(tMouse);
+				bNeedsRepaint = true;
+			}
+			return LV_NONE;
+		}
+	}
+
 	//
 	// Column headers
 	//
@@ -1286,6 +1315,11 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {
 		fLastMouseUp = AbsTime();
+		return LV_NONE;
+	}
+
+	if (bFingerDragged) {
+		bFingerDragged = false;
 		return LV_NONE;
 	}
 
