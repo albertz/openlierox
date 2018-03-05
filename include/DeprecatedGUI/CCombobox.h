@@ -163,7 +163,8 @@ public:
 	int		getSorted();
 	void	setUnique(bool _u);
 	bool	getUnique();
-	int getItemHeight();
+	int		getItemHeight();
+	int		getItemHeightExpanded();
 	
 	const cb_item_t* getLastItem();
 };

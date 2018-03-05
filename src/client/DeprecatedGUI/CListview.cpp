@@ -118,7 +118,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 			col = tColumns;
 
 			// Find the max height
-			int h = MAX(tLX->cFont.GetHeight(), item->iHeight);
+			int h = MAX(tMenu->iListItemHeight, item->iHeight);
 
 			if(y + h >= 480) break; // TODO: seems that it crashs without this (test by commenting out the next line)
 			if(y >= iY + iHeight) break;
@@ -361,7 +361,7 @@ lv_item_t* CListview::AddItem(const std::string& sIndex, int iIndex, Color iColo
 	item->tNext = NULL;
 	item->bSelected = false;
 	item->tSubitems = NULL;
-	item->iHeight = tLX->cFont.GetHeight();			// Text height
+	item->iHeight = tMenu->iListItemHeight;			// Text height
 	item->iColour = iColour;
 	item->iBgColour = tLX->clBlack;
 	item->iBgColour.a = SDL_ALPHA_TRANSPARENT;
