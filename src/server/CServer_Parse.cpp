@@ -847,6 +847,13 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 						// handle worm shoot end if needed
 						if(oldWeapon && wpn->Weapon != oldWeapon && w->getWormState()->bShoot)
 							server->WormShootEnd(w, oldWeapon);
+						if (wpn->Weapon != oldWeapon) {
+							for ( int i = 0; i < MAX_CLIENTS; i++ ) {
+								if ( !server->getClients()[i].isConnected() || w->getClient() == &(server->getClients()[i]) )
+									continue;
+								server->SendWeapons(&(server->getClients()[i])); // Tell other clients about weapons of this worm, otherwise laser will not be drawn
+							}
+						}
 					}
 				}
 
