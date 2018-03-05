@@ -396,12 +396,13 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 		}
 	}
 
+	// Finger drag
 	if (tMouse->FirstDown)  {
 		bFingerDragged = false;
 		iFingerDraggedPos = tMouse->Y;
 	}
 
-	if (tMenu->bFingerDrag && tMouse->Down && bDropped) {
+	if (tMenu->bFingerDrag && tMouse->Down && bDropped && bGotScrollbar) {
 		int clickDist = getItemHeight();
 		if (abs(iFingerDraggedPos - tMouse->Y) > clickDist) {
 			bFingerDragged = true;
@@ -456,13 +457,17 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 	}
 
 	// Count the item height
-	int ItemHeight = getItemHeightExpanded();
+	int ItemHeight = getItemHeight();
+
+	int mainbitheight = MAX(ItemHeight, MAX(tLX->cFont.GetHeight()+1, 16));  // 16 - arrow height
 
 	// Go through the items checking for a mouse click
-	int y = iY+ItemHeight+4;
+	int y = iY+mainbitheight+4;
 	int w = iX+iWidth-1;
 	if(bGotScrollbar)
 		w -= 16;
+
+	ItemHeight = getItemHeightExpanded();
 
 	int index = 0;
 	// TODO: this loop is just unneeded here, remove it
