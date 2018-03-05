@@ -358,7 +358,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 		return CMB_NONE;
 	}
 
-	if(tMouse->X >= iX && tMouse->X <= iX+iWidth)
+	if(tMouse->X >= iX && tMouse->X <= iX+iWidth) {
 		if(tMouse->Y >= iY && tMouse->Y < iY+iHeight) {
 
             //
@@ -370,7 +370,6 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 					cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
                 }
             }
-
 
             // Drop or close it
 			iNow = GetTime();
@@ -395,6 +394,32 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 
 
 		}
+	}
+
+	if (tMouse->FirstDown)  {
+		bFingerDragged = false;
+		iFingerDraggedPos = tMouse->Y;
+	}
+
+	if (tMenu->bFingerDrag && tMouse->Down && bDropped) {
+		int clickDist = getItemHeight();
+		if (abs(iFingerDraggedPos - tMouse->Y) > clickDist) {
+			bFingerDragged = true;
+		};
+		if (bFingerDragged) {
+			int clicks = (tMouse->Y - iFingerDraggedPos) / clickDist;
+			while (clicks > 0) {
+				clicks--;
+				iFingerDraggedPos += clickDist;
+				cScrollbar.MouseWheelUp(tMouse);
+			}
+			while (clicks < 0) {
+				clicks++;
+				iFingerDraggedPos -= clickDist;
+				cScrollbar.MouseWheelDown(tMouse);
+			}
+		}
+	}
 
 	return CMB_NONE;
 }
@@ -422,6 +447,11 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 
 	if(tMouse->X >= iX+iWidth-16 && bGotScrollbar && bDropped) {
 		cScrollbar.MouseUp(tMouse, nDown);
+		return CMB_NONE;
+	}
+
+	if (bFingerDragged) {
+		bFingerDragged = false;
 		return CMB_NONE;
 	}
 
