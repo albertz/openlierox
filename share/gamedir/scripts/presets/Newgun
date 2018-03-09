@@ -15,10 +15,10 @@ weaponChoices = [
 		"Doomsday", "Cannon", "Napalm", "Spikeballs", "Super Shotgun", "Larpa", "Laser", "Minigun", "Rifle",
 	],
 	[
-		"Bazooka", "Bouncy Larpa", "Bouncy Mine", "Chaingun", "Explosives", "Flamer", "Gauss Gun", "Handgun", "Mini Rockets", "Winchester", "Zimm",
+		"Bazooka", "Bouncy Larpa", "Bouncy Mine", "Chaingun", "Explosives", "Flamer", "Gauss Gun", "Handgun", "Mini Nuke", "Mini Rockets", "Winchester", "Zimm",
 	],
 	[
-		"Big Nuke", "Blaster", "Crackler", "Float Mine", "Grasshopper", "Hellraider", "Mine", "Mini Nuke", "RB Rampage", "Shotgun",
+		"Big Nuke", "Blaster", "Crackler", "Float Mine", "Grasshopper", "Hellraider", "Mine", "RB Rampage", "Shotgun",
 	],
 ]
 
