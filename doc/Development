@@ -53,27 +53,19 @@ You need the following frameworks (directories) in /Library/Frameworks/:
 	SDL.framework
 	SDL_image.framework
 	SDL_mixer.framework
-	GD.framework
 	FreeType.framework
-	UnixImageIO.framework
-I created a ZIP-package containing all these frameworks. You can download it here: https://sourceforge.net/project/showfiles.php?group_id=180059&package_id=289742
+You will also need libgd, libjpeg and libpng compiled and installed to /usr/local/ (it's easier than making a framework)
+
+You can download and archive with all libraries here: https://sourceforge.net/projects/openlierox/files/dev-package-OLX/
+SDL framework requires X11 headers for compilation, you can get them by installing XQuartz package.
 
 You can also download all the files yourself:
-Download SDL: http://www.libsdl.org/release/SDL-1.2.12.dmg
-Download SDL_image: http://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.6.dmg
-Download SDL_mixer: http://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-1.2.8.dmg
-Download GD, FreeType, UnixImageIO: http://www.kyngchaos.com/staticpages/index.php?page=software-unixport-frameworks
+Download SDL 1.2: https://www.libsdl.org/
+Download SDL_image 1.2: https://www.libsdl.org/projects/SDL_image/release-1.2.html
+Download SDL_mixer 1.2: https://www.libsdl.org/projects/SDL_mixer/release-1.2.html
+Download GD, libjpeg, libpng, and XQuartz from their respective sites.
 
 You can use now the Xcode-projectfile under build/Xcode.
-
-Use the script build/Xcode/fix_binary.sh if you want to distribute your
-builded application-binary. This script fixes some hardcoded library linking
-paths in the binary to relative ones (linked to the frameworks inside the
-application-package).
-
-The script build/Xcode/make_tmp_build.sh creates a ZIP-archiv for
-you under distrib/tmpbuild.
-
 
 
 
