@@ -88,7 +88,7 @@ void NotifyUserOnEvent()
 
 	PlaySoundSample(sfxGeneral.smpNotify);
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && 0 // Deprecated
 	
 	OSErr		err;
 
@@ -136,8 +136,8 @@ void NotifyUserOnEvent()
 
 void ClearUserNotify() {
 	if(bDedicated) return;
-#if defined(__APPLE__)
-	NMRemove( notePtr );	
+#if defined(__APPLE__) && 0
+	NMRemove( notePtr ); // Deprecated
 #elif defined(WIN32)
 #elif defined(X11)
 	struct ClearDemandsAttentionAction: public Action

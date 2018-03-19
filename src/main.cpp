@@ -611,6 +611,11 @@ int main(int argc, char *argv[])
 #endif
 	notes << "Free memory: " << (GetFreeSysMemory() / 1024 / 1024) << " MB" << endl;
 	notes << "Current time: " << GetDateTimeText() << endl;
+	{
+		char cwd[PATH_MAX] = "";
+		getcwd(cwd, sizeof(cwd));
+		notes << "Current directory: " << cwd << endl;
+	}
 	
 	// Initialize the LieroX structure
 	tLX = new lierox_t;

@@ -498,7 +498,7 @@ std::string copy_from_clipboard()
 }
 #endif
 
-#if !defined(DEDICATED_ONLY) && defined(__APPLE__)
+#if !defined(DEDICATED_ONLY) && defined(__APPLE__) && 0 // Deprecated in MacOsX 10.5, not available on 64-bit arch
 #define CLIPBOARD_FUNCS_DEFINED
 
 #include <Carbon/Carbon.h>

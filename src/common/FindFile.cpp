@@ -428,10 +428,10 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 searchpathlist	basesearchpaths;
 void InitBaseSearchPaths() {
 	basesearchpaths.clear();
-#if defined(MACOSX)
+#if defined(__APPLE__)
 	AddToFileList(&basesearchpaths, "${HOME}/Library/Application Support/OpenLieroX");
+	AddToFileList(&basesearchpaths, "Contents/Resources/gamedir");
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, "${BIN}/../Resources/gamedir");
 	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX");
 #elif defined(WIN32)
 	AddToFileList(&basesearchpaths, "${HOME}/OpenLieroX");
@@ -545,7 +545,6 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 	std::string fname;
 	CheckSearchpathForFile checker(path, &fname, searchpath);
 	ForEachSearchpath(checker);
-
 	return fname;
 }
 
