@@ -1,0 +1,15 @@
+
+- Escape HTML tags in chatbox on server side.
+
+- 'Kick player' popup menu cannot be closed by clicking outside of the menu.
+
+- MacOsX: all fonts are broken - possibly SDL_SetClipRect() fails.
+
+- Prevent display surface from changing orientation when app is put to background.
+
+- Prevent server from disclosing IP addresses of clients, because Kurko thinks it's privacy breach.
+
+- PUSH notification service.
+
+- Post to /r/androidgaming.
+
