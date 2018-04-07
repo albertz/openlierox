@@ -70,10 +70,10 @@ public:
 };
 
 // Basic functions
-int max(const int vals[])
+int max(const int vals[], int len)
 {
 	int res = vals[0];
-	for (size_t i = 1; i < sizeof(vals)/sizeof(int); i++)
+	for (size_t i = 1; i < len; i++)
 		if (vals[i] > res)
 			res = vals[i];
 
@@ -231,7 +231,7 @@ void LevelViewerApp::OnInitCmdLine(wxCmdLineParser& parser)
 {
 	static const wxCmdLineEntryDesc cmdLineDesc [] =
 	{
-		{ wxCMD_LINE_PARAM, NULL, NULL, _T("input file"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_PARAM, NULL, NULL, "input file", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
 		{ wxCMD_LINE_NONE }
 	};
 
@@ -302,7 +302,7 @@ LevelViewerFrame::LevelViewerFrame(const wxString& title) : wxFrame(NULL, wxID_A
 	dlgOpenLevel = new wxFileDialog(this, wxFileSelectorPromptStr, wxEmptyString, wxEmptyString,
 					_T("LieroX Levels (*.lxl)|*.lxl|All files (*.*)|*.*"));
 	dlgSavePreview = new wxFileDialog(this, _T("Save to"), wxEmptyString, wxEmptyString,
-					_T("PNG Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|JPG Images (*.jpg)|*.jpg|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|All files (*.*)|*.*"), wxSAVE|wxOVERWRITE_PROMPT);
+					_T("PNG Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|JPG Images (*.jpg)|*.jpg|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|All files (*.*)|*.*"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
 
 	SizeAndRefresh();

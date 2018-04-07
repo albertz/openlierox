@@ -87,6 +87,17 @@ bool Menu_Initialize(bool *game)
 
 	tMenu->iReturnTo = net_internet;
 	tMenu->bForbidConsole = false;
+	tMenu->iListItemHeight = tLX->cFont.GetHeight();
+	tMenu->bFingerDrag = false;
+#ifdef __ANDROID__
+	if (!getenv("ANDROID_TV"))
+#else
+	if (getenv("TEST_TOUCH_UI"))
+#endif
+	{
+		tMenu->bFingerDrag = true;
+		tMenu->iListItemHeight = tLX->cFont.GetHeight() * 2;
+	}
 
 	// Load the images
 	//LOAD_IMAGE(tMenu->bmpMainBack,"data/frontend/background.png");

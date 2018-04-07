@@ -75,26 +75,27 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
         bLastDropped = true;
 
 		// Change the widget's height
+		ItemHeight = getItemHeightExpanded();
 		iHeight = 0;
 		size_t display_count = 6;
 		if (tItems.size() < display_count)
 			display_count = tItems.size();
-		iHeight = (int)(ItemHeight*(display_count+1)+5);
+		iHeight = (int)(ItemHeight * display_count + mainbitheight + 5);
 		// Screen clipping
 		while (iHeight+iY > bmpDest->h && display_count)  {
 			display_count--;
 			bGotScrollbar = true;
 			iHeight = (int)(ItemHeight*(display_count+1)+5);
 		}
-		cScrollbar.Setup(0, iX+iWidth-16, iY+ItemHeight+4, 14, iHeight-mainbitheight-6);
+		cScrollbar.Setup(0, iX+iWidth-16, iY+mainbitheight+4, 14, iHeight-mainbitheight-6);
 
 
-		Menu_DrawBox(bmpDest, iX, iY+ItemHeight+2, iX+iWidth, iY+iHeight);
-		DrawRectFill(bmpDest, iX+2,iY+ItemHeight+4,iX+iWidth-1, iY+iHeight-1,tLX->clBlack);
+		Menu_DrawBox(bmpDest, iX, iY+mainbitheight+2, iX+iWidth, iY+iHeight-1);
+		DrawRectFill(bmpDest, iX+2,iY+mainbitheight+4,iX+iWidth-1, iY+iHeight-2,tLX->clBlack);
 
 		// Draw the items
 		int count=0;
-		int y = iY+ItemHeight+4;
+		int y = iY+mainbitheight+4;
 		int w = iX+iWidth-1;
 		if(bGotScrollbar)  {
 			w-=16;
@@ -190,7 +191,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 	int x=0;
 	if(bArrowDown)
 		x = 15;
-	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,14, iX+iWidth-16,iY+2+(ItemHeight-2-tLX->cFont.GetHeight())/2, 15,14);
+	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,14, iX+iWidth-16,iY+2+(mainbitheight-2-tLX->cFont.GetHeight())/2, 15,14);
 
 	if(!bFocused)  {
 		bDropped = false;
@@ -199,15 +200,6 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 	bArrowDown = false;
 }
-
-
-
-
-
-
-
-
-
 
 static inline int compare_items(const cb_item_t& item1, const cb_item_t& item2) {
 	// Swap the two items?
@@ -361,12 +353,12 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 {
 	bArrowDown = false;
 
-	if((tMouse->X >= iX+iWidth-16 || cScrollbar.getGrabbed()) && bGotScrollbar && bDropped) {
+	if(((tMouse->X >= iX+iWidth-16 && tMouse->Y > iY + getItemHeight()) || cScrollbar.getGrabbed()) && bGotScrollbar && bDropped) {
 		cScrollbar.MouseDown(tMouse, nDown);
 		return CMB_NONE;
 	}
 
-	if(tMouse->X >= iX && tMouse->X <= iX+iWidth)
+	if(tMouse->X >= iX && tMouse->X <= iX+iWidth) {
 		if(tMouse->Y >= iY && tMouse->Y < iY+iHeight) {
 
             //
@@ -378,7 +370,6 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 					cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
                 }
             }
-
 
             // Drop or close it
 			iNow = GetTime();
@@ -403,17 +394,50 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 
 
 		}
+	}
+
+	// Finger drag
+	if (tMouse->FirstDown)  {
+		bFingerDragged = false;
+		iFingerDraggedPos = tMouse->Y;
+	}
+
+	if (tMenu->bFingerDrag && tMouse->Down && bDropped && bGotScrollbar) {
+		int clickDist = getItemHeight();
+		if (abs(iFingerDraggedPos - tMouse->Y) > clickDist) {
+			bFingerDragged = true;
+		}
+		if (bFingerDragged) {
+			int clicks = (tMouse->Y - iFingerDraggedPos) / clickDist;
+			while (clicks > 0) {
+				clicks--;
+				iFingerDraggedPos += clickDist;
+				cScrollbar.MouseWheelUp(tMouse);
+			}
+			while (clicks < 0) {
+				clicks++;
+				iFingerDraggedPos -= clickDist;
+				cScrollbar.MouseWheelDown(tMouse);
+			}
+		}
+	}
 
 	return CMB_NONE;
 }
 
-int CCombobox::getItemHeight() {
+int CCombobox::getItemHeight()
+{
 	int ItemHeight = tLX->cFont.GetHeight() + 1;
 	if(!tItems.empty())
 		if(tItems.begin()->tImage.get())
 			if ((tItems.begin()->tImage.get()->h + 1) > ItemHeight)
 				ItemHeight = MAX(ItemHeight, tItems.begin()->tImage.get()->h + 1);
 	return ItemHeight;
+}
+
+int CCombobox::getItemHeightExpanded()
+{
+	return MAX(tMenu->iListItemHeight, getItemHeight());
 }
 
 ///////////////////
@@ -427,14 +451,23 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 		return CMB_NONE;
 	}
 
+	if (bFingerDragged) {
+		bFingerDragged = false;
+		return CMB_NONE;
+	}
+
 	// Count the item height
 	int ItemHeight = getItemHeight();
 
+	int mainbitheight = MAX(ItemHeight, MAX(tLX->cFont.GetHeight()+1, 16));  // 16 - arrow height
+
 	// Go through the items checking for a mouse click
-	int y = iY+ItemHeight+4;
+	int y = iY+mainbitheight+4;
 	int w = iX+iWidth-1;
 	if(bGotScrollbar)
 		w -= 16;
+
+	ItemHeight = getItemHeightExpanded();
 
 	int index = 0;
 	// TODO: this loop is just unneeded here, remove it

@@ -118,7 +118,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 			col = tColumns;
 
 			// Find the max height
-			int h = MAX(tLX->cFont.GetHeight(), item->iHeight);
+			int h = MAX(tMenu->iListItemHeight, item->iHeight);
 
 			if(y + h >= 480) break; // TODO: seems that it crashs without this (test by commenting out the next line)
 			if(y >= iY + iHeight) break;
@@ -361,7 +361,7 @@ lv_item_t* CListview::AddItem(const std::string& sIndex, int iIndex, Color iColo
 	item->tNext = NULL;
 	item->bSelected = false;
 	item->tSubitems = NULL;
-	item->iHeight = tLX->cFont.GetHeight();			// Text height
+	item->iHeight = tMenu->iListItemHeight;			// Text height
 	item->iColour = iColour;
 	item->iBgColour = tLX->clBlack;
 	item->iBgColour.a = SDL_ALPHA_TRANSPARENT;
@@ -1085,6 +1085,35 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18)
 		return LV_NONE;
 
+	// Finger drag
+	if (tMouse->FirstDown)  {
+		bFingerDragged = false;
+		iFingerDraggedPos = tMouse->Y;
+	}
+
+	if (tMenu->bFingerDrag && tMouse->Down && bGotScrollbar) {
+		int clickDist = tMenu->iListItemHeight;
+		if (abs(iFingerDraggedPos - tMouse->Y) > clickDist) {
+			bFingerDragged = true;
+		}
+		if (bFingerDragged) {
+			int clicks = (tMouse->Y - iFingerDraggedPos) / clickDist;
+			while (clicks > 0) {
+				clicks--;
+				iFingerDraggedPos += clickDist;
+				cScrollbar.MouseWheelUp(tMouse);
+				bNeedsRepaint = true;
+			}
+			while (clicks < 0) {
+				clicks++;
+				iFingerDraggedPos -= clickDist;
+				cScrollbar.MouseWheelDown(tMouse);
+				bNeedsRepaint = true;
+			}
+			return LV_NONE;
+		}
+	}
+
 	//
 	// Column headers
 	//
@@ -1286,6 +1315,11 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {
 		fLastMouseUp = AbsTime();
+		return LV_NONE;
+	}
+
+	if (bFingerDragged) {
+		bFingerDragged = false;
 		return LV_NONE;
 	}
 

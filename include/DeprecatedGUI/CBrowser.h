@@ -286,6 +286,8 @@ private:
 	// Window attributes
 	CScrollbar				cScrollbar;
 	bool					bUseScroll;
+	bool					bFingerDragged;
+	int						iFingerDraggedPos;
 
 	// Other
 	SmartPointer<SDL_Surface>	bmpBuffer;

@@ -253,6 +253,8 @@ void CBrowser::Create()
 
 	bUseScroll = false;
 	bNeedsRender = true;
+	bFingerDragged = false;
+	iFingerDraggedPos = 0;
 
 	// Setup the scrollbar
 	cScrollbar.Create();
@@ -569,6 +571,35 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 		return BRW_NONE;
 	}
 
+	// Finger drag
+	if (tMouse->FirstDown)  {
+		bFingerDragged = false;
+		iFingerDraggedPos = tMouse->Y;
+	}
+
+	if (tMenu->bFingerDrag && tMouse->Down && bUseScroll) {
+		int clickDist = DEFAULT_LINE_HEIGHT;
+		if (abs(iFingerDraggedPos - tMouse->Y) > clickDist) {
+			bFingerDragged = true;
+		}
+		if (bFingerDragged) {
+			int clicks = (tMouse->Y - iFingerDraggedPos) / clickDist;
+			while (clicks > 0) {
+				clicks--;
+				iFingerDraggedPos += clickDist;
+				if( cScrollbar.MouseWheelUp(tMouse) == SCR_CHANGE )
+					bNeedsRender = true;
+			}
+			while (clicks < 0) {
+				clicks++;
+				iFingerDraggedPos -= clickDist;
+				if( cScrollbar.MouseWheelDown(tMouse) == SCR_CHANGE )
+					bNeedsRender = true;
+			}
+			return BRW_NONE;
+		}
+	}
+
 	MousePosToCursorPos(tMouse->X, tMouse->Y, iCursorColumn, iCursorLine);
 
 	// Copy to clipboard with 2-nd or 3-rd mouse button
@@ -670,6 +701,11 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 	{
 		cScrollbar.MouseUp(tMouse, nDown);
 		bNeedsRender = true; // Always redraw, scrollbar may change it's image
+		return BRW_NONE;
+	}
+
+	if (bFingerDragged) {
+		bFingerDragged = false;
 		return BRW_NONE;
 	}
 

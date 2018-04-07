@@ -83,6 +83,8 @@ public:
 		iKeySelectedItem = -1;
 		iSortDirection = SORT_NONE;
 		bUnique = false;
+		bFingerDragged = false;
+		iFingerDraggedPos = 0;
 		iType = wid_Combobox;
 	}
 
@@ -97,6 +99,8 @@ private:
 	bool			bDropped;
 	bool			bArrowDown;
     bool			bLastDropped;
+	bool			bFingerDragged;
+	int				iFingerDraggedPos;
 	AbsTime			iDropTime;
 	AbsTime			iNow;
 	int				iKeySelectedItem;
@@ -163,7 +167,8 @@ public:
 	int		getSorted();
 	void	setUnique(bool _u);
 	bool	getUnique();
-	int getItemHeight();
+	int		getItemHeight();
+	int		getItemHeightExpanded();
 	
 	const cb_item_t* getLastItem();
 };

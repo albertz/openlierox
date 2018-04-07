@@ -314,6 +314,8 @@ class menu_t { public:
 	std::string		sSavedChatText;
 	CWorm			sLocalPlayers[MAX_PLAYERS];
 	bool			bForbidConsole;  // Don't show console
+	int				iListItemHeight;
+	bool			bFingerDrag;
 
 	// Map Editor
 	int				iEditMode;
