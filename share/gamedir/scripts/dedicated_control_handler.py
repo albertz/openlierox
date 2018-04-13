@@ -720,7 +720,7 @@ def controlHandlerDefault():
 
 		if lobbyWaitAfterGame <= curTime:
 
-			if not lobbyEnoughPlayers and lobbyWaitGeneral <= curTime:
+			if len(worms) < cfg.MIN_PLAYERS and lobbyWaitGeneral <= curTime:
 				lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
