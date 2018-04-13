@@ -14,5 +14,3 @@
 - PUSH notification service.
 
 - Post to /r/androidgaming.
-
-- Ded script auto-accepts vote after a timeout.
