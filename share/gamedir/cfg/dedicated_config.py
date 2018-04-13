@@ -10,21 +10,21 @@ SERVER_PORT = 23400 # What port to start server on, 23400 is the default
 # Where to log what is happening
 LOG_FILE = "dedicated_control.log"
 
-MIN_PLAYERS = 1
+MIN_PLAYERS = 2
 MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players." % (MIN_PLAYERS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 FILL_WITH_BOTS_TO = 0 # Fill server with bots if noone playing, set to 2 to get 1 bot with a single human player
 
-WAIT_AFTER_GAME = 0 # Seconds to wait in lobby after round finished
-WAIT_BEFORE_GAME = 0 # Seconds to wait in lobby before next round, will give some message
+WAIT_AFTER_GAME = 30 # Seconds to wait in lobby after round finished
+WAIT_BEFORE_GAME = 5 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
 import dedicated_control_io as io # control handler
 
 GAME_LIVES = -2
-GAME_MAX_KILLS = int(io.getVar("GameOptions.GameInfo.KillLimit"))
-GAME_MAX_TIME = float(io.getVar("GameOptions.GameInfo.TimeLimit"))
+GAME_MAX_KILLS = 15
+GAME_MAX_TIME = 15
 WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTime"))
 
 # Note: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
