@@ -123,10 +123,12 @@ static bool timerSystem_inited = false;
 
 
 static void Timer_handleEvent(InternTimerEventData data);
+static SDL_mutex* TimerGlobalMutex = NULL;
 
 static void InitTimerSystem() {
 	if(timerSystem_inited) return;
 	onInternTimerSignal.handler() = getEventHandler(&Timer_handleEvent);
+	TimerGlobalMutex = SDL_CreateMutex();
 	timerSystem_inited = true;
 }
 
@@ -200,7 +202,14 @@ struct TimerData {
 		
 		thread = threadPool->start(new TimerHandler(this), name + " timer");
 	}
-	
+
+	void stopTimerNoLock() {
+		if (timer) {
+			timer->m_running = false;
+			timer->m_lastData = NULL;
+			timer = NULL;
+		}
+	}
 };
 
 // Global list that holds info about headless timers
@@ -312,9 +321,10 @@ bool Timer::running() { return m_running; }
 bool Timer::start() 
 {
 	// Stop if running
-	if (m_running)
-		stop();
+	stop();
 	
+	SDL_mutexP(TimerGlobalMutex);
+
 	// Copy the info to timer data structure and run the timer
 	TimerData* data = new TimerData;
 	m_lastData = data;
@@ -330,10 +340,12 @@ bool Timer::start()
 		warnings << "unnamed timer is started" << endl;
 		data->name = "unnamed";
 	}
-	
-	data->startThread();
 
 	m_running = true;
+	data->startThread();
+
+	SDL_mutexV(TimerGlobalMutex);
+
 	return true;
 }
 
@@ -341,6 +353,8 @@ bool Timer::start()
 // Starts the timer without pointing at "this" object (it means the timer object can be a temporary local variable)
 bool Timer::startHeadless()
 {
+	SDL_mutexP(TimerGlobalMutex);
+
 	// Copy the info to timer data structure and run the timer
 	TimerData* data = new TimerData;
 	data->timer = NULL;
@@ -363,7 +377,9 @@ bool Timer::startHeadless()
 	}
 	
 	data->startThread();
-	
+
+	SDL_mutexV(TimerGlobalMutex);
+
 	return true;
 }
 
@@ -371,16 +387,21 @@ bool Timer::startHeadless()
 // Stops the timer
 void Timer::stop()
 {
+	SDL_mutexP(TimerGlobalMutex);
 	// Already stopped
-	if(!m_running) return;
+	if(!m_running) {
+		SDL_mutexV(TimerGlobalMutex);
+		return;
+	}
 	
 	SDL_mutexP(m_lastData->mutex);
+	m_running = false;
 	m_lastData->breakThread(); // it will be removed in the last event
 	m_lastData->timer = NULL;
 	SDL_mutexV(m_lastData->mutex);
-	
+
 	m_lastData = NULL;
-	m_running = false;
+	SDL_mutexV(TimerGlobalMutex);
 }
 
 
@@ -397,6 +418,7 @@ static void Timer_handleEvent(InternTimerEventData data)
 	
 	// Run the client function (if no quitSignal) and quit the timer if it returns false
 	// Also quit if we got last event signal
+	bool globalMutexLocked = false;
 	SDL_mutexP(timer_data->mutex);
 	if( !timer_data->quitSignal ) {
 		Event<Timer::EventData>::HandlerList handlers = timer_data->timer ? timer_data->timer->onTimer.handler().get() : timer_data->onTimerHandler;
@@ -406,20 +428,18 @@ static void Timer_handleEvent(InternTimerEventData data)
 
 		Event<Timer::EventData>::callHandlers(handlers, eventData);
 		
+		SDL_mutexP(TimerGlobalMutex);
+		globalMutexLocked = true;
 		SDL_mutexP(timer_data->mutex);
-		if( !timer_data->quitSignal && !shouldContinue ) {
-			if(timer_data->timer) { // No headless timer => call stop() to handle intern state correctly
-				SDL_mutexV(timer_data->mutex);
-				timer_data->timer->stop();
-				SDL_mutexP(timer_data->mutex);
-			}
-			
-			// just to be sure; does not hurt
+		if( !shouldContinue ) {
+			timer_data->stopTimerNoLock();
 			timer_data->breakThread();
 		}
 	}
 	SDL_mutexV(timer_data->mutex);
-	
+	if (globalMutexLocked)
+		SDL_mutexV(TimerGlobalMutex);
+
 	if(data.lastEvent)  { // last-event-signal
 		// we can delete here as we have ensured that this is realy the last event
 		delete timer_data;
