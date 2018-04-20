@@ -120,6 +120,8 @@ void Menu_Net_JoinShutdown()
 
 
 CGuiLayout cConnecting;
+Timer *cConnectingScreenUpdate = NULL;
+
 enum {
 	cm_Cancel=0
 };
@@ -138,12 +140,16 @@ bool Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 	cConnecting.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),	cm_Cancel, 	25, 440, 75,15);
 
     Menu_redrawBufferRect(0, 0, 640, 480);
+	if (!cConnectingScreenUpdate)
+		cConnectingScreenUpdate = new Timer("Connecting...", null, NULL, 250, true);
+	//cConnectingScreenUpdate->start();
 
 	return true;
 }
 
 void Menu_Net_JoinConnectionShutdown()
 {
+	//cConnectingScreenUpdate->stop();
 	cConnecting.Shutdown();
 }
 
@@ -157,7 +163,8 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 	Menu_redrawBufferRect(0,180,640,tLX->cFont.GetHeight());
 
 	// Process the client frame
-	tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 180, tLX->clNormalLabel, "Connecting to " + cClient->getServerAddr_HumanReadable());
+	const char *dots = "..." + int(tLX->currentTime.milliseconds() * 4 / 1000) % 3;
+	tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 180, tLX->clNormalLabel, "Connecting to " + cClient->getServerAddr_HumanReadable() + dots);
 	cClient->Frame();
 
 
