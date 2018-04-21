@@ -350,6 +350,7 @@ bool Timer::startHeadless()
 
 	// Copy the info to timer data structure and run the timer
 	TimerData* data = new TimerData;
+	//printf("%s: %p: data %p\n", __FUNCTION__, this, data);
 	data->timer = NULL;
 	data->name = name;
 	data->onTimerHandler = onTimer.handler().get();
