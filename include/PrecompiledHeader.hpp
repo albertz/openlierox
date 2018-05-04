@@ -127,7 +127,6 @@
 #include "ThreadPool.h"
 #include "ThreadVar.h"
 #include "Timer.h"
-#include "TSVar.h"
 #include "types.h"
 #include "Unicode.h"
 #include "UploadSpeedTest.h"

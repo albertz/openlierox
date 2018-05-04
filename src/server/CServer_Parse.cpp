@@ -1970,7 +1970,9 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	w = cWorms;
 	for (p = 0; p < MAX_WORMS; p++, w++)  {
 		if (w->isUsed())  {
-			std::string addr;
+			std::string addr = "0.0.0.0";
+			// Disabled for privacy reasons
+			/*
 			if (NetAddrToString(w->getClient()->getChannel()->getAddress(), addr))  {
 				size_t pos = addr.find(':');
 				if (pos != std::string::npos)
@@ -1981,6 +1983,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 
 			if (addr.size() == 0)
 				addr = "0.0.0.0";
+			*/
 			bs.writeString(addr);
 		}
 	}

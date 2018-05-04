@@ -119,7 +119,9 @@ void Menu_Net_JoinShutdown()
 */
 
 
-CGuiLayout cConnecting;
+static CGuiLayout cConnecting;
+static Timer *cConnectingScreenUpdate = NULL;
+
 enum {
 	cm_Cancel=0
 };
@@ -138,12 +140,16 @@ bool Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 	cConnecting.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),	cm_Cancel, 	25, 440, 75,15);
 
     Menu_redrawBufferRect(0, 0, 640, 480);
+	if (!cConnectingScreenUpdate)
+		cConnectingScreenUpdate = new Timer("Connecting...", null, NULL, 250, false);
+	cConnectingScreenUpdate->start();
 
 	return true;
 }
 
 void Menu_Net_JoinConnectionShutdown()
 {
+	cConnectingScreenUpdate->stop();
 	cConnecting.Shutdown();
 }
 

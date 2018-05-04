@@ -133,8 +133,8 @@ public:
 	void stop();
 	
 private:
-	bool m_running;
 	TimerData* m_lastData;	// it's TimerData* intern
+	friend struct TimerData;
 };
 
 void InitializeTimers();

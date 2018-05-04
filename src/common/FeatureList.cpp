@@ -81,7 +81,7 @@ Feature featureArray[] = {
 	Feature("RelativeAirJumpDelay",	"Delay for relative air jumps",	"How fast can you do air-jumps",
 			0.7f,	0.7f,			Version(),				GIG_Other,	ALT_VeryAdvanced,	0.0f, 	5.0f),
 	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
-			true,	true,			OLXBetaVersion(0,58,1),		GIG_Weapons, ALT_Advanced,	true, true),
+			false,	false,			OLXBetaVersion(0,58,1),		GIG_Weapons, ALT_Advanced,	true, true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
 			true,	true,			OLXBetaVersion(8),		GIG_Advanced, ALT_Advanced,	true),
 	Feature("DisableWpnsWhenEmpty",	"Disable weapons when empty", "When a weapon got uncharged, it got disabled and you have to catch a bonus (be sure that you have bonuses activated). This is usefull in games like Race.",

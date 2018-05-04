@@ -1,6 +1,6 @@
 #!/usr/bin/python -u
 
-setvar( "GameOptions.GameInfo.LevelName", "LieroFactory(Revisited).lxl" )
+#setvar( "GameOptions.GameInfo.LevelName", "LieroFactory(Revisited).lxl" )
 
 setvar( "GameOptions.GameInfo.ModName", "Classic" )
 

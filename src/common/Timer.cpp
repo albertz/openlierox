@@ -122,13 +122,7 @@ Event<InternTimerEventData> onInternTimerSignal;
 static bool timerSystem_inited = false;
 
 
-static void Timer_handleEvent(InternTimerEventData data);
-
-static void InitTimerSystem() {
-	if(timerSystem_inited) return;
-	onInternTimerSignal.handler() = getEventHandler(&Timer_handleEvent);
-	timerSystem_inited = true;
-}
+static SDL_mutex* TimerGlobalMutex = NULL;
 
 struct TimerData;
 static void RemoveTimerFromGlobalList(TimerData *data);
@@ -200,8 +194,16 @@ struct TimerData {
 		
 		thread = threadPool->start(new TimerHandler(this), name + " timer");
 	}
-	
+
+	static void handleEvent(InternTimerEventData data);
 };
+
+static void InitTimerSystem() {
+	if(timerSystem_inited) return;
+	onInternTimerSignal.handler() = getEventHandler(&TimerData::handleEvent);
+	TimerGlobalMutex = SDL_CreateMutex();
+	timerSystem_inited = true;
+}
 
 // Global list that holds info about headless timers
 // Used to make sure there are no memory leaks
@@ -261,26 +263,26 @@ static void RemoveTimerFromGlobalList(TimerData *data)
 // Constructors
 Timer::Timer() : 
 	name(""), userData(NULL), interval(1000),
-	once(false), m_running(false), m_lastData(NULL) {
+	once(false), m_lastData(NULL) {
 	InitTimerSystem();
 }
 
 Timer::Timer(const std::string& nam, Null, void* dat, Uint32 t, bool o) :
 	name(nam), userData(dat), interval(t),
-	once(o), m_running(false), m_lastData(NULL) {
+	once(o), m_lastData(NULL) {
 	InitTimerSystem();
 }
 
 Timer::Timer(const std::string& nam, void (*fct)(EventData dat), void* dat, Uint32 t, bool o) :
 	name(nam), userData(dat), interval(t),
-	once(o), m_running(false), m_lastData(NULL) {
+	once(o), m_lastData(NULL) {
 	onTimer.handler() = getEventHandler(fct);
 	InitTimerSystem();
 }
 
 Timer::Timer(const std::string& nam, Ref<Event<EventData>::Handler> hndl, void* dat, Uint32 t, bool o) :
 	name(nam), userData(dat), interval(t),
-	once(o), m_running(false), m_lastData(NULL) {
+	once(o), m_lastData(NULL) {
 	onTimer.handler() = hndl;
 	InitTimerSystem();
 }
@@ -305,19 +307,21 @@ Timer::~Timer()
 
 /////////////////
 // Returns true if this timer is running
-bool Timer::running() { return m_running; }
+bool Timer::running() { return m_lastData != NULL; }
 
 ////////////////
 // Starts the timer
 bool Timer::start() 
 {
 	// Stop if running
-	if (m_running)
-		stop();
+	stop();
 	
+	SDL_mutexP(TimerGlobalMutex);
+
 	// Copy the info to timer data structure and run the timer
 	TimerData* data = new TimerData;
 	m_lastData = data;
+	//printf("%s: %p: m_lastData %p\n", __FUNCTION__, this, m_lastData);
 	
 	data->timer = this;
 	data->name = name;
@@ -330,10 +334,11 @@ bool Timer::start()
 		warnings << "unnamed timer is started" << endl;
 		data->name = "unnamed";
 	}
-	
+
 	data->startThread();
 
-	m_running = true;
+	SDL_mutexV(TimerGlobalMutex);
+
 	return true;
 }
 
@@ -341,8 +346,11 @@ bool Timer::start()
 // Starts the timer without pointing at "this" object (it means the timer object can be a temporary local variable)
 bool Timer::startHeadless()
 {
+	SDL_mutexP(TimerGlobalMutex);
+
 	// Copy the info to timer data structure and run the timer
 	TimerData* data = new TimerData;
+	//printf("%s: %p: data %p\n", __FUNCTION__, this, data);
 	data->timer = NULL;
 	data->name = name;
 	data->onTimerHandler = onTimer.handler().get();
@@ -363,7 +371,9 @@ bool Timer::startHeadless()
 	}
 	
 	data->startThread();
-	
+
+	SDL_mutexV(TimerGlobalMutex);
+
 	return true;
 }
 
@@ -371,23 +381,27 @@ bool Timer::startHeadless()
 // Stops the timer
 void Timer::stop()
 {
+	SDL_mutexP(TimerGlobalMutex);
 	// Already stopped
-	if(!m_running) return;
-	
-	SDL_mutexP(m_lastData->mutex);
+	if (!running()) {
+		SDL_mutexV(TimerGlobalMutex);
+		return;
+	}
+	//printf("%s: %p: m_lastData %p\n", __FUNCTION__, this, m_lastData);
+	SDL_mutex* dataMutex = m_lastData->mutex;
+	SDL_mutexP(dataMutex);
 	m_lastData->breakThread(); // it will be removed in the last event
 	m_lastData->timer = NULL;
-	SDL_mutexV(m_lastData->mutex);
-	
 	m_lastData = NULL;
-	m_running = false;
+	SDL_mutexV(dataMutex);
+	SDL_mutexV(TimerGlobalMutex);
 }
 
 
 
 ///////////////
 // Handle the timer event, called from HandleNextEvent
-static void Timer_handleEvent(InternTimerEventData data)
+void TimerData::handleEvent(InternTimerEventData data)
 {
 	TimerData* timer_data = data.data;
 	if(timer_data == NULL) {
@@ -406,22 +420,23 @@ static void Timer_handleEvent(InternTimerEventData data)
 
 		Event<Timer::EventData>::callHandlers(handlers, eventData);
 		
+		SDL_mutexP(TimerGlobalMutex);
 		SDL_mutexP(timer_data->mutex);
-		if( !timer_data->quitSignal && !shouldContinue ) {
-			if(timer_data->timer) { // No headless timer => call stop() to handle intern state correctly
-				SDL_mutexV(timer_data->mutex);
-				timer_data->timer->stop();
-				SDL_mutexP(timer_data->mutex);
+		if (data.lastEvent) {
+			//printf("%s: timer_data %p timer %p stop %d\n", __FUNCTION__, timer_data, timer_data->timer, timer_data->timer ? (timer_data->timer->m_lastData == timer_data) : 0);
+			if (timer_data->timer && timer_data->timer->m_lastData == timer_data) {
+				timer_data->timer->m_lastData = NULL;
+				timer_data->timer = NULL;
 			}
-			
-			// just to be sure; does not hurt
 			timer_data->breakThread();
 		}
+		SDL_mutexV(TimerGlobalMutex);
 	}
 	SDL_mutexV(timer_data->mutex);
-	
+
 	if(data.lastEvent)  { // last-event-signal
 		// we can delete here as we have ensured that this is realy the last event
+		//printf("%s: delete timer_data %p\n", __FUNCTION__, timer_data);
 		delete timer_data;
 	}
 }

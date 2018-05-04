@@ -339,7 +339,7 @@ def parseUserCommand(wormid,message):
 							mod = m
 							break
 					if mod == "":
-						io.privateMsg(wormid,"Invalid mod, available mods: " + ", ".join(hnd.availablePresets) + ", ".join(io.listMods()))
+						io.privateMsg(wormid,"Invalid mod, available mods: " + ", ".join(hnd.availablePresets) + ", " + ", ".join(io.listMods()))
 					else:
 						addVote( 'hnd.selectPreset( Mod = "%s" )' % mod, wormid, "Mod %s" % mod )
 			
@@ -358,10 +358,29 @@ def parseUserCommand(wormid,message):
 				name = ""
 				varlistraw = io.listVars("GameOptions.GameInfo.")
 				varlist = [x.replace("GameOptions.GameInfo.", "") for x in varlistraw]
+				varlist.remove("AllowConnectDuringGame")
+				varlist.remove("AllowEmptyGames")
+				varlist.remove("AllowWeaponsChange")
+				varlist.remove("ImmediateStart")
+				varlist.remove("MaxPlayers")
+				varlist.remove("NewNetEngine")
+				varlist.remove("ScreenShaking")
+				varlist.remove("WeaponSelectionMaxTime")
+				aliases = {
+							"MaxKills": "KillLimit",
+							"MaxScore": "KillLimit",
+							"MaxLives": "Lives",
+							"MaxTime": "TimeLimit"
+							}
 				for v in varlist:
 					if len(params) > 0 and v.lower().find(params[0].lower()) != -1:
 						name = v
 						break
+				if name == "":
+					for v in aliases.keys():
+						if len(params) > 0 and v.lower().find(params[0].lower()) != -1:
+							name = aliases[v]
+							break
 				if name == "":
 					io.privateMsg(wormid,"Available options: " + " ".join(varlist))
 				else:
@@ -389,7 +408,7 @@ def parseUserCommand(wormid,message):
 								mod = m
 								break
 						if mod == "":
-							io.privateMsg(wormid, "Invalid mod, available mods: " + ", ".join(hnd.availablePresets) + ", ".join(io.listMods()))
+							io.privateMsg(wormid, "Invalid mod, available mods: " + ", ".join(hnd.availablePresets) + ", " + ", ".join(io.listMods()))
 							cmd = ""
 						else:
 							cmd += '; hnd.selectPreset( Mod = "%s" )' % mod
