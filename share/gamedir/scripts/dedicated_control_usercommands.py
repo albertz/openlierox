@@ -91,7 +91,7 @@ def parseAdminCommand(wormid,message):
 			if preset == -1:
 				io.privateMsg(wormid,"Invalid preset, available presets: " + ", ".join(hnd.availablePresets))
 			else:
-				hnd.selectPreset( Preset = hnd.availablePresets[preset] )
+				hnd.selectPreset( Mod = hnd.availablePresets[preset] )
 		elif cmd == "mod":
 			mod = ""
 			for m in io.listMods():
@@ -321,17 +321,13 @@ def parseUserCommand(wormid,message):
 				hnd.worms[kicked].Voted = -1
 			
 			if cmd == "mod":
-				
-				# Users are proven to be stupid and can't tell the difference between mod and preset
-				# so here we're first looking for a preset, and then looking for a mod with the same name if preset not found
-				# (well, let's call that UI simplification)
 				preset = -1
 				for p in range(len(hnd.availablePresets)):
 					if hnd.availablePresets[p].lower().find(params[0].lower()) != -1:
 						preset = p
 						break
 				if preset != -1:
-					addVote( 'hnd.selectPreset( Preset = "%s" )' % hnd.availablePresets[preset], wormid, "Preset %s" % hnd.availablePresets[preset] )
+					addVote( 'hnd.selectPreset( Mod = "%s" )' % hnd.availablePresets[preset], wormid, "Mod %s" % hnd.availablePresets[preset] )
 				else:
 					mod = ""
 					for m in io.listMods():
@@ -386,7 +382,7 @@ def parseUserCommand(wormid,message):
 				else:
 					fullname = "GameOptions.GameInfo.%s" % name
 					value = " ".join(params[1:]).replace('"', '')
-					addVote( 'hnd.selectPreset( VarName = "%s", VarValue = "%s" )' % (fullname, value), wormid, "Set %s to %s for next 2 games" % (name, value) )
+					addVote( 'hnd.selectPreset( VarName = "%s", VarValue = "%s" )' % (fullname, value), wormid, "Set %s to %s" % (name, value) )
 
 			if cmd == "start" or cmd == "go":
 				cmd = 'io.gotoLobby(); voteCommand = "hnd.lobbyWaitAfterGame = time.time(); hnd.lobbyWaitBeforeGame = time.time()"'
@@ -399,7 +395,7 @@ def parseUserCommand(wormid,message):
 							preset = p
 							break
 					if preset != -1:
-						cmd += '; hnd.selectPreset( Preset = "%s" )' % hnd.availablePresets[preset]
+						cmd += '; hnd.selectPreset( Mod = "%s" )' % hnd.availablePresets[preset]
 						msg += ", preset %s" % hnd.availablePresets[preset]
 					else:
 						mod = ""

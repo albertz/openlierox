@@ -102,8 +102,6 @@ SMALL_LEVELS = [
 			"X Arena.lxl",
 ]
 
-MODS = [ ] # Empty = all mods
-
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
 # If this list is empty all presets are used
 PRESETS = [ "Mortars", "Random" ]

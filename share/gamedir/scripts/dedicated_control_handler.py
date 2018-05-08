@@ -534,32 +534,8 @@ class ModCicler(StandardCiclerGameVar):
 		self.gameVar = "GameOptions.GameInfo.ModName"
 	
 	def apply(self):
-		if not self.curSelection: return
-		StandardCiclerGameVar.apply(self)
-		SetWeaponBans()
-
-
-modCicler = ModCicler()
-modCicler.list = cfg.MODS
-if len(modCicler.list) == 0:
-	modCicler.list = io.listMods()
-if len(modCicler.list) == 0:
-	io.messageLog("Waiting for mod list ...")
-	while len(modCicler.list) == 0:
-		modCicler.list = io.listMods()
-
-class PresetCicler(StandardCiclerBase):
-	def __init__(self):
-		StandardCiclerBase.__init__(self)
-
-	def apply(self):
-		if not self.curSelection: return
-		StandardCiclerBase.apply(self)
-
-		if self.curSelection == "Skip":
-			return
-
 		global availablePresets, presetDir
+		if not self.curSelection: return
 
 		sDefaults = os.path.join(presetDir,"Defaults")
 		try:
@@ -568,30 +544,40 @@ class PresetCicler(StandardCiclerBase):
 			io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
 
 		sFile = os.path.join(presetDir,self.curSelection)
-		try:
-			fPreset = file(sFile,"r")
-			line = fPreset.readline()
-			if line.find("python") != -1:
-				fPreset.close()
-				execfile(sFile)
-			else:
-				print line.strip().replace('"','')
-				for line in fPreset.readlines():
+
+		if os.path.exists(sFile):
+			StandardCiclerBase.apply(self)
+			try:
+				fPreset = file(sFile,"r")
+				line = fPreset.readline()
+				if line.find("python") != -1:
+					fPreset.close()
+					execfile(sFile)
+				else:
 					print line.strip().replace('"','')
-				fPreset.close()
-		except IOError:
-			# File does not exist, perhaps it was removed.
-			io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
-			initPresets()
-		except:
-			io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
+					for line in fPreset.readlines():
+						print line.strip().replace('"','')
+					fPreset.close()
+			except IOError:
+				# File does not exist, perhaps it was removed.
+				io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
+				initPresets()
+			except:
+				io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
+		else:
+			StandardCiclerGameVar.apply(self)
+
+		SetWeaponBans()
 
 
-presetCicler = PresetCicler()
-presetCicler.list = cfg.PRESETS
-if( len(presetCicler.list) == 0 ):
-	presetCicler.list = availablePresets
-random.shuffle(presetCicler.list)
+modCicler = ModCicler()
+modCicler.list = cfg.PRESETS
+if len(modCicler.list) == 0:
+	modCicler.list = availablePresets
+if len(modCicler.list) == 0:
+	io.messageLog("Waiting for mod list ...")
+	while len(modCicler.list) == 0:
+		modCicler.list = io.listMods()
 
 
 class GameVarCicler(StandardCiclerBase):
@@ -634,29 +620,18 @@ class GameVarCicler(StandardCiclerBase):
 
 gameVarCicler = GameVarCicler()
 
-def selectPreset( Preset = None, Level = None, Mod = None, VarName = None, VarValue = None, VarGameCount = 2 ):
-	global presetCicler, modCicler, mapCicler, gameVarCicler
+def selectPreset( Mod = None, Level = None, VarName = None, VarValue = None, VarGameCount = 4 ):
+	global modCicler, mapCicler, gameVarCicler
 
 	#io.messageLog(("selectPreset(): Preset %s Level %s Mod %s" % (str(Preset), str(Level), str(Mod))),io.LOG_WARN)
 
 	msg = ""
-	if Preset:
-		presetCicler.pushSelection(Preset)
-		msg += " Preset " + Preset
-		if len(presetCicler.preSelectedList) > 1 and presetCicler.preSelectedList[0] == "Skip":
-			presetCicler.preSelectedList.pop(0)
-	if Level:
-		mapCicler.pushSelection(Level)
-		msg += " Map " + Level
-		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
-		if len(presetCicler.preSelectedList) <= 0:
-			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
 	if Mod:
 		modCicler.pushSelection(Mod)
 		msg += " Mod " + Mod
-		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
-		if len(presetCicler.preSelectedList) <= 0:
-			presetCicler.pushSelection( "Skip" ) # Prevent loading preset that overrides this setting
+	if Level:
+		mapCicler.pushSelection(Level)
+		msg += " Map " + Level
 	if VarName and VarValue and VarGameCount:
 		gameVarCicler.pushSelection((VarName, VarValue), gameCount = VarGameCount)
 		msg += " " + VarName.replace("GameOptions.GameInfo.", "") + "=" + VarValue
@@ -677,7 +652,7 @@ def controlHandlerDefault():
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
 	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame, gameStartedHandler
-	global presetCicler, modCicler, mapCicler, gameVarCicler
+	global modCicler, mapCicler, gameVarCicler
 	global videoRecorder, videoRecorderSignalTime
 	
 	if scriptPaused:
@@ -691,9 +666,8 @@ def controlHandlerDefault():
 		# Do not check ping in lobby - it's wrong
 
 		if oldGameState != GAME_LOBBY:
-			mapCicler.check()
 			modCicler.check()
-			presetCicler.check()
+			mapCicler.check()
 			gameVarCicler.check()
 			lobbyEnoughPlayers = False # reset the state
 			lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
