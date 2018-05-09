@@ -10,3 +10,7 @@
 - Post to /r/androidgaming.
 
 - Switch to mouse GUI navigation mode if mouse is moved.
+
+- Auto-select text input field in lobby.
+
+- Android text input is getting stuck when starting to type in the game but finishing to the lobby.
