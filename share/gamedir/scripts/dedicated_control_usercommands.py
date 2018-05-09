@@ -387,6 +387,8 @@ def parseUserCommand(wormid,message):
 			if cmd == "start" or cmd == "go":
 				cmd = 'io.gotoLobby(); voteCommand = "hnd.lobbyWaitAfterGame = time.time(); hnd.lobbyWaitBeforeGame = time.time()"'
 				msg = "Start game"
+				level = ""
+				mod = ""
 
 				if len(params) > 0:
 					preset = -1
@@ -395,10 +397,9 @@ def parseUserCommand(wormid,message):
 							preset = p
 							break
 					if preset != -1:
-						cmd += '; hnd.selectPreset( Mod = "%s" )' % hnd.availablePresets[preset]
+						mod = hnd.availablePresets[preset]
 						msg += ", preset %s" % hnd.availablePresets[preset]
 					else:
-						mod = ""
 						for m in io.listMods():
 							if m.lower().find(params[0].lower()) != -1:
 								mod = m
@@ -407,11 +408,9 @@ def parseUserCommand(wormid,message):
 							io.privateMsg(wormid, "Invalid mod, available mods: " + ", ".join(hnd.availablePresets) + ", " + ", ".join(io.listMods()))
 							cmd = ""
 						else:
-							cmd += '; hnd.selectPreset( Mod = "%s" )' % mod
 							msg += ", mod %s" % mod
 
 				if len(params) > 1 and cmd != "":
-					level = ""
 					for l in io.listMaps():
 						if l.lower().rstrip(".lxl").find(params[1].lower()) != -1:
 							level = l
@@ -420,10 +419,13 @@ def parseUserCommand(wormid,message):
 						io.privateMsg(wormid, "Invalid map, available maps: " + ", ".join([x.rstrip(".lxl") for x in io.listMaps()]))
 						cmd = ""
 					else:
-						cmd += '; hnd.selectPreset( Level = "%s" )' % level
 						msg += " on %s" % level.rstrip(".lxl")
 
-				if cmd != "":
+				if cmd != "" and mod != "":
+					if level != "":
+						cmd += '; hnd.selectPreset( Mod = "%s", Level = "%s" )' % (mod, level)
+					else:
+						cmd += '; hnd.selectPreset( Mod = "%s" )' % mod
 					addVote( cmd, wormid, msg )
 			
 			if cmd == "stop":

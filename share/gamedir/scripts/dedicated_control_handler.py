@@ -443,20 +443,13 @@ class StandardCiclerBase: #TODO: it's cycler not cicler lol
 		self.preSelectedList = []
 		self.curIndex = 0
 		self.curSelection = None
-		self.enabled = True
-		self.timeOut = 0 # this will always change after each round, no matter how short
-		self.nextCicleTime = time.time()
-	
-	def check(self):
-		if not self.enabled: return
-		if time.time() < self.nextCicleTime: return
-		self.cicle()
-		
-	def cicle(self):
+
+	def cicle(self, remove = True):
 		#io.messageLog(("%s.cicle(): preSelectedList %s" % (str(self.__class__), str(self.preSelectedList))),io.LOG_WARN)
 		if len(self.preSelectedList) > 0:
 			self.curSelection = self.preSelectedList[0]
-			self.preSelectedList.pop(0)
+			if remove:
+				self.preSelectedList.pop(0)
 			self.apply()
 			return
 
@@ -471,19 +464,19 @@ class StandardCiclerBase: #TODO: it's cycler not cicler lol
 	def apply(self):
 		if not self.curSelection: return
 		#io.messageLog(("%s.apply(): curSelection %s" % (str(self.__class__), str(self.curSelection))),io.LOG_WARN)
-		self.nextCicleTime = time.time() + self.timeOut
 	
 	def pushSelection(self, selection):
-		self.preSelectedList.insert(len(self.preSelectedList), selection)
-		self.nextCicleTime = time.time()
+		self.preSelectedList.insert(0, selection)
+		while len(self.preSelectedList) > cfg.VOTING_QUEUE_SIZE:
+			self.preSelectedList.pop(len(self.preSelectedList) - 1)
 		global gameState
 		if gameState == GAME_LOBBY: # Game not started yet - force selection immediately
-			self.check()
+			self.cicle(remove = False)
 		#io.messageLog(("%s.pushSelection(%s): preSelectedList %s" % (str(self.__class__), str(selection), str(self.preSelectedList))),io.LOG_WARN)
 
 	def describe(self, idx):
-		if idx < 0:
-			return self.curSelection if self.curSelection else ""
+		#if idx < 0:
+		#	return self.curSelection if self.curSelection else ""
 		if idx >= 0 and idx < len(self.preSelectedList):
 			return self.preSelectedList[idx]
 		return ""
@@ -504,7 +497,7 @@ class MapCicler(StandardCiclerGameVar):
 		StandardCiclerGameVar.__init__(self)
 		self.gameVar = "GameOptions.GameInfo.LevelName"
 	
-	def cicle(self):
+	def cicle(self, remove = True):
 		global worms
 		oldlist = self.list
 
@@ -520,19 +513,13 @@ class MapCicler(StandardCiclerGameVar):
 			self.curIndex = 0
 			random.shuffle(self.list)
 		
-		StandardCiclerGameVar.cicle(self)
+		StandardCiclerGameVar.cicle(self, remove)
 
 	def describe(self, idx):
-		r = StandardCiclerBase.describe(self, idx)
-		return r if r != "" else "random map"
+		r = StandardCiclerGameVar.describe(self, idx)
+		return r.rstrip(".lxl") if r != "" else "random map"
 
 mapCicler = MapCicler()
-#mapCicler.timeOut = 0 # this will always change map after each round, no matter how short
-#if len(mapCicler.list) == 0:
-#	io.messageLog("Waiting for level list ...")
-#	while len(mapCicler.list) == 0:
-#		mapCicler.list = io.listMaps()
-#random.shuffle(mapCicler.list)
 mapCicler.cicle()
 
 def SetWeaponBans(name = "Standard 100lt"):
@@ -581,7 +568,7 @@ class ModCicler(StandardCiclerGameVar):
 		SetWeaponBans()
 
 	def describe(self, idx):
-		r = StandardCiclerBase.describe(self, idx)
+		r = StandardCiclerGameVar.describe(self, idx)
 		return r if r != "" else "Random"
 
 modCicler = ModCicler()
@@ -597,14 +584,15 @@ if len(modCicler.list) == 0:
 class GameVarCicler(StandardCiclerBase):
 	def __init__(self):
 		StandardCiclerBase.__init__(self)
-		self.gameCount = 0
+		self.gameCount = -1
 		self.savedList = []
 		self.restoreDefaults = []
 
-	def cicle(self):
-		if self.gameCount > 0:
-			self.gameCount -= 1
-			if self.gameCount <= 0:
+	def cicle(self, remove = True):
+		if self.gameCount >= 0:
+			if remove:
+				self.gameCount -= 1
+			if self.gameCount < 0:
 				self.preSelectedList = self.restoreDefaults
 				self.restoreDefaults = []
 				self.savedList = []
@@ -619,7 +607,7 @@ class GameVarCicler(StandardCiclerBase):
 		if not self.curSelection: return
 		io.setvar(self.curSelection[0], self.curSelection[1])
 
-	def pushSelection(self, selection, gameCount = 4):
+	def pushSelection(self, selection, gameCount = cfg.VOTING_QUEUE_SIZE):
 		defaultValue = io.getVar(selection[0])
 		defaultSet = False
 		for (v, d) in self.restoreDefaults:
@@ -628,18 +616,21 @@ class GameVarCicler(StandardCiclerBase):
 		if not defaultSet:
 			self.restoreDefaults.insert(len(self.restoreDefaults), (selection[0], defaultValue))
 
-		StandardCiclerBase.pushSelection(self, selection)
+		self.preSelectedList.append(selection)
 		self.savedList = list(self.preSelectedList)
 		self.gameCount = gameCount
+		global gameState
+		if gameState == GAME_LOBBY: # Game not started yet - force selection immediately
+			self.cicle(remove = False)
 
 	def describe(self, idx):
-		if idx <= self.gameCount:
+		if idx >= self.gameCount or idx < 0:
 			return ""
 		s = ""
 		for r in self.preSelectedList:
 			if s != "":
 				s += " "
-			s += str(r[0]) + "=" + str(r[1])
+			s += str(r[0]).lstrip("GameOptions.GameInfo.") + "=" + str(r[1])
 		return s
 
 gameVarCicler = GameVarCicler()
@@ -647,11 +638,11 @@ gameVarCicler = GameVarCicler()
 def describeScheduledPresets():
 	global modCicler, mapCicler, gameVarCicler
 	s = ""
-	for i in range(-1, 5):
+	for i in range(0, cfg.VOTING_QUEUE_SIZE):
 		d = modCicler.describe(i) + " on " + mapCicler.describe(i)
 		v = gameVarCicler.describe(i)
 		if v != "":
-			d += " " + v
+			d += " with " + v
 		if d == "Random on random map":
 			break
 		if s != "":
@@ -659,7 +650,7 @@ def describeScheduledPresets():
 		s += d
 	return s
 
-def selectPreset( Mod = None, Level = None, VarName = None, VarValue = None, VarGameCount = 4 ):
+def selectPreset( Mod = None, Level = None, VarName = None, VarValue = None, VarGameCount = cfg.VOTING_QUEUE_SIZE ):
 	global modCicler, mapCicler, gameVarCicler
 
 	#io.messageLog(("selectPreset(): Preset %s Level %s Mod %s" % (str(Preset), str(Level), str(Mod))),io.LOG_WARN)
@@ -671,7 +662,7 @@ def selectPreset( Mod = None, Level = None, VarName = None, VarValue = None, Var
 	if VarName and VarValue and VarGameCount:
 		gameVarCicler.pushSelection((VarName, VarValue), gameCount = VarGameCount)
 
-	io.chatMsg( describeScheduledPresets().strip() )
+	io.chatMsg( "Presets: " + describeScheduledPresets() )
 
 lobbyWaitBeforeGame = time.time() + cfg.WAIT_BEFORE_GAME
 lobbyWaitAfterGame = time.time()
@@ -697,9 +688,12 @@ def controlHandlerDefault():
 		# Do not check ping in lobby - it's wrong
 
 		if oldGameState != GAME_LOBBY:
-			modCicler.check()
-			mapCicler.check()
-			gameVarCicler.check()
+			modCicler.cicle(remove = False)
+			mapCicler.cicle(remove = False)
+			gameVarCicler.cicle(remove = False)
+			presetsMsg = describeScheduledPresets()
+			if presetsMsg != "":
+				io.chatMsg("Presets: " + presetsMsg)
 			lobbyEnoughPlayers = False # reset the state
 			lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 			lobbyWaitAfterGame = curTime
@@ -731,11 +725,7 @@ def controlHandlerDefault():
 
 			if not lobbyEnoughPlayers and len(worms) >= cfg.MIN_PLAYERS: # Enough players already - start game
 				lobbyEnoughPlayers = True
-				presets = describeScheduledPresets()
-				if presets == "":
-					io.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
-				else:
-					io.chatMsg(presets)
+				io.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
 				lobbyWaitBeforeGame = curTime + cfg.WAIT_BEFORE_GAME
 
 			if lobbyEnoughPlayers and len(worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
@@ -745,6 +735,10 @@ def controlHandlerDefault():
 			if lobbyEnoughPlayers and not sentStartGame:
 
 				if lobbyWaitBeforeGame <= curTime and canStart: # Start the game
+
+					modCicler.cicle(remove = True)
+					mapCicler.cicle(remove = True)
+					gameVarCicler.cicle(remove = True)
 
 					if io.isTeamGame():
 						if not cfg.ALLOW_TEAM_CHANGE:

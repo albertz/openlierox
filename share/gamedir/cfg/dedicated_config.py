@@ -56,6 +56,7 @@ VOTING_TIME = 30 # For how much time we should wait votes from users
 VOTING_COUNT_NEGATIVE = 1 # If we should count negative votes, so users can fail unpopular vote before timeout
 VOTING_KICK_TIME = 5 # Time in minutes when user kicked by voting cannot re-join server (it auto-kicks user again with message)
 VOTING_AUTO_ACCEPT = 0 # If we should accept the vote after timeout, if too little users voted no
+VOTING_QUEUE_SIZE = 3 # How many maps/mods users can push into a queue by voting
 
 # List of levels - preset chooses a random level from those
 LEVELS = [	
