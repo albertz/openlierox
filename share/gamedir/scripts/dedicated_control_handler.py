@@ -454,12 +454,13 @@ class StandardCiclerBase: #TODO: it's cycler not cicler lol
 			return
 
 		if len(self.list) == 0: return
-		self.curIndex = self.curIndex + 1
-		if self.curIndex >= len(self.list):
-			self.curIndex = 0
-			random.shuffle(self.list)
 		self.curSelection = self.list[self.curIndex]
 		self.apply()
+		if remove:
+			self.curIndex = self.curIndex + 1
+			if self.curIndex >= len(self.list):
+				self.curIndex = 0
+				random.shuffle(self.list)
 
 	def apply(self):
 		if not self.curSelection: return
@@ -564,8 +565,7 @@ class ModCicler(StandardCiclerGameVar):
 				io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
 		else:
 			StandardCiclerGameVar.apply(self)
-
-		SetWeaponBans()
+			SetWeaponBans()
 
 	def describe(self, idx):
 		r = StandardCiclerGameVar.describe(self, idx)

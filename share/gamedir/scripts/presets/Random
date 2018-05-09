@@ -1,2 +1,8 @@
 #!/usr/bin/python -u
 
+import random
+global io
+
+setvar( "GameOptions.GameInfo.ModName", random.choice(io.listMods()) )
+
+SetWeaponBans()
