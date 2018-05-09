@@ -482,10 +482,10 @@ class StandardCiclerBase: #TODO: it's cycler not cicler lol
 		#io.messageLog(("%s.pushSelection(%s): preSelectedList %s" % (str(self.__class__), str(selection), str(self.preSelectedList))),io.LOG_WARN)
 
 	def describe(self, idx):
+		if idx < 0:
+			return self.curSelection if self.curSelection else ""
 		if idx >= 0 and idx < len(self.preSelectedList):
 			return self.preSelectedList[idx]
-		if self.curSelection:
-			return self.curSelection
 		return ""
 
 
