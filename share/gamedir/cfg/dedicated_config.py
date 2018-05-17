@@ -12,7 +12,7 @@ LOG_FILE = "dedicated_control.log"
 
 MIN_PLAYERS = 2
 MAX_TEAMS = 2 # Only blue and red teams
-TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players." % (MIN_PLAYERS)
+TOO_FEW_PLAYERS_MESSAGE = "Waiting for %i players. Visit https://liero.1337.cx/ to get notified when other players join this server." % (MIN_PLAYERS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 FILL_WITH_BOTS_TO = 0 # Fill server with bots if noone playing, set to 2 to get 1 bot with a single human player
 
