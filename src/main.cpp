@@ -1149,6 +1149,9 @@ void ParseArguments(int argc, char *argv[])
 		}
 		#endif
     }
+	if (getenv("SDL_RESTART_PARAMS") != NULL) {
+		startupCommands.push_back("connect \"" + std::string(getenv("SDL_RESTART_PARAMS")) + "\"");
+	}
 }
 
 
