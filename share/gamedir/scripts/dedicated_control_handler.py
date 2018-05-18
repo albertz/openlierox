@@ -518,7 +518,7 @@ class MapCicler(StandardCiclerGameVar):
 
 	def describe(self, idx):
 		r = StandardCiclerGameVar.describe(self, idx)
-		return r.rstrip(".lxl") if r != "" else "random map"
+		return r.replace(".lxl", "") if r != "" else "random map"
 
 mapCicler = MapCicler()
 mapCicler.cicle()
@@ -615,6 +615,11 @@ class GameVarCicler(StandardCiclerBase):
 				defaultSet = True
 		if not defaultSet:
 			self.restoreDefaults.insert(len(self.restoreDefaults), (selection[0], defaultValue))
+		else:
+			for i in range(len(self.preSelectedList)):
+				if selection[0] == self.preSelectedList[i][0]:
+					self.preSelectedList.pop(i)
+					break
 
 		self.preSelectedList.append(selection)
 		self.savedList = list(self.preSelectedList)
@@ -630,7 +635,7 @@ class GameVarCicler(StandardCiclerBase):
 		for r in self.preSelectedList:
 			if s != "":
 				s += " "
-			s += str(r[0]).lstrip("GameOptions.GameInfo.") + "=" + str(r[1])
+			s += str(r[0]).replace("GameOptions.GameInfo.", "") + "=" + str(r[1])
 		return s
 
 gameVarCicler = GameVarCicler()

@@ -350,13 +350,13 @@ def parseUserCommand(wormid,message):
 			if cmd == "map":
 				level = ""
 				for l in io.listMaps():
-					if l.lower().rstrip(".lxl").find(" ".join(params[0:]).lower()) != -1:
+					if l.lower().replace(".lxl", "").find(" ".join(params[0:]).lower()) != -1:
 						level = l
 						break
 				if level == "":
-					io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join([x.rstrip(".lxl") for x in io.listMaps()]))
+					io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join([x.replace(".lxl", "") for x in io.listMaps()]))
 				else:
-					addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level.rstrip(".lxl") )
+					addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level.replace(".lxl", "") )
 			
 			if cmd == "set":
 				name = ""
@@ -420,14 +420,14 @@ def parseUserCommand(wormid,message):
 
 				if len(params) > 1 and cmd != "":
 					for l in io.listMaps():
-						if l.lower().rstrip(".lxl").find(params[1].lower()) != -1:
+						if l.lower().replace(".lxl", "").find(params[1].lower()) != -1:
 							level = l
 							break
 					if level == "":
-						io.privateMsg(wormid, "Invalid map, available maps: " + ", ".join([x.rstrip(".lxl") for x in io.listMaps()]))
+						io.privateMsg(wormid, "Invalid map, available maps: " + ", ".join([x.replace(".lxl", "") for x in io.listMaps()]))
 						cmd = ""
 					else:
-						msg += " on %s" % level.rstrip(".lxl")
+						msg += " on %s" % level.replace(".lxl", "")
 
 				if cmd != "" and mod != "":
 					if level != "":
