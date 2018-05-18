@@ -635,7 +635,14 @@ class GameVarCicler(StandardCiclerBase):
 		for r in self.preSelectedList:
 			if s != "":
 				s += " "
-			s += str(r[0]).replace("GameOptions.GameInfo.", "") + "=" + str(r[1])
+			if str(r[0]) == "GameOptions.GameInfo.GameType":
+				gametypes = ["DM", "TeamDM", "Tag", "Demolition", "Hide&Seek", "CTF", "Race", "TeamRace"]
+				try:
+					s += "GameType=" + gametypes[int(r[1])]
+				except:
+					pass
+			else:
+				s += str(r[0]).replace("GameOptions.GameInfo.", "") + "=" + str(r[1])
 		return s
 
 gameVarCicler = GameVarCicler()
@@ -684,12 +691,13 @@ lobbyWaitAfterGame = time.time()
 lobbyWaitGeneral = time.time() + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 lobbyEnoughPlayers = False
 oldGameState = GAME_LOBBY
+printVoteDuringGameTime = 0
 
 def controlHandlerDefault():
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
 	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame, gameStartedHandler
-	global modCicler, mapCicler, gameVarCicler
+	global modCicler, mapCicler, gameVarCicler, printVoteDuringGameTime
 	global videoRecorder, videoRecorderSignalTime
 	
 	if scriptPaused:
@@ -714,6 +722,8 @@ def controlHandlerDefault():
 			lobbyWaitAfterGame = curTime
 			if oldGameState == GAME_PLAYING:
 				lobbyWaitAfterGame = curTime + cfg.WAIT_AFTER_GAME
+			cmds.increaseVoteTime()
+			cmds.recheckVote()
 			if videoRecorder:
 				os.kill(videoRecorder.pid, signal.SIGINT)  # videoRecorder.send_signal(signal.SIGINT) # This is available only on Python 2.6
 				videoRecorderSignalTime = time.time()
@@ -789,9 +799,21 @@ def controlHandlerDefault():
 			io.gotoLobby()
 			sentStartGame = False
 
+		if oldGameState != gameState:
+			cmds.increaseVoteTime()
+
 	if gameState == GAME_PLAYING:
 
 		checkMaxPing()
+
+		if oldGameState != gameState:
+			cmds.increaseVoteTime()
+
+		if printVoteDuringGameTime < time.time():
+			printVoteDuringGameTime = time.time() + 7
+			cmds.recheckVote()
+
+	oldGameState = gameState
 
 controlHandler = controlHandlerDefault
 

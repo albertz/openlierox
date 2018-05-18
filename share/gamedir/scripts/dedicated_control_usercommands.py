@@ -243,6 +243,12 @@ def recheckVote(verbose = True):
 		io.chatMsg("Vote: " + voteDescription + ", " + str( needVoices - voteCount ) + " voices to go, " +
 				str(int( cfg.VOTING_TIME + voteTime - time.time() )) + ( " seconds, say %sy or %sn" % ( cfg.ADMIN_PREFIX, cfg.ADMIN_PREFIX ) ) )
 
+def increaseVoteTime():
+	global voteCommand, voteTime, votePoster, voteDescription
+	global kickedUsers
+	if not voteCommand:
+		return
+	voteTime += 5
 
 def parseUserCommand(wormid,message):
 	global kickedUsers
