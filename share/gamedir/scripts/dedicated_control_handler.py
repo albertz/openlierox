@@ -635,6 +635,16 @@ class GameVarCicler(StandardCiclerBase):
 
 gameVarCicler = GameVarCicler()
 
+def randomizeTeams():
+	global worms
+	for w in worms.values():
+		io.setWormTeam( w.iID, 0 )
+	for f in range(int(len(worms)/2)):
+		red = random.choice(worms.values()).iID
+		if io.getWormTeam( red ) == 1: # Not "while" to avoid infinite loop
+			red = random.choice(worms.values()).iID
+		io.setWormTeam( red, 1 )
+
 def describeScheduledPresets():
 	global modCicler, mapCicler, gameVarCicler
 	s = ""

@@ -282,14 +282,22 @@ def parseUserCommand(wormid,message):
 				elif ( params[0].lower() == "yellow" or params[0].lower() == "y" ) and cfg.MAX_TEAMS >= 4:
 					io.setWormTeam(wormid, 3)
 
-		if cfg.ALLOW_TEAM_CHANGE and (cmd == "b" or cmd == "r" or cmd == "g"):
+		if cfg.ALLOW_TEAM_CHANGE and (cmd == "b" or cmd == "r" or cmd == "g" or cmd[:3] == "yel"):
 			if cmd == "b":
 				io.setWormTeam(wormid, 0)
 			elif cmd == "r":
 				io.setWormTeam(wormid, 1)
 			elif cmd == "g":
 				io.setWormTeam(wormid, 2)
-		
+			elif cmd[:3] == "yel":
+				io.setWormTeam(wormid, 3)
+
+		if cmd == "teams" or cmd == "teamgame":
+			addVote( 'hnd.selectPreset( VarName = "GameOptions.GameInfo.GameType", VarValue = "1" ); hnd.randomizeTeams()', wormid, "Team game" )
+
+		if cmd[:6] == "random":
+			addVote( 'hnd.randomizeTeams()', wormid, "Randomize teams" )
+
 		if cfg.RANKING:
 			if cmd == "toprank":
 				ranking.firstRank(wormid)
