@@ -200,7 +200,7 @@ IF (LIBLUA_BUILTIN)
 	AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/libs/lua LIBLUA_SRCS)
 	SET(ALL_SRCS ${ALL_SRCS} ${LIBLUA_SRCS})
 ELSE (LIBLUA_BUILTIN)
-	INCLUDE_DIRECTORIES(/usr/include/lua5.1)
+	INCLUDE_DIRECTORIES(/usr/include/lua5.1) # FIXME: This can be "lua-5.1" on some systems, e.g. Fedora. Make this more dynamic.
 ENDIF (LIBLUA_BUILTIN)
 
 IF (STLPORT)
@@ -377,12 +377,17 @@ if(UNIX)
 		SET(LIBS ${LIBS} zip)
 	ENDIF (NOT LIBZIP_BUILTIN)
 	IF (NOT LIBLUA_BUILTIN)
-		EXEC_PROGRAM(pkg-config ARGS lua --libs --silence-errors OUTPUT_VARIABLE LIBLUA_NAME)
+		EXEC_PROGRAM(pkg-config ARGS lua5.1 --libs --silence-errors OUTPUT_VARIABLE LIBLUA_NAME) #Search for lua5.1 first because newer versions seem to be incompatible
 		IF(NOT LIBLUA_NAME)
-			EXEC_PROGRAM(pkg-config ARGS lua5.1 --libs --silence-errors OUTPUT_VARIABLE LIBLUA_NAME) # Hey Albert, it's named differently on Ubuntu
+			EXEC_PROGRAM(pkg-config ARGS lua-5.1 --libs --silence-errors OUTPUT_VARIABLE LIBLUA_NAME) #On some systems, e.g. Fedora, it may be lua-5.1
 		ENDIF(NOT LIBLUA_NAME)
 		IF(NOT LIBLUA_NAME)
-			SET(LIBLUA_NAME lua)
+			MESSAGE(WARNING "No Lua 5.1 found - searching for default Lua, but it may not work. You may have to install Lua 5.1 packages or use the built-in library")
+			EXEC_PROGRAM(pkg-config ARGS lua --libs --silence-errors OUTPUT_VARIABLE LIBLUA_NAME) #Search for lua if neither found
+		ENDIF(NOT LIBLUA_NAME)
+		IF(NOT LIBLUA_NAME)
+			MESSAGE(WARNING "No Lua found by pkg-config - trying default Lua, but it may not work. Make sure that Lua 5.1 packages are installed, or use the built-in library") 
+			SET(LIBLUA_NAME lua) #Set default if nothing works, although this will likely lead to errors
 		ENDIF(NOT LIBLUA_NAME)
 		SET(LIBS ${LIBS} ${LIBLUA_NAME})
 	ENDIF (NOT LIBLUA_BUILTIN)
