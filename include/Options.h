@@ -274,6 +274,8 @@ struct GameOptions {
 	float	fAimMaxSpeed;
 	float	fAimFriction;
 	bool	bAimLikeLX56;
+	bool	bTouchscreenTapCycleWeaponsBackwards;
+	int		iTouchscreenSensitivity;
 	
 	//Killing/dying spree thresholds
 	int iSpreeThreshold1;

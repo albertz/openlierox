@@ -96,6 +96,8 @@ enum {
 	og_ScreenShaking,
 	og_DamagePopups,
 	og_ColorizeDamageByWorm,
+	og_TouchscreenTapCycleWeaponsBackwards,
+	og_TouchscreenSensitivity,
 };
 
 enum {
@@ -405,6 +407,7 @@ bool Menu_OptionsInitialize(bool floating)
 	// Game
 	cOpt_Game.Add( new CLabel("Blood Amount",tLX->clNormalLabel),       Static, 40, 150, 0,0);
 	cOpt_Game.Add( new CSlider(5000),                       og_BloodAmount, 175, 147, 210, 20);
+	cOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
 	cOpt_Game.Add( new CLabel("Shadows",tLX->clNormalLabel),            Static, 40, 180, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bShadows),     og_Shadows, 280, 180, 17,17);
 	cOpt_Game.Add( new CLabel("Particles",tLX->clNormalLabel),          Static, 40, 210, 0,0);
@@ -438,6 +441,15 @@ bool Menu_OptionsInitialize(bool floating)
 	cOpt_Game.Add( new CLabel("Colorize damage popups by worm",tLX->clNormalLabel), Static, 330, 240, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bColorizeDamageByWorm),     og_ColorizeDamageByWorm, 550, 240, 17,17);
 
+#ifdef __ANDROID__
+	cOpt_Game.Add( new CLabel("Tapping cycles weapons backwards", tLX->clNormalLabel), Static, 330, 270, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bTouchscreenTapCycleWeaponsBackwards), og_TouchscreenTapCycleWeaponsBackwards, 550, 270, 17,17);
+
+	cOpt_Game.Add( new CLabel("Touchscreen sensitivity", tLX->clNormalLabel), Static, 330, 300, 0,0);
+	cOpt_Game.Add( new CSlider(9), og_TouchscreenSensitivity, 470, 300, 100, 20);
+	cOpt_Game.SendMessage( og_TouchscreenSensitivity,  SLM_SETVALUE, tLXOptions->iTouchscreenSensitivity, 0);
+#endif
+
 /*
 	cOpt_Game.Add( new CLabel("Allow mouse control (Server)",tLX->clNormalLabel), Static, 330, 360, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowMouseAiming),og_AllowMouseAiming, 550, 360, 17,17);
@@ -449,7 +461,6 @@ bool Menu_OptionsInitialize(bool floating)
 	// TODO: Fix cSlider so it's value thing doesn't take up a square of 100x100 pixels.
 
 	// Set the values
-	cOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
 	//cOpt_Game.SendMessage( og_AIDifficulty, SLM_SETVALUE, tLXOptions->iAIDifficulty, 0);
 
 
@@ -701,6 +712,19 @@ void Menu_OptionsFrame()
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bColorizeDamageByWorm = cOpt_Game.SendMessage(og_ColorizeDamageByWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
+
+				case og_TouchscreenTapCycleWeaponsBackwards:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bTouchscreenTapCycleWeaponsBackwards = cOpt_Game.SendMessage(og_TouchscreenTapCycleWeaponsBackwards, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+
+				case og_TouchscreenSensitivity:
+					if(ev->iEventMsg == SLD_CHANGE) {
+						val = cOpt_Game.SendMessage(og_TouchscreenSensitivity, SLM_GETVALUE, (DWORD)0, 0);
+						tLXOptions->iTouchscreenSensitivity = val;
+					}
+					break;
+
 			}
 		}
 

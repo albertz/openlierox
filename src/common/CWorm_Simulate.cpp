@@ -265,7 +265,7 @@ void CWormHumanInputHandler::getInput() {
 			}
 
 			// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
-			if ( ((cSelWeapon.isJoystick() && change == 0) || GetTouchscreenControlsShown()) && cSelWeapon.isDownOnce())  {
+			if (((cSelWeapon.isJoystick() && change == 0) || GetTouchscreenControlsShown()) && cSelWeapon.isDownOnce())  {
 				m_worm->iCurrentWeapon++;
 				MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
 			}
@@ -292,8 +292,15 @@ void CWormHumanInputHandler::getInput() {
 				// Cycle weapons by tapping Shoot button rapidly, but skip weapons with no ammo
 				int prevWeapon = m_worm->iCurrentWeapon;
 				while(true) {
-					m_worm->iCurrentWeapon++;
-					MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+					if (tLXOptions->bTouchscreenTapCycleWeaponsBackwards) {
+						m_worm->iCurrentWeapon--;
+						if (m_worm->iCurrentWeapon < 0) {
+							m_worm->iCurrentWeapon = m_worm->iNumWeaponSlots - 1;
+						}
+					} else {
+						m_worm->iCurrentWeapon++;
+						MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+					}
 					if (m_worm->iCurrentWeapon == prevWeapon)
 						break;
 					if (!m_worm->tWeapons[m_worm->iCurrentWeapon].Reloading && m_worm->tWeapons[m_worm->iCurrentWeapon].Enabled)

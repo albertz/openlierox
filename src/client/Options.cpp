@@ -198,6 +198,8 @@ bool GameOptions::Init() {
 		( tLXOptions->fAimMaxSpeed, "Game.AimMaxSpeed", /* Gusanos promode default */ 232.996, "Aim max speed", "maximum possible aim speed for worm", GIG_Other, ALT_VeryAdvanced, true, 20, 1000 )
 		( tLXOptions->fAimFriction, "Game.AimFriction", /* Gusanos promode default */ 0, "Aim friction", "aim speed friction for worm", GIG_Other, ALT_VeryAdvanced, true, 0, 1 )
 		( tLXOptions->bAimLikeLX56, "Game.AimLikeLX56", false, "Aim friction like LX56", "aim speed friction behaves like LX56", GIG_Other, ALT_OnlyViaConfig )
+		( tLXOptions->bTouchscreenTapCycleWeaponsBackwards, "Game.TouchscreenTapCycleWeaponsBackwards", true )
+		( tLXOptions->iTouchscreenSensitivity, "Game.TouchscreenSensitivity", 5 )
 		
 		// Killing spree thresholds
 		( tLXOptions->iSpreeThreshold1, "Game.SpreeThreshold1", 3 )
