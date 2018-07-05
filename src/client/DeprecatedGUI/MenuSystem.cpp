@@ -63,6 +63,8 @@ bool		*bGame = NULL;
 int			iSkipStart = false;
 CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 
+static int Menu_MouseWarpedX = 0;
+static int Menu_MouseWarpedY = 0;
 
 ///////////////////
 // Initialize the menu system
@@ -1080,6 +1082,32 @@ void Menu_EnableNetEvents()
 bool Menu_IsKeyboardNavigationUsed()
 {
 	return CGuiLayout::isKeyboardNavigationUsed();
+}
+
+void Menu_WarpMouse(int x, int y)
+{
+	struct RepositionMouse: public Action
+	{
+		int x, y;
+		RepositionMouse(int _x, int _y): x(_x), y(_y)
+		{
+		}
+		int handle()
+		{
+			SDL_WarpMouse(x, y);
+			return true;
+		}
+	};
+	Menu_MouseWarpedX = x;
+	Menu_MouseWarpedY = y;
+	doActionInMainThread( new RepositionMouse(x, y) );
+}
+
+void Menu_ProcessMouseMotion(int x, int y)
+{
+	if (x != Menu_MouseWarpedX || y != Menu_MouseWarpedY) {
+		CGuiLayout::setKeyboardNavigationUsed(false);
+	}
 }
 
 /*
