@@ -5,8 +5,6 @@
 
 - Android text input is getting stuck when starting to type in the game but finishing to the lobby.
 
-- Fix lazer in infinite level.
-
 - Auto-unstuck if player is stuck.
 
 - Show damage received in score box.
