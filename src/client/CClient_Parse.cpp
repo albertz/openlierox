@@ -1436,17 +1436,10 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 
 	buf = Utf8String(buf);  // Convert any possible pseudo-UTF8 (old LX compatible) to normal UTF8 string
 
-	// Htmlentity nicks in the message
-	CWorm *w = client->getRemoteWorms();
-	if (w)  {
-		for (int i = 0; i < MAX_WORMS; i++, w++)  {
-			if (w->isUsed())
-				replace(buf, w->getName(), xmlEntities(w->getName()), buf);
-		}
-	}
+	// Escape all HTML/XML markup, it is mostly used to annoy other players
+	xmlEntityText(buf);
 
 	client->cChatbox.AddText(buf, col, (TXT_TYPE)type, tLX->currentTime);
-
 
 	// Log the conversation
 	if (tLXOptions->bLogConvos && convoLogger)
