@@ -144,7 +144,7 @@ static std::string InputNames[] = {
 	"Jump",
 	"Select Weapon",
 	"Ninja Rope",
-	"Strafe"
+	"Strafe / Dig"
 };
 
 
