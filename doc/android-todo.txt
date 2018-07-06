@@ -3,14 +3,8 @@
 
 - 'Kick player' popup menu cannot be closed by clicking outside of the menu.
 
-- MacOsX: all fonts are broken - possibly SDL_SetClipRect() fails.
-
-- PUSH notification service.
-
-- Post to /r/androidgaming.
-
-- Switch to mouse GUI navigation mode if mouse is moved.
-
 - Auto-select text input field in lobby.
 
 - Android text input is getting stuck when starting to type in the game but finishing to the lobby.
+
+- Fix lazer in infinite level.

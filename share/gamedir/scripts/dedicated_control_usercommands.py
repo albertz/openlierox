@@ -8,6 +8,7 @@ import sys
 import threading
 import traceback
 import math
+import random
 
 import dedicated_control_io as io
 setvar = io.setvar
@@ -444,7 +445,17 @@ def parseUserCommand(wormid,message):
 			
 			if cmd == "stop":
 				addVote( 'io.gotoLobby()', wormid, "Go to lobby" )
-			
+
+			if cmd == "hax":
+				if random.random() < 0.1:
+					io.chatMsg("!!..!!...!!!!...!!..!!.")
+					io.chatMsg("!!..!!..!!..!!...!!!!..")
+					io.chatMsg("!!!!!!..!!!!!!....!!...")
+					io.chatMsg("!!..!!..!!..!!...!!!!..")
+					io.chatMsg("!!..!!..!!..!!..!!..!!.")
+				else:
+					io.chatMsg("Plz no hax")
+
 			if ( cmd == "y" or cmd == "yes" ):
 				if hnd.worms[wormid].Voted != 1:
 					hnd.worms[wormid].Voted = 1
