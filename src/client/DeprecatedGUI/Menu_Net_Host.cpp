@@ -755,6 +755,7 @@ void Menu_Net_HostLobbyCreateGui()
 
 	iSpeaking = 0; // The first player always speaks
 	fStartDedicatedSecondsPassed = tLX->currentTime;	// Reset timers
+	cHostLobby.FocusWidget(hl_ChatText);
 }
 
 //////////////////////
