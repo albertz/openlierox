@@ -352,13 +352,10 @@ void CWormHumanInputHandler::getInput() {
 			}
 		}
 
-		const float carveDelay = 0.2f;
-
-		if (cStrafe.isDown() && tLX->currentTime - m_worm->fLastCarve >= carveDelay) {
+		if (cStrafe.isDownOnce()) {
 			// Strafe also acts like dig button for touchscreen controls
 			ws->bCarve = true;
 			ws->bMove = true;
-			m_worm->fLastCarve = tLX->currentTime;
 		}
 
 		// inform player about disallowed strafing
