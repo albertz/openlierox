@@ -1,10 +1,8 @@
 
-- 'Kick player' popup menu cannot be closed by clicking outside of the menu.
-
-- Auto-select text input field in lobby.
-
 - Android text input is getting stuck when starting to type in the game but finishing to the lobby.
 
 - Auto-unstuck if player is stuck.
 
 - Show damage received in score box.
+
+- IPv6 support.
