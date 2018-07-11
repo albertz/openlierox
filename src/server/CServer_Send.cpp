@@ -1016,7 +1016,12 @@ void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 	CBytestream bs;
 	bs.writeByte(S2C_SCOREUPDATE);
 	bs.writeInt(Worm->getID(), 1);
-	bs.writeInt16(Worm->getLives());	// Still int16 to allow WRM_OUT parsing (maybe I'm wrong though)
+	if (tLXOptions->tGameInfo.iLives < 0 && Worm->getLives() == WRM_UNLIM &&
+		cl->getClientVersion() >= OLXRcVersion(0,58,5) && cl->getClientVersion() < OLXBetaVersion(0,59,0)) {
+		bs.writeInt16(Worm->getDeaths()); // Send deaths count for matches with unlimited lives, 0.58_rc5 and up, and I'm too lazy to intoduce another CServerNetEngine class
+	} else {
+		bs.writeInt16(Worm->getLives());	// Still int16 to allow WRM_OUT parsing (maybe I'm wrong though)
+	}
 	bs.writeInt(Worm->getScore(), 4); // Negative kills are allowed
 	bs.writeFloat(Worm->getDamage());
 

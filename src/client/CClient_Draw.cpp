@@ -1043,21 +1043,28 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	//DrawBox(bmpDest, *LivesX, *LivesY, *LivesW); // Box first
 
 	std::string lives_str;
-	lives_str = "Lives: ";
-	switch (worm->getLives())  {
-	case WRM_OUT:
-		lives_str += "Out";
-		tLX->cOutlineFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
-		break;
-	case WRM_UNLIM:
-		tLX->cOutlineFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
-		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpInfinite, *LivesX + *LivesW - DeprecatedGUI::gfxGame.bmpInfinite.get()->w,
-					*LivesY + tLX->cOutlineFont.GetHeight() / 2 - DeprecatedGUI::gfxGame.bmpInfinite.get()->h / 2); // Infinite
-		break;
-	default:
-		if (worm->getLives() >= 0)  {
-			lives_str += itoa( worm->getLives() );
-			tLX->cOutlineFont.Draw(bmpDest,*LivesX + 2, *LivesY, tLX->clLivesLabel, lives_str);
+	if (worm->getLives() == WRM_UNLIM && tLXOptions->tGameInfo.iLives < 0 &&
+		getServerVersion() >= OLXRcVersion(0,58,5) && getServerVersion() < OLXBetaVersion(0,59,0)) {
+		lives_str = "Deaths: "; // Print death count in games with unlimited lives
+		lives_str += itoa( worm->getDeaths() );
+		tLX->cOutlineFont.Draw(bmpDest,*LivesX + 2, *LivesY, tLX->clLivesLabel, lives_str);
+	} else {
+		lives_str = "Lives: ";
+		switch (worm->getLives())  {
+		case WRM_OUT:
+			lives_str += "Out";
+			tLX->cOutlineFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
+			break;
+		case WRM_UNLIM:
+			tLX->cOutlineFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
+			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpInfinite, *LivesX + *LivesW - DeprecatedGUI::gfxGame.bmpInfinite.get()->w,
+						*LivesY + tLX->cOutlineFont.GetHeight() / 2 - DeprecatedGUI::gfxGame.bmpInfinite.get()->h / 2); // Infinite
+			break;
+		default:
+			if (worm->getLives() >= 0)  {
+				lives_str += itoa( worm->getLives() );
+				tLX->cOutlineFont.Draw(bmpDest,*LivesX + 2, *LivesY, tLX->clLivesLabel, lives_str);
+			}
 		}
 	}
 
@@ -1608,17 +1615,22 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			// Name
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL);
 
-			// Lives
-			switch (p->getLives())  {
-			case WRM_UNLIM:
-				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
-				break;
-			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
-				break;
-			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
-				break;
+			if (p->getLives() == WRM_UNLIM && tLXOptions->tGameInfo.iLives < 0 &&
+				getServerVersion() >= OLXRcVersion(0,58,5) && getServerVersion() < OLXBetaVersion(0,59,0)) {
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDeaths()), (DynDrawIntf*)NULL, NULL);
+			} else {
+				// Lives
+				switch (p->getLives())  {
+				case WRM_UNLIM:
+					lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
+					break;
+				case WRM_OUT:
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
+					break;
+				default:
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
+					break;
+				}
 			}
 
 			// Kills
@@ -1667,17 +1679,22 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			// Name
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL);
 
-			// Lives
-			switch (p->getLives())  {
-			case WRM_UNLIM:
-				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
-				break;
-			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
-				break;
-			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
-				break;
+			if (p->getLives() == WRM_UNLIM && tLXOptions->tGameInfo.iLives < 0 &&
+				getServerVersion() >= OLXRcVersion(0,58,5) && getServerVersion() < OLXBetaVersion(0,59,0)) {
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDeaths()), (DynDrawIntf*)NULL, NULL);
+			} else {
+				// Lives
+				switch (p->getLives())  {
+				case WRM_UNLIM:
+					lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
+					break;
+				case WRM_OUT:
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
+					break;
+				default:
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
+					break;
+				}
 			}
 
 			// Dirt count
@@ -1718,17 +1735,22 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			// Name
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL);
 
-			// Lives
-			switch (p->getLives())  {
-			case WRM_UNLIM:
-				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
-				break;
-			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
-				break;
-			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
-				break;
+			if (p->getLives() == WRM_UNLIM && tLXOptions->tGameInfo.iLives < 0 &&
+				getServerVersion() >= OLXRcVersion(0,58,5) && getServerVersion() < OLXBetaVersion(0,59,0)) {
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDeaths()), (DynDrawIntf*)NULL, NULL);
+			} else {
+				// Lives
+				switch (p->getLives())  {
+				case WRM_UNLIM:
+					lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
+					break;
+				case WRM_OUT:
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
+					break;
+				default:
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
+					break;
+				}
 			}
 
 			// Kills
@@ -1811,17 +1833,22 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				// Name
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL);
 
-				// Lives
-				switch (p->getLives())  {
-				case WRM_UNLIM:
-					lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
-					break;
-				case WRM_OUT:
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
-					break;
-				default:
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
-					break;
+				if (p->getLives() == WRM_UNLIM && tLXOptions->tGameInfo.iLives < 0 &&
+					getServerVersion() >= OLXRcVersion(0,58,5) && getServerVersion() < OLXBetaVersion(0,59,0)) {
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDeaths()), (DynDrawIntf*)NULL, NULL);
+				} else {
+					// Lives
+					switch (p->getLives())  {
+					case WRM_UNLIM:
+						lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
+						break;
+					case WRM_OUT:
+						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
+						break;
+					default:
+						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
+						break;
+					}
 				}
 
 				// Kills
@@ -2439,12 +2466,18 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 		Left->AddColumn("", 120, tLX->clHeading);
 		Right->AddColumn("", 120, tLX->clHeading);
 	} else {
-		Left->AddColumn("L", 40, tLX->clHeading);  // Lives
-		Right->AddColumn("L", 40, tLX->clHeading);
+		if (tLXOptions->tGameInfo.iLives < 0 &&
+			getServerVersion() >= OLXRcVersion(0,58,5) && getServerVersion() < OLXBetaVersion(0,59,0)) {
+			Left->AddColumn("D", 40, tLX->clHeading);  // Lives
+			Right->AddColumn("D", 40, tLX->clHeading);
+		} else {
+			Left->AddColumn("L", 40, tLX->clHeading);  // Lives
+			Right->AddColumn("L", 40, tLX->clHeading);
+		}
 		Left->AddColumn("K", 40, tLX->clHeading);  // Kills
 		Right->AddColumn("K", 40, tLX->clHeading);
-		Left->AddColumn("D", 40, tLX->clHeading);  // Damage
-		Right->AddColumn("D", 40, tLX->clHeading); // TODO: check if it fits the screen
+		Left->AddColumn("Dmg", 40, tLX->clHeading);  // Damage
+		Right->AddColumn("Dmg", 40, tLX->clHeading); // TODO: check if it fits the screen
 	}
 
 	if (tLX->iGameType == GME_HOST)  {
@@ -2498,17 +2531,22 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 		if (WaitForPlayers)
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getGameReady() ? "Ready" : "Waiting", (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, p->getGameReady() ? tLX->clReady : tLX->clWaiting);
 		else  {
-			// Lives
-			switch (p->getLives())  {
-			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
-				break;
-			case WRM_UNLIM:
-				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
-				break;
-			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
-				break;
+			if (p->getLives() == WRM_UNLIM && tLXOptions->tGameInfo.iLives < 0 &&
+				getServerVersion() >= OLXRcVersion(0,58,5) && getServerVersion() < OLXBetaVersion(0,59,0)) {
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDeaths()), (DynDrawIntf*)NULL, NULL);
+			} else {
+				// Lives
+				switch (p->getLives())  {
+				case WRM_OUT:
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
+					break;
+				case WRM_UNLIM:
+					lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
+					break;
+				default:
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
+					break;
+				}
 			}
 
 			// Kills

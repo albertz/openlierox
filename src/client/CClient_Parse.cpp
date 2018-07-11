@@ -2095,7 +2095,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
 
 		client->cRemoteWorms[id].setAlive(false);
-		client->cRemoteWorms[id].setDeaths(client->cRemoteWorms[id].getDeaths()+1);
+		//client->cRemoteWorms[id].setDeaths(client->cRemoteWorms[id].getDeaths()+1);
 		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
 			client->cRemoteWorms[id].clearInput();
 
@@ -2455,7 +2455,13 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 	if(id >= 0 && id < MAX_WORMS)  {
 		log_worm_t *l = client->GetLogWorm(id);
 
-		client->cRemoteWorms[id].setLives( MAX<int>((int)bs->readInt16(), WRM_UNLIM) );
+		int lives = MAX<int>((int)bs->readInt16(), WRM_UNLIM);
+		if (lives != WRM_OUT && lives != WRM_UNLIM && tLXOptions->tGameInfo.iLives < 0 &&
+			client->getServerVersion() >= OLXRcVersion(0,58,5) && client->getServerVersion() < OLXBetaVersion(0,59,0)) {
+			client->cRemoteWorms[id].setDeaths( lives ); // Matches with infinite lives will show deaths in the scoreboard
+		} else {
+			client->cRemoteWorms[id].setLives( lives );
+		}
 	
 		client->cRemoteWorms[id].setKills( bs->readInt(4) );
 		float damage = bs->readFloat();
