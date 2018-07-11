@@ -123,7 +123,10 @@ int main6(int argc, char ** argv)
 		printf("Error opening UDP6 socket\n");
 		return 1;
 	};
-	
+
+	int v6only = 1;
+	setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&v6only, sizeof(v6only));
+
 	struct sockaddr_in6 addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin6_family = AF_INET6;
