@@ -1749,50 +1749,92 @@ NLint sock_Write(NLsocket socket, const NLvoid *buffer, NLint nbytes)
 
 NLchar *sock_AddrToString(const NLaddress *address, NLchar *string)
 {
-    NLulong     addr;
-    NLushort    port;
     
-    addr = ntohl(((struct sockaddr_in *)address)->sin_addr.s_addr);
-    port = ntohs(((struct sockaddr_in *)address)->sin_port);
-    if(port == 0)
+    if(((struct sockaddr_in *)address)->sin_family == AF_INET6)
     {
-        _stprintf(string, TEXT("%lu.%lu.%lu.%lu"), (addr >> 24) & 0xff, (addr >> 16)
-            & 0xff, (addr >> 8) & 0xff, addr & 0xff);
+        NLushort port = ntohs(((struct sockaddr_in6 *)address)->sin6_port);
+        strcpy(string, "[");
+        inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)address)->sin6_addr), string, INET6_ADDRSTRLEN);
+        _stprintf(string + strlen(string), TEXT("]:%u"), port);
     }
     else
     {
-        _stprintf(string, TEXT("%lu.%lu.%lu.%lu:%u"), (addr >> 24) & 0xff, (addr >> 16)
-            & 0xff, (addr >> 8) & 0xff, addr & 0xff, port);
+        NLulong     addr;
+        NLushort    port;
+        addr = ntohl(((struct sockaddr_in *)address)->sin_addr.s_addr);
+        port = ntohs(((struct sockaddr_in *)address)->sin_port);
+        if(port == 0)
+        {
+            _stprintf(string, TEXT("%lu.%lu.%lu.%lu"), (addr >> 24) & 0xff, (addr >> 16)
+                & 0xff, (addr >> 8) & 0xff, addr & 0xff);
+        }
+        else
+        {
+            _stprintf(string, TEXT("%lu.%lu.%lu.%lu:%u"), (addr >> 24) & 0xff, (addr >> 16)
+                & 0xff, (addr >> 8) & 0xff, addr & 0xff, port);
+        }
     }
     return string;
 }
 
 NLboolean sock_StringToAddr(const NLchar *string, NLaddress *address)
 {
-    NLulong     a1, a2, a3, a4;
-    NLulong     ipaddress, port = 0;
-    int         ret;
-
-    ret = _stscanf((const NLchar *)string, (const NLchar *)TEXT("%lu.%lu.%lu.%lu:%lu"), &a1, &a2, &a3, &a4, &port);
-
-    if(a1 > 255 || a2 > 255 || a3 > 255 || a4 > 255 || port > 65535 || ret < 4)
+    if(string[0] == '[')
     {
-        /* bad address */
-        ((struct sockaddr_in *)address)->sin_family = AF_INET;
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = INADDR_NONE;
-        ((struct sockaddr_in *)address)->sin_port = 0;
-        nlSetError(NL_BAD_ADDR);
-        address->valid = NL_FALSE;
-        return NL_FALSE;
+        NLchar addrPart[INET6_ADDRSTRLEN];
+        const NLchar *addrPartEnd;
+        NLulong port = 0;
+
+        memset(address, 0, sizeof(struct sockaddr_in6));
+        ((struct sockaddr_in6 *)address)->sin6_family = AF_INET6;
+        string += 1;
+        addrPartEnd = strchr(string, ']');
+        if(addrPartEnd == NULL || addrPartEnd - string >= INET6_ADDRSTRLEN || addrPartEnd == string)
+        {
+            nlSetError(NL_BAD_ADDR);
+            address->valid = NL_FALSE;
+            return NL_FALSE;
+        }
+        strncpy(addrPart, string, addrPartEnd - string);
+        addrPart[addrPartEnd - string] = '\0';
+        if(inet_pton(AF_INET6, addrPart, &(((struct sockaddr_in6 *)address)->sin6_addr)) != 1)
+        {
+            nlSetError(NL_BAD_ADDR);
+            address->valid = NL_FALSE;
+            return NL_FALSE;
+        }
+        _stscanf(addrPartEnd, (const NLchar *)TEXT("]:%lu"), &port);
+        ((struct sockaddr_in6 *)address)->sin6_port = htons((NLushort)port);
+        address->valid = NL_TRUE;
+        return NL_TRUE;
     }
     else
     {
-        ipaddress = (a1 << 24) | (a2 << 16) | (a3 << 8) | a4;
-        ((struct sockaddr_in *)address)->sin_family = AF_INET;
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = htonl(ipaddress);
-        ((struct sockaddr_in *)address)->sin_port = htons((NLushort)port);
-        address->valid = NL_TRUE;
-        return NL_TRUE;
+        NLulong     a1, a2, a3, a4;
+        NLulong     ipaddress, port = 0;
+        int         ret;
+
+        ret = _stscanf((const NLchar *)string, (const NLchar *)TEXT("%lu.%lu.%lu.%lu:%lu"), &a1, &a2, &a3, &a4, &port);
+
+        if(a1 > 255 || a2 > 255 || a3 > 255 || a4 > 255 || port > 65535 || ret < 4)
+        {
+            /* bad address */
+            ((struct sockaddr_in *)address)->sin_family = AF_INET;
+            ((struct sockaddr_in *)address)->sin_addr.s_addr = INADDR_NONE;
+            ((struct sockaddr_in *)address)->sin_port = 0;
+            nlSetError(NL_BAD_ADDR);
+            address->valid = NL_FALSE;
+            return NL_FALSE;
+        }
+        else
+        {
+            ipaddress = (a1 << 24) | (a2 << 16) | (a3 << 8) | a4;
+            ((struct sockaddr_in *)address)->sin_family = AF_INET;
+            ((struct sockaddr_in *)address)->sin_addr.s_addr = htonl(ipaddress);
+            ((struct sockaddr_in *)address)->sin_port = htons((NLushort)port);
+            address->valid = NL_TRUE;
+            return NL_TRUE;
+        }
     }
 }
 

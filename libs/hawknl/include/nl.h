@@ -155,7 +155,7 @@ typedef char NLchar;
 
 typedef struct _NLaddress
 {
-     NLubyte    addr[32];       /* large enough to hold IPv6 address */
+     NLubyte    addr[56];       /* large enough to hold IPv6 address = strlen("[ABCD:ABCD:ABCD:ABCD:ABCD:ABCD:192.168.158.190]:12345") */
      NLenum     driver;         /* driver type, not used yet */
      NLboolean  valid;          /* set to NL_TRUE when address is valid */
 } NLaddress;
