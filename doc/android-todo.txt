@@ -1,6 +1,4 @@
 
-- Android text input is getting stuck when starting to type in the game but finishing to the lobby.
-
 - Auto-unstuck if player is stuck.
 
 - IPv6 support.

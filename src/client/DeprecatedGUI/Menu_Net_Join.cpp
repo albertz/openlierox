@@ -591,6 +591,10 @@ void Menu_Net_JoinLobbyCreateGui()
 	iJoinSpeaking = 0; // The first client is always speaking
 
 	cJoinLobby.FocusWidget(jl_ChatText);
+#ifdef __ANDROID__
+	Menu_WarpMouse(cJoinLobby.getWidget(jl_ChatText)->getX() + cJoinLobby.getWidget(jl_ChatText)->getWidth() - 2,
+					cJoinLobby.getWidget(jl_ChatText)->getY() + cJoinLobby.getWidget(jl_ChatText)->getHeight() - 2);
+#endif
 }
 
 

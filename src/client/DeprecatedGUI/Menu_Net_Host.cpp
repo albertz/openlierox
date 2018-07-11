@@ -756,6 +756,10 @@ void Menu_Net_HostLobbyCreateGui()
 	iSpeaking = 0; // The first player always speaks
 	fStartDedicatedSecondsPassed = tLX->currentTime;	// Reset timers
 	cHostLobby.FocusWidget(hl_ChatText);
+#ifdef __ANDROID__
+	Menu_WarpMouse(cHostLobby.getWidget(hl_ChatText)->getX() + cHostLobby.getWidget(hl_ChatText)->getWidth() - 2,
+					cHostLobby.getWidget(hl_ChatText)->getY() + cHostLobby.getWidget(hl_ChatText)->getHeight() - 2);
+#endif
 }
 
 //////////////////////
