@@ -3,6 +3,4 @@
 
 - Auto-unstuck if player is stuck.
 
-- Show damage received in score box.
-
 - IPv6 support.
