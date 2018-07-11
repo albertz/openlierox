@@ -1,4 +1,2 @@
 
-- Auto-unstuck if player is stuck.
-
 - IPv6 support.
