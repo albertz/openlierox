@@ -6,6 +6,7 @@
 #include <list>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 static void signal_handler_impl(int signum);
 
@@ -51,10 +52,11 @@ void signal_handler_impl(int signum)
 {
 	printf("Caught signal %i, quitting\n", signum);
 	quit=true;
-	struct sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	struct sockaddr_in6 addr;
+	memset(&addr, 0, sizeof(addr));
+	addr.sin6_family = AF_INET6;
+	addr.sin6_port = htons(port);
+	inet_pton(AF_INET6, "::1", &addr.sin6_addr);
 	sendto( sock, "lx::ping", 9, 0, (struct sockaddr *)&addr, sizeof(addr) );
 };
 
@@ -82,17 +84,17 @@ struct HostInfo
 
 struct RawPacketRequest
 {
-	RawPacketRequest( sockaddr_in _src, sockaddr_in _dst, time_t _lastping ):
+	RawPacketRequest( sockaddr_in6 _src, sockaddr_in6 _dst, time_t _lastping ):
 		src( _src ), dst( _dst ), lastping( _lastping ) {};
 
-	struct sockaddr_in src;
-	struct sockaddr_in dst;
+	struct sockaddr_in6 src;
+	struct sockaddr_in6 dst;
 	time_t lastping;
 };
 
-static bool AreNetAddrEqual( sockaddr_in a1, sockaddr_in a2 )
+static bool AreNetAddrEqual( const sockaddr_in6 & a1, const sockaddr_in6 & a2 )
 {
-	return a1.sin_addr.s_addr == a2.sin_addr.s_addr && a1.sin_port == a2.sin_port;
+	return memcmp(&a1.sin6_addr, &a2.sin6_addr, sizeof(a1.sin6_addr)) == 0 && a1.sin6_port == a2.sin6_port;
 }
 
 static void printStr(const std::string & s)
@@ -102,15 +104,8 @@ static void printStr(const std::string & s)
 	printf("\n");
 };
 
-extern int main6(int argc, char ** argv);
-
-int main(int argc, char ** argv)
+int main6(int argc, char ** argv)
 {
-	if( argc > 1 && std::string(argv[1]) == "-6" )
-	{
-		return main6(argc - 1, argv + 1);
-	}
-
 	#ifdef WIN32
 	WSADATA dummy;
 	WSAStartup(MAKEWORD(2,0), &dummy );
@@ -122,30 +117,30 @@ int main(int argc, char ** argv)
 	if( argc > 1 )
 		port = atoi( argv[1] );
 
-	sock = socket( PF_INET, SOCK_DGRAM, IPPROTO_UDP );
+	sock = socket( AF_INET6, SOCK_DGRAM, IPPROTO_UDP );
 	if( sock == -1 )
 	{
-		printf("Error opening UDP socket\n");
+		printf("Error opening UDP6 socket\n");
 		return 1;
 	};
 	
-	struct sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = 0;
+	struct sockaddr_in6 addr;
+	memset(&addr, 0, sizeof(addr));
+	addr.sin6_family = AF_INET6;
+	addr.sin6_port = htons(port);
 	
 	if( bind( sock, (struct sockaddr *)&addr, sizeof(addr) ) != 0 )
 	{
-		printf("Error binding UDP socket at port %i\n", port);
+		printf("Error binding UDP6 socket at port %i\n", port);
 		return 1;
 	};
 	
-	printf("UDP masterserver started at port %i\n", port);
+	printf("UDP6 masterserver started at port %i\n", port);
 	
 	std::list< HostInfo > hosts;
 	std::list< RawPacketRequest > askedRawPackets;
 	
-	struct sockaddr_in source;
+	struct sockaddr_in6 source;
 	unsigned sourcePort;
 	socklen_t sourceLen;
 	char buf[1500];
@@ -162,10 +157,14 @@ int main(int argc, char ** argv)
 		
 		data.assign( buf, size );
 		
-		sourcePort = ntohs(source.sin_port);
+		sourcePort = ntohs(source.sin6_port);
 		
-		std::string srcAddr = inet_ntoa( source.sin_addr );
-		char sourceAddrBuf[128];
+		char sourceAddrBuf[INET6_ADDRSTRLEN];
+		inet_ntop(AF_INET6, &source.sin6_addr, sourceAddrBuf, sizeof(sourceAddrBuf));
+
+		std::string srcAddr = "[";
+		srcAddr += sourceAddrBuf;
+		srcAddr += "]";
 		sprintf(sourceAddrBuf, "%i", sourcePort );
 		srcAddr += ":";
 		srcAddr += sourceAddrBuf;
@@ -205,20 +204,29 @@ int main(int argc, char ** argv)
 		
 		else if( data.find( "\xff\xff\xff\xfflx::traverse" ) == 0 )
 		{
-			struct sockaddr_in dest;
-			dest.sin_family = AF_INET;
+			struct sockaddr_in6 dest;
+			memset(&dest, 0, sizeof(dest));
+			dest.sin6_family = AF_INET6;
 			unsigned destPort;
 			int f = data.find( '\0' );
 			if( f == std::string::npos )
 				continue;
 			f++;
-			if( f >= data.size() || data.find(":", f) == std::string::npos )
+			if( f >= data.size() || data[f] != '[' )
 				continue;
-			dest.sin_addr.s_addr = inet_addr( data.substr( f, data.find(":", f) - f ).c_str() );
-			f = data.find(":", f);
 			f++;
+			if( f >= data.size() || data.find(']', f) == std::string::npos )
+				continue;
+			inet_pton(AF_INET6, data.substr( f, data.find(']', f) - f ).c_str(), &dest.sin6_addr);
+			f = data.find(']', f);
+			f++;
+			if( f >= data.size() || data[f] != ':' )
+				continue;
+			f++;
+			if( f >= data.size() )
+				continue;
 			destPort = atoi( data.c_str()+f );
-			dest.sin_port = htons(destPort);
+			dest.sin6_port = htons(destPort);
 			std::string send = "\xff\xff\xff\xfflx::traverse";
 			send += '\0';
 			send += srcAddr;
@@ -306,20 +314,29 @@ int main(int argc, char ** argv)
 		else if( data.find( "\xff\xff\xff\xfflx::ask" ) == 0 )
 		{
 			// Directly send given packet to server, and return back an answer
-			struct sockaddr_in dest;
-			dest.sin_family = AF_INET;
+			struct sockaddr_in6 dest;
+			memset(&dest, 0, sizeof(dest));
+			dest.sin6_family = AF_INET6;
 			unsigned destPort;
 			int f = data.find( '\0' );
 			if( f == std::string::npos )
 				continue;
 			f++;
-			if( f >= data.size() || data.find(":", f) == std::string::npos )
+			if( f >= data.size() || data[f] != '[' )
 				continue;
-			dest.sin_addr.s_addr = inet_addr( data.substr( f, data.find(":", f) - f ).c_str() );
-			f = data.find(":", f);
 			f++;
+			if( f >= data.size() || data.find(']', f) == std::string::npos )
+				continue;
+			inet_pton(AF_INET6, data.substr( f, data.find(']', f) - f ).c_str(), &dest.sin6_addr);
+			f = data.find(']', f);
+			f++;
+			if( f >= data.size() || data[f] != ':' )
+				continue;
+			f++;
+			if( f >= data.size() )
+				continue;
 			destPort = atoi( data.c_str()+f );
-			dest.sin_port = htons(destPort);
+			dest.sin6_port = htons(destPort);
 
 			f = data.find( '\0', f );
 			if( f != std::string::npos )	// Raw packet data to send to remote host
