@@ -200,6 +200,7 @@ IF (LIBLUA_BUILTIN)
 	AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/libs/lua LIBLUA_SRCS)
 	SET(ALL_SRCS ${ALL_SRCS} ${LIBLUA_SRCS})
 ELSE (LIBLUA_BUILTIN)
+	# TODO: Make this even more dynamic, search for the directory somehow? Like you can search for linking options with pkg-config?
 	#Search for lua5.1 first
 	IF(EXISTS /usr/include/lua5.1)
 		SET(LUA_SEARCHDIR /usr/include/lua5.1)
