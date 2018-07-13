@@ -346,14 +346,6 @@ NL_EXP NLaddress* NL_APIENTRY nlGetAllLocalAddr(/*@out@*/ NLint *count);
 
 NL_EXP NLboolean NL_APIENTRY nlSetLocalAddr(const NLaddress *address);
 
-NL_EXP /*@null@*/ NLchar* NL_APIENTRY nlGetNameFromAddr(const NLaddress *address, /*@returned@*/ /*@out@*/ NLchar *name);
-
-NL_EXP NLboolean NL_APIENTRY nlGetNameFromAddrAsync(const NLaddress *address, /*@out@*/ NLchar *name);
-
-NL_EXP NLboolean NL_APIENTRY nlGetAddrFromName(const NLchar *name, /*@out@*/ NLaddress *address);
-
-NL_EXP NLboolean NL_APIENTRY nlGetAddrFromNameAsync(const NLchar *name, /*@out@*/ NLaddress *address);
-
 NL_EXP NLboolean NL_APIENTRY nlAddrCompare(const NLaddress *address1, const NLaddress *address2);
 
 NL_EXP NLushort  NL_APIENTRY nlGetPortFromAddr(const NLaddress *address);
