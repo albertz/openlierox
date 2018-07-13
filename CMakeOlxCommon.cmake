@@ -200,7 +200,33 @@ IF (LIBLUA_BUILTIN)
 	AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/libs/lua LIBLUA_SRCS)
 	SET(ALL_SRCS ${ALL_SRCS} ${LIBLUA_SRCS})
 ELSE (LIBLUA_BUILTIN)
-	INCLUDE_DIRECTORIES(/usr/include/lua5.1) # FIXME: This can be "lua-5.1" on some systems, e.g. Fedora. Make this more dynamic.
+	# TODO: Make this even more dynamic, search for the directory somehow? Like you can search for linking options with pkg-config?
+	#Search for lua5.1 first
+	IF(EXISTS /usr/include/lua5.1)
+		SET(LUA_SEARCHDIR /usr/include/lua5.1)
+	ENDIF(EXISTS /usr/include/lua5.1)
+	
+	#On some systems, e.g. Fedora, it may be lua-5.1
+	IF(NOT LUA_SEARCHDIR)
+		IF(EXISTS /usr/include/lua-5.1)
+			SET(LUA_SEARCHDIR /usr/include/lua-5.1)
+		ENDIF(EXISTS /usr/include/lua-5.1)
+	ENDIF(NOT LUA_SEARCHDIR)
+
+	#If not found, try "lua", but give a warning
+	IF(NOT LUA_SEARCHDIR)
+		MESSAGE(WARNING "No Lua 5.1 header directory found. Trying default lua but it may not work. You may have to install Lua 5.1 development packages, or use the built-in library")
+		IF(EXISTS /usr/include/lua)
+			SET(LUA_SEARCHDIR /usr/include/lua)
+		ENDIF(EXISTS /usr/include/lua)
+	ENDIF(NOT LUA_SEARCHDIR)
+
+	#Set the header path, or display a warning if it doesn't exist
+	IF(LUA_SEARCHDIR)
+		INCLUDE_DIRECTORIES(${LUA_SEARCHDIR})
+	ELSE(LUA_SEARCHDIR)
+		MESSAGE(WARNING "No Lua header directory found. Make sure that Lua 5.1 development packages are installed, or use the built-in library")
+	ENDIF(LUA_SEARCHDIR)
 ENDIF (LIBLUA_BUILTIN)
 
 IF (STLPORT)
