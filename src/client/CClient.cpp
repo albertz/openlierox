@@ -1307,15 +1307,9 @@ void CClient::Connect(const std::string& address)
 	InitializeDownloads();
 
 	if(!StringToNetAddr(address, cServerAddr)) {
-
-		strServerAddr_HumanReadable = strServerAddr + " (...)";
-		Timer("client connect DNS timeout", null, NULL, DNS_TIMEOUT * 1000 + 50, true).startHeadless();
-
-		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
-			iNetStatus = NET_DISCONNECTED;
-			bBadConnection = true;
-			strBadConnectMsg = "Unknown error while resolving address";
-		}
+		iNetStatus = NET_DISCONNECTED;
+		bBadConnection = true;
+		strBadConnectMsg = "Invalid server address";
 	}
 
 	// Connecting to a server behind a NAT?
@@ -1396,10 +1390,9 @@ void CClient::ConnectingBehindNAT()
 
 		// Resolve the UDP master server address
 		SetNetAddrValid(cServerAddr, false);
-		if(!GetNetAddrFromNameAsync(sUdpMasterserverAddress, cServerAddr)) {
-			iNetStatus = NET_DISCONNECTED;
-			bBadConnection = true;
-			strBadConnectMsg = "Unknown error while resolving address";
+		NetworkAddr ignored;
+		if(!GetFromDnsCache(sUdpMasterserverAddress, cServerAddr, ignored)) {
+			GetNetAddrFromNameAsync(sUdpMasterserverAddress);
 			return;
 		}
 

@@ -149,30 +149,66 @@ ReadWriteLock nlSystemUseChangeLock;
 
 
 typedef std::map<std::string, std::pair< NLaddress, AbsTime > > dnsCacheT; // Second parameter is expiration time of DNS record
-ThreadVar<dnsCacheT>* dnsCache = NULL;
+ThreadVar<dnsCacheT>* dnsCache4 = NULL;
+ThreadVar<dnsCacheT>* dnsCache6 = NULL;
 
-void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime ) {
+static void AddToDnsCache4(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime = TimeDiff(600.0f)) {
 	ScopedReadLock lock(nlSystemUseChangeLock);
-	if(dnsCache == NULL) return;
-	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
+	if(dnsCache4 == NULL) return;
+	ThreadVar<dnsCacheT>::Writer dns( *dnsCache4 );
 	dns.get()[name] = std::make_pair( *getNLaddr(addr), GetTime() + expireTime );
 }
 
-bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
+static void AddToDnsCache6(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime = TimeDiff(600.0f)) {
 	ScopedReadLock lock(nlSystemUseChangeLock);
-	if(dnsCache == NULL) return false;
-	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
+	if(dnsCache6 == NULL) return;
+	ThreadVar<dnsCacheT>::Writer dns6( *dnsCache6 );
+	dns6.get()[name] = std::make_pair( *getNLaddr(addr), GetTime() + expireTime );
+}
+
+bool GetFromDnsCache(const std::string& name, NetworkAddr& addr4, NetworkAddr& addr6) {
+
+	getNLaddr(addr4)->valid = NL_FALSE;
+	getNLaddr(addr6)->valid = NL_FALSE;
+
+	if (name[0] == '[' && StringToNetAddr(name, addr6)) {
+		return true;
+	}
+	if (StringToNetAddr(name, addr4)) {
+		return true;
+	}
+
+	ScopedReadLock lock(nlSystemUseChangeLock);
+	if(dnsCache4 == NULL) return false;
+	if(dnsCache6 == NULL) return false;
+	bool v4 = false, v6 = false;
+	ThreadVar<dnsCacheT>::Writer dns( *dnsCache4 );
 	dnsCacheT::iterator it = dns.get().find(name);
 	if(it != dns.get().end()) {
 		if( it->second.second < tLX->currentTime )
 		{
 			dns.get().erase(it);
-			return false;
 		}
-		*getNLaddr(addr) = it->second.first;
-		return true;
-	} else
-		return false;
+		else
+		{
+			*getNLaddr(addr4) = it->second.first;
+			v4 = true;
+		}
+	}
+	ThreadVar<dnsCacheT>::Writer dns6( *dnsCache6 );
+	it = dns6.get().find(name);
+	if(it != dns6.get().end()) {
+		if( it->second.second < tLX->currentTime )
+		{
+			dns6.get().erase(it);
+		}
+		else
+		{
+			*getNLaddr(addr6) = it->second.first;
+			v6 = true;
+		}
+	}
+	return v4 && v6; // Cache needs both address families to be present to consider an entry valid
 }
 
 
@@ -198,7 +234,8 @@ bool InitNetworkSystem() {
 
 	bNetworkInited = true;
 	
-	dnsCache = new ThreadVar<dnsCacheT>();
+	dnsCache4 = new ThreadVar<dnsCacheT>();
+	dnsCache6 = new ThreadVar<dnsCacheT>();
 
 #if !defined(WIN32) && !defined(__ANDROID__)
 	//sigignore(SIGPIPE);
@@ -215,7 +252,8 @@ bool QuitNetworkSystem() {
 	nlSystemUseChangeLock.startWriteAccess();
 	nlShutdown();
 	bNetworkInited = false;
-	delete dnsCache; dnsCache = NULL;
+	delete dnsCache4; dnsCache4 = NULL;
+	delete dnsCache6; dnsCache6 = NULL;
 	nlSystemUseChangeLock.endWriteAccess();
 	curl_global_cleanup();
 	return true;
@@ -539,7 +577,7 @@ static bool nlUpdateState(NLsocket socket)
 		}
 		if(sock->type == NL_BROADCAST)
 		{
-			((struct sockaddr_in *)&sock->addressin)->sin_addr.s_addr = INADDR_BROADCAST;
+			inet_pton(AF_INET6, "ff02::1", &((struct sockaddr_in6 *)&sock->addressin)->sin6_addr);
 		}
 		if(sock->type == NL_UDP_MULTICAST)
 		{
@@ -586,16 +624,10 @@ static void nlPrepareClose(NLsocket socket) {
 	// *whole* HawkNL system (or at least actions like opening new sockets etc.)!
 	
 	nl_socket_t     *sock = nlSockets[socket];
-	struct ip_mreq  mreq;
     
 	if(sock->type == NL_UDP_MULTICAST)
 	{
 		/* leave the multicast group */
-		mreq.imr_multiaddr.s_addr = ((struct sockaddr_in *)&sock->addressout)->sin_addr.s_addr;
-		mreq.imr_interface.s_addr = INADDR_ANY; //bindaddress;
-        
-		(void)setsockopt((SOCKET)sock->realsocket, IPPROTO_IP, IP_DROP_MEMBERSHIP,
-		 (char *)&mreq, (int)sizeof(mreq));
 	}
 	if(sock->type == NL_RELIABLE_PACKETS)
 	{
@@ -1145,15 +1177,6 @@ bool NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
 	return true;
 }
 
-
-
-
-
-
-
-
-
-
 int GetSocketErrorNr() {
 	return nlGetError();
 }
@@ -1242,14 +1265,14 @@ bool NetAddrToString(const NetworkAddr& addr, std::string& string) {
 NetworkAddr StringToNetAddr(const std::string& string) { 
 	NetworkAddr ret; 
 	ResetNetAddr(ret); 
-	StringToNetAddr(string, ret); 
-	return ret; 
+	StringToNetAddr(string, ret);
+	return ret;
 };
 
 std::string NetAddrToString(const NetworkAddr& addr) { 
-	std::string ret; 
-	NetAddrToString(addr, ret); 
-	return ret; 
+	std::string ret;
+	NetAddrToString(addr, ret);
+	return ret;
 };
 
 unsigned short GetNetAddrPort(const NetworkAddr& addr) {
@@ -1286,12 +1309,16 @@ bool AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2) {
 Event<> onDnsReady;
 
 // copied from HawkNL sock.c and modified to not use nlStringToNetAddr
-static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address) {
-	struct hostent *hostentry;
+static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address4, NLaddress* address6) {
     NLushort    port = 0;
-    int			pos;
+    char        *pos;
+    int         status;
     NLbyte      temp[NL_MAX_STRING_LENGTH];
-	
+	struct      addrinfo hints;
+	struct      addrinfo *result, *rp;
+
+	address4->valid = NL_FALSE;
+	address6->valid = NL_FALSE;
 #ifdef _UNICODE
     /* convert from wide char string to multibyte char string */
     (void)wcstombs(temp, (const NLchar *)name, NL_MAX_STRING_LENGTH);
@@ -1299,62 +1326,79 @@ static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address
     strncpy(temp, name, NL_MAX_STRING_LENGTH);
 #endif
     temp[NL_MAX_STRING_LENGTH - 1] = (NLbyte)'\0';
-    pos = (int)strcspn(temp, (const char *)":");
-    if(pos > 0)
+    pos = strrchr(temp, ':');
+    if(pos != NULL)
     {
-        NLbyte      *p = &temp[pos+1];
-		
-        temp[pos] = (NLbyte)'\0';
-        (void)sscanf(p, "%hu", &port);
+        pos[0] = (NLbyte)'\0';
+        (void)sscanf(pos+1, "%hu", &port);
     }
-    hostentry = gethostbyname((const char *)temp);
-	
-    if(hostentry != NULL)
+
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = 0;
+    hints.ai_flags = 0;    /* For wildcard IP address */
+    hints.ai_protocol = 0;          /* Any protocol */
+    hints.ai_canonname = NULL;
+    hints.ai_addr = NULL;
+    hints.ai_next = NULL;
+
+    status = getaddrinfo(temp, NULL, &hints, &result);
+    if(status != 0 || result == NULL)
     {
-        ((struct sockaddr_in *)address)->sin_family = AF_INET;
-        ((struct sockaddr_in *)address)->sin_port = htons(port);
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = *(NLulong *)hostentry->h_addr_list[0];
-        address->valid = NL_TRUE;
-    }
-    else
-    {
-        ((struct sockaddr_in *)address)->sin_family = AF_INET;
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = INADDR_NONE;
-        ((struct sockaddr_in *)address)->sin_port = 0;
         nlSetError(NL_SYSTEM_ERROR);
         return false;
     }
-    return true;
+
+    for (rp = result; rp != NULL; rp = rp->ai_next)
+    {
+        if(rp->ai_family == AF_INET && !address4->valid)
+        {
+            ((struct sockaddr_in6 *)address4)->sin6_family = AF_INET6;
+            ((struct sockaddr_in6 *)address4)->sin6_port = htons(port);
+            struct in_addr v4addr;
+            v4addr = ((struct sockaddr_in *)rp->ai_addr)->sin_addr;
+            char addr6[32] = "::ffff:";
+            strcat(addr6, inet_ntoa(v4addr));
+            inet_pton(AF_INET6, addr6, &((struct sockaddr_in6 *)address4)->sin6_addr);
+            address4->valid = NL_TRUE;
+        }
+        if(rp->ai_family == AF_INET6 && !address6->valid)
+        {
+            ((struct sockaddr_in6 *)address6)->sin6_family = AF_INET6;
+            ((struct sockaddr_in6 *)address6)->sin6_port = htons(port);
+            memcpy(&((struct sockaddr_in6 *)address6)->sin6_addr, rp->ai_addr, sizeof(struct in6_addr));
+            address6->valid = NL_TRUE;
+        }
+    }
+
+    freeaddrinfo(result);
+
+    return address4->valid || address6->valid;
 }
 
 static std::set<std::string> PendingDnsQueries;
 static Mutex PendingDnsQueriesMutex;
 
-bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
+bool GetNetAddrFromNameAsync(const std::string& name)
 {
 	// We don't use nlGetAddrFromNameAsync here because we have to use SmartPointers
 	// The problem is, if you call this and then delete the memory of the network address
 	// while the thread isn't ready, it will write after to deleted memory.
 
-	if(getNLaddr(addr) == NULL)
-		return false;
+	NetworkAddr addr4, addr6;
 
 	if(name == "") {
-		SetNetAddrValid(addr, false);
 		return false;
 	}
-	
-	if (StringToNetAddr(name, addr))  {
-		return true;
-	}
-	ResetSocketError(); // Clear the bad address error
-	
-	if(GetFromDnsCache(name, addr)) {
-		SetNetAddrValid(addr, true);
+	if (StringToNetAddr(name, addr4)) {
 		return true;
 	}
 
-    getNLaddr(addr)->valid = NL_FALSE;
+	ResetSocketError(); // Clear the bad address error
+	
+	if(GetFromDnsCache(name, addr4, addr6)) {
+		return true;
+	}
 
 	{
 		Mutex::ScopedLock l(PendingDnsQueriesMutex);
@@ -1365,12 +1409,17 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
 	struct GetAddrFromNameAsync_Executer : Task {
 		std::string addr_name;
-		NetAddrInternal::Ptr_t address;
+		NetworkAddr address4, address6;
 		
 		int handle() {
-			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), address.get())) {
+			getNLaddr(address4)->valid = NL_FALSE;
+			getNLaddr(address6)->valid = NL_FALSE;
+			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), getNLaddr(address4), getNLaddr(address6))) {
 				// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
-				AddToDnsCache(addr_name, NetworkAddr(NetAddrInternal(*address.get())));
+				// Cache both valid and invalid addersses, one server may have IPv4 but no IPv6 address
+				notes << "DNS: resolved " << addr_name << " to " << NetAddrToString(address4) << " IPv6 " << NetAddrToString(address6) << endl;
+				AddToDnsCache4(addr_name, address4);
+				AddToDnsCache6(addr_name, address6);
 			}
 			
 			// TODO: handle failures here? there should be, but we only have the valid field
@@ -1388,8 +1437,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 	GetAddrFromNameAsync_Executer* data = new GetAddrFromNameAsync_Executer();
 	if(data == NULL) return false;
 	data->name = "GetNetAddrFromNameAsync for " + name;
-    data->addr_name = name;
-    data->address = NetworkAddrData(addr).getPtr();
+	data->addr_name = name;
 
 	taskManager->start(data, false);
     return true;

@@ -67,9 +67,8 @@ std::string NetAddrToString(const NetworkAddr& addr);
 unsigned short GetNetAddrPort(const NetworkAddr& addr);
 bool	SetNetAddrPort(NetworkAddr& addr, unsigned short port, std::string* errorStr = NULL);
 bool	AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2);
-bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr);
-void	AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime = TimeDiff(600.0f));
-bool	GetFromDnsCache(const std::string& name, NetworkAddr& addr);
+bool	GetNetAddrFromNameAsync(const std::string& name);
+bool	GetFromDnsCache(const std::string& name, NetworkAddr& addr4, NetworkAddr& addr6);
 
 
 

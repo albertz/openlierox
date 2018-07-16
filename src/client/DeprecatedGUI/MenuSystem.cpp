@@ -1231,11 +1231,18 @@ void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 	{
 		NetworkAddr masterserverAddr;
 		SetNetAddrValid(masterserverAddr, false);
-		if( ! GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr ) )
-			return;
+		NetworkAddr ignored;
+
+		if( ! GetFromDnsCache( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr, ignored ) )
+		{
+			GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress) );
+		}
 
 		for( int count = 0; !IsNetAddrValid(masterserverAddr) && count < 5; count++ )
+		{
 			SDL_Delay(20);
+			GetFromDnsCache( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr, ignored );
+		}
 
 		if( !IsNetAddrValid(masterserverAddr) )
 			return;
@@ -1264,11 +1271,18 @@ void Menu_SvrList_GetServerInfo(server_t *svr)
 	{
 		NetworkAddr masterserverAddr;
 		SetNetAddrValid(masterserverAddr, false);
-		if( ! GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr ) )
-			return;
+		NetworkAddr ignored;
+
+		if( ! GetFromDnsCache( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr, ignored ) )
+		{
+			GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress) );
+		}
 
 		for( int count = 0; !IsNetAddrValid(masterserverAddr) && count < 5; count++ )
+		{
 			SDL_Delay(20);
+			GetFromDnsCache( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr, ignored );
+		}
 
 		if( !IsNetAddrValid(masterserverAddr) )
 			return;
@@ -1348,7 +1362,11 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 
 		SetNetAddrValid(s->sAddress, false);
 		size_t f = s->szAddress.find(":");
-		GetNetAddrFromNameAsync(s->szAddress.substr(0, f), s->sAddress);
+		NetworkAddr ignored;
+
+		if( ! GetFromDnsCache( s->szAddress.substr(0, f), s->sAddress, ignored ) ) {
+			GetNetAddrFromNameAsync(s->szAddress.substr(0, f));
+		}
 	} else {
 		s->bAddrReady = true;
 		size_t f = s->szAddress.find(":");
@@ -1920,7 +1938,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 	for (std::list<std::string>::iterator it = tUdpMasterServers.begin(); it != tUdpMasterServers.end(); ++it, ++UdpServerIndex)  
 	{
 		std::string& server = *it;
-		NetworkAddr addr;
+		NetworkAddr addr, addr6;
 		if (server.find(':') == std::string::npos)
 			server += ":23450";  // Default port
 
@@ -1929,17 +1947,19 @@ int Menu_SvrList_UpdaterThread(void *id)
 		int port = atoi(server.substr(server.find(':') + 1));
 
 		// Resolve the address
-		if (!GetNetAddrFromNameAsync(domain, addr))
-			continue;
+		if( ! GetFromDnsCache( domain, addr, addr6 ) )
+		{
+			GetNetAddrFromNameAsync(domain);
+		}
 
 		AbsTime start = GetTime();
 		while (GetTime() - start <= 5.0f) {
 			SDL_Delay(40);
-			if(IsNetAddrValid(addr)) 
+			if( GetFromDnsCache( domain, addr, addr6 ) )
 				break;
 		}
 		
-		if( !IsNetAddrValid(addr) )
+		if( !IsNetAddrValid(addr) && !IsNetAddrValid(addr6) )
 		{
 			notes << "UDP masterserver failed: cannot resolve domain name " << domain << endl;
 			continue;
@@ -1947,45 +1967,53 @@ int Menu_SvrList_UpdaterThread(void *id)
 		
 		// Setup the socket
 		SetNetAddrPort(addr, port);
-		sock.setRemoteAddress(addr);
+		SetNetAddrPort(addr6, port);
 
-		// Send the getserverlist packet
-		CBytestream *bs = new CBytestream();
-		bs->writeInt(-1, 4);
-		bs->writeString("lx::getserverlist2");
-		if(!bs->Send(&sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
-		bs->Clear();
+		for (int af = 0; af < 2; af++, addr = addr6)
+		{
+			if (!IsNetAddrValid(addr))
+				continue;
 
-		//notes << "Sent getserverlist to " << server << endl;
+			sock.setRemoteAddress(addr);
 
-		// Wait for the reply
-		AbsTime timeoutTime = GetTime() + 5.0f;
-		bool firstPacket = true;
-		while( true ) {
+			// Send the getserverlist packet
+			CBytestream *bs = new CBytestream();
+			bs->writeInt(-1, 4);
+			bs->writeString("lx::getserverlist2");
+			if(!bs->Send(&sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
+			bs->Clear();
 
-			while (GetTime() <= timeoutTime)  {
-				SDL_Delay(40); // TODO: do it event based
+			//notes << "Sent getserverlist to " << server << endl;
 
-				// Got a reply?
-				if (bs->Read(&sock))  {
-					//notes << "Got a reply from " << server << endl;
+			// Wait for the reply
+			AbsTime timeoutTime = GetTime() + 5.0f;
+			bool firstPacket = true;
+			while( true ) {
+
+				while (GetTime() <= timeoutTime)  {
+					SDL_Delay(40); // TODO: do it event based
+
+					// Got a reply?
+					if (bs->Read(&sock))  {
+						//notes << "Got a reply from " << server << endl;
+						break;
+					}
+					
+					
+				}
+
+				// Parse the reply
+				if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
+					serverlistEvent.pushToMainQueue(UdpServerlistData(bs, UdpServerIndex));
+					timeoutTime = GetTime() + 0.5f;	// Check for another packet
+					bs = new CBytestream(); // old bs pointer is in mainqueue now
+					firstPacket = false;
+				} else  {
+					if( firstPacket )
+						warnings << "Error getting serverlist from " << server << endl;
+					delete bs;
 					break;
 				}
-				
-				
-			}
-
-			// Parse the reply
-			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
-				serverlistEvent.pushToMainQueue(UdpServerlistData(bs, UdpServerIndex));
-				timeoutTime = GetTime() + 0.5f;	// Check for another packet
-				bs = new CBytestream(); // old bs pointer is in mainqueue now
-				firstPacket = false;
-			} else  {
-				if( firstPacket )
-					warnings << "Error getting serverlist from " << server << endl;
-				delete bs;
-				break;
 			}
 		}
 	}

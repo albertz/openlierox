@@ -2090,14 +2090,15 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 {
 	if( tUdpMasterServers.size() == 0 )
 		return;
-	NetworkAddr addr;
+	NetworkAddr addr, addr6;
 	std::string domain = tUdpMasterServers[0].substr( 0, tUdpMasterServers[0].find(":") );
 	int port = atoi(tUdpMasterServers[0].substr( tUdpMasterServers[0].find(":") + 1 ));
-	if( !GetFromDnsCache(domain, addr) )
+	if( !GetFromDnsCache(domain, addr, addr6) )
 		return;
 	SetNetAddrPort( addr, port );
+	SetNetAddrPort( addr6, port );
 		
-	if( tSocket->remoteAddress() == addr )
+	if( tSocket->remoteAddress() == addr || tSocket->remoteAddress() == addr6 )
 		iFirstUdpMasterServerNotRespondingCount = 0;
 }
 

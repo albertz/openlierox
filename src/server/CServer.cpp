@@ -1198,43 +1198,48 @@ void GameServer::RegisterServerUdp()
 			notes << "UDP masterserver list too big, max " << int(MAX_SERVER_SOCKETS) << " entries supported" << endl;
 			break;
 		}
-		NetworkAddr addr;
+		NetworkAddr addr, addr6;
 		if( tUdpMasterServers[f].find(":") == std::string::npos )
 			continue;
 		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].find(":") );
 		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].find(":") + 1 ));
-		if( !GetFromDnsCache(domain, addr) )
+		if( !GetFromDnsCache(domain, addr, addr6) )
 		{
-			GetNetAddrFromNameAsync(domain, addr);
+			GetNetAddrFromNameAsync(domain);
 			fRegisterUdpTime = tLX->currentTime + 5.0f;
 			continue;
 		}
 
-		//notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
-		SetNetAddrPort( addr, port );
-		tSockets[f]->setRemoteAddress( addr );
+		for (int af = 0; af < 2; af++, addr = addr6)
+		{
+			if (!IsNetAddrValid(addr))
+				continue;
+			//notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
+			SetNetAddrPort( addr, port );
+			tSockets[f]->setRemoteAddress( addr );
 
-		CBytestream bs;
+			CBytestream bs;
 
-		bs.writeInt(-1,4);
-		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSockets[f].get());
-		bs.Send(tSockets[f].get());
-		bs.Send(tSockets[f].get());
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+			bs.Send(tSockets[f].get());
+			bs.Send(tSockets[f].get());
+			bs.Send(tSockets[f].get());
 
-		bs.Clear();
-		bs.writeInt(-1, 4);
-		bs.writeString("lx::register");
-		bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
-		bs.writeByte(iNumPlayers);
-		bs.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
-		bs.writeByte(iState);
-		// Beta8+
-		bs.writeString(GetGameVersion().asString());
-		bs.writeByte(serverAllowsConnectDuringGame());
-		
+			bs.Clear();
+			bs.writeInt(-1, 4);
+			bs.writeString("lx::register");
+			bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
+			bs.writeByte(iNumPlayers);
+			bs.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
+			bs.writeByte(iState);
+			// Beta8+
+			bs.writeString(GetGameVersion().asString());
+			bs.writeByte(serverAllowsConnectDuringGame());
+			
 
-		bs.Send(tSockets[f].get());
+			bs.Send(tSockets[f].get());
+		}
 	}
 }
 
@@ -1247,32 +1252,39 @@ void GameServer::DeRegisterServerUdp()
 			notes << "UDP masterserver list too big, max " << int(MAX_SERVER_SOCKETS) << " entries supported" << endl;
 			break;
 		}
-		NetworkAddr addr;
+		NetworkAddr addr, addr6;
 		if( tUdpMasterServers[f].find(":") == std::string::npos )
 			continue;
 		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].find(":") );
 		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].find(":") + 1 ));
-		if( !GetFromDnsCache(domain, addr) )
+		if( !GetFromDnsCache(domain, addr, addr6) )
 		{
-			GetNetAddrFromNameAsync(domain, addr);
+			GetNetAddrFromNameAsync(domain);
 			continue;
 		}
-		SetNetAddrPort( addr, port );
-		tSockets[f]->setRemoteAddress( addr );
 
-		CBytestream bs;
+		for (int af = 0; af < 2; af++, addr = addr6)
+		{
+			if (!IsNetAddrValid(addr))
+				continue;
 
-		bs.writeInt(-1,4);
-		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSockets[f].get());
-		bs.Send(tSockets[f].get());
-		bs.Send(tSockets[f].get());
+			SetNetAddrPort( addr, port );
+			tSockets[f]->setRemoteAddress( addr );
 
-		bs.Clear();
-		bs.writeInt(-1, 4);
-		bs.writeString("lx::deregister");
+			CBytestream bs;
 
-		bs.Send(tSockets[f].get());
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+			bs.Send(tSockets[f].get());
+			bs.Send(tSockets[f].get());
+			bs.Send(tSockets[f].get());
+
+			bs.Clear();
+			bs.writeInt(-1, 4);
+			bs.writeString("lx::deregister");
+
+			bs.Send(tSockets[f].get());
+		}
 	}
 }
 
