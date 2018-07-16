@@ -39,7 +39,6 @@ NLint sock_Write(NLsocket socket, const NLvoid *buffer, NLint nbytes);
 NLchar *sock_AddrToString(const NLaddress *address, /*@returned@*/ /*@out@*/ NLchar *string);
 NLboolean sock_StringToAddr(const NLchar *string, /*@out@*/ NLaddress *address);
 NLboolean sock_GetLocalAddr(NLsocket socket, /*@out@*/ NLaddress *address);
-NLaddress *sock_GetAllLocalAddr(/*@out@*/ NLint *count);
 NLboolean sock_SetLocalAddr(const NLaddress *address);
 NLboolean sock_AddrCompare(const NLaddress *address1, const NLaddress *address2);
 NLushort sock_GetPortFromAddr(const NLaddress *address);

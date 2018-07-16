@@ -75,7 +75,7 @@ static nl_netdriver_t netdrivers[] =
         sock_AddrToString,
         sock_StringToAddr,
         sock_GetLocalAddr,
-        sock_GetAllLocalAddr,
+        NULL,
         sock_SetLocalAddr,
         NULL,
         NULL,
@@ -1127,21 +1127,6 @@ NL_EXP NLboolean NL_APIENTRY nlGetLocalAddr(NLsocket socket, NLaddress *address)
     }
     nlSetError(NL_NO_NETWORK);
     return NL_FALSE;
-}
-
-NL_EXP NLaddress * NL_APIENTRY nlGetAllLocalAddr(/*@out@*/ NLint *count)
-{
-    if(driver)
-    {
-        if(count == NULL)
-        {
-            nlSetError(NL_NULL_POINTER);
-            return NULL;
-        }
-        return driver->GetAllLocalAddr(count);
-    }
-    nlSetError(NL_NO_NETWORK);
-    return NULL;
 }
 
 NL_EXP NLboolean NL_APIENTRY nlSetLocalAddr(const NLaddress *address)

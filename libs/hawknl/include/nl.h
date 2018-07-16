@@ -342,8 +342,6 @@ NL_EXP NLboolean NL_APIENTRY nlSetRemoteAddr(NLsocket socket, const NLaddress *a
 
 NL_EXP NLboolean NL_APIENTRY nlGetLocalAddr(NLsocket socket, /*@out@*/ NLaddress *address);
 
-NL_EXP NLaddress* NL_APIENTRY nlGetAllLocalAddr(/*@out@*/ NLint *count);
-
 NL_EXP NLboolean NL_APIENTRY nlSetLocalAddr(const NLaddress *address);
 
 NL_EXP NLboolean NL_APIENTRY nlAddrCompare(const NLaddress *address1, const NLaddress *address2);

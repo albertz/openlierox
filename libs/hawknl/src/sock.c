@@ -1859,80 +1859,8 @@ NLboolean sock_GetLocalAddr(NLsocket socket, NLaddress *address)
             return NL_FALSE;
         }
     }
-    
-    /* if not connected, substitute the NIC address */
-    if(((struct sockaddr_in *)address)->sin_addr.s_addr == INADDR_ANY)
-    {
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = ouraddress;
-    }
     sock_SetAddrPort(address, sock->localport);
     return NL_TRUE;
-}
-
-NLaddress *sock_GetAllLocalAddr(NLint *count)
-{
-    struct hostent  *local;
-    char            buff[MAXHOSTNAMELEN];
-    int             i = 0;
-    
-    if(gethostname(buff, MAXHOSTNAMELEN) == SOCKET_ERROR)
-    {
-        nlSetError(NL_SYSTEM_ERROR);
-        return NULL;
-    }
-    buff[MAXHOSTNAMELEN - 1] = '\0';
-    local = gethostbyname(buff);
-    if(local == NULL)
-    {
-        if(sockerrno == ENETDOWN)
-        {
-            nlSetError(NL_SYSTEM_ERROR);
-            return NULL;
-        }
-    }
-    /* count the number of returned IP addresses */
-    *count = 0;
-    if(local != NULL)
-    {
-        while(local->h_addr_list[i++] != NULL)
-        {
-            (*count)++;
-        }
-    }
-    /* allocate storage for address */
-    if(alladdr != NULL)
-    {
-        free(alladdr);
-    }
-    if(*count == 0)
-    {
-        *count = 1;
-        alladdr = (NLaddress *)malloc(sizeof(NLaddress));
-        memset(alladdr, 0, sizeof(NLaddress));
-        
-        /* fill in the localhost address */
-        ((struct sockaddr_in *)alladdr)->sin_family = AF_INET;
-        ((struct sockaddr_in *)alladdr)->sin_addr.s_addr = (NLuint)htonl(0x7f000001);
-        alladdr->valid = NL_TRUE;
-    }
-    else
-    {
-        alladdr = (NLaddress *)malloc(sizeof(NLaddress) * *count);
-        memset(alladdr, 0, sizeof(NLaddress) * *count);
-        
-        /* fill in the addresses */
-        i = 0;
-        while(local->h_addr_list[i] != NULL)
-        {
-            NLaddress *addr = &alladdr[i];
-            
-            ((struct sockaddr_in *)addr)->sin_family = AF_INET;
-            ((struct sockaddr_in *)addr)->sin_addr.s_addr = *(NLuint *)local->h_addr_list[i];
-            addr->valid = NL_TRUE;
-            i++;
-        }
-    }
-    return alladdr;
 }
 
 NLboolean sock_SetLocalAddr(const NLaddress *address)
