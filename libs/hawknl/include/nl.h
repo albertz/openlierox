@@ -197,8 +197,8 @@ typedef struct _NLtime
 
 /* Network types */
 /* Only one can be selected at a time */
-#define NL_IP                   0x0003  /* all platforms */
-#define NL_IPV6                 0x0004  /* not yet implemented, IPv6 address family */
+#define NL_IP                   0x0003  /* ipv6+ipv4 dual-stack socket */
+//#define NL_IPV6                 0x0004  /* not yet implemented, IPv6 address family */
 #define NL_LOOP_BACK            0x0005  /* all platforms, for single player client/server emulation with no network */
 #define NL_IPX                  0x0006  /* Windows only */
 #define NL_SERIAL               0x0007  /* not yet implemented, Windows and Linux only? */
