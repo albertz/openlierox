@@ -126,6 +126,7 @@ static NLaddress *alladdr = NULL;
 static struct in6_addr bindaddress;
 static struct in6_addr in6addr_broadcast;
 static struct in6_addr in6addr_ipv4mapped;
+static struct in6_addr in6addr_ipv4broadcast;
 
 typedef struct
 {
@@ -390,15 +391,23 @@ static NLboolean sock_SetNonBlocking(SOCKET socket)
 
 static NLboolean sock_SetBroadcast(SOCKET socket)
 {
-    // TODO: IPv6 multicast
-    /*
     int i = 1;
+    int default_iface = 0;
+
+    // Needed for IPv4 broadcast socket to work, for both IPv4 and dial-stack sockets
+    // I'm not sure whether it will work for IPv6 sockets on different OSes, but it's required on Linux
     if(setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (char *)&i, (int)sizeof(i)) == SOCKET_ERROR)
+    {
+        //nlSetError(NL_SYSTEM_ERROR);
+        //return NL_FALSE;
+    }
+    // 
+    if(setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char*)&default_iface, sizeof(default_iface)) == SOCKET_ERROR)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
     }
-    */
+
     return NL_TRUE;
 }
 
@@ -454,6 +463,17 @@ static NLsocket sock_SetSocketOptions(NLsocket s)
     else
     {
         sock->reliable = NL_FALSE;
+
+        // Join IPv6 multicast group, so we can receive IPv4 broadcast and IPv6 multicast packets
+        struct ipv6_mreq multicast;
+        memset(&multicast, 0, sizeof(multicast));
+        memcpy(&multicast.ipv6mr_multiaddr, &in6addr_broadcast, sizeof(in6addr_broadcast));
+        multicast.ipv6mr_interface = 0; // Any interface
+        if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, (char*)&multicast, sizeof(multicast)) == SOCKET_ERROR)
+        {
+            nlSetError(NL_SYSTEM_ERROR);
+            return NL_INVALID;
+        }
     }
     
     sock_SetReuseAddr(realsocket);
@@ -513,9 +533,9 @@ NLboolean sock_Init(void)
     }
     
     memcpy(&bindaddress, &in6addr_any, sizeof(in6addr_any));
-    memcpy(&in6addr_broadcast, &in6addr_any, sizeof(in6addr_any));
     inet_pton(AF_INET6, "ff02::1", &in6addr_broadcast);
     inet_pton(AF_INET6, "::ffff:0.0.0.0", &in6addr_ipv4mapped);
+    inet_pton(AF_INET6, "::ffff:255.255.255.255", &in6addr_ipv4broadcast);
 
     return NL_TRUE;
 }
@@ -820,7 +840,6 @@ NLsocket sock_Open(NLushort port, NLenum type)
                 return NL_INVALID;
             }
             ((struct sockaddr_in6 *)&newsock->addressout)->sin6_family = AF_INET6;
-            // TODO: ipv4 broadcast
             memcpy(&((struct sockaddr_in6 *)&newsock->addressin)->sin6_addr, &in6addr_broadcast, sizeof(in6addr_broadcast));
             ((struct sockaddr_in6 *)&newsock->addressout)->sin6_port = htons((unsigned short)port);
         }
@@ -1676,6 +1695,14 @@ NLint sock_Write(NLsocket socket, const NLvoid *buffer, NLint nbytes)
             count = sendto((SOCKET)sock->realsocket, (char *)buffer, nbytes, 0,
                 (struct sockaddr *)&sock->addressout,
                 (int)sizeof(struct sockaddr_in6));
+
+            if(sock->type == NL_BROADCAST)
+            {
+                struct sockaddr_in6 v4broadcast = *((struct sockaddr_in6 *)&sock->addressout);
+                memcpy(&v4broadcast.sin6_addr, &in6addr_ipv4broadcast, sizeof(in6addr_ipv4broadcast));
+                sendto((SOCKET)sock->realsocket, (char *)buffer, nbytes, 0,
+                    (struct sockaddr *)&v4broadcast, (int)sizeof(struct sockaddr_in6));
+            }
         }
     }
     if(count == SOCKET_ERROR)
