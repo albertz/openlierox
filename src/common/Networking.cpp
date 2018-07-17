@@ -1366,7 +1366,7 @@ static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address
         {
             ((struct sockaddr_in6 *)address6)->sin6_family = AF_INET6;
             ((struct sockaddr_in6 *)address6)->sin6_port = htons(port);
-            memcpy(&((struct sockaddr_in6 *)address6)->sin6_addr, rp->ai_addr, sizeof(struct in6_addr));
+            memcpy(&((struct sockaddr_in6 *)address6)->sin6_addr, &((struct sockaddr_in6 *)rp->ai_addr)->sin6_addr, sizeof(struct in6_addr));
             address6->valid = NL_TRUE;
         }
     }
