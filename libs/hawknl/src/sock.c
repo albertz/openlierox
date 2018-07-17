@@ -103,6 +103,10 @@ typedef int socklen_t;
 #define IN_MULTICAST(i) (((unsigned long)(i) & 0xF0000000) == (unsigned long)0xE0000000)
 #endif
 
+#ifndef IPV6_ADD_MEMBERSHIP
+#define IPV6_ADD_MEMBERSHIP IPV6_JOIN_GROUP
+#endif
+
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN      NL_MAX_STRING_LENGTH
 #endif
