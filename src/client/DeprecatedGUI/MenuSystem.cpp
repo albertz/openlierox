@@ -1980,7 +1980,12 @@ int Menu_SvrList_UpdaterThread(void *id)
 			CBytestream *bs = new CBytestream();
 			bs->writeInt(-1, 4);
 			bs->writeString("lx::getserverlist2");
-			if(!bs->Send(&sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
+			if(!bs->Send(&sock))
+			{
+				delete bs;
+				warnings << "error while sending data to " << server << (af ? " over IPv6" : " over IPv4") << endl;
+				continue;
+			}
 			bs->Clear();
 
 			//notes << "Sent getserverlist to " << server << endl;

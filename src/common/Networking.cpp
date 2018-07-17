@@ -994,7 +994,7 @@ int NetworkSocket::Write(const void* buffer, int nbytes) {
 	if (ret == NL_INVALID)  {
 #ifdef DEBUG
 		std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
-		errors << "WriteSocket " << debugString() << ": " << errStr << endl;
+		warnings << "WriteSocket " << debugString() << ": " << errStr << endl;
 #endif // DEBUG
 		return NL_INVALID;
 	}
