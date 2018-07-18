@@ -412,8 +412,8 @@ static NLboolean sock_SetBroadcast(SOCKET socket)
     // 
     if(setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char*)&default_iface, sizeof(default_iface)) == SOCKET_ERROR)
     {
-        nlSetError(NL_SYSTEM_ERROR);
-        return NL_FALSE;
+        //nlSetError(NL_SYSTEM_ERROR);
+        //return NL_FALSE;
     }
 
     return NL_TRUE;
@@ -471,17 +471,6 @@ static NLsocket sock_SetSocketOptions(NLsocket s)
     else
     {
         sock->reliable = NL_FALSE;
-
-        // Join IPv6 multicast group, so we can receive IPv4 broadcast and IPv6 multicast packets
-        struct ipv6_mreq multicast;
-        memset(&multicast, 0, sizeof(multicast));
-        memcpy(&multicast.ipv6mr_multiaddr, &in6addr_multicast, sizeof(in6addr_multicast));
-        multicast.ipv6mr_interface = 0; // Any interface
-        if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&multicast, sizeof(multicast)) == SOCKET_ERROR)
-        {
-            nlSetError(NL_SYSTEM_ERROR);
-            return NL_INVALID;
-        }
     }
     
     sock_SetReuseAddr(realsocket);
@@ -496,6 +485,35 @@ static NLsocket sock_SetSocketOptions(NLsocket s)
     }
     
     return s;
+}
+
+static void sock_SetSocketOptionsMulticast(NLsocket s)
+{
+    nl_socket_t     *sock = nlSockets[s];
+    NLenum          type = sock->type;
+    SOCKET          realsocket = (SOCKET)sock->realsocket;
+    // Join IPv6 multicast group, so we can receive IPv4 broadcast and IPv6 multicast packets
+    struct ipv6_mreq multicast;
+
+    if(type == NL_RELIABLE || type == NL_RELIABLE_PACKETS)
+    {
+        return;
+    }
+
+    memset(&multicast, 0, sizeof(multicast));
+    memcpy(&multicast.ipv6mr_multiaddr, &in6addr_multicast, sizeof(in6addr_multicast));
+    multicast.ipv6mr_interface = 0; // Any interface
+    if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&multicast, sizeof(multicast)) == SOCKET_ERROR)
+    {
+        // Attempt again with wildcard address
+        memcpy(&multicast.ipv6mr_multiaddr, &in6addr_any, sizeof(in6addr_any));
+        multicast.ipv6mr_interface = 0; // Any interface
+        if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&multicast, sizeof(multicast)) == SOCKET_ERROR)
+        {
+            //nlSetError(NL_SYSTEM_ERROR);
+            //return NL_INVALID;
+        }
+    }
 }
 
 static NLushort sock_GetPort(SOCKET socket)
@@ -654,6 +672,7 @@ static SOCKET sock_AcceptUDP(NLsocket nlsocket, /*@out@*/struct sockaddr_in6 *ne
         (void)closesocket(newsocket);
         return INVALID_SOCKET;
     }
+    sock_SetSocketOptionsMulticast(nlsocket);
     /* get the new port */
     localport = sock_GetPort(newsocket);
     
@@ -838,6 +857,7 @@ NLsocket sock_Open(NLushort port, NLenum type)
             (void)sock_Close(newsocket);
             return NL_INVALID;
         }
+        sock_SetSocketOptionsMulticast(newsocket);
         if(type == NL_BROADCAST)
         {
             if(sock_SetBroadcast(realsocket) == NL_FALSE)
