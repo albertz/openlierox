@@ -13,6 +13,11 @@
 // Created 18/12/02
 // Jason Boettcher
 
+#include <memory.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 #include <curl/curl.h>
 
 #include "ThreadPool.h"
@@ -43,6 +48,7 @@
 #include <map>
 
 #include <nl.h>
+#include <nlinternal.h>
 // workaraound for bad named makros by nl.h
 // macros are bad, esp the names (reserved/used by CBytestream)
 // TODO: they seem to not work correctly!
@@ -63,6 +69,69 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readShort
 #undef readFloat
 #undef readString
+
+
+#if defined WIN32 || defined WIN64 || defined (_WIN32_WCE)
+
+#include "wsock.h"
+
+#elif defined Macintosh
+
+#include <Types.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <sys/time.h>
+#include <LowMem.h>
+#define closesocket close
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define SOCKET int
+#define sockerrno errno
+
+/* define INADDR_NONE if not already */
+#ifndef INADDR_NONE
+#define INADDR_NONE ((unsigned long) -1)
+#endif
+
+#else
+
+ /* Unix-style systems */
+#ifdef SOLARIS
+#include <sys/filio.h> /* for FIONBIO */
+#endif
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/ioctl.h>
+#define closesocket close
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define SOCKET int
+#define sockerrno errno
+
+ /* define INADDR_NONE if not already */
+#ifndef INADDR_NONE
+#define INADDR_NONE ((unsigned long) -1)
+#endif
+
+/* SGI do not include socklen_t */
+#if defined __sgi
+typedef int socklen_t;
+#endif
+
+#endif /* WINDOWS_APP*/
+
+
 
 class NetAddrIniter {
 public:
@@ -260,13 +329,6 @@ bool QuitNetworkSystem() {
 }
 
 
-
-
-
-
-
-
-
 /*
 Sadly, HawkNL lacks some support for specific things. For example we cannot get the real socket nr.
 
@@ -279,206 +341,6 @@ nlPrepareClose
 
 // ---------------------------------------------------
 // ----------- for state checking -------------------
-
-// copied from sock.c from HawkNL
-
-#include <memory.h>
-#include <stdio.h>
-#include <string.h>
-
-#if defined (_WIN32_WCE)
-#define EAGAIN          11
-#define errno GetLastError()
-#else
-#include <errno.h>
-#endif
-
-#if defined WIN32 || defined WIN64 || defined (_WIN32_WCE)
-
-#include "wsock.h"
-
-#elif defined Macintosh
-
-#include <Types.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <sys/time.h>
-#include <LowMem.h>
-#define closesocket close
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#define SOCKET int
-#define sockerrno errno
-
- /* define INADDR_NONE if not already */
-#ifndef INADDR_NONE
-#define INADDR_NONE ((unsigned long) -1)
-#endif
-
-#else
-
- /* Unix-style systems */
-#ifdef SOLARIS
-#include <sys/filio.h> /* for FIONBIO */
-#endif
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/ioctl.h>
-#define closesocket close
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#define SOCKET int
-#define sockerrno errno
-
- /* define INADDR_NONE if not already */
-#ifndef INADDR_NONE
-#define INADDR_NONE ((unsigned long) -1)
-#endif
-
-/* SGI do not include socklen_t */
-#if defined __sgi
-typedef int socklen_t;
-#endif
-
-#endif /* WINDOWS_APP*/
-
-
-// from nlinternal.h from HawkNL
-
-/* number of buckets for average bytes/second */
-#define NL_NUM_BUCKETS          8
-
-/* number of packets stored for NL_LOOP_BACK */
-#define NL_NUM_PACKETS          8
-#define NL_MAX_ACCEPT           10
-
-
-typedef struct
-{
-	NLlong      bytes;          /* bytes sent/received */
-	NLlong      packets;        /* packets sent/received */
-	NLlong      highest;        /* highest bytes/sec sent/received */
-	NLlong      average;        /* average bytes/sec sent/received */
-	time_t      stime;          /* the last time stats were updated */
-	NLint       lastbucket;     /* the last bucket that was used */
-	NLlong      curbytes;       /* current bytes sent/received */
-	NLlong      bucket[NL_NUM_BUCKETS];/* buckets for sent/received counts */
-	NLboolean   firstround;     /* is this the first round through the buckets? */
-} nl_stats_t;
-
-typedef struct
-{
-	/* info for NL_LOOP_BACK, NL_SERIAL, and NL_PARALLEL */
-	NLbyte      *outpacket[NL_NUM_PACKETS];/* temp storage for packet data */
-	NLbyte      *inpacket[NL_NUM_PACKETS];/* temp storage for packet data */
-	NLint       outlen[NL_NUM_PACKETS];/* the length of each packet */
-	NLint       inlen[NL_NUM_PACKETS];/* the length of each packet */
-	NLint       nextoutused;    /* the next used packet */
-	NLint       nextinused;     /* the next used packet */
-	NLint       nextoutfree;    /* the next free packet */
-	NLint       nextinfree;     /* the next free packet */
-	NLsocket    accept[NL_MAX_ACCEPT];/* pending connects */
-	NLsocket    consock;        /* the socket this socket is connected to */
-} nl_extra_t;
-
-
-/* the internal socket object */
-typedef struct
-{
-	/* the current status of the socket */
-	NLenum      driver;         /* the driver used with this socket */
-	NLenum      type;           /* type of socket */
-	NLboolean   inuse;          /* is in use */
-	NLboolean   connecting;     /* a non-blocking TCP or UDP connection is in process */
-	NLboolean   conerror;       /* an error occured on a UDP connect */
-	NLboolean   connected;      /* is connected */
-	NLboolean   reliable;       /* do we use reliable */
-	NLboolean   blocking;       /* is set to blocking */
-	NLboolean   listen;         /* can receive an incoming connection */
-	NLint       realsocket;     /* the real socket number */
-	NLushort    localport;      /* local port number */
-	NLushort    remoteport;     /* remote port number */
-	NLaddress   addressin;      /* address of remote system, same as the socket sockaddr_in structure */
-	NLaddress   addressout;     /* the multicast address set by nlConnect or the remote address for unconnected UDP */
-	NLmutex     readlock;       /* socket is locked to update data */
-	NLmutex     writelock;      /* socket is locked to update data */
-
-	/* the current read/write statistics for the socket */
-	nl_stats_t  instats;        /* stats for received */
-	nl_stats_t  outstats;       /* stats for sent */
-
-	/* NL_RELIABLE_PACKETS info and storage */
-	NLbyte      *outbuf;        /* temp storage for partially sent reliable packet data */
-	NLint       outbuflen;      /* the length of outbuf */
-	NLint       sendlen;        /* how much still needs to be sent */
-	NLbyte      *inbuf;         /* temp storage for partially received reliable packet data */
-	NLint       inbuflen;       /* the length of inbuf */
-	NLint       reclen;         /* how much of the reliable packet we have received */
-	NLboolean   readable;       /* a complete packet is in inbuf */
-	NLboolean   message_end;    /* a message end error ocured but was not yet reported */
-	NLboolean   packetsync;     /* is the reliable packet stream in sync */
-	/* pointer to extra info needed for NL_LOOP_BACK, NL_SERIAL, and NL_PARALLEL */
-	nl_extra_t   *ext;
-} nl_socket_t;
-
-typedef /*@only@*/ nl_socket_t *pnl_socket_t;
-
-// -------------------------------------
-// extern defs for HawkNL intern stuff
-#ifdef _MSC_VER
-extern "C"  {
-	__declspec(dllimport) pnl_socket_t *nlSockets;
-}
-#else
-#ifdef WIN32
-extern "C" pnl_socket_t *nlSockets;	// For Dev-Cpp
-#else
-extern "C"  {
-	NL_EXP pnl_socket_t *nlSockets;
-}
-#endif
-#endif
-
-
-#if defined(WIN32) && (! defined(_MSC_VER))
-// TODO: why is that needed?
-#define NL_EXP
-#elif (_MSC_VER >= 1400) //MSVC 2005 hax
-// TODO: why is that needed?
-#undef NL_EXP
-#undef NL_APIENTRY
-#define NL_EXP
-#define NL_APIENTRY
-#endif
-
-extern "C" {
-	NL_EXP void NL_APIENTRY nlSetError(NLenum err);
-	
-	// can we use those? (at least we have to)
-	NLboolean nlLockSocket(NLsocket socket, NLint which);
-	NLboolean nlIsValidSocket(NLsocket socket);
-	void nlUnlockSocket(NLsocket socket, NLint which);
-}
-
-
-/* for nlLockSocket and nlUnlockSocket */
-#define NL_READ                 0x0001
-#define NL_WRITE                0x0002
-#define NL_BOTH                 (NL_READ|NL_WRITE)
-
-
-
 
 // WARNING: both these function assume that we selected the IP-network driver in HawkNL
 
