@@ -99,6 +99,14 @@ typedef int socklen_t;
 #include "nlinternal.h"
 #include "sock.h"
 
+/* internally for TCP packets and UDP connections, all data is big endien,
+   so we force it so here using these macros */
+#undef writeShort
+#define writeShort(x, y, z)     {*((NLushort *)((NLbyte *)&x[y])) = htons(z); y += 2;}
+#undef readShort
+#define readShort(x, y, z)      {z = ntohs(*(NLushort *)((NLbyte *)&x[y])); y += 2;}
+
+
 #ifndef IN_MULTICAST
 #define IN_MULTICAST(i) (((unsigned long)(i) & 0xF0000000) == (unsigned long)0xE0000000)
 #endif

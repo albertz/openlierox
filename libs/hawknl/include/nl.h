@@ -35,7 +35,8 @@ extern "C" {
 
 /* define NL_SAFE_COPY for Sparc and other processors that do not allow non-aligned
    memory access. Needed for read* and write* macros */
-/*#define NL_SAFE_COPY */
+/* Always defined, because of Android */
+#define NL_SAFE_COPY
 
 /* undefine this to remove IPX code, Windows only  */
 // #define NL_INCLUDE_IPX
@@ -60,7 +61,6 @@ extern "C" {
 /* also, many CE devices will not allow non-aligned memory access */
 #if defined (_WIN32_WCE)
 #define NL_WIN_THREADS
-#define NL_SAFE_COPY
 #undef NL_INCLUDE_IPX
 #endif
 
