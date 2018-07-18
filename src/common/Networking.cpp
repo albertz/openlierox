@@ -577,7 +577,7 @@ static bool nlUpdateState(NLsocket socket)
 		}
 		if(sock->type == NL_BROADCAST)
 		{
-			inet_pton(AF_INET6, "ff02::1", &((struct sockaddr_in6 *)&sock->addressin)->sin6_addr);
+			memcpy(&((struct sockaddr_in6 *)&sock->addressin)->sin6_addr, &in6addr_any, sizeof(in6addr_any));
 		}
 		if(sock->type == NL_UDP_MULTICAST)
 		{

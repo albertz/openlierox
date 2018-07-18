@@ -103,10 +103,6 @@ typedef int socklen_t;
 #define IN_MULTICAST(i) (((unsigned long)(i) & 0xF0000000) == (unsigned long)0xE0000000)
 #endif
 
-#ifndef IPV6_ADD_MEMBERSHIP
-#define IPV6_ADD_MEMBERSHIP IPV6_JOIN_GROUP
-#endif
-
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN      NL_MAX_STRING_LENGTH
 #endif
@@ -128,7 +124,7 @@ static volatile NLboolean nlTCPNoDelay = NL_FALSE;
 
 static NLaddress *alladdr = NULL;
 static struct in6_addr bindaddress;
-static struct in6_addr in6addr_broadcast;
+static struct in6_addr in6addr_multicast;
 static struct in6_addr in6addr_ipv4mapped;
 static struct in6_addr in6addr_ipv4broadcast;
 
@@ -471,9 +467,9 @@ static NLsocket sock_SetSocketOptions(NLsocket s)
         // Join IPv6 multicast group, so we can receive IPv4 broadcast and IPv6 multicast packets
         struct ipv6_mreq multicast;
         memset(&multicast, 0, sizeof(multicast));
-        memcpy(&multicast.ipv6mr_multiaddr, &in6addr_broadcast, sizeof(in6addr_broadcast));
+        memcpy(&multicast.ipv6mr_multiaddr, &in6addr_multicast, sizeof(in6addr_multicast));
         multicast.ipv6mr_interface = 0; // Any interface
-        if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, (char*)&multicast, sizeof(multicast)) == SOCKET_ERROR)
+        if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&multicast, sizeof(multicast)) == SOCKET_ERROR)
         {
             nlSetError(NL_SYSTEM_ERROR);
             return NL_INVALID;
@@ -537,7 +533,7 @@ NLboolean sock_Init(void)
     }
     
     memcpy(&bindaddress, &in6addr_any, sizeof(in6addr_any));
-    inet_pton(AF_INET6, "ff02::1", &in6addr_broadcast);
+    inet_pton(AF_INET6, "ff04::4f70:656e:4c69:6572:6f58", &in6addr_multicast); // OpenLieroX IPv6 multicast address
     inet_pton(AF_INET6, "::ffff:0.0.0.0", &in6addr_ipv4mapped);
     inet_pton(AF_INET6, "::ffff:255.255.255.255", &in6addr_ipv4broadcast);
 
@@ -843,8 +839,9 @@ NLsocket sock_Open(NLushort port, NLenum type)
                 (void)sock_Close(newsocket);
                 return NL_INVALID;
             }
+            memset(((struct sockaddr_in6 *)&newsock->addressout), 0, sizeof(struct sockaddr_in6));
             ((struct sockaddr_in6 *)&newsock->addressout)->sin6_family = AF_INET6;
-            memcpy(&((struct sockaddr_in6 *)&newsock->addressin)->sin6_addr, &in6addr_broadcast, sizeof(in6addr_broadcast));
+            memcpy(&((struct sockaddr_in6 *)&newsock->addressout)->sin6_addr, &in6addr_multicast, sizeof(in6addr_multicast));
             ((struct sockaddr_in6 *)&newsock->addressout)->sin6_port = htons((unsigned short)port);
         }
         newsock->localport = sock_GetPort(realsocket);
@@ -1684,7 +1681,7 @@ NLint sock_Write(NLsocket socket, const NLvoid *buffer, NLint nbytes)
         }
         if(sock->type == NL_BROADCAST)
         {
-            memcpy(&((struct sockaddr_in6 *)&sock->addressin)->sin6_addr, &in6addr_broadcast, sizeof(in6addr_broadcast));
+            //memcpy(&((struct sockaddr_in6 *)&sock->addressin)->sin6_addr, &in6addr_multicast, sizeof(in6addr_multicast));
         }
         if(sock->type == NL_UDP_MULTICAST)
         {
@@ -1697,12 +1694,12 @@ NLint sock_Write(NLsocket socket, const NLvoid *buffer, NLint nbytes)
         else
         {
             count = sendto((SOCKET)sock->realsocket, (char *)buffer, nbytes, 0,
-                (struct sockaddr *)&sock->addressout,
-                (int)sizeof(struct sockaddr_in6));
+                (struct sockaddr *)&sock->addressout, (int)sizeof(struct sockaddr_in6));
 
             if(sock->type == NL_BROADCAST)
             {
-                struct sockaddr_in6 v4broadcast = *((struct sockaddr_in6 *)&sock->addressout);
+                struct sockaddr_in6 v4broadcast;
+                memcpy(&v4broadcast, (struct sockaddr_in6 *)&sock->addressout, sizeof(v4broadcast));
                 memcpy(&v4broadcast.sin6_addr, &in6addr_ipv4broadcast, sizeof(in6addr_ipv4broadcast));
                 sendto((SOCKET)sock->realsocket, (char *)buffer, nbytes, 0,
                     (struct sockaddr *)&v4broadcast, (int)sizeof(struct sockaddr_in6));
