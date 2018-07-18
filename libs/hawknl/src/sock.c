@@ -209,8 +209,10 @@ static int sock_connect(SOCKET socket, const struct sockaddr* a, int len )
 {
     struct sockaddr_in6  addr;
 
+    memset(&addr, 0, sizeof(addr));
+
     addr.sin6_family = AF_INET6;
-    memcpy(&addr.sin6_addr. &in6addr_any, sizeof(addr.sin6_addr));
+    memcpy(&addr.sin6_addr, &in6addr_any, sizeof(in6addr_any));
     addr.sin6_port = 0;
 
     if(sock_bind(socket, (struct sockaddr *)&addr, (int)sizeof(addr)) == SOCKET_ERROR)
