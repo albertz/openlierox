@@ -176,9 +176,12 @@ int main6(int argc, char ** argv)
 
 		if( data.find( "\xff\xff\xff\xfflx::getserverlist" ) == 0 )
 		{
-			bool beta8 = data.find( "\xff\xff\xff\xfflx::getserverlist2" ) == 0;
+			bool v058rc5 = data.find( "\xff\xff\xff\xfflx::getserverlist3" ) == 0;
+			bool beta8 = data.find( "\xff\xff\xff\xfflx::getserverlist2" ) == 0 || v058rc5;
 			std::string response = std::string("\xff\xff\xff\xfflx::serverlist") + '\0';
-			if( beta8 )
+			if( v058rc5 )
+				response = std::string("\xff\xff\xff\xfflx::serverlist3") + '\0';
+			else if( beta8 )
 				response = std::string("\xff\xff\xff\xfflx::serverlist2") + '\0';
 			std::string send;
 			unsigned amount = 0;
@@ -197,6 +200,8 @@ int main6(int argc, char ** argv)
 						char((unsigned char)it->state);
 				if( beta8 )
 					send += it->version + '\0' + char((unsigned char)it->allowsJoinDuringGame);
+				if( v058rc5 )
+					send += it->v4address + '\0';
 			};
 			// Send serverlist even with 0 entries so client will know we're alive
 			send = response + char((unsigned char)amount) + send;
