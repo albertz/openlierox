@@ -1001,7 +1001,7 @@ void GameServer::ParseConnectionlessPacket(const SmartPointer<NetworkSocket>& tS
 	else if (cmd == "lx::traverse")
 		ParseTraverse(tSocket, bs, ip);
 	else if (cmd == "lx::registered")
-		ParseServerRegistered(tSocket);
+		ParseServerRegistered(tSocket, bs);
 	else  {
 		warnings << "GameServer::ParseConnectionlessPacket: unknown packet \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
@@ -2086,7 +2086,7 @@ void GameServer::ParseTraverse(const SmartPointer<NetworkSocket>& tSocket, CByte
 }
 
 // Server sent us "lx::registered", that means it's alive - record that
-void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocket)
+void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs)
 {
 	if( tUdpMasterServers.size() == 0 )
 		return;
@@ -2100,5 +2100,20 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 		
 	if( tSocket->remoteAddress() == addr || tSocket->remoteAddress() == addr6 )
 		iFirstUdpMasterServerNotRespondingCount = 0;
+
+	std::string myAddr = bs->readString();
+
+	// Strip the port, we don't need it for IPv4, because NAT mangles it
+	size_t portPart = myAddr.rfind(':');
+	if( myAddr.find('[') == 0 && myAddr.find("]:") == std::string::npos ) {
+		portPart = std::string::npos;
+	}
+	myAddr = myAddr.substr(0, portPart);
+
+	if (myAddr.find('[') == 0) {
+		sServerAddressV6 = myAddr;
+	} else {
+		sServerAddressV4 = myAddr;
+	}
 }
 

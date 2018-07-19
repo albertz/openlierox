@@ -1238,7 +1238,8 @@ void GameServer::RegisterServerUdp()
 			// Beta8+
 			bs.writeString(GetGameVersion().asString());
 			bs.writeByte(serverAllowsConnectDuringGame());
-			
+			// 0.58_rc5 - send IPv4 address to IPv6 masterserver to remove duplicate entry in the client menu list
+			bs.writeString(af ? sServerAddressV4 : ""); // In case of IPv4, send empty string to keep the amount of fields the same
 
 			bs.Send(sock);
 		}
