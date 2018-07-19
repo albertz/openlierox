@@ -41,6 +41,8 @@ static void signal_handler(int signum)
 		 
 #endif
 
+#include "svr_udp.h"
+
 static bool quit = false;	// Signal here on Ctrl-C
 
 #define DEFAULT_PORT 23450
@@ -58,27 +60,6 @@ void signal_handler_impl(int signum)
 	sendto( sock, "lx::ping", 9, 0, (struct sockaddr *)&addr, sizeof(addr) );
 };
 
-
-struct HostInfo
-{
-
-	HostInfo( std::string _addr, time_t _lastping, std::string _name, int _maxworms, int _numplayers, int _state,
-				std::string _version = "OpenLieroX/0.57_beta5", bool _allowsJoinDuringGame = false ):
-		addr(_addr), lastping(_lastping), name(_name), maxworms(_maxworms), numplayers(_numplayers), state(_state), 
-		version(_version), allowsJoinDuringGame(_allowsJoinDuringGame) {};
-
-	HostInfo(): lastping(0), maxworms(0), numplayers(0), state(0), 
-				version("OpenLieroX/0.57_beta5"), allowsJoinDuringGame(false) {};
-
-	std::string addr;
-	time_t lastping;
-	std::string name;
-	unsigned maxworms;
-	unsigned numplayers;
-	unsigned state;
-	std::string version;
-	bool allowsJoinDuringGame;
-};
 
 struct RawPacketRequest
 {

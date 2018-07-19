@@ -42,6 +42,8 @@ static void signal_handler(int signum)
 		 
 #endif
 
+#include "svr_udp.h"
+
 static bool quit = false;	// Signal here on Ctrl-C
 
 #define DEFAULT_PORT 23450
@@ -60,31 +62,9 @@ void signal_handler_impl(int signum)
 	sendto( sock, "lx::ping", 9, 0, (struct sockaddr *)&addr, sizeof(addr) );
 };
 
-
-struct HostInfo
+struct RawPacketRequest6
 {
-	HostInfo( std::string _addr, time_t _lastping, std::string _name, int _maxworms, int _numplayers, int _state,
-				std::string _version = "OpenLieroX/0.57_beta5", bool _allowsJoinDuringGame = false, std::string _v4address = "" ):
-		addr(_addr), lastping(_lastping), name(_name), maxworms(_maxworms), numplayers(_numplayers), state(_state),
-		version(_version), allowsJoinDuringGame(_allowsJoinDuringGame), v4address(_v4address) {};
-
-	HostInfo(): lastping(0), maxworms(0), numplayers(0), state(0),
-				version("OpenLieroX/0.57_beta5"), allowsJoinDuringGame(false) {};
-
-	std::string addr;
-	time_t lastping;
-	std::string name;
-	unsigned maxworms;
-	unsigned numplayers;
-	unsigned state;
-	std::string version;
-	bool allowsJoinDuringGame;
-	std::string v4address;
-};
-
-struct RawPacketRequest
-{
-	RawPacketRequest( sockaddr_in6 _src, sockaddr_in6 _dst, time_t _lastping ):
+	RawPacketRequest6( sockaddr_in6 _src, sockaddr_in6 _dst, time_t _lastping ):
 		src( _src ), dst( _dst ), lastping( _lastping ) {};
 
 	struct sockaddr_in6 src;
@@ -92,12 +72,12 @@ struct RawPacketRequest
 	time_t lastping;
 };
 
-static bool AreNetAddrEqual( const sockaddr_in6 & a1, const sockaddr_in6 & a2 )
+bool AreNetAddrEqual( const sockaddr_in6 & a1, const sockaddr_in6 & a2 )
 {
 	return memcmp(&a1.sin6_addr, &a2.sin6_addr, sizeof(a1.sin6_addr)) == 0 && a1.sin6_port == a2.sin6_port;
 }
 
-static void printStr(const std::string & s)
+void printStr(const std::string & s)
 {
 	for(size_t f=0; f<s.size(); f++)
 		printf("%c", s[f] >= 32 ? s[f] : '?' );
@@ -141,7 +121,7 @@ int main6(int argc, char ** argv)
 	printf("UDP6 masterserver started at port %i\n", port);
 	
 	std::list< HostInfo > hosts;
-	std::list< RawPacketRequest > askedRawPackets;
+	std::list< RawPacketRequest6 > askedRawPackets;
 	
 	struct sockaddr_in6 source;
 	unsigned sourcePort;
@@ -360,14 +340,14 @@ int main6(int argc, char ** argv)
 				std::string send = data.substr( f );
 				//printf("Sending raw packet to %s:%i\n", inet_ntoa( dest.sin_addr ), destPort );
 				sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&dest, sizeof(dest) );
-				askedRawPackets.push_back( RawPacketRequest( source, dest, lastping ) );
+				askedRawPackets.push_back( RawPacketRequest6( source, dest, lastping ) );
 			};
 		}
 		
 		else if( data.find( "\xff\xff\xff\xfflx::" ) == 0 )
 		{
 			// We got response for lx::ask packet
-			for( std::list< RawPacketRequest > :: iterator it = askedRawPackets.begin(); it != askedRawPackets.end(); it++ )
+			for( std::list< RawPacketRequest6 > :: iterator it = askedRawPackets.begin(); it != askedRawPackets.end(); it++ )
 			{
 				if( AreNetAddrEqual( it->dst, source ) )
 				{
@@ -396,7 +376,7 @@ int main6(int argc, char ** argv)
 			};
 		};
 
-		for( std::list< RawPacketRequest > :: iterator it = askedRawPackets.begin(); it != askedRawPackets.end(); it++ )
+		for( std::list< RawPacketRequest6 > :: iterator it = askedRawPackets.begin(); it != askedRawPackets.end(); it++ )
 		{
 			if( lastping - it->lastping > 10 )
 			{
