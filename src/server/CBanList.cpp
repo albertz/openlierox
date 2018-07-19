@@ -38,7 +38,7 @@ banlist_t *CBanList::findBanned(const std::string& szAddress)
 
 	// Remove the port from the address
 	std::string addr = szAddress;
-	size_t pos = addr.find(':');
+	size_t pos = addr.rfind(':');
 	if(pos != std::string::npos) {
 		addr.erase(pos);
 	}
@@ -64,7 +64,7 @@ int CBanList::getIdByAddr(const std::string& szAddress)
 
 	// Remove the port from the address
 	std::string addr = szAddress;
-	size_t pos = addr.find(':');
+	size_t pos = addr.rfind(':');
 	if(pos != std::string::npos) {
 		addr.erase(pos);
 	}
@@ -88,7 +88,7 @@ void CBanList::addBanned(const std::string& szAddress, const std::string& szNick
 {
 	// Remove the port from the address
 	std::string addr = szAddress;
-	size_t p = addr.find(':');
+	size_t p = addr.rfind(':');
 	if(p != std::string::npos) {
 		addr.erase(p);
 	}
@@ -118,7 +118,7 @@ void CBanList::removeBanned(const std::string& szAddress)
 {
 	// Remove the port from the address
 	std::string addr = szAddress;
-	size_t pos = addr.find(':');
+	size_t pos = addr.rfind(':');
 	if(pos != std::string::npos) {
 		addr.erase(pos);
 	}

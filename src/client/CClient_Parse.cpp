@@ -433,10 +433,10 @@ void CClientNetEngine::ParseTraverse(CBytestream *bs)
 	client->iNatTraverseState = NAT_SEND_CHALLENGE;
 	client->iNatTryPort = 0;
 	std::string addr = bs->readString();
-	if( addr.find(":") == std::string::npos )
+	if( addr.rfind(':') == std::string::npos )
 		return;
 	StringToNetAddr(addr, client->cServerAddr); // HINT: this changes the address so the lx::challenge in CClientNetEngine::ConnectingBehindNat is sent to the real server
-	int port = atoi( addr.substr( addr.find(":") + 1 ) );
+	int port = atoi( addr.substr( addr.rfind(':') + 1 ) );
 	SetNetAddrPort(client->cServerAddr, port);
 	NetAddrToString( client->cServerAddr, addr );
 

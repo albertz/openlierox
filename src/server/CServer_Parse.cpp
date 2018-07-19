@@ -1974,7 +1974,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 			// Disabled for privacy reasons
 			/*
 			if (NetAddrToString(w->getClient()->getChannel()->getAddress(), addr))  {
-				size_t pos = addr.find(':');
+				size_t pos = addr.rfind(':');
 				if (pos != std::string::npos)
 					addr.erase(pos, std::string::npos);
 			} else {
@@ -2091,8 +2091,8 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 	if( tUdpMasterServers.size() == 0 )
 		return;
 	NetworkAddr addr, addr6;
-	std::string domain = tUdpMasterServers[0].substr( 0, tUdpMasterServers[0].find(":") );
-	int port = atoi(tUdpMasterServers[0].substr( tUdpMasterServers[0].find(":") + 1 ));
+	std::string domain = tUdpMasterServers[0].substr( 0, tUdpMasterServers[0].rfind(':') );
+	int port = atoi(tUdpMasterServers[0].substr( tUdpMasterServers[0].rfind(':') + 1 ));
 	if( !GetFromDnsCache(domain, addr, addr6) )
 		return;
 	SetNetAddrPort( addr, port );

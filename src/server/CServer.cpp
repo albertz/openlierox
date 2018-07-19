@@ -1199,10 +1199,10 @@ void GameServer::RegisterServerUdp()
 			break;
 		}
 		NetworkAddr addr, addr6;
-		if( tUdpMasterServers[f].find(":") == std::string::npos )
+		if( tUdpMasterServers[f].rfind(':') == std::string::npos )
 			continue;
-		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].find(":") );
-		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].find(":") + 1 ));
+		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].rfind(':') );
+		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].rfind(':') + 1 ));
 		if( !GetFromDnsCache(domain, addr, addr6) )
 		{
 			GetNetAddrFromNameAsync(domain);
@@ -1255,10 +1255,10 @@ void GameServer::DeRegisterServerUdp()
 			break;
 		}
 		NetworkAddr addr, addr6;
-		if( tUdpMasterServers[f].find(":") == std::string::npos )
+		if( tUdpMasterServers[f].rfind(':') == std::string::npos )
 			continue;
-		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].find(":") );
-		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].find(":") + 1 ));
+		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].rfind(':') );
+		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].rfind(':') + 1 ));
 		if( !GetFromDnsCache(domain, addr, addr6) )
 		{
 			GetNetAddrFromNameAsync(domain);

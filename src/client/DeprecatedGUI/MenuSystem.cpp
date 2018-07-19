@@ -1361,7 +1361,7 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 		SetNetAddrPort(s->sAddress, oldPort);
 
 		SetNetAddrValid(s->sAddress, false);
-		size_t f = s->szAddress.find(":");
+		size_t f = s->szAddress.rfind(':');
 		NetworkAddr ignored;
 
 		if( ! GetFromDnsCache( s->szAddress.substr(0, f), s->sAddress, ignored ) ) {
@@ -1369,7 +1369,10 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 		}
 	} else {
 		s->bAddrReady = true;
-		size_t f = s->szAddress.find(":");
+		size_t f = s->szAddress.rfind(':');
+		if( s->szAddress.find('[') == 0 && s->szAddress.find("]:") == std::string::npos ) {
+			f = std::string::npos;
+		}
 		if(f != std::string::npos) {
 			SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
 		} else
@@ -1515,6 +1518,10 @@ void Menu_SvrList_FillList(CListview *lv)
 		// show port if special
 		addr = s->szAddress;
 		size_t p = addr.rfind(':');
+		if( addr.find('[') == 0 && addr.find("]:") == std::string::npos ) {
+			p = std::string::npos;
+		}
+
 		if(p != std::string::npos) {
 			std::string sPort = addr.substr(p + 1);
 			addr.erase(p);
@@ -1641,7 +1648,11 @@ bool Menu_SvrList_Process()
 				s->bAddrReady = true;
 				update = true;
 
-				size_t f = s->szAddress.find(":");
+				size_t f = s->szAddress.rfind(':');
+				if( s->szAddress.find('[') == 0 && s->szAddress.find("]:") == std::string::npos ) {
+					f = std::string::npos;
+				}
+
 				if(f != std::string::npos) {
 					SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
 				} else
@@ -1939,12 +1950,12 @@ int Menu_SvrList_UpdaterThread(void *id)
 	{
 		std::string& server = *it;
 		NetworkAddr addr, addr6;
-		if (server.find(':') == std::string::npos)
+		if (server.rfind(':') == std::string::npos)
 			server += ":23450";  // Default port
 
 		// Split to domain and port
-		std::string domain = server.substr(0, server.find(':'));
-		int port = atoi(server.substr(server.find(':') + 1));
+		std::string domain = server.substr(0, server.rfind(':'));
+		int port = atoi(server.substr(server.rfind(':') + 1));
 
 		// Resolve the address
 		if( ! GetFromDnsCache( domain, addr, addr6 ) )
