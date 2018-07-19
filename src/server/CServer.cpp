@@ -1214,17 +1214,19 @@ void GameServer::RegisterServerUdp()
 		{
 			if (!IsNetAddrValid(addr))
 				continue;
+			// No NAT on IPv6, use proper port
+			NetworkSocket * sock = af ? tSockets[0].get() : tSockets[f].get();
 			//notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
 			SetNetAddrPort( addr, port );
-			tSockets[f]->setRemoteAddress( addr );
+			sock->setRemoteAddress( addr );
 
 			CBytestream bs;
 
 			bs.writeInt(-1,4);
 			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-			bs.Send(tSockets[f].get());
-			bs.Send(tSockets[f].get());
-			bs.Send(tSockets[f].get());
+			bs.Send(sock);
+			bs.Send(sock);
+			bs.Send(sock);
 
 			bs.Clear();
 			bs.writeInt(-1, 4);
@@ -1238,7 +1240,7 @@ void GameServer::RegisterServerUdp()
 			bs.writeByte(serverAllowsConnectDuringGame());
 			
 
-			bs.Send(tSockets[f].get());
+			bs.Send(sock);
 		}
 	}
 }
@@ -1269,21 +1271,22 @@ void GameServer::DeRegisterServerUdp()
 				continue;
 
 			SetNetAddrPort( addr, port );
-			tSockets[f]->setRemoteAddress( addr );
+			NetworkSocket * sock = af ? tSockets[0].get() : tSockets[f].get();
+			sock->setRemoteAddress( addr );
 
 			CBytestream bs;
 
 			bs.writeInt(-1,4);
 			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-			bs.Send(tSockets[f].get());
-			bs.Send(tSockets[f].get());
-			bs.Send(tSockets[f].get());
+			bs.Send(sock);
+			bs.Send(sock);
+			bs.Send(sock);
 
 			bs.Clear();
 			bs.writeInt(-1, 4);
 			bs.writeString("lx::deregister");
 
-			bs.Send(tSockets[f].get());
+			bs.Send(sock);
 		}
 	}
 }
