@@ -63,13 +63,12 @@ void signal_handler_impl(int signum)
 
 struct HostInfo
 {
-
 	HostInfo( std::string _addr, time_t _lastping, std::string _name, int _maxworms, int _numplayers, int _state,
-				std::string _version = "OpenLieroX/0.57_beta5", bool _allowsJoinDuringGame = false ):
-		addr(_addr), lastping(_lastping), name(_name), maxworms(_maxworms), numplayers(_numplayers), state(_state), 
-		version(_version), allowsJoinDuringGame(_allowsJoinDuringGame) {};
+				std::string _version = "OpenLieroX/0.57_beta5", bool _allowsJoinDuringGame = false, std::string _v4address = "" ):
+		addr(_addr), lastping(_lastping), name(_name), maxworms(_maxworms), numplayers(_numplayers), state(_state),
+		version(_version), allowsJoinDuringGame(_allowsJoinDuringGame), v4address(_v4address) {};
 
-	HostInfo(): lastping(0), maxworms(0), numplayers(0), state(0), 
+	HostInfo(): lastping(0), maxworms(0), numplayers(0), state(0),
 				version("OpenLieroX/0.57_beta5"), allowsJoinDuringGame(false) {};
 
 	std::string addr;
@@ -80,6 +79,7 @@ struct HostInfo
 	unsigned state;
 	std::string version;
 	bool allowsJoinDuringGame;
+	std::string v4address;
 };
 
 struct RawPacketRequest
@@ -264,26 +264,33 @@ int main6(int argc, char ** argv)
 			unsigned numplayers = (unsigned char)(data[f]);
 			unsigned maxworms = (unsigned char)(data[f+1]);
 			unsigned state = (unsigned char)(data[f+2]);
+			f += 3;
+			std::string v4address = "";
+			if( f < data.size() && data.find( '\0', f ) != std::string::npos )
+			{
+				v4address = data.substr( f, data.find( '\0', f ) - f );
+				f = data.find( '\0', f ) + 1;
+			}
 	
 			std::list<HostInfo> :: iterator it;
 			for( it = hosts.begin(); it != hosts.end(); it++ )
 			{
 				if( it->addr == srcAddr )
 				{
-					*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state );
+					*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, v4address );
 					//printf("Host db updated: updated: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
 					break;
 				};
 			};
 			if( it == hosts.end() )
 			{
-				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state ) );
+				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, v4address ) );
 				it == hosts.end();
 				it --; // End of list
 				//printf("Host db updated: added: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
 			};
 			// Send back confirmation so host will know we're alive
-			std::string send = std::string("\xff\xff\xff\xfflx::registered") + '\0';
+			std::string send = std::string("\xff\xff\xff\xfflx::registered") + '\0' + srcAddr + '\0';
 			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
 			
 			// Beta8+

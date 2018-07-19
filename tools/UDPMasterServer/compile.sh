@@ -1,4 +1,4 @@
 #!/bin/bash
 
 mkdir -p bin
-g++ src/*.cpp -o bin/udpmasterserver -O3
+g++ -Wall -Wno-sign-compare src/*.cpp -o bin/udpmasterserver -O3

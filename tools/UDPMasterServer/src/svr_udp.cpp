@@ -253,6 +253,12 @@ int main(int argc, char ** argv)
 			unsigned numplayers = (unsigned char)(data[f]);
 			unsigned maxworms = (unsigned char)(data[f+1]);
 			unsigned state = (unsigned char)(data[f+2]);
+			f += 3;
+			if( f < data.size() && data.find( '\0', f ) != std::string::npos )
+			{
+				// Empty string on IPv4 masterserver, contains IPv4 address on IPv6 masterserver
+				f = data.find( '\0', f ) + 1;
+			}
 	
 			std::list<HostInfo> :: iterator it;
 			for( it = hosts.begin(); it != hosts.end(); it++ )
@@ -272,7 +278,7 @@ int main(int argc, char ** argv)
 				//printf("Host db updated: added: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
 			};
 			// Send back confirmation so host will know we're alive
-			std::string send = std::string("\xff\xff\xff\xfflx::registered") + '\0';
+			std::string send = std::string("\xff\xff\xff\xfflx::registered") + '\0' + srcAddr + '\0';
 			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
 			
 			// Beta8+
