@@ -20,8 +20,8 @@
   Or go to http://www.gnu.org/copyleft/lgpl.html
 */
 
-
 #define FD_SETSIZE      8192
+//#define NL_DEBUG        DEBUG
 
 #include <memory.h>
 #include <stdio.h>
@@ -399,21 +399,34 @@ static NLboolean sock_SetNonBlocking(SOCKET socket)
     return NL_TRUE;
 }
 
-static NLboolean sock_SetBroadcast(SOCKET socket)
+static NLboolean sock_SetBroadcast(SOCKET realsocket)
 {
     int i = 1;
     int default_iface = 0;
 
     // Needed for IPv4 broadcast socket to work, for both IPv4 and dial-stack sockets
     // I'm not sure whether it will work for IPv6 sockets on different OSes, but it's required on Linux
-    if(setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (char *)&i, (int)sizeof(i)) == SOCKET_ERROR)
+#ifdef NL_DEBUG
+    printf("%s: sock %d setsockopt(SO_BROADCAST)\n", __FUNCTION__, realsocket);
+#endif
+    if(setsockopt(realsocket, SOL_SOCKET, SO_BROADCAST, (char *)&i, (int)sizeof(i)) == SOCKET_ERROR)
     {
+#ifdef NL_DEBUG
+        printf("%s: sock %d setsockopt(SO_BROADCAST) failed\n", __FUNCTION__, realsocket);
+#endif
         //nlSetError(NL_SYSTEM_ERROR);
         //return NL_FALSE;
     }
-    // 
-    if(setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char*)&default_iface, sizeof(default_iface)) == SOCKET_ERROR)
+
+#ifdef NL_DEBUG
+    printf("%s: sock %d setsockopt(IPV6_MULTICAST_IF)\n", __FUNCTION__, realsocket);
+#endif
+    // Enable IPv6 multicast
+    if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char*)&default_iface, sizeof(default_iface)) == SOCKET_ERROR)
     {
+#ifdef NL_DEBUG
+        printf("%s: sock %d setsockopt(IPV6_MULTICAST_IF) failed\n", __FUNCTION__, realsocket);
+#endif
         //nlSetError(NL_SYSTEM_ERROR);
         //return NL_FALSE;
     }
@@ -485,6 +498,9 @@ static NLsocket sock_SetSocketOptions(NLsocket s)
             return NL_INVALID;
         }
     }
+#ifdef NL_DEBUG
+    printf("%s: new socket %d type %d udp %d broadcast %d\n", __FUNCTION__, realsocket, (int)type, !sock->reliable, sock->type == NL_BROADCAST);
+#endif
     
     return s;
 }
@@ -505,13 +521,26 @@ static void sock_SetSocketOptionsMulticast(NLsocket s)
     memset(&multicast, 0, sizeof(multicast));
     memcpy(&multicast.ipv6mr_multiaddr, &in6addr_multicast, sizeof(in6addr_multicast));
     multicast.ipv6mr_interface = 0; // Any interface
+
+#ifdef NL_DEBUG
+    char tmp[128];
+    inet_ntop(AF_INET6, &multicast.ipv6mr_multiaddr, tmp, sizeof(tmp));
+    printf("%s: sock %d setsockopt(IPV6_JOIN_GROUP) addr %s\n", __FUNCTION__, realsocket, tmp);
+#endif
+
     if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&multicast, sizeof(multicast)) == SOCKET_ERROR)
     {
+#ifdef NL_DEBUG
+        printf("%s: sock %d setsockopt(IPV6_JOIN_GROUP) failed, trying again with in6addr_any\n", __FUNCTION__, realsocket);
+#endif
         // Attempt again with wildcard address
         memcpy(&multicast.ipv6mr_multiaddr, &in6addr_any, sizeof(in6addr_any));
         multicast.ipv6mr_interface = 0; // Any interface
         if(setsockopt(realsocket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&multicast, sizeof(multicast)) == SOCKET_ERROR)
         {
+#ifdef NL_DEBUG
+            printf("%s: sock %d setsockopt(IPV6_JOIN_GROUP) with in6addr_any failed\n", __FUNCTION__, realsocket);
+#endif
             //nlSetError(NL_SYSTEM_ERROR);
             //return NL_INVALID;
         }
@@ -677,6 +706,14 @@ static SOCKET sock_AcceptUDP(NLsocket nlsocket, /*@out@*/struct sockaddr_in6 *ne
     sock_SetSocketOptionsMulticast(nlsocket);
     /* get the new port */
     localport = sock_GetPort(newsocket);
+#ifdef NL_DEBUG
+    char tmp[128];
+    NLaddress tmpaddr;
+    memcpy(&tmpaddr, &ouraddr, sizeof(struct sockaddr_in6));
+    tmpaddr.valid = NL_TRUE;
+    nlAddrToString(&tmpaddr, tmp);
+    printf("%s: sock %d bound to addr %s port %d\n", __FUNCTION__, newsocket, tmp, localport);
+#endif
     
     /* create the return message */
     writeShort(buffer, count, localport);
@@ -851,6 +888,7 @@ NLsocket sock_Open(NLushort port, NLenum type)
         ((struct sockaddr_in6 *)&newsock->addressin)->sin6_family = AF_INET6;
         memcpy(&(((struct sockaddr_in6 *)&newsock->addressin)->sin6_addr), &bindaddress, sizeof(bindaddress));
         ((struct sockaddr_in6 *)&newsock->addressin)->sin6_port = htons((unsigned short)port);
+        newsock->addressin.valid = NL_TRUE;
         
         if(sock_bind(realsocket, (struct sockaddr *)&newsock->addressin, (int)sizeof(struct sockaddr_in6)) == SOCKET_ERROR)
         {
@@ -859,6 +897,14 @@ NLsocket sock_Open(NLushort port, NLenum type)
             (void)sock_Close(newsocket);
             return NL_INVALID;
         }
+        newsock->localport = sock_GetPort(realsocket);
+
+#ifdef NL_DEBUG
+        char tmp[128];
+        nlAddrToString(&newsock->addressin, tmp);
+        printf("%s: sock %d bound to addr %s port %d\n", __FUNCTION__, realsocket, tmp, newsock->localport);
+#endif
+
         sock_SetSocketOptionsMulticast(newsocket);
         if(type == NL_BROADCAST)
         {
@@ -871,10 +917,10 @@ NLsocket sock_Open(NLushort port, NLenum type)
             }
             memset(((struct sockaddr_in6 *)&newsock->addressout), 0, sizeof(struct sockaddr_in6));
             ((struct sockaddr_in6 *)&newsock->addressout)->sin6_family = AF_INET6;
-            memcpy(&((struct sockaddr_in6 *)&newsock->addressout)->sin6_addr, &in6addr_multicast, sizeof(in6addr_multicast));
+            memcpy(&((struct sockaddr_in6 *)&newsock->addressout)->sin6_addr, &in6addr_ipv4broadcast, sizeof(in6addr_ipv4broadcast));
             ((struct sockaddr_in6 *)&newsock->addressout)->sin6_port = htons((unsigned short)port);
+            newsock->addressout.valid = NL_TRUE;
         }
-        newsock->localport = sock_GetPort(realsocket);
     }
     if(type == NL_RELIABLE_PACKETS)
     {
@@ -1723,16 +1769,28 @@ NLint sock_Write(NLsocket socket, const NLvoid *buffer, NLint nbytes)
         }
         else
         {
+#ifdef NL_DEBUG
+            char tmp[128];
+            nlAddrToString(&sock->addressout, tmp);
+            printf("%s: sock %d len %d addr %s\n", __FUNCTION__, sock->realsocket, (int)nbytes, tmp);
+#endif
             count = sendto((SOCKET)sock->realsocket, (char *)buffer, nbytes, 0,
                 (struct sockaddr *)&sock->addressout, (int)sizeof(struct sockaddr_in6));
 
             if(sock->type == NL_BROADCAST)
             {
-                struct sockaddr_in6 v4broadcast;
-                memcpy(&v4broadcast, (struct sockaddr_in6 *)&sock->addressout, sizeof(v4broadcast));
-                memcpy(&v4broadcast.sin6_addr, &in6addr_ipv4broadcast, sizeof(in6addr_ipv4broadcast));
+                struct sockaddr_in6 broadcast;
+                memcpy(&broadcast, (struct sockaddr_in6 *)&sock->addressout, sizeof(broadcast));
+                memcpy(&broadcast.sin6_addr, &in6addr_multicast, sizeof(in6addr_multicast));
                 sendto((SOCKET)sock->realsocket, (char *)buffer, nbytes, 0,
-                    (struct sockaddr *)&v4broadcast, (int)sizeof(struct sockaddr_in6));
+                    (struct sockaddr *)&broadcast, (int)sizeof(struct sockaddr_in6));
+#ifdef NL_DEBUG
+                NLaddress tmpaddr;
+                memcpy(&tmpaddr, &broadcast, sizeof(struct sockaddr_in6));
+                tmpaddr.valid = NL_TRUE;
+                nlAddrToString(&tmpaddr, tmp);
+                printf("%s: sock %d len %d addr %s\n", __FUNCTION__, sock->realsocket, (int)nbytes, tmp);
+#endif
             }
         }
     }
