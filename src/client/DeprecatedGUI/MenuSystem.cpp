@@ -1391,7 +1391,7 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 
 ///////////////////
 // Add a server onto the list (for list and manually)
-server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name, int udpMasterserverIndex)
+server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name, int udpMasterserverIndex, const std::string& v4address)
 {
     // Check if the server is already in the list
     // If it is, don't bother adding it
@@ -1792,6 +1792,11 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>
 			Menu_SvrList_ParseUdpServerlist(bs, 0);
 			update = true;
 		}
+		else if(cmd == "lx::serverlist3") // This should not happen, we have another thread for polling UDP servers
+		{
+			Menu_SvrList_ParseUdpServerlist(bs, 0, true);
+			update = true;
+		}
 
 	}
 
@@ -1912,13 +1917,14 @@ static size_t threadId = 0;
 struct UdpServerlistData  {
 	CBytestream *bs;
 	int UdpServerIndex;
-	UdpServerlistData(CBytestream *b, int _UdpServerIndex) : bs(b), UdpServerIndex(_UdpServerIndex) {}
+	bool v4addrIncluded;
+	UdpServerlistData(CBytestream *b, int _UdpServerIndex, bool _v4addrIncluded) : bs(b), UdpServerIndex(_UdpServerIndex), v4addrIncluded(_v4addrIncluded) {}
 };
 
 void Menu_UpdateUDPListEventHandler(UdpServerlistData data)
 {
 	if (iNetMode == net_internet) // Only add them if the Internet tab is active
-		Menu_SvrList_ParseUdpServerlist(data.bs, data.UdpServerIndex);
+		Menu_SvrList_ParseUdpServerlist(data.bs, data.UdpServerIndex, data.v4addrIncluded);
 	delete data.bs;
 }
 
@@ -1990,7 +1996,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 			// Send the getserverlist packet
 			CBytestream *bs = new CBytestream();
 			bs->writeInt(-1, 4);
-			bs->writeString("lx::getserverlist2");
+			bs->writeString(af ? "lx::getserverlist3" : "lx::getserverlist2");
 			if(!bs->Send(&sock))
 			{
 				delete bs;
@@ -2019,8 +2025,9 @@ int Menu_SvrList_UpdaterThread(void *id)
 				}
 
 				// Parse the reply
-				if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
-					serverlistEvent.pushToMainQueue(UdpServerlistData(bs, UdpServerIndex));
+				std::string response;
+				if (bs->GetLength() && bs->readInt(4) == -1 && (response = bs->readString()).find("lx::serverlist") == 0) {
+					serverlistEvent.pushToMainQueue(UdpServerlistData(bs, UdpServerIndex, response == "lx::serverlist3"));
 					timeoutTime = GetTime() + 0.5f;	// Check for another packet
 					bs = new CBytestream(); // old bs pointer is in mainqueue now
 					firstPacket = false;
@@ -2069,7 +2076,7 @@ void Menu_SvrList_UpdateUDPList()
 	tUpdateThreads[threadId] = thread;
 }
 
-void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
+void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex, bool v4AddressIncluded)
 {
 	// Look the the list and find which server returned the ping
 	int amount = bs->readByte();
@@ -2086,6 +2093,9 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 		int state = bs->readByte();
 		Version version = bs->readString(64);
 		bool allowConnectDuringGame = bs->readBool();
+		std::string v4address;
+		if( v4AddressIncluded )
+			v4address = bs->readString();
 		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
 		server_t *svr = Menu_SvrList_FindServerStr(addr, name);
 		if( svr != NULL )
@@ -2094,13 +2104,13 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 			if( svr->bgotPong )
 				continue;
 			// It will merge existing server with new info
-			Menu_SvrList_AddServer(addr, false, name, UdpMasterserverIndex);
+			Menu_SvrList_AddServer(addr, false, name, UdpMasterserverIndex, v4address);
 			continue;
 		}
 
 		// In favourites/LAN only the user should add servers
 		if (iNetMode == net_internet)  {
-			svr = Menu_SvrList_AddServer( addr, false, name, UdpMasterserverIndex );
+			svr = Menu_SvrList_AddServer( addr, false, name, UdpMasterserverIndex, v4address );
 			svr->nNumPlayers = players;
 			svr->nMaxPlayers = maxplayers;
 			svr->nState = state;

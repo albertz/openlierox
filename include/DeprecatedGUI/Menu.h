@@ -373,6 +373,9 @@ class server_t { public:
 	std::string	szAddress;
 	NetworkAddr	sAddress; // Does not include port
 
+	std::string	szAddressV4; // Used to merge entries in the menu
+	std::string	szAddressV6;
+
 	// Server details
 	std::string	szName;
 	int		nState;
@@ -442,7 +445,7 @@ void		Menu_SvrList_Clear();
 void        Menu_SvrList_ClearAuto();
 void		Menu_SvrList_Shutdown();
 void		Menu_SvrList_PingLAN();
-server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
+server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name = "Untitled", int udpMasterserverIndex = -1, const std::string& v4address = "");
 server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress, const std::string & name = "");
 void        Menu_SvrList_RemoveServer(const std::string& szAddress);
 bool		Menu_SvrList_Process();
@@ -455,7 +458,7 @@ void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_GetServerInfo(server_t *svr);
 void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
-void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
+void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex, bool v4AddressIncluded = false);
 void		Menu_SvrList_RefreshList();
 void        Menu_SvrList_RefreshServer(server_t *s, bool updategui = true);
 void		Menu_SvrList_UpdateList();
