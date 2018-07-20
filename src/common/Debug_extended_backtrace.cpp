@@ -70,6 +70,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <execinfo.h>
+
+//HACK: Fix compilation error caused by some (new?) versions of bfd.h
+//Source: https://stackoverflow.com/questions/11748035/binutils-bfd-h-wants-config-h-now
+#ifndef PACKAGE
+	#define PACKAGE 1
+#endif
+#ifndef PACKAGE_VERSION
+	#define PACKAGE_VERSION 1
+#endif
+
 #ifdef __APPLE__
 #include <bfd.h>
 #include <dlfcn.h>

@@ -12,7 +12,16 @@
 #include "util/text.h"
 #include "gusanos/allegro.h"
 #include "Debug.h"
-#include <boost/utility.hpp>
+//Check version to fix "next is not a member of boost" error during compilation when Boost version is 1.67
+//Credits: https://github.com/arvidn/libtorrent/pull/2929/commits/253ae7ebeaa8287877b7fad2d8b2c083e445340c
+//NOTE: Perhaps we could include utility.hpp anyway, but it's apparently not needed, and using it is discouraged according to documentation
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 106700
+	#include <boost/next_prior.hpp>
+#else
+	#include <boost/utility.hpp>
+#endif
+
 
 template<class T, bool Cache = true, bool ReturnResource = true>
 struct ResourceLocator
