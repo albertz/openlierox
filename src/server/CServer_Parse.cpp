@@ -2101,6 +2101,8 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 	if( tSocket->remoteAddress() == addr || tSocket->remoteAddress() == addr6 )
 		iFirstUdpMasterServerNotRespondingCount = 0;
 
+	if( bs->isPosAtEnd() )
+		return;
 	std::string myAddr = bs->readString();
 
 	// Strip the port, we don't need it for IPv4, because NAT mangles it
@@ -2110,6 +2112,8 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 	}
 	myAddr = myAddr.substr(0, portPart);
 
+	if( myAddr == "" )
+		return;
 	if (myAddr.find('[') == 0) {
 		sServerAddressV6 = myAddr;
 	} else {
