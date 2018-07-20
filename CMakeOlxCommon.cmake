@@ -408,6 +408,9 @@ if(UNIX)
 			EXEC_PROGRAM(pkg-config ARGS lua-5.1 --libs --silence-errors OUTPUT_VARIABLE LIBLUA_NAME) #On some systems, e.g. Fedora, it may be lua-5.1
 		ENDIF(NOT LIBLUA_NAME)
 		IF(NOT LIBLUA_NAME)
+			EXEC_PROGRAM(pkg-config ARGS lua51 --libs --silence-errors OUTPUT_VARIABLE LIBLUA_NAME) #On Arch Linux pkg-config wants lua51 even though the result is still -llua5.1 -lm...
+		ENDIF(NOT LIBLUA_NAME)
+		IF(NOT LIBLUA_NAME)
 			MESSAGE(WARNING "No Lua 5.1 found - searching for default Lua, but it may not work. You may have to install Lua 5.1 packages or use the built-in library")
 			EXEC_PROGRAM(pkg-config ARGS lua --libs --silence-errors OUTPUT_VARIABLE LIBLUA_NAME) #Search for lua if neither found
 		ENDIF(NOT LIBLUA_NAME)
