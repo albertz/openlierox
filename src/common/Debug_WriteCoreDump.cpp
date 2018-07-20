@@ -245,7 +245,7 @@ void OlxWriteCoreDump(const char* fileName)
 #if !defined(GCOREDUMPER)
 static void GdbWriteCoreDump(const char* fname) {
 	// WARNING: this is terribly slow like this
-	char gdbparam[1000];
+	char gdbparam[PATH_MAX + 200];
 	sprintf(gdbparam,
 			"attach %i \n"
 			"gcore %s \n"
