@@ -2105,13 +2105,6 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 		return;
 	std::string myAddr = bs->readString();
 
-	// Strip the port, we don't need it for IPv4, because NAT mangles it
-	size_t portPart = myAddr.rfind(':');
-	if( myAddr.find('[') == 0 && myAddr.find("]:") == std::string::npos ) {
-		portPart = std::string::npos;
-	}
-	myAddr = myAddr.substr(0, portPart);
-
 	if( myAddr == "" )
 		return;
 	if (myAddr.find('[') == 0) {
