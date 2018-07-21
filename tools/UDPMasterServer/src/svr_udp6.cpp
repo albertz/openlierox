@@ -1,56 +1,13 @@
-
 // That's the same as svr_udp.php but needs no MySQL or PHP :)
-
-#include <string>
-#include <vector>
-#include <list>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-static void signal_handler_impl(int signum);
-
-#ifdef WIN32
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winsock.h>
-#include <time.h>
-
-typedef int socklen_t;
-
-static BOOL signal_handler( DWORD signum )
-{ 
-	signal_handler_impl(signum);
-	return TRUE;
-};
-
-#else
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <signal.h>
-
-static void signal_handler(int signum)
-{
-	signal_handler_impl(signum);
-};
-		 
-#endif
 
 #include "svr_udp.h"
 
 static bool quit = false;	// Signal here on Ctrl-C
 
-#define DEFAULT_PORT 23450
 static int port = DEFAULT_PORT;
 static int sock = -1;
 
-void signal_handler_impl(int signum)
+static void signal_handler_impl(int signum)
 {
 	printf("Caught signal %i, quitting\n", signum);
 	quit=true;
@@ -62,27 +19,18 @@ void signal_handler_impl(int signum)
 	sendto( sock, "lx::ping", 9, 0, (struct sockaddr *)&addr, sizeof(addr) );
 };
 
-struct RawPacketRequest6
+#ifdef WIN32
+static BOOL signal_handler( DWORD signum )
 {
-	RawPacketRequest6( sockaddr_in6 _src, sockaddr_in6 _dst, time_t _lastping ):
-		src( _src ), dst( _dst ), lastping( _lastping ) {};
-
-	struct sockaddr_in6 src;
-	struct sockaddr_in6 dst;
-	time_t lastping;
+	signal_handler_impl(signum);
+	return TRUE;
 };
-
-bool AreNetAddrEqual( const sockaddr_in6 & a1, const sockaddr_in6 & a2 )
+#else
+static void signal_handler(int signum)
 {
-	return memcmp(&a1.sin6_addr, &a2.sin6_addr, sizeof(a1.sin6_addr)) == 0 && a1.sin6_port == a2.sin6_port;
-}
-
-void printStr(const std::string & s)
-{
-	for(size_t f=0; f<s.size(); f++)
-		printf("%c", s[f] >= 32 ? s[f] : '?' );
-	printf("\n");
+	signal_handler_impl(signum);
 };
+#endif
 
 int main6(int argc, char ** argv)
 {
