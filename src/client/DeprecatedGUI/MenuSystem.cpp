@@ -1411,7 +1411,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
 			found->szName = name;
 			TrimSpaces(found->szName);
 		}
-		hints << "Menu_SvrList_AddServer(): merging duplicate " << found->szName << " " << found->szAddress << endl;
+		//hints << "Menu_SvrList_AddServer(): merging duplicate " << found->szName << " " << found->szAddress << endl;
 		if( StringToNetAddr(tmp_address, ad) ) {
 			SetNetAddrPort(ad, port);
 			if( IsNetAddrV6(tmp_address) ) {
@@ -1485,8 +1485,8 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
 	else
 		svr->bBehindNat = false;
 
-	hints << "Menu_SvrList_AddServer(): added server " << svr->szName << " svr->szAddress " << svr->szAddress << " v4addr " << v4address <<
-			" svr->sAddress " << NetAddrToString(svr->sAddress) << " svr->sAddress6 " << NetAddrToString(svr->sAddress6) << endl;
+	//hints << "Menu_SvrList_AddServer(): added server " << svr->szName << " svr->szAddress " << svr->szAddress << " v4addr " << v4address <<
+	//		" svr->sAddress " << NetAddrToString(svr->sAddress) << " svr->sAddress6 " << NetAddrToString(svr->sAddress6) << endl;
 	
 	return svr;
 }
@@ -1932,8 +1932,8 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs, bool ipv6)
 		svr->tVersion.setByString( bs->readString(64) );
 		svr->bAllowConnectDuringGame = bs->readBool();
 	}
-	hints << "Menu_SvrList_ParseQuery(): " << svr->szName << " addr " << svr->szAddress << " v4 " << NetAddrToString(svr->sAddress) <<
-			" v6 " << NetAddrToString(svr->sAddress6) << " ping " << svr->nPing << " ping4 " << svr->nPing4 << " ping6 " << svr->nPing6 << endl;
+	//hints << "Menu_SvrList_ParseQuery(): " << svr->szName << " addr " << svr->szAddress << " v4 " << NetAddrToString(svr->sAddress) <<
+	//		" v6 " << NetAddrToString(svr->sAddress6) << " ping " << svr->nPing << " ping4 " << svr->nPing4 << " ping6 " << svr->nPing6 << endl;
 	// We got server name in a query. let's remove servers with the same name and IP, which we got from UDP masterserver
 	// Duplicates should be detected in AddServer(), but some servers fail detection because of different port
 	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++)
