@@ -1805,7 +1805,7 @@ NLchar *sock_AddrToString(const NLaddress *address, NLchar *string)
 {
     if(((struct sockaddr_in6 *)address)->sin6_family != AF_INET6 || !address->valid)
     {
-        _stprintf(string, TEXT(""));
+        _stprintf(string, TEXT("%s"), "");
         return NULL;
     }
 
