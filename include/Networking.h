@@ -60,6 +60,8 @@ bool	IsNetAddrValid(const NetworkAddr& addr);
 bool	IsNetAddrAvailable(const NetworkAddr& addr);
 bool	SetNetAddrValid(NetworkAddr& addr, bool valid);
 void	ResetNetAddr(NetworkAddr& addr);
+bool	IsNetAddrV6(const NetworkAddr& addr);
+bool	IsNetAddrV6(const std::string& addr);
 bool	StringToNetAddr(const std::string& string, NetworkAddr& addr, std::string* errorStr = NULL);
 NetworkAddr StringToNetAddr(const std::string& string);
 bool	NetAddrToString(const NetworkAddr& addr, std::string& string);

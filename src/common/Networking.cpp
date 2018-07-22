@@ -240,7 +240,7 @@ bool GetFromDnsCache(const std::string& name, NetworkAddr& addr4, NetworkAddr& a
 	getNLaddr(addr4)->valid = NL_FALSE;
 	getNLaddr(addr6)->valid = NL_FALSE;
 
-	if (name[0] == '[' && StringToNetAddr(name, addr6)) {
+	if (IsNetAddrV6(name) && StringToNetAddr(name, addr6)) {
 		return true;
 	}
 	if (StringToNetAddr(name, addr4)) {
@@ -1086,6 +1086,19 @@ void ResetNetAddr(NetworkAddr& addr) {
 	// TODO: is this the best way?
 	memset(getNLaddr(addr), 0, sizeof(NLaddress));
 	SetNetAddrValid(addr, false);
+}
+
+bool IsNetAddrV6(const std::string& s)
+{
+	// Any IPv6 address will be in a format [XXXX:XXXX:...:XXXX]:XXXX or [XXXX:XXXX:...:XXXX]
+	return s.size() > 0 && s[0] == '[';
+}
+
+bool IsNetAddrV6(const NetworkAddr& addr)
+{
+	std::string s;
+	NetAddrToString(addr, s);
+	return IsNetAddrV6(s);
 }
 
 static bool isStringValidIP(const std::string& str) {
