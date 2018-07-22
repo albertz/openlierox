@@ -2107,7 +2107,7 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 
 	if( myAddr == "" )
 		return;
-	if (myAddr.find('[') == 0) {
+	if (IsNetAddrV6(myAddr) == 0) {
 		sServerAddressV6 = myAddr;
 	} else {
 		sServerAddressV4 = myAddr;
