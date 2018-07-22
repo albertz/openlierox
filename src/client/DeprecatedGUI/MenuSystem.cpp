@@ -1445,32 +1445,26 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
 	svr->szAddress = tmp_address;
 	ResetNetAddr(svr->sAddress);
 	ResetNetAddr(svr->sAddress6);
-	hints << "Menu_SvrList_AddServer(): check 1: svr->sAddress " << NetAddrToString(svr->sAddress) << " svr->sAddress6 " << NetAddrToString(svr->sAddress6) << endl;
 
 	if( StringToNetAddr(tmp_address, ad) ) {
 		SetNetAddrPort(ad, port);
 		if( IsNetAddrV6(tmp_address) ) {
 			svr->sAddress6 = ad;
-			hints << "Menu_SvrList_AddServer(): svr->sAddress6 " << NetAddrToString(svr->sAddress6) << endl;
 			if (v4address != "" && StringToNetAddr(v4address, ad)) {
 				port = GetNetAddrPort(ad);
 				if( port == 0 )
 					port = LX_PORT;
 				SetNetAddrPort(ad, port);
 				svr->sAddress = ad;
-				hints << "Menu_SvrList_AddServer(): svr->sAddress " << NetAddrToString(svr->sAddress) << endl;
 			}
 		} else {
 			svr->sAddress = ad;
-			hints << "Menu_SvrList_AddServer(): svr->sAddress " << NetAddrToString(svr->sAddress) << endl;
 		}
 	} else {
 		hints << "Menu_SvrList_AddServer(): cannot parse server addr " << svr->szAddress << endl;
 	}
 
-	hints << "Menu_SvrList_AddServer(): check 2: svr->sAddress " << NetAddrToString(svr->sAddress) << " svr->sAddress6 " << NetAddrToString(svr->sAddress6) << endl;
 	Menu_SvrList_RefreshServer(svr, bManual);
-	hints << "Menu_SvrList_AddServer(): check 3: svr->sAddress " << NetAddrToString(svr->sAddress) << " svr->sAddress6 " << NetAddrToString(svr->sAddress6) << endl;
 	
 	if( svr->ports.size() > 0 )
 		svr->ports[0].second = udpMasterserverIndex;
