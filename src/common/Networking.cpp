@@ -1133,13 +1133,15 @@ bool NetAddrToString(const NetworkAddr& addr, std::string& string) {
 		fix_markend(buf);
 		string = buf;
 		return true;
-	} else
+	} else {
+		string = "";
 		return false;
+	}
 }
 
 NetworkAddr StringToNetAddr(const std::string& string) { 
-	NetworkAddr ret; 
-	ResetNetAddr(ret); 
+	NetworkAddr ret;
+	ResetNetAddr(ret);
 	StringToNetAddr(string, ret);
 	return ret;
 };
