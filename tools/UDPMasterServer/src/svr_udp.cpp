@@ -180,12 +180,6 @@ int main(int argc, char ** argv)
 			unsigned numplayers = (unsigned char)(data[f]);
 			unsigned maxworms = (unsigned char)(data[f+1]);
 			unsigned state = (unsigned char)(data[f+2]);
-			f += 3;
-			if( f < data.size() && data.find( '\0', f ) != std::string::npos )
-			{
-				// Empty string on IPv4 masterserver, contains IPv4 address on IPv6 masterserver
-				f = data.find( '\0', f ) + 1;
-			}
 	
 			std::list<HostInfo> :: iterator it;
 			for( it = hosts.begin(); it != hosts.end(); it++ )
@@ -219,6 +213,12 @@ int main(int argc, char ** argv)
 				continue;
 			bool allowsJoinDuringGame = (unsigned char)(data[f]);
 			*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, version, allowsJoinDuringGame );
+			f += 1;
+			if( f < data.size() && data.find( '\0', f ) != std::string::npos )
+			{
+				// Empty string on IPv4 masterserver, contains IPv4 address on IPv6 masterserver
+				f = data.find( '\0', f ) + 1;
+			}
 		}
 
 		else if( data.find( "\xff\xff\xff\xfflx::deregister" ) == 0 )

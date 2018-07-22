@@ -197,27 +197,20 @@ int main6(int argc, char ** argv)
 			unsigned numplayers = (unsigned char)(data[f]);
 			unsigned maxworms = (unsigned char)(data[f+1]);
 			unsigned state = (unsigned char)(data[f+2]);
-			f += 3;
-			std::string v4address = "";
-			if( f < data.size() && data.find( '\0', f ) != std::string::npos )
-			{
-				v4address = data.substr( f, data.find( '\0', f ) - f );
-				f = data.find( '\0', f ) + 1;
-			}
 	
 			std::list<HostInfo> :: iterator it;
 			for( it = hosts.begin(); it != hosts.end(); it++ )
 			{
 				if( it->addr == srcAddr )
 				{
-					*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, v4address );
+					*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state );
 					//printf("Host db updated: updated: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
 					break;
 				};
 			};
 			if( it == hosts.end() )
 			{
-				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, v4address ) );
+				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state ) );
 				it == hosts.end();
 				it --; // End of list
 				//printf("Host db updated: added: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
@@ -237,6 +230,13 @@ int main6(int argc, char ** argv)
 				continue;
 			bool allowsJoinDuringGame = (unsigned char)(data[f]);
 			*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, version, allowsJoinDuringGame );
+			f += 1;
+			if( f < data.size() && data.find( '\0', f ) != std::string::npos )
+			{
+				std::string v4address = data.substr( f, data.find( '\0', f ) - f );
+				f = data.find( '\0', f ) + 1;
+				*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, version, allowsJoinDuringGame, v4address );
+			}
 		}
 
 		else if( data.find( "\xff\xff\xff\xfflx::deregister" ) == 0 )
