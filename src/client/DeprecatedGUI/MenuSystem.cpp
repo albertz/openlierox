@@ -1580,7 +1580,6 @@ void Menu_SvrList_FillList(CListview *lv)
 		if(processing)
 			colour = tLX->clDisabled;
 
-
 		// Add the server to the list
 		lv->AddItem(s->szAddress, 0, colour);
 		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num], NULL);
@@ -1712,9 +1711,10 @@ bool Menu_SvrList_Process()
 			if(tLX->currentTime - s->fLastQuery > (float)QueryWait / 1000.0f) {
 
 				if(s->nQueries >= MaxQueries) {
-					s->bIgnore = true;
-
-					update = true;
+					if( !s->bgotQuery && !s->bgotQuery6 ) {
+						s->bIgnore = true;
+						update = true;
+					}
 				} else  {
 					// Query the server
 					Menu_SvrList_QueryServer(&(*s));
