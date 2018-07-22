@@ -1805,8 +1805,8 @@ NLchar *sock_AddrToString(const NLaddress *address, NLchar *string)
 {
     if(((struct sockaddr_in6 *)address)->sin6_family != AF_INET6 || !address->valid)
     {
-        _stprintf(string, TEXT("0.0.0.0:0"));
-        return string;
+        _stprintf(string, TEXT(""));
+        return NULL;
     }
 
     if(memcmp(&in6addr_ipv4mapped, &(((struct sockaddr_in6 *)address)->sin6_addr), 12) != 0)
