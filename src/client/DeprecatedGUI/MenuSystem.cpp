@@ -1812,11 +1812,9 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>
 				if(ipv6) {
 					if(!svr->bgotQuery6)
 						update = true;
-					svr->bgotQuery6 = true;
 				} else {
 					if(!svr->bgotQuery)
 						update = true;
-					svr->bgotQuery = true;
 				}
 
 				svr->bBehindNat = false;
@@ -1901,14 +1899,21 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs, bool ipv6)
 	svr->bAllowConnectDuringGame = false;
 	svr->tVersion.reset();
 
-    if(num < 0 || num >= MAX_QUERIES-1)
-        num=0;
+	if(num < 0 || num >= MAX_QUERIES-1)
+		num=0;
 
 	int ping = (int)( (tLX->currentTime - svr->fQueryTimes[num]).milliseconds() );
-	if (ipv6)
-		svr->nPing6 = ping;
-	else
+
+	if (ipv6) {
+		if (svr->bgotQuery6 && svr->nPing6 > ping)
+			svr->nPing6 = ping;
+		svr->bgotQuery6 = true;
+	} else {
+		if (svr->bgotQuery && svr->nPing > ping)
+			svr->nPing4 = ping;
 		svr->nPing4 = ping;
+		svr->bgotQuery = true;
+	}
 
 	if (svr->nPing4 < svr->nPing6)
 	{
@@ -2168,6 +2173,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex, 
 			svr->nMaxPlayers = maxplayers;
 			svr->nState = state;
 			svr->nPing = -2;
+			svr->nPing4 = svr->nPing6 = 9999;
 			svr->nQueries = 0;
 			svr->bgotPong = false;
 			svr->bgotQuery = false;

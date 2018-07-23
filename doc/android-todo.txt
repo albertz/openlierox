@@ -1,2 +1,2 @@
 
-- IPv6 support.
+- Separate Dig button
