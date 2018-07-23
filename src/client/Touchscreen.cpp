@@ -76,7 +76,7 @@ void ProcessTouchscreenEvents()
 		KeyboardEvent k;
 		k.down = false;
 		k.ch = 0;
-		k.sym = SDLK_z;
+		k.sym = SDLK_a;
 		HandleCInputs_KeyEvent(k);
 	}
 
@@ -118,7 +118,7 @@ void ProcessTouchscreenEvents()
 				KeyboardEvent k;
 				k.down = true;
 				k.ch = 0;
-				k.sym = SDLK_z;
+				k.sym = SDLK_a;
 				HandleCInputs_KeyEvent(k);
 			}
 		}
@@ -284,6 +284,8 @@ void SetTouchscreenControlsShown(bool shown)
 		k.sym = SDLK_LALT;
 		HandleCInputs_KeyEvent(k);
 		k.sym = SDLK_x;
+		HandleCInputs_KeyEvent(k);
+		k.sym = SDLK_a;
 		HandleCInputs_KeyEvent(k);
 		k.sym = SDLK_LCTRL;
 		HandleCInputs_KeyEvent(k);
