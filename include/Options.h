@@ -37,6 +37,7 @@ enum {
 	SIN_ROPE,
 
 	SIN_STRAFE,
+	SIN_DIG,
 
 	SIN_WEAPON1,
 	SIN_WEAPON2,

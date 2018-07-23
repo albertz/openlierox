@@ -36,7 +36,7 @@ protected:
 	// Input
 	CInput		cUp, cDown, cLeft, cRight,
 	cShoot, cJump, cSelWeapon, cInpRope,
-	cStrafe, cWeapons[5];
+	cStrafe, cDig, cWeapons[5];
 	//bool		bUsesMouse;
 	
 public:
@@ -51,6 +51,7 @@ public:
 	CInput &	getInputWeapon()				{ return cSelWeapon; };
 	CInput &	getInputRope()					{ return cInpRope; };
 	CInput &	getInputStrafe()				{ return cStrafe; };
+	CInput &	getInputDig()					{ return cDig; };
 	
 	bool	canType();
 	

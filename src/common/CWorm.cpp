@@ -1354,6 +1354,7 @@ bool CWormHumanInputHandler::canType() {
 			cSelWeapon.getData() == kb->keyQueue[i].sym ||
 			cInpRope.getData() == kb->keyQueue[i].sym ||
 			cStrafe.getData() == kb->keyQueue[i].sym ||
+			cDig.getData() == kb->keyQueue[i].sym ||
 			cWeapons[0].getData() == kb->keyQueue[i].sym ||
 			cWeapons[1].getData() == kb->keyQueue[i].sym ||
 			cWeapons[2].getData() == kb->keyQueue[i].sym ||

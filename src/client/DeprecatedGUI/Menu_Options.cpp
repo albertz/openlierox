@@ -110,6 +110,7 @@ enum {
 	oc_Ply1_Selweapon,
 	oc_Ply1_Rope,
 	oc_Ply1_Strafe,
+	oc_Ply1_Dig,
 
 	oc_Ply2_Up,
 	oc_Ply2_Down,
@@ -120,6 +121,7 @@ enum {
 	oc_Ply2_Selweapon,
 	oc_Ply2_Rope,
 	oc_Ply2_Strafe,
+	oc_Ply2_Dig,
 
 	oc_Gen_Chat,
     oc_Gen_Score,
@@ -144,7 +146,8 @@ static std::string InputNames[] = {
 	"Jump",
 	"Select Weapon",
 	"Ninja Rope",
-	"Strafe / Dig"
+	"Strafe",
+	"Dig"
 };
 
 
@@ -199,7 +202,7 @@ bool Menu_OptionsInitialize(bool floating)
 	cOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading),Static, 390, 150, 0,0);
 
 	int y = 190;
-	for(i=0;i<9;i++,y+=25) {
+	for( i=0; i < sizeof(InputNames) / sizeof(InputNames[0]); i++, y+=25) {
 		cOpt_Controls.Add( new CLabel(InputNames[i],tLX->clNormalLabel), Static, 40, y, 0,0);
 
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[0][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
