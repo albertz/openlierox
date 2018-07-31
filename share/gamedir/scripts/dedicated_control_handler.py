@@ -14,6 +14,7 @@ import traceback
 import random
 import portalocker
 import subprocess, signal, os.path
+import distutils.version
 
 import dedicated_control_io as io
 setvar = io.setvar
@@ -274,6 +275,10 @@ def parseNewWorm(wormID, name):
 			io.kickWorm( wormID, "You can join in " + str(int(cmds.kickedUsers[ wormIP ] - time.time())/60 + 1) + " minutes" )
 			return
 	cmds.recheckVote()
+
+	ver = io.getWormVersion(wormID)
+	if distutils.version.LooseVersion(ver.lower()) < distutils.version.LooseVersion("OpenLieroX/0.58_rc5".lower()):
+		io.privateMsg(wormID, "Download OpenLieroX 0.58 rc5 at http://openlierox.net/")
 
 	if newWormHandler != None:
 		newWormHandler(wormID, name)
