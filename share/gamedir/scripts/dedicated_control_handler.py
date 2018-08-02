@@ -409,9 +409,11 @@ def initPresets():
 		if f.lower() != "defaults" and f.lower() != ".svn":
 			availablePresets.append(f)
 
-	for p in cfg.PRESETS:
-		if availablePresets.count(p) == 0:
-			availablePresets.append(p)
+	#for p in cfg.PRESETS:
+	#	if availablePresets.count(p) == 0:
+	#		availablePresets.append(p)
+
+	availablePresets.sort()
 
 	if (len(availablePresets) == 0):
 		io.messageLog("There are no presets available - nothing to do. Exiting.",io.LOG_CRITICAL)
