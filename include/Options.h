@@ -277,6 +277,7 @@ struct GameOptions {
 	bool	bAimLikeLX56;
 	bool	bTouchscreenTapCycleWeaponsBackwards;
 	int		iTouchscreenSensitivity;
+	bool	bDigWithJumpButtonMidAir;
 	
 	//Killing/dying spree thresholds
 	int iSpreeThreshold1;

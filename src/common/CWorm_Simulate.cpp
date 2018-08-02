@@ -355,6 +355,7 @@ void CWormHumanInputHandler::getInput() {
 		if (cDig.isDownOnce()) {
 			ws->bCarve = true;
 			ws->bMove = true;
+			m_worm->fLastCarve = tLX->currentTime;
 		}
 
 		// inform player about disallowed strafing
@@ -374,6 +375,11 @@ void CWormHumanInputHandler::getInput() {
 
 			if(m_worm->cNinjaRope.isReleased())
 				m_worm->cNinjaRope.Release();
+			else if(tLXOptions->bDigWithJumpButtonMidAir && !m_worm->CheckOnGround()) {
+				ws->bCarve = true;
+				ws->bMove = true;
+				m_worm->fLastCarve = tLX->currentTime;
+			}
 		}
 	}
 

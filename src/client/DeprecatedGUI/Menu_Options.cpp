@@ -96,6 +96,7 @@ enum {
 	og_ScreenShaking,
 	og_DamagePopups,
 	og_ColorizeDamageByWorm,
+	og_DigWithJumpButtonMidAir,
 	og_TouchscreenTapCycleWeaponsBackwards,
 	og_TouchscreenSensitivity,
 };
@@ -444,12 +445,15 @@ bool Menu_OptionsInitialize(bool floating)
 	cOpt_Game.Add( new CLabel("Colorize damage popups by worm",tLX->clNormalLabel), Static, 330, 240, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bColorizeDamageByWorm),     og_ColorizeDamageByWorm, 550, 240, 17,17);
 
-#ifdef __ANDROID__
-	cOpt_Game.Add( new CLabel("Tapping cycles weapons backwards", tLX->clNormalLabel), Static, 330, 270, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->bTouchscreenTapCycleWeaponsBackwards), og_TouchscreenTapCycleWeaponsBackwards, 550, 270, 17,17);
+	cOpt_Game.Add( new CLabel("Jump button mid-air will dig", tLX->clNormalLabel), Static, 330, 270, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bDigWithJumpButtonMidAir), og_DigWithJumpButtonMidAir, 550, 270, 17,17);
 
-	cOpt_Game.Add( new CLabel("Touchscreen sensitivity", tLX->clNormalLabel), Static, 330, 300, 0,0);
-	cOpt_Game.Add( new CSlider(9), og_TouchscreenSensitivity, 470, 300, 100, 20);
+#ifdef __ANDROID__
+	cOpt_Game.Add( new CLabel("Tapping cycles weapons backwards", tLX->clNormalLabel), Static, 330, 300, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bTouchscreenTapCycleWeaponsBackwards), og_TouchscreenTapCycleWeaponsBackwards, 550, 300, 17,17);
+
+	cOpt_Game.Add( new CLabel("Touchscreen sensitivity", tLX->clNormalLabel), Static, 330, 330, 0,0);
+	cOpt_Game.Add( new CSlider(9), og_TouchscreenSensitivity, 470, 330, 100, 20);
 	cOpt_Game.SendMessage( og_TouchscreenSensitivity,  SLM_SETVALUE, tLXOptions->iTouchscreenSensitivity, 0);
 #endif
 
@@ -714,6 +718,11 @@ void Menu_OptionsFrame()
 				case og_ColorizeDamageByWorm:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bColorizeDamageByWorm = cOpt_Game.SendMessage(og_ColorizeDamageByWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+
+				case og_DigWithJumpButtonMidAir:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bDigWithJumpButtonMidAir = cOpt_Game.SendMessage(og_DigWithJumpButtonMidAir, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 				case og_TouchscreenTapCycleWeaponsBackwards:
