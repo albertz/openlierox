@@ -18,6 +18,10 @@ cmds.parseUserCommand_Preset = None
 
 setvar("GameOptions.GameInfo.GameType", 0) # 0 - Deathmatch, 1 - TDM, 2 - Tag, 3 - Demolitions, 4 - Hide&Seek
 
+setvar( "GameOptions.GameInfo.ModName", "Classic" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
 setvar("GameOptions.GameInfo.Lives", cfg.GAME_LIVES)
 
 setvar("GameOptions.GameInfo.KillLimit", cfg.GAME_MAX_KILLS)

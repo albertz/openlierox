@@ -38,14 +38,14 @@ NetworkTexts	*networkTexts = NULL;
 
 const std::string DefaultCfgFilename = "cfg/options.cfg";
 
-const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe", "Weapon1", "Weapon2", "Weapon3", "Weapon4", "Weapon5" };
+const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe", "Dig", "Weapon1", "Weapon2", "Weapon3", "Weapon4", "Weapon5" };
 const std::string    ply_def1[] =
 #ifdef MACOSX
-	{"up", "down", "left", "right", "lalt", "lmeta", "space", "x", "c", "1", "2", "3", "4", "5" };
+	{"up", "down", "left", "right", "lalt", "lmeta", "space", "x", "c", "a", "1", "2", "3", "4", "5" };
 #else
-	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z", "1", "2", "3", "4", "5" };
+	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z", "a", "1", "2", "3", "4", "5" };
 #endif
-const std::string    ply_def2[] = {"kp 8",  "kp 5",    "kp 4",    "kp 6",     "kp +", "kp enter", "kp 0", "kp -", "kp .", "6", "7", "8", "9", "0" };
+const std::string    ply_def2[] = {"kp 8",  "kp 5",    "kp 4",    "kp 6",     "kp +", "kp enter", "kp 0", "kp -", "kp .", "kp /", "6", "7", "8", "9", "0" };
 const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "TeamChat",	"IrcChat", "Console"};
 const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",				"F2",				 "F5",		   "F8",		   "o",			"F4",	"F3"};
 
@@ -198,6 +198,9 @@ bool GameOptions::Init() {
 		( tLXOptions->fAimMaxSpeed, "Game.AimMaxSpeed", /* Gusanos promode default */ 232.996, "Aim max speed", "maximum possible aim speed for worm", GIG_Other, ALT_VeryAdvanced, true, 20, 1000 )
 		( tLXOptions->fAimFriction, "Game.AimFriction", /* Gusanos promode default */ 0, "Aim friction", "aim speed friction for worm", GIG_Other, ALT_VeryAdvanced, true, 0, 1 )
 		( tLXOptions->bAimLikeLX56, "Game.AimLikeLX56", false, "Aim friction like LX56", "aim speed friction behaves like LX56", GIG_Other, ALT_OnlyViaConfig )
+		( tLXOptions->bTouchscreenTapCycleWeaponsBackwards, "Game.TouchscreenTapCycleWeaponsBackwards", true )
+		( tLXOptions->iTouchscreenSensitivity, "Game.TouchscreenSensitivity", 5 )
+		( tLXOptions->bDigWithJumpButtonMidAir, "Game.DigWithJumpButtonMidAir", false )
 		
 		// Killing spree thresholds
 		( tLXOptions->iSpreeThreshold1, "Game.SpreeThreshold1", 3 )

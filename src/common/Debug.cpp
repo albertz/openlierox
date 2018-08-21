@@ -305,6 +305,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 // This function also used in CrashHandler.cpp
 void OlxWriteCoreDump_Win32(const char* fileName, PEXCEPTION_POINTERS pExInfo )
 {
+#if !defined(__MINGW32__) // Does not load on Windows machine, but loads fine on Wine
 	// MSVC-compatible core dump, GDB cannot read it :(
 	// Set the exception info for the minidump
 	MINIDUMP_EXCEPTION_INFORMATION eInfo;
@@ -354,6 +355,7 @@ void OlxWriteCoreDump_Win32(const char* fileName, PEXCEPTION_POINTERS pExInfo )
 
 	// Close the file
 	CloseHandle(hFile);
+#endif // !defined(__MINGW32__)
 }
 
 void OlxWriteCoreDump(const char* fileName) 
@@ -375,7 +377,7 @@ void OlxWriteCoreDump(const char* fileName)
 #ifndef GCOREDUMPER
 static void GdbWriteCoreDump(const char* fname) {
 	// WARNING: this is terribly slow like this
-	char gdbparam[1000];
+	char gdbparam[PATH_MAX + 200];
 	sprintf(gdbparam,
 			"attach %i \n"
 			"gcore %s \n"

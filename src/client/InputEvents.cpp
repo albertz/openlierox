@@ -360,7 +360,10 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 
 }
 
-static void EvHndl_MouseMotion(SDL_Event*) {}
+static void EvHndl_MouseMotion(SDL_Event* ev)
+{
+	DeprecatedGUI::Menu_ProcessMouseMotion(ev->motion.x, ev->motion.y);
+}
 
 static void EvHndl_MouseButtonDown(SDL_Event* ev) {
 	switch(ev->button.button) {

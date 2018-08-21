@@ -1213,21 +1213,21 @@ int CWorm::getScore() const
 
 void CWorm::addDeath()
 {
-	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 && (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] > 0.0f )
 		return;
 	iDeaths++;
 }
 
 void CWorm::addSuicide()
 {
-	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 && tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
 		return;
 	iSuicides++;
 }
 
 void CWorm::addTeamkill()
 {
-	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 && tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] )
 		return;
 	iTeamkills++;
 }
@@ -1354,6 +1354,7 @@ bool CWormHumanInputHandler::canType() {
 			cSelWeapon.getData() == kb->keyQueue[i].sym ||
 			cInpRope.getData() == kb->keyQueue[i].sym ||
 			cStrafe.getData() == kb->keyQueue[i].sym ||
+			cDig.getData() == kb->keyQueue[i].sym ||
 			cWeapons[0].getData() == kb->keyQueue[i].sym ||
 			cWeapons[1].getData() == kb->keyQueue[i].sym ||
 			cWeapons[2].getData() == kb->keyQueue[i].sym ||

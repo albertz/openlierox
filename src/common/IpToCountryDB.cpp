@@ -12,6 +12,7 @@
 #include "GfxPrimitives.h"
 #include "Unicode.h"
 #include "GeoIPDatabase.h"
+#include "Networking.h"
 
 const char *IP_TO_COUNTRY_FILE = "GeoIP.dat";
 
@@ -50,6 +51,15 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& address)
 		res.countryName = "Local Area Network";
 		res.city = "Local City";
 		res.region = "Local Area Network";
+		return res;
+	}
+
+	// IPv6
+	if (IsNetAddrV6(address))  {
+		res.countryName = "IPv6 Network";
+		res.countryCode = "v6";
+		res.city = "IPv6 Network";
+		res.region = "IPv6 Network";
 		return res;
 	}
 

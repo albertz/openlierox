@@ -236,7 +236,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 IF(WIN32)
 	IF(MINGW_CROSS_COMPILE)
 		ADD_DEFINITIONS(-DZLIB_WIN32_NODLL -DLIBXML_STATIC -DNONDLL -DCURL_STATICLIB
-						-D_WIN32_WINNT=0x0500 -D_WIN32_WINDOWS=0x0500 -DWINVER=0x0500 -DWIN32 -D_WIN32 -DMINGW)
+						-D_WIN32_WINNT=0x0600 -D_WIN32_WINDOWS=0x0600 -DWINVER=0x0600 -DWIN32 -D_WIN32 -DMINGW)
 		INCLUDE_DIRECTORIES(
 					${OLXROOTDIR}/build/mingw/include
 					${OLXROOTDIR}/libs/hawknl/include
@@ -278,7 +278,7 @@ IF(WIN32)
 ELSEIF(APPLE)
 	INCLUDE_DIRECTORIES(${OLXROOTDIR}/build/Xcode/include)
 	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL.framework/Headers)
-	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL_image.framework/Headers)
+	#INCLUDE_DIRECTORIES(/Library/Frameworks/SDL_image.framework/Headers)
 	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL_mixer.framework/Headers)
 	INCLUDE_DIRECTORIES(/usr/local/include)
 	INCLUDE_DIRECTORIES(/opt/X11/include)
@@ -318,7 +318,7 @@ else(APPLE)
 endif(APPLE)
 
 IF(WIN32 AND NOT MINGW_CROSS_COMPILE)
-	SET(LIBS ${LIBS} SDL_mixer wsock32 wininet dbghelp
+	SET(LIBS ${LIBS} SDL_mixer ws2_32 wininet dbghelp
 				"${OLXROOTDIR}/build/msvc/libs/SDLmain.lib"
 				"${OLXROOTDIR}/build/msvc/libs/libxml2.lib"
 				"${OLXROOTDIR}/build/msvc/libs/NLstatic.lib"
@@ -327,10 +327,10 @@ IF(WIN32 AND NOT MINGW_CROSS_COMPILE)
 				"${OLXROOTDIR}/build/msvc/libs/bgd.lib")
 ELSEIF(APPLE)
 	link_directories(/Library/Frameworks/SDL_mixer.framework)
-	link_directories(/Library/Frameworks/SDL_image.framework)
+	#link_directories(/Library/Frameworks/SDL_image.framework)
 	link_directories(/Library/Frameworks/SDL.framework)
 ELSEIF(MINGW_CROSS_COMPILE)
-	SET(LIBS ${LIBS} SDLmain SDL_image SDL_mixer SDL gd xml2 jpeg png vorbisenc vorbisfile vorbis ogg z dbghelp dsound dxguid wsock32 wininet wldap32 user32 gdi32 winmm version kernel32)
+	SET(LIBS ${LIBS} SDLmain SDL_image SDL_mixer SDL gd xml2 jpeg png vorbisenc vorbisfile vorbis ogg z dbghelp dsound dxguid ws2_32 wininet wldap32 user32 gdi32 winmm version kernel32)
 ELSE(MINGW_CROSS_COMPILE)
 	EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 	STRING(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")

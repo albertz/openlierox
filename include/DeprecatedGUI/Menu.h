@@ -356,6 +356,12 @@ class server_t { public:
 		lastPingedPort = 0;
 	}
 
+	NetworkAddr & getBestAddress() {
+		if( IsNetAddrValid(sAddress6) && nPing6 <= nPing4 )
+			return sAddress6;
+		return sAddress;
+	}
+
 	bool	bIgnore;
 	bool	bProcessing;
     bool    bManual;
@@ -363,15 +369,17 @@ class server_t { public:
 	int		nQueries;
 	bool	bgotPong;
 	bool	bgotQuery;
+	bool	bgotQuery6;
 	AbsTime	fInitTime;
 	bool	bAddrReady;
 	AbsTime	fLastPing;
 	AbsTime	fLastQuery;
-    AbsTime	fQueryTimes[MAX_QUERIES+1];
+	AbsTime	fQueryTimes[MAX_QUERIES+1];
 
 	// Server address
-	std::string	szAddress;
+	std::string	szAddress; // IPv4 or IPv6, depending on ping
 	NetworkAddr	sAddress; // Does not include port
+	NetworkAddr	sAddress6; // Includes port, there is no NAT for IPv6
 
 	// Server details
 	std::string	szName;
@@ -379,6 +387,8 @@ class server_t { public:
 	int		nNumPlayers;
 	int		nMaxPlayers;
 	int		nPing;
+	int		nPing4;
+	int		nPing6;
 	bool	bAllowConnectDuringGame;
 	Version tVersion;
 
@@ -434,13 +444,15 @@ void    Menu_redrawBufferRect(int x, int y, int w, int h);
 void	Menu_DisableNetEvents();
 void	Menu_EnableNetEvents();
 bool	Menu_IsKeyboardNavigationUsed();
+void	Menu_WarpMouse(int x, int y);
+void	Menu_ProcessMouseMotion(int x, int y);
 
 // Server list
 void		Menu_SvrList_Clear();
 void        Menu_SvrList_ClearAuto();
 void		Menu_SvrList_Shutdown();
 void		Menu_SvrList_PingLAN();
-server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
+server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name = "Untitled", int udpMasterserverIndex = -1, const std::string& v4address = "");
 server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress, const std::string & name = "");
 void        Menu_SvrList_RemoveServer(const std::string& szAddress);
 bool		Menu_SvrList_Process();
@@ -452,8 +464,8 @@ bool		Menu_SvrList_RemoveDuplicateDownServers(server_t *defaultServer);
 void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_GetServerInfo(server_t *svr);
-void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
-void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
+void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs, bool ipv6);
+void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex, bool v4AddressIncluded = false);
 void		Menu_SvrList_RefreshList();
 void        Menu_SvrList_RefreshServer(server_t *s, bool updategui = true);
 void		Menu_SvrList_UpdateList();

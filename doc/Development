@@ -51,12 +51,15 @@ IDE : Mac OS X
 
 You need the following frameworks (directories) in /Library/Frameworks/:
 	SDL.framework
-	SDL_image.framework
 	SDL_mixer.framework
 	FreeType.framework
-You will also need libgd, libjpeg and libpng compiled and installed to /usr/local/ (it's easier than making a framework)
+You will also need SDL_image, libgd, libjpeg and libpng compiled and installed to /usr/local/ (it's easier than making a framework)
+Prebuilt SDL_image framework cannot load .png images using ImageIO on MacOsX 10.11,
+so you have to build it yourself, using 'configure --disable-imageio'.
 
-You can download and archive with all libraries here: https://sourceforge.net/projects/openlierox/files/dev-package-OLX/
+You can download and archive with all libraries here:
+https://sourceforge.net/projects/openlierox/files/dev-package-OLX/MacOsX-10.11-libraries-static.tar.gz
+https://github.com/albertz/openlierox/releases/download/0.58_rc5/MacOsX-10.11-libraries-static.tar.gz
 SDL framework requires X11 headers for compilation, you can get them by installing XQuartz package.
 
 You can also download all the files yourself:

@@ -1198,43 +1198,51 @@ void GameServer::RegisterServerUdp()
 			notes << "UDP masterserver list too big, max " << int(MAX_SERVER_SOCKETS) << " entries supported" << endl;
 			break;
 		}
-		NetworkAddr addr;
-		if( tUdpMasterServers[f].find(":") == std::string::npos )
+		NetworkAddr addr, addr6;
+		if( tUdpMasterServers[f].rfind(':') == std::string::npos )
 			continue;
-		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].find(":") );
-		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].find(":") + 1 ));
-		if( !GetFromDnsCache(domain, addr) )
+		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].rfind(':') );
+		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].rfind(':') + 1 ));
+		if( !GetFromDnsCache(domain, addr, addr6) )
 		{
-			GetNetAddrFromNameAsync(domain, addr);
+			GetNetAddrFromNameAsync(domain);
 			fRegisterUdpTime = tLX->currentTime + 5.0f;
 			continue;
 		}
 
-		//notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
-		SetNetAddrPort( addr, port );
-		tSockets[f]->setRemoteAddress( addr );
+		for (int af = 0; af < 2; af++, addr = addr6)
+		{
+			if (!IsNetAddrValid(addr))
+				continue;
+			// No NAT on IPv6, use proper port
+			NetworkSocket * sock = af ? tSockets[0].get() : tSockets[f].get();
+			//notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
+			SetNetAddrPort( addr, port );
+			sock->setRemoteAddress( addr );
 
-		CBytestream bs;
+			CBytestream bs;
 
-		bs.writeInt(-1,4);
-		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSockets[f].get());
-		bs.Send(tSockets[f].get());
-		bs.Send(tSockets[f].get());
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+			bs.Send(sock);
+			bs.Send(sock);
+			bs.Send(sock);
 
-		bs.Clear();
-		bs.writeInt(-1, 4);
-		bs.writeString("lx::register");
-		bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
-		bs.writeByte(iNumPlayers);
-		bs.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
-		bs.writeByte(iState);
-		// Beta8+
-		bs.writeString(GetGameVersion().asString());
-		bs.writeByte(serverAllowsConnectDuringGame());
-		
+			bs.Clear();
+			bs.writeInt(-1, 4);
+			bs.writeString("lx::register");
+			bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
+			bs.writeByte(iNumPlayers);
+			bs.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
+			bs.writeByte(iState);
+			// Beta8+
+			bs.writeString(GetGameVersion().asString());
+			bs.writeByte(serverAllowsConnectDuringGame());
+			// 0.58_rc5 - send IPv4 address to IPv6 masterserver to remove duplicate entry in the client menu list
+			bs.writeString(af ? sServerAddressV4 : ""); // In case of IPv4, send empty string to keep the amount of fields the same
 
-		bs.Send(tSockets[f].get());
+			bs.Send(sock);
+		}
 	}
 }
 
@@ -1247,32 +1255,40 @@ void GameServer::DeRegisterServerUdp()
 			notes << "UDP masterserver list too big, max " << int(MAX_SERVER_SOCKETS) << " entries supported" << endl;
 			break;
 		}
-		NetworkAddr addr;
-		if( tUdpMasterServers[f].find(":") == std::string::npos )
+		NetworkAddr addr, addr6;
+		if( tUdpMasterServers[f].rfind(':') == std::string::npos )
 			continue;
-		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].find(":") );
-		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].find(":") + 1 ));
-		if( !GetFromDnsCache(domain, addr) )
+		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].rfind(':') );
+		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].rfind(':') + 1 ));
+		if( !GetFromDnsCache(domain, addr, addr6) )
 		{
-			GetNetAddrFromNameAsync(domain, addr);
+			GetNetAddrFromNameAsync(domain);
 			continue;
 		}
-		SetNetAddrPort( addr, port );
-		tSockets[f]->setRemoteAddress( addr );
 
-		CBytestream bs;
+		for (int af = 0; af < 2; af++, addr = addr6)
+		{
+			if (!IsNetAddrValid(addr))
+				continue;
 
-		bs.writeInt(-1,4);
-		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSockets[f].get());
-		bs.Send(tSockets[f].get());
-		bs.Send(tSockets[f].get());
+			SetNetAddrPort( addr, port );
+			NetworkSocket * sock = af ? tSockets[0].get() : tSockets[f].get();
+			sock->setRemoteAddress( addr );
 
-		bs.Clear();
-		bs.writeInt(-1, 4);
-		bs.writeString("lx::deregister");
+			CBytestream bs;
 
-		bs.Send(tSockets[f].get());
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+			bs.Send(sock);
+			bs.Send(sock);
+			bs.Send(sock);
+
+			bs.Clear();
+			bs.writeInt(-1, 4);
+			bs.writeString("lx::deregister");
+
+			bs.Send(sock);
+		}
 	}
 }
 
@@ -1850,7 +1866,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		}
 		
 		// If the game has limited lives all new worms are spectators
-		if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
+		if( tLXOptions->tGameInfo.iLives < 0 || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
 			w->setLives((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 		else {
 			w->setLives(WRM_OUT);

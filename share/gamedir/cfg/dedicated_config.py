@@ -12,7 +12,7 @@ LOG_FILE = "dedicated_control.log"
 
 MIN_PLAYERS = 2
 MAX_TEAMS = 2 # Only blue and red teams
-TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players." % (MIN_PLAYERS)
+TOO_FEW_PLAYERS_MESSAGE = "Waiting for %i players. Visit https://liero.1337.cx/ to get notified when other players join this server." % (MIN_PLAYERS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 FILL_WITH_BOTS_TO = 0 # Fill server with bots if noone playing, set to 2 to get 1 bot with a single human player
 
@@ -56,6 +56,7 @@ VOTING_TIME = 30 # For how much time we should wait votes from users
 VOTING_COUNT_NEGATIVE = 1 # If we should count negative votes, so users can fail unpopular vote before timeout
 VOTING_KICK_TIME = 5 # Time in minutes when user kicked by voting cannot re-join server (it auto-kicks user again with message)
 VOTING_AUTO_ACCEPT = 0 # If we should accept the vote after timeout, if too little users voted no
+VOTING_QUEUE_SIZE = 3 # How many maps/mods users can push into a queue by voting
 
 # List of levels - preset chooses a random level from those
 LEVELS = [	
@@ -102,8 +103,6 @@ SMALL_LEVELS = [
 			"X Arena.lxl",
 ]
 
-MODS = [ ] # Empty = all mods
-
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
 # If this list is empty all presets are used
 PRESETS = [ "Mortars", "Random" ]
@@ -112,7 +111,7 @@ GLOBAL_SETTINGS = {
 	"GameOptions.Network.ServerName":               "Games nonstop + voting",
 	"GameOptions.Network.WelcomeMessage":           "Welcome, <player>. Type !help for voting commands.",
 	"GameOptions.GameInfo.AllowConnectDuringGame":  1,
-	"GameOptions.GameInfo.AllowEmptyGames":         1,
+	"GameOptions.GameInfo.AllowEmptyGames":         0,
 	"GameOptions.GameInfo.ImmediateStart":          1,
 	"GameOptions.GameInfo.SelfHit":                 1,
 	"GameOptions.GameInfo.SelfInjure":              1,

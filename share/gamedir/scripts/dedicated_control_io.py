@@ -173,6 +173,15 @@ def getWormSkin(iID):
 	ret = SendCommand( "getwormskin %i" % int(iID) )
 	return ( int(ret[0]), ret[1].lower() )
 
+def getWormVersion(iID):
+	ret = SendCommand( "whoIs %i" % int(iID) )
+	if len(ret) == 0:
+		return "0.57_Beta1"
+	for i in ret:
+		if i.startswith("Version: "):
+			return i.replace("Version: ", "", 1)
+	return "0.57_Beta1"
+
 def getVar(var):
 	ret = SendCommand( "getvar %s" % var )
 	if len(ret) == 0: # var does not exist

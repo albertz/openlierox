@@ -283,7 +283,7 @@ bool Menu_Net_JoinLobbyInitialize()
 	iJoinMenu = join_lobby;
 
 	cClient->getChatbox()->Clear();
-    iJoinSpeaking = 0;  // The first player is always speaking
+	iJoinSpeaking = 0; // The first player is always speaking
 	tMenu->sSavedChatText = "";
 
 	tLX->iGameType = GME_JOIN;
@@ -589,6 +589,12 @@ void Menu_Net_JoinLobbyCreateGui()
 	initDetailsList(details);
 	
 	iJoinSpeaking = 0; // The first client is always speaking
+
+	cJoinLobby.FocusWidget(jl_ChatText);
+#ifdef __ANDROID__
+	Menu_WarpMouse(cJoinLobby.getWidget(jl_ChatText)->getX() + cJoinLobby.getWidget(jl_ChatText)->getWidth() - 2,
+					cJoinLobby.getWidget(jl_ChatText)->getY() + cJoinLobby.getWidget(jl_ChatText)->getHeight() - 2);
+#endif
 }
 
 
@@ -597,8 +603,6 @@ void Menu_Net_JoinLobbyCreateGui()
 // TODO: please comment the difference between Menu_Net_JoinGotoLobby and GotoJoinLobby
 void Menu_Net_JoinGotoLobby()
 {
-    //Menu_redrawBufferRect(0, 0, 640, 480);
-
     Menu_Net_JoinDrawLobby();
 
     Menu_Net_JoinLobbyCreateGui();
@@ -625,7 +629,7 @@ void Menu_Net_JoinGotoLobby()
 	// Add the ingame chatter text to lobby chatter
 	Menu_Net_JoinLobbySetText(cClient->chatterText());
 
-    iJoinSpeaking = 0; // The first player is always speaking
+	iJoinSpeaking = 0; // The first player is always speaking
 	tMenu->sSavedChatText = "";
 }
 

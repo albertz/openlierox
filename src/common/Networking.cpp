@@ -13,6 +13,11 @@
 // Created 18/12/02
 // Jason Boettcher
 
+#include <memory.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 #include <curl/curl.h>
 
 #include "ThreadPool.h"
@@ -43,6 +48,7 @@
 #include <map>
 
 #include <nl.h>
+#include <nlinternal.h>
 // workaraound for bad named makros by nl.h
 // macros are bad, esp the names (reserved/used by CBytestream)
 // TODO: they seem to not work correctly!
@@ -63,6 +69,69 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readShort
 #undef readFloat
 #undef readString
+
+
+#if defined WIN32 || defined WIN64 || defined (_WIN32_WCE)
+
+#include "wsock.h"
+
+#elif defined Macintosh
+
+#include <Types.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <sys/time.h>
+#include <LowMem.h>
+#define closesocket close
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define SOCKET int
+#define sockerrno errno
+
+/* define INADDR_NONE if not already */
+#ifndef INADDR_NONE
+#define INADDR_NONE ((unsigned long) -1)
+#endif
+
+#else
+
+ /* Unix-style systems */
+#ifdef SOLARIS
+#include <sys/filio.h> /* for FIONBIO */
+#endif
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/ioctl.h>
+#define closesocket close
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define SOCKET int
+#define sockerrno errno
+
+ /* define INADDR_NONE if not already */
+#ifndef INADDR_NONE
+#define INADDR_NONE ((unsigned long) -1)
+#endif
+
+/* SGI do not include socklen_t */
+#if defined __sgi
+typedef int socklen_t;
+#endif
+
+#endif /* WINDOWS_APP*/
+
+
 
 class NetAddrIniter {
 public:
@@ -149,30 +218,66 @@ ReadWriteLock nlSystemUseChangeLock;
 
 
 typedef std::map<std::string, std::pair< NLaddress, AbsTime > > dnsCacheT; // Second parameter is expiration time of DNS record
-ThreadVar<dnsCacheT>* dnsCache = NULL;
+ThreadVar<dnsCacheT>* dnsCache4 = NULL;
+ThreadVar<dnsCacheT>* dnsCache6 = NULL;
 
-void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime ) {
+static void AddToDnsCache4(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime = TimeDiff(600.0f)) {
 	ScopedReadLock lock(nlSystemUseChangeLock);
-	if(dnsCache == NULL) return;
-	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
+	if(dnsCache4 == NULL) return;
+	ThreadVar<dnsCacheT>::Writer dns( *dnsCache4 );
 	dns.get()[name] = std::make_pair( *getNLaddr(addr), GetTime() + expireTime );
 }
 
-bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
+static void AddToDnsCache6(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime = TimeDiff(600.0f)) {
 	ScopedReadLock lock(nlSystemUseChangeLock);
-	if(dnsCache == NULL) return false;
-	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
+	if(dnsCache6 == NULL) return;
+	ThreadVar<dnsCacheT>::Writer dns6( *dnsCache6 );
+	dns6.get()[name] = std::make_pair( *getNLaddr(addr), GetTime() + expireTime );
+}
+
+bool GetFromDnsCache(const std::string& name, NetworkAddr& addr4, NetworkAddr& addr6) {
+
+	getNLaddr(addr4)->valid = NL_FALSE;
+	getNLaddr(addr6)->valid = NL_FALSE;
+
+	if (IsNetAddrV6(name) && StringToNetAddr(name, addr6)) {
+		return true;
+	}
+	if (StringToNetAddr(name, addr4)) {
+		return true;
+	}
+
+	ScopedReadLock lock(nlSystemUseChangeLock);
+	if(dnsCache4 == NULL) return false;
+	if(dnsCache6 == NULL) return false;
+	bool v4 = false, v6 = false;
+	ThreadVar<dnsCacheT>::Writer dns( *dnsCache4 );
 	dnsCacheT::iterator it = dns.get().find(name);
 	if(it != dns.get().end()) {
 		if( it->second.second < tLX->currentTime )
 		{
 			dns.get().erase(it);
-			return false;
 		}
-		*getNLaddr(addr) = it->second.first;
-		return true;
-	} else
-		return false;
+		else
+		{
+			*getNLaddr(addr4) = it->second.first;
+			v4 = true;
+		}
+	}
+	ThreadVar<dnsCacheT>::Writer dns6( *dnsCache6 );
+	it = dns6.get().find(name);
+	if(it != dns6.get().end()) {
+		if( it->second.second < tLX->currentTime )
+		{
+			dns6.get().erase(it);
+		}
+		else
+		{
+			*getNLaddr(addr6) = it->second.first;
+			v6 = true;
+		}
+	}
+	return v4 && v6; // Cache needs both address families to be present to consider an entry valid
 }
 
 
@@ -198,7 +303,8 @@ bool InitNetworkSystem() {
 
 	bNetworkInited = true;
 	
-	dnsCache = new ThreadVar<dnsCacheT>();
+	dnsCache4 = new ThreadVar<dnsCacheT>();
+	dnsCache6 = new ThreadVar<dnsCacheT>();
 
 #if !defined(WIN32) && !defined(__ANDROID__)
 	//sigignore(SIGPIPE);
@@ -215,18 +321,12 @@ bool QuitNetworkSystem() {
 	nlSystemUseChangeLock.startWriteAccess();
 	nlShutdown();
 	bNetworkInited = false;
-	delete dnsCache; dnsCache = NULL;
+	delete dnsCache4; dnsCache4 = NULL;
+	delete dnsCache6; dnsCache6 = NULL;
 	nlSystemUseChangeLock.endWriteAccess();
 	curl_global_cleanup();
 	return true;
 }
-
-
-
-
-
-
-
 
 
 /*
@@ -241,206 +341,6 @@ nlPrepareClose
 
 // ---------------------------------------------------
 // ----------- for state checking -------------------
-
-// copied from sock.c from HawkNL
-
-#include <memory.h>
-#include <stdio.h>
-#include <string.h>
-
-#if defined (_WIN32_WCE)
-#define EAGAIN          11
-#define errno GetLastError()
-#else
-#include <errno.h>
-#endif
-
-#if defined WIN32 || defined WIN64 || defined (_WIN32_WCE)
-
-#include "wsock.h"
-
-#elif defined Macintosh
-
-#include <Types.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <sys/time.h>
-#include <LowMem.h>
-#define closesocket close
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#define SOCKET int
-#define sockerrno errno
-
- /* define INADDR_NONE if not already */
-#ifndef INADDR_NONE
-#define INADDR_NONE ((unsigned long) -1)
-#endif
-
-#else
-
- /* Unix-style systems */
-#ifdef SOLARIS
-#include <sys/filio.h> /* for FIONBIO */
-#endif
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/ioctl.h>
-#define closesocket close
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#define SOCKET int
-#define sockerrno errno
-
- /* define INADDR_NONE if not already */
-#ifndef INADDR_NONE
-#define INADDR_NONE ((unsigned long) -1)
-#endif
-
-/* SGI do not include socklen_t */
-#if defined __sgi
-typedef int socklen_t;
-#endif
-
-#endif /* WINDOWS_APP*/
-
-
-// from nlinternal.h from HawkNL
-
-/* number of buckets for average bytes/second */
-#define NL_NUM_BUCKETS          8
-
-/* number of packets stored for NL_LOOP_BACK */
-#define NL_NUM_PACKETS          8
-#define NL_MAX_ACCEPT           10
-
-
-typedef struct
-{
-	NLlong      bytes;          /* bytes sent/received */
-	NLlong      packets;        /* packets sent/received */
-	NLlong      highest;        /* highest bytes/sec sent/received */
-	NLlong      average;        /* average bytes/sec sent/received */
-	time_t      stime;          /* the last time stats were updated */
-	NLint       lastbucket;     /* the last bucket that was used */
-	NLlong      curbytes;       /* current bytes sent/received */
-	NLlong      bucket[NL_NUM_BUCKETS];/* buckets for sent/received counts */
-	NLboolean   firstround;     /* is this the first round through the buckets? */
-} nl_stats_t;
-
-typedef struct
-{
-	/* info for NL_LOOP_BACK, NL_SERIAL, and NL_PARALLEL */
-	NLbyte      *outpacket[NL_NUM_PACKETS];/* temp storage for packet data */
-	NLbyte      *inpacket[NL_NUM_PACKETS];/* temp storage for packet data */
-	NLint       outlen[NL_NUM_PACKETS];/* the length of each packet */
-	NLint       inlen[NL_NUM_PACKETS];/* the length of each packet */
-	NLint       nextoutused;    /* the next used packet */
-	NLint       nextinused;     /* the next used packet */
-	NLint       nextoutfree;    /* the next free packet */
-	NLint       nextinfree;     /* the next free packet */
-	NLsocket    accept[NL_MAX_ACCEPT];/* pending connects */
-	NLsocket    consock;        /* the socket this socket is connected to */
-} nl_extra_t;
-
-
-/* the internal socket object */
-typedef struct
-{
-	/* the current status of the socket */
-	NLenum      driver;         /* the driver used with this socket */
-	NLenum      type;           /* type of socket */
-	NLboolean   inuse;          /* is in use */
-	NLboolean   connecting;     /* a non-blocking TCP or UDP connection is in process */
-	NLboolean   conerror;       /* an error occured on a UDP connect */
-	NLboolean   connected;      /* is connected */
-	NLboolean   reliable;       /* do we use reliable */
-	NLboolean   blocking;       /* is set to blocking */
-	NLboolean   listen;         /* can receive an incoming connection */
-	NLint       realsocket;     /* the real socket number */
-	NLushort    localport;      /* local port number */
-	NLushort    remoteport;     /* remote port number */
-	NLaddress   addressin;      /* address of remote system, same as the socket sockaddr_in structure */
-	NLaddress   addressout;     /* the multicast address set by nlConnect or the remote address for unconnected UDP */
-	NLmutex     readlock;       /* socket is locked to update data */
-	NLmutex     writelock;      /* socket is locked to update data */
-
-	/* the current read/write statistics for the socket */
-	nl_stats_t  instats;        /* stats for received */
-	nl_stats_t  outstats;       /* stats for sent */
-
-	/* NL_RELIABLE_PACKETS info and storage */
-	NLbyte      *outbuf;        /* temp storage for partially sent reliable packet data */
-	NLint       outbuflen;      /* the length of outbuf */
-	NLint       sendlen;        /* how much still needs to be sent */
-	NLbyte      *inbuf;         /* temp storage for partially received reliable packet data */
-	NLint       inbuflen;       /* the length of inbuf */
-	NLint       reclen;         /* how much of the reliable packet we have received */
-	NLboolean   readable;       /* a complete packet is in inbuf */
-	NLboolean   message_end;    /* a message end error ocured but was not yet reported */
-	NLboolean   packetsync;     /* is the reliable packet stream in sync */
-	/* pointer to extra info needed for NL_LOOP_BACK, NL_SERIAL, and NL_PARALLEL */
-	nl_extra_t   *ext;
-} nl_socket_t;
-
-typedef /*@only@*/ nl_socket_t *pnl_socket_t;
-
-// -------------------------------------
-// extern defs for HawkNL intern stuff
-#ifdef _MSC_VER
-extern "C"  {
-	__declspec(dllimport) pnl_socket_t *nlSockets;
-}
-#else
-#ifdef WIN32
-extern "C" pnl_socket_t *nlSockets;	// For Dev-Cpp
-#else
-extern "C"  {
-	NL_EXP pnl_socket_t *nlSockets;
-}
-#endif
-#endif
-
-
-#if defined(WIN32) && (! defined(_MSC_VER))
-// TODO: why is that needed?
-#define NL_EXP
-#elif (_MSC_VER >= 1400) //MSVC 2005 hax
-// TODO: why is that needed?
-#undef NL_EXP
-#undef NL_APIENTRY
-#define NL_EXP
-#define NL_APIENTRY
-#endif
-
-extern "C" {
-	NL_EXP void NL_APIENTRY nlSetError(NLenum err);
-	
-	// can we use those? (at least we have to)
-	NLboolean nlLockSocket(NLsocket socket, NLint which);
-	NLboolean nlIsValidSocket(NLsocket socket);
-	void nlUnlockSocket(NLsocket socket, NLint which);
-}
-
-
-/* for nlLockSocket and nlUnlockSocket */
-#define NL_READ                 0x0001
-#define NL_WRITE                0x0002
-#define NL_BOTH                 (NL_READ|NL_WRITE)
-
-
-
 
 // WARNING: both these function assume that we selected the IP-network driver in HawkNL
 
@@ -539,7 +439,7 @@ static bool nlUpdateState(NLsocket socket)
 		}
 		if(sock->type == NL_BROADCAST)
 		{
-			((struct sockaddr_in *)&sock->addressin)->sin_addr.s_addr = INADDR_BROADCAST;
+			memcpy(&((struct sockaddr_in6 *)&sock->addressin)->sin6_addr, &in6addr_any, sizeof(in6addr_any));
 		}
 		if(sock->type == NL_UDP_MULTICAST)
 		{
@@ -586,16 +486,10 @@ static void nlPrepareClose(NLsocket socket) {
 	// *whole* HawkNL system (or at least actions like opening new sockets etc.)!
 	
 	nl_socket_t     *sock = nlSockets[socket];
-	struct ip_mreq  mreq;
     
 	if(sock->type == NL_UDP_MULTICAST)
 	{
 		/* leave the multicast group */
-		mreq.imr_multiaddr.s_addr = ((struct sockaddr_in *)&sock->addressout)->sin_addr.s_addr;
-		mreq.imr_interface.s_addr = INADDR_ANY; //bindaddress;
-        
-		(void)setsockopt((SOCKET)sock->realsocket, IPPROTO_IP, IP_DROP_MEMBERSHIP,
-		 (char *)&mreq, (int)sizeof(mreq));
 	}
 	if(sock->type == NL_RELIABLE_PACKETS)
 	{
@@ -962,7 +856,7 @@ int NetworkSocket::Write(const void* buffer, int nbytes) {
 	if (ret == NL_INVALID)  {
 #ifdef DEBUG
 		std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
-		errors << "WriteSocket " << debugString() << ": " << errStr << endl;
+		warnings << "WriteSocket " << debugString() << ": " << errStr << endl;
 #endif // DEBUG
 		return NL_INVALID;
 	}
@@ -1145,15 +1039,6 @@ bool NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
 	return true;
 }
 
-
-
-
-
-
-
-
-
-
 int GetSocketErrorNr() {
 	return nlGetError();
 }
@@ -1203,49 +1088,22 @@ void ResetNetAddr(NetworkAddr& addr) {
 	SetNetAddrValid(addr, false);
 }
 
+bool IsNetAddrV6(const std::string& s)
+{
+	// Any IPv6 address will be in a format [XXXX:XXXX:...:XXXX]:XXXX or [XXXX:XXXX:...:XXXX]
+	return s.size() > 0 && s[0] == '[';
+}
+
+bool IsNetAddrV6(const NetworkAddr& addr)
+{
+	std::string s;
+	NetAddrToString(addr, s);
+	return IsNetAddrV6(s);
+}
+
 static bool isStringValidIP(const std::string& str) {
-	size_t p = 0;
-	int numC = 0;
-	int numLen = 0;
-	bool readingPort = false;
-	while(p < str.size()) {
-		if(str[p] == '.') {
-			if (numC >= 3)
-				return false;
-			if (!numLen)
-				return false;
-			if (readingPort)
-				return false;
-
-			numC++; numLen = 0;
-			p++; continue;
-		}
-		
-		if(str[p] == ':') {
-			if (numC < 3)
-				return false;
-			if (!numLen)
-				return false;
-			if (readingPort)
-				return false;
-
-			readingPort = true;
-			numC++; numLen = 0;
-			p++; continue;
-		}
-		
-		if(str[p] >= '0' && str[p] <= '9') {
-			numLen++;
-			if(numLen > (readingPort ? 5 : 3))
-				return false;
-
-			p++; continue;
-		}
-		
-		return false;
-	}
-	
-	return (numC >= 3 && numLen > 0);
+	NetworkAddr addr;
+	return (nlStringToAddr(str.c_str(), getNLaddr(addr)) == NL_TRUE);
 }
 
 // accepts "%i.%i.%i.%i[:%l]" as input
@@ -1275,21 +1133,23 @@ bool NetAddrToString(const NetworkAddr& addr, std::string& string) {
 		fix_markend(buf);
 		string = buf;
 		return true;
-	} else
+	} else {
+		string = "";
 		return false;
+	}
 }
 
 NetworkAddr StringToNetAddr(const std::string& string) { 
-	NetworkAddr ret; 
-	ResetNetAddr(ret); 
-	StringToNetAddr(string, ret); 
-	return ret; 
+	NetworkAddr ret;
+	ResetNetAddr(ret);
+	StringToNetAddr(string, ret);
+	return ret;
 };
 
 std::string NetAddrToString(const NetworkAddr& addr) { 
-	std::string ret; 
-	NetAddrToString(addr, ret); 
-	return ret; 
+	std::string ret;
+	NetAddrToString(addr, ret);
+	return ret;
 };
 
 unsigned short GetNetAddrPort(const NetworkAddr& addr) {
@@ -1326,12 +1186,16 @@ bool AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2) {
 Event<> onDnsReady;
 
 // copied from HawkNL sock.c and modified to not use nlStringToNetAddr
-static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address) {
-	struct hostent *hostentry;
+static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address4, NLaddress* address6) {
     NLushort    port = 0;
-    int			pos;
+    char        *pos;
+    int         status;
     NLbyte      temp[NL_MAX_STRING_LENGTH];
-	
+	struct      addrinfo hints;
+	struct      addrinfo *result, *rp;
+
+	address4->valid = NL_FALSE;
+	address6->valid = NL_FALSE;
 #ifdef _UNICODE
     /* convert from wide char string to multibyte char string */
     (void)wcstombs(temp, (const NLchar *)name, NL_MAX_STRING_LENGTH);
@@ -1339,62 +1203,79 @@ static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address
     strncpy(temp, name, NL_MAX_STRING_LENGTH);
 #endif
     temp[NL_MAX_STRING_LENGTH - 1] = (NLbyte)'\0';
-    pos = (int)strcspn(temp, (const char *)":");
-    if(pos > 0)
+    pos = strrchr(temp, ':');
+    if(pos != NULL)
     {
-        NLbyte      *p = &temp[pos+1];
-		
-        temp[pos] = (NLbyte)'\0';
-        (void)sscanf(p, "%hu", &port);
+        pos[0] = (NLbyte)'\0';
+        (void)sscanf(pos+1, "%hu", &port);
     }
-    hostentry = gethostbyname((const char *)temp);
-	
-    if(hostentry != NULL)
+
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = 0;
+    hints.ai_flags = 0;    /* For wildcard IP address */
+    hints.ai_protocol = 0;          /* Any protocol */
+    hints.ai_canonname = NULL;
+    hints.ai_addr = NULL;
+    hints.ai_next = NULL;
+
+    status = getaddrinfo(temp, NULL, &hints, &result);
+    if(status != 0 || result == NULL)
     {
-        ((struct sockaddr_in *)address)->sin_family = AF_INET;
-        ((struct sockaddr_in *)address)->sin_port = htons(port);
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = *(NLulong *)hostentry->h_addr_list[0];
-        address->valid = NL_TRUE;
-    }
-    else
-    {
-        ((struct sockaddr_in *)address)->sin_family = AF_INET;
-        ((struct sockaddr_in *)address)->sin_addr.s_addr = INADDR_NONE;
-        ((struct sockaddr_in *)address)->sin_port = 0;
         nlSetError(NL_SYSTEM_ERROR);
         return false;
     }
-    return true;
+
+    for (rp = result; rp != NULL; rp = rp->ai_next)
+    {
+        if(rp->ai_family == AF_INET && !address4->valid)
+        {
+            ((struct sockaddr_in6 *)address4)->sin6_family = AF_INET6;
+            ((struct sockaddr_in6 *)address4)->sin6_port = htons(port);
+            struct in_addr v4addr;
+            v4addr = ((struct sockaddr_in *)rp->ai_addr)->sin_addr;
+            char addr6[32] = "::ffff:";
+            strcat(addr6, inet_ntoa(v4addr));
+            inet_pton(AF_INET6, addr6, &((struct sockaddr_in6 *)address4)->sin6_addr);
+            address4->valid = NL_TRUE;
+        }
+        if(rp->ai_family == AF_INET6 && !address6->valid)
+        {
+            ((struct sockaddr_in6 *)address6)->sin6_family = AF_INET6;
+            ((struct sockaddr_in6 *)address6)->sin6_port = htons(port);
+            memcpy(&((struct sockaddr_in6 *)address6)->sin6_addr, &((struct sockaddr_in6 *)rp->ai_addr)->sin6_addr, sizeof(struct in6_addr));
+            address6->valid = NL_TRUE;
+        }
+    }
+
+    freeaddrinfo(result);
+
+    return address4->valid || address6->valid;
 }
 
 static std::set<std::string> PendingDnsQueries;
 static Mutex PendingDnsQueriesMutex;
 
-bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
+bool GetNetAddrFromNameAsync(const std::string& name)
 {
 	// We don't use nlGetAddrFromNameAsync here because we have to use SmartPointers
 	// The problem is, if you call this and then delete the memory of the network address
 	// while the thread isn't ready, it will write after to deleted memory.
 
-	if(getNLaddr(addr) == NULL)
-		return false;
+	NetworkAddr addr4, addr6;
 
 	if(name == "") {
-		SetNetAddrValid(addr, false);
 		return false;
 	}
-	
-	if (StringToNetAddr(name, addr))  {
-		return true;
-	}
-	ResetSocketError(); // Clear the bad address error
-	
-	if(GetFromDnsCache(name, addr)) {
-		SetNetAddrValid(addr, true);
+	if (StringToNetAddr(name, addr4)) {
 		return true;
 	}
 
-    getNLaddr(addr)->valid = NL_FALSE;
+	ResetSocketError(); // Clear the bad address error
+	
+	if(GetFromDnsCache(name, addr4, addr6)) {
+		return true;
+	}
 
 	{
 		Mutex::ScopedLock l(PendingDnsQueriesMutex);
@@ -1405,12 +1286,17 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
 	struct GetAddrFromNameAsync_Executer : Task {
 		std::string addr_name;
-		NetAddrInternal::Ptr_t address;
+		NetworkAddr address4, address6;
 		
 		int handle() {
-			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), address.get())) {
+			getNLaddr(address4)->valid = NL_FALSE;
+			getNLaddr(address6)->valid = NL_FALSE;
+			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), getNLaddr(address4), getNLaddr(address6))) {
 				// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
-				AddToDnsCache(addr_name, NetworkAddr(NetAddrInternal(*address.get())));
+				// Cache both valid and invalid addersses, one server may have IPv4 but no IPv6 address
+				notes << "DNS: resolved " << addr_name << " to " << NetAddrToString(address4) << " IPv6 " << NetAddrToString(address6) << endl;
+				AddToDnsCache4(addr_name, address4);
+				AddToDnsCache6(addr_name, address6);
 			}
 			
 			// TODO: handle failures here? there should be, but we only have the valid field
@@ -1428,8 +1314,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 	GetAddrFromNameAsync_Executer* data = new GetAddrFromNameAsync_Executer();
 	if(data == NULL) return false;
 	data->name = "GetNetAddrFromNameAsync for " + name;
-    data->addr_name = name;
-    data->address = NetworkAddrData(addr).getPtr();
+	data->addr_name = name;
 
 	taskManager->start(data, false);
     return true;

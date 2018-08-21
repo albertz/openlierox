@@ -37,6 +37,7 @@ enum {
 	SIN_ROPE,
 
 	SIN_STRAFE,
+	SIN_DIG,
 
 	SIN_WEAPON1,
 	SIN_WEAPON2,
@@ -274,6 +275,9 @@ struct GameOptions {
 	float	fAimMaxSpeed;
 	float	fAimFriction;
 	bool	bAimLikeLX56;
+	bool	bTouchscreenTapCycleWeaponsBackwards;
+	int		iTouchscreenSensitivity;
+	bool	bDigWithJumpButtonMidAir;
 	
 	//Killing/dying spree thresholds
 	int iSpreeThreshold1;

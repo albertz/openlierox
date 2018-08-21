@@ -63,6 +63,8 @@ bool		*bGame = NULL;
 int			iSkipStart = false;
 CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 
+static int Menu_MouseWarpedX = 0;
+static int Menu_MouseWarpedY = 0;
 
 ///////////////////
 // Initialize the menu system
@@ -1082,6 +1084,32 @@ bool Menu_IsKeyboardNavigationUsed()
 	return CGuiLayout::isKeyboardNavigationUsed();
 }
 
+void Menu_WarpMouse(int x, int y)
+{
+	struct RepositionMouse: public Action
+	{
+		int x, y;
+		RepositionMouse(int _x, int _y): x(_x), y(_y)
+		{
+		}
+		int handle()
+		{
+			SDL_WarpMouse(x, y);
+			return true;
+		}
+	};
+	Menu_MouseWarpedX = x;
+	Menu_MouseWarpedY = y;
+	doActionInMainThread( new RepositionMouse(x, y) );
+}
+
+void Menu_ProcessMouseMotion(int x, int y)
+{
+	if (x != Menu_MouseWarpedX || y != Menu_MouseWarpedY) {
+		CGuiLayout::setKeyboardNavigationUsed(false);
+	}
+}
+
 /*
 ============================
 
@@ -1163,27 +1191,35 @@ void Menu_SvrList_PingLAN()
 void Menu_SvrList_PingServer(server_t *svr)
 {
 	// If not available, probably the network is not connected right now.
-	if(!IsNetAddrAvailable(svr->sAddress)) return;
-	
-	if( svr->ports.size() == 0 )
+	if(!IsNetAddrAvailable(svr->getBestAddress())) return;
+
+	for( int af = 0; af < 2; af++ )
 	{
-		errors << "svr->ports.size() == 0 at " << FILELINE << endl;
-		return;
-	}
+		NetworkAddr addr = af ? svr->sAddress6 : svr->sAddress;
+		if( !IsNetAddrValid(addr) )
+			continue;
+		if( af == 0 )
+		{
+			if( svr->ports.size() == 0 )
+			{
+				errors << "svr->ports.size() == 0 at " << FILELINE << endl;
+				continue;
+			}
+
+			svr->lastPingedPort++;
+			if( svr->lastPingedPort >= (int)svr->ports.size() || svr->lastPingedPort < 0 )
+				svr->lastPingedPort = 0;
+			SetNetAddrPort(addr, svr->ports[svr->lastPingedPort].first);
+		}
+
+		//hints << "Pinging server " << tmp << " real addr " << svr->szAddress << " name " << svr->szName << endl;
+		tMenu->tSocket[SCK_NET]->setRemoteAddress(addr);
 		
-	NetworkAddr addr = svr->sAddress;
-	//hints << "Pinging server " << tmp << " real addr " << svr->szAddress << " name " << svr->szName << endl;
-	svr->lastPingedPort++;
-	if( svr->lastPingedPort >= (int)svr->ports.size() || svr->lastPingedPort < 0 )
-		svr->lastPingedPort = 0;
-	SetNetAddrPort(addr, svr->ports[svr->lastPingedPort].first);
-	
-	tMenu->tSocket[SCK_NET]->setRemoteAddress(addr);
-	
-	CBytestream bs;
-	bs.writeInt(-1,4);
-	bs.writeString("lx::ping");
-	bs.Send(tMenu->tSocket[SCK_NET]);
+		CBytestream bs;
+		bs.writeInt(-1,4);
+		bs.writeString("lx::ping");
+		bs.Send(tMenu->tSocket[SCK_NET]);
+	}
 
 	svr->bProcessing = true;
 	svr->nPings++;
@@ -1194,7 +1230,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 // Send Wants To Join message
 void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 {
-	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
+	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->getBestAddress());
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1203,11 +1239,18 @@ void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 	{
 		NetworkAddr masterserverAddr;
 		SetNetAddrValid(masterserverAddr, false);
-		if( ! GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr ) )
-			return;
+		NetworkAddr ignored;
+
+		if( ! GetFromDnsCache( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr, ignored ) )
+		{
+			GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress) );
+		}
 
 		for( int count = 0; !IsNetAddrValid(masterserverAddr) && count < 5; count++ )
+		{
 			SDL_Delay(20);
+			GetFromDnsCache( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr, ignored );
+		}
 
 		if( !IsNetAddrValid(masterserverAddr) )
 			return;
@@ -1227,7 +1270,7 @@ void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 void Menu_SvrList_GetServerInfo(server_t *svr)
 {
 	// Send a getinfo request
-	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
+	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->getBestAddress());
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1236,11 +1279,18 @@ void Menu_SvrList_GetServerInfo(server_t *svr)
 	{
 		NetworkAddr masterserverAddr;
 		SetNetAddrValid(masterserverAddr, false);
-		if( ! GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr ) )
-			return;
+		NetworkAddr ignored;
+
+		if( ! GetFromDnsCache( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr, ignored ) )
+		{
+			GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress) );
+		}
 
 		for( int count = 0; !IsNetAddrValid(masterserverAddr) && count < 5; count++ )
+		{
 			SDL_Delay(20);
+			GetFromDnsCache( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr, ignored );
+		}
 
 		if( !IsNetAddrValid(masterserverAddr) )
 			return;
@@ -1258,14 +1308,21 @@ void Menu_SvrList_GetServerInfo(server_t *svr)
 // Query a server
 void Menu_SvrList_QueryServer(server_t *svr)
 {
-	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
+	for( int af = 0; af < 2; af++ )
+	{
+		NetworkAddr addr = af ? svr->sAddress6 : svr->sAddress;
+		if( !IsNetAddrValid(addr) )
+			continue;
 
-	CBytestream bs;
-	bs.writeInt(-1,4);
-	bs.writeString("lx::query");
-    bs.writeByte(svr->nQueries);
-	bs.Send(tMenu->tSocket[SCK_NET]);
-    svr->fQueryTimes[svr->nQueries] = tLX->currentTime;
+		tMenu->tSocket[SCK_NET]->setRemoteAddress(addr);
+
+		CBytestream bs;
+		bs.writeInt(-1,4);
+		bs.writeString("lx::query");
+		bs.writeByte(svr->nQueries);
+		bs.Send(tMenu->tSocket[SCK_NET]);
+	}
+	svr->fQueryTimes[svr->nQueries] = tLX->currentTime;
 
 	svr->bProcessing = true;
 	svr->nQueries++;
@@ -1301,6 +1358,7 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
     s->bProcessing = true;
 	s->bgotPong = false;
 	s->bgotQuery = false;
+	s->bgotQuery6 = false;
 	s->bIgnore = false;
 	s->fLastPing = AbsTime();
 	s->fLastQuery = AbsTime();
@@ -1308,68 +1366,75 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 	s->fInitTime = tLX->currentTime;
 	s->nQueries = 0;
 	s->nPing = 0;
-	s->bAddrReady = false;
+	s->nPing4 = s->nPing6 = 9999;
+	s->bAddrReady = IsNetAddrValid(s->sAddress) || IsNetAddrValid(s->sAddress6);
 	s->lastPingedPort = 0;
-
-
-	if(!StringToNetAddr(s->szAddress, s->sAddress)) {
-		hints << "Menu_SvrList_RefreshServer(): cannot parse server addr " << s->szAddress << endl;
-		int oldPort = LX_PORT; //GetNetAddrPort(s->sAddress);
-		s->sAddress = NetworkAddr(); // assign new addr (needed to avoid problems with possible other still running thread)
-		SetNetAddrPort(s->sAddress, oldPort);
-
-		SetNetAddrValid(s->sAddress, false);
-		size_t f = s->szAddress.find(":");
-		GetNetAddrFromNameAsync(s->szAddress.substr(0, f), s->sAddress);
-	} else {
-		s->bAddrReady = true;
-		size_t f = s->szAddress.find(":");
-		if(f != std::string::npos) {
-			SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
-		} else
-			SetNetAddrPort(s->sAddress, LX_PORT);
-
-		if (updategui)
-			Timer("Menu_SvrList_RefreshServer ping waiter", null, NULL, PingWait, true).startHeadless();
-	}
 
 	if( s->ports.size() == 0 )
 	{
-		s->ports.push_back(std::make_pair((int)GetNetAddrPort(s->sAddress), -1));
+		int port = IsNetAddrValid(s->sAddress) ? GetNetAddrPort(s->sAddress) : 0;
+		if (port == 0)
+			port = IsNetAddrValid(s->sAddress6) ?GetNetAddrPort(s->sAddress6) : 0;
+		if (port == 0)
+			port = LX_PORT;
+		s->ports.push_back(std::make_pair(port, -1));
 	}
+
+	if (updategui)
+		Timer("Menu_SvrList_RefreshServer ping waiter", null, NULL, PingWait, true).startHeadless();
 }
 
 
 ///////////////////
 // Add a server onto the list (for list and manually)
-server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name, int udpMasterserverIndex)
+server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name, int udpMasterserverIndex, const std::string& v4address)
 {
     // Check if the server is already in the list
     // If it is, don't bother adding it
 	NetworkAddr ad;
 	std::string tmp_address = address;
-    TrimSpaces(tmp_address);
-    int port = -1;
-    if(StringToNetAddr(tmp_address, ad)) 
-    {
-    	port = GetNetAddrPort(ad);
-    	if( port == 0 )
-    		port = LX_PORT;
-    }
+	TrimSpaces(tmp_address);
+	int port = -1;
+	if(StringToNetAddr(tmp_address, ad))
+	{
+		port = GetNetAddrPort(ad);
+		if( port == 0 )
+			port = LX_PORT;
+	}
 
 	server_t * found = Menu_SvrList_FindServerStr(tmp_address, name);
-    if( found && port != -1 && port != 0 )
-    {
-    	if( found->szName == "Untitled" )
-    		found->szName = name;
-    	//hints << "Menu_SvrList_AddServer(): merging duplicate " << found->szName << " " << found->szAddress << endl;
+	if( !found && v4address != "" )
+		found = Menu_SvrList_FindServerStr(v4address, name);
 
-		for( size_t i = 0; i < found->ports.size(); i++ )
-			if( found->ports[i].first == port )
-				return found;
-		found->ports.push_back( std::make_pair( port, udpMasterserverIndex ) );
+	if( found && port != -1 && port != 0 ) {
+		if( found->szName == "Untitled" ) {
+			found->szName = name;
+			TrimSpaces(found->szName);
+		}
+		//hints << "Menu_SvrList_AddServer(): merging duplicate " << found->szName << " " << found->szAddress << endl;
+		if( StringToNetAddr(tmp_address, ad) ) {
+			SetNetAddrPort(ad, port);
+			if( IsNetAddrV6(tmp_address) ) {
+				if( !AreNetAddrEqual(ad, found->sAddress6) ) {
+					// Query it again, to measure v4 ping vs v6 ping
+					found->fLastQuery = AbsTime();
+				}
+				found->sAddress6 = ad;
+			} else {
+				if( !IsNetAddrValid(found->sAddress) && IsNetAddrValid(found->sAddress6) ) {
+					// Query it again, to measure v4 ping vs v6 ping
+					found->fLastQuery = AbsTime();
+				}
+				found->sAddress = ad;
+				for( size_t i = 0; i < found->ports.size(); i++ )
+					if( found->ports[i].first == port )
+						return found;
+				found->ports.push_back( std::make_pair( port, udpMasterserverIndex ) );
+			}
+		}
+
 		return found;
-    }
+	}
 
     // Didn't find one, so create it
     psServerList.push_back(server_t());
@@ -1379,6 +1444,25 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
     svr->bManual = bManual;
 	svr->szAddress = tmp_address;
 	ResetNetAddr(svr->sAddress);
+	ResetNetAddr(svr->sAddress6);
+
+	if( StringToNetAddr(tmp_address, ad) ) {
+		SetNetAddrPort(ad, port);
+		if( IsNetAddrV6(tmp_address) ) {
+			svr->sAddress6 = ad;
+			if (v4address != "" && StringToNetAddr(v4address, ad)) {
+				port = GetNetAddrPort(ad);
+				if( port == 0 )
+					port = LX_PORT;
+				SetNetAddrPort(ad, port);
+				svr->sAddress = ad;
+			}
+		} else {
+			svr->sAddress = ad;
+		}
+	} else {
+		hints << "Menu_SvrList_AddServer(): cannot parse server addr " << svr->szAddress << endl;
+	}
 
 	Menu_SvrList_RefreshServer(svr, bManual);
 	
@@ -1392,6 +1476,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
 	svr->nNumPlayers = 0;
 	svr->nState = 0;
 	svr->nPing = -3; // Put it at the end of server list, after NAT servers
+	svr->nPing4 = svr->nPing6 = 9999;
 	if( udpMasterserverIndex >= 0 )
 	{
 		svr->bBehindNat = true;
@@ -1399,6 +1484,9 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
 	}
 	else
 		svr->bBehindNat = false;
+
+	//hints << "Menu_SvrList_AddServer(): added server " << svr->szName << " svr->szAddress " << svr->szAddress << " v4addr " << v4address <<
+	//		" svr->sAddress " << NetAddrToString(svr->sAddress) << " svr->sAddress6 " << NetAddrToString(svr->sAddress6) << endl;
 	
 	return svr;
 }
@@ -1469,6 +1557,10 @@ void Menu_SvrList_FillList(CListview *lv)
 		// show port if special
 		addr = s->szAddress;
 		size_t p = addr.rfind(':');
+		if( IsNetAddrV6(addr) && addr.find("]:") == std::string::npos ) {
+			p = std::string::npos;
+		}
+
 		if(p != std::string::npos) {
 			std::string sPort = addr.substr(p + 1);
 			addr.erase(p);
@@ -1488,13 +1580,12 @@ void Menu_SvrList_FillList(CListview *lv)
 		if(processing)
 			colour = tLX->clDisabled;
 
-
 		// Add the server to the list
 		lv->AddItem(s->szAddress, 0, colour);
 		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num], NULL);
 		lv->AddSubitem(LVS_TEXT, s->szName, (DynDrawIntf*)NULL, NULL);
         if(processing) {
-			if(IsNetAddrValid(s->sAddress))
+			if(IsNetAddrValid(s->sAddress) || IsNetAddrValid(s->sAddress6))
 				lv->AddSubitem(LVS_TEXT, "Querying...", (DynDrawIntf*)NULL, NULL);
 			else
 				lv->AddSubitem(LVS_TEXT, "Lookup...", (DynDrawIntf*)NULL, NULL);
@@ -1584,7 +1675,7 @@ bool Menu_SvrList_Process()
 		if(s->bIgnore)
 			continue;
 
-		if(!IsNetAddrValid(s->sAddress)) {
+		if(!IsNetAddrValid(s->sAddress) && !IsNetAddrValid(s->sAddress6)) {
 			if(tLX->currentTime - s->fInitTime >= DNS_TIMEOUT) {
 				s->bIgnore = true; // timeout
 				update = true;
@@ -1594,13 +1685,6 @@ bool Menu_SvrList_Process()
 			if(!s->bAddrReady) {
 				s->bAddrReady = true;
 				update = true;
-
-				size_t f = s->szAddress.find(":");
-				if(f != std::string::npos) {
-					SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
-				} else
-					SetNetAddrPort(s->sAddress, LX_PORT);
-
 			}
 		}
 
@@ -1612,8 +1696,7 @@ bool Menu_SvrList_Process()
 					s->bIgnore = true;
 					
 					update = true;
-				}
-				else  {
+				} else  {
 					// Ping the server
 					Menu_SvrList_PingServer(&(*s));
 					repaint = true;
@@ -1622,15 +1705,17 @@ bool Menu_SvrList_Process()
 		}
 
 		// Need a querying?
-		if(s->bgotPong && !s->bgotQuery) {
+		if(s->bgotPong && (
+			(IsNetAddrValid(s->sAddress) && !s->bgotQuery) ||
+			(IsNetAddrValid(s->sAddress6) && !s->bgotQuery6))) {
 			if(tLX->currentTime - s->fLastQuery > (float)QueryWait / 1000.0f) {
 
 				if(s->nQueries >= MaxQueries) {
-					s->bIgnore = true;
-
-					update = true;
-				}
-				else  {
+					if( !s->bgotQuery && !s->bgotQuery6 ) {
+						s->bIgnore = true;
+						update = true;
+					}
+				} else  {
 					// Query the server
 					Menu_SvrList_QueryServer(&(*s));
 					repaint = true;
@@ -1669,6 +1754,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>
 
 		adrFrom = sock->remoteAddress();
 
+
 		// Check for a pong
 		if(cmd == "lx::pong") {
 
@@ -1681,8 +1767,12 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>
 				svr->nQueries = 0;
 				svr->bBehindNat = false;
 				svr->lastPingedPort = 0;
-				SetNetAddrPort(svr->sAddress, GetNetAddrPort(adrFrom));
-				NetAddrToString(svr->sAddress, svr->szAddress);
+				if( AreNetAddrEqual(adrFrom, svr->sAddress6) ) {
+					//NetAddrToString(svr->sAddress6, svr->szAddress);
+				} else {
+					SetNetAddrPort(svr->sAddress, GetNetAddrPort(adrFrom));
+					//NetAddrToString(svr->sAddress, svr->szAddress);
+				}
 				svr->ports.clear();
 				svr->ports.push_back( std::make_pair( (int)GetNetAddrPort(adrFrom), -1 ) );
 
@@ -1716,14 +1806,19 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>
 			// Look the the list and find which server returned the ping
 			server_t *svr = Menu_SvrList_FindServer(adrFrom);
 			if( svr ) {
+				bool ipv6 = AreNetAddrEqual(adrFrom, svr->sAddress6);
 
 				// Only update the list if this is the first query
-				if(!svr->bgotQuery)
-					update = true;
+				if(ipv6) {
+					if(!svr->bgotQuery6)
+						update = true;
+				} else {
+					if(!svr->bgotQuery)
+						update = true;
+				}
 
-				svr->bgotQuery = true;
 				svr->bBehindNat = false;
-				Menu_SvrList_ParseQuery(svr, bs);
+				Menu_SvrList_ParseQuery(svr, bs, ipv6);
 
 			}
 
@@ -1733,6 +1828,11 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>
 		else if(cmd == "lx::serverlist2") // This should not happen, we have another thread for polling UDP servers
 		{
 			Menu_SvrList_ParseUdpServerlist(bs, 0);
+			update = true;
+		}
+		else if(cmd == "lx::serverlist3") // This should not happen, we have another thread for polling UDP servers
+		{
+			Menu_SvrList_ParseUdpServerlist(bs, 0, true);
 			update = true;
 		}
 
@@ -1749,6 +1849,8 @@ server_t *Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & n
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 	{
 		if( AreNetAddrEqual( addr, s->sAddress ) )
+			return &(*s);
+		if( AreNetAddrEqual( addr, s->sAddress6 ) )
 			return &(*s);
 	}
 
@@ -1772,17 +1874,6 @@ server_t *Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & n
 			return &(*s);
 	}
 
-	/*
-	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
-	{
-		// Check if just an IP without port match
-		NetworkAddr addr2 = s->sAddress;
-		SetNetAddrPort(addr2, LX_PORT);
-		if( AreNetAddrEqual( addr1, addr2 ) )
-			return &(*s);
-	}
-	*/
-
 	// None found
 	return NULL;
 }
@@ -1790,7 +1881,7 @@ server_t *Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & n
 
 ///////////////////
 // Parse the server query return packet
-void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
+void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs, bool ipv6)
 {
 	// TODO: move this net protocol stuff out here
 	
@@ -1808,10 +1899,32 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 	svr->bAllowConnectDuringGame = false;
 	svr->tVersion.reset();
 
-    if(num < 0 || num >= MAX_QUERIES-1)
-        num=0;
+	if(num < 0 || num >= MAX_QUERIES-1)
+		num=0;
 
-	svr->nPing = (int)( (tLX->currentTime - svr->fQueryTimes[num]).milliseconds() );
+	int ping = (int)( (tLX->currentTime - svr->fQueryTimes[num]).milliseconds() );
+
+	if (ipv6) {
+		if (svr->bgotQuery6 && svr->nPing6 > ping)
+			svr->nPing6 = ping;
+		svr->bgotQuery6 = true;
+	} else {
+		if (svr->bgotQuery && svr->nPing > ping)
+			svr->nPing4 = ping;
+		svr->nPing4 = ping;
+		svr->bgotQuery = true;
+	}
+
+	if (svr->nPing4 < svr->nPing6)
+	{
+		svr->nPing = svr->nPing4;
+		NetAddrToString(svr->sAddress, svr->szAddress);
+	}
+	else
+	{
+		svr->nPing = svr->nPing6;
+		NetAddrToString(svr->sAddress6, svr->szAddress);
+	}
 
 	if(svr->nPing < 0)
 		svr->nPing = 999;
@@ -1824,8 +1937,10 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 		svr->tVersion.setByString( bs->readString(64) );
 		svr->bAllowConnectDuringGame = bs->readBool();
 	}
-	
+	//hints << "Menu_SvrList_ParseQuery(): " << svr->szName << " addr " << svr->szAddress << " v4 " << NetAddrToString(svr->sAddress) <<
+	//		" v6 " << NetAddrToString(svr->sAddress6) << " ping " << svr->nPing << " ping4 " << svr->nPing4 << " ping6 " << svr->nPing6 << endl;
 	// We got server name in a query. let's remove servers with the same name and IP, which we got from UDP masterserver
+	// Duplicates should be detected in AddServer(), but some servers fail detection because of different port
 	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++)
 	{
 		NetworkAddr addr1 = it->sAddress;
@@ -1836,6 +1951,11 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 		{
 			//Duplicate server - delete it
 			//hints << "Menu_SvrList_ParseQuery(): removing duplicate " << it->szName << " " << it->szAddress << endl;
+			if (IsNetAddrValid(it->sAddress6) && !IsNetAddrValid(svr->sAddress6)) {
+				svr->sAddress6 = it->sAddress6;
+				svr->nPing6 = it->nPing6;
+				svr->bgotQuery6 = it->bgotQuery6;
+			}
 			psServerList.erase(it);
 			it = psServerList.begin();
 		}
@@ -1855,13 +1975,14 @@ static size_t threadId = 0;
 struct UdpServerlistData  {
 	CBytestream *bs;
 	int UdpServerIndex;
-	UdpServerlistData(CBytestream *b, int _UdpServerIndex) : bs(b), UdpServerIndex(_UdpServerIndex) {}
+	bool v4addrIncluded;
+	UdpServerlistData(CBytestream *b, int _UdpServerIndex, bool _v4addrIncluded) : bs(b), UdpServerIndex(_UdpServerIndex), v4addrIncluded(_v4addrIncluded) {}
 };
 
 void Menu_UpdateUDPListEventHandler(UdpServerlistData data)
 {
 	if (iNetMode == net_internet) // Only add them if the Internet tab is active
-		Menu_SvrList_ParseUdpServerlist(data.bs, data.UdpServerIndex);
+		Menu_SvrList_ParseUdpServerlist(data.bs, data.UdpServerIndex, data.v4addrIncluded);
 	delete data.bs;
 }
 
@@ -1892,26 +2013,28 @@ int Menu_SvrList_UpdaterThread(void *id)
 	for (std::list<std::string>::iterator it = tUdpMasterServers.begin(); it != tUdpMasterServers.end(); ++it, ++UdpServerIndex)  
 	{
 		std::string& server = *it;
-		NetworkAddr addr;
-		if (server.find(':') == std::string::npos)
+		NetworkAddr addr, addr6;
+		if (server.rfind(':') == std::string::npos)
 			server += ":23450";  // Default port
 
 		// Split to domain and port
-		std::string domain = server.substr(0, server.find(':'));
-		int port = atoi(server.substr(server.find(':') + 1));
+		std::string domain = server.substr(0, server.rfind(':'));
+		int port = atoi(server.substr(server.rfind(':') + 1));
 
 		// Resolve the address
-		if (!GetNetAddrFromNameAsync(domain, addr))
-			continue;
+		if( ! GetFromDnsCache( domain, addr, addr6 ) )
+		{
+			GetNetAddrFromNameAsync(domain);
+		}
 
 		AbsTime start = GetTime();
 		while (GetTime() - start <= 5.0f) {
 			SDL_Delay(40);
-			if(IsNetAddrValid(addr)) 
+			if( GetFromDnsCache( domain, addr, addr6 ) )
 				break;
 		}
 		
-		if( !IsNetAddrValid(addr) )
+		if( !IsNetAddrValid(addr) && !IsNetAddrValid(addr6) )
 		{
 			notes << "UDP masterserver failed: cannot resolve domain name " << domain << endl;
 			continue;
@@ -1919,45 +2042,59 @@ int Menu_SvrList_UpdaterThread(void *id)
 		
 		// Setup the socket
 		SetNetAddrPort(addr, port);
-		sock.setRemoteAddress(addr);
+		SetNetAddrPort(addr6, port);
 
-		// Send the getserverlist packet
-		CBytestream *bs = new CBytestream();
-		bs->writeInt(-1, 4);
-		bs->writeString("lx::getserverlist2");
-		if(!bs->Send(&sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
-		bs->Clear();
+		for (int af = 0; af < 2; af++, addr = addr6)
+		{
+			if (!IsNetAddrValid(addr))
+				continue;
 
-		//notes << "Sent getserverlist to " << server << endl;
+			sock.setRemoteAddress(addr);
 
-		// Wait for the reply
-		AbsTime timeoutTime = GetTime() + 5.0f;
-		bool firstPacket = true;
-		while( true ) {
+			// Send the getserverlist packet
+			CBytestream *bs = new CBytestream();
+			bs->writeInt(-1, 4);
+			bs->writeString(af ? "lx::getserverlist3" : "lx::getserverlist2");
+			if(!bs->Send(&sock))
+			{
+				delete bs;
+				warnings << "error while sending data to " << server << (af ? " over IPv6" : " over IPv4") << endl;
+				continue;
+			}
+			bs->Clear();
 
-			while (GetTime() <= timeoutTime)  {
-				SDL_Delay(40); // TODO: do it event based
+			//notes << "Sent getserverlist to " << server << endl;
 
-				// Got a reply?
-				if (bs->Read(&sock))  {
-					//notes << "Got a reply from " << server << endl;
+			// Wait for the reply
+			AbsTime timeoutTime = GetTime() + 5.0f;
+			bool firstPacket = true;
+			while( true ) {
+
+				while (GetTime() <= timeoutTime)  {
+					SDL_Delay(40); // TODO: do it event based
+
+					// Got a reply?
+					if (bs->Read(&sock))  {
+						//notes << "Got a reply from " << server << endl;
+						break;
+					}
+					
+					
+				}
+
+				// Parse the reply
+				std::string response;
+				if (bs->GetLength() && bs->readInt(4) == -1 && (response = bs->readString()).find("lx::serverlist") == 0) {
+					serverlistEvent.pushToMainQueue(UdpServerlistData(bs, UdpServerIndex, response == "lx::serverlist3"));
+					timeoutTime = GetTime() + 0.5f;	// Check for another packet
+					bs = new CBytestream(); // old bs pointer is in mainqueue now
+					firstPacket = false;
+				} else  {
+					if( firstPacket )
+						warnings << "Error getting serverlist from " << server << endl;
+					delete bs;
 					break;
 				}
-				
-				
-			}
-
-			// Parse the reply
-			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
-				serverlistEvent.pushToMainQueue(UdpServerlistData(bs, UdpServerIndex));
-				timeoutTime = GetTime() + 0.5f;	// Check for another packet
-				bs = new CBytestream(); // old bs pointer is in mainqueue now
-				firstPacket = false;
-			} else  {
-				if( firstPacket )
-					warnings << "Error getting serverlist from " << server << endl;
-				delete bs;
-				break;
 			}
 		}
 	}
@@ -1997,7 +2134,7 @@ void Menu_SvrList_UpdateUDPList()
 	tUpdateThreads[threadId] = thread;
 }
 
-void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
+void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex, bool v4AddressIncluded)
 {
 	// Look the the list and find which server returned the ping
 	int amount = bs->readByte();
@@ -2014,28 +2151,33 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 		int state = bs->readByte();
 		Version version = bs->readString(64);
 		bool allowConnectDuringGame = bs->readBool();
-		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
+		std::string v4address;
+		if( v4AddressIncluded )
+			v4address = bs->readString();
+		// UDP server info is updated once per 40 seconds, so if we have more recent entry - ignore it
 		server_t *svr = Menu_SvrList_FindServerStr(addr, name);
 		if( svr != NULL )
 		{
 			//hints << "Menu_SvrList_ParseUdpServerlist(): got duplicate " << name << " " << addr << " pong " << svr->bgotPong << " query " << svr->bgotQuery << endl;
-			if( svr->bgotPong )
+			if( svr->bgotPong && IsNetAddrValid(svr->sAddress) && IsNetAddrValid(svr->sAddress6) )
 				continue;
 			// It will merge existing server with new info
-			Menu_SvrList_AddServer(addr, false, name, UdpMasterserverIndex);
+			Menu_SvrList_AddServer(addr, false, name, UdpMasterserverIndex, v4address);
 			continue;
 		}
 
 		// In favourites/LAN only the user should add servers
 		if (iNetMode == net_internet)  {
-			svr = Menu_SvrList_AddServer( addr, false, name, UdpMasterserverIndex );
+			svr = Menu_SvrList_AddServer( addr, false, name, UdpMasterserverIndex, v4address );
 			svr->nNumPlayers = players;
 			svr->nMaxPlayers = maxplayers;
 			svr->nState = state;
 			svr->nPing = -2;
+			svr->nPing4 = svr->nPing6 = 9999;
 			svr->nQueries = 0;
 			svr->bgotPong = false;
 			svr->bgotQuery = false;
+			svr->bgotQuery6 = false;
 			svr->bProcessing = false;
 			svr->tVersion = version;
 			svr->bAllowConnectDuringGame = allowConnectDuringGame;

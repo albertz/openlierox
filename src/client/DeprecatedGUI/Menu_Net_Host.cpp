@@ -755,6 +755,11 @@ void Menu_Net_HostLobbyCreateGui()
 
 	iSpeaking = 0; // The first player always speaks
 	fStartDedicatedSecondsPassed = tLX->currentTime;	// Reset timers
+	cHostLobby.FocusWidget(hl_ChatText);
+#ifdef __ANDROID__
+	Menu_WarpMouse(cHostLobby.getWidget(hl_ChatText)->getX() + cHostLobby.getWidget(hl_ChatText)->getWidth() - 2,
+					cHostLobby.getWidget(hl_ChatText)->getY() + cHostLobby.getWidget(hl_ChatText)->getHeight() - 2);
+#endif
 }
 
 //////////////////////
@@ -1197,7 +1202,13 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			case hl_PopupMenu:
 				if (ev->iEventMsg >= MNU_USER) {
 					Menu_HostActionsPopupMenuClick(cHostLobby, hl_PopupMenu, hl_PopupPlayerInfo, g_nLobbyWorm, ev->iEventMsg);
-				} 
+				} else if (ev->iEventMsg == MNU_LOSTFOCUS) {
+					// If popup menu not focused, remove it
+					cHostLobby.SendMessage(hl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
+					cHostLobby.removeWidget(hl_PopupMenu);
+					cHostLobby.SendMessage(hl_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
+					cHostLobby.removeWidget(hl_PopupPlayerInfo);
+				}
 				break;
 
 			case hl_PopupPlayerInfo:

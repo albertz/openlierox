@@ -265,7 +265,7 @@ void CWormHumanInputHandler::getInput() {
 			}
 
 			// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
-			if ( ((cSelWeapon.isJoystick() && change == 0) || GetTouchscreenControlsShown()) && cSelWeapon.isDownOnce())  {
+			if (((cSelWeapon.isJoystick() && change == 0) || GetTouchscreenControlsShown()) && cSelWeapon.isDownOnce())  {
 				m_worm->iCurrentWeapon++;
 				MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
 			}
@@ -292,8 +292,15 @@ void CWormHumanInputHandler::getInput() {
 				// Cycle weapons by tapping Shoot button rapidly, but skip weapons with no ammo
 				int prevWeapon = m_worm->iCurrentWeapon;
 				while(true) {
-					m_worm->iCurrentWeapon++;
-					MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+					if (tLXOptions->bTouchscreenTapCycleWeaponsBackwards) {
+						m_worm->iCurrentWeapon--;
+						if (m_worm->iCurrentWeapon < 0) {
+							m_worm->iCurrentWeapon = m_worm->iNumWeaponSlots - 1;
+						}
+					} else {
+						m_worm->iCurrentWeapon++;
+						MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+					}
 					if (m_worm->iCurrentWeapon == prevWeapon)
 						break;
 					if (!m_worm->tWeapons[m_worm->iCurrentWeapon].Reloading && m_worm->tWeapons[m_worm->iCurrentWeapon].Enabled)
@@ -345,10 +352,7 @@ void CWormHumanInputHandler::getInput() {
 			}
 		}
 
-		const float carveDelay = 0.2f;
-
-		if (GetTouchscreenControlsShown() && cStrafe.isDown() && tLX->currentTime - m_worm->fLastCarve >= carveDelay) {
-			// Strafe also acts like dig button for touchscreen controls
+		if (cDig.isDownOnce()) {
 			ws->bCarve = true;
 			ws->bMove = true;
 			m_worm->fLastCarve = tLX->currentTime;
@@ -371,6 +375,11 @@ void CWormHumanInputHandler::getInput() {
 
 			if(m_worm->cNinjaRope.isReleased())
 				m_worm->cNinjaRope.Release();
+			else if(tLXOptions->bDigWithJumpButtonMidAir && !m_worm->CheckOnGround()) {
+				ws->bCarve = true;
+				ws->bMove = true;
+				m_worm->fLastCarve = tLX->currentTime;
+			}
 		}
 	}
 
@@ -415,18 +424,7 @@ void CWormHumanInputHandler::getInput() {
 	ws->iX = (int)m_worm->vPos.x;
 	ws->iY = (int)m_worm->vPos.y;
 
-
-	cUp.reset();
-	cDown.reset();
-	cLeft.reset();
-	cRight.reset();
-	cShoot.reset();
-	cJump.reset();
-	cSelWeapon.reset();
-	cInpRope.reset();
-	cStrafe.reset();
-	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
-		cWeapons[i].reset();
+	clearInput();
 }
 
 
@@ -443,6 +441,7 @@ void CWormHumanInputHandler::clearInput() {
 	cSelWeapon.reset();
 	cInpRope.reset();
 	cStrafe.reset();
+	cDig.reset();
 	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].reset();
 }
@@ -490,6 +489,7 @@ void CWormHumanInputHandler::setupInputs(const PlyControls& Inputs)
 	cInpRope.Setup(	Inputs[SIN_ROPE] );
 
 	cStrafe.Setup( Inputs[SIN_STRAFE] );
+	cDig.Setup( Inputs[SIN_DIG] );
 
 	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].Setup(Inputs[SIN_WEAPON1 + i]);
@@ -506,6 +506,7 @@ void CWormHumanInputHandler::initInputSystem() {
 	cSelWeapon.setResetEachFrame( false );
 	cInpRope.setResetEachFrame( false );
 	cStrafe.setResetEachFrame( false );
+	cDig.setResetEachFrame( false );
 	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].setResetEachFrame( false );
 }
@@ -520,6 +521,7 @@ void CWormHumanInputHandler::stopInputSystem() {
 	cSelWeapon.setResetEachFrame( true );
 	cInpRope.setResetEachFrame( true );
 	cStrafe.setResetEachFrame( true );
+	cDig.setResetEachFrame( true );
 	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].setResetEachFrame( true );
 }
@@ -722,7 +724,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	y -= 45;
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "jump/ninja: " + cJump.getEventName() + "/" + cInpRope.getEventName());
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "select weapon: " + cSelWeapon.getEventName());
-	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "strafe: " + cStrafe.getEventName());
+	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "strafe/dig: " + cStrafe.getEventName()+ "/" + cDig.getEventName());
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "quick select weapon: " + cWeapons[0].getEventName() + " " + cWeapons[1].getEventName() + " " + cWeapons[2].getEventName() + " " + cWeapons[3].getEventName() + " " + cWeapons[4].getEventName() );
 	
 	
