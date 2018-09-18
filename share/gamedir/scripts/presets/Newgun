@@ -18,7 +18,7 @@ weaponChoices = [
 		"Bazooka", "Bouncy Larpa", "Bouncy Mine", "Chaingun", "Explosives", "Flamer", "Gauss Gun", "Handgun", "Mini Nuke", "Mini Rockets", "Winchester", "Zimm",
 	],
 	[
-		"Big Nuke", "Blaster", "Crackler", "Float Mine", "Grasshopper", "Hellraider", "Mine", "RB Rampage", "Shotgun",
+		"Blaster", "Crackler", "Float Mine", "Grasshopper", "Hellraider", "Mine", "RB Rampage", "Shotgun",
 	],
 ]
 
