@@ -2,7 +2,7 @@
 
 import random
 
-global worms, io, controlHandler, wormDiedHandler, newWormHandler, gameStartedHandler, wormSpawnedHandler
+global worms, io, controlHandler, wormDiedHandler, newWormHandler, gameStartedHandler, wormSpawnedHandler, presetData
 
 setvar( "GameOptions.GameInfo.ModName", "Classic" )
 
@@ -28,6 +28,12 @@ weaponList = []
 for i in range(len(weaponChoices)):
 	weaponList.extend(random.sample(weaponChoices[i], 5))
 
+if not 'Newgun' in presetData:
+	presetData['Newgun'] = weaponList
+
+if 'Newgun' in presetData:
+	weaponList = presetData['Newgun']
+
 for wormid in worms.keys():
 	io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))
 
@@ -39,13 +45,14 @@ def getWeaponNewGun(newgunCount):
 		return weaponChoicesEndgame[newgunCount % len(weaponChoicesEndgame)]
 
 def gameStartedNewGun():
-	global worms, io, getWeaponNewGun
+	global worms, io, getWeaponNewGun, presetData, weaponList
+	presetData.pop('Newgun')
 	for wormid in worms.keys():
 		worms[wormid].newgunCount = 0
 		io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))
 
 def newWormNewGun(wormid, name):
-	global worms, io, getWeaponNewGun
+	global worms, io, getWeaponNewGun, weaponList
 	worms[wormid].newgunCount = 10 # Penalty for joining mid-game
 	weapon = getWeaponNewGun(worms[wormid].newgunCount)
 	io.privateMsg(wormid, "New guns: " + ", ".join(weaponList))

@@ -33,6 +33,8 @@ worms = {} # List of all worms on the server
 # Bots don't need to be itterated with the other ones.
 bots = {}  # Dictionary of all possible bots
 
+presetData = {}
+
 # Function that controls ded server behavior
 controlHandler = None
 
