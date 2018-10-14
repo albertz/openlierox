@@ -218,6 +218,10 @@ joystick_t Joysticks[] = {
 	{ "joy1_turnright",JOY_TURN_RIGHT,0, axis_Z},
 	{ "joy1_thr_up",JOY_THROTTLE_LEFT,0, axis_Throttle},
 	{ "joy1_thr_down",JOY_THROTTLE_RIGHT,0, axis_Throttle},
+  { "joy1_hat_up",   JOY_HAT_UP,0, axis_None},
+	{ "joy1_hat_down", JOY_HAT_DOWN,0, axis_None},
+	{ "joy1_hat_left", JOY_HAT_LEFT,0, axis_None},
+	{ "joy1_hat_right",JOY_HAT_RIGHT,0, axis_None},
 	{ "joy2_up",JOY_UP,0, axis_Y},
 	{ "joy2_down",JOY_DOWN,0, axis_Y},
 	{ "joy2_left",JOY_LEFT,0, axis_X},
@@ -238,6 +242,10 @@ joystick_t Joysticks[] = {
 	{ "joy2_turnright",JOY_TURN_RIGHT,0, axis_Z},
 	{ "joy2_thr_up",JOY_THROTTLE_LEFT,0, axis_Throttle},
 	{ "joy2_thr_down",JOY_THROTTLE_RIGHT,0, axis_Throttle},
+	{ "joy2_hat_up",   JOY_HAT_UP,0, axis_None},
+	{ "joy2_hat_down", JOY_HAT_DOWN,0, axis_None},
+	{ "joy2_hat_left", JOY_HAT_LEFT,0, axis_None},
+	{ "joy2_hat_right",JOY_HAT_RIGHT,0, axis_None},
 };
 
 static SDL_Joystick* joys[2] = {NULL, NULL};
@@ -255,8 +263,18 @@ void updateAxisStates()
 	}
 }
 
+static int hat(SDL_Joystick* joy, int hat, int neg, int pos) {
+  uint8_t v = SDL_JoystickGetHat(joy, hat);
+  if(v & neg)
+    return -32768;
+  if(v & pos)
+    return 32767
+  return 0;
+}
+
 static int getJoystickControlValue(int flag, int extra, SDL_Joystick* joy)
 {
+  //-32768 to 32767
 	switch(flag) {
 		case JOY_UP:
 			return SDL_JoystickGetAxis(joy, axis_Y);
@@ -276,6 +294,14 @@ static int getJoystickControlValue(int flag, int extra, SDL_Joystick* joy)
 			return SDL_JoystickGetAxis(joy, axis_Throttle);
 		case JOY_THROTTLE_RIGHT:
 			return SDL_JoystickGetAxis(joy, axis_Throttle);
+		case JOY_HAT_UP:
+			return hat(joy, extra, SDL_HAT_DOWN, SDL_HAT_UP);
+		case JOY_HAT_DOWN:
+			return hat(joy, extra, SDL_HAT_DOWN, SDL_HAT_UP);
+		case JOY_HAT_LEFT:
+			return hat(joy, extra, SDL_HAT_LEFT, SDL_HAT_RIGHT);
+		case JOY_HAT_RIGHT:
+			return hat(joy, extra, SDL_HAT_LEFT, SDL_HAT_RIGHT);
 
 		default:
 			warnings << "getJoystickValue: unknown flag" << endl;
