@@ -343,7 +343,7 @@ IF(BOOST_LINK_STATIC)
 	# and this on newer CMake (>=2.6?)
 	SET(LIBS ${LIBS} /usr/lib/x86_64-linux-gnu/libboost_signals.a /usr/lib/x86_64-linux-gnu/libboost_system.a)
 ELSE(BOOST_LINK_STATIC)
-	FIND_PACKAGE(Boost COMPONENTS signals system REQUIRED)
+	FIND_PACKAGE(Boost COMPONENTS system REQUIRED)
 	SET(LIBS ${LIBS} ${Boost_LIBRARIES})
 ENDIF(BOOST_LINK_STATIC)
 
