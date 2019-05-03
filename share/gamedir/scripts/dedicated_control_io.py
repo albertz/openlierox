@@ -69,7 +69,7 @@ def startLobby(port):
 def startGame():
 	msgs = SendCommand( "startgame" )
 	if len(msgs) > 0:
-		for m in msgs():
+		for m in msgs:
 			messageLog(m, LOG_ERROR)
 		return False
 	else:
