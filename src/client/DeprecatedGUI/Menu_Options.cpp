@@ -203,7 +203,7 @@ bool Menu_OptionsInitialize(bool floating)
 	cOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading),Static, 390, 150, 0,0);
 
 	int y = 190;
-	for( i=0; i < sizeof(InputNames) / sizeof(InputNames[0]); i++, y+=25) {
+	for( i=0; i < (int)(sizeof(InputNames) / sizeof(InputNames[0])); i++, y+=25) {
 		cOpt_Controls.Add( new CLabel(InputNames[i],tLX->clNormalLabel), Static, 40, y, 0,0);
 
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[0][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
