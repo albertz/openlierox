@@ -26,7 +26,6 @@ import dedicated_control_io as io # control handler
 GAME_LIVES = int(io.getVar("GameOptions.GameInfo.Lives"))
 GAME_MAX_KILLS = int(io.getVar("GameOptions.GameInfo.KillLimit"))
 GAME_MAX_TIME = float(io.getVar("GameOptions.GameInfo.TimeLimit"))
-WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTime"))
 
 # Note: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
 # pro-gamers perhaps want that.)

@@ -25,7 +25,6 @@ import dedicated_control_io as io # control handler
 GAME_LIVES = -2
 GAME_MAX_KILLS = 15
 GAME_MAX_TIME = 15
-WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTime"))
 
 # Note: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
 # pro-gamers perhaps want that.)
