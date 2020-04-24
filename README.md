@@ -12,11 +12,9 @@ Content of this file:
 * Report bugs / feature requests
 * Thank you
 
-
 ## Description
 
 It's some type of a real-time, excessive clone of Worms. Or like 2D Quake with worms and ninja ropes.
-
 
 ## About
 
@@ -24,24 +22,23 @@ OpenLieroX is based on Jason Boettcher's famous Liero Xtreme.
 
 Jason B. has released his work in 2006 under the zlib-licence and after some months of work, we ported and enhanced his work and got OpenLieroX.
 
-
 ## Compilation
 
 For more details, read here: <http://www.openlierox.net/wiki/index.php/Compile_OpenLieroX>
 
-### Linux/Unix:
+### Linux/Unix
 
 Use `CMake`, e.g.:
-	
-	cmake .
+
+    cmake .
 
 or:
 
-	cmake -DHAWKNL_BUILTIN=Yes .
+    cmake -DHAWKNL_BUILTIN=Yes .
 
 followed by:
 
-	make -j4
+    make -j4
 
 ### Mac OS X
 
@@ -50,7 +47,6 @@ Use the Xcode project under `build/Xcode`.
 ### Windows
 
 Use the MSVC project under `build/msvc 2010`.
-
 
 ## Game search paths
 
@@ -61,11 +57,9 @@ Own modified configs, screenshots and other stuff always will be stored in `~/.O
 
 More details: <http://www.openlierox.net/wiki/index.php/Virtual_File_System>
 
-
 ## Development
 
 If you are interested in the development, either in how we work, the work / source code itself or if you want to support us in any way, read here: <http://www.openlierox.net/wiki/index.php/Development>
-
 
 ## Report bugs / feature requests
 
@@ -79,14 +73,13 @@ For Linux/Unix, just call the game via console. You will get all the output ther
 
 For MacOSX, there are multiple ways.
 
-One way of getting the output (also from already running OLX or already exited OLX) is the tool `/Applications/Utilities/Console`. MacOSX saves the console output of every application and this tool can show them. Specify the filer "openlierox" and you will see all the output.
+One way of getting the output (also from already running OLX or already exited OLX) is the tool `/Applications/Utilities/Console`. MacOSX saves the console output of every application and this tool can show them. Specify the filter "openlierox" and you will see all the output.
 
-Another way is similar to Unix, just call it via console (e.g. with the `/Applications/Utilities/Terminal` application). E.g., if you installed OpenLieroX to /Applications, the full path to call it via console would be:
+Another way is similar to Unix, just call it via console (e.g. with the `/Applications/Utilities/Terminal` application). E.g., if you installed OpenLieroX to `/Applications`, the full path to call it via console would be:
 
-	/Applications/OpenLieroX.app/Contents/MacOS/OpenLieroX
+    /Applications/OpenLieroX.app/Contents/MacOS/OpenLieroX
 
-For Windows, there should be a file stdout.txt in the OpenLieroX directory containing all the output.
-
+For Windows, there should be a file `stdout.txt` in the OpenLieroX directory containing all the output.
 
 ## Thanks for all the fish
 
@@ -103,4 +96,3 @@ Look at the Homepage for further details.
 Thank you for enjoying it!
 
 -- The team: Dark Charlie, Albert Zeyer and the [RIP] clan
-
