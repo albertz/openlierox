@@ -38,7 +38,7 @@ or:
 
 followed by:
 
-    make -j4
+    make -j8
 
 ### Mac OS X
 
