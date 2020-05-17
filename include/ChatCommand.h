@@ -34,6 +34,7 @@ class ChatCommand { public:
 
 // Processing functions
 // These functions return error string (or blank string if no error)
+std::string ProcessAdminMsg(const std::vector<std::string>& params, int sender_id);
 std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_id);
 std::string ProcessKick(const std::vector<std::string>& params, int sender_id);
 std::string ProcessBan(const std::vector<std::string>& params, int sender_id);
