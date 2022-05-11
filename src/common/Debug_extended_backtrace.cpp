@@ -185,11 +185,11 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data __a
 	if (found)
 		return;
 
-	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
+	if ((bfd_section_flags(section) & SEC_ALLOC) == 0)
 		return;
 
-	bfd_vma vma = bfd_get_section_vma(abfd, section);
-	bfd_size_type size = bfd_section_size(abfd, section);
+	bfd_vma vma = bfd_section_vma(section);
+	bfd_size_type size = bfd_section_size(section);
 
 	if (pc < vma)
 		return;
