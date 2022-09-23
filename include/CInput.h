@@ -41,6 +41,10 @@
 #define		JOY_TURN_RIGHT		6
 #define		JOY_THROTTLE_LEFT	7
 #define		JOY_THROTTLE_RIGHT	8
+#define		JOY_HAT_UP				9
+#define		JOY_HAT_DOWN			10
+#define		JOY_HAT_LEFT			11
+#define		JOY_HAT_RIGHT			12
 
 struct KeyboardEvent;
 
