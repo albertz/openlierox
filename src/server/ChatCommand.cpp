@@ -37,6 +37,7 @@
 // Known commands
 ChatCommand tKnownCommands[] = {
 	/* command */	/* alias */	 /* MIN*//*MAX*/	/* repeat*/ /* processing function */
+	{"adminmsg",	"admmsg",   	1, (size_t)-1,	0,      	&ProcessAdminMsg},
 	{"authorise",	"authorize",	2, 2,			(size_t)-1,	&ProcessAuthorise},
 	{"kick",		"kick",			2, (size_t)-1,	(size_t)-1,	&ProcessKick},
 	{"ban",			"ban",			2, (size_t)-1,	(size_t)-1,	&ProcessBan},
@@ -214,6 +215,33 @@ std::string CheckIDParams(const std::vector<std::string>& params, ChatCommand::t
 	if (!ConvertID(params[1], id))
 		return "Invalid worm ID";
 
+	return "";
+}
+
+std::string ProcessAdminMsg(const std::vector<std::string>& params, int sender_id)
+{
+	// Param check
+	if (params.size() < GetCommand(&ProcessAdminMsg)->iMinParamCount)
+		return "Not enough parameters";
+
+	// Is the player authorized?
+	CServerConnection *sender = cServer->getClient(sender_id);
+	if (!sender || !sender->getRights()->Authorize)
+		return "You do not have enough privileges to send admin message.";
+
+	CWorm* senderWorm = game.wormsOfClient(sender)->tryGet();
+	std::string msg = senderWorm->getName()+": ";
+	std::vector<std::string>::const_iterator it = params.begin();
+	for (; it != params.end(); it++)  {
+		msg += *it;
+		msg += ' ';
+	}
+
+	// Send the message to clients
+	CServerConnection *client = cServer->getClients();
+	for (int i=0; i < MAX_CLIENTS; ++i, client++) {
+		client->getNetEngine()->SendText(msg, TXT_IMPORTANT);
+	}
 	return "";
 }
 
