@@ -75,15 +75,17 @@ already points at `ghcr.io/openlierox/openlierox-server:latest`, so
 The rest of this section describes building the image yourself from this source
 tree (needed if you change the code or config defaults).
 
-### Why Debian 11 (bullseye)?
+### Why Ubuntu 22.04 (jammy)?
 
-The control scripts are written in **Python 2**. Debian 11 "bullseye" is the last
-Debian release that still ships `python2.7` in its main repository — Debian 12 and
-Ubuntu 24.04 removed it (and Ubuntu 24.04's `t64` library rename breaks several of
-the runtime package names too). So the image is based on `debian:bullseye-slim`.
-The image is built in two stages: a build stage compiles the `-DDEDICATED_ONLY`
-binary, and a slim runtime stage ships only the binary, the game data, the shared
-libraries, and `python2.7`.
+The control scripts are written in **Python 2**. Ubuntu 22.04 "jammy" still
+packages `python2.7` in its universe repository (enabled by default in the
+base image) — Ubuntu 24.04 and Debian 12/13 dropped it. jammy is also in
+standard support until April 2027 (then Ubuntu Pro ESM covers it further),
+unlike Debian 11 "bullseye", which this image used until bullseye's own LTS
+ended and its mirrors stopped reliably serving packages. So the image is
+based on `ubuntu:22.04`. The image is built in two stages: a build stage
+compiles the `-DDEDICATED_ONLY` binary, and a slim runtime stage ships only
+the binary, the game data, the shared libraries, and `python2.7`.
 
 ### Quick start (docker compose)
 
