@@ -15,12 +15,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 # already 404 mid-archival). Pin to the snapshot.debian.org mirror line the
 # base image itself ships commented out in /etc/apt/sources.list, which
 # preserves the exact package set from that date. Snapshot Release files carry
-# a past Valid-Until, hence Check-Valid-Until=false.
+# a past Valid-Until, hence Check-Valid-Until=false. snapshot.debian.org is
+# also prone to transient 5xx errors under load, hence the retries.
 RUN sed -i \
         -e '/^deb http:\/\/deb\.debian\.org/s/^/# /' \
         -e '/^# deb http:\/\/snapshot\.debian\.org/s/^# //' \
         /etc/apt/sources.list \
-    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99snapshot
+    && printf 'Acquire::Check-Valid-Until "false";\nAcquire::Retries "5";\n' > /etc/apt/apt.conf.d/99snapshot
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
@@ -68,7 +69,7 @@ RUN sed -i \
         -e '/^deb http:\/\/deb\.debian\.org/s/^/# /' \
         -e '/^# deb http:\/\/snapshot\.debian\.org/s/^# //' \
         /etc/apt/sources.list \
-    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99snapshot
+    && printf 'Acquire::Check-Valid-Until "false";\nAcquire::Retries "5";\n' > /etc/apt/apt.conf.d/99snapshot
 RUN apt-get update && apt-get install -y --no-install-recommends \
         python2.7 \
         libbinutils \
