@@ -1,0 +1,48 @@
+name: Build Docker image
+
+on:
+  pull_request:
+  # Reusable: invoked by master-build.yaml on merges to master.
+  workflow_call:
+
+jobs:
+  build-docker:
+    name: Build dedicated-server Docker image
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Build image
+        run: docker build -f build/docker/Dockerfile -t openlierox-server .
+
+      # Everything below only runs on merges to master (workflow_call from
+      # master-build.yaml), never on pull requests: a PR build must not
+      # overwrite the published :latest tag.
+      - name: Determine version
+        if: github.event_name != 'pull_request'
+        id: version
+        run: echo "version=$(./get_version.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker tag openlierox-server ghcr.io/openlierox/openlierox-server:latest
+          docker tag openlierox-server "ghcr.io/openlierox/openlierox-server:${{ steps.version.outputs.version }}"
+
+      - name: Push image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push ghcr.io/openlierox/openlierox-server:latest
+          docker push "ghcr.io/openlierox/openlierox-server:${{ steps.version.outputs.version }}"
