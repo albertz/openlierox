@@ -10,12 +10,15 @@ automation scripts that cycle games, rotate maps/mods, and handle voting.
 > A ready-to-run image is published at
 > [`ghcr.io/openlierox/openlierox-server`](https://github.com/orgs/openlierox/packages/container/package/openlierox-server).
 
-## Why Debian 11 (bullseye)?
+## Why Ubuntu 22.04 (jammy)?
 
 The dedicated-server control scripts (`share/gamedir/scripts/dedicated_control*`)
-are written in **Python 2**. Debian 11 "bullseye" is the last Debian release that
-still ships `python2.7` in its main repository — Debian 12 and Ubuntu 24.04
-removed it. So the image uses `debian:bullseye-slim` as its base.
+are written in **Python 2**. Ubuntu 22.04 "jammy" still packages `python2.7` in
+its universe repository (enabled by default) — Ubuntu 24.04, Debian 12, and
+Debian 13 dropped it. jammy is also in standard support until April 2027
+(then Ubuntu Pro ESM), unlike Debian 11 "bullseye", which this image used
+until bullseye's own LTS ended and its mirrors stopped reliably serving
+packages. So the image uses `ubuntu:22.04` as its base.
 
 ## Quick start (docker compose)
 

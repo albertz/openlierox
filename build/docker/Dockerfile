@@ -1,26 +1,18 @@
-# OpenLieroX dedicated server — Debian 11 "bullseye"
+# OpenLieroX dedicated server — Ubuntu 22.04 "jammy"
 #
-# Why bullseye: the dedicated-server automation (share/gamedir/scripts/
+# Why jammy: the dedicated-server automation (share/gamedir/scripts/
 # dedicated_control*) is written in Python 2 and runs via a "#!/usr/bin/python"
-# shebang. Debian 11 is the last Debian release that still ships python2.7
-# (2.7.18) in its main repository; Debian 12 "bookworm" and Ubuntu 24.04 removed
-# it. bullseye also predates the t64 library-rename transition, so the runtime
-# package names below are the stable, classic ones.
+# shebang. jammy is the newest widely-used LTS release that still packages
+# python2.7 (in universe, enabled by default in the base image) — Ubuntu
+# 24.04 and Debian 12/13 dropped it. jammy is in standard support until
+# April 2027 (then Ubuntu Pro ESM), unlike Debian 11 "bullseye", which we
+# moved off of after its LTS ended and its mirrors stopped reliably serving
+# packages.
 
 # ---------- build stage ----------
-FROM debian:bullseye-slim AS build
+FROM ubuntu:22.04 AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
-# bullseye is EOL: deb.debian.org no longer reliably serves it (some packages
-# already 404 mid-archival). Pin to the snapshot.debian.org mirror line the
-# base image itself ships commented out in /etc/apt/sources.list, which
-# preserves the exact package set from that date. Snapshot Release files carry
-# a past Valid-Until, hence Check-Valid-Until=false.
-RUN sed -i \
-        -e '/^deb http:\/\/deb\.debian\.org/s/^/# /' \
-        -e '/^# deb http:\/\/snapshot\.debian\.org/s/^# //' \
-        /etc/apt/sources.list \
-    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99snapshot
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
@@ -60,15 +52,9 @@ RUN cmake -DDEDICATED_ONLY=Yes -DHAWKNL_BUILTIN=Yes -DOLX_DOWNLOAD_GAMECONTROLLE
     && make -j"$n"
 
 # ---------- runtime stage ----------
-FROM debian:bullseye-slim
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-# See the build stage above for why this pins to the snapshot mirror.
-RUN sed -i \
-        -e '/^deb http:\/\/deb\.debian\.org/s/^/# /' \
-        -e '/^# deb http:\/\/snapshot\.debian\.org/s/^# //' \
-        /etc/apt/sources.list \
-    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99snapshot
 RUN apt-get update && apt-get install -y --no-install-recommends \
         python2.7 \
         libbinutils \
@@ -83,7 +69,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libopenal1 \
         libalut0 \
         libvorbisfile3 \
-        libyaml-cpp0.6 \
+        libyaml-cpp0.7 \
     && ln -sf /usr/bin/python2.7 /usr/bin/python \
     && rm -rf /var/lib/apt/lists/*
 
