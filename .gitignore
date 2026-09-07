@@ -74,6 +74,7 @@ distrib
 # Android port build artefacts (clones, gradle/cmake intermediates)
 build/android/deps
 build/android/output/
+build/android/.gradle/
 *.claude
 
 __pycache__
