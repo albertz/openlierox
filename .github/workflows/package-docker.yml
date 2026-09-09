@@ -12,6 +12,15 @@ jobs:
   build-docker:
     name: Build dedicated-server Docker image
     runs-on: ubuntu-24.04
+    # packages: write is required to push to GHCR. Without it explicitly
+    # declared here, the GITHUB_TOKEN is issued without package-write scope
+    # for this workflow, and the push step fails with "denied: installation
+    # not allowed to Write organization package" even though this repo owns
+    # the image (see the run that failed:
+    # https://github.com/openlierox/openlierox/actions/runs/34408231098).
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout
