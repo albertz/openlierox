@@ -1,0 +1,12 @@
+# Unlike master, the OLX version on this branch comes from the committed
+# VERSION file (get_version.sh -> functions.sh), not git history, so .git
+# does not need to be in the build context.
+.git
+
+# Exclude in-source CMake build artifacts so a host build can't leak into /
+# poison the in-container build (the Dockerfile runs `cmake .`).
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+bin/
+*.o

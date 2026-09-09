@@ -1,0 +1,49 @@
+name: Build Docker image
+
+on:
+  pull_request:
+    branches:
+      - 0.58
+  push:
+    branches:
+      - 0.58
+
+jobs:
+  build-docker:
+    name: Build dedicated-server Docker image
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -f build/docker/Dockerfile -t openlierox-server .
+
+      # Only push on a merge to the 0.58 branch, never on a pull request.
+      #
+      # This publishes to the same image name as master
+      # (ghcr.io/openlierox/openlierox-server), just under this branch's own
+      # version tag (e.g. 0.58_rc5) — never :latest. 0.58 is the old, legacy
+      # version of the game, so it must never become what :latest resolves
+      # to; that tag is master's alone.
+      - name: Determine version
+        if: github.event_name != 'pull_request'
+        id: version
+        run: echo "version=$(./get_version.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag image
+        if: github.event_name != 'pull_request'
+        run: docker tag openlierox-server "ghcr.io/openlierox/openlierox-server:${{ steps.version.outputs.version }}"
+
+      - name: Push image
+        if: github.event_name != 'pull_request'
+        run: docker push "ghcr.io/openlierox/openlierox-server:${{ steps.version.outputs.version }}"

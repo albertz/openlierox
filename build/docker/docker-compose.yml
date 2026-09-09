@@ -1,0 +1,34 @@
+services:
+  openlierox-server:
+    # Pinned to this branch's version tag, deliberately not :latest: this
+    # image name is shared with master, whose newer builds own :latest.
+    # 0.58 is the old, legacy version of the game and must never be resolved
+    # to by that tag. Update this to the current version (./get_version.sh)
+    # when it changes.
+    image: ghcr.io/openlierox/openlierox-server:0.58_rc5
+    container_name: openlierox-server
+    restart: unless-stopped
+
+    # Bridge networking with a published port works everywhere, including
+    # hosts that don't support host networking (e.g. Docker Desktop on macOS).
+    # Clients connect to the host's IP directly; LAN auto-discovery via
+    # broadcast does not work through the bridge.
+    ports:
+      - "23400:23400/udp"
+
+    # Persist openlierox's runtime data (rankings, logs, generated config).
+    volumes:
+      - openlierox-data:/home/openlierox/.OpenLieroX
+
+    # Optional: load a different control config (no .py suffix, gamedir-relative).
+    # environment:
+    #   OLX_DED_CONFIG: cfg/dedicated_config_lx56
+
+    # Host networking binds OpenLieroX's UDP port directly on the host, which
+    # lets the in-game LAN server browser (UDP broadcast) discover this server
+    # automatically. It only works on Linux hosts. If you want it, comment out
+    # the "ports" mapping above and uncomment this instead:
+    # network_mode: host
+
+volumes:
+  openlierox-data:
