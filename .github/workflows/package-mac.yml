@@ -25,7 +25,6 @@ jobs:
             pkg-config \
             sdl2 \
             sdl2_image \
-            sdl2_mixer \
             libzip \
             gd \
             libvorbis \

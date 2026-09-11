@@ -384,7 +384,6 @@ ELSEIF(APPLE)
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(SDL2 REQUIRED sdl2)
 	pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
-	pkg_check_modules(SDL2_MIXER REQUIRED SDL2_mixer)
 	pkg_check_modules(LIBXML2 REQUIRED libxml-2.0)
 	pkg_check_modules(LIBZIP REQUIRED libzip)
 	pkg_check_modules(LIBGD REQUIRED gdlib)
@@ -395,7 +394,6 @@ ELSEIF(APPLE)
 	INCLUDE_DIRECTORIES(
 		${SDL2_INCLUDE_DIRS}
 		${SDL2_IMAGE_INCLUDE_DIRS}
-		${SDL2_MIXER_INCLUDE_DIRS}
 		${LIBXML2_INCLUDE_DIRS}
 		${LIBZIP_INCLUDE_DIRS}
 		${LIBGD_INCLUDE_DIRS}
@@ -406,7 +404,6 @@ ELSEIF(APPLE)
 	link_directories(
 		${SDL2_LIBRARY_DIRS}
 		${SDL2_IMAGE_LIBRARY_DIRS}
-		${SDL2_MIXER_LIBRARY_DIRS}
 		${LIBXML2_LIBRARY_DIRS}
 		${LIBZIP_LIBRARY_DIRS}
 		${LIBGD_LIBRARY_DIRS}
@@ -499,7 +496,7 @@ ELSEIF(WIN32)
 				version
 				pthread)
 ELSEIF(APPLE)
-	SET(LIBS ${LIBS} SDL2_mixer xml2 zip gd z)
+	SET(LIBS ${LIBS} xml2 zip gd z)
 ELSEIF(MINGW_CROSS_COMPILE)
 
 ELSE()
